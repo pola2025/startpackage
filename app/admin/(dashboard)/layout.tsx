@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
@@ -78,6 +78,24 @@ export default function AdminLayout({
   const { data: session, status } = useSession();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // 인증 및 권한 체크 (Middleware 대체)
+  useEffect(() => {
+    if (status === "loading") return;
+
+    // 인증되지 않은 경우 로그인 페이지로
+    if (status === "unauthenticated") {
+      router.replace("/admin/login");
+      return;
+    }
+
+    // 권한 체크: admin 권한이 없는 경우
+    const userRole = (session?.user as any)?.role;
+    if (session && !["super", "designer", "operator"].includes(userRole)) {
+      router.replace("/");
+      return;
+    }
+  }, [status, session, router]);
+
   const handleLogout = async () => {
     await signOut({ redirect: false });
     router.push("/admin/login");
@@ -92,8 +110,13 @@ export default function AdminLayout({
     );
   }
 
-  // Middleware에서 리다이렉트 처리하므로 여기서는 렌더링만
+  // 인증되지 않았거나 권한이 없는 경우
   if (status === "unauthenticated") {
+    return null;
+  }
+
+  const userRole = (session?.user as any)?.role;
+  if (session && !["super", "designer", "operator"].includes(userRole)) {
     return null;
   }
 
