@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 // DELETE: 스레드 삭제 (관리자)
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -15,7 +15,7 @@ export async function DELETE(
       return NextResponse.json({ error: "권한이 없습니다" }, { status: 403 });
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     // 스레드 존재 확인
     const thread = await prisma.communicationThread.findUnique({
