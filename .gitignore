@@ -46,6 +46,8 @@ prisma/dev.db-journal
 .env.development.local
 .env.test.local
 .env.production.local
+.env.vercel
+.env.production
 
 # API keys and secrets
 *.key

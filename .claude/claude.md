@@ -254,5 +254,74 @@ tileClassName={({ date }) => {
 
 ---
 
+## Next.js 15 동적 라우트 Params 타입 오류
+
+### ⚠️ 중요: Next.js 15 Breaking Change
+
+**문제:**
+Next.js 15에서 동적 라우트의 `params`가 동기 객체에서 **Promise로 변경**되었습니다.
+
+**증상:**
+```
+Type error: Route "app/api/.../[id]/route.ts" has an invalid "POST" export:
+  Type "{ params: { id: string; }; }" is not a valid type for the function's second argument.
+```
+
+### ❌ 잘못된 코드 (Next.js 14 스타일)
+
+```typescript
+export async function POST(
+  request: Request,
+  { params }: { params: { id: string } }  // ❌ 동기 객체
+) {
+  const workflowId = params.id;  // ❌ await 없음
+  // ...
+}
+```
+
+### ✅ 올바른 코드 (Next.js 15)
+
+```typescript
+export async function POST(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }  // ✅ Promise 타입
+) {
+  const { id: workflowId } = await params;  // ✅ await 필수
+  // ...
+}
+```
+
+### 적용 대상 파일
+
+동적 라우트를 사용하는 모든 API 파일:
+- `app/api/**/[id]/route.ts`
+- `app/api/**/[workflowId]/route.ts`
+- `app/api/**/[userId]/route.ts`
+- 기타 `[...]` 패턴을 사용하는 모든 라우트
+
+### 체크리스트
+
+새로운 동적 라우트 API를 작성할 때:
+- [ ] params 타입을 `Promise<{ ... }>` 로 선언
+- [ ] params 사용 시 반드시 `await` 사용
+- [ ] 구조 분해 할당으로 깔끔하게 추출: `const { id } = await params`
+- [ ] 기존 Next.js 14 코드는 모두 마이그레이션 필요
+
+### 자동 검색 방법
+
+기존 코드에서 수정이 필요한 파일 찾기:
+```bash
+# Windows PowerShell
+Get-ChildItem -Path "app/api" -Recurse -Include "*route.ts" | Select-String "params }: { params: {" -CaseSensitive
+```
+
+### 참고 자료
+
+- Next.js 15 공식 문서: https://nextjs.org/docs/app/building-your-application/upgrading/version-15
+- 마이그레이션 가이드: Params 섹션 참조
+
+---
+
 *작성일: 2025-10-25*
 *추천 라이브러리: react-calendar*
+*업데이트: 2025-10-25 (Next.js 15 params 타입 오류 추가)*

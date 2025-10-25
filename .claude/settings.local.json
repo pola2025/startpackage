@@ -29,7 +29,13 @@
       "Bash(Remove-Item -Path \"F:\\startpackage\\.claude\\calendar-troubleshooting.md\" -Force)",
       "Bash(del \"F:\\startpackage\\.claude\\calendar-troubleshooting.md\")",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(curl:*)",
+      "Bash(vercel domains:*)",
+      "Bash(vercel ls:*)",
+      "Bash(vercel logs:*)",
+      "Bash(vercel inspect:*)"
     ],
     "deny": [],
     "ask": []
