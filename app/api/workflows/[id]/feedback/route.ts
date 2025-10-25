@@ -56,9 +56,9 @@ export async function POST(
     // 텔레그램 알림 (관리자에게)
     try {
       const { sendTelegramMessage } = await import("@/lib/notification/telegramClient");
-      await sendTelegramMessage({
-        message: `📝 *시안 피드백 접수*\n\n*사용자:* ${workflow.user.이름} (${workflow.user.cohort?.name || "기수 미정"})\n*제작물:* ${workflow.type}\n*피드백:*\n${feedback}\n\n*시간:* ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`,
-      });
+      await sendTelegramMessage(
+        `📝 *시안 피드백 접수*\n\n*사용자:* ${workflow.user.이름} (${workflow.user.cohort?.name || "기수 미정"})\n*제작물:* ${workflow.type}\n*피드백:*\n${feedback}\n\n*시간:* ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`
+      );
     } catch (err) {
       console.error("텔레그램 알림 실패:", err);
     }
