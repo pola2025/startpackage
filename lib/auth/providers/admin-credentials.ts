@@ -17,8 +17,8 @@ export const adminCredentialsProvider = Credentials({
     }
 
     const admin = await authenticateAdmin(
-      credentials.email,
-      credentials.password
+      credentials.email as string,
+      credentials.password as string
     );
 
     return admin;

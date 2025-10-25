@@ -17,8 +17,8 @@ export const userCredentialsProvider = Credentials({
     }
 
     const user = await authenticateUser(
-      credentials.emailOrPhone,
-      credentials.password
+      credentials.emailOrPhone as string,
+      credentials.password as string
     );
 
     return user;
