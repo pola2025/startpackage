@@ -6,7 +6,7 @@ import { handleStateChange, handleOrderRequest } from "@/lib/notification/notifi
 // POST: 발주 요청
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -15,7 +15,7 @@ export async function POST(
     }
 
     const userId = (session.user as any).id;
-    const workflowId = params.id;
+    const { id: workflowId } = await params;
 
     // 워크플로우 확인
     const workflow = await prisma.workflow.findUnique({
