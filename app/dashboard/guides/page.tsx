@@ -71,7 +71,7 @@ export default function GuidesPage() {
             <CardContent className="space-y-4 text-gray-700">
               <div>
                 <h3 className="text-blue-600 font-semibold mb-2">1. 텔레그램 설치</h3>
-                <p className="text-gray-600">구글 플레이스토어에서 '텔레그램' 검색 후 설치</p>
+                <p className="text-gray-600">구글 플레이스토어에서 &apos;텔레그램&apos; 검색 후 설치</p>
               </div>
 
               <div>
@@ -81,8 +81,8 @@ export default function GuidesPage() {
                   <li>설정 클릭</li>
                   <li>개인 정보 및 보안 클릭</li>
                   <li>전화번호 클릭</li>
-                  <li>내 전화번호를 볼 수 있는 사람 - <span className="text-orange-600">'없음'</span> 체크</li>
-                  <li>내 번호로 나를 찾을 수 있는 사람 - <span className="text-orange-600">'내 연락처'</span> 체크</li>
+                  <li>내 전화번호를 볼 수 있는 사람 - <span className="text-orange-600">&apos;없음&apos;</span> 체크</li>
+                  <li>내 번호로 나를 찾을 수 있는 사람 - <span className="text-orange-600">&apos;내 연락처&apos;</span> 체크</li>
                 </ol>
               </div>
 
@@ -221,7 +221,7 @@ export default function GuidesPage() {
                   <li>사이트 선택</li>
                   <li>사이트관리자화면 / 대시보드 진입</li>
                   <li>사이트 바로가기 클릭</li>
-                  <li>메인페이지 - 접수폼 위에 '글쓰기' 클릭</li>
+                  <li>메인페이지 - 접수폼 위에 &apos;글쓰기&apos; 클릭</li>
                 </ol>
               </div>
 
@@ -294,23 +294,23 @@ export default function GuidesPage() {
                 <ol className="list-decimal list-inside space-y-2 text-gray-700">
                   <li>Meta 비즈니스 관리자(business.facebook.com) 접속</li>
                   <li>비즈니스 설정 클릭</li>
-                  <li>사용자 {'>'} 사람 메뉴 선택</li>
-                  <li>'추가' 버튼 클릭</li>
+                  <li>사용자 {&apos;&gt;&apos;} 사람 메뉴 선택</li>
+                  <li>&apos;추가&apos; 버튼 클릭</li>
                   <li>초대할 사람의 이메일 입력</li>
-                  <li>권한 수준: '관리자 액세스' 선택</li>
-                  <li>'다음' 클릭 후 초대 완료</li>
+                  <li>권한 수준: &apos;관리자 액세스&apos; 선택</li>
+                  <li>&apos;다음&apos; 클릭 후 초대 완료</li>
                 </ol>
               </div>
 
               <div>
                 <h3 className="text-blue-600 font-semibold mb-3">🔑 광고 계정 액세스 권한 부여</h3>
                 <ol className="list-decimal list-inside space-y-2 text-gray-700">
-                  <li>비즈니스 설정 {'>'} 계정 {'>'} 광고 계정 선택</li>
+                  <li>비즈니스 설정 {&apos;&gt;&apos;} 계정 {&apos;&gt;&apos;} 광고 계정 선택</li>
                   <li>해당 광고 계정 클릭</li>
-                  <li>'사람 추가' 클릭</li>
+                  <li>&apos;사람 추가&apos; 클릭</li>
                   <li>초대한 사람 선택</li>
-                  <li>역할: '광고 계정 관리' 선택</li>
-                  <li>'할당' 클릭</li>
+                  <li>역할: &apos;광고 계정 관리&apos; 선택</li>
+                  <li>&apos;할당&apos; 클릭</li>
                 </ol>
               </div>
 
@@ -361,7 +361,7 @@ export default function GuidesPage() {
                   <li>비밀번호 변경 선택</li>
                   <li>인스타 계정 선택</li>
                   <li>
-                    <span className="text-blue-600 font-medium">파란색 글자 "비밀번호를 잊으셨나요?"</span> 클릭
+                    <span className="text-blue-600 font-medium">파란색 글자 &quot;비밀번호를 잊으셨나요?&quot;</span> 클릭
                   </li>
                   <li>계정 비밀번호 재설정 후 로그인</li>
                   <li>
