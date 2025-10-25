@@ -69,9 +69,9 @@ export async function POST(request: Request) {
     // 관리자에게 텔레그램 알림
     try {
       const { sendTelegramMessage } = await import("@/lib/notification/telegramClient");
-      await sendTelegramMessage({
-        message: `🔔 *마케팅 지원 연장 신청*\n\n*신청자:* ${user.이름} (${user.email})\n*현재 종료일:* ${currentEndDate.toLocaleDateString("ko-KR")}\n*연장 종료일:* ${newEndDate.toLocaleDateString("ko-KR")}\n*요청 메시지:* ${requestMessage || "(없음)"}`,
-      });
+      await sendTelegramMessage(
+        `🔔 *마케팅 지원 연장 신청*\n\n*신청자:* ${user.이름} (${user.email})\n*현재 종료일:* ${currentEndDate.toLocaleDateString("ko-KR")}\n*연장 종료일:* ${newEndDate.toLocaleDateString("ko-KR")}\n*요청 메시지:* ${requestMessage || "(없음)"}`
+      );
     } catch (error) {
       console.error("텔레그램 알림 실패:", error);
     }
