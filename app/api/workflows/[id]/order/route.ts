@@ -86,11 +86,11 @@ export async function POST(
         });
 
         if (user) {
-          const { sendTelegramMessage } = await import("@/lib/notification/telegram");
+          const { sendTelegramMessage } = await import("@/lib/notification/telegramClient");
 
-          await sendTelegramMessage({
-            message: `🎉 *전체 발주 요청 완료*\n\n*${user.cohort?.name || "미지정"} ${user.이름}* 님의 모든 디자인 시안 발주 요청이 접수되었습니다.\n\n관리자 승인을 기다리고 있습니다.`,
-          });
+          await sendTelegramMessage(
+            `🎉 *전체 발주 요청 완료*\n\n*${user.cohort?.name || "미지정"} ${user.이름}* 님의 모든 디자인 시안 발주 요청이 접수되었습니다.\n\n관리자 승인을 기다리고 있습니다.`
+          );
         }
       }
     } catch (checkError) {
