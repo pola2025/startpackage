@@ -343,20 +343,15 @@ export default async function UserDashboard() {
                   icon: Globe
                 },
               ].map((item, idx) => {
-                const ItemWrapper = item.value ? "div" : Link;
-                const wrapperProps = item.value ? {} : { href: `/dashboard/submission?tab=${item.tab}` };
                 const Icon = item.icon;
+                const sharedClassName = `group relative flex items-center gap-4 p-4 rounded-xl bg-gradient-to-br ${
+                  item.value
+                    ? "from-green-50 to-emerald-50 border-2 border-green-200"
+                    : "from-gray-50 to-gray-100 border-2 border-gray-200 hover:from-blue-50 hover:to-indigo-50 hover:border-blue-300 cursor-pointer"
+                } transition-all duration-200 ${!item.value ? "hover:shadow-md" : ""}`;
 
-                return (
-                  <ItemWrapper
-                    key={idx}
-                    {...wrapperProps}
-                    className={`group relative flex items-center gap-4 p-4 rounded-xl bg-gradient-to-br ${
-                      item.value
-                        ? "from-green-50 to-emerald-50 border-2 border-green-200"
-                        : "from-gray-50 to-gray-100 border-2 border-gray-200 hover:from-blue-50 hover:to-indigo-50 hover:border-blue-300 cursor-pointer"
-                    } transition-all duration-200 ${!item.value ? "hover:shadow-md" : ""}`}
-                  >
+                const content = (
+                  <>
                     <div className={`flex items-center justify-center w-12 h-12 rounded-xl ${
                       item.value ? "bg-green-600" : "bg-gray-400 group-hover:bg-blue-600"
                     } transition-colors`}>
@@ -376,7 +371,17 @@ export default async function UserDashboard() {
                         </div>
                       )}
                     </div>
-                  </ItemWrapper>
+                  </>
+                );
+
+                return item.value ? (
+                  <div key={idx} className={sharedClassName}>
+                    {content}
+                  </div>
+                ) : (
+                  <Link key={idx} href={`/dashboard/submission?tab=${item.tab}`} className={sharedClassName}>
+                    {content}
+                  </Link>
                 );
               })}
             </div>
