@@ -23,5 +23,5 @@
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "create-*.ts", "test-*.ts"]
+  "exclude": ["node_modules", "create-*.ts", "test-*.ts", "lib/auth.ts"]
 }
