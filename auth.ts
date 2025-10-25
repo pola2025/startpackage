@@ -137,8 +137,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        session.user.role = token.role as any;
-        session.user.userType = token.userType as any; // ✅ 세션에 주입
+        session.user.role = token.role as "user" | "super" | "designer" | "operator";
+        session.user.userType = token.userType as "user" | "admin" | undefined;
         session.user.cohortId = token.cohortId as string | undefined;
       }
       return session;

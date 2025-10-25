@@ -1,21 +1,66 @@
 import { NextRequest, NextResponse } from "next/server";
 import { hash } from "bcryptjs";
+import { z } from "zod";
 import prisma from "@/lib/prisma";
 import { signIn } from "@/auth";
 import { notifyAdmin } from "@/lib/notification/telegramClient";
 
+// 회원가입 유효성 검증 스키마
+const signupSchema = z.object({
+  이름: z
+    .string()
+    .min(2, "이름은 최소 2자 이상이어야 합니다.")
+    .max(50, "이름은 최대 50자까지 입력 가능합니다.")
+    .regex(/^[가-힣a-zA-Z\s]+$/, "이름은 한글 또는 영문만 입력 가능합니다."),
+
+  연락처: z
+    .string()
+    .regex(
+      /^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$/,
+      "올바른 전화번호 형식이 아닙니다. (예: 010-1234-5678)"
+    ),
+
+  이메일: z
+    .string()
+    .email("올바른 이메일 형식이 아닙니다.")
+    .toLowerCase()
+    .trim(),
+
+  password: z
+    .string()
+    .min(8, "비밀번호는 최소 8자 이상이어야 합니다.")
+    .max(100, "비밀번호는 최대 100자까지 입력 가능합니다.")
+    .regex(
+      /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]/,
+      "비밀번호는 영문자와 숫자를 포함해야 합니다."
+    ),
+
+  cohortId: z.string().uuid("유효하지 않은 기수 ID입니다."),
+});
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { 이름, 연락처, 이메일, password, cohortId } = body;
 
-    // 유효성 검사
-    if (!이름 || !연락처 || !이메일 || !password || !cohortId) {
+    // Zod 스키마로 입력값 검증
+    const validationResult = signupSchema.safeParse(body);
+
+    if (!validationResult.success) {
+      const errors = validationResult.error.errors.map((err) => ({
+        field: err.path.join("."),
+        message: err.message,
+      }));
+
       return NextResponse.json(
-        { error: "모든 항목을 입력해주세요." },
+        {
+          error: "입력값이 유효하지 않습니다.",
+          details: errors,
+        },
         { status: 400 }
       );
     }
+
+    const { 이름, 연락처, 이메일, password, cohortId } = validationResult.data;
 
     // 이메일 중복 확인
     const existingUser = await prisma.user.findUnique({
@@ -100,7 +145,7 @@ export async function POST(request: NextRequest) {
         이름: user.이름,
       },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("회원가입 에러:", error);
     return NextResponse.json(
       { error: "가입 중 오류가 발생했습니다." },

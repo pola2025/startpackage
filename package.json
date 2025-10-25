@@ -27,6 +27,7 @@
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-tabs": "^1.1.13",
+    "@sentry/nextjs": "^10.22.0",
     "@slack/web-api": "^7.11.0",
     "@slack/webhook": "^7.0.6",
     "@tanstack/react-query": "^5.62.3",
@@ -37,6 +38,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "file-type": "^21.0.0",
     "lucide-react": "^0.469.0",
     "next": "^15.0.3",
     "next-auth": "^5.0.0-beta.25",
@@ -51,7 +53,7 @@
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
     "tsx": "^4.20.6",
-    "zod": "^3.23.8",
+    "zod": "^3.25.76",
     "zustand": "^5.0.2"
   },
   "devDependencies": {

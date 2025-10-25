@@ -89,8 +89,8 @@ export default function AdminLayout({
     }
 
     // 권한 체크: admin 권한이 없는 경우
-    const userRole = (session?.user as any)?.role;
-    if (session && !["super", "designer", "operator"].includes(userRole)) {
+    const userRole = session?.user?.role;
+    if (session && userRole && !["super", "designer", "operator"].includes(userRole)) {
       router.replace("/");
       return;
     }
@@ -115,8 +115,8 @@ export default function AdminLayout({
     return null;
   }
 
-  const userRole = (session?.user as any)?.role;
-  if (session && !["super", "designer", "operator"].includes(userRole)) {
+  const userRole = session?.user?.role;
+  if (session && userRole && !["super", "designer", "operator"].includes(userRole)) {
     return null;
   }
 
