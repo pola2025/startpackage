@@ -226,9 +226,9 @@ export async function POST(request: Request) {
 
           // 텔레그램 알림 발송
           const { sendTelegramMessage } = await import("@/lib/notification/telegramClient");
-          await sendTelegramMessage({
-            message: `📤 *파일 업로드*\n\n*사용자:* ${user.이름 || user.email}\n*파일:* ${label}\n*시간:* ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`,
-          }).catch(err => console.error("텔레그램 알림 실패:", err));
+          await sendTelegramMessage(
+            `📤 *파일 업로드*\n\n*사용자:* ${user.이름 || user.email}\n*파일:* ${label}\n*시간:* ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`
+          ).catch(err => console.error("텔레그램 알림 실패:", err));
         }
       }
 
