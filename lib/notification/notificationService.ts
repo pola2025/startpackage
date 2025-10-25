@@ -113,7 +113,7 @@ export async function handleStateChange(params: {
       return;
     }
 
-    const userName = user.name || "사용자";
+    const userName = user.이름 || "사용자";
     const slackChannelId = user.slackChannelId;
 
     // 슬랙에 상태 변경 로그
@@ -224,7 +224,7 @@ export async function handleDesignUpload(params: {
       return;
     }
 
-    const userName = user.name || "사용자";
+    const userName = user.이름 || "사용자";
     const slackChannelId = user.slackChannelId;
 
     // 슬랙에 시안 업로드 로그만 기록 (사용자 알림은 관리자가 SMS 버튼으로 수동 발송)
@@ -269,7 +269,7 @@ export async function handleOrderRequest(params: {
     }
 
     const cohortName = user.cohort?.name || "기수 미지정";
-    const userName = user.name || "사용자";
+    const userName = user.이름 || "사용자";
     const brandName = user.submission?.브랜드명 || "브랜드 미지정";
     const slackChannelId = user.slackChannelId;
 
@@ -317,7 +317,7 @@ export async function handleProductionComplete(params: {
       return;
     }
 
-    const userName = user.name || "사용자";
+    const userName = user.이름 || "사용자";
     const slackChannelId = user.slackChannelId;
 
     // 슬랙에 제작 완료 로그
