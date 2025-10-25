@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -12,7 +12,7 @@ export async function POST(
       return NextResponse.json({ error: "인증이 필요합니다." }, { status: 401 });
     }
 
-    const workflowId = params.id;
+    const { id: workflowId } = await params;
     const userId = session.user.id;
 
     // 워크플로우 조회

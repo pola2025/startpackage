@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 // POST: 시안 피드백 제출
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -14,7 +14,7 @@ export async function POST(
     }
 
     const userId = (session.user as any).id;
-    const workflowId = params.id;
+    const { id: workflowId } = await params;
     const { feedback } = await request.json();
 
     if (!feedback || feedback.trim() === "") {
