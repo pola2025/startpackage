@@ -502,7 +502,6 @@ export default function AdminCommunicationPage() {
                           selected={expectedDate}
                           onSelect={setExpectedDate}
                           disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                          initialFocus
                         />
                       </PopoverContent>
                     </Popover>
