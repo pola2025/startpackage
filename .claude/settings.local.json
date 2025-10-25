@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/flame/**)",
+      "Bash(test:*)",
+      "Bash(cat:*)",
+      "Bash(npm install)",
+      "Bash(npx prisma generate:*)",
+      "Bash(npx shadcn@latest add:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npx tsx:*)",
+      "Bash(npm install:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(Stop-Process -Id 29136 -Force)",
+      "Bash(npx prisma db push:*)",
+      "Bash(dir:*)",
+      "Bash(taskkill:*)",
+      "Bash(Stop-Process -Id 23808 -Force)",
+      "Bash(if exist .next rmdir /s /q .next)",
+      "Bash(Stop-Process -Id 5480 -Force)",
+      "Bash(npx kill-port 3005)",
+      "Bash(npx prisma studio)",
+      "Bash(Remove-Item -Path \"F:\\startpackage\\app\\(admin)\\layout.tsx\" -Force)",
+      "Bash(chmod:*)",
+      "Bash(node test-login.js:*)",
+      "Bash(npx prisma migrate dev:*)",
+      "Bash(Stop-Process -Id 22072 -Force)",
+      "Bash(Remove-Item -Path \"F:\\startpackage\\.claude\\calendar-troubleshooting.md\" -Force)",
+      "Bash(del \"F:\\startpackage\\.claude\\calendar-troubleshooting.md\")",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

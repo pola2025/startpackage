@@ -1,0 +1,21 @@
+# 스타트패키지 시스템 - 검색 엔진 차단
+# 링크로만 접근 가능하도록 설정
+
+User-agent: *
+Disallow: /
+
+# 모든 검색 엔진 봇 차단
+User-agent: Googlebot
+Disallow: /
+
+User-agent: Bingbot
+Disallow: /
+
+User-agent: Yandex
+Disallow: /
+
+User-agent: Baiduspider
+Disallow: /
+
+# Sitemap 제공 안함
+# Sitemap: 없음

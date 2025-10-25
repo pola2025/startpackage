@@ -1,0 +1,499 @@
+// 스타트패키지 데이터베이스 스키마
+// Next.js + Prisma + PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// 1. 기수 관리
+// ============================================
+
+model Cohort {
+  id   String @id @default(cuid())
+  name String // "1기", "2기", "19기"
+  englishName String? // 영문명 (슬랙 채널명 등에 사용, 예: "1st", "2nd", "19th")
+
+  // 교육 일정
+  교육시작일        DateTime
+  교육요일          String   // "월", "화", "수", "목", "금"
+  자료제출마감일    DateTime
+
+  // 상태
+  isActive Boolean @default(true)
+
+  // 관계
+  users User[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive])
+  @@index([자료제출마감일])
+  @@map("cohorts")
+}
+
+// ============================================
+// 2. 사용자
+// ============================================
+
+model User {
+  id       String @id @default(cuid())
+  email    String @unique
+  password String // bcrypt 해시
+
+  // 기본 정보
+  이름 String
+  englishName String? // 영문 이름 (슬랙 채널명 등에 사용)
+  연락처 String
+
+  // 기수
+  cohortId String
+  cohort   Cohort @relation(fields: [cohortId], references: [id])
+
+  // 알림 수신 동의
+  SMS수신동의    Boolean @default(false)
+  이메일수신동의 Boolean @default(false)
+
+  // 공지사항 이메일 수신 설정
+  공지사항이메일수신 Boolean @default(true)
+
+  // 역할
+  role String @default("user") // "user" | "admin"
+
+  // 알림 채널 ID
+  slackChannelId   String? // 슬랙 채널 ID (기수명_이름_브랜드명)
+  telegramChatId   String? // 텔레그램 채팅 ID
+
+  // 마케팅 지원 기간 (3개월 단위)
+  marketingSupportEnabled   Boolean   @default(false) // 활성화 여부
+  marketingSupportStartDate DateTime? // 시작일
+  marketingSupportEndDate   DateTime? // 종료일
+
+  // 관계
+  submission                Submission?
+  workflows                 Workflow[]
+  notifications             Notification[]
+  marketingExtensionRequests MarketingExtensionRequest[]
+  communicationThreads      CommunicationThread[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([cohortId])
+  @@index([email])
+  @@map("users")
+}
+
+// ============================================
+// 3. 자료 제출
+// ============================================
+
+model Submission {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // === 필수 제출 항목 ===
+
+  // 인쇄물
+  사업자등록증URL String?
+  프로필사진URL   String?
+
+  // 브랜드 정보
+  브랜드명 String?
+  brandNameEnglish String? // 브랜드 영문명 (슬랙 채널명 등에 사용)
+  업종     String?
+  주소     String?
+
+  // 마케팅
+  메타광고관리자값 String?
+  네이버검색광고ID String?
+  InstagramID     String?
+  InstagramPW     String?
+
+  // 홈페이지
+  홈페이지스타일   String? // "기본스타일" | URL (템플릿 링크)
+  홈페이지컬러컨셉 String? // 16진수 색상값
+
+  // === 추가 정보 ===
+
+  대표번호 String?
+  이메일   String? // 명함에 들어갈 이메일 (user.email과 다를 수 있음)
+
+  // 로고
+  로고URL      String?
+  로고선호스타일 String?
+  로고선호색상   String?
+  로고선호폰트   String?
+
+  // 명함
+  명함색상 String?
+  명함시안 String?
+
+  // 계좌 정보
+  은행명   String?
+  계좌번호 String?
+
+  // SMS 발신 등록용 서류
+  대표자생년월일          String?
+  대표자신분증URL        String?
+  통신서비스이용증명원URL String?
+  신용카드앞면URL        String?
+  로고예시디자인URL      String?
+
+  // 배송 정보
+  인쇄물받을주소 String?
+
+  // === 제출 상태 ===
+  isComplete  Boolean   @default(false)
+  completedAt DateTime?
+  시안예정일   DateTime? // 시안 전달 예정일 (평일 기준 3일)
+
+  // 진행 상태 추적
+  submissionStatus String @default("작성중") // "작성중" | "검토중" | "보완필요" | "완료"
+  progressPercentage Int @default(0) // 0-100
+
+  // 자동저장 메타데이터
+  lastAutoSaveAt DateTime?
+  autoSaveData   Json? // 임시 저장 데이터
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("submissions")
+}
+
+// ============================================
+// 4. 워크플로우 (인쇄물별 진행 상태)
+// ============================================
+
+model Workflow {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // 인쇄물 종류
+  type String // "명함", "명찰", "대봉투", "자문계약서"
+
+  // 상태
+  status String @default("대기") // "대기" | "시안중" | "발주대기" | "발주요청" | "발주완료" | "제작완료" | "발송완료"
+
+  // === 📅 날짜 추적 ===
+  자료제출일   DateTime?
+  시안업로드일 DateTime?
+  발주요청일   DateTime?
+  발주승인일   DateTime?
+  예상발주일   DateTime?
+  예상도착일   String? // "YYYY-MM-DD" 또는 "YYYY-MM-DD ~ YYYY-MM-DD" 형식
+  제작완료일   DateTime?
+  발송일       DateTime?
+
+  // === 파일 ===
+  시안URL String?
+
+  // === 📦 택배 정보 (인쇄물별로 다름) ===
+  택배회사   String?
+  운송장번호 String?
+
+  // === 수정 이력 ===
+  수정횟수 Int @default(0)
+  시안이력 Json? // [{ version: 1, url: "...", uploadedAt: "2024-01-01T00:00:00Z", uploadedBy: "admin" }]
+
+  // === 피드백 ===
+  feedback     String? @db.Text // 사용자 피드백 (수정 요청사항)
+  feedbackDate DateTime? // 피드백 작성 시간
+  feedbackRead Boolean @default(false) // 관리자 피드백 확인 여부
+
+  // 관계
+  logs WorkflowLog[]
+  designHistory DesignHistory[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, type])
+  @@index([userId])
+  @@index([type])
+  @@index([status])
+  @@map("workflows")
+}
+
+// ============================================
+// 5. 워크플로우 변경 로그
+// ============================================
+
+model WorkflowLog {
+  id         String   @id @default(cuid())
+  workflowId String
+  workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  // 작업 내용
+  action String // "시안업로드" | "발주승인" | "택배발송" | "상태변경"
+
+  // 누가 작업했는지
+  performedBy     String? // User ID 또는 Admin ID
+  performedByName String? // 이름
+
+  // 상태 변경
+  previousStatus String?
+  newStatus      String
+
+  // 추가 정보 (JSON)
+  metadata Json? // { fileName: "명함_시안.pdf", 택배회사: "CJ대한통운" }
+
+  createdAt DateTime @default(now())
+
+  @@index([workflowId])
+  @@index([createdAt])
+  @@map("workflow_logs")
+}
+
+// ============================================
+// 5-1. 시안 업로드 이력
+// ============================================
+
+model DesignHistory {
+  id         String   @id @default(cuid())
+  workflowId String
+  workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  version    Int      // 1차시안, 2차시안, 3차시안...
+  fileUrl    String   // 파일 경로
+  uploadedBy String   // 업로드한 관리자 ID
+  uploadedByName String // 업로드한 관리자 이름
+
+  createdAt DateTime @default(now())
+
+  @@index([workflowId])
+  @@index([createdAt])
+  @@map("design_history")
+}
+
+// ============================================
+// 6. 알림 (SMS/이메일)
+// ============================================
+
+model Notification {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // 알림 정보
+  type    String      // "회원가입완료" | "2주차미제출알림" | "마감7일전" | "마감3일전" | "마감1일전" | "시안완료" | "발주완료" | "제작완료" | "발송완료" | "수동발송"
+  channel String      // "SMS" | "EMAIL"
+  title   String
+  message String      @db.Text
+
+  // 발송 결과
+  status       String  @default("전송중") // "전송중" | "성공" | "실패"
+  errorMessage String? @db.Text
+
+  // 수동 발송 시
+  sentBy       String? // Admin ID
+  sentByName   String?
+
+  // 메타데이터
+  metadata Json? // 추가 정보
+
+  sentAt    DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([type])
+  @@index([channel])
+  @@index([status])
+  @@index([sentAt])
+  @@map("notifications")
+}
+
+// ============================================
+// 7. 관리자
+// ============================================
+
+model Admin {
+  id       String @id @default(cuid())
+  email    String @unique
+  password String // bcrypt 해시
+  name     String
+
+  // 권한
+  role String @default("operator") // "super" | "designer" | "operator"
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("admins")
+}
+
+// ============================================
+// 8. 관리자 가입 신청
+// ============================================
+
+model AdminRequest {
+  id       String @id @default(cuid())
+  email    String @unique
+  password String // bcrypt 해시 (승인 시 Admin 테이블로 이동)
+  name     String
+  phone    String // 전화번호
+
+  // 신청 상태
+  status String @default("pending") // "pending" | "approved" | "rejected"
+
+  // 승인/거부 정보
+  reviewedBy   String? // 승인/거부한 관리자 ID
+  reviewedAt   DateTime?
+  rejectReason String? // 거부 사유
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([email])
+  @@map("admin_requests")
+}
+
+// ============================================
+// 8. 시스템 설정
+// ============================================
+
+model Setting {
+  id          String  @id @default(cuid())
+  key         String  @unique
+  value       String  @db.Text
+  description String?
+
+  updatedAt DateTime @updatedAt
+
+  @@map("settings")
+}
+
+// 예시 설정값:
+// { key: "수정최대횟수", value: "2" }
+// { key: "추가수정비용", value: "10000" }
+// { key: "택배회사목록", value: '["CJ대한통운", "우체국택배", "한진택배", "로젠택배"]' }
+
+// ============================================
+// 9. 마케팅 지원 연장 신청
+// ============================================
+
+model MarketingExtensionRequest {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // 신청 정보
+  requestDate    DateTime @default(now()) // 신청일
+  currentEndDate DateTime // 현재 종료일
+  newEndDate     DateTime // 새로운 종료일 (현재 종료일 + 3개월)
+  requestMessage String?  @db.Text // 요청 메시지
+
+  // 신청 상태
+  status String @default("pending") // "pending" | "approved" | "rejected"
+
+  // 승인/거부 정보
+  reviewedBy     String? // 승인/거부한 관리자 ID
+  reviewedAt     DateTime? // 승인/거부 시간
+  adminResponse  String?  @db.Text // 관리자 응답 메시지
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([requestDate])
+  @@map("marketing_extension_requests")
+}
+
+// ============================================
+// 커뮤니케이션 (1:N 대화형)
+// ============================================
+
+// 커뮤니케이션 스레드 (요청)
+model CommunicationThread {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // 요청 정보
+  title      String // 제목
+  category   String @default("일반") // "홈페이지" | "로고" | "인쇄물" | "일반"
+  status     String @default("open") // "open" | "in_progress" | "resolved"
+
+  // 완료 예상 일정
+  expectedCompletionDate DateTime?
+
+  // 정렬용 (최신 답글 시간)
+  lastReplyAt DateTime @default(now())
+
+  // 관계
+  messages CommunicationMessage[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([lastReplyAt])
+  @@map("communication_threads")
+}
+
+// 커뮤니케이션 메시지 (답글)
+model CommunicationMessage {
+  id       String              @id @default(cuid())
+  threadId String
+  thread   CommunicationThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  // 작성자 정보
+  authorId   String // User ID 또는 Admin ID
+  authorType String // "user" | "admin"
+  authorName String // 작성자 이름
+
+  // 내용
+  content     String   @db.Text
+  attachments String[] // 첨부파일 URL 배열
+
+  // 완료 예상일 (관리자 답변 시)
+  expectedCompletionDate DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([threadId])
+  @@index([createdAt])
+  @@map("communication_messages")
+}
+
+// ============================================
+// 공지사항 / 마케팅 소식
+// ============================================
+
+model Announcement {
+  id String @id @default(cuid())
+
+  // 작성자 (관리자)
+  authorId   String
+  authorName String
+
+  // 내용
+  title   String
+  content String @db.Text
+
+  // 미디어
+  imageUrl   String? // 게시글 대표 이미지
+  youtubeUrl String? // 유튜브 영상 링크
+
+  // 발행 상태
+  published Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([published])
+  @@index([createdAt])
+  @@map("announcements")
+}

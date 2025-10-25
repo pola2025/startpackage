@@ -1,0 +1,118 @@
+"use client";
+
+import { Progress } from "./progress";
+import { CheckCircle2, Circle, AlertCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+interface SubmissionProgressProps {
+  percentage: number;
+  status: "작성중" | "검토중" | "보완필요" | "완료";
+  requiredFields: {
+    label: string;
+    completed: boolean;
+  }[];
+}
+
+export function SubmissionProgress({
+  percentage,
+  status,
+  requiredFields,
+}: SubmissionProgressProps) {
+  const statusConfig = {
+    작성중: {
+      color: "text-yellow-700",
+      bgColor: "bg-yellow-50",
+      borderColor: "border-yellow-200",
+      icon: Circle,
+      label: "작성 중",
+    },
+    검토중: {
+      color: "text-blue-700",
+      bgColor: "bg-blue-50",
+      borderColor: "border-blue-200",
+      icon: Circle,
+      label: "검토 중",
+    },
+    보완필요: {
+      color: "text-orange-700",
+      bgColor: "bg-orange-50",
+      borderColor: "border-orange-200",
+      icon: AlertCircle,
+      label: "보완 필요",
+    },
+    완료: {
+      color: "text-green-700",
+      bgColor: "bg-green-50",
+      borderColor: "border-green-200",
+      icon: CheckCircle2,
+      label: "제출 완료",
+    },
+  };
+
+  const config = statusConfig[status];
+  const StatusIcon = config.icon;
+  const completedCount = requiredFields.filter((f) => f.completed).length;
+  const totalCount = requiredFields.length;
+
+  return (
+    <div className="space-y-4 w-full">
+      {/* Status Badge */}
+      <div
+        className={cn(
+          "inline-flex items-center gap-2 px-4 py-2 rounded-full border-2",
+          config.bgColor,
+          config.borderColor
+        )}
+      >
+        <StatusIcon className={cn("w-5 h-5", config.color)} />
+        <span className={cn("text-sm font-bold", config.color)}>
+          {config.label}
+        </span>
+      </div>
+
+      {/* Progress Bar */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between text-sm">
+          <span className="font-semibold text-gray-900">전체 진행률</span>
+          <span className="font-bold text-blue-600">{percentage}%</span>
+        </div>
+        <Progress value={percentage} className="h-3" />
+        <p className="text-xs text-gray-500">
+          {completedCount}/{totalCount} 항목 완료
+        </p>
+      </div>
+
+      {/* Required Fields Checklist - Mobile Optimized */}
+      <div className="space-y-2">
+        <h3 className="text-sm font-semibold text-gray-900">필수 제출 항목</h3>
+        <div className="grid grid-cols-1 gap-2">
+          {requiredFields.map((field, index) => (
+            <div
+              key={index}
+              className={cn(
+                "flex items-center gap-3 p-3 rounded-lg border-2 transition-all",
+                field.completed
+                  ? "bg-green-50 border-green-200"
+                  : "bg-white border-gray-200 animate-pulse"
+              )}
+            >
+              {field.completed ? (
+                <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />
+              ) : (
+                <Circle className="w-5 h-5 text-gray-400 flex-shrink-0" />
+              )}
+              <span
+                className={cn(
+                  "text-sm font-medium",
+                  field.completed ? "text-green-900" : "text-gray-700"
+                )}
+              >
+                {field.label}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}

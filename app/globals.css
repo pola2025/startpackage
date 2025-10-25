@@ -1,0 +1,327 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Professional Government Office Design System */
+    --background: 210 20% 98%; /* #f7f9fc - 매우 연한 블루그레이 */
+    --foreground: 215 25% 27%; /* #344054 - 진한 블루그레이 텍스트 (가독성 최고) */
+
+    --card: 0 0% 100%; /* #ffffff - 순백 카드 */
+    --card-foreground: 215 25% 27%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 27%;
+
+    --primary: 217 91% 50%; /* #1570EF - 신뢰감 있는 블루 (정부 표준) */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 20% 96%; /* #f2f4f7 - 아주 연한 블루그레이 */
+    --secondary-foreground: 215 25% 27%;
+
+    --muted: 210 20% 96%;
+    --muted-foreground: 215 15% 52%; /* #667085 - 보조 텍스트 */
+
+    --accent: 210 100% 97%; /* #EFF8FF - 아주 연한 액센트 블루 */
+    --accent-foreground: 217 91% 50%;
+
+    --destructive: 0 72% 51%; /* #dc2626 - 명확한 빨간색 */
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 71% 45%; /* #16a34a - 명확한 초록색 */
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%; /* #f59e0b - 명확한 주황색 */
+    --warning-foreground: 0 0% 100%;
+
+    --border: 214 20% 88%; /* #d0d5dd - 명확한 경계선 */
+    --input: 214 20% 88%;
+    --ring: 217 91% 50%;
+
+    --radius: 0.5rem;
+
+    --chart-1: 217 91% 50%;
+    --chart-2: 142 71% 45%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 199 89% 48%;
+    --chart-5: 280 61% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Professional Typography System */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+    color: hsl(var(--foreground));
+  }
+
+  h1 { @apply text-3xl sm:text-4xl; line-height: 1.2; }
+  h2 { @apply text-2xl sm:text-3xl; line-height: 1.3; }
+  h3 { @apply text-xl sm:text-2xl; line-height: 1.4; }
+  h4 { @apply text-lg sm:text-xl; line-height: 1.5; }
+
+  p {
+    @apply text-sm sm:text-base leading-relaxed;
+    color: hsl(var(--foreground));
+  }
+
+  .text-muted {
+    color: hsl(var(--muted-foreground));
+  }
+
+  /* Status Colors */
+  .text-success {
+    color: hsl(var(--success));
+  }
+
+  .text-error {
+    color: hsl(var(--destructive));
+  }
+
+  .text-warning {
+    color: hsl(var(--warning));
+  }
+
+  /* Professional Backgrounds */
+  .bg-success-subtle {
+    @apply bg-green-50 border-green-200;
+  }
+
+  .bg-error-subtle {
+    @apply bg-red-50 border-red-200;
+  }
+
+  .bg-warning-subtle {
+    @apply bg-orange-50 border-orange-200;
+  }
+
+  .bg-info-subtle {
+    @apply bg-blue-50 border-blue-200;
+  }
+
+  /* Subtle Grid Pattern */
+  .pattern-background {
+    background-image:
+      linear-gradient(rgba(21, 112, 239, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(21, 112, 239, 0.03) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  /* Professional Card Styles */
+  .card-elevated {
+    @apply bg-white rounded-lg border border-gray-200 shadow-sm;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  }
+
+  .card-elevated:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Hide scrollbar */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
+  }
+
+  /* Professional button styles */
+  button, .button {
+    position: relative;
+  }
+
+  button:not(:disabled):hover, .button:not(:disabled):hover {
+    z-index: 10;
+  }
+
+  /* Clean card elevation */
+  .card-elevated {
+    @apply shadow-md;
+  }
+
+  .card-elevated:hover {
+    @apply shadow-lg;
+  }
+
+  /* Status indicators */
+  .status-success {
+    @apply bg-green-50 border border-green-200 text-green-800;
+  }
+
+  .status-warning {
+    @apply bg-orange-50 border border-orange-200 text-orange-800;
+  }
+
+  .status-error {
+    @apply bg-red-50 border border-red-200 text-red-800;
+  }
+
+  .status-info {
+    @apply bg-blue-50 border border-blue-200 text-blue-800;
+  }
+
+  /* Subtle shadow pulse animation for attention-grabbing buttons */
+  @keyframes shadow-pulse {
+    0%, 100% {
+      box-shadow: 0 10px 15px -3px rgba(22, 163, 74, 0.3), 0 4px 6px -4px rgba(22, 163, 74, 0.3);
+    }
+    50% {
+      box-shadow: 0 20px 25px -5px rgba(22, 163, 74, 0.5), 0 8px 10px -6px rgba(22, 163, 74, 0.5);
+    }
+  }
+
+  .animate-shadow-pulse {
+    animation: shadow-pulse 60s ease-in-out infinite;
+  }
+
+  /* Sequential arrow animation - wave effect */
+  @keyframes arrow-wave {
+    0%, 100% {
+      opacity: 0.3;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  .animate-arrow-1 {
+    animation: arrow-wave 1.5s ease-in-out infinite;
+    animation-delay: 0s;
+  }
+
+  .animate-arrow-2 {
+    animation: arrow-wave 1.5s ease-in-out infinite;
+    animation-delay: 0.2s;
+  }
+
+  .animate-arrow-3 {
+    animation: arrow-wave 1.5s ease-in-out infinite;
+    animation-delay: 0.4s;
+  }
+}
+
+/* React Calendar Styles */
+.react-calendar {
+  width: 500px !important;
+  max-width: 500px !important;
+  border: none !important;
+  background: transparent !important;
+  font-family: inherit !important;
+  line-height: 1.125em !important;
+}
+
+.react-calendar__navigation {
+  display: flex !important;
+  height: 60px !important;
+  margin-bottom: 1rem !important;
+}
+
+.react-calendar__navigation button {
+  min-width: 60px !important;
+  background: transparent !important;
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  color: hsl(var(--foreground)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: 0.5rem !important;
+  transition: all 0.2s !important;
+}
+
+.react-calendar__navigation button:hover {
+  background: hsl(var(--accent)) !important;
+}
+
+.react-calendar__month-view__weekdays {
+  text-align: center !important;
+  font-weight: 600 !important;
+  font-size: 1rem !important;
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+.react-calendar__month-view__weekdays__weekday {
+  padding: 1rem !important;
+}
+
+.react-calendar__month-view__weekdays__weekday abbr {
+  text-decoration: none !important;
+}
+
+.react-calendar__month-view__days__day {
+  height: 40px !important;
+  font-size: 0.85rem !important;
+  border-radius: 0.5rem !important;
+  transition: all 0.2s !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+.react-calendar__month-view__days__day:hover {
+  background: hsl(var(--muted)) !important;
+}
+
+.react-calendar__month-view__days__day--weekend {
+  color: hsl(var(--foreground)) !important;
+}
+
+.react-calendar__month-view__days__day--neighboringMonth {
+  color: hsl(var(--muted-foreground)) !important;
+  opacity: 0.5 !important;
+}
+
+.react-calendar__tile--active {
+  background: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+  font-weight: 600 !important;
+}
+
+.react-calendar__tile--active:hover {
+  background: hsl(var(--primary)) !important;
+  opacity: 0.9 !important;
+}
+
+.react-calendar__tile--now {
+  background: hsl(var(--accent)) !important;
+  font-weight: 600 !important;
+  color: hsl(var(--accent-foreground)) !important;
+}
+
+.react-calendar__tile.weekend-saturday,
+.react-calendar__tile.weekend-saturday abbr {
+  color: #1e40af !important;
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+}
+
+.react-calendar__tile.weekend-sunday,
+.react-calendar__tile.weekend-sunday abbr {
+  color: #dc2626 !important;
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+}
+
+.react-calendar__tile--disabled.weekend-saturday,
+.react-calendar__tile--disabled.weekend-sunday {
+  pointer-events: none !important;
+  cursor: not-allowed !important;
+}
+
+.react-calendar__tile.weekend-saturday:hover,
+.react-calendar__tile.weekend-sunday:hover {
+  background: transparent !important;
+  cursor: not-allowed !important;
+}
