@@ -120,6 +120,33 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }),
       ],
   callbacks: {
+    authorized({ auth, request }) {
+      const { pathname } = request.nextUrl;
+      const isLoggedIn = !!auth;
+      const userRole = (auth?.user as any)?.role;
+
+      // Admin route checks
+      const isAdminRoute = pathname.startsWith("/admin") && !pathname.startsWith("/admin/login") && !pathname.startsWith("/admin/register");
+      const isAdminLogin = pathname.startsWith("/admin/login");
+
+      // Redirect logged-in users away from login page
+      if (isAdminLogin && isLoggedIn) {
+        return Response.redirect(new URL("/admin", request.url));
+      }
+
+      // Protect admin routes
+      if (isAdminRoute) {
+        if (!isLoggedIn) {
+          return Response.redirect(new URL("/admin/login", request.url));
+        }
+
+        if (!["super", "designer", "operator"].includes(userRole)) {
+          return false;
+        }
+      }
+
+      return true;
+    },
     async jwt({ token, user, account }) {
       // ✅ 새 Provider: account.provider로 userType 설정
       if (USE_NEW_PROVIDER && account) {
