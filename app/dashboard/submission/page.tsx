@@ -789,7 +789,7 @@ export default function SubmissionPage() {
                       </p>
                       <p className="text-xs sm:text-sm font-semibold text-blue-700 flex items-center gap-1">
                         <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5" />
-                        색상 선택 후 아래 "저장하기" 버튼을 꼭 눌러주세요!
+                        색상 선택 후 아래 &quot;저장하기&quot; 버튼을 꼭 눌러주세요!
                       </p>
                     </div>
                   </div>

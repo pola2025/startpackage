@@ -153,7 +153,7 @@ export default function GuidesPage() {
               <div className="bg-orange-50 border-2 border-orange-200 rounded-lg p-4">
                 <p className="text-sm text-gray-700">
                   ⚠️ <strong>중요:</strong> 통신서비스 이용증명원은 통신사별로 문서 이름이 다릅니다.
-                  네이버에서 '통신서비스 이용증명원 발급'을 검색하면 상세 가이드를 확인할 수 있습니다.
+                  네이버에서 &apos;통신서비스 이용증명원 발급&apos;을 검색하면 상세 가이드를 확인할 수 있습니다.
                 </p>
               </div>
             </CardContent>
