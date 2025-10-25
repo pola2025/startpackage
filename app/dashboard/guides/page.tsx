@@ -294,7 +294,7 @@ export default function GuidesPage() {
                 <ol className="list-decimal list-inside space-y-2 text-gray-700">
                   <li>Meta 비즈니스 관리자(business.facebook.com) 접속</li>
                   <li>비즈니스 설정 클릭</li>
-                  <li>사용자 {&apos;&gt;&apos;} 사람 메뉴 선택</li>
+                  <li>사용자 &gt; 사람 메뉴 선택</li>
                   <li>&apos;추가&apos; 버튼 클릭</li>
                   <li>초대할 사람의 이메일 입력</li>
                   <li>권한 수준: &apos;관리자 액세스&apos; 선택</li>
@@ -305,7 +305,7 @@ export default function GuidesPage() {
               <div>
                 <h3 className="text-blue-600 font-semibold mb-3">🔑 광고 계정 액세스 권한 부여</h3>
                 <ol className="list-decimal list-inside space-y-2 text-gray-700">
-                  <li>비즈니스 설정 {&apos;&gt;&apos;} 계정 {&apos;&gt;&apos;} 광고 계정 선택</li>
+                  <li>비즈니스 설정 &gt; 계정 &gt; 광고 계정 선택</li>
                   <li>해당 광고 계정 클릭</li>
                   <li>&apos;사람 추가&apos; 클릭</li>
                   <li>초대한 사람 선택</li>
