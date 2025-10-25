@@ -77,9 +77,9 @@ export async function POST(request: Request) {
     // 관리자에게 텔레그램 알림
     try {
       const { sendTelegramMessage } = await import("@/lib/notification/telegramClient");
-      await sendTelegramMessage({
-        message: `🔔 *새 문의*\\n\\n*사용자:* ${userName}\\n*제목:* ${title}\\n*카테고리:* ${category || "일반"}\\n*내용:* ${content.substring(0, 100)}${content.length > 100 ? "..." : ""}`,
-      });
+      await sendTelegramMessage(
+        `🔔 *새 문의*\\n\\n*사용자:* ${userName}\\n*제목:* ${title}\\n*카테고리:* ${category || "일반"}\\n*내용:* ${content.substring(0, 100)}${content.length > 100 ? "..." : ""}`
+      );
     } catch (error) {
       console.error("텔레그램 알림 실패:", error);
     }
