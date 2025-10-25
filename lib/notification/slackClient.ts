@@ -376,8 +376,8 @@ export async function uploadFileToSlack(params: {
       initial_comment: `📎 ${params.title}`,
     });
 
-    if (result.ok && result.file) {
-      console.log(`✅ 파일 업로드 성공: ${params.title} (ID: ${result.file.id})`);
+    if (result.ok && (result as any).file) {
+      console.log(`✅ 파일 업로드 성공: ${params.title} (ID: ${(result as any).file.id})`);
       return true;
     } else {
       console.error(`파일 업로드 실패: ${params.title}`, result);
