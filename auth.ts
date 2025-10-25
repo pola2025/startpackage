@@ -52,7 +52,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     id: user.id,
                     email: user.email,
                     name: user.이름,
-                    role: user.role,
+                    role: user.role as "user" | "super" | "designer" | "operator",
                     cohortId: user.cohortId,
                   };
                 }
@@ -72,7 +72,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     id: user.id,
                     email: user.email,
                     name: user.이름,
-                    role: user.role,
+                    role: user.role as "user" | "super" | "designer" | "operator",
                     cohortId: user.cohortId,
                   };
                 }
@@ -108,7 +108,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     id: admin.id,
                     email: admin.email,
                     name: admin.name,
-                    role: admin.role,
+                    role: admin.role as "user" | "super" | "designer" | "operator",
                   };
                 }
               }
