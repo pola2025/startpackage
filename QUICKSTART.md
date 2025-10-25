@@ -88,18 +88,25 @@ vercel --prod
 
 ## 🌐 커스텀 도메인 연결
 
-### DNS 설정 (가비아/Cloudflare)
+### DNS 설정 (후이즈 기준)
 ```
-Type: CNAME
-Name: @
-Value: cname.vercel-dns.com
+[레코드 1 - 루트 도메인]
+레코드 타입: A
+호스트명: (빈칸) 또는 polaai.co.kr
+레코드 값: 76.76.21.21
 TTL: 3600
 
-Type: CNAME
-Name: www
-Value: cname.vercel-dns.com
+[레코드 2 - www 서브도메인]
+레코드 타입: CNAME
+호스트명: www
+레코드 값: cname.vercel-dns.com
 TTL: 3600
 ```
+
+**중요**:
+- 루트 도메인(polaai.co.kr)은 반드시 **A 레코드**를 사용해야 합니다
+- 호스트명에 "@" 대신 **빈칸**을 입력하세요
+- Vercel IP: `76.76.21.21`
 
 ### Vercel에 도메인 추가
 ```bash

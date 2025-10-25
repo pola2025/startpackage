@@ -17,67 +17,91 @@
 
 ---
 
-## 1. DNS 설정 (도메인 등록업체)
+## 1. DNS 설정 (후이즈)
 
-### 도메인 등록 업체에서 DNS 설정
+### 후이즈 DNS 관리 페이지 접속
 
-**예: 가비아, 카페24, Cloudflare, Route53 등**
+1. https://www.whois.co.kr 로그인
+2. 도메인 관리 → DNS 관리 선택
+3. polaai.co.kr 선택
 
-#### 옵션 1: CNAME 레코드 (추천)
+### DNS 레코드 설정
 
-| Type | Name | Value | TTL |
-|------|------|-------|-----|
-| CNAME | `@` 또는 `polaai.co.kr` | `cname.vercel-dns.com` | 3600 |
-| CNAME | `www` | `cname.vercel-dns.com` | 3600 |
+**⚠️ 중요:** 루트 도메인(polaai.co.kr)은 CNAME을 사용할 수 없습니다!
 
-#### 옵션 2: A 레코드
+#### 레코드 1: 루트 도메인 (A 레코드 - 필수)
 
-| Type | Name | Value | TTL |
-|------|------|-------|-----|
-| A | `@` 또는 `polaai.co.kr` | `76.76.21.21` | 3600 |
-| CNAME | `www` | `cname.vercel-dns.com` | 3600 |
-
-**Vercel IP 주소:**
 ```
-76.76.21.21
-76.76.21.22
-76.76.21.23
+레코드 타입: A
+호스트명: (빈칸으로 두세요)
+레코드 값: 76.76.21.21
+TTL: 3600
 ```
 
-### 가비아 예시
+#### 레코드 2: www 서브도메인 (CNAME)
 
-1. 가비아 로그인 → My가비아 → 도메인 관리
-2. DNS 정보 → DNS 관리
-3. 레코드 추가:
-   ```
-   호스트: @
-   타입: CNAME
-   값/위치: cname.vercel-dns.com
-   TTL: 3600
+```
+레코드 타입: CNAME
+호스트명: www
+레코드 값: cname.vercel-dns.com
+TTL: 3600
+```
 
-   호스트: www
-   타입: CNAME
-   값/위치: cname.vercel-dns.com
-   TTL: 3600
-   ```
+### 후이즈 설정 화면 예시
 
-### Cloudflare 예시 (DNS만 사용)
+```
+┌─────────────────────────────────────────┐
+│ DNS 레코드 추가                          │
+├─────────────────────────────────────────┤
+│ 레코드 타입: [A         ▼]              │
+│ 호스트명:    [                ]         │  ← 빈칸!
+│ 레코드 값:   [76.76.21.21     ]         │
+│ TTL:         [3600            ]         │
+│              [추가하기]                  │
+└─────────────────────────────────────────┘
 
-1. Cloudflare 로그인 → DNS 설정
-2. Add Record:
-   ```
-   Type: CNAME
-   Name: @
-   Target: cname.vercel-dns.com
-   Proxy status: DNS only (회색 구름)
-   TTL: Auto
+┌─────────────────────────────────────────┐
+│ DNS 레코드 추가                          │
+├─────────────────────────────────────────┤
+│ 레코드 타입: [CNAME     ▼]              │
+│ 호스트명:    [www              ]         │
+│ 레코드 값:   [cname.vercel-dns.com]     │
+│ TTL:         [3600            ]         │
+│              [추가하기]                  │
+└─────────────────────────────────────────┘
+```
 
-   Type: CNAME
-   Name: www
-   Target: cname.vercel-dns.com
-   Proxy status: DNS only
-   TTL: Auto
-   ```
+**Vercel IP 주소 (참고):**
+- Primary: `76.76.21.21` ← 이것을 사용하세요
+- Backup: `76.76.21.22`, `76.76.21.23`
+
+### 다른 도메인 등록업체 사용 시
+
+#### 가비아
+```
+호스트: (빈칸)
+타입: A
+값/위치: 76.76.21.21
+TTL: 3600
+
+호스트: www
+타입: CNAME
+값/위치: cname.vercel-dns.com
+TTL: 3600
+```
+
+#### Cloudflare
+```
+Type: A
+Name: @
+Content: 76.76.21.21
+Proxy: DNS only (회색 구름)
+
+Type: CNAME
+Name: www
+Target: cname.vercel-dns.com
+Proxy: DNS only
+```
 
 ---
 
