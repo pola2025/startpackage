@@ -33,7 +33,7 @@ const signupSchema = z.object({
       "비밀번호는 숫자 4자리로 입력해주세요."
     ),
 
-  cohortId: z.string().uuid("유효하지 않은 기수 ID입니다."),
+  cohortId: z.string().cuid("유효하지 않은 기수 ID입니다."),
 });
 
 export async function POST(request: NextRequest) {
