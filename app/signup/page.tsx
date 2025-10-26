@@ -75,8 +75,9 @@ export default function HomePage() {
     e.preventDefault();
     setError("");
 
-    if (password.length < 4) {
-      setError("비밀번호는 최소 4자 이상이어야 합니다.");
+    // 숫자 4자리 검증
+    if (!/^\d{4}$/.test(password)) {
+      setError("비밀번호는 숫자 4자리로 입력해주세요.");
       return;
     }
 
@@ -97,6 +98,11 @@ export default function HomePage() {
       const data = await response.json();
 
       if (!response.ok) {
+        // 상세 에러 정보가 있으면 표시
+        if (data.details && Array.isArray(data.details)) {
+          const errorMessages = data.details.map((d: any) => `${d.field}: ${d.message}`).join('\n');
+          throw new Error(errorMessages || data.error);
+        }
         throw new Error(data.error || "가입 중 오류가 발생했습니다.");
       }
 
@@ -259,7 +265,7 @@ export default function HomePage() {
                   <Input
                     id="password"
                     type="password"
-                    placeholder="최소 4자"
+                    placeholder="숫자 4자리 (예: 1234)"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
