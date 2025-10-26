@@ -322,6 +322,163 @@ Get-ChildItem -Path "app/api" -Recurse -Include "*route.ts" | Select-String "par
 
 ---
 
+## 프론트엔드-백엔드 검증 일치 원칙
+
+### ⚠️ 중요: 양방향 검증 규칙 동기화
+
+**원칙:** 사용자 입력을 검증하는 모든 로직은 프론트엔드와 백엔드에서 **완전히 일치**해야 합니다.
+
+### 왜 중요한가?
+
+불일치 시 발생하는 문제:
+- ❌ 프론트엔드 통과 → 백엔드 실패 (사용자 혼란)
+- ❌ 타입 불일치로 런타임 오류
+- ❌ 디버깅 시간 낭비
+
+### 검증 항목 체크리스트
+
+새로운 입력 폼을 만들 때 반드시 확인:
+
+#### 1. 비밀번호 검증
+**프론트엔드**: `app/signup/page.tsx` (또는 관련 폼 컴포넌트)
+```tsx
+// ✅ 올바른 예시
+if (!/^\d{4}$/.test(password)) {
+  setError("비밀번호는 숫자 4자리로 입력해주세요.");
+  return;
+}
+```
+
+**백엔드**: `app/api/auth/signup/route.ts`
+```typescript
+// ✅ 올바른 예시
+password: z
+  .string()
+  .regex(
+    /^\d{4}$/,  // 프론트엔드와 동일한 정규식
+    "비밀번호는 숫자 4자리로 입력해주세요."  // 프론트엔드와 동일한 메시지
+  ),
+```
+
+#### 2. ID 형식 검증 (UUID vs CUID)
+
+**Prisma 스키마 확인**: `prisma/schema.prisma`
+```prisma
+model Cohort {
+  id String @id @default(cuid())  // ← cuid 사용
+  // ...
+}
+```
+
+**백엔드 검증**:
+```typescript
+// ❌ 잘못된 예시
+cohortId: z.string().uuid()  // Prisma는 CUID 사용하는데 UUID 검증
+
+// ✅ 올바른 예시
+cohortId: z.string().cuid()  // Prisma와 일치
+```
+
+#### 3. 이메일/전화번호 형식
+
+**프론트엔드**:
+```tsx
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const phoneRegex = /^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$/;
+```
+
+**백엔드**:
+```typescript
+이메일: z.string().email(),
+연락처: z.string().regex(
+  /^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$/,  // 프론트엔드와 동일
+  "올바른 전화번호 형식이 아닙니다."
+),
+```
+
+### 매칭 확인 프로세스
+
+새로운 검증 로직 추가 시:
+
+```
+1. Prisma 스키마 확인
+   ↓
+2. 백엔드 Zod 스키마 작성
+   ↓
+3. 프론트엔드 검증 작성
+   ↓
+4. 정규식, 메시지, 타입 일치 확인
+   ↓
+5. 테스트: 프론트 통과 → 백엔드 통과 확인
+```
+
+### 체크리스트
+
+- [ ] **정규식 일치**: 프론트엔드와 백엔드가 동일한 regex 사용
+- [ ] **에러 메시지 일치**: 동일한 문구로 사용자 경험 통일
+- [ ] **타입 일치**: UUID vs CUID, String vs Number 등
+- [ ] **필수/선택 일치**: required 속성과 optional() 일치
+- [ ] **길이 제한 일치**: minLength, maxLength 동일
+- [ ] **형식 검증 일치**: email, url, phone 등
+
+### 공통 검증 규칙 예시
+
+#### 현재 프로젝트 표준
+
+| 항목 | 검증 규칙 | 프론트엔드 | 백엔드 |
+|-----|----------|-----------|--------|
+| 비밀번호 (일반 회원) | 숫자 4자리 | `/^\d{4}$/` | `z.string().regex(/^\d{4}$/)` |
+| 이메일 | 표준 형식 | `type="email"` | `z.string().email()` |
+| 연락처 | 010-1234-5678 | `/^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$/` | 동일 regex |
+| 기수 ID | CUID 형식 | 별도 검증 불필요 | `z.string().cuid()` |
+| 이름 | 한글/영문 2-50자 | `minLength={2}` | `z.string().min(2).max(50).regex(/^[가-힣a-zA-Z\s]+$/)` |
+
+### 검증 불일치 디버깅
+
+오류 발생 시 확인 순서:
+
+1. **브라우저 콘솔**: 프론트엔드 검증 통과 확인
+2. **Network 탭**: API 응답의 `details` 필드 확인
+   ```json
+   {
+     "error": "입력값이 유효하지 않습니다.",
+     "details": [
+       {
+         "field": "password",
+         "message": "비밀번호는 숫자 4자리로 입력해주세요."
+       }
+     ]
+   }
+   ```
+3. **Prisma 스키마**: 실제 DB 타입 확인
+4. **백엔드 Zod 스키마**: 검증 규칙 확인
+5. **프론트엔드 검증**: 동일한 규칙 적용 확인
+
+### 개선 권장사항
+
+**공통 검증 라이브러리 생성** (선택사항):
+```typescript
+// lib/validation/schemas.ts
+import { z } from "zod";
+
+export const ValidationSchemas = {
+  password: z.string().regex(/^\d{4}$/, "비밀번호는 숫자 4자리로 입력해주세요."),
+  email: z.string().email("올바른 이메일 형식이 아닙니다."),
+  phone: z.string().regex(/^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$/, "올바른 전화번호 형식이 아닙니다."),
+  name: z.string().min(2).max(50).regex(/^[가-힣a-zA-Z\s]+$/, "이름은 한글 또는 영문만 입력 가능합니다."),
+};
+
+// 프론트엔드에서 사용
+export const ValidationRegex = {
+  password: /^\d{4}$/,
+  email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+  phone: /^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$/,
+  name: /^[가-힣a-zA-Z\s]+$/,
+};
+```
+
+---
+
 *작성일: 2025-10-25*
 *추천 라이브러리: react-calendar*
-*업데이트: 2025-10-25 (Next.js 15 params 타입 오류 추가)*
+*업데이트: 2025-10-26 (프론트엔드-백엔드 검증 일치 원칙 추가)*
