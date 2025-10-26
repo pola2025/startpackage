@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { User, Mail, Phone, Lock, Check, ArrowRight, Calendar } from "lucide-react";
+import { ValidationRegex, ValidationMessages } from "@/lib/validation/schemas";
 
 interface Cohort {
   id: string;
@@ -52,19 +53,17 @@ export default function HomePage() {
     setError("");
 
     if (!formData.이름 || !formData.연락처 || !formData.이메일 || !formData.cohortId) {
-      setError("모든 항목을 입력해주세요.");
+      setError(ValidationMessages.required);
       return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.이메일)) {
-      setError("올바른 이메일 형식을 입력해주세요.");
+    if (!ValidationRegex.email.test(formData.이메일)) {
+      setError(ValidationMessages.email);
       return;
     }
 
-    const phoneRegex = /^[0-9]{10,11}$/;
-    if (!phoneRegex.test(formData.연락처.replace(/-/g, ""))) {
-      setError("올바른 전화번호를 입력해주세요.");
+    if (!ValidationRegex.phone.test(formData.연락처)) {
+      setError(ValidationMessages.phone);
       return;
     }
 
@@ -76,13 +75,13 @@ export default function HomePage() {
     setError("");
 
     // 숫자 4자리 검증
-    if (!/^\d{4}$/.test(password)) {
-      setError("비밀번호는 숫자 4자리로 입력해주세요.");
+    if (!ValidationRegex.userPassword.test(password)) {
+      setError(ValidationMessages.userPassword);
       return;
     }
 
     if (password !== passwordConfirm) {
-      setError("비밀번호가 일치하지 않습니다.");
+      setError(ValidationMessages.passwordMismatch);
       return;
     }
 

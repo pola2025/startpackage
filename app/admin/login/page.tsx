@@ -20,8 +20,8 @@ export default function AdminLoginPage() {
   // 로딩 중
   if (status === "loading") {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white animate-pulse">로딩 중...</div>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center">
+        <div className="text-blue-600">로딩 중...</div>
       </div>
     );
   }
@@ -65,31 +65,27 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="relative min-h-screen grid-background overflow-hidden">
-      {/* Red gradient for admin */}
-      <div
-        className="absolute inset-0 bg-gradient-to-br from-black via-black to-neon-red/20 animate-pulse"
-        style={{ animationDuration: "3s" }}
-      />
+    <div className="relative min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 overflow-hidden">
+      <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.02]" />
 
       <div className="relative flex min-h-screen items-center justify-center p-4">
-        <Card className="w-full max-w-md glass border-neon-red/30">
-          <CardHeader className="space-y-4 text-center pb-8">
-            <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-neon-red to-neon-orange flex items-center justify-center shadow-neon-red">
+        <Card className="w-full max-w-md bg-white shadow-xl border-blue-200">
+          <CardHeader className="space-y-4 text-center border-b border-blue-100 bg-gradient-to-b from-blue-50/30 to-transparent">
+            <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center shadow-lg">
               <Shield className="w-10 h-10 text-white" />
             </div>
             <div>
-              <CardTitle className="text-3xl font-bold neon-text-red mb-2">
+              <CardTitle className="text-3xl font-bold text-blue-900 mb-2">
                 ADMIN ACCESS
               </CardTitle>
-              <p className="text-sm text-gray-500">스타트패키지 관리자 시스템</p>
+              <p className="text-sm text-blue-700">스타트패키지 관리자 시스템</p>
             </div>
           </CardHeader>
 
           <CardContent className="space-y-6">
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-gray-300 flex items-center gap-2">
+                <Label htmlFor="email" className="text-blue-900 flex items-center gap-2 font-semibold">
                   <Mail className="w-4 h-4" />
                   이메일
                 </Label>
@@ -101,12 +97,12 @@ export default function AdminLoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={loading}
-                  className="bg-black/50 border-white/20 focus:border-neon-red focus:ring-neon-red/50"
+                  className="bg-blue-50/50 border-blue-200 focus:border-blue-600 focus:ring-blue-600"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-gray-300 flex items-center gap-2">
+                <Label htmlFor="password" className="text-blue-900 flex items-center gap-2 font-semibold">
                   <Lock className="w-4 h-4" />
                   비밀번호
                 </Label>
@@ -118,19 +114,19 @@ export default function AdminLoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   disabled={loading}
-                  className="bg-black/50 border-white/20 focus:border-neon-red focus:ring-neon-red/50"
+                  className="bg-blue-50/50 border-blue-200 focus:border-blue-600 focus:ring-blue-600"
                 />
               </div>
 
               {error && (
-                <div className="neon-border-red rounded-md p-3 text-sm text-neon-red">
+                <div className="rounded-md p-3 text-sm bg-red-50 text-red-700 border border-red-200">
                   {error}
                 </div>
               )}
 
               <Button
                 type="submit"
-                className="w-full bg-neon-red text-white hover:bg-neon-red/90 hover:shadow-neon-red transition-all font-semibold"
+                className="w-full bg-blue-700 text-white hover:bg-blue-800 transition-all font-semibold shadow-md"
                 size="lg"
                 disabled={loading}
               >
@@ -139,17 +135,17 @@ export default function AdminLoginPage() {
               </Button>
             </form>
 
-            <div className="border-t border-white/10 pt-4 space-y-2">
-              <p className="text-xs text-center text-gray-600">
+            <div className="border-t border-blue-100 pt-4 space-y-2">
+              <p className="text-xs text-center text-blue-600">
                 계정이 없으신가요?{" "}
                 <button
                   onClick={() => router.push("/admin/register")}
-                  className="text-neon-red hover:underline"
+                  className="text-blue-700 hover:underline font-semibold"
                 >
                   가입 신청
                 </button>
               </p>
-              <p className="text-xs text-center text-gray-600">
+              <p className="text-xs text-center text-blue-600">
                 관리자 전용 접근 시스템 • 무단 접근 금지
               </p>
             </div>

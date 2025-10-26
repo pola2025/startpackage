@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Shield, Mail, Lock, User, Phone } from "lucide-react";
+import { Shield, Mail, Lock, User, Phone, Info } from "lucide-react";
+import { ValidationRegex, ValidationMessages } from "@/lib/validation/schemas";
 
 export default function AdminRegisterPage() {
   const router = useRouter();
@@ -35,19 +36,31 @@ export default function AdminRegisterPage() {
 
     // 클라이언트 측 검증
     if (!formData.name || !formData.email || !formData.phone || !formData.password) {
-      setError("모든 항목을 입력해주세요.");
+      setError(ValidationMessages.required);
       setLoading(false);
       return;
     }
 
-    if (formData.password !== formData.confirmPassword) {
-      setError("비밀번호가 일치하지 않습니다.");
+    if (!ValidationRegex.email.test(formData.email)) {
+      setError(ValidationMessages.email);
+      setLoading(false);
+      return;
+    }
+
+    if (!ValidationRegex.phone.test(formData.phone)) {
+      setError(ValidationMessages.phone);
       setLoading(false);
       return;
     }
 
     if (formData.password.length < 8) {
-      setError("비밀번호는 최소 8자 이상이어야 합니다.");
+      setError(ValidationMessages.adminPassword);
+      setLoading(false);
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setError(ValidationMessages.passwordMismatch);
       setLoading(false);
       return;
     }
@@ -86,25 +99,22 @@ export default function AdminRegisterPage() {
 
   if (success) {
     return (
-      <div className="relative min-h-screen grid-background overflow-hidden">
-        <div
-          className="absolute inset-0 bg-gradient-to-br from-black via-black to-neon-red/20 animate-pulse"
-          style={{ animationDuration: "3s" }}
-        />
+      <div className="relative min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 overflow-hidden">
+        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.02]" />
 
         <div className="relative flex min-h-screen items-center justify-center p-4">
-          <Card className="w-full max-w-md glass border-neon-red/30">
+          <Card className="w-full max-w-md bg-white shadow-xl border-blue-200">
             <CardContent className="pt-12 pb-12 text-center space-y-4">
-              <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-neon-red to-neon-orange flex items-center justify-center shadow-neon-red">
+              <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center shadow-lg">
                 <Shield className="w-10 h-10 text-white" />
               </div>
-              <h2 className="text-2xl font-bold neon-text-red">가입 신청 완료</h2>
-              <p className="text-gray-300">
+              <h2 className="text-2xl font-bold text-blue-900">가입 신청 완료</h2>
+              <p className="text-blue-700">
                 관리자 승인 후 이메일로 안내드립니다.
                 <br />
                 텔레그램 알림이 발송되었습니다.
               </p>
-              <p className="text-sm text-gray-500">잠시 후 로그인 페이지로 이동합니다...</p>
+              <p className="text-sm text-blue-600">잠시 후 로그인 페이지로 이동합니다...</p>
             </CardContent>
           </Card>
         </div>
@@ -113,31 +123,27 @@ export default function AdminRegisterPage() {
   }
 
   return (
-    <div className="relative min-h-screen grid-background overflow-hidden">
-      {/* Red gradient for admin */}
-      <div
-        className="absolute inset-0 bg-gradient-to-br from-black via-black to-neon-red/20 animate-pulse"
-        style={{ animationDuration: "3s" }}
-      />
+    <div className="relative min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 overflow-hidden">
+      <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.02]" />
 
       <div className="relative flex min-h-screen items-center justify-center p-4">
-        <Card className="w-full max-w-md glass border-neon-red/30">
-          <CardHeader className="space-y-4 text-center pb-8">
-            <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-neon-red to-neon-orange flex items-center justify-center shadow-neon-red">
+        <Card className="w-full max-w-md bg-white shadow-xl border-blue-200">
+          <CardHeader className="space-y-4 text-center border-b border-blue-100 bg-gradient-to-b from-blue-50/30 to-transparent">
+            <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center shadow-lg">
               <Shield className="w-10 h-10 text-white" />
             </div>
             <div>
-              <CardTitle className="text-3xl font-bold neon-text-red mb-2">
+              <CardTitle className="text-3xl font-bold text-blue-900 mb-2">
                 관리자 가입 신청
               </CardTitle>
-              <p className="text-sm text-gray-500">스타트패키지 관리자 시스템</p>
+              <p className="text-sm text-blue-700">스타트패키지 관리자 시스템</p>
             </div>
           </CardHeader>
 
           <CardContent className="space-y-6">
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-gray-300 flex items-center gap-2">
+                <Label htmlFor="name" className="text-blue-900 flex items-center gap-2 font-semibold">
                   <User className="w-4 h-4" />
                   이름
                 </Label>
@@ -150,12 +156,12 @@ export default function AdminRegisterPage() {
                   onChange={handleChange}
                   required
                   disabled={loading}
-                  className="bg-black/50 border-white/20 focus:border-neon-red focus:ring-neon-red/50"
+                  className="bg-blue-50/50 border-blue-200 focus:border-blue-600 focus:ring-blue-600"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-gray-300 flex items-center gap-2">
+                <Label htmlFor="email" className="text-blue-900 flex items-center gap-2 font-semibold">
                   <Mail className="w-4 h-4" />
                   이메일
                 </Label>
@@ -168,12 +174,12 @@ export default function AdminRegisterPage() {
                   onChange={handleChange}
                   required
                   disabled={loading}
-                  className="bg-black/50 border-white/20 focus:border-neon-red focus:ring-neon-red/50"
+                  className="bg-blue-50/50 border-blue-200 focus:border-blue-600 focus:ring-blue-600"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone" className="text-gray-300 flex items-center gap-2">
+                <Label htmlFor="phone" className="text-blue-900 flex items-center gap-2 font-semibold">
                   <Phone className="w-4 h-4" />
                   전화번호
                 </Label>
@@ -186,12 +192,13 @@ export default function AdminRegisterPage() {
                   onChange={handleChange}
                   required
                   disabled={loading}
-                  className="bg-black/50 border-white/20 focus:border-neon-red focus:ring-neon-red/50"
+                  className="bg-blue-50/50 border-blue-200 focus:border-blue-600 focus:ring-blue-600"
                 />
+                <p className="text-xs text-blue-600">하이픈(-) 포함 또는 제외 가능</p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-gray-300 flex items-center gap-2">
+                <Label htmlFor="password" className="text-blue-900 flex items-center gap-2 font-semibold">
                   <Lock className="w-4 h-4" />
                   비밀번호
                 </Label>
@@ -204,14 +211,18 @@ export default function AdminRegisterPage() {
                   onChange={handleChange}
                   required
                   disabled={loading}
-                  className="bg-black/50 border-white/20 focus:border-neon-red focus:ring-neon-red/50"
+                  className="bg-blue-50/50 border-blue-200 focus:border-blue-600 focus:ring-blue-600"
                 />
+                <div className="flex items-start gap-2 text-xs text-blue-700 bg-blue-50 rounded-md p-2 border border-blue-200">
+                  <Info className="w-3 h-3 mt-0.5 flex-shrink-0 text-blue-600" />
+                  <span>최소 8자 이상 입력해주세요. (영문, 숫자, 특수문자 조합 권장)</span>
+                </div>
               </div>
 
               <div className="space-y-2">
                 <Label
                   htmlFor="confirmPassword"
-                  className="text-gray-300 flex items-center gap-2"
+                  className="text-blue-900 flex items-center gap-2 font-semibold"
                 >
                   <Lock className="w-4 h-4" />
                   비밀번호 확인
@@ -225,19 +236,19 @@ export default function AdminRegisterPage() {
                   onChange={handleChange}
                   required
                   disabled={loading}
-                  className="bg-black/50 border-white/20 focus:border-neon-red focus:ring-neon-red/50"
+                  className="bg-blue-50/50 border-blue-200 focus:border-blue-600 focus:ring-blue-600"
                 />
               </div>
 
               {error && (
-                <div className="neon-border-red rounded-md p-3 text-sm text-neon-red">
+                <div className="rounded-md p-3 text-sm bg-red-50 text-red-700 border border-red-200">
                   {error}
                 </div>
               )}
 
               <Button
                 type="submit"
-                className="w-full bg-neon-red text-white hover:bg-neon-red/90 hover:shadow-neon-red transition-all font-semibold"
+                className="w-full bg-blue-700 text-white hover:bg-blue-800 transition-all font-semibold shadow-md"
                 size="lg"
                 disabled={loading}
               >
@@ -246,17 +257,17 @@ export default function AdminRegisterPage() {
               </Button>
             </form>
 
-            <div className="border-t border-white/10 pt-4 space-y-2">
-              <p className="text-xs text-center text-gray-600">
+            <div className="border-t border-blue-100 pt-4 space-y-2">
+              <p className="text-xs text-center text-blue-600">
                 이미 계정이 있으신가요?{" "}
                 <button
                   onClick={() => router.push("/admin/login")}
-                  className="text-neon-red hover:underline"
+                  className="text-blue-700 hover:underline font-semibold"
                 >
                   로그인
                 </button>
               </p>
-              <p className="text-xs text-center text-gray-600">
+              <p className="text-xs text-center text-blue-600">
                 관리자 승인 후 사용 가능 • 무단 신청 금지
               </p>
             </div>
