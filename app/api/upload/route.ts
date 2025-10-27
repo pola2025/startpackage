@@ -3,6 +3,9 @@ import { NextResponse } from "next/server";
 import { fileTypeFromBuffer } from "file-type";
 import { uploadToR2, generateFileName, validateR2Config } from "@/lib/storage/r2Client";
 
+// Vercel function timeout 설정 (30초)
+export const maxDuration = 30;
+
 // 필드별 허용 MIME 타입 정의
 const ALLOWED_MIME_TYPES: Record<string, string[]> = {
   프로필사진URL: ["image/jpeg", "image/png", "image/webp"],

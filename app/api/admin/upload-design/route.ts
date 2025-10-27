@@ -4,6 +4,9 @@ import { NextResponse } from "next/server";
 import { handleDesignUpload } from "@/lib/notification/notificationService";
 import { uploadToR2, generateFileName, validateR2Config } from "@/lib/storage/r2Client";
 
+// Vercel function timeout 설정 (30초)
+export const maxDuration = 30;
+
 export async function POST(request: Request) {
   try {
     const session = await auth();

@@ -2,6 +2,9 @@ import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 import { uploadToR2, generateFileName, validateR2Config } from "@/lib/storage/r2Client";
 
+// Vercel function timeout 설정 (30초)
+export const maxDuration = 30;
+
 const ALLOWED_IMAGE_TYPES = [
   "image/jpeg",
   "image/jpg",
