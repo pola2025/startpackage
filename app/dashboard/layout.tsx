@@ -25,8 +25,19 @@ export default function UserLayout({
       (session?.user as any)?.role === "admin"
     ) {
       router.push("/admin");
+    } else if (
+      status === "authenticated" &&
+      (session?.user as any)?.isGraduated === true
+    ) {
+      // 수료생은 커뮤니케이션이나 마케팅 소식만 접근 가능
+      if (
+        pathname !== "/dashboard/communication" &&
+        pathname !== "/dashboard/announcements"
+      ) {
+        router.push("/dashboard/communication");
+      }
     }
-  }, [status, session, router]);
+  }, [status, session, router, pathname]);
 
   if (status === "loading") {
     return (
@@ -47,6 +58,8 @@ export default function UserLayout({
     await signOut({ redirect: false });
     router.push("/");
   };
+
+  const isGraduated = (session?.user as any)?.isGraduated === true;
 
   return (
     <div className="relative min-h-screen bg-gray-50">
@@ -71,6 +84,11 @@ export default function UserLayout({
                   {session?.user?.name}
                 </span>
                 <span className="text-gray-600">님</span>
+                {isGraduated && (
+                  <span className="ml-2 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">
+                    수료생
+                  </span>
+                )}
               </div>
               <Button
                 onClick={handleLogout}
@@ -83,48 +101,52 @@ export default function UserLayout({
               </Button>
             </div>
           </div>
-          {/* Navigation - 모바일 3단 구조 */}
-          <nav className="grid grid-cols-3 md:flex gap-1 pb-2 sm:pb-4">
-            <Link href="/dashboard">
-              <Button
-                variant="ghost"
-                size="sm"
-                className={`${pathname === "/dashboard" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} text-xs sm:text-sm h-8 px-2 sm:h-9 sm:px-3 w-full`}
-              >
-                <LayoutDashboard className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                대시보드
-              </Button>
-            </Link>
-            <Link href="/dashboard/submission">
-              <Button
-                variant="ghost"
-                size="sm"
-                className={`${pathname === "/dashboard/submission" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} text-xs sm:text-sm h-8 px-2 sm:h-9 sm:px-3 w-full`}
-              >
-                <FileText className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                자료 제출
-              </Button>
-            </Link>
-            <Link href="/dashboard/workflows">
-              <Button
-                variant="ghost"
-                size="sm"
-                className={`${pathname === "/dashboard/workflows" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} text-xs sm:text-sm h-8 px-2 sm:h-9 sm:px-3 w-full`}
-              >
-                <Workflow className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                제작 현황
-              </Button>
-            </Link>
-            <Link href="/dashboard/guides">
-              <Button
-                variant="ghost"
-                size="sm"
-                className={`${pathname === "/dashboard/guides" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} text-xs sm:text-sm h-8 px-2 sm:h-9 sm:px-3 w-full`}
-              >
-                <BookOpen className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                가이드
-              </Button>
-            </Link>
+          {/* Navigation - 수료생은 커뮤니케이션/마케팅 소식만 표시 */}
+          <nav className={`${isGraduated ? "grid grid-cols-2" : "grid grid-cols-3 md:flex"} gap-1 pb-2 sm:pb-4`}>
+            {!isGraduated && (
+              <>
+                <Link href="/dashboard">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`${pathname === "/dashboard" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} text-xs sm:text-sm h-8 px-2 sm:h-9 sm:px-3 w-full`}
+                  >
+                    <LayoutDashboard className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                    대시보드
+                  </Button>
+                </Link>
+                <Link href="/dashboard/submission">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`${pathname === "/dashboard/submission" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} text-xs sm:text-sm h-8 px-2 sm:h-9 sm:px-3 w-full`}
+                  >
+                    <FileText className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                    자료 제출
+                  </Button>
+                </Link>
+                <Link href="/dashboard/workflows">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`${pathname === "/dashboard/workflows" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} text-xs sm:text-sm h-8 px-2 sm:h-9 sm:px-3 w-full`}
+                  >
+                    <Workflow className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                    제작 현황
+                  </Button>
+                </Link>
+                <Link href="/dashboard/guides">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`${pathname === "/dashboard/guides" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} text-xs sm:text-sm h-8 px-2 sm:h-9 sm:px-3 w-full`}
+                  >
+                    <BookOpen className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                    가이드
+                  </Button>
+                </Link>
+              </>
+            )}
             <Link href="/dashboard/communication">
               <Button
                 variant="ghost"

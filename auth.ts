@@ -54,6 +54,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     name: user.이름,
                     role: user.role as "user" | "super" | "designer" | "operator",
                     cohortId: user.cohortId,
+                    isGraduated: user.isGraduated,
                   };
                 }
               }
@@ -74,6 +75,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     name: user.이름,
                     role: user.role as "user" | "super" | "designer" | "operator",
                     cohortId: user.cohortId,
+                    isGraduated: user.isGraduated,
                   };
                 }
               }
@@ -131,6 +133,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.role = user.role;
         token.userType = user.userType; // ✅ user 객체에서도 가져옴
         token.cohortId = user.cohortId;
+        token.isGraduated = user.isGraduated;
       }
       return token;
     },
@@ -140,6 +143,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.role = token.role as "user" | "super" | "designer" | "operator";
         session.user.userType = token.userType as "user" | "admin" | undefined;
         session.user.cohortId = token.cohortId as string | undefined;
+        session.user.isGraduated = token.isGraduated as boolean | undefined;
       }
       return session;
     },

@@ -66,6 +66,9 @@ model User {
   // 역할
   role String @default("user") // "user" | "admin"
 
+  // 수료생 여부
+  isGraduated Boolean @default(false) // true인 경우 커뮤니케이션/마케팅 소식만 접근 가능
+
   // 알림 채널 ID
   slackChannelId   String? // 슬랙 채널 ID (기수명_이름_브랜드명)
   telegramChatId   String? // 텔레그램 채팅 ID

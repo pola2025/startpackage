@@ -26,7 +26,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, Trash2, Eye, ExternalLink } from "lucide-react";
+import { MoreVertical, Trash2, Eye, ExternalLink, GraduationCap, UserCheck } from "lucide-react";
 
 interface UserActionsProps {
   user: any;
@@ -37,6 +37,7 @@ export default function UserActions({ user }: UserActionsProps) {
   const [loading, setLoading] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showDetailDialog, setShowDetailDialog] = useState(false);
+  const [showGraduateDialog, setShowGraduateDialog] = useState(false);
   const [submission, setSubmission] = useState<any>(null);
   const [loadingSubmission, setLoadingSubmission] = useState(false);
 
@@ -84,6 +85,30 @@ export default function UserActions({ user }: UserActionsProps) {
     }
   };
 
+  const handleToggleGraduate = async () => {
+    if (loading) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch("/api/admin/users/toggle-graduate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.id, isGraduated: !user.isGraduated }),
+      });
+
+      if (!response.ok) {
+        throw new Error("수료생 전환 실패");
+      }
+
+      router.refresh();
+      setShowGraduateDialog(false);
+    } catch (error) {
+      alert("수료생 전환 중 오류가 발생했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
       <DropdownMenu>
@@ -105,6 +130,23 @@ export default function UserActions({ user }: UserActionsProps) {
             제출 정보 확인
           </DropdownMenuItem>
           <DropdownMenuItem
+            onClick={() => setShowGraduateDialog(true)}
+            disabled={loading}
+            className={`${user.isGraduated ? "text-orange-600 hover:bg-orange-50" : "text-green-600 hover:bg-green-50"} cursor-pointer`}
+          >
+            {user.isGraduated ? (
+              <>
+                <UserCheck className="w-4 h-4 mr-2" />
+                재학생으로 전환
+              </>
+            ) : (
+              <>
+                <GraduationCap className="w-4 h-4 mr-2" />
+                수료생으로 전환
+              </>
+            )}
+          </DropdownMenuItem>
+          <DropdownMenuItem
             onClick={() => setShowDeleteDialog(true)}
             disabled={loading}
             className="text-red-600 hover:bg-red-50 cursor-pointer"
@@ -114,6 +156,36 @@ export default function UserActions({ user }: UserActionsProps) {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <AlertDialog open={showGraduateDialog} onOpenChange={setShowGraduateDialog}>
+        <AlertDialogContent className="bg-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {user.isGraduated ? "재학생으로 전환" : "수료생으로 전환"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              <strong>{user.이름}</strong> 사용자를{" "}
+              {user.isGraduated ? "재학생" : "수료생"}으로 전환하시겠습니까?
+              <br />
+              {user.isGraduated ? (
+                <>모든 기능에 접근할 수 있게 됩니다.</>
+              ) : (
+                <>커뮤니케이션과 마케팅 소식만 접근할 수 있게 됩니다.</>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-gray-300">취소</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleToggleGraduate}
+              disabled={loading}
+              className={`${user.isGraduated ? "bg-orange-600 hover:bg-orange-700" : "bg-green-600 hover:bg-green-700"} text-white`}
+            >
+              {loading ? "처리 중..." : "전환"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent className="bg-white">
