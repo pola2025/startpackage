@@ -142,16 +142,6 @@ export default async function UserDashboard() {
 
   const notifications: Notification[] = [];
 
-  // 테스트용 알림 (항상 표시)
-  notifications.push({
-    id: "test-welcome",
-    priority: 4,
-    type: "info",
-    message: "스타트패키지에 오신 것을 환영합니다!",
-    link: "/dashboard/guides",
-    badge: "안내",
-  });
-
   // 1. 기본 정보 미입력 (최우선)
   if (!user.submission?.브랜드명 || !user.submission?.사업자등록증URL || !user.submission?.프로필사진URL) {
     notifications.push({
@@ -179,7 +169,10 @@ export default async function UserDashboard() {
   }
 
   // 3. 시안 확인 요청
-  const designConfirmWorkflows = user.workflows.filter(w => w.status === "시안컨펌요청");
+  // 로고: 시안컨펌요청, 인쇄물: 발주대기 (시안완료) 상태
+  const designConfirmWorkflows = user.workflows.filter(w =>
+    w.status === "시안컨펌요청" || w.status === "발주대기"
+  );
   designConfirmWorkflows.forEach((workflow) => {
     notifications.push({
       id: `design-confirm-${workflow.id}`,
