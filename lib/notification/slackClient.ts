@@ -5,6 +5,7 @@
  */
 
 import { WebClient } from "@slack/web-api";
+import { toSlackChannelName } from "@/lib/utils/koreanToRoman";
 
 let slackClient: WebClient | null = null;
 
@@ -33,7 +34,8 @@ function initSlackClient() {
 }
 
 /**
- * 채널 이름 생성 (영문명 사용: 19th_leejaeho_polarad)
+ * 채널 이름 생성 (한글 자동 로마자 변환)
+ * 예: "19기_임혜진_별내사진관" → "19gi_imhyejin_byeollaesajingwan"
  * 슬랙 채널 이름 규칙: 소문자, 숫자, 하이픈, 언더스코어만 허용
  */
 function generateChannelName(
@@ -41,13 +43,20 @@ function generateChannelName(
   userName: string,
   brandName: string
 ): string {
-  const sanitized = `${cohortName}_${userName}_${brandName}`
-    .toLowerCase()
-    .replace(/\s+/g, "_") // 공백을 언더스코어로
-    .replace(/[^a-z0-9_\-]/g, "") // 영문, 숫자, 하이픈, 언더스코어만 허용
-    .substring(0, 80); // 슬랙 채널 이름 최대 길이 제한
+  // 각 부분을 개별적으로 변환
+  const cohortPart = toSlackChannelName(cohortName);
+  const userPart = toSlackChannelName(userName);
+  const brandPart = toSlackChannelName(brandName);
 
-  return sanitized;
+  // 언더스코어로 연결
+  const channelName = `${cohortPart}_${userPart}_${brandPart}`;
+
+  console.log(`🔄 [Slack] 채널명 생성:`);
+  console.log(`  - 원본: ${cohortName}_${userName}_${brandName}`);
+  console.log(`  - 변환: ${channelName}`);
+
+  // 80자 제한
+  return channelName.substring(0, 80);
 }
 
 /**

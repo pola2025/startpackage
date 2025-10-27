@@ -40,13 +40,19 @@ export async function GET() {
 // POST: 제출 데이터 업데이트
 export async function POST(request: Request) {
   try {
+    console.log("🔄 [Submission] POST 요청 시작");
+
     const session = await auth();
     if (!session?.user) {
+      console.error("❌ [Submission] Unauthorized - 세션 없음");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const userId = session.user.id; // ✅ 타입 안전
+    console.log(`✅ [Submission] 사용자 인증 성공: userId=${userId}`);
+
     const body = await request.json();
+    console.log("📋 [Submission] Request body:", JSON.stringify(body, null, 2));
 
     // ✅ Zod 검증
     let validatedData;
@@ -198,9 +204,70 @@ export async function POST(request: Request) {
     }
 
     // 슬랙 채널이 있으면 변경된 파일과 명함시안 정보를 슬랙에 전송
+    console.log(`🔍 [Submission] 슬랙 업데이트 체크 - slackChannelId: ${user?.slackChannelId}, existingSubmission: ${!!existingSubmission}`);
     if (user?.slackChannelId && existingSubmission) {
+      console.log(`✅ [Submission] 슬랙 업데이트 시작`);
       const { uploadFileToSlack } = await import("@/lib/notification/slackClient");
       const { postMessage } = await import("@/lib/notification/slackClient");
+
+      // 텍스트 필드 변경 감지
+      const textFields: Array<{ key: keyof typeof submission; label: string }> = [
+        { key: "브랜드명", label: "브랜드명" },
+        { key: "업종", label: "업종" },
+        { key: "주소", label: "주소" },
+        { key: "대표번호", label: "대표번호" },
+        { key: "이메일", label: "이메일" },
+        { key: "로고선호스타일", label: "로고 선호 스타일" },
+        { key: "로고선호폰트", label: "로고 선호 폰트" },
+        { key: "명함색상", label: "명함 색상" },
+      ];
+
+      const changedTextFields: Array<{ label: string; oldValue: any; newValue: any }> = [];
+
+      for (const { key, label } of textFields) {
+        const newValue = submission[key];
+        const oldValue = existingSubmission[key];
+
+        if (newValue && newValue !== oldValue && oldValue !== null) {
+          changedTextFields.push({ label, oldValue, newValue });
+          console.log(`📝 [Submission] 텍스트 필드 변경: ${label} - ${oldValue} → ${newValue}`);
+        }
+      }
+
+      // 변경된 텍스트 필드가 있으면 슬랙에 메시지 전송
+      if (changedTextFields.length > 0) {
+        const fields = changedTextFields.map(({ label, oldValue, newValue }) => ({
+          type: "mrkdwn",
+          text: `*${label}:*\n~${oldValue}~ → *${newValue}*`,
+        }));
+
+        await postMessage({
+          channelId: user.slackChannelId,
+          text: `📝 정보 수정`,
+          blocks: [
+            {
+              type: "header",
+              text: {
+                type: "plain_text",
+                text: "📝 정보 수정됨",
+              },
+            },
+            {
+              type: "section",
+              fields,
+            },
+            {
+              type: "context",
+              elements: [
+                {
+                  type: "mrkdwn",
+                  text: `📅 ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`,
+                },
+              ],
+            },
+          ],
+        }).catch(err => console.error("정보 수정 슬랙 메시지 전송 실패", err));
+      }
 
       // 파일 필드 체크 (마케팅 서류 등)
       const fileFields = [
@@ -216,7 +283,7 @@ export async function POST(request: Request) {
         const oldValue = existingSubmission[key];
 
         if (newValue && newValue !== oldValue) {
-          console.log(`📤 파일 업로드: ${label}`);
+          console.log(`📤 [Submission] 파일 업로드: ${label}`);
           await uploadFileToSlack({
             channelId: user.slackChannelId,
             filePath: newValue,
@@ -346,12 +413,22 @@ export async function POST(request: Request) {
           console.log(`✅ 워크플로우 업데이트 완료`);
         }
 
+        // 슬랙 채널명 생성을 위한 이름 (한글 자동 변환)
+        const cohortName = user.cohort?.englishName || user.cohort?.name || "unknown";
+        const userName = user.englishName || user.이름; // 한글이면 자동 변환됨
+        const brandName = updatedSubmission.brandNameEnglish || updatedSubmission.브랜드명 || "unknown"; // 한글이면 자동 변환됨
+
+        console.log(`🔍 [Submission] 슬랙 채널명 생성 정보:`);
+        console.log(`  - cohortName: ${cohortName} (원본: ${user.cohort?.name})`);
+        console.log(`  - userName: ${userName} (한글: ${user.이름})`);
+        console.log(`  - brandName: ${brandName} (한글: ${updatedSubmission.브랜드명})`);
+
         // 알림 발송 (텔레그램 + 슬랙)
         await handleSubmissionComplete({
           userId,
-          cohortName: user.cohort?.englishName || user.cohort?.name || "unknown",
-          userName: user.englishName || user.이름,
-          brandName: updatedSubmission.brandNameEnglish || updatedSubmission.브랜드명 || "unknown",
+          cohortName,
+          userName,
+          brandName,
           userEmail: user.email,
           userPhone: user.연락처,
           submissionData: updatedSubmission,
