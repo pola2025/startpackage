@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -31,19 +30,6 @@ interface Workflow {
 
 export default function WorkflowsPage() {
   const { data: session } = useSession();
-  const router = useRouter();
-
-  // 수료생 접근 차단
-  useEffect(() => {
-    if (session?.user) {
-      const cohortName = (session.user as any)?.cohortName;
-      const isGraduated = (session.user as any)?.isGraduated === true || cohortName === "수료생";
-
-      if (isGraduated) {
-        router.push("/dashboard/communication");
-      }
-    }
-  }, [session, router]);
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedWorkflow, setSelectedWorkflow] = useState<Workflow | null>(null);

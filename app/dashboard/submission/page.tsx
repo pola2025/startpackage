@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,19 +13,6 @@ import imageCompression from "browser-image-compression";
 
 export default function SubmissionPage() {
   const { data: session } = useSession();
-  const router = useRouter();
-
-  // 수료생 접근 차단
-  useEffect(() => {
-    if (session?.user) {
-      const cohortName = (session.user as any)?.cohortName;
-      const isGraduated = (session.user as any)?.isGraduated === true || cohortName === "수료생";
-
-      if (isGraduated) {
-        router.push("/dashboard/communication");
-      }
-    }
-  }, [session, router]);
   const [loading, setLoading] = useState(false);
   const [submission, setSubmission] = useState<any>(null);
   const [uploading, setUploading] = useState(false);

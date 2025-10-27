@@ -5,10 +5,10 @@ import { redirect } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { LogOut, Package, LayoutDashboard, FileText, Workflow, BookOpen, MessageSquare, Megaphone } from "lucide-react";
+import { LogOut, Package, MessageSquare, Megaphone } from "lucide-react";
 import Link from "next/link";
 
-export default function UserLayout({
+export default function GraduatedLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -29,9 +29,9 @@ export default function UserLayout({
       const cohortName = (session?.user as any)?.cohortName;
       const isGraduated = (session?.user as any)?.isGraduated === true || cohortName === "수료생";
 
-      // 수료생은 /graduated 경로로 리다이렉트
-      if (isGraduated) {
-        router.push("/graduated");
+      // 수료생이 아닌 경우 일반 대시보드로 리다이렉트
+      if (!isGraduated) {
+        router.push("/dashboard");
       }
     }
   }, [status, session, router]);
@@ -56,7 +56,6 @@ export default function UserLayout({
     router.push("/");
   };
 
-  // 일반 사용자 레이아웃
   return (
     <div className="relative min-h-screen bg-gray-50">
       {/* Subtle Pattern Background */}
@@ -80,6 +79,9 @@ export default function UserLayout({
                   {session?.user?.name}
                 </span>
                 <span className="text-gray-600">님</span>
+                <span className="ml-2 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">
+                  수료생
+                </span>
               </div>
               <Button
                 onClick={handleLogout}
@@ -92,63 +94,23 @@ export default function UserLayout({
               </Button>
             </div>
           </div>
-          {/* 일반 사용자 네비게이션 - 전체 메뉴 */}
-          <nav className="grid grid-cols-3 md:flex gap-1 pb-2 sm:pb-4">
-            <Link href="/dashboard">
+          {/* 수료생 전용 네비게이션 - 2개 메뉴만 */}
+          <nav className="grid grid-cols-2 gap-1 pb-2 sm:pb-4">
+            <Link href="/graduated/communication">
               <Button
                 variant="ghost"
                 size="sm"
-                className={`${pathname === "/dashboard" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} text-xs sm:text-sm h-8 px-2 sm:h-9 sm:px-3 w-full`}
-              >
-                <LayoutDashboard className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                대시보드
-              </Button>
-            </Link>
-            <Link href="/dashboard/submission">
-              <Button
-                variant="ghost"
-                size="sm"
-                className={`${pathname === "/dashboard/submission" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} text-xs sm:text-sm h-8 px-2 sm:h-9 sm:px-3 w-full`}
-              >
-                <FileText className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                자료 제출
-              </Button>
-            </Link>
-            <Link href="/dashboard/workflows">
-              <Button
-                variant="ghost"
-                size="sm"
-                className={`${pathname === "/dashboard/workflows" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} text-xs sm:text-sm h-8 px-2 sm:h-9 sm:px-3 w-full`}
-              >
-                <Workflow className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                제작 현황
-              </Button>
-            </Link>
-            <Link href="/dashboard/guides">
-              <Button
-                variant="ghost"
-                size="sm"
-                className={`${pathname === "/dashboard/guides" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} text-xs sm:text-sm h-8 px-2 sm:h-9 sm:px-3 w-full`}
-              >
-                <BookOpen className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                가이드
-              </Button>
-            </Link>
-            <Link href="/dashboard/communication">
-              <Button
-                variant="ghost"
-                size="sm"
-                className={`${pathname === "/dashboard/communication" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} text-xs sm:text-sm h-8 px-2 sm:h-9 sm:px-3 w-full`}
+                className={`${pathname === "/graduated/communication" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} text-xs sm:text-sm h-8 px-2 sm:h-9 sm:px-3 w-full`}
               >
                 <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                 문의하기
               </Button>
             </Link>
-            <Link href="/dashboard/announcements">
+            <Link href="/graduated/announcements">
               <Button
                 variant="ghost"
                 size="sm"
-                className={`${pathname === "/dashboard/announcements" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} text-xs sm:text-sm h-8 px-2 sm:h-9 sm:px-3 w-full`}
+                className={`${pathname === "/graduated/announcements" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} text-xs sm:text-sm h-8 px-2 sm:h-9 sm:px-3 w-full`}
               >
                 <Megaphone className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                 마케팅 소식
