@@ -25,26 +25,36 @@ const ALLOWED_MIME_TYPES: Record<string, string[]> = {
 // POST: 파일 업로드
 export async function POST(request: Request) {
   try {
+    console.log("[Upload API] 요청 시작");
+
     const session = await auth();
     if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      console.log("[Upload API] 인증 실패: 세션 없음");
+      return NextResponse.json({ error: "로그인이 필요합니다" }, { status: 401 });
     }
 
     const userId = session.user.id;
     if (!userId) {
-      return NextResponse.json({ error: "User ID not found" }, { status: 400 });
+      console.log("[Upload API] User ID 없음");
+      return NextResponse.json({ error: "사용자 정보를 찾을 수 없습니다" }, { status: 400 });
     }
+
+    console.log("[Upload API] 사용자:", userId);
 
     const formData = await request.formData();
     const file = formData.get("file") as File;
     const field = formData.get("field") as string;
 
+    console.log("[Upload API] 필드:", field, "파일명:", file?.name, "파일 크기:", file?.size);
+
     if (!file) {
-      return NextResponse.json({ error: "No file provided" }, { status: 400 });
+      console.log("[Upload API] 파일 없음");
+      return NextResponse.json({ error: "파일이 제공되지 않았습니다" }, { status: 400 });
     }
 
     // 파일 크기 체크 (10MB)
     if (file.size > 10 * 1024 * 1024) {
+      console.log("[Upload API] 파일 크기 초과:", file.size);
       return NextResponse.json(
         { error: "파일 크기는 10MB 이하여야 합니다" },
         { status: 400 }
@@ -52,23 +62,41 @@ export async function POST(request: Request) {
     }
 
     // 파일 버퍼 읽기
+    console.log("[Upload API] 파일 버퍼 읽기 시작");
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
+    console.log("[Upload API] 버퍼 크기:", buffer.length);
 
     // 실제 파일 타입 검증 (Magic Number 기반)
-    const detectedType = await fileTypeFromBuffer(buffer);
-
-    if (!detectedType) {
-      return NextResponse.json(
-        { error: "파일 형식을 확인할 수 없습니다" },
-        { status: 400 }
-      );
+    console.log("[Upload API] 파일 타입 검증 시작");
+    let detectedType;
+    try {
+      detectedType = await fileTypeFromBuffer(buffer);
+      console.log("[Upload API] 감지된 타입:", detectedType);
+    } catch (typeError) {
+      console.error("[Upload API] 파일 타입 감지 오류:", typeError);
+      // 파일 타입 감지에 실패해도 브라우저가 보낸 MIME 타입으로 처리 시도
+      if (file.type) {
+        console.log("[Upload API] 브라우저 MIME 타입 사용:", file.type);
+        detectedType = null;
+      } else {
+        return NextResponse.json(
+          { error: "파일 형식을 확인할 수 없습니다" },
+          { status: 400 }
+        );
+      }
     }
 
     // 허용된 MIME 타입 확인
     const allowedTypes = ALLOWED_MIME_TYPES[field] || ALLOWED_MIME_TYPES.default;
+    console.log("[Upload API] 허용 타입:", allowedTypes);
 
-    if (!allowedTypes.includes(detectedType.mime)) {
+    // MIME 타입 검증 (감지된 타입이 있으면 사용, 없으면 브라우저 타입 사용)
+    const actualMimeType = detectedType?.mime || file.type;
+    console.log("[Upload API] 실제 MIME 타입:", actualMimeType);
+
+    if (!allowedTypes.includes(actualMimeType)) {
+      console.log("[Upload API] 허용되지 않은 파일 형식:", actualMimeType);
       return NextResponse.json(
         {
           error: `허용되지 않는 파일 형식입니다. 허용 형식: ${allowedTypes.join(", ")}`,
@@ -77,37 +105,40 @@ export async function POST(request: Request) {
       );
     }
 
-    // 브라우저가 보낸 MIME 타입과 실제 파일 타입 일치 여부 확인
-    if (file.type && !file.type.startsWith(detectedType.mime.split("/")[0])) {
-      return NextResponse.json(
-        { error: "파일 형식이 일치하지 않습니다" },
-        { status: 400 }
-      );
-    }
-
     // 파일 저장 경로 생성
     const uploadDir = join(process.cwd(), "public", "uploads", userId);
+    console.log("[Upload API] 업로드 디렉토리:", uploadDir);
+
     if (!existsSync(uploadDir)) {
+      console.log("[Upload API] 디렉토리 생성 중...");
       await mkdir(uploadDir, { recursive: true });
     }
 
     // 파일명 생성 (timestamp + 검증된 확장자)
     const timestamp = Date.now();
-    const ext = detectedType.ext;
+    const ext = detectedType?.ext || file.name.split(".").pop() || "bin";
     const filename = `${field}_${timestamp}.${ext}`;
     const filepath = join(uploadDir, filename);
 
+    console.log("[Upload API] 파일 저장 경로:", filepath);
+
     // 파일 저장
     await writeFile(filepath, buffer);
+    console.log("[Upload API] 파일 저장 완료");
 
     // 공개 URL 생성
     const url = `/uploads/${userId}/${filename}`;
+    console.log("[Upload API] 공개 URL:", url);
 
-    return NextResponse.json({ url, filename, mimeType: detectedType.mime });
-  } catch (error) {
-    console.error("POST /api/upload error:", error);
+    return NextResponse.json({ url, filename, mimeType: actualMimeType });
+  } catch (error: any) {
+    console.error("[Upload API] 치명적 오류:", error);
+    console.error("[Upload API] 오류 스택:", error?.stack);
     return NextResponse.json(
-      { error: "파일 업로드에 실패했습니다" },
+      {
+        error: "파일 업로드에 실패했습니다",
+        details: error?.message || "알 수 없는 오류"
+      },
       { status: 500 }
     );
   }

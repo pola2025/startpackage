@@ -167,32 +167,43 @@ export default function SubmissionPage() {
     formData.append("field", field);
 
     try {
-      console.log("파일 업로드 시작:", field, file.name);
+      console.log("[클라이언트] 파일 업로드 시작:", field, file.name, "크기:", file.size, "타입:", file.type);
       const res = await fetch("/api/upload", {
         method: "POST",
         body: formData,
       });
 
+      console.log("[클라이언트] 응답 상태:", res.status);
+
       if (res.ok) {
         const data = await res.json();
-        console.log("업로드 성공, URL:", data.url);
+        console.log("[클라이언트] 업로드 성공, URL:", data.url);
 
         const success = await updateSubmission(field, data.url);
         if (success) {
-          console.log("DB 저장 성공");
+          console.log("[클라이언트] DB 저장 성공");
           alert("파일이 성공적으로 업로드되었습니다!");
         } else {
-          console.error("DB 저장 실패");
+          console.error("[클라이언트] DB 저장 실패");
           alert("파일 업로드는 성공했지만 저장에 실패했습니다.");
         }
       } else {
         const errorData = await res.json();
-        console.error("업로드 실패:", errorData);
-        alert("파일 업로드에 실패했습니다.");
+        console.error("[클라이언트] 업로드 실패:", errorData);
+
+        let errorMessage = "파일 업로드에 실패했습니다.";
+        if (errorData.error) {
+          errorMessage = errorData.error;
+        }
+        if (errorData.details) {
+          errorMessage += "\n상세: " + errorData.details;
+        }
+
+        alert(errorMessage);
       }
     } catch (error) {
-      console.error("Upload failed:", error);
-      alert("파일 업로드에 실패했습니다.");
+      console.error("[클라이언트] 네트워크 오류:", error);
+      alert("파일 업로드 중 네트워크 오류가 발생했습니다.\n인터넷 연결을 확인해주세요.");
     } finally {
       setUploading(false);
     }
