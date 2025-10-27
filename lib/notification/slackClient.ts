@@ -345,27 +345,59 @@ export async function uploadFileToSlack(params: {
     const fs = require("fs");
     const path = require("path");
 
-    // 파일 경로가 /uploads/로 시작하면 public 폴더 경로로 변환
-    let fullPath = params.filePath;
-    if (fullPath.startsWith("/uploads/")) {
-      fullPath = path.join(process.cwd(), "public", fullPath);
+    let fileContent: Buffer;
+    let finalFileName: string;
+
+    // R2 URL인지 확인 (https://로 시작하는 경우)
+    if (params.filePath.startsWith("http://") || params.filePath.startsWith("https://")) {
+      console.log(`🌐 R2 URL에서 파일 다운로드: ${params.filePath}`);
+
+      try {
+        // R2에서 파일 다운로드
+        const response = await fetch(params.filePath);
+        if (!response.ok) {
+          console.error(`R2 파일 다운로드 실패: ${response.status} ${response.statusText}`);
+          return false;
+        }
+
+        const arrayBuffer = await response.arrayBuffer();
+        fileContent = Buffer.from(arrayBuffer);
+
+        // URL에서 확장자 추출
+        const urlPath = new URL(params.filePath).pathname;
+        const actualExtension = path.extname(urlPath); // .pdf, .jpg 등
+        const baseFileName = params.fileName.replace(/\.[^/.]+$/, ""); // 확장자 제거
+        finalFileName = baseFileName + actualExtension; // 실제 확장자로 조합
+
+        console.log(`✅ R2 파일 다운로드 성공: ${fileContent.length} bytes`);
+      } catch (error) {
+        console.error(`R2 파일 다운로드 오류:`, error);
+        return false;
+      }
+    } else {
+      // 로컬 파일 경로 처리 (기존 로직)
+      let fullPath = params.filePath;
+      if (fullPath.startsWith("/uploads/")) {
+        fullPath = path.join(process.cwd(), "public", fullPath);
+      }
+
+      // 파일이 존재하는지 확인
+      if (!fs.existsSync(fullPath)) {
+        console.error(`파일을 찾을 수 없습니다: ${fullPath}`);
+        return false;
+      }
+
+      // 실제 파일의 확장자 추출
+      const actualExtension = path.extname(fullPath); // .pdf, .jpg 등
+      const baseFileName = params.fileName.replace(/\.[^/.]+$/, ""); // 확장자 제거
+      finalFileName = baseFileName + actualExtension; // 실제 확장자로 조합
+
+      // 파일 읽기
+      fileContent = fs.readFileSync(fullPath);
+      console.log(`📂 로컬 파일 읽기 성공: ${fullPath}`);
     }
 
-    // 파일이 존재하는지 확인
-    if (!fs.existsSync(fullPath)) {
-      console.error(`파일을 찾을 수 없습니다: ${fullPath}`);
-      return false;
-    }
-
-    // 실제 파일의 확장자 추출
-    const actualExtension = path.extname(fullPath); // .pdf, .jpg 등
-    const baseFileName = params.fileName.replace(/\.[^/.]+$/, ""); // 확장자 제거
-    const finalFileName = baseFileName + actualExtension; // 실제 확장자로 조합
-
-    // 파일 읽기
-    const fileContent = fs.readFileSync(fullPath);
-
-    console.log(`📤 파일 업로드 시도: ${finalFileName} (원본: ${fullPath})`);
+    console.log(`📤 슬랙 파일 업로드 시도: ${finalFileName} (${fileContent.length} bytes)`);
 
     // 슬랙에 파일 업로드 (files.uploadV2 사용)
     const result = await client.files.uploadV2({
