@@ -38,7 +38,12 @@
       "Bash(vercel inspect:*)",
       "Bash(nslookup:*)",
       "Bash(vercel env:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(Stop-Process -Id 16192 -Force)",
+      "Bash(npx kill-port:*)",
+      "Bash(npm run start)",
+      "Bash(vercel:*)",
+      "Bash(wc:*)"
     ],
     "deny": [],
     "ask": []

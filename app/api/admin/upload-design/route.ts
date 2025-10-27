@@ -4,8 +4,10 @@ import { NextResponse } from "next/server";
 import { handleDesignUpload } from "@/lib/notification/notificationService";
 import { uploadToR2, generateFileName, validateR2Config } from "@/lib/storage/r2Client";
 
-// Vercel function timeout 설정 (30초)
-export const maxDuration = 30;
+// Vercel function 설정
+export const maxDuration = 30; // 30초 타임아웃
+export const runtime = "nodejs"; // Node.js 런타임 (Edge는 4MB 제한)
+export const dynamic = "force-dynamic"; // 항상 동적 렌더링
 
 export async function POST(request: Request) {
   try {

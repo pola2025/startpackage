@@ -3,8 +3,10 @@ import { NextResponse } from "next/server";
 import { fileTypeFromBuffer } from "file-type";
 import { uploadToR2, generateFileName, validateR2Config } from "@/lib/storage/r2Client";
 
-// Vercel function timeout 설정 (30초)
-export const maxDuration = 30;
+// Vercel function 설정
+export const maxDuration = 30; // 30초 타임아웃
+export const runtime = "nodejs"; // Node.js 런타임 (Edge는 4MB 제한)
+export const dynamic = "force-dynamic"; // 항상 동적 렌더링
 
 // 필드별 허용 MIME 타입 정의
 const ALLOWED_MIME_TYPES: Record<string, string[]> = {
