@@ -16,7 +16,7 @@ const ALLOWED_IMAGE_TYPES = [
   "image/webp",
 ];
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_FILE_SIZE = 4 * 1024 * 1024; // 4MB (Vercel body size limit)
 
 // POST: 커뮤니케이션 이미지 업로드
 export async function POST(request: Request) {
@@ -55,10 +55,10 @@ export async function POST(request: Request) {
       );
     }
 
-    // 파일 크기 체크 (10MB)
+    // 파일 크기 체크 (4MB)
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
-        { error: "파일 크기는 10MB 이하여야 합니다" },
+        { error: "파일 크기는 4MB 이하여야 합니다.\n더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다." },
         { status: 400 }
       );
     }

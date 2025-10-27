@@ -125,8 +125,9 @@ export default function AdminCommunicationPage() {
       return;
     }
 
-    if (file.size > 10 * 1024 * 1024) {
-      alert("파일 크기는 10MB 이하여야 합니다");
+    // Vercel 제한을 고려하여 4MB로 제한
+    if (file.size > 4 * 1024 * 1024) {
+      alert("파일 크기는 4MB 이하여야 합니다.\n더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.");
       return;
     }
 
@@ -140,15 +141,29 @@ export default function AdminCommunicationPage() {
         body: formData,
       });
 
-      const data = await response.json();
-      if (response.ok) {
-        setReplyAttachments([...replyAttachments, data.url]);
-      } else {
-        alert(data.error || "업로드 실패");
+      // 413 에러 등 JSON이 아닌 응답 처리
+      if (!response.ok) {
+        if (response.status === 413) {
+          alert("파일이 너무 큽니다. 4MB 이하의 파일만 업로드 가능합니다.\n더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.");
+          return;
+        }
+
+        let errorMessage = "업로드 실패";
+        try {
+          const data = await response.json();
+          errorMessage = data.error || errorMessage;
+        } catch {
+          errorMessage = `업로드 실패 (${response.status})`;
+        }
+        alert(errorMessage);
+        return;
       }
+
+      const data = await response.json();
+      setReplyAttachments([...replyAttachments, data.url]);
     } catch (error) {
       console.error("Upload error:", error);
-      alert("업로드 중 오류가 발생했습니다");
+      alert("업로드 중 오류가 발생했습니다.\n네트워크 연결을 확인해주세요.");
     } finally {
       setUploading(false);
     }
@@ -541,7 +556,7 @@ export default function AdminCommunicationPage() {
                         <Paperclip className="w-4 h-4 mr-2" />
                         {uploading ? "업로드 중..." : "이미지 첨부"}
                       </Button>
-                      <span className="text-xs text-gray-500">10MB 이하, 이미지만 가능</span>
+                      <span className="text-xs text-gray-500">4MB 이하, 이미지만 가능</span>
                     </div>
                     <Button
                       onClick={handleSendReply}
