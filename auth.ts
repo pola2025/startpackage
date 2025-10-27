@@ -41,7 +41,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               const cleanPhone = emailOrPhone.replace(/-/g, "");
               const user = await prisma.user.findFirst({
                 where: { 연락처: cleanPhone },
-                include: { cohort: true },
+                include: {
+                  cohort: {
+                    select: {
+                      id: true,
+                      name: true,
+                    }
+                  }
+                },
               });
 
               if (user) {
@@ -54,6 +61,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     name: user.이름,
                     role: user.role as "user" | "super" | "designer" | "operator",
                     cohortId: user.cohortId,
+                    cohortName: user.cohort?.name,
                     isGraduated: user.isGraduated,
                   };
                 }
@@ -62,7 +70,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               // 이메일로 사용자 확인
               const user = await prisma.user.findUnique({
                 where: { email: emailOrPhone },
-                include: { cohort: true },
+                include: {
+                  cohort: {
+                    select: {
+                      id: true,
+                      name: true,
+                    }
+                  }
+                },
               });
 
               if (user) {
@@ -75,6 +90,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     name: user.이름,
                     role: user.role as "user" | "super" | "designer" | "operator",
                     cohortId: user.cohortId,
+                    cohortName: user.cohort?.name,
                     isGraduated: user.isGraduated,
                   };
                 }
@@ -133,6 +149,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.role = user.role;
         token.userType = user.userType; // ✅ user 객체에서도 가져옴
         token.cohortId = user.cohortId;
+        token.cohortName = user.cohortName;
         token.isGraduated = user.isGraduated;
       }
       return token;
@@ -143,6 +160,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.role = token.role as "user" | "super" | "designer" | "operator";
         session.user.userType = token.userType as "user" | "admin" | undefined;
         session.user.cohortId = token.cohortId as string | undefined;
+        session.user.cohortName = token.cohortName as string | undefined;
         session.user.isGraduated = token.isGraduated as boolean | undefined;
       }
       return session;

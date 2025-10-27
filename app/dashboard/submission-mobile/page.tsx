@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +15,19 @@ import { cn } from "@/lib/utils";
 
 export default function MobileSubmissionPage() {
   const { data: session } = useSession();
+  const router = useRouter();
+
+  // 수료생 접근 차단
+  useEffect(() => {
+    if (session?.user) {
+      const cohortName = (session.user as any)?.cohortName;
+      const isGraduated = (session.user as any)?.isGraduated === true || cohortName === "수료생";
+
+      if (isGraduated) {
+        router.push("/dashboard/communication");
+      }
+    }
+  }, [session, router]);
   const [submission, setSubmission] = useState<any>(null);
   const [formData, setFormData] = useState<any>({});
   const [activeSection, setActiveSection] = useState<"basic" | "print" | "marketing" | "website">("basic");

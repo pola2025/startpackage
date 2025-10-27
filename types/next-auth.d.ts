@@ -16,6 +16,7 @@ declare module "next-auth" {
     role: "user" | "super" | "designer" | "operator";
     userType?: "user" | "admin"; // ✅ 추가: Provider 구분 (optional for backward compatibility)
     cohortId?: string; // 일반 사용자만 해당
+    cohortName?: string; // 기수명
     isGraduated?: boolean; // 수료생 여부
   }
 
@@ -38,6 +39,7 @@ declare module "next-auth/jwt" {
     role: string;
     userType?: string; // ✅ 추가: Provider 구분
     cohortId?: string;
+    cohortName?: string; // 기수명
     isGraduated?: boolean; // 수료생 여부
   }
 }

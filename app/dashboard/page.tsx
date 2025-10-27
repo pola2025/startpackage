@@ -53,6 +53,14 @@ export default async function UserDashboard() {
     redirect("/");
   }
 
+  // 수료생은 대시보드 접근 불가
+  const cohortName = (session.user as any)?.cohortName;
+  const isGraduated = (session.user as any)?.isGraduated === true || cohortName === "수료생";
+
+  if (isGraduated) {
+    redirect("/dashboard/communication");
+  }
+
   const userId = (session.user as any).id;
 
   // 사용자 정보 조회

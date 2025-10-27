@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusTimeline, TimelineEvent } from "@/components/ui/status-timeline";
 import { SubmissionProgress } from "@/components/ui/submission-progress";
@@ -41,6 +42,20 @@ interface Workflow {
 
 export default function StatusDashboardPage() {
   const { data: session } = useSession();
+  const router = useRouter();
+
+  // 수료생 접근 차단
+  useEffect(() => {
+    if (session?.user) {
+      const cohortName = (session.user as any)?.cohortName;
+      const isGraduated = (session.user as any)?.isGraduated === true || cohortName === "수료생";
+
+      if (isGraduated) {
+        router.push("/dashboard/communication");
+      }
+    }
+  }, [session, router]);
+
   const [submission, setSubmission] = useState<any>(null);
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
   const [loading, setLoading] = useState(true);

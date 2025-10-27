@@ -1,11 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookOpen, MessageSquare, CreditCard, Globe, Mail, FileText, Instagram, UserPlus, Palette, Sparkles } from "lucide-react";
 
 export default function GuidesPage() {
+  const { data: session } = useSession();
+  const router = useRouter();
+
+  // 수료생 접근 차단
+  useEffect(() => {
+    if (session?.user) {
+      const cohortName = (session.user as any)?.cohortName;
+      const isGraduated = (session.user as any)?.isGraduated === true || cohortName === "수료생";
+
+      if (isGraduated) {
+        router.push("/dashboard/communication");
+      }
+    }
+  }, [session, router]);
+
   return (
     <div className="space-y-6">
       {/* Header */}
