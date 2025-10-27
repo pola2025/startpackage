@@ -38,6 +38,7 @@ export async function handleSubmissionComplete(params: {
     console.log(`📋 자료 제출 완료 처리 시작: ${cohortName}_${userName}_${brandName}`);
 
     // 1. 슬랙 채널 생성
+    console.log(`🔄 슬랙 채널 생성 시도 중...`);
     const slackChannelId = await slack.createSlackChannel({
       cohortName,
       userName,
@@ -48,18 +49,28 @@ export async function handleSubmissionComplete(params: {
 
     // 2. 슬랙 채널에 제작 정보 푸시
     if (slackChannelId) {
+      console.log(`✅ 슬랙 채널 생성 성공: ${slackChannelId}`);
+      console.log(`🔄 슬랙에 제작 정보 푸시 중...`);
+
       await slack.pushSubmissionData({
         channelId: slackChannelId,
         submissionData,
       });
 
+      console.log(`✅ 제작 정보 푸시 완료`);
+
       // DB에 슬랙 채널 ID 저장
+      console.log(`🔄 DB에 슬랙 채널 ID 저장 중...`);
       await prisma.user.update({
         where: { id: userId },
         data: { slackChannelId },
       });
 
       console.log(`✅ 슬랙 채널 생성 및 정보 푸시 완료: ${slackChannelId}`);
+    } else {
+      console.error(`❌ 슬랙 채널 생성 실패 - slackChannelId가 null입니다`);
+      console.error(`환경 변수 확인: SLACK_BOT_TOKEN=${process.env.SLACK_BOT_TOKEN ? '설정됨' : '미설정'}`);
+      console.error(`환경 변수 확인: SLACK_ADMIN_EMAILS=${process.env.SLACK_ADMIN_EMAILS ? '설정됨' : '미설정'}`);
     }
 
     // 3. 텔레그램 관리자 알림
