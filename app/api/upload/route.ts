@@ -1,9 +1,7 @@
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import { join } from "path";
-import { existsSync } from "fs";
 import { fileTypeFromBuffer } from "file-type";
+import { uploadToR2, generateFileName, validateR2Config } from "@/lib/storage/r2Client";
 
 // 필드별 허용 MIME 타입 정의
 const ALLOWED_MIME_TYPES: Record<string, string[]> = {
@@ -22,10 +20,21 @@ const ALLOWED_MIME_TYPES: Record<string, string[]> = {
   ],
 };
 
-// POST: 파일 업로드
+// POST: 파일 업로드 (Cloudflare R2)
 export async function POST(request: Request) {
   try {
     console.log("[Upload API] 요청 시작");
+
+    // R2 환경 변수 검증
+    try {
+      validateR2Config();
+    } catch (configError: any) {
+      console.error("[Upload API] R2 설정 오류:", configError.message);
+      return NextResponse.json(
+        { error: "스토리지 설정 오류", details: configError.message },
+        { status: 500 }
+      );
+    }
 
     const session = await auth();
     if (!session?.user) {
@@ -105,32 +114,27 @@ export async function POST(request: Request) {
       );
     }
 
-    // 파일 저장 경로 생성
-    const uploadDir = join(process.cwd(), "public", "uploads", userId);
-    console.log("[Upload API] 업로드 디렉토리:", uploadDir);
+    // R2에 파일 업로드
+    console.log("[Upload API] R2 업로드 시작");
+    const filename = generateFileName(field, file.name);
 
-    if (!existsSync(uploadDir)) {
-      console.log("[Upload API] 디렉토리 생성 중...");
-      await mkdir(uploadDir, { recursive: true });
-    }
+    const { url, key } = await uploadToR2(
+      buffer,
+      filename,
+      actualMimeType,
+      userId
+    );
 
-    // 파일명 생성 (timestamp + 검증된 확장자)
-    const timestamp = Date.now();
-    const ext = detectedType?.ext || file.name.split(".").pop() || "bin";
-    const filename = `${field}_${timestamp}.${ext}`;
-    const filepath = join(uploadDir, filename);
-
-    console.log("[Upload API] 파일 저장 경로:", filepath);
-
-    // 파일 저장
-    await writeFile(filepath, buffer);
-    console.log("[Upload API] 파일 저장 완료");
-
-    // 공개 URL 생성
-    const url = `/uploads/${userId}/${filename}`;
+    console.log("[Upload API] R2 업로드 완료");
     console.log("[Upload API] 공개 URL:", url);
+    console.log("[Upload API] R2 Key:", key);
 
-    return NextResponse.json({ url, filename, mimeType: actualMimeType });
+    return NextResponse.json({
+      url,
+      filename,
+      mimeType: actualMimeType,
+      key
+    });
   } catch (error: any) {
     console.error("[Upload API] 치명적 오류:", error);
     console.error("[Upload API] 오류 스택:", error?.stack);
