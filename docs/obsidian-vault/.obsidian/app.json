@@ -1,0 +1,9 @@
+{
+  "livePreview": true,
+  "defaultViewMode": "preview",
+  "attachmentFolderPath": "assets",
+  "newLinkFormat": "relative",
+  "useMarkdownLinks": true,
+  "showLineNumber": true,
+  "spellcheck": true
+}
