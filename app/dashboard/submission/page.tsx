@@ -21,6 +21,8 @@ export default function SubmissionPage() {
   const [workflows, setWorkflows] = useState<any[]>([]);
   const [completionRate, setCompletionRate] = useState(0);
   const [requestingPrint, setRequestingPrint] = useState(false);
+  const [deadlineDate, setDeadlineDate] = useState<Date | null>(null);
+  const [isDeadlinePassed, setIsDeadlinePassed] = useState(false);
 
   // 섹션별 수정 상태
   const [isEditingBasicInfo, setIsEditingBasicInfo] = useState(false);
@@ -50,6 +52,7 @@ export default function SubmissionPage() {
   useEffect(() => {
     fetchSubmission();
     fetchWorkflows();
+    fetchDeadline();
   }, []);
 
   const fetchWorkflows = async () => {
@@ -63,6 +66,35 @@ export default function SubmissionPage() {
     } catch (error) {
       console.error("Failed to fetch workflows:", error);
     }
+  };
+
+  const fetchDeadline = async () => {
+    try {
+      const res = await fetch("/api/cohort/deadline");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.deadline) {
+          const deadline = new Date(data.deadline);
+          setDeadlineDate(deadline);
+
+          // 현재 날짜와 비교
+          const now = new Date();
+          now.setHours(0, 0, 0, 0); // 시간 제거
+          deadline.setHours(0, 0, 0, 0); // 시간 제거
+
+          setIsDeadlinePassed(now > deadline);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch deadline:", error);
+    }
+  };
+
+  // 기본 정보 완료 여부 확인 (슬랙 채널 생성 조건)
+  const isBasicInfoComplete = () => {
+    if (!submission) return false;
+    // 필수 필드: 브랜드명, 업종, 주소
+    return !!(submission.브랜드명 && submission.업종 && submission.주소);
   };
 
   // 로고 시안이 확정되었는지 확인
@@ -174,6 +206,11 @@ export default function SubmissionPage() {
   };
 
   const handleFileUpload = async (field: string, file: File) => {
+    if (isDeadlinePassed) {
+      alert("자료 제출 마감일이 지났습니다. JJK 비즈액터스쿨에 문의해주세요.");
+      return;
+    }
+
     setUploading(true);
 
     // 사업자등록증URL 또는 프로필사진URL 필드이고 이미지인 경우 자동 압축
@@ -275,6 +312,12 @@ export default function SubmissionPage() {
 
   const handleSubmit = async (e: React.FormEvent, section: string) => {
     e.preventDefault();
+
+    if (isDeadlinePassed) {
+      alert("자료 제출 마감일이 지났습니다. JJK 비즈액터스쿨에 문의해주세요.");
+      return;
+    }
+
     setLoading(true);
 
     const formData = new FormData(e.target as HTMLFormElement);
@@ -328,6 +371,11 @@ export default function SubmissionPage() {
   };
 
   const handlePrintRequest = async () => {
+    if (isDeadlinePassed) {
+      alert("자료 제출 마감일이 지났습니다. JJK 비즈액터스쿨에 문의해주세요.");
+      return;
+    }
+
     if (completionRate !== 100) {
       alert("필수 자료를 모두 제출해주세요.");
       return;
@@ -362,6 +410,31 @@ export default function SubmissionPage() {
 
   return (
     <div className="space-y-8 overflow-x-hidden w-full max-w-full">
+      {/* 마감일 경고 메시지 */}
+      {isDeadlinePassed && (
+        <div className="flex items-center gap-3 p-4 bg-red-50 border-2 border-red-300 rounded-lg">
+          <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+          <div className="flex-1">
+            <p className="text-red-800 font-bold text-base sm:text-lg">
+              자료 제출 마감일이 지났습니다
+            </p>
+            <p className="text-red-700 text-sm mt-1">
+              자료 제출 기능이 비활성화되었습니다. JJK 비즈액터스쿨에 문의해주세요.
+            </p>
+            {deadlineDate && (
+              <p className="text-red-600 text-xs mt-2">
+                마감일: {deadlineDate.toLocaleDateString("ko-KR", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                  weekday: "short",
+                })}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* 헤더 - 깔끔하고 명확한 */}
       <div className="space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -439,10 +512,10 @@ export default function SubmissionPage() {
                 각 카테고리별 필요한 자료를 제출해주세요. 디자인 제작요청 전까지 언제든 수정 가능합니다.
               </p>
             </div>
-            {completionRate === 100 && !hasWorkflows && (
+            {completionRate === 100 && !hasWorkflows && !isDeadlinePassed && (
               <Button
                 onClick={handlePrintRequest}
-                disabled={requestingPrint || hasWorkflows}
+                disabled={requestingPrint || hasWorkflows || isDeadlinePassed}
                 className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 sm:py-4 text-sm sm:text-lg"
               >
                 {requestingPrint ? (
@@ -473,13 +546,17 @@ export default function SubmissionPage() {
           </TabsTrigger>
           <TabsTrigger
             value="logo"
-            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-semibold text-xs sm:text-sm py-2"
+            disabled={!isBasicInfoComplete()}
+            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm py-2"
+            title={!isBasicInfoComplete() ? "기본 정보를 먼저 완성해주세요" : ""}
           >
             🎨 로고
           </TabsTrigger>
           <TabsTrigger
             value="print"
-            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-semibold text-xs sm:text-sm py-2"
+            disabled={!isBasicInfoComplete()}
+            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm py-2"
+            title={!isBasicInfoComplete() ? "기본 정보를 먼저 완성해주세요" : ""}
           >
             🖨️ 인쇄물
           </TabsTrigger>
@@ -509,6 +586,25 @@ export default function SubmissionPage() {
                   인쇄물에 들어갈 기본 정보를 입력해주세요
                 </CardDescription>
               </div>
+              {!submission?.isComplete && !isBasicInfoComplete() && (
+                <div className="flex items-center gap-2 p-4 bg-amber-50 border border-amber-200 rounded-lg mt-3">
+                  <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-amber-700 font-semibold text-sm">기본 정보를 완성해야 다음 단계로 진행할 수 있습니다</p>
+                    <p className="text-amber-600 text-xs mt-1">
+                      필수 항목: 브랜드명, 업종, 사업장 주소
+                    </p>
+                  </div>
+                </div>
+              )}
+              {!submission?.isComplete && isBasicInfoComplete() && (
+                <div className="flex items-center gap-2 p-4 bg-green-50 border border-green-200 rounded-lg mt-3">
+                  <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />
+                  <p className="text-green-700 font-medium text-sm">
+                    기본 정보가 완성되었습니다! 이제 로고 및 인쇄물 탭에서 계속 진행하세요.
+                  </p>
+                </div>
+              )}
             </CardHeader>
             <CardContent>
               <form
@@ -524,7 +620,7 @@ export default function SubmissionPage() {
                       name="브랜드명"
                       defaultValue={submission?.브랜드명}
                       required
-                      disabled={submission?.isComplete || !isEditingBasicInfo}
+                      disabled={submission?.isComplete || !isEditingBasicInfo || isDeadlinePassed}
                       className="bg-white border-gray-200"
                     />
                   </div>
@@ -535,7 +631,7 @@ export default function SubmissionPage() {
                       name="업종"
                       defaultValue={submission?.업종}
                       required
-                      disabled={submission?.isComplete || !isEditingBasicInfo}
+                      disabled={submission?.isComplete || !isEditingBasicInfo || isDeadlinePassed}
                       className="bg-white border-gray-200"
                     />
                   </div>
@@ -545,7 +641,7 @@ export default function SubmissionPage() {
                       id="대표번호"
                       name="대표번호"
                       defaultValue={submission?.대표번호}
-                      disabled={submission?.isComplete || !isEditingBasicInfo}
+                      disabled={submission?.isComplete || !isEditingBasicInfo || isDeadlinePassed}
                       className="bg-white border-gray-200"
                     />
                   </div>
@@ -556,7 +652,7 @@ export default function SubmissionPage() {
                       name="이메일"
                       type="email"
                       defaultValue={submission?.이메일}
-                      disabled={submission?.isComplete || !isEditingBasicInfo}
+                      disabled={submission?.isComplete || !isEditingBasicInfo || isDeadlinePassed}
                       className="bg-white border-gray-200"
                     />
                   </div>
@@ -567,7 +663,7 @@ export default function SubmissionPage() {
                       name="주소"
                       defaultValue={submission?.주소}
                       required
-                      disabled={submission?.isComplete || !isEditingBasicInfo}
+                      disabled={submission?.isComplete || !isEditingBasicInfo || isDeadlinePassed}
                       className="bg-white border-gray-200"
                     />
                   </div>
@@ -578,7 +674,7 @@ export default function SubmissionPage() {
                       name="은행명"
                       defaultValue={submission?.은행명}
                       placeholder="예: 국민은행"
-                      disabled={submission?.isComplete || !isEditingBasicInfo}
+                      disabled={submission?.isComplete || !isEditingBasicInfo || isDeadlinePassed}
                       className="bg-white border-gray-200"
                     />
                   </div>
@@ -589,7 +685,7 @@ export default function SubmissionPage() {
                       name="계좌번호"
                       defaultValue={submission?.계좌번호}
                       placeholder="예: 123-45-678910"
-                      disabled={submission?.isComplete || !isEditingBasicInfo}
+                      disabled={submission?.isComplete || !isEditingBasicInfo || isDeadlinePassed}
                       className="bg-white border-gray-200"
                     />
                   </div>
@@ -617,12 +713,12 @@ export default function SubmissionPage() {
                         defaultValue={submission?.인쇄물받을주소}
                         placeholder="사업장 주소와 다른 경우만 입력"
                         className="bg-white border-gray-200"
-                        disabled={sameAddress || submission?.isComplete || !isEditingBasicInfo}
+                        disabled={sameAddress || submission?.isComplete || !isEditingBasicInfo || isDeadlinePassed}
                       />
                     </div>
                   </div>
                 </div>
-                {!submission?.isComplete && (
+                {!submission?.isComplete && !isDeadlinePassed && (
                   <div className="flex gap-2">
                     {hasBasicInfo() && !isEditingBasicInfo ? (
                       <Button
@@ -635,7 +731,7 @@ export default function SubmissionPage() {
                     ) : (
                       <Button
                         type="submit"
-                        disabled={loading}
+                        disabled={loading || isDeadlinePassed}
                         className="bg-blue-600 text-white hover:bg-blue-700 text-sm sm:text-base"
                       >
                         {loading ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />}
@@ -659,6 +755,17 @@ export default function SubmissionPage() {
                   로고 파일이 있으면 업로드하거나, 선호하는 스타일과 색상을 선택해주세요
                 </CardDescription>
               </div>
+              {!isBasicInfoComplete() && (
+                <div className="flex items-center gap-2 p-4 bg-amber-50 border border-amber-200 rounded-lg mt-3">
+                  <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-amber-700 font-semibold text-sm">기본 정보를 먼저 완성해주세요</p>
+                    <p className="text-amber-600 text-xs mt-1">
+                      기본 정보 탭에서 브랜드명, 업종, 사업장 주소를 입력하면 로고 탭이 활성화됩니다.
+                    </p>
+                  </div>
+                </div>
+              )}
             </CardHeader>
             <CardContent>
               <form
@@ -876,6 +983,17 @@ export default function SubmissionPage() {
         {/* 인쇄물 */}
         <TabsContent value="print">
           <div className="space-y-6">
+            {!isBasicInfoComplete() && (
+              <div className="flex items-center gap-2 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="text-amber-700 font-semibold text-sm">기본 정보를 먼저 완성해주세요</p>
+                  <p className="text-amber-600 text-xs mt-1">
+                    기본 정보 탭에서 브랜드명, 업종, 사업장 주소를 입력하면 인쇄물 탭이 활성화됩니다.
+                  </p>
+                </div>
+              </div>
+            )}
             <Card className="glass border-white/10">
               <CardHeader>
                 <CardTitle className="text-gray-900 text-lg sm:text-xl">필수 서류</CardTitle>

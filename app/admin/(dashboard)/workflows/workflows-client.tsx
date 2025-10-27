@@ -21,6 +21,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Package, Truck, Calendar, User, Maximize2, Minimize2 } from "lucide-react";
 import WorkflowActions from "./workflow-actions";
+import SubmissionViewButton from "./submission-view-button";
 import UserWorkflowSMSButton from "./user-workflow-sms-button";
 import UserShippingSMSButton from "./user-shipping-sms-button";
 import UserOrderCompleteButton from "./user-order-complete-button";
@@ -490,7 +491,10 @@ export default function WorkflowsClient({
                 </>
               )}
               <TableCell>
-                <WorkflowActions workflow={workflow} />
+                <div className="flex gap-2">
+                  <SubmissionViewButton workflow={workflow} />
+                  <WorkflowActions workflow={workflow} />
+                </div>
               </TableCell>
             </TableRow>
           );

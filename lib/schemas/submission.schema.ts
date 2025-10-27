@@ -59,8 +59,14 @@ export const submissionSchema = z.object({
   // 마케팅 (선택)
   메타광고관리자값: z.string().optional(),
   네이버검색광고ID: z.string().optional(),
+  네이버검색광고PW: z.string().optional(),
+  네이버클라우드ID: z.string().optional(),
+  네이버클라우드PW: z.string().optional(),
   InstagramID: z.string().optional(),
   InstagramPW: z.string().optional(),
+  아임웹ID: z.string().optional(),
+  아임웹PW: z.string().optional(),
+  아임웹관리자PW: z.string().optional(),
 
   // 제출 완료 상태
   isComplete: z.boolean().optional(),

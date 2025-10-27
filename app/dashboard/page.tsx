@@ -65,13 +65,20 @@ export default async function UserDashboard() {
         orderBy: { createdAt: "asc" },
       },
       marketingExtensionRequests: {
-        where: {
-          status: "pending",
-        },
         orderBy: {
           requestDate: "desc",
         },
         take: 1,
+      },
+      communicationThreads: {
+        include: {
+          messages: {
+            orderBy: {
+              createdAt: "desc",
+            },
+            take: 1,
+          },
+        },
       },
     },
   });
@@ -86,6 +93,9 @@ export default async function UserDashboard() {
       </div>
     );
   }
+
+  // 읽지 않은 공지사항 (나중에 구현)
+  const unreadAnnouncements = 0;
 
   const dday = user.cohort?.자료제출마감일
     ? formatDday(user.cohort.자료제출마감일)
@@ -104,14 +114,6 @@ export default async function UserDashboard() {
   const totalFields = submissionFields.length;
   const completionPercent = Math.round((completedFields / totalFields) * 100);
 
-  // Workflow stats (인쇄물만 카운트, 로고와 홈페이지 제외)
-  const printWorkflows = user.workflows.filter(
-    (w) => w.type !== "로고" && w.type !== "홈페이지"
-  );
-  const completedWorkflows = printWorkflows.filter(
-    (w) => w.status === "발송완료" || w.status === "제작완료"
-  ).length;
-  const totalWorkflows = printWorkflows.length;
 
   // 마케팅 지원 기간 계산 (교육시작일 기준)
   let marketingStartDate: Date | null = null;
@@ -127,6 +129,212 @@ export default async function UserDashboard() {
     marketingEndDate = new Date(user.cohort.교육시작일);
     marketingEndDate.setMonth(marketingEndDate.getMonth() + 3);
   }
+
+  // === 알림 시스템 ===
+  type Notification = {
+    id: string;
+    priority: number; // 1: 최고, 2: 높음, 3: 중간, 4: 낮음
+    type: "urgent" | "warning" | "info" | "success";
+    message: string;
+    link: string;
+    badge: string;
+  };
+
+  const notifications: Notification[] = [];
+
+  // 1. 기본 정보 미입력 (최우선)
+  if (!user.submission?.브랜드명 || !user.submission?.사업자등록증URL || !user.submission?.프로필사진URL) {
+    notifications.push({
+      id: "basic-info",
+      priority: 1,
+      type: "urgent",
+      message: "기본 정보를 입력해주세요",
+      link: "/dashboard/submission#basic",
+      badge: "필수",
+    });
+  }
+
+  // 2. 로고 정보 미입력
+  const hasBasicInfo = user.submission?.브랜드명 && user.submission?.사업자등록증URL;
+  const hasLogoInfo = user.submission?.로고선호스타일 || user.submission?.로고선호폰트;
+  if (hasBasicInfo && !hasLogoInfo) {
+    notifications.push({
+      id: "logo-info",
+      priority: 2,
+      type: "warning",
+      message: "로고 제작 정보를 입력해주세요",
+      link: "/dashboard/submission#logo",
+      badge: "필수",
+    });
+  }
+
+  // 3. 시안 확인 요청
+  const designConfirmWorkflows = user.workflows.filter(w => w.status === "시안컨펌요청");
+  designConfirmWorkflows.forEach((workflow) => {
+    notifications.push({
+      id: `design-confirm-${workflow.id}`,
+      priority: 1,
+      type: "urgent",
+      message: `${workflow.type} 시안을 확인해주세요!`,
+      link: "/dashboard/workflows",
+      badge: "시안확인",
+    });
+  });
+
+  // 4. 로고 확정 후 인쇄물 자료 제출 요청
+  const logoConfirmed = user.workflows.some(w => w.type === "로고" && w.status === "시안확정");
+  const hasPrintWorkflows = user.workflows.some(w => w.type !== "로고" && w.type !== "홈페이지");
+  if (logoConfirmed && !hasPrintWorkflows && hasBasicInfo) {
+    notifications.push({
+      id: "print-submit",
+      priority: 2,
+      type: "warning",
+      message: "인쇄물 자료 제출 바랍니다",
+      link: "/dashboard/submission#namecard",
+      badge: "자료제출",
+    });
+  }
+
+  // 5. 로고 확정 후 홈페이지 정보 입력
+  const hasWebsiteInfo = user.submission?.홈페이지스타일 || user.submission?.홈페이지컬러컨셉;
+  if (logoConfirmed && !hasWebsiteInfo) {
+    notifications.push({
+      id: "website-info",
+      priority: 3,
+      type: "info",
+      message: "홈페이지 제작정보 선택이 필요합니다",
+      link: "/dashboard/submission#website",
+      badge: "자료입력",
+    });
+  }
+
+  // 6. 마케팅 정보 입력 필요
+  const hasMarketingInfo = user.submission?.네이버검색광고ID || user.submission?.InstagramID;
+  if (hasBasicInfo && !hasMarketingInfo) {
+    notifications.push({
+      id: "marketing-info",
+      priority: 3,
+      type: "info",
+      message: "마케팅 정보 입력이 필요합니다",
+      link: "/dashboard/submission#marketing",
+      badge: "자료입력",
+    });
+  }
+
+  // 7. 배송 정보 확인
+  const shippingWorkflows = user.workflows.filter(w => w.status === "배송중");
+  shippingWorkflows.forEach((workflow) => {
+    notifications.push({
+      id: `shipping-${workflow.id}`,
+      priority: 3,
+      type: "info",
+      message: `${workflow.type} 배송 정보를 확인해주세요`,
+      link: "/dashboard/workflows",
+      badge: "배송확인",
+    });
+  });
+
+  // 8. 관리자 답변 확인
+  const unreadThreads = user.communicationThreads.filter(thread => {
+    const lastMessage = thread.messages[0];
+    return lastMessage && lastMessage.authorId !== userId && lastMessage.authorType === "admin";
+  });
+  if (unreadThreads.length > 0) {
+    notifications.push({
+      id: "admin-reply",
+      priority: 3,
+      type: "info",
+      message: `관리자 답변 ${unreadThreads.length}건을 확인해주세요`,
+      link: "/dashboard/communication",
+      badge: "답변확인",
+    });
+  }
+
+  // 9. 마케팅 지원 연장 신청
+  if (marketingEndDate) {
+    const now = new Date();
+    const daysRemaining = Math.ceil((marketingEndDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    const hasPendingExtension = user.marketingExtensionRequests.some(req => req.status === "pending");
+    if (daysRemaining <= 7 && daysRemaining > 0 && !hasPendingExtension) {
+      notifications.push({
+        id: "marketing-extension",
+        priority: 3,
+        type: "warning",
+        message: "마케팅 지원 연장 신청이 가능합니다",
+        link: "/dashboard#marketing-extension",
+        badge: "연장신청",
+      });
+    }
+  }
+
+  // 10. 제작 완료 확인
+  const completedWorkflows = user.workflows.filter(w => w.status === "제작완료" || w.status === "발송완료");
+  completedWorkflows.forEach((workflow) => {
+    notifications.push({
+      id: `completed-${workflow.id}`,
+      priority: 4,
+      type: "success",
+      message: `${workflow.type} 제작이 완료되었습니다!`,
+      link: "/dashboard/workflows",
+      badge: "완료확인",
+    });
+  });
+
+  // 11. 마케팅 연장 승인됨
+  const approvedExtension = user.marketingExtensionRequests.find(req => req.status === "approved");
+  if (approvedExtension) {
+    notifications.push({
+      id: "extension-approved",
+      priority: 3,
+      type: "success",
+      message: "마케팅 지원 연장이 승인되었습니다",
+      link: "/dashboard",
+      badge: "승인완료",
+    });
+  }
+
+  // 12. 마케팅 연장 거절됨
+  const rejectedExtension = user.marketingExtensionRequests.find(req => req.status === "rejected");
+  if (rejectedExtension) {
+    notifications.push({
+      id: "extension-rejected",
+      priority: 3,
+      type: "warning",
+      message: "마케팅 지원 연장이 거절되었습니다",
+      link: "/dashboard/status",
+      badge: "확인필요",
+    });
+  }
+
+  // 13. 새 공지사항
+  if (unreadAnnouncements > 0) {
+    notifications.push({
+      id: "announcements",
+      priority: 4,
+      type: "info",
+      message: `새 공지사항 ${unreadAnnouncements}건이 있습니다`,
+      link: "/dashboard/announcements",
+      badge: "공지",
+    });
+  }
+
+  // 14. 인쇄물 주문 가능
+  const orderableWorkflows = user.workflows.filter(
+    w => w.status === "시안확정" && w.type !== "로고" && w.type !== "홈페이지"
+  );
+  orderableWorkflows.forEach((workflow) => {
+    notifications.push({
+      id: `orderable-${workflow.id}`,
+      priority: 3,
+      type: "info",
+      message: `${workflow.type} 주문이 가능합니다`,
+      link: "/dashboard/workflows",
+      badge: "주문가능",
+    });
+  });
+
+  // 우선순위에 따라 정렬
+  notifications.sort((a, b) => a.priority - b.priority);
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -191,6 +399,56 @@ export default async function UserDashboard() {
           })()}
         </div>
       </div>
+
+      {/* 알림 리스트 */}
+      {notifications.length > 0 && (
+        <Card className="bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-blue-200">
+          <CardHeader>
+            <CardTitle className="text-lg sm:text-xl text-gray-900 flex items-center gap-2">
+              <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+              알림
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {notifications.map((notification, index) => {
+                const colors = {
+                  urgent: "text-red-700 hover:bg-red-100 border-red-200",
+                  warning: "text-orange-700 hover:bg-orange-100 border-orange-200",
+                  info: "text-blue-700 hover:bg-blue-100 border-blue-200",
+                  success: "text-green-700 hover:bg-green-100 border-green-200",
+                };
+
+                const badgeColors = {
+                  urgent: "bg-red-100 text-red-700 border-red-300",
+                  warning: "bg-orange-100 text-orange-700 border-orange-300",
+                  info: "bg-blue-100 text-blue-700 border-blue-300",
+                  success: "bg-green-100 text-green-700 border-green-300",
+                };
+
+                return (
+                  <Link
+                    key={notification.id}
+                    href={notification.link}
+                    className={`flex items-center gap-3 p-3 sm:p-4 rounded-lg border bg-white ${colors[notification.type]} transition-all cursor-pointer group`}
+                  >
+                    <span className="text-sm sm:text-base font-semibold text-gray-600 min-w-[60px]">
+                      알림{index + 1}.
+                    </span>
+                    <span className={`text-xs font-bold px-2 py-1 rounded border ${badgeColors[notification.type]}`}>
+                      {notification.badge}
+                    </span>
+                    <span className="flex-1 text-sm sm:text-base font-medium">
+                      {notification.message}
+                    </span>
+                    <MessageSquare className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </Link>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* User Info Card */}
       <Card className="bg-white border-2 border-gray-200">
@@ -265,37 +523,6 @@ export default async function UserDashboard() {
             <Progress value={completionPercent} className="h-3 mb-3" />
             <p className="text-sm text-gray-600">
               {completedFields}개 완료 / 전체 {totalFields}개
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* 제작 진행률 */}
-        <Card className="bg-gradient-to-br from-green-50 to-white border-0 shadow-lg hover:shadow-xl transition-shadow">
-          <CardContent className="p-6 sm:p-8">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center justify-center w-14 h-14 bg-green-600 rounded-2xl shadow-md">
-                <Package className="w-7 h-7 text-white" />
-              </div>
-              <div className="text-right">
-                <p className="text-sm font-medium text-gray-600 mb-1">제작 진행</p>
-                <p className="text-4xl sm:text-5xl font-bold text-green-700">
-                  {totalWorkflows > 0
-                    ? Math.round((completedWorkflows / totalWorkflows) * 100)
-                    : 0}
-                  <span className="text-2xl">%</span>
-                </p>
-              </div>
-            </div>
-            <Progress
-              value={
-                totalWorkflows > 0
-                  ? (completedWorkflows / totalWorkflows) * 100
-                  : 0
-              }
-              className="h-3 mb-3"
-            />
-            <p className="text-sm text-gray-600">
-              {completedWorkflows}개 완료 / 전체 {totalWorkflows}개
             </p>
           </CardContent>
         </Card>

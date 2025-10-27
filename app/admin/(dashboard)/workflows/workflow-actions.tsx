@@ -471,7 +471,6 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
                     <SelectItem value="시안중">시안 작업중</SelectItem>
                     <SelectItem value="발주대기">발주대기 (시안완료)</SelectItem>
                     <SelectItem value="발주완료">발주완료</SelectItem>
-                    <SelectItem value="제작완료">제작완료</SelectItem>
                     <SelectItem value="발송완료">발송완료</SelectItem>
                   </>
                 )}

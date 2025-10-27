@@ -256,6 +256,18 @@ export default function UserActions({ user }: UserActionsProps) {
                       <p className="font-medium text-gray-900">{submission.홈페이지컬러컨셉 || "-"}</p>
                     </div>
                   </div>
+                  <div>
+                    <span className="text-gray-600">아임웹 ID:</span>
+                    <p className="font-medium text-gray-900">{submission.아임웹ID || "-"}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">아임웹 비밀번호:</span>
+                    <p className="font-medium text-gray-900">{submission.아임웹PW ? "●●●●●●" : "-"}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">아임웹 관리자 비밀번호:</span>
+                    <p className="font-medium text-gray-900">{submission.아임웹관리자PW ? "●●●●●●" : "-"}</p>
+                  </div>
                 </div>
               </div>
 

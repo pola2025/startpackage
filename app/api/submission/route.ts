@@ -89,6 +89,7 @@ export async function POST(request: Request) {
     // 사용자 정보 조회 (슬랙 채널 ID 확인용)
     const user = await prisma.user.findUnique({
       where: { id: userId },
+      include: { cohort: true },
     });
 
     // 로고 정보가 저장되면 로고 워크플로우 자동 생성
@@ -203,8 +204,47 @@ export async function POST(request: Request) {
       }
     }
 
-    // 슬랙 채널이 있으면 변경된 파일과 명함시안 정보를 슬랙에 전송
-    console.log(`🔍 [Submission] 슬랙 업데이트 체크 - slackChannelId: ${user?.slackChannelId}, existingSubmission: ${!!existingSubmission}`);
+    // 슬랙 채널 생성 또는 업데이트
+    console.log(`🔍 [Submission] 슬랙 체크 - slackChannelId: ${user?.slackChannelId}`);
+
+    // 슬랙 채널이 없으면 생성 (기본 정보 완료 시)
+    if (user && !user.slackChannelId && submission.브랜드명 && submission.업종 && submission.주소) {
+      console.log(`🔄 [Submission] 슬랙 채널 생성 시작 (제출 정보 있음)`);
+      const { createSlackChannel } = await import("@/lib/notification/slackClient");
+
+      const cohortName = user.cohort?.englishName || user.cohort?.name || "unknown";
+      const userName = user.englishName || user.이름;
+      const brandName = submission.brandNameEnglish || submission.브랜드명 || "unknown";
+
+      const slackChannelId = await createSlackChannel({
+        cohortName,
+        userName,
+        brandName,
+        userEmail: user.email,
+        userPhone: user.연락처,
+      });
+
+      if (slackChannelId) {
+        // DB에 슬랙 채널 ID 저장
+        await prisma.user.update({
+          where: { id: userId },
+          data: { slackChannelId },
+        });
+        console.log(`✅ [Submission] 슬랙 채널 생성 완료: ${slackChannelId}`);
+
+        // 초기 제출 정보 푸시
+        const { pushSubmissionData } = await import("@/lib/notification/slackClient");
+        await pushSubmissionData({
+          channelId: slackChannelId,
+          submissionData: submission,
+        });
+
+        // user 객체 업데이트 (이후 로직에서 사용)
+        user.slackChannelId = slackChannelId;
+      }
+    }
+
+    // 슬랙 채널이 있으면 변경사항 업데이트
     if (user?.slackChannelId && existingSubmission) {
       console.log(`✅ [Submission] 슬랙 업데이트 시작`);
       const { uploadFileToSlack } = await import("@/lib/notification/slackClient");
@@ -219,37 +259,64 @@ export async function POST(request: Request) {
         { key: "이메일", label: "이메일" },
         { key: "로고선호스타일", label: "로고 선호 스타일" },
         { key: "로고선호폰트", label: "로고 선호 폰트" },
-        { key: "명함색상", label: "명함 색상" },
+        { key: "명함색상", label: "로고/명함 색상" },
+        { key: "명함시안", label: "명함 스타일" },
+        { key: "메타광고관리자값", label: "Meta 광고 관리자 값" },
+        { key: "네이버검색광고ID", label: "네이버 검색광고 ID" },
+        { key: "네이버검색광고PW", label: "네이버 검색광고 비밀번호" },
+        { key: "네이버클라우드ID", label: "네이버 클라우드 ID" },
+        { key: "네이버클라우드PW", label: "네이버 클라우드 비밀번호" },
+        { key: "InstagramID", label: "Instagram ID" },
+        { key: "InstagramPW", label: "Instagram 비밀번호" },
+        { key: "홈페이지스타일", label: "홈페이지 스타일" },
+        { key: "홈페이지컬러컨셉", label: "홈페이지 컬러" },
+        { key: "아임웹ID", label: "아임웹 ID" },
+        { key: "아임웹PW", label: "아임웹 비밀번호" },
+        { key: "아임웹관리자PW", label: "아임웹 관리자 비밀번호" },
       ];
 
-      const changedTextFields: Array<{ label: string; oldValue: any; newValue: any }> = [];
+      const changedTextFields: Array<{ label: string; oldValue: any; newValue: any; isNew: boolean }> = [];
 
       for (const { key, label } of textFields) {
         const newValue = submission[key];
         const oldValue = existingSubmission[key];
 
-        if (newValue && newValue !== oldValue && oldValue !== null) {
-          changedTextFields.push({ label, oldValue, newValue });
-          console.log(`📝 [Submission] 텍스트 필드 변경: ${label} - ${oldValue} → ${newValue}`);
+        // 새로 추가된 경우 (oldValue가 null/undefined) 또는 변경된 경우
+        if (newValue && newValue !== oldValue) {
+          const isNew = !oldValue;
+          changedTextFields.push({ label, oldValue, newValue, isNew });
+          console.log(`📝 [Submission] 텍스트 필드 ${isNew ? '추가' : '변경'}: ${label} - ${oldValue || '없음'} → ${newValue}`);
         }
       }
 
       // 변경된 텍스트 필드가 있으면 슬랙에 메시지 전송
       if (changedTextFields.length > 0) {
-        const fields = changedTextFields.map(({ label, oldValue, newValue }) => ({
+        const fields = changedTextFields.map(({ label, oldValue, newValue, isNew }) => ({
           type: "mrkdwn",
-          text: `*${label}:*\n~${oldValue}~ → *${newValue}*`,
+          text: isNew
+            ? `*${label}:*\n✨ *${newValue}* (새로 추가됨)`
+            : `*${label}:*\n~${oldValue}~ → *${newValue}*`,
         }));
+
+        const hasNewFields = changedTextFields.some(f => f.isNew);
+        const hasUpdatedFields = changedTextFields.some(f => !f.isNew);
+
+        let headerText = "📝 정보 업데이트";
+        if (hasNewFields && !hasUpdatedFields) {
+          headerText = "✨ 새로운 정보 추가됨";
+        } else if (hasNewFields && hasUpdatedFields) {
+          headerText = "📝 정보 추가 및 수정";
+        }
 
         await postMessage({
           channelId: user.slackChannelId,
-          text: `📝 정보 수정`,
+          text: headerText,
           blocks: [
             {
               type: "header",
               text: {
                 type: "plain_text",
-                text: "📝 정보 수정됨",
+                text: headerText,
               },
             },
             {
@@ -269,8 +336,11 @@ export async function POST(request: Request) {
         }).catch(err => console.error("정보 수정 슬랙 메시지 전송 실패", err));
       }
 
-      // 파일 필드 체크 (마케팅 서류 등)
+      // 파일 필드 체크 (모든 업로드 파일)
       const fileFields = [
+        { key: "사업자등록증URL", label: "사업자등록증", fileName: "사업자등록증.pdf" },
+        { key: "프로필사진URL", label: "프로필사진", fileName: "프로필사진.jpg" },
+        { key: "로고URL", label: "로고 파일", fileName: "로고.png" },
         { key: "대표자신분증URL", label: "대표자신분증", fileName: "대표자신분증.jpg" },
         { key: "통신서비스이용증명원URL", label: "통신서비스이용증명원", fileName: "통신서비스이용증명원.pdf" },
         { key: "신용카드앞면URL", label: "신용카드앞면", fileName: "신용카드앞면.jpg" },
