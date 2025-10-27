@@ -519,27 +519,28 @@ export default function AdminCommunicationPage() {
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <label className="cursor-pointer">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) handleImageUpload(file);
-                          }}
-                          disabled={uploading}
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="border-gray-200 text-gray-600"
-                          disabled={uploading}
-                        >
-                          <Paperclip className="w-4 h-4 mr-2" />
-                          {uploading ? "업로드 중..." : "이미지 첨부"}
-                        </Button>
-                      </label>
+                      <input
+                        type="file"
+                        id="admin-reply-file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleImageUpload(file);
+                          e.target.value = "";
+                        }}
+                        disabled={uploading}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="border-gray-200 text-gray-600"
+                        disabled={uploading}
+                        onClick={() => document.getElementById("admin-reply-file")?.click()}
+                      >
+                        <Paperclip className="w-4 h-4 mr-2" />
+                        {uploading ? "업로드 중..." : "이미지 첨부"}
+                      </Button>
                       <span className="text-xs text-gray-500">10MB 이하, 이미지만 가능</span>
                     </div>
                     <Button

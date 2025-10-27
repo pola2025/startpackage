@@ -339,24 +339,27 @@ export default function UserCommunicationPage() {
                 </div>
               )}
               <div>
-                <label className="cursor-pointer">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) handleImageUpload(file, true);
-                    }}
-                    disabled={uploading}
-                  />
-                  <Button type="button" variant="outline" disabled={uploading} asChild>
-                    <span>
-                      <Paperclip className="w-4 h-4 mr-2" />
-                      {uploading ? "업로드 중..." : "이미지 첨부"}
-                    </span>
-                  </Button>
-                </label>
+                <input
+                  type="file"
+                  id="new-thread-file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleImageUpload(file, true);
+                    e.target.value = "";
+                  }}
+                  disabled={uploading}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={uploading}
+                  onClick={() => document.getElementById("new-thread-file")?.click()}
+                >
+                  <Paperclip className="w-4 h-4 mr-2" />
+                  {uploading ? "업로드 중..." : "이미지 첨부"}
+                </Button>
                 <p className="text-xs text-gray-500 mt-1">10MB 이하, 이미지만 가능 | 영상/기타 파일: mkt@polarad.co.kr</p>
               </div>
             </div>
@@ -530,24 +533,29 @@ export default function UserCommunicationPage() {
                     className="resize-none min-h-[80px]"
                   />
                   <div className="flex items-center justify-between">
-                    <label className="cursor-pointer">
+                    <div>
                       <input
                         type="file"
+                        id="reply-file"
                         accept="image/*"
                         className="hidden"
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (file) handleImageUpload(file, false);
+                          e.target.value = "";
                         }}
                         disabled={uploading}
                       />
-                      <Button type="button" variant="outline" disabled={uploading} asChild>
-                        <span>
-                          <Paperclip className="w-4 h-4 mr-2" />
-                          {uploading ? "업로드 중..." : "이미지 첨부"}
-                        </span>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled={uploading}
+                        onClick={() => document.getElementById("reply-file")?.click()}
+                      >
+                        <Paperclip className="w-4 h-4 mr-2" />
+                        {uploading ? "업로드 중..." : "이미지 첨부"}
                       </Button>
-                    </label>
+                    </div>
                     <Button
                       onClick={handleSendReply}
                       disabled={!replyContent.trim() || sending}
