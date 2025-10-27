@@ -14,11 +14,19 @@ let slackClient: WebClient | null = null;
 function initSlackClient() {
   const SLACK_BOT_TOKEN = process.env.SLACK_BOT_TOKEN;
 
-  if (!slackClient && SLACK_BOT_TOKEN) {
+  if (!SLACK_BOT_TOKEN) {
+    console.error("❌ [Slack] SLACK_BOT_TOKEN 환경 변수가 설정되지 않았습니다");
+    return null;
+  }
+
+  if (!slackClient) {
     try {
+      console.log("🔄 [Slack] 클라이언트 초기화 중...");
       slackClient = new WebClient(SLACK_BOT_TOKEN);
-    } catch (error) {
-      console.error("슬랙 클라이언트 초기화 실패:", error);
+      console.log("✅ [Slack] 클라이언트 초기화 완료");
+    } catch (error: any) {
+      console.error("❌ [Slack] 클라이언트 초기화 실패:", error?.message || error);
+      return null;
     }
   }
   return slackClient;
@@ -71,10 +79,13 @@ export async function createSlackChannel(params: {
   userPhone: string;
 }): Promise<string | null> {
   try {
+    console.log(`🔄 [Slack] 채널 생성 시작`, params);
+
     const client = initSlackClient();
 
     if (!client) {
-      console.error("슬랙 클라이언트가 초기화되지 않았습니다");
+      console.error("❌ [Slack] 클라이언트가 초기화되지 않았습니다");
+      console.error(`SLACK_BOT_TOKEN 설정 여부: ${process.env.SLACK_BOT_TOKEN ? '✅ 설정됨' : '❌ 미설정'}`);
       return null;
     }
 
@@ -84,21 +95,29 @@ export async function createSlackChannel(params: {
       params.brandName
     );
 
+    console.log(`🔄 [Slack] 생성할 채널 이름: ${channelName}`);
+
     // 기존 채널 확인
+    console.log(`🔍 [Slack] 기존 채널 검색 중...`);
     const existingChannel = await findChannelByName(channelName);
     if (existingChannel) {
-      console.log(`✅ 기존 채널 사용: ${channelName}`);
+      console.log(`✅ [Slack] 기존 채널 사용: ${channelName} (${existingChannel})`);
       return existingChannel;
     }
 
     // 새 채널 생성
+    console.log(`🔄 [Slack] 새 채널 생성 중: ${channelName}`);
     const result = await client.conversations.create({
       name: channelName,
       is_private: false,
     });
 
+    console.log(`🔍 [Slack] conversations.create 결과:`, JSON.stringify(result, null, 2));
+
     if (!result.ok || !result.channel?.id) {
-      throw new Error("채널 생성 실패");
+      console.error(`❌ [Slack] 채널 생성 실패 - result.ok: ${result.ok}, channel ID: ${result.channel?.id}`);
+      console.error(`❌ [Slack] 에러 상세:`, result.error || 'Unknown error');
+      throw new Error(`채널 생성 실패: ${result.error || 'Unknown error'}`);
     }
 
     const channelId = result.channel.id;
@@ -191,10 +210,15 @@ export async function createSlackChannel(params: {
       ],
     });
 
-    console.log(`✅ 슬랙 채널 생성 성공: ${channelName} (${channelId})`);
+    console.log(`✅ [Slack] 채널 생성 성공: ${channelName} (${channelId})`);
     return channelId;
-  } catch (error) {
-    console.error("슬랙 채널 생성 실패:", error);
+  } catch (error: any) {
+    console.error("❌ [Slack] 채널 생성 실패:");
+    console.error("  - Error name:", error?.name);
+    console.error("  - Error message:", error?.message);
+    console.error("  - Error stack:", error?.stack);
+    console.error("  - Error data:", error?.data);
+    console.error("  - Full error:", JSON.stringify(error, null, 2));
     return null;
   }
 }
@@ -209,22 +233,31 @@ async function findChannelByName(
     const client = initSlackClient();
 
     if (!client) {
+      console.error("❌ [Slack] findChannelByName: 클라이언트 미초기화");
       return null;
     }
 
+    console.log(`🔍 [Slack] 채널 목록 조회 중 (searching for: ${channelName})`);
     const result = await client.conversations.list({
       types: "public_channel,private_channel",
       limit: 1000,
     });
 
     if (!result.ok || !result.channels) {
+      console.error(`❌ [Slack] 채널 목록 조회 실패 - ok: ${result.ok}, channels: ${result.channels?.length || 0}`);
       return null;
     }
 
+    console.log(`✅ [Slack] 채널 목록 조회 성공 - 총 ${result.channels.length}개 채널`);
     const channel = result.channels.find((ch) => ch.name === channelName);
+    if (channel) {
+      console.log(`✅ [Slack] 기존 채널 발견: ${channelName} (${channel.id})`);
+    } else {
+      console.log(`ℹ️ [Slack] 기존 채널 없음: ${channelName}`);
+    }
     return channel?.id || null;
-  } catch (error) {
-    console.error("채널 검색 실패:", error);
+  } catch (error: any) {
+    console.error("❌ [Slack] 채널 검색 실패:", error?.message || error);
     return null;
   }
 }
