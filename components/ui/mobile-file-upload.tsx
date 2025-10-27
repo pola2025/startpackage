@@ -4,6 +4,7 @@ import { useState, useRef, ChangeEvent } from "react";
 import { Upload, Camera, CheckCircle2, X, Loader2, FileText } from "lucide-react";
 import { Button } from "./button";
 import { cn } from "@/lib/utils";
+import imageCompression from "browser-image-compression";
 
 interface MobileFileUploadProps {
   label: string;
@@ -18,6 +19,8 @@ interface MobileFileUploadProps {
   allowCamera?: boolean;
   validateImage?: boolean;
   maxImageDimension?: number; // max width or height in pixels
+  fieldName?: string; // 필드 이름 (압축 적용 판단용)
+  autoCompress?: boolean; // 자동 압축 여부
 }
 
 export function MobileFileUpload({
@@ -33,6 +36,8 @@ export function MobileFileUpload({
   allowCamera = true,
   validateImage = false,
   maxImageDimension,
+  fieldName,
+  autoCompress = false,
 }: MobileFileUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -84,10 +89,37 @@ export function MobileFileUpload({
   };
 
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    let file = e.target.files?.[0];
     if (!file) return;
 
     setError(null);
+
+    // 이미지 파일이고 자동 압축이 활성화된 경우 압축 수행
+    if (autoCompress && file.type.startsWith("image/") && file.type !== "image/gif") {
+      try {
+        console.log(`[압축] 원본 파일 크기: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+
+        const options = {
+          maxSizeMB: 2, // 최대 2MB로 압축
+          maxWidthOrHeight: 1920, // 최대 해상도
+          useWebWorker: true,
+          fileType: file.type,
+        };
+
+        const compressedFile = await imageCompression(file, options);
+        console.log(`[압축] 압축 후 파일 크기: ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`);
+
+        // 압축된 파일로 교체
+        file = new File([compressedFile], file.name, {
+          type: compressedFile.type,
+          lastModified: Date.now(),
+        });
+      } catch (compressionError) {
+        console.error("[압축] 이미지 압축 실패:", compressionError);
+        // 압축 실패 시 원본 파일 사용
+      }
+    }
+
     const validationError = await validateFile(file);
     if (validationError) {
       setError(validationError);

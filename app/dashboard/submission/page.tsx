@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Upload, FileText, CheckCircle2, AlertCircle, Loader2, Square } from "lucide-react";
+import imageCompression from "browser-image-compression";
 
 export default function SubmissionPage() {
   const { data: session } = useSession();
@@ -174,6 +175,33 @@ export default function SubmissionPage() {
 
   const handleFileUpload = async (field: string, file: File) => {
     setUploading(true);
+
+    // 사업자등록증URL 또는 프로필사진URL 필드이고 이미지인 경우 자동 압축
+    if ((field === "사업자등록증URL" || field === "프로필사진URL") && file.type.startsWith("image/") && file.type !== "image/gif") {
+      try {
+        console.log(`[압축] 원본 파일 크기: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+
+        const options = {
+          maxSizeMB: 2, // 최대 2MB로 압축
+          maxWidthOrHeight: 1920, // 최대 해상도
+          useWebWorker: true,
+          fileType: file.type,
+        };
+
+        const compressedFile = await imageCompression(file, options);
+        console.log(`[압축] 압축 후 파일 크기: ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`);
+
+        // 압축된 파일로 교체
+        file = new File([compressedFile], file.name, {
+          type: compressedFile.type,
+          lastModified: Date.now(),
+        });
+      } catch (compressionError) {
+        console.error("[압축] 이미지 압축 실패:", compressionError);
+        // 압축 실패 시 원본 파일 사용
+      }
+    }
+
     const formData = new FormData();
     formData.append("file", file);
     formData.append("field", field);
