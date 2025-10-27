@@ -66,13 +66,14 @@ export async function POST(request: Request) {
 
     // 파일 버퍼 읽기
     const bytes = await file.arrayBuffer();
-    let buffer = Buffer.from(bytes);
+    let buffer: Buffer = Buffer.from(bytes);
 
     // WebP로 자동 압축 (품질 85%, 메타데이터 제거)
     try {
-      buffer = await sharp(buffer)
+      const compressedBuffer = await sharp(buffer)
         .webp({ quality: 85 })
         .toBuffer();
+      buffer = compressedBuffer;
 
       console.log(`[Upload Communication] 압축 완료: ${file.size} bytes -> ${buffer.length} bytes (${Math.round((1 - buffer.length / file.size) * 100)}% 감소)`);
     } catch (compressionError) {
