@@ -98,8 +98,8 @@ export default function SubmissionPage() {
           const hasBasic = data.브랜드명 || data.업종 || data.주소;
           const hasLogo = data.로고선호스타일 || data.로고선호폰트 || data.명함색상;
           const hasNamecard = data.명함시안;
-          const hasMarketing = data.네이버검색광고ID || data.InstagramID;
-          const hasWebsite = data.홈페이지스타일 || data.홈페이지컬러컨셉;
+          const hasMarketing = data.네이버검색광고ID || data.네이버검색광고PW || data.네이버클라우드ID || data.네이버클라우드PW || data.InstagramID;
+          const hasWebsite = data.홈페이지스타일 || data.홈페이지컬러컨셉 || data.아임웹ID || data.아임웹PW || data.아임웹관리자PW;
 
           setIsEditingBasicInfo(!hasBasic);
           setIsEditingBusiness(true); // 사업자 정보는 항상 편집 가능
@@ -138,11 +138,23 @@ export default function SubmissionPage() {
   };
 
   const hasMarketingInfo = () => {
-    return submission && (submission.네이버검색광고ID || submission.InstagramID);
+    return submission && (
+      submission.네이버검색광고ID ||
+      submission.네이버검색광고PW ||
+      submission.네이버클라우드ID ||
+      submission.네이버클라우드PW ||
+      submission.InstagramID
+    );
   };
 
   const hasWebsiteInfo = () => {
-    return submission && (submission.홈페이지스타일 || submission.홈페이지컬러컨셉);
+    return submission && (
+      submission.홈페이지스타일 ||
+      submission.홈페이지컬러컨셉 ||
+      submission.아임웹ID ||
+      submission.아임웹PW ||
+      submission.아임웹관리자PW
+    );
   };
 
   const calculateCompletionRate = (data: any) => {
@@ -1088,36 +1100,83 @@ export default function SubmissionPage() {
                 onSubmit={(e) => handleSubmit(e, "marketing")}
                 className="space-y-4"
               >
-                <div className="space-y-2">
-                  <Label htmlFor="네이버검색광고ID" className="text-sm sm:text-base break-words">네이버 검색광고 ID</Label>
-                  <Input
-                    id="네이버검색광고ID"
-                    name="네이버검색광고ID"
-                    defaultValue={submission?.네이버검색광고ID}
-                    disabled={!isEditingMarketing}
-                  />
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="InstagramID" className="text-sm sm:text-base">Instagram ID</Label>
-                    <Input
-                      id="InstagramID"
-                      name="InstagramID"
-                      defaultValue={submission?.InstagramID}
-                      placeholder="인스타그램 아이디"
-                      disabled={!isEditingMarketing}
-                    />
+                {/* 네이버 검색광고 */}
+                <div className="space-y-4 p-4 rounded-lg border-2 border-blue-200 bg-blue-50/50">
+                  <Label className="text-sm sm:text-base font-semibold">네이버 검색광고</Label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="네이버검색광고ID" className="text-sm sm:text-base">ID</Label>
+                      <Input
+                        id="네이버검색광고ID"
+                        name="네이버검색광고ID"
+                        defaultValue={submission?.네이버검색광고ID}
+                        disabled={!isEditingMarketing}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="네이버검색광고PW" className="text-sm sm:text-base">비밀번호</Label>
+                      <Input
+                        id="네이버검색광고PW"
+                        name="네이버검색광고PW"
+                        type="password"
+                        defaultValue={submission?.네이버검색광고PW}
+                        disabled={!isEditingMarketing}
+                      />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="InstagramPW" className="text-sm sm:text-base break-words">Instagram 비밀번호</Label>
-                    <Input
-                      id="InstagramPW"
-                      name="InstagramPW"
-                      type="password"
-                      defaultValue={submission?.InstagramPW}
-                      placeholder="비밀번호"
-                      disabled={!isEditingMarketing}
-                    />
+                </div>
+
+                {/* 네이버 클라우드 */}
+                <div className="space-y-4 p-4 rounded-lg border-2 border-blue-200 bg-blue-50/50">
+                  <Label className="text-sm sm:text-base font-semibold">네이버 클라우드</Label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="네이버클라우드ID" className="text-sm sm:text-base">ID</Label>
+                      <Input
+                        id="네이버클라우드ID"
+                        name="네이버클라우드ID"
+                        defaultValue={submission?.네이버클라우드ID}
+                        disabled={!isEditingMarketing}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="네이버클라우드PW" className="text-sm sm:text-base">비밀번호</Label>
+                      <Input
+                        id="네이버클라우드PW"
+                        name="네이버클라우드PW"
+                        type="password"
+                        defaultValue={submission?.네이버클라우드PW}
+                        disabled={!isEditingMarketing}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 인스타그램 */}
+                <div className="space-y-4 p-4 rounded-lg border-2 border-blue-200 bg-blue-50/50">
+                  <Label className="text-sm sm:text-base font-semibold">Instagram</Label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="InstagramID" className="text-sm sm:text-base">ID</Label>
+                      <Input
+                        id="InstagramID"
+                        name="InstagramID"
+                        defaultValue={submission?.InstagramID}
+                        placeholder="인스타그램 아이디"
+                        disabled={!isEditingMarketing}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="InstagramPW" className="text-sm sm:text-base">비밀번호</Label>
+                      <Input
+                        id="InstagramPW"
+                        name="InstagramPW"
+                        type="password"
+                        defaultValue={submission?.InstagramPW}
+                        placeholder="비밀번호"
+                        disabled={!isEditingMarketing}
+                      />
+                    </div>
                   </div>
                 </div>
                 <div className="flex gap-2">
@@ -1337,9 +1396,36 @@ export default function SubmissionPage() {
                 <div>
                   <CardTitle className="text-gray-900 text-lg sm:text-xl">홈페이지 제작 정보</CardTitle>
                   <CardDescription className="text-gray-600 text-xs sm:text-sm">
-                    홈페이지 컬러 컨셉을 선택해주세요
+                    아임웹 계정 정보와 홈페이지 스타일을 선택해주세요
                   </CardDescription>
                 </div>
+
+                {/* 카카오톡 로그인 안내 */}
+                <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 flex-shrink-0" />
+                  <p className="text-red-700 font-medium text-sm sm:text-base">
+                    <strong>중요:</strong> 카카오톡 로그인 생성 ✕ / 이메일주소 또는 네이버 로그인으로 가입하세요
+                  </p>
+                </div>
+
+                {/* 아임웹 과정 안내 */}
+                <div className="p-4 bg-blue-50 border-2 border-blue-300 rounded-lg space-y-2">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                    <h3 className="font-bold text-blue-900 text-sm sm:text-base">아임웹 진행 과정</h3>
+                  </div>
+                  <ol className="list-decimal list-inside space-y-1.5 text-blue-800 text-xs sm:text-sm ml-1">
+                    <li>아임웹 가입 후 ID/PW 제출</li>
+                    <li>홈페이지 제작 및 구성</li>
+                    <li>소유권 이전</li>
+                    <li>홈페이지 결제</li>
+                  </ol>
+                  <p className="text-red-700 font-bold text-xs sm:text-sm mt-3 flex items-start gap-2">
+                    <span className="text-lg">⚠️</span>
+                    <span>절대 가입 후 홈페이지를 자체 생성하거나 결제하지 마세요!</span>
+                  </p>
+                </div>
+
                 <div className="flex items-center gap-2 p-4 bg-amber-50 border border-amber-200 rounded-lg">
                   <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600 flex-shrink-0" />
                   <p className="text-amber-700 font-medium">
@@ -1354,6 +1440,48 @@ export default function SubmissionPage() {
                 onSubmit={(e) => handleSubmit(e, "website")}
                 className="space-y-6"
               >
+                {/* 아임웹 계정 정보 */}
+                <div className="space-y-4 p-4 rounded-lg border-2 border-purple-200 bg-purple-50/50">
+                  <Label className="text-sm sm:text-base font-semibold">아임웹 계정 정보</Label>
+                  <div className="grid grid-cols-1 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="아임웹ID" className="text-sm sm:text-base">아임웹 ID (이메일 또는 네이버 로그인)</Label>
+                      <Input
+                        id="아임웹ID"
+                        name="아임웹ID"
+                        defaultValue={submission?.아임웹ID}
+                        placeholder="이메일주소 또는 네이버 계정"
+                        disabled={!isEditingDesign}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="아임웹PW" className="text-sm sm:text-base">아임웹 비밀번호</Label>
+                      <Input
+                        id="아임웹PW"
+                        name="아임웹PW"
+                        type="password"
+                        defaultValue={submission?.아임웹PW}
+                        placeholder="비밀번호"
+                        disabled={!isEditingDesign}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="아임웹관리자PW" className="text-sm sm:text-base">아임웹 관리자 비밀번호 (대문자 포함 필수)</Label>
+                      <Input
+                        id="아임웹관리자PW"
+                        name="아임웹관리자PW"
+                        type="password"
+                        defaultValue={submission?.아임웹관리자PW}
+                        placeholder="대문자 포함 비밀번호"
+                        disabled={!isEditingDesign}
+                      />
+                      <p className="text-xs text-gray-600">
+                        관리자 비밀번호는 반드시 대문자를 포함해야 합니다
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
                 {/* 홈페이지 스타일 선택 */}
                 <div className="space-y-3">
                   <Label className="text-sm sm:text-base break-words">홈페이지 스타일 선택 (썸네일 클릭 시 크게 보기)</Label>

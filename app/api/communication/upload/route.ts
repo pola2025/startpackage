@@ -1,8 +1,6 @@
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import { join } from "path";
-import { existsSync } from "fs";
+import { uploadToR2, generateFileName, validateR2Config } from "@/lib/storage/r2Client";
 
 // 허용되는 이미지 타입
 const ALLOWED_IMAGE_TYPES = [
@@ -41,6 +39,17 @@ export async function POST(request: Request) {
       );
     }
 
+    // R2 설정 검증
+    try {
+      validateR2Config();
+    } catch (configError: any) {
+      console.error("[Upload Communication] R2 설정 오류:", configError.message);
+      return NextResponse.json(
+        { error: "스토리지 설정 오류", details: configError.message },
+        { status: 500 }
+      );
+    }
+
     // 파일 크기 체크 (10MB)
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
@@ -49,26 +58,20 @@ export async function POST(request: Request) {
       );
     }
 
-    // 파일 저장 경로 생성 (communication 폴더)
-    const uploadDir = join(process.cwd(), "public", "uploads", "communication", userId);
-    if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true });
-    }
-
-    // 파일명 생성 (timestamp + 원본 파일명)
-    const timestamp = Date.now();
-    const ext = file.name.split(".").pop();
-    const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9가-힣.-]/g, "_");
-    const filename = `${timestamp}_${sanitizedFilename}`;
-    const filepath = join(uploadDir, filename);
-
-    // 파일 저장
+    // 파일 버퍼 읽기
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    await writeFile(filepath, buffer);
 
-    // 공개 URL 생성
-    const url = `/uploads/communication/${userId}/${filename}`;
+    // R2에 업로드 (communication/userId 폴더에 저장)
+    const filename = generateFileName("communication", file.name);
+    const { url } = await uploadToR2(
+      buffer,
+      filename,
+      file.type,
+      `communication/${userId}`
+    );
+
+    console.log("[Upload Communication] R2 업로드 완료:", url);
 
     return NextResponse.json({
       success: true,

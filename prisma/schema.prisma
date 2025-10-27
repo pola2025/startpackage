@@ -114,12 +114,18 @@ model Submission {
   // 마케팅
   메타광고관리자값 String?
   네이버검색광고ID String?
+  네이버검색광고PW String?
+  네이버클라우드ID String?
+  네이버클라우드PW String?
   InstagramID     String?
   InstagramPW     String?
 
   // 홈페이지
   홈페이지스타일   String? // "기본스타일" | URL (템플릿 링크)
   홈페이지컬러컨셉 String? // 16진수 색상값
+  아임웹ID         String?
+  아임웹PW         String?
+  아임웹관리자PW   String? // 대문자 포함 관리자 비밀번호
 
   // === 추가 정보 ===
 

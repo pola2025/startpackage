@@ -1,9 +1,8 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
 import { handleDesignUpload } from "@/lib/notification/notificationService";
+import { uploadToR2, generateFileName, validateR2Config } from "@/lib/storage/r2Client";
 
 export async function POST(request: Request) {
   try {
@@ -39,6 +38,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Workflow not found" }, { status: 404 });
     }
 
+    // R2 설정 검증
+    try {
+      validateR2Config();
+    } catch (configError: any) {
+      console.error("[Upload Design] R2 설정 오류:", configError.message);
+      return NextResponse.json(
+        { error: "스토리지 설정 오류", details: configError.message },
+        { status: 500 }
+      );
+    }
+
     // 파일 크기 검증 (10MB)
     if (file.size > 10 * 1024 * 1024) {
       return NextResponse.json(
@@ -47,33 +57,20 @@ export async function POST(request: Request) {
       );
     }
 
-    // 파일 저장 디렉토리 생성
-    const uploadDir = path.join(
-      process.cwd(),
-      "public",
-      "uploads",
-      "designs",
-      workflowId
-    );
-
-    try {
-      await mkdir(uploadDir, { recursive: true });
-    } catch (error) {
-      console.error("Failed to create directory:", error);
-    }
-
-    // 파일명 생성 (타임스탬프 + 원본 파일명)
-    const timestamp = Date.now();
-    const fileName = `${timestamp}-${file.name}`;
-    const filePath = path.join(uploadDir, fileName);
-
-    // 파일 저장
+    // 파일 버퍼 읽기
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    await writeFile(filePath, buffer);
 
-    // URL 경로 생성
-    const fileUrl = `/uploads/designs/${workflowId}/${fileName}`;
+    // R2에 업로드 (designs/workflowId/ 폴더에 저장)
+    const fileName = generateFileName(`design-${workflowId}`, file.name);
+    const { url: fileUrl } = await uploadToR2(
+      buffer,
+      fileName,
+      file.type || "application/octet-stream",
+      `designs/${workflowId}`
+    );
+
+    console.log("[Upload Design] R2 업로드 완료:", fileUrl);
 
     return NextResponse.json({ url: fileUrl });
   } catch (error) {

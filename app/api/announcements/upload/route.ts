@@ -1,8 +1,6 @@
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
-import { existsSync } from "fs";
+import { uploadToR2, generateFileName, validateR2Config } from "@/lib/storage/r2Client";
 
 const ALLOWED_IMAGE_TYPES = [
   "image/jpeg",
@@ -41,6 +39,17 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
+    // R2 설정 검증
+    try {
+      validateR2Config();
+    } catch (configError: any) {
+      console.error("[Upload Announcement] R2 설정 오류:", configError.message);
+      return NextResponse.json(
+        { error: "스토리지 설정 오류", details: configError.message },
+        { status: 500 }
+      );
+    }
+
     // 파일 크기 체크
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
@@ -49,26 +58,20 @@ export async function POST(request: Request) {
       );
     }
 
-    // 파일 저장 경로: public/uploads/announcements
-    const uploadDir = path.join(process.cwd(), "public/uploads/announcements");
-
-    // 디렉토리가 없으면 생성
-    if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true });
-    }
-
-    // 파일명 생성 (타임스탬프 + 원본파일명)
-    const timestamp = Date.now();
-    const filename = `${timestamp}_${file.name.replace(/\s+/g, "_")}`;
-    const filepath = path.join(uploadDir, filename);
-
-    // 파일 저장
+    // 파일 버퍼 읽기
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    await writeFile(filepath, buffer);
 
-    // URL 반환 (public 경로는 제외)
-    const url = `/uploads/announcements/${filename}`;
+    // R2에 업로드 (announcements 폴더에 저장)
+    const filename = generateFileName("announcement", file.name);
+    const { url } = await uploadToR2(
+      buffer,
+      filename,
+      file.type,
+      "announcements"
+    );
+
+    console.log("[Upload Announcement] R2 업로드 완료:", url);
 
     return NextResponse.json({
       success: true,
