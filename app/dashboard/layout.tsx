@@ -51,6 +51,18 @@ export default function UserLayout({
     return null;
   }
 
+  // 수료생이면 리다이렉트 중이므로 로딩 화면 표시
+  const cohortName = (session?.user as any)?.cohortName;
+  const isGraduated = (session?.user as any)?.isGraduated === true || cohortName === "수료생";
+
+  if (isGraduated) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white animate-pulse">수료생 페이지로 이동 중...</div>
+      </div>
+    );
+  }
+
   const handleLogout = async () => {
     await signOut({ redirect: false });
     router.push("/");
