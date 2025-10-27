@@ -357,6 +357,14 @@ export default async function UserDashboard() {
               <div>
                 <p className="text-sm font-medium text-orange-700 mb-0.5">자료 제출 마감일</p>
                 <p className="text-3xl font-bold text-orange-600">{dday}</p>
+                <p className="text-xs text-orange-600 mt-1">
+                  {new Date(user.cohort.자료제출마감일).toLocaleDateString("ko-KR", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    weekday: "short",
+                  })}
+                </p>
               </div>
             </div>
           )}
@@ -392,6 +400,16 @@ export default async function UserDashboard() {
                     isExpired ? "text-gray-600" : isUrgent ? "text-red-600" : isWarning ? "text-orange-600" : "text-purple-600"
                   }`}>
                     {isExpired ? "종료됨" : `D-${daysRemaining}`}
+                  </p>
+                  <p className={`text-xs mt-1 ${
+                    isExpired ? "text-gray-600" : isUrgent ? "text-red-600" : isWarning ? "text-orange-600" : "text-purple-600"
+                  }`}>
+                    {marketingEndDate.toLocaleDateString("ko-KR", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                      weekday: "short",
+                    })}
                   </p>
                 </div>
               </div>
