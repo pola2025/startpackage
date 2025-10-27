@@ -414,6 +414,22 @@ export default async function UserDashboard() {
                       weekday: "short",
                     })}
                   </p>
+                  {/* 연장 신청 버튼 */}
+                  {!isExpired && daysRemaining <= 30 && daysRemaining > 0 && (() => {
+                    const hasPendingExtension = user.marketingExtensionRequests.some(req => req.status === "pending");
+                    if (!hasPendingExtension && marketingStartDate && marketingEndDate) {
+                      const newEndDate = new Date(marketingEndDate);
+                      newEndDate.setMonth(newEndDate.getMonth() + 3);
+                      return (
+                        <div className="mt-3">
+                          <MarketingExtensionDialog
+                            currentEndDate={marketingEndDate}
+                            newEndDate={newEndDate}
+                          />
+                        </div>
+                      );
+                    }
+                  })()}
                 </div>
               </div>
             );
