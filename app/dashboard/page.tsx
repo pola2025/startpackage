@@ -818,7 +818,7 @@ export default async function UserDashboard() {
             {(() => {
               const now = new Date();
               const daysRemaining = Math.ceil((marketingEndDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-              const hasPendingRequest = user.marketingExtensionRequests && user.marketingExtensionRequests.length > 0;
+              const hasPendingRequest = user.marketingExtensionRequests.some(req => req.status === "pending");
 
               // Calculate new end date (current + 3 months)
               const newEndDate = new Date(marketingEndDate);
