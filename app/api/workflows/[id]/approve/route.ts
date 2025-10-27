@@ -29,14 +29,21 @@ export async function POST(
       return NextResponse.json({ error: "권한이 없습니다." }, { status: 403 });
     }
 
-    // 로고 워크플로우가 시안컨펌요청 상태인지 확인
-    if (workflow.type !== "로고") {
-      return NextResponse.json({ error: "로고 워크플로우만 승인할 수 있습니다." }, { status: 400 });
+    // 로고와 홈페이지만 승인 가능
+    if (workflow.type !== "로고" && workflow.type !== "홈페이지") {
+      return NextResponse.json({ error: "로고와 홈페이지만 확정할 수 있습니다." }, { status: 400 });
     }
 
-    if (workflow.status !== "시안컨펌요청") {
-      return NextResponse.json({ error: "시안컨펌요청 상태에서만 승인할 수 있습니다." }, { status: 400 });
+    // 상태 확인
+    if (workflow.type === "로고" && workflow.status !== "시안컨펌요청") {
+      return NextResponse.json({ error: "시안컨펌요청 상태에서만 확정할 수 있습니다." }, { status: 400 });
     }
+
+    if (workflow.type === "홈페이지" && workflow.status !== "제작 완료") {
+      return NextResponse.json({ error: "제작 완료 상태에서만 확정할 수 있습니다." }, { status: 400 });
+    }
+
+    const previousStatus = workflow.status;
 
     // 워크플로우 상태를 최종확정으로 변경
     const updatedWorkflow = await prisma.workflow.update({
@@ -52,8 +59,8 @@ export async function POST(
         workflowId,
         performedBy: userId,
         performedByName: session.user.name || "사용자",
-        action: "로고승인",
-        previousStatus: "시안컨펌요청",
+        action: `${workflow.type} 확정`,
+        previousStatus,
         newStatus: "최종확정",
       },
     });

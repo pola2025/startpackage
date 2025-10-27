@@ -318,9 +318,10 @@ export default function WorkflowsPage() {
                               )
                             )}
 
-                            {/* 버튼 섹션 - 홈페이지가 아닌 경우만 표시 */}
-                            {workflow.type !== "홈페이지" && (
-                              <div className="flex flex-col gap-2">
+                            {/* 버튼 섹션 */}
+                            <div className="flex flex-col gap-2">
+                              {/* 인쇄물만 새 탭에서 보기/다운로드 버튼 표시 */}
+                              {workflow.type !== "홈페이지" && (
                                 <div className="flex gap-2">
                                   <Button
                                     variant="outline"
@@ -344,49 +345,52 @@ export default function WorkflowsPage() {
                                     원본 다운로드
                                   </Button>
                                 </div>
-                                {workflow.type === "로고" ? (
-                                  <Button
-                                    onClick={async () => {
-                                      if (!confirm("로고 시안을 최종 승인하시겠습니까?\n승인 후에는 수정이 어려울 수 있습니다.")) {
-                                        return;
-                                      }
+                              )}
 
-                                      setLoading(true);
-                                      try {
-                                        const res = await fetch(`/api/workflows/${workflow.id}/approve`, {
-                                          method: "POST",
-                                        });
+                              {/* 로고와 홈페이지: 시안 확정 버튼 */}
+                              {(workflow.type === "로고" || workflow.type === "홈페이지") ? (
+                                <Button
+                                  onClick={async () => {
+                                    if (!confirm(`${workflow.type} 시안을 최종 확정하시겠습니까?\n확정 후에는 수정이 어려울 수 있습니다.`)) {
+                                      return;
+                                    }
 
-                                        if (res.ok) {
-                                          alert("로고 시안이 최종 승인되었습니다!");
-                                          await fetchWorkflows();
-                                        } else {
-                                          const error = await res.json();
-                                          alert(error.error || "승인에 실패했습니다");
-                                        }
-                                      } catch (error) {
-                                        console.error("Failed to approve:", error);
-                                        alert("승인 중 오류가 발생했습니다");
-                                      } finally {
-                                        setLoading(false);
+                                    setLoading(true);
+                                    try {
+                                      const res = await fetch(`/api/workflows/${workflow.id}/approve`, {
+                                        method: "POST",
+                                      });
+
+                                      if (res.ok) {
+                                        alert(`${workflow.type} 시안이 최종 확정되었습니다!`);
+                                        await fetchWorkflows();
+                                      } else {
+                                        const error = await res.json();
+                                        alert(error.error || "확정에 실패했습니다");
                                       }
-                                    }}
-                                    disabled={loading}
-                                    className="w-full bg-green-600 hover:bg-green-700 text-white"
-                                  >
-                                    로고 시안 승인하기
-                                  </Button>
-                                ) : (
-                                  <Button
-                                    onClick={() => handleOrderRequest(workflow.id)}
-                                    disabled={loading}
-                                    className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                                  >
-                                    발주 요청
-                                  </Button>
-                                )}
-                              </div>
-                            )}
+                                    } catch (error) {
+                                      console.error("Failed to approve:", error);
+                                      alert("확정 중 오류가 발생했습니다");
+                                    } finally {
+                                      setLoading(false);
+                                    }
+                                  }}
+                                  disabled={loading}
+                                  className="w-full bg-green-600 hover:bg-green-700 text-white"
+                                >
+                                  시안 확정
+                                </Button>
+                              ) : (
+                                // 인쇄물: 발주 요청 버튼
+                                <Button
+                                  onClick={() => handleOrderRequest(workflow.id)}
+                                  disabled={loading}
+                                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                                >
+                                  발주 요청
+                                </Button>
+                              )}
+                            </div>
 
                             {workflow.type !== "홈페이지" && (
                               <div className="bg-orange-50 border-2 border-orange-200 rounded-lg p-3">
