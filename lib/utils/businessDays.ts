@@ -89,12 +89,16 @@ export function getBusinessDayRange(
 
 /**
  * 제작물 타입별 소요 영업일 정의
- * 주의: 로고는 인쇄물이 아닌 디지털 파일이므로 예상도착일 계산에서 제외
  */
 export const PRODUCTION_DAYS: Record<string, { min: number; max: number }> = {
+  // 시안 제작 예정일
+  '로고': { min: 1, max: 2 },
+
+  // 인쇄물 제작 예정일 (발주 후)
   '명함': { min: 2, max: 3 },
   '명찰': { min: 2, max: 3 },
   '대봉투': { min: 4, max: 5 },
+  '자문계약서': { min: 7, max: 7 },
   '자문계약서 표지': { min: 7, max: 7 },
   '자문계약서 내지': { min: 7, max: 7 },
 };

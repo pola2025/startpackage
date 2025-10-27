@@ -88,6 +88,7 @@ export async function POST(request: Request) {
     }
 
     // 5. Workflow 생성/업데이트 (트랜잭션)
+    const submitDate = new Date();
     const workflows = await prisma.$transaction(
       printTypes.map((type) =>
         prisma.workflow.upsert({
@@ -102,11 +103,11 @@ export async function POST(request: Request) {
             userId,
             type,
             status: "시안중",
-            자료제출일: new Date(),
+            자료제출일: submitDate,
           },
           update: {
             status: "시안중",
-            자료제출일: new Date(),
+            자료제출일: submitDate,
           },
         })
       )

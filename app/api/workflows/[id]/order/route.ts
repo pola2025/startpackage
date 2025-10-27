@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { handleStateChange, handleOrderRequest } from "@/lib/notification/notificationService";
+import { calculateExpectedArrival } from "@/lib/utils/businessDays";
 
 // POST: 발주 요청
 export async function POST(
@@ -39,12 +40,17 @@ export async function POST(
       );
     }
 
+    // 발주 요청일 기준으로 예상 도착일 계산
+    const orderDate = new Date();
+    const expectedArrival = calculateExpectedArrival(orderDate, workflow.type);
+
     // 발주 요청으로 상태 변경 (관리자 승인 대기)
     const updated = await prisma.workflow.update({
       where: { id: workflowId },
       data: {
         status: "발주요청",
-        발주요청일: new Date(),
+        발주요청일: orderDate,
+        예상도착일: expectedArrival || null,
       },
     });
 

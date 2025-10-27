@@ -449,7 +449,16 @@ export default function WorkflowsPage() {
                   )}
                   {workflow.status === "대기" && (
                     <div className="flex-1 text-center text-sm text-gray-500 py-2">
-                      디자인 시안이 영업일 기준 1~2일 내 전달됩니다
+                      {workflow.type === "로고"
+                        ? "로고 시안이 영업일 기준 1~2일 내 전달됩니다"
+                        : "시안 작업 중입니다"}
+                    </div>
+                  )}
+                  {workflow.status === "시안중" && (
+                    <div className="flex-1 text-center text-sm text-gray-500 py-2">
+                      {workflow.type === "로고"
+                        ? "로고 시안이 영업일 기준 1~2일 내 전달됩니다"
+                        : "시안 작업 중입니다"}
                     </div>
                   )}
                   {workflow.status === "발주완료" && (
