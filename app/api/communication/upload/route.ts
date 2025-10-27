@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 import { uploadToR2, generateFileName, validateR2Config } from "@/lib/storage/r2Client";
+import sharp from "sharp";
 
 // Vercel function 설정
 export const maxDuration = 30; // 30초 타임아웃
@@ -16,7 +17,7 @@ const ALLOWED_IMAGE_TYPES = [
   "image/webp",
 ];
 
-const MAX_FILE_SIZE = 4 * 1024 * 1024; // 4MB (Vercel body size limit)
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 // POST: 커뮤니케이션 이미지 업로드
 export async function POST(request: Request) {
@@ -55,24 +56,38 @@ export async function POST(request: Request) {
       );
     }
 
-    // 파일 크기 체크 (4MB)
+    // 파일 크기 체크 (10MB)
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
-        { error: "파일 크기는 4MB 이하여야 합니다.\n더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다." },
+        { error: "파일 크기는 10MB 이하여야 합니다.\n더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다." },
         { status: 400 }
       );
     }
 
     // 파일 버퍼 읽기
     const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    let buffer = Buffer.from(bytes);
+
+    // WebP로 자동 압축 (품질 85%, 메타데이터 제거)
+    try {
+      buffer = await sharp(buffer)
+        .webp({ quality: 85 })
+        .toBuffer();
+
+      console.log(`[Upload Communication] 압축 완료: ${file.size} bytes -> ${buffer.length} bytes (${Math.round((1 - buffer.length / file.size) * 100)}% 감소)`);
+    } catch (compressionError) {
+      console.error("[Upload Communication] 압축 오류:", compressionError);
+      // 압축 실패 시 원본 사용
+    }
 
     // R2에 업로드 (communication/userId 폴더에 저장)
-    const filename = generateFileName("communication", file.name);
+    // 파일명을 .webp 확장자로 변경
+    const originalName = file.name.replace(/\.[^/.]+$/, ".webp");
+    const filename = generateFileName("communication", originalName);
     const { url } = await uploadToR2(
       buffer,
       filename,
-      file.type,
+      "image/webp",
       `communication/${userId}`
     );
 
