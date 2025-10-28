@@ -152,7 +152,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.userType = user.userType; // ✅ user 객체에서도 가져옴
         token.cohortId = user.cohortId;
         token.cohortName = user.cohortName;
-        token.isGraduated = user.isGraduated;
+        token.status = user.status;
+        token.graduatedAt = user.graduatedAt;
       }
       return token;
     },
@@ -163,7 +164,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.userType = token.userType as "user" | "admin" | undefined;
         session.user.cohortId = token.cohortId as string | undefined;
         session.user.cohortName = token.cohortName as string | undefined;
-        session.user.isGraduated = token.isGraduated as boolean | undefined;
+        session.user.status = token.status as string | undefined;
+        session.user.graduatedAt = token.graduatedAt as Date | null | undefined;
       }
       return session;
     },
