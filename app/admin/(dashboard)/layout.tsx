@@ -44,11 +44,13 @@ const navigation = [
   },
   {
     name: "기수 관리",
-  },  {    name: "관리자 관리",    href: "/admin/admins",    icon: Shield,
     href: "/admin/cohorts",
-  },  {    name: "관리자 관리",    href: "/admin/admins",    icon: Shield,
     icon: GraduationCap,
-  },  {    name: "관리자 관리",    href: "/admin/admins",    icon: Shield,
+  },
+  {
+    name: "관리자 관리",
+    href: "/admin/admins",
+    icon: Shield,
   },
   {
     name: "가입 신청",
@@ -64,7 +66,6 @@ const navigation = [
     name: "커뮤니케이션",
     href: "/admin/communication",
     icon: MessageSquare,
-  Shield,
   },
   {
     name: "마케팅 소식",
