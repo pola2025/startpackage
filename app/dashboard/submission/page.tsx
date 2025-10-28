@@ -1632,7 +1632,7 @@ export default function SubmissionPage() {
                 <div className="space-y-3">
                   <Label className="text-sm sm:text-base break-words">홈페이지 스타일 선택 (썸네일 클릭 시 크게 보기)</Label>
                   <input type="hidden" name="홈페이지스타일" value={selectedWebsiteStyle} />
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     {[
                       { url: "https://financialhealing.imweb.me/", name: "스타일 1" },
                       { url: "https://mjgood.imweb.me/", name: "스타일 2" },
