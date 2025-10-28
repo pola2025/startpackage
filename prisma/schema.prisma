@@ -66,8 +66,9 @@ model User {
   // 역할
   role String @default("user") // "user" | "admin"
 
-  // 수료생 여부
-  isGraduated Boolean @default(false) // true인 경우 커뮤니케이션/마케팅 소식만 접근 가능
+  // 수료생 상태
+  status UserStatus @default(active) // "active" (현재 수강생) | "graduated" (수료생) | "inactive" (비활성)
+  graduatedAt DateTime? // 수료일 (수료생인 경우)
 
   // 알림 채널 ID
   slackChannelId   String? // 슬랙 채널 ID (기수명_이름_브랜드명)
@@ -90,6 +91,7 @@ model User {
 
   @@index([cohortId])
   @@index([email])
+  @@index([status])
   @@map("users")
 }
 
@@ -505,4 +507,15 @@ model Announcement {
   @@index([published])
   @@index([createdAt])
   @@map("announcements")
+}
+
+// ============================================
+// Enums
+// ============================================
+
+// 사용자 상태
+enum UserStatus {
+  active    // 현재 수강생 (워크플로우, 자료 제출 등 모든 기능 사용 가능)
+  graduated // 수료생 (커뮤니케이션, 마케팅 소식만 접근 가능)
+  inactive  // 비활성 (탈퇴, 휴학 등)
 }
