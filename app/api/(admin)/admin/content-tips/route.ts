@@ -12,7 +12,7 @@ const contentTipSchema = z.object({
   }),
   linkUrl: z.string().url("올바른 URL을 입력해주세요"),
   thumbnailUrl: z.string().url().optional().nullable(),
-  category: z.enum(["instagram", "meta_ads", "naver_blog"], {
+  category: z.enum(["instagram", "meta_ads", "naver_blog", "ai"], {
     errorMap: () => ({ message: "카테고리를 선택해주세요" }),
   }),
   subCategory: z.string().optional().nullable(),

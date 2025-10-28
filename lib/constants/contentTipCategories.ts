@@ -37,6 +37,18 @@ export const CATEGORIES = {
     },
     order: 3,
   },
+  ai: {
+    id: "ai",
+    name: "AI",
+    icon: "🤖",
+    color: {
+      bg: "bg-purple-50",
+      text: "text-purple-700",
+      border: "border-purple-200",
+      badge: "bg-white text-purple-700 border border-purple-300 shadow-sm font-semibold",
+    },
+    order: 4,
+  },
 } as const;
 
 export type CategoryId = keyof typeof CATEGORIES;

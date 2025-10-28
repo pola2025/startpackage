@@ -535,7 +535,7 @@ model ContentTip {
   thumbnailUrl String? // 썸네일 이미지
 
   // 카테고리 시스템
-  category    String  // "instagram" | "meta_ads" | "naver_blog"
+  category    String  // "instagram" | "meta_ads" | "naver_blog" | "ai"
   subCategory String? // 관리자가 직접 입력하는 서브카테고리 (예: "릴스", "카드뉴스", "광고 소재")
 
   // 발행 상태

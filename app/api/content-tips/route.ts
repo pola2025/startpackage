@@ -11,7 +11,7 @@ export async function GET() {
     }
 
     // 각 카테고리별로 최신 4개씩 가져오기
-    const [instagram, meta_ads, naver_blog] = await Promise.all([
+    const [instagram, meta_ads, naver_blog, ai] = await Promise.all([
       prisma.contentTip.findMany({
         where: { published: true, category: "instagram" },
         orderBy: { createdAt: "desc" },
@@ -24,13 +24,18 @@ export async function GET() {
       }),
       prisma.contentTip.findMany({
         where: { published: true, category: "naver_blog" },
+        orderBy: { createdAt: "desc" },
+        take: 4,
+      }),
+      prisma.contentTip.findMany({
+        where: { published: true, category: "ai" },
         orderBy: { createdAt: "desc" },
         take: 4,
       }),
     ]);
 
     // 각 카테고리별 전체 개수
-    const [instagramTotal, metaAdsTotal, naverBlogTotal] = await Promise.all([
+    const [instagramTotal, metaAdsTotal, naverBlogTotal, aiTotal] = await Promise.all([
       prisma.contentTip.count({
         where: { published: true, category: "instagram" },
       }),
@@ -39,6 +44,9 @@ export async function GET() {
       }),
       prisma.contentTip.count({
         where: { published: true, category: "naver_blog" },
+      }),
+      prisma.contentTip.count({
+        where: { published: true, category: "ai" },
       }),
     ]);
 
@@ -46,9 +54,11 @@ export async function GET() {
       instagram,
       meta_ads,
       naver_blog,
+      ai,
       instagramTotal,
       metaAdsTotal,
       naverBlogTotal,
+      aiTotal,
     });
   } catch (error) {
     console.error("GET /api/content-tips error:", error);
