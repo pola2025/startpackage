@@ -9,7 +9,7 @@ export const CATEGORIES = {
       bg: "bg-pink-50",
       text: "text-pink-700",
       border: "border-pink-200",
-      badge: "bg-pink-100 text-pink-800",
+      badge: "bg-white text-pink-700 border border-pink-300 shadow-sm font-semibold",
     },
     order: 1,
   },
