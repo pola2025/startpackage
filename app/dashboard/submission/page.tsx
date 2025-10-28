@@ -1635,13 +1635,11 @@ export default function SubmissionPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                     {[
                       { url: "https://financialhealing.imweb.me/", name: "스타일 1" },
-                      { url: "https://primeroad.imweb.me/", name: "스타일 2" },
-                      { url: "https://ynjbiz.imweb.me/", name: "스타일 3" },
-                      { url: "https://mjgood.imweb.me/", name: "스타일 4" },
-                      { url: "https://jmbiz.imweb.me/", name: "스타일 5" },
-                      { url: "https://ganaanbiz.imweb.me/", name: "스타일 6" },
-                      { url: "https://ksupport-center.imweb.me/", name: "스타일 7" },
-                      { url: "https://financeable.imweb.me/", name: "스타일 8" },
+                      { url: "https://mjgood.imweb.me/", name: "스타일 2" },
+                      { url: "https://jmbiz.imweb.me/", name: "스타일 3" },
+                      { url: "https://ganaanbiz.imweb.me/", name: "스타일 4" },
+                      { url: "https://ksupport-center.imweb.me/", name: "스타일 5" },
+                      { url: "https://polarad.imweb.me/publicstyle", name: "스타일 6" },
                     ].map((style) => (
                       <Dialog key={style.url} open={dialogOpen && selectedWebsiteStyle === style.url} onOpenChange={(open) => {
                         setDialogOpen(open);
@@ -1763,13 +1761,11 @@ export default function SubmissionPage() {
                         {(() => {
                           const styles = [
                             { url: "https://financialhealing.imweb.me/", name: "스타일 1" },
-                            { url: "https://primeroad.imweb.me/", name: "스타일 2" },
-                            { url: "https://ynjbiz.imweb.me/", name: "스타일 3" },
-                            { url: "https://mjgood.imweb.me/", name: "스타일 4" },
-                            { url: "https://jmbiz.imweb.me/", name: "스타일 5" },
-                            { url: "https://ganaanbiz.imweb.me/", name: "스타일 6" },
-                            { url: "https://ksupport-center.imweb.me/", name: "스타일 7" },
-                            { url: "https://financeable.imweb.me/", name: "스타일 8" },
+                            { url: "https://mjgood.imweb.me/", name: "스타일 2" },
+                            { url: "https://jmbiz.imweb.me/", name: "스타일 3" },
+                            { url: "https://ganaanbiz.imweb.me/", name: "스타일 4" },
+                            { url: "https://ksupport-center.imweb.me/", name: "스타일 5" },
+                            { url: "https://polarad.imweb.me/publicstyle", name: "스타일 6" },
                           ];
                           return styles.find(s => s.url === selectedWebsiteStyle)?.name || "선택됨";
                         })()}
