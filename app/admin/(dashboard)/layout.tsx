@@ -18,6 +18,7 @@ import {
   Megaphone,
   MessageSquare,
   Shield,
+  Lightbulb,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -71,6 +72,11 @@ const navigation = [
     name: "마케팅 소식",
     href: "/admin/announcements",
     icon: Megaphone,
+  },
+  {
+    name: "콘텐츠 제작 Tip",
+    href: "/admin/content-tips",
+    icon: Lightbulb,
   },
 ];
 

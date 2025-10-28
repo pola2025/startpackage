@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { LogOut, Package, LayoutDashboard, FileText, Workflow, BookOpen, MessageSquare, Megaphone } from "lucide-react";
+import { LogOut, Package, LayoutDashboard, FileText, Workflow, BookOpen, MessageSquare, Megaphone, Lightbulb } from "lucide-react";
 import Link from "next/link";
 
 export default function UserLayout({
@@ -151,6 +151,16 @@ export default function UserLayout({
               >
                 <Megaphone className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                 마케팅 소식
+              </Button>
+            </Link>
+            <Link href="/dashboard/content-tips">
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`${pathname === "/dashboard/content-tips" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} text-xs sm:text-sm h-8 px-2 sm:h-9 sm:px-3 w-full`}
+              >
+                <Lightbulb className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                콘텐츠 제작 Tip
               </Button>
             </Link>
           </nav>

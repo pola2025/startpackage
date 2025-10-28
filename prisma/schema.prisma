@@ -63,6 +63,9 @@ model User {
   // 공지사항 이메일 수신 설정
   공지사항이메일수신 Boolean @default(true)
 
+  // 콘텐츠 제작 Tip 이메일 수신 설정
+  콘텐츠팁이메일수신 Boolean @default(false)
+
   // 역할
   role String @default("user") // "user" | "admin"
 
@@ -507,6 +510,44 @@ model Announcement {
   @@index([published])
   @@index([createdAt])
   @@map("announcements")
+}
+
+// ============================================
+// 콘텐츠 제작 Tip
+// ============================================
+
+model ContentTip {
+  id String @id @default(cuid())
+
+  // 작성자 (관리자)
+  authorId   String
+  authorName String
+
+  // 내용
+  title       String // 제목
+  description String @db.Text // 간략한 설명
+
+  // 링크
+  linkType String // "youtube" | "blog"
+  linkUrl  String // 유튜브 또는 블로그 링크
+
+  // 썸네일 (선택)
+  thumbnailUrl String? // 썸네일 이미지
+
+  // 카테고리 시스템
+  category    String  // "instagram" | "meta_ads" | "naver_blog"
+  subCategory String? // 관리자가 직접 입력하는 서브카테고리 (예: "릴스", "카드뉴스", "광고 소재")
+
+  // 발행 상태
+  published Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([published])
+  @@index([category]) // 카테고리별 조회 최적화
+  @@index([createdAt])
+  @@map("content_tips")
 }
 
 // ============================================

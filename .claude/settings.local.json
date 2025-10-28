@@ -43,7 +43,11 @@
       "Bash(npx kill-port:*)",
       "Bash(npm run start)",
       "Bash(vercel:*)",
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "Bash(del F:startpackagemiddleware.ts)",
+      "Bash(git checkout:*)",
+      "Read(//f/obsidian/**)",
+      "Read(//f/**)"
     ],
     "deny": [],
     "ask": []

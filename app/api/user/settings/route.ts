@@ -16,13 +16,14 @@ export async function PATCH(request: Request) {
 
     const userId = (session.user as any).id;
     const body = await request.json();
-    const { 공지사항이메일수신, SMS수신동의, 이메일수신동의 } = body;
+    const { 공지사항이메일수신, 콘텐츠팁이메일수신, SMS수신동의, 이메일수신동의 } = body;
 
     // 사용자 설정 업데이트
     const user = await prisma.user.update({
       where: { id: userId },
       data: {
         ...(공지사항이메일수신 !== undefined && { 공지사항이메일수신 }),
+        ...(콘텐츠팁이메일수신 !== undefined && { 콘텐츠팁이메일수신 }),
         ...(SMS수신동의 !== undefined && { SMS수신동의 }),
         ...(이메일수신동의 !== undefined && { 이메일수신동의 }),
       },
@@ -32,6 +33,7 @@ export async function PATCH(request: Request) {
       success: true,
       user: {
         공지사항이메일수신: user.공지사항이메일수신,
+        콘텐츠팁이메일수신: user.콘텐츠팁이메일수신,
         SMS수신동의: user.SMS수신동의,
         이메일수신동의: user.이메일수신동의,
       },

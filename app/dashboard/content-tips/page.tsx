@@ -1,0 +1,507 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Lightbulb, Bell, BellOff, Settings, ExternalLink, Youtube, Globe, ChevronRight } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { CATEGORIES, CategoryId } from "@/lib/constants/contentTipCategories";
+
+type ContentTip = {
+  id: string;
+  authorId: string;
+  authorName: string;
+  title: string;
+  description: string;
+  linkType: string;
+  linkUrl: string;
+  thumbnailUrl: string | null;
+  category: CategoryId;
+  subCategory: string | null;
+  published: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export default function UserContentTipsPage() {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const [categoryTips, setCategoryTips] = useState<{
+    instagram: ContentTip[];
+    meta_ads: ContentTip[];
+    naver_blog: ContentTip[];
+  }>({
+    instagram: [],
+    meta_ads: [],
+    naver_blog: [],
+  });
+  const [categoryCounts, setCategoryCounts] = useState<{
+    instagramTotal: number;
+    metaAdsTotal: number;
+    naverBlogTotal: number;
+  }>({
+    instagramTotal: 0,
+    metaAdsTotal: 0,
+    naverBlogTotal: 0,
+  });
+  const [selectedTip, setSelectedTip] = useState<ContentTip | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [emailEnabled, setEmailEnabled] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [updating, setUpdating] = useState(false);
+
+  useEffect(() => {
+    fetchContentTips();
+    fetchUserSettings();
+  }, []);
+
+  const fetchContentTips = async () => {
+    try {
+      const res = await fetch("/api/content-tips");
+      const data = await res.json();
+      if (data) {
+        setCategoryTips({
+          instagram: data.instagram || [],
+          meta_ads: data.meta_ads || [],
+          naver_blog: data.naver_blog || [],
+        });
+        setCategoryCounts({
+          instagramTotal: data.instagramTotal || 0,
+          metaAdsTotal: data.metaAdsTotal || 0,
+          naverBlogTotal: data.naverBlogTotal || 0,
+        });
+      }
+    } catch (error) {
+      console.error("콘텐츠 팁 조회 실패:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchUserSettings = async () => {
+    try {
+      const user = (session?.user as any);
+      if (user?.콘텐츠팁이메일수신 !== undefined) {
+        setEmailEnabled(user.콘텐츠팁이메일수신);
+      }
+    } catch (error) {
+      console.error("설정 조회 실패:", error);
+    }
+  };
+
+  const handleUpdateEmailSettings = async () => {
+    setUpdating(true);
+    try {
+      const res = await fetch("/api/user/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          콘텐츠팁이메일수신: !emailEnabled,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setEmailEnabled(!emailEnabled);
+        alert(
+          emailEnabled
+            ? "이메일 수신을 해제했습니다"
+            : "이메일 수신을 설정했습니다"
+        );
+        setIsSettingsOpen(false);
+        window.location.reload();
+      } else {
+        alert(data.error || "설정 변경 실패");
+      }
+    } catch (error) {
+      console.error("설정 변경 실패:", error);
+      alert("설정 변경 중 오류가 발생했습니다");
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInMs = now.getTime() - date.getTime();
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+    if (diffInDays === 0) {
+      return "오늘";
+    } else if (diffInDays === 1) {
+      return "어제";
+    } else if (diffInDays < 7) {
+      return `${diffInDays}일 전`;
+    } else {
+      return new Intl.DateTimeFormat("ko-KR", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }).format(date);
+    }
+  };
+
+  const extractYoutubeId = (url: string) => {
+    if (!url) return null;
+    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
+    return match ? match[1] : null;
+  };
+
+  const getThumbnailUrl = (tip: ContentTip) => {
+    if (tip.thumbnailUrl) {
+      return tip.thumbnailUrl;
+    }
+    if (tip.linkType === "youtube") {
+      const videoId = extractYoutubeId(tip.linkUrl);
+      if (videoId) {
+        return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+      }
+    }
+    return null;
+  };
+
+  const handleOpenInNewWindow = () => {
+    if (selectedTip) {
+      window.open(selectedTip.linkUrl, "_blank", "noopener,noreferrer");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-gray-900 animate-pulse">로딩 중...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-6xl mx-auto space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+            <Lightbulb className="w-8 h-8 text-yellow-600" />
+            콘텐츠 제작 Tip
+          </h1>
+          <p className="text-gray-600 mt-2">
+            유용한 콘텐츠 제작 팁과 참고 자료를 확인하세요
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          onClick={() => setIsSettingsOpen(true)}
+          className="flex items-center gap-2"
+        >
+          <Settings className="w-4 h-4" />
+          알림 설정
+        </Button>
+      </div>
+
+      {/* 이메일 수신 상태 배너 */}
+      <Card
+        className={
+          emailEnabled
+            ? "bg-gradient-to-r from-yellow-50 to-amber-50 border-yellow-200"
+            : "bg-gradient-to-r from-gray-50 to-slate-50 border-gray-200"
+        }
+      >
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {emailEnabled ? (
+                <Bell className="w-5 h-5 text-yellow-600" />
+              ) : (
+                <BellOff className="w-5 h-5 text-gray-600" />
+              )}
+              <div>
+                <p className="font-medium text-gray-900">
+                  {emailEnabled
+                    ? "이메일 알림이 활성화되어 있습니다"
+                    : "이메일 알림이 비활성화되어 있습니다"}
+                </p>
+                <p className="text-sm text-gray-600">
+                  {emailEnabled
+                    ? "새로운 콘텐츠 팁을 이메일로 받아보실 수 있습니다"
+                    : "새로운 콘텐츠 팁을 이메일로 받지 않습니다"}
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsSettingsOpen(true)}
+            >
+              변경
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* 카테고리별 섹션 */}
+      <div className="space-y-12">
+        {Object.entries(CATEGORIES).map(([categoryId, category]) => {
+          const tips = categoryTips[categoryId as CategoryId];
+          const totalKey = `${categoryId}Total` as keyof typeof categoryCounts;
+          const total = categoryCounts[totalKey] || 0;
+
+          return (
+            <div key={categoryId} className={`rounded-lg p-6 ${category.color.bg} border-2 ${category.color.border}`}>
+              {/* 섹션 헤더 */}
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl">{category.icon}</span>
+                  <div>
+                    <h2 className={`text-2xl font-bold ${category.color.text}`}>
+                      {category.name}
+                    </h2>
+                    <p className="text-sm text-gray-600 mt-1">
+                      총 {total}개의 콘텐츠
+                    </p>
+                  </div>
+                </div>
+                {total > 4 && (
+                  <Button
+                    variant="outline"
+                    onClick={() => router.push(`/dashboard/content-tips/${categoryId}`)}
+                    className={`${category.color.text} border-current hover:bg-white/50`}
+                  >
+                    더보기
+                    <ChevronRight className="w-4 h-4 ml-1" />
+                  </Button>
+                )}
+              </div>
+
+              {/* 카드 그리드 */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {tips.length === 0 ? (
+                  <div className="col-span-full">
+                    <Card>
+                      <CardContent className="text-center py-8 text-gray-500">
+                        아직 등록된 콘텐츠가 없습니다
+                      </CardContent>
+                    </Card>
+                  </div>
+                ) : (
+                  tips.map((tip) => {
+                    const thumbnailUrl = getThumbnailUrl(tip);
+
+                    return (
+                      <Card
+                        key={tip.id}
+                        className="cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden bg-white"
+                        onClick={() => setSelectedTip(tip)}
+                      >
+                        {/* 16:9 썸네일 */}
+                        {thumbnailUrl ? (
+                          <div
+                            className="relative w-full aspect-video bg-gray-100 bg-cover bg-center"
+                            style={{ backgroundImage: `url(${thumbnailUrl})` }}
+                          >
+                            {tip.linkType === "youtube" && (
+                              <div className="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 rounded-md text-xs font-medium flex items-center gap-1">
+                                <Youtube className="w-3 h-3" />
+                                YouTube
+                              </div>
+                            )}
+                            {tip.linkType === "blog" && (
+                              <div className="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 rounded-md text-xs font-medium flex items-center gap-1">
+                                <Globe className="w-3 h-3" />
+                                Blog
+                              </div>
+                            )}
+                            {/* 서브카테고리 뱃지 */}
+                            {tip.subCategory && (
+                              <div className={`absolute top-2 left-2 px-2 py-1 rounded-md text-xs font-medium ${category.color.badge}`}>
+                                {tip.subCategory}
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="relative w-full aspect-video bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50 flex flex-col items-center justify-center">
+                            {tip.linkType === "youtube" ? (
+                              <>
+                                <Youtube className="w-12 h-12 text-yellow-400 mb-2" />
+                                <span className="text-sm text-yellow-700 font-medium">YouTube</span>
+                              </>
+                            ) : (
+                              <>
+                                <Globe className="w-12 h-12 text-blue-400 mb-2" />
+                                <span className="text-sm text-blue-700 font-medium">Blog</span>
+                              </>
+                            )}
+                            {/* 서브카테고리 뱃지 */}
+                            {tip.subCategory && (
+                              <div className={`absolute top-2 left-2 px-2 py-1 rounded-md text-xs font-medium ${category.color.badge}`}>
+                                {tip.subCategory}
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        <CardContent className="p-4">
+                          {/* 제목 */}
+                          <h3 className="font-bold text-base text-gray-900 line-clamp-2 mb-2 hover:text-yellow-600 transition-colors">
+                            {tip.title}
+                          </h3>
+
+                          {/* 설명 미리보기 */}
+                          <p className="text-xs text-gray-600 line-clamp-2 mb-3">
+                            {tip.description}
+                          </p>
+
+                          {/* 날짜 */}
+                          <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t">
+                            <span>{formatDate(tip.createdAt)}</span>
+                            <span className="text-yellow-600 font-medium">보기 →</span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* 콘텐츠 팁 상세 모달 */}
+      <Dialog open={!!selectedTip} onOpenChange={() => setSelectedTip(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          {selectedTip && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+                  {selectedTip.linkType === "youtube" ? (
+                    <Youtube className="w-6 h-6 text-red-600" />
+                  ) : (
+                    <Globe className="w-6 h-6 text-blue-600" />
+                  )}
+                  {selectedTip.title}
+                </DialogTitle>
+                <DialogDescription className="text-sm text-gray-500">
+                  {selectedTip.authorName} · {formatDate(selectedTip.createdAt)}
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-4">
+                {/* 설명 */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+                    {selectedTip.description}
+                  </p>
+                </div>
+
+                {/* 유튜브 임베드 */}
+                {selectedTip.linkType === "youtube" && (
+                  <div className="relative w-full pb-[56.25%] rounded-lg overflow-hidden bg-gray-100">
+                    <iframe
+                      className="absolute inset-0 w-full h-full"
+                      src={`https://www.youtube.com/embed/${extractYoutubeId(selectedTip.linkUrl)}`}
+                      title={selectedTip.title}
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    ></iframe>
+                  </div>
+                )}
+
+                {/* 블로그 미리보기 */}
+                {selectedTip.linkType === "blog" && selectedTip.thumbnailUrl && (
+                  <div
+                    className="relative w-full pb-[56.25%] rounded-lg overflow-hidden bg-gray-100 bg-cover bg-center"
+                    style={{ backgroundImage: `url(${selectedTip.thumbnailUrl})` }}
+                  />
+                )}
+              </div>
+
+              <DialogFooter className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setSelectedTip(null)}
+                >
+                  닫기
+                </Button>
+                <Button
+                  onClick={handleOpenInNewWindow}
+                  className="bg-yellow-600 hover:bg-yellow-700"
+                >
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  새 창에서 열기
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* 설정 다이얼로그 */}
+      <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>이메일 알림 설정</DialogTitle>
+            <DialogDescription>
+              콘텐츠 제작 팁 이메일 수신 여부를 설정할 수 있습니다
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="py-4">
+            <div className="flex items-start gap-4 p-4 rounded-lg border-2 border-gray-200 bg-gray-50">
+              {emailEnabled ? (
+                <Bell className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-1" />
+              ) : (
+                <BellOff className="w-6 h-6 text-gray-600 flex-shrink-0 mt-1" />
+              )}
+              <div className="flex-1">
+                <h4 className="font-semibold text-gray-900 mb-1">
+                  현재 상태:{" "}
+                  {emailEnabled ? "이메일 수신 중" : "이메일 수신 안 함"}
+                </h4>
+                <p className="text-sm text-gray-600">
+                  {emailEnabled
+                    ? "새로운 콘텐츠 팁이 등록되면 이메일로 알림을 받습니다"
+                    : "새로운 콘텐츠 팁 알림을 받지 않습니다"}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsSettingsOpen(false)}
+              disabled={updating}
+            >
+              취소
+            </Button>
+            <Button
+              onClick={handleUpdateEmailSettings}
+              disabled={updating}
+              className={
+                emailEnabled
+                  ? "bg-gray-600 hover:bg-gray-700"
+                  : "bg-yellow-600 hover:bg-yellow-700"
+              }
+            >
+              {updating
+                ? "처리 중..."
+                : emailEnabled
+                ? "이메일 수신 해제"
+                : "이메일 수신 설정"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
