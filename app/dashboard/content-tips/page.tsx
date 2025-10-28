@@ -39,19 +39,23 @@ export default function UserContentTipsPage() {
     instagram: ContentTip[];
     meta_ads: ContentTip[];
     naver_blog: ContentTip[];
+    ai: ContentTip[];
   }>({
     instagram: [],
     meta_ads: [],
     naver_blog: [],
+    ai: [],
   });
   const [categoryCounts, setCategoryCounts] = useState<{
     instagramTotal: number;
     metaAdsTotal: number;
     naverBlogTotal: number;
+    aiTotal: number;
   }>({
     instagramTotal: 0,
     metaAdsTotal: 0,
     naverBlogTotal: 0,
+    aiTotal: 0,
   });
   const [selectedTip, setSelectedTip] = useState<ContentTip | null>(null);
   const [loading, setLoading] = useState(true);
@@ -73,11 +77,13 @@ export default function UserContentTipsPage() {
           instagram: data.instagram || [],
           meta_ads: data.meta_ads || [],
           naver_blog: data.naver_blog || [],
+          ai: data.ai || [],
         });
         setCategoryCounts({
           instagramTotal: data.instagramTotal || 0,
           metaAdsTotal: data.metaAdsTotal || 0,
           naverBlogTotal: data.naverBlogTotal || 0,
+          aiTotal: data.aiTotal || 0,
         });
       }
     } catch (error) {
