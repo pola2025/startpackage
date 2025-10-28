@@ -87,8 +87,6 @@ export async function POST(request: NextRequest) {
     // 비밀번호 해시
     const hashedPassword = await hash(password, 10);
 
-    // "수료생" 기수인지 확인
-    const isGraduatedCohort = cohort.name === "수료생" || cohort.englishName === "graduated";
 
     // 사용자 생성
     const user = await prisma.user.create({
@@ -101,7 +99,7 @@ export async function POST(request: NextRequest) {
         SMS수신동의: true,
         이메일수신동의: true,
         role: "user",
-        isGraduated: isGraduatedCohort, // 수료생 기수면 자동으로 true
+        
       },
     });
 
