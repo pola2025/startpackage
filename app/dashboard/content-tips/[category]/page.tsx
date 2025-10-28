@@ -42,17 +42,17 @@ export default function CategoryDetailPage() {
   const [selectedTip, setSelectedTip] = useState<ContentTip | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Validate category
-  if (!isValidCategory(categoryId)) {
-    router.push("/dashboard/content-tips");
-    return null;
-  }
-
-  const category = CATEGORIES[categoryId];
+  // Validate category before any hooks
+  const isValid = isValidCategory(categoryId);
+  const category = isValid ? CATEGORIES[categoryId] : CATEGORIES.instagram;
 
   useEffect(() => {
+    if (!isValid) {
+      router.push("/dashboard/content-tips");
+      return;
+    }
     fetchCategoryTips();
-  }, [categoryId, selectedSubCategory]);
+  }, [categoryId, selectedSubCategory, isValid, router]);
 
   const fetchCategoryTips = async () => {
     try {
