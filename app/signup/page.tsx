@@ -147,11 +147,6 @@ export default function HomePage() {
                     <Calendar className="w-4 h-4" />
                     기수 선택
                   </Label>
-                  <div className="border-2 border-green-300 rounded-lg p-3 bg-green-50 mb-2">
-                    <p className="text-sm text-green-800 font-medium">
-                      📢 1~18기 대표님들은 &quot;수료생&quot;을 선택해주세요
-                    </p>
-                  </div>
                   <Select
                     value={formData.cohortId}
                     onValueChange={(value) => setFormData({ ...formData, cohortId: value })}
@@ -167,7 +162,7 @@ export default function HomePage() {
                       ))}
                     </SelectContent>
                   </Select>
-                  {selectedCohort && selectedCohort.name !== "수료생" && (
+                  {selectedCohort && (
                     <p className="text-xs text-gray-600">
                       마감일: {new Date(selectedCohort.자료제출마감일).toLocaleDateString('ko-KR')}
                     </p>
