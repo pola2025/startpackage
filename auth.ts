@@ -62,7 +62,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     role: user.role as "user" | "super" | "designer" | "operator",
                     cohortId: user.cohortId,
                     cohortName: user.cohort?.name,
-                    isGraduated: user.isGraduated,
+                    status: user.status,
+                    graduatedAt: user.graduatedAt,
                   };
                 }
               }
@@ -91,7 +92,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     role: user.role as "user" | "super" | "designer" | "operator",
                     cohortId: user.cohortId,
                     cohortName: user.cohort?.name,
-                    isGraduated: user.isGraduated,
+                    status: user.status,
+                    graduatedAt: user.graduatedAt,
                   };
                 }
               }
