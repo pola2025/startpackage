@@ -26,7 +26,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, Trash2, Eye, ExternalLink, GraduationCap, UserCheck } from "lucide-react";
+import { MoreVertical, Trash2, Eye, ExternalLink, GraduationCap, UserCheck, Send } from "lucide-react";
 
 interface UserActionsProps {
   user: any;
@@ -38,8 +38,13 @@ export default function UserActions({ user }: UserActionsProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showDetailDialog, setShowDetailDialog] = useState(false);
   const [showGraduateDialog, setShowGraduateDialog] = useState(false);
+  const [showMessageDialog, setShowMessageDialog] = useState(false);
   const [submission, setSubmission] = useState<any>(null);
   const [loadingSubmission, setLoadingSubmission] = useState(false);
+  const [sendingMessage, setSendingMessage] = useState(false);
+  const [messageChannel, setMessageChannel] = useState<"SMS" | "EMAIL">("SMS");
+  const [messageTitle, setMessageTitle] = useState("");
+  const [messageContent, setMessageContent] = useState("");
 
   const fetchSubmission = async () => {
     setLoadingSubmission(true);
@@ -109,6 +114,45 @@ export default function UserActions({ user }: UserActionsProps) {
     }
   };
 
+  const handleSendMessage = async () => {
+    if (!messageTitle.trim() || !messageContent.trim()) {
+      alert("제목과 메시지를 모두 입력해주세요.");
+      return;
+    }
+
+    if (sendingMessage) return;
+
+    setSendingMessage(true);
+    try {
+      const response = await fetch("/api/admin/send-message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user.id,
+          channel: messageChannel,
+          title: messageTitle,
+          message: messageContent,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "메시지 발송 실패");
+      }
+
+      alert(`${messageChannel === "SMS" ? "문자" : "이메일"}를 성공적으로 발송했습니다.`);
+      setShowMessageDialog(false);
+      setMessageTitle("");
+      setMessageContent("");
+      router.refresh();
+    } catch (error: any) {
+      alert(error.message || "메시지 발송 중 오류가 발생했습니다.");
+    } finally {
+      setSendingMessage(false);
+    }
+  };
+
   return (
     <>
       <DropdownMenu>
@@ -128,6 +172,14 @@ export default function UserActions({ user }: UserActionsProps) {
           >
             <Eye className="w-4 h-4 mr-2" />
             제출 정보 확인
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => setShowMessageDialog(true)}
+            disabled={loading}
+            className="text-purple-600 hover:bg-purple-50 cursor-pointer"
+          >
+            <Send className="w-4 h-4 mr-2" />
+            메시지 발송
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => setShowGraduateDialog(true)}
@@ -396,6 +448,140 @@ export default function UserActions({ user }: UserActionsProps) {
               제출된 정보가 없습니다.
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* 메시지 발송 다이얼로그 */}
+      <Dialog open={showMessageDialog} onOpenChange={setShowMessageDialog}>
+        <DialogContent className="bg-white border-gray-200 max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl text-gray-900">
+              {user.이름}님에게 메시지 발송
+            </DialogTitle>
+            <DialogDescription className="text-gray-600">
+              SMS 또는 이메일을 선택하여 개별 메시지를 발송할 수 있습니다
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 mt-4">
+            {/* 채널 선택 */}
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-gray-900">발송 방법 *</label>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setMessageChannel("SMS")}
+                  disabled={!user.SMS수신동의}
+                  className={`flex-1 py-3 px-4 rounded-lg border-2 transition-all ${
+                    messageChannel === "SMS"
+                      ? "border-purple-600 bg-purple-50 text-purple-900"
+                      : "border-gray-300 bg-white text-gray-700 hover:border-purple-400"
+                  } ${!user.SMS수신동의 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                >
+                  <div className="font-semibold">SMS (문자)</div>
+                  <div className="text-xs mt-1">{user.연락처}</div>
+                  {!user.SMS수신동의 && (
+                    <div className="text-xs text-red-600 mt-1">수신 동의 안 함</div>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMessageChannel("EMAIL")}
+                  disabled={!user.이메일수신동의}
+                  className={`flex-1 py-3 px-4 rounded-lg border-2 transition-all ${
+                    messageChannel === "EMAIL"
+                      ? "border-purple-600 bg-purple-50 text-purple-900"
+                      : "border-gray-300 bg-white text-gray-700 hover:border-purple-400"
+                  } ${!user.이메일수신동의 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                >
+                  <div className="font-semibold">이메일</div>
+                  <div className="text-xs mt-1">{user.email}</div>
+                  {!user.이메일수신동의 && (
+                    <div className="text-xs text-red-600 mt-1">수신 동의 안 함</div>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* 제목 입력 */}
+            <div className="space-y-2">
+              <label htmlFor="message-title" className="text-sm font-semibold text-gray-900">
+                제목 *
+              </label>
+              <input
+                id="message-title"
+                type="text"
+                value={messageTitle}
+                onChange={(e) => setMessageTitle(e.target.value)}
+                placeholder="메시지 제목을 입력하세요"
+                maxLength={100}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+              <p className="text-xs text-gray-500">{messageTitle.length}/100자</p>
+            </div>
+
+            {/* 메시지 내용 */}
+            <div className="space-y-2">
+              <label htmlFor="message-content" className="text-sm font-semibold text-gray-900">
+                메시지 내용 *
+              </label>
+              <textarea
+                id="message-content"
+                value={messageContent}
+                onChange={(e) => setMessageContent(e.target.value)}
+                placeholder="메시지 내용을 입력하세요"
+                rows={8}
+                maxLength={1000}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+              />
+              <p className="text-xs text-gray-500">{messageContent.length}/1000자</p>
+            </div>
+
+            {/* 미리보기 */}
+            {(messageTitle || messageContent) && (
+              <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <p className="text-sm font-semibold text-gray-900 mb-2">미리보기</p>
+                <div className="space-y-2">
+                  {messageTitle && (
+                    <div className="font-semibold text-gray-900">[{messageTitle}]</div>
+                  )}
+                  {messageContent && (
+                    <div className="text-gray-700 whitespace-pre-wrap text-sm">
+                      {messageContent}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* 버튼 */}
+            <div className="flex gap-2 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowMessageDialog(false)}
+                disabled={sendingMessage}
+                className="flex-1 border-gray-300"
+              >
+                취소
+              </Button>
+              <Button
+                type="button"
+                onClick={handleSendMessage}
+                disabled={sendingMessage || !messageTitle.trim() || !messageContent.trim()}
+                className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
+              >
+                {sendingMessage ? (
+                  "발송 중..."
+                ) : (
+                  <>
+                    <Send className="w-4 h-4 mr-2" />
+                    {messageChannel === "SMS" ? "문자" : "이메일"} 발송
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </>
