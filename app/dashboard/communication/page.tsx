@@ -122,6 +122,32 @@ export default function UserCommunicationPage() {
 
   useEffect(() => {
     fetchThreads();
+
+    // ✅ SSE 연결로 실시간 스레드 업데이트
+    const eventSource = new EventSource("/api/notifications/stream");
+
+    eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+
+        if (data.type === "new_message") {
+          console.log("📩 새 메시지 도착, 스레드 목록 새로고침");
+          fetchThreads(); // 스레드 목록 자동 새로고침
+        }
+      } catch (error) {
+        console.error("SSE 메시지 파싱 실패:", error);
+      }
+    };
+
+    eventSource.onerror = (error) => {
+      console.error("❌ SSE 연결 오류:", error);
+      eventSource.close();
+    };
+
+    return () => {
+      console.log("🔌 문의하기 페이지 SSE 연결 종료");
+      eventSource.close();
+    };
   }, []);
 
   const handleImageUpload = async (file: File, isNewThread: boolean = false) => {

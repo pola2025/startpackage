@@ -19,6 +19,7 @@ export default function UserLayout({
   const router = useRouter();
   const pathname = usePathname();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [showNotificationModal, setShowNotificationModal] = useState(false);
 
   // 미확인 메시지 가져오기
   const fetchUnreadCount = async () => {
@@ -42,16 +43,46 @@ export default function UserLayout({
     ) {
       router.push("/admin");
     } else if (status === "authenticated") {
-      const cohortName = (session?.user as any)?.cohortName;
-
-      // 미확인 메시지 가져오기
+      // 초기 미확인 메시지 가져오기
       fetchUnreadCount();
 
-      // 1분마다 자동 새로고침
-      const interval = setInterval(fetchUnreadCount, 60000);
-      return () => clearInterval(interval);
+      // ✅ SSE 연결로 실시간 알림 받기
+      const eventSource = new EventSource("/api/notifications/stream");
+
+      eventSource.onopen = () => {
+        console.log("✅ SSE 연결 성공");
+      };
+
+      eventSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          console.log("📩 SSE 이벤트 수신:", data);
+
+          if (data.type === "new_message") {
+            // 배지 카운트 새로고침
+            fetchUnreadCount();
+
+            // 문의하기 페이지가 아닌 경우에만 모달 표시
+            if (!pathname.includes("/communication")) {
+              setShowNotificationModal(true);
+            }
+          }
+        } catch (error) {
+          console.error("SSE 메시지 파싱 실패:", error);
+        }
+      };
+
+      eventSource.onerror = (error) => {
+        console.error("❌ SSE 연결 오류:", error);
+        eventSource.close();
+      };
+
+      return () => {
+        console.log("🔌 SSE 연결 종료");
+        eventSource.close();
+      };
     }
-  }, [status, session, router]);
+  }, [status, session, router, pathname]);
 
   if (status === "loading") {
     return (
@@ -83,8 +114,16 @@ export default function UserLayout({
       {/* 시안 확인 자동 모달 */}
       <DesignConfirmationModal />
 
-      {/* 메시지 알림 모달 */}
-      <MessageNotificationModal onRead={fetchUnreadCount} />
+      {/* 메시지 알림 모달 - SSE로 제어 */}
+      {showNotificationModal && (
+        <MessageNotificationModal
+          onRead={() => {
+            fetchUnreadCount();
+            setShowNotificationModal(false);
+          }}
+          onClose={() => setShowNotificationModal(false)}
+        />
+      )}
 
       {/* Subtle Pattern Background */}
       <div className="fixed inset-0 pattern-background opacity-50" />

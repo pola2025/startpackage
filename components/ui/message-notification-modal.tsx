@@ -21,58 +21,51 @@ interface UnreadMessage {
 
 interface MessageNotificationModalProps {
   onRead: () => void; // 메시지 읽음 처리 후 호출할 콜백
+  onClose: () => void; // 모달 닫기 콜백
 }
 
-export function MessageNotificationModal({ onRead }: MessageNotificationModalProps) {
+export function MessageNotificationModal({ onRead, onClose }: MessageNotificationModalProps) {
   const router = useRouter();
-  const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<UnreadMessage[]>([]);
-  const [checking, setChecking] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // 미확인 메시지 확인
-  const checkUnreadMessages = async () => {
-    if (checking) return;
-
-    setChecking(true);
-    try {
-      const response = await fetch("/api/communication/unread-count");
-      if (response.ok) {
-        const data = await response.json();
-
-        if (data.unreadCount > 0 && data.threadsWithUnread.length > 0) {
-          setMessages(data.threadsWithUnread);
-          setIsOpen(true);
-        }
-      }
-    } catch (error) {
-      console.error("Failed to check unread messages:", error);
-    } finally {
-      setChecking(false);
-    }
-  };
-
-  // 1분마다 미확인 메시지 확인
+  // 컴포넌트 마운트 시 미확인 메시지 가져오기
   useEffect(() => {
-    checkUnreadMessages();
+    const fetchMessages = async () => {
+      try {
+        const response = await fetch("/api/communication/unread-count");
+        if (response.ok) {
+          const data = await response.json();
+          setMessages(data.threadsWithUnread || []);
+        }
+      } catch (error) {
+        console.error("Failed to fetch unread messages:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    const interval = setInterval(checkUnreadMessages, 60000);
-    return () => clearInterval(interval);
+    fetchMessages();
   }, []);
 
   const handleGoToCommunication = () => {
-    setIsOpen(false);
+    onClose();
     router.push("/dashboard/communication");
     onRead(); // 미확인 카운트 새로고침
   };
 
   const handleDismiss = () => {
-    setIsOpen(false);
+    onClose();
   };
 
   const totalUnread = messages.reduce((sum, m) => sum + m.count, 0);
 
+  if (loading || messages.length === 0) {
+    return null;
+  }
+
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="bg-white border-2 border-blue-500 shadow-2xl max-w-md">
         <DialogHeader>
           <DialogTitle className="text-xl text-blue-900 flex items-center gap-2">

@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { notificationManager } from "@/lib/notifications/notification-manager";
 
 // POST: 관리자 답글 작성
 export async function POST(request: Request) {
@@ -76,6 +77,17 @@ export async function POST(request: Request) {
       data: {
         lastReplyAt: new Date(),
         status: "in_progress",
+      },
+    });
+
+    // ✅ 실시간 알림 전송 (SSE)
+    console.log("[REPLY API] SSE 알림 전송 중...", thread.userId);
+    notificationManager.notifyUser(thread.userId, {
+      type: "new_message",
+      data: {
+        threadId,
+        count: 1,
+        timestamp: new Date().toISOString(),
       },
     });
 
