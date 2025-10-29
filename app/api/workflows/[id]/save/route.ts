@@ -76,7 +76,16 @@ export async function POST(
       });
 
       const missingFields: string[] = [];
-      const data = workflowData || (submission?.기본정보 as Record<string, unknown>) || {};
+      // workflowData가 있으면 사용, 없으면 submission의 필드들을 객체로 변환
+      const data = workflowData || (submission ? {
+        brandName: submission.브랜드명,
+        brandNameEng: submission.brandNameEnglish,
+        businessField: submission.업종,
+        address: submission.주소,
+        phone: submission.대표번호,
+        email: submission.이메일,
+        // 필요한 다른 필드들 추가
+      } as Record<string, unknown> : {});
 
       for (const field of requiredFields) {
         const value = data[field.fieldName];
@@ -132,10 +141,17 @@ export async function POST(
       });
 
       if (submission) {
+        // workflowData의 필드를 Submission 필드에 매핑
         await prisma.submission.update({
           where: { userId },
           data: {
-            기본정보: workflowData as any,
+            브랜드명: (workflowData as any).brandName,
+            brandNameEnglish: (workflowData as any).brandNameEng,
+            업종: (workflowData as any).businessField,
+            주소: (workflowData as any).address,
+            대표번호: (workflowData as any).phone,
+            이메일: (workflowData as any).email,
+            // 필요한 다른 필드들 추가
           },
         });
       }
