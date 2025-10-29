@@ -74,6 +74,50 @@ export default function AdminCommunicationPage() {
   const [uploading, setUploading] = useState(false);
   const [sending, setSending] = useState(false);
 
+  // 상대 시간 표시 함수
+  const getRelativeTime = (date: string): string => {
+    const now = new Date();
+    const targetDate = new Date(date);
+    const diffInSeconds = Math.floor((now.getTime() - targetDate.getTime()) / 1000);
+
+    if (diffInSeconds < 60) return "방금 전";
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}분 전`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}시간 전`;
+    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}일 전`;
+
+    return format(targetDate, "M월 d일 HH:mm", { locale: ko });
+  };
+
+  // 날짜별 메시지 그룹핑
+  const groupMessagesByDate = (messages: CommunicationMessage[]) => {
+    const groups: Array<{ type: "date"; date: string } | { type: "message"; data: CommunicationMessage; index: number }> = [];
+    let currentDate: string | null = null;
+
+    messages.forEach((message, index) => {
+      const messageDate = format(new Date(message.createdAt), "yyyy-MM-dd", { locale: ko });
+
+      if (messageDate !== currentDate) {
+        groups.push({ type: "date", date: messageDate });
+        currentDate = messageDate;
+      }
+
+      groups.push({ type: "message", data: message, index });
+    });
+
+    return groups;
+  };
+
+  // 연속 메시지 체크
+  const isConsecutiveMessage = (currentMsg: CommunicationMessage, prevMsg: CommunicationMessage | null): boolean => {
+    if (!prevMsg) return false;
+
+    const sameAuthor = currentMsg.authorType === prevMsg.authorType;
+    const timeDiff = new Date(currentMsg.createdAt).getTime() - new Date(prevMsg.createdAt).getTime();
+    const withinFiveMinutes = timeDiff < 5 * 60 * 1000;
+
+    return sameAuthor && withinFiveMinutes;
+  };
+
   const fetchThreads = async () => {
     try {
       setLoading(true);
@@ -428,51 +472,87 @@ export default function AdminCommunicationPage() {
 
               {/* 메시지 목록 */}
               <CardContent className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50">
-                {selectedThread.messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex ${message.authorType === "admin" ? "justify-end" : "justify-start"}`}
-                  >
-                    <div
-                      className={`max-w-[80%] rounded-lg p-4 ${
-                        message.authorType === "admin"
-                          ? "bg-red-50 border border-red-200"
-                          : "bg-white border border-gray-200"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-sm font-semibold text-gray-900">
-                          {message.authorName}
+                {groupMessagesByDate(selectedThread.messages).map((item, groupIndex) => {
+                  if (item.type === "date") {
+                    return (
+                      <div key={`date-${groupIndex}`} className="flex items-center gap-3 my-6">
+                        <div className="flex-1 h-px bg-gray-300" />
+                        <span className="text-xs text-gray-600 font-semibold px-3 py-1 bg-white rounded-full border border-gray-200 shadow-sm">
+                          {format(new Date(item.date), "yyyy년 M월 d일 EEEE", { locale: ko })}
                         </span>
-                        {message.authorType === "admin" && (
-                          <Badge className="bg-red-100 text-red-700 border-red-300 text-xs">
-                            관리자
-                          </Badge>
-                        )}
+                        <div className="flex-1 h-px bg-gray-300" />
                       </div>
-                      <p className="text-gray-900 whitespace-pre-wrap text-sm mb-2">{message.content}</p>
-                      {message.attachments.length > 0 && (
-                        <div className="space-y-2 mt-3">
-                          {message.attachments.map((url, idx) => (
-                            <img
-                              key={idx}
-                              src={url}
-                              alt="첨부 이미지"
-                              className="rounded-lg max-w-full h-auto border border-gray-200"
-                            />
-                          ))}
+                    );
+                  }
+
+                  const message = item.data;
+                  const prevMessage = item.index > 0 ? selectedThread.messages[item.index - 1] : null;
+                  const isConsecutive = isConsecutiveMessage(message, prevMessage);
+
+                  return (
+                    <div key={message.id}>
+                      <div
+                        className={`flex ${message.authorType === "admin" ? "justify-end" : "justify-start"} ${
+                          isConsecutive ? "mt-1" : "mt-4"
+                        }`}
+                      >
+                        <div className={`max-w-[80%]`}>
+                          {/* 작성자 정보 (연속 메시지가 아닐 때만 표시) */}
+                          {!isConsecutive && (
+                            <div className={`flex items-center gap-2 mb-1 ${message.authorType === "admin" ? "justify-end" : ""}`}>
+                              <span className="text-xs font-semibold text-gray-700">
+                                {message.authorName}
+                              </span>
+                              {message.authorType === "admin" && (
+                                <Badge className="bg-red-100 text-red-700 border-red-300 text-[10px] py-0 px-2">
+                                  관리자
+                                </Badge>
+                              )}
+                              <span className="text-xs text-gray-500">
+                                {format(new Date(message.createdAt), "HH:mm", { locale: ko })}
+                              </span>
+                            </div>
+                          )}
+
+                          {/* 메시지 버블 */}
+                          <div
+                            className={`rounded-lg p-4 ${
+                              message.authorType === "admin"
+                                ? "bg-red-50 border border-red-200"
+                                : "bg-white border border-gray-200"
+                            } ${isConsecutive ? "shadow-sm" : "shadow-md"}`}
+                          >
+                            <p className="text-gray-900 whitespace-pre-wrap text-sm">{message.content}</p>
+                            {message.attachments.length > 0 && (
+                              <div className="space-y-2 mt-3">
+                                {message.attachments.map((url, idx) => (
+                                  <img
+                                    key={idx}
+                                    src={url}
+                                    alt="첨부 이미지"
+                                    className="rounded-lg max-w-full h-auto border border-gray-200"
+                                  />
+                                ))}
+                              </div>
+                            )}
+                            {message.authorType === "admin" && message.expectedCompletionDate && (
+                              <div className="flex items-center gap-1 text-sm text-blue-600 mt-3 bg-blue-50 px-3 py-1.5 rounded-full inline-flex w-fit">
+                                <CalendarIcon className="w-4 h-4 flex-shrink-0" />
+                                <span className="whitespace-nowrap font-medium">완료 예상일: {format(new Date(message.expectedCompletionDate), "yyyy년 M월 d일", { locale: ko })}</span>
+                              </div>
+                            )}
+                            {/* 연속 메시지일 때는 상대 시간 표시 */}
+                            {isConsecutive && (
+                              <p className="text-[10px] mt-2 text-gray-400">
+                                {getRelativeTime(message.createdAt)}
+                              </p>
+                            )}
+                          </div>
                         </div>
-                      )}
-                      {message.authorType === "admin" && message.expectedCompletionDate && (
-                        <div className="flex items-center gap-1 text-sm text-blue-600 mt-2 bg-blue-50 px-3 py-1.5 rounded-full inline-flex w-fit">
-                          <CalendarIcon className="w-4 h-4 flex-shrink-0" />
-                          <span className="whitespace-nowrap font-medium">완료 예상일: {format(new Date(message.expectedCompletionDate), "yyyy년 M월 d일", { locale: ko })}</span>
-                        </div>
-                      )}
-                      <p className="text-xs text-gray-500 mt-2">{formatDateTime(message.createdAt)}</p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </CardContent>
 
               {/* 답글 작성 */}

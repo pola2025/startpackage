@@ -996,28 +996,120 @@ export default function SubmissionPage() {
                     </div>
                   </div>
 
+                  {/* 작성 가이드 - 항상 보이도록 상단에 배치 */}
+                  <div className="space-y-3 p-4 bg-white rounded-lg border-2 border-blue-200 shadow-sm">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* 좋은 예시 */}
+                      <div className="space-y-2">
+                        <p className="text-sm font-bold text-green-700 flex items-center gap-1">
+                          ✅ 좋은 예시 (구체적으로 작성)
+                        </p>
+                        <ul className="text-xs text-gray-800 space-y-1.5 bg-green-50 p-3 rounded-lg border border-green-200">
+                          <li className="flex items-start gap-2">
+                            <span className="text-green-600 font-bold mt-0.5">•</span>
+                            <span><span className="font-semibold">브랜드 컨셉:</span> 신뢰감과 전문성을 주는 깔끔한 이미지</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-green-600 font-bold mt-0.5">•</span>
+                            <span><span className="font-semibold">원하는 느낌:</span> 모던하고 세련된 느낌, 너무 화려하지 않게</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-green-600 font-bold mt-0.5">•</span>
+                            <span><span className="font-semibold">포함 요소:</span> 브랜드명 'ABC', 심볼은 간결한 도형으로</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-green-600 font-bold mt-0.5">•</span>
+                            <span><span className="font-semibold">참고 이미지:</span> 비슷한 느낌의 로고 설명</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-green-600 font-bold mt-0.5">•</span>
+                            <span><span className="font-semibold">피하고 싶은 것:</span> 너무 복잡한 디자인, 어두운 색상</span>
+                          </li>
+                        </ul>
+                      </div>
+
+                      {/* 나쁜 예시 */}
+                      <div className="space-y-2">
+                        <p className="text-sm font-bold text-red-700 flex items-center gap-1">
+                          ❌ 나쁜 예시 (모호한 표현)
+                        </p>
+                        <ul className="text-xs text-gray-800 space-y-1.5 bg-red-50 p-3 rounded-lg border border-red-200">
+                          <li className="flex items-start gap-2">
+                            <span className="text-red-600 font-bold mt-0.5">✗</span>
+                            <span className="line-through">'예쁘게 해주세요'</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-red-600 font-bold mt-0.5">✗</span>
+                            <span className="line-through">'멋진 로고 부탁드립니다'</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-red-600 font-bold mt-0.5">✗</span>
+                            <span className="line-through">'고급스럽게 해주세요'</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-red-600 font-bold mt-0.5">✗</span>
+                            <span className="line-through">'깔끔하게 만들어주세요'</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-red-600 font-bold mt-0.5">✗</span>
+                            <span className="line-through">'심플하게 해주세요'</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-red-600 font-bold mt-0.5">✗</span>
+                            <span className="line-through">'디자인 요소 추가해주세요'</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-red-600 font-bold mt-0.5">✗</span>
+                            <span className="line-through">'디자인해주세요'</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-red-600 font-bold mt-0.5">✗</span>
+                            <span className="line-through">'세련되게 만들어주세요'</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-red-600 font-bold mt-0.5">✗</span>
+                            <span className="line-through">'트렌디하게 해주세요'</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-red-600 font-bold mt-0.5">✗</span>
+                            <span className="line-through">'감각적으로 부탁드립니다'</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-red-600 font-bold mt-0.5">✗</span>
+                            <span className="line-through">'센스있게 해주세요'</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-red-600 font-bold mt-0.5">✗</span>
+                            <span className="line-through">'잘 부탁드립니다'</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-red-600 font-bold mt-0.5">✗</span>
+                            <span className="line-through">'아무거나 괜찮아요'</span>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                      <p className="text-xs text-blue-900 font-semibold mb-2">💡 작성 Tip</p>
+                      <ul className="text-xs text-blue-800 space-y-1 ml-4 list-disc">
+                        <li><span className="font-semibold">브랜드 컨셉:</span> 어떤 이미지를 주고 싶으신가요? (예: 신뢰감, 역동성, 전문성)</li>
+                        <li><span className="font-semibold">원하는 느낌:</span> 어떤 분위기를 원하시나요? (예: 모던한, 클래식한, 친근한)</li>
+                        <li><span className="font-semibold">포함 요소:</span> 로고에 꼭 들어가야 할 것은? (예: 브랜드명, 특정 심볼)</li>
+                        <li><span className="font-semibold">피하고 싶은 것:</span> 구체적으로 어떤 스타일을 피하고 싶으신가요?</li>
+                      </ul>
+                    </div>
+                  </div>
+
                   <textarea
                     id="로고제작요청사항"
                     name="로고제작요청사항"
-                    rows={6}
+                    rows={8}
                     defaultValue={submission?.로고제작요청사항}
                     disabled={submission?.isComplete || !isEditingLogo}
-                    placeholder="명확하고 구체적인 요청사항을 작성해주세요. 예시:&#10;&#10;✅ 좋은 예시:&#10;- 브랜드 컨셉: 신뢰감과 전문성을 주는 깔끔한 이미지&#10;- 원하는 느낌: 모던하고 세련된 느낌, 너무 화려하지 않게&#10;- 포함 요소: 브랜드명 'ABC', 심볼은 간결한 도형으로&#10;- 참고 이미지: (있다면) 비슷한 느낌의 로고 설명&#10;- 피하고 싶은 것: 너무 복잡한 디자인, 어두운 색상&#10;&#10;❌ 나쁜 예시:&#10;- '예쁘게 해주세요'&#10;- '멋진 로고 부탁드립니다'&#10;- '아무거나 괜찮아요'"
-                    className="w-full p-3 rounded-lg border border-orange-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 resize-none disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                    placeholder="여기에 구체적인 요청사항을 작성해주세요..."
+                    className="w-full p-4 rounded-lg border-2 border-orange-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 resize-none disabled:opacity-50 disabled:cursor-not-allowed text-sm placeholder:text-gray-500"
                   />
-
-                  <div className="space-y-2 mt-3 p-3 bg-white rounded-lg border border-orange-200">
-                    <p className="text-sm font-semibold text-orange-900 flex items-center gap-1">
-                      <CheckCircle2 className="w-4 h-4" />
-                      명확한 요청사항 작성 가이드
-                    </p>
-                    <ul className="text-xs text-gray-700 space-y-1 ml-5 list-disc">
-                      <li><span className="font-semibold">브랜드 컨셉:</span> 어떤 이미지를 주고 싶으신가요? (예: 신뢰감, 역동성, 전문성)</li>
-                      <li><span className="font-semibold">원하는 느낌:</span> 어떤 분위기를 원하시나요? (예: 모던한, 클래식한, 친근한)</li>
-                      <li><span className="font-semibold">포함 요소:</span> 로고에 꼭 들어가야 할 것은? (예: 브랜드명, 특정 심볼)</li>
-                      <li><span className="font-semibold">참고 사항:</span> 선호하는 스타일이나 피하고 싶은 스타일</li>
-                    </ul>
-                  </div>
                 </div>
 
                 {!submission?.isComplete && (

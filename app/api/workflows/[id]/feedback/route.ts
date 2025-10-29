@@ -94,6 +94,79 @@ export async function POST(
       console.error("슬랙 알림 실패:", err);
     }
 
+    // 문의 스레드 자동 생성
+    try {
+      const workflowTypeMap: Record<string, string> = {
+        "로고": "로고",
+        "명함": "일반",
+        "홈페이지": "홈페이지",
+        "인쇄물": "인쇄물",
+      };
+
+      const category = workflowTypeMap[workflow.type] || "일반";
+
+      // 기존에 같은 워크플로우 관련 스레드가 있는지 확인
+      const existingThread = await prisma.communicationThread.findFirst({
+        where: {
+          userId: userId,
+          title: {
+            contains: `[시안 피드백] ${workflow.type}`,
+          },
+          status: {
+            in: ["open", "in_progress"],
+          },
+        },
+      });
+
+      if (existingThread) {
+        // 기존 스레드에 메시지 추가
+        await prisma.communicationMessage.create({
+          data: {
+            threadId: existingThread.id,
+            authorId: userId,
+            authorType: "user",
+            authorName: workflow.user.이름,
+            content: `[추가 피드백]\n\n${feedback}`,
+            attachments: [],
+          },
+        });
+
+        // 스레드의 lastReplyAt 업데이트
+        await prisma.communicationThread.update({
+          where: { id: existingThread.id },
+          data: { lastReplyAt: new Date() },
+        });
+      } else {
+        // 새 스레드 생성
+        const thread = await prisma.communicationThread.create({
+          data: {
+            userId: userId,
+            title: `[시안 피드백] ${workflow.type}`,
+            category: category,
+            status: "open",
+            lastReplyAt: new Date(),
+          },
+        });
+
+        // 첫 메시지 생성
+        await prisma.communicationMessage.create({
+          data: {
+            threadId: thread.id,
+            authorId: userId,
+            authorType: "user",
+            authorName: workflow.user.이름,
+            content: `${workflow.type} 시안에 대한 피드백입니다.\n\n${feedback}`,
+            attachments: [],
+          },
+        });
+      }
+
+      console.log("✅ 시안 피드백 문의 스레드 생성 완료");
+    } catch (err) {
+      console.error("문의 스레드 생성 실패:", err);
+      // 실패해도 피드백 제출은 성공으로 처리
+    }
+
     return NextResponse.json(updated);
   } catch (error) {
     console.error("POST /api/workflows/[id]/feedback error:", error);
