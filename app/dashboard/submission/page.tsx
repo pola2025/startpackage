@@ -996,6 +996,37 @@ export default function SubmissionPage() {
                     </div>
                   </div>
 
+                  {/* 최우선 강조사항 */}
+                  <div className="p-4 bg-red-50 rounded-lg border-2 border-red-400 shadow-lg">
+                    <div className="flex items-start gap-3">
+                      <div className="bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 font-bold text-lg">
+                        !
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-base font-bold text-red-900 mb-2">⚠️ 필수 확인 사항</h3>
+                        <div className="bg-white p-3 rounded-lg border border-red-300">
+                          <p className="text-sm font-bold text-red-800 mb-2">
+                            로고 제작은 <span className="underline decoration-2 decoration-red-500">심볼형 OR 워드마크형 중 한 가지만</span> 선택 가능합니다.
+                          </p>
+                          <ul className="text-xs text-gray-800 space-y-1.5 ml-4">
+                            <li className="flex items-start gap-2">
+                              <span className="text-red-600 font-bold">✓</span>
+                              <span><span className="font-semibold">심볼형:</span> 아이콘/도형 + 브랜드명 조합 (예: 나이키, 애플)</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-red-600 font-bold">✓</span>
+                              <span><span className="font-semibold">워드마크형:</span> 브랜드명만 디자인 (예: Google, Coca-Cola)</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-red-600 font-bold">✗</span>
+                              <span className="line-through">심볼 + 워드마크 동시 제작 불가</span>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   {/* 작성 가이드 - 항상 보이도록 상단에 배치 */}
                   <div className="space-y-3 p-4 bg-white rounded-lg border-2 border-blue-200 shadow-sm">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1007,11 +1038,11 @@ export default function SubmissionPage() {
                         <ul className="text-xs text-gray-800 space-y-1.5 bg-green-50 p-3 rounded-lg border border-green-200 max-h-[400px] overflow-y-auto">
                           <li className="flex items-start gap-2">
                             <span className="text-green-600 font-bold mt-0.5">1.</span>
-                            <span>로고는 파란색 계열(#2563EB)을 메인 컬러로, 흰색 배경에서 명확히 보이게</span>
+                            <span><span className="font-bold text-red-700">로고 형태:</span> 심볼형(아이콘+브랜드명) 선택 - 원형 프레임 안에 클라우드 아이콘 배치</span>
                           </li>
                           <li className="flex items-start gap-2">
                             <span className="text-green-600 font-bold mt-0.5">2.</span>
-                            <span>브랜드명과 심볼을 좌우로 배치, 심볼은 원형 또는 사각형 프레임 안에</span>
+                            <span>메인 컬러는 파란색 계열(#2563EB), 흰색 배경에서 명확히 보이게</span>
                           </li>
                           <li className="flex items-start gap-2">
                             <span className="text-green-600 font-bold mt-0.5">3.</span>
