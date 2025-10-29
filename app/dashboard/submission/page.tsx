@@ -1015,7 +1015,7 @@ export default function SubmissionPage() {
                           </li>
                           <li className="flex items-start gap-2">
                             <span className="text-green-600 font-bold mt-0.5">•</span>
-                            <span><span className="font-semibold">포함 요소:</span> 브랜드명 'ABC', 심볼은 간결한 도형으로</span>
+                            <span><span className="font-semibold">포함 요소:</span> 브랜드명 &apos;ABC&apos;, 심볼은 간결한 도형으로</span>
                           </li>
                           <li className="flex items-start gap-2">
                             <span className="text-green-600 font-bold mt-0.5">•</span>
