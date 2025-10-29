@@ -333,13 +333,25 @@ export default function WorkflowsPage() {
                                   <Button
                                     variant="outline"
                                     className="flex-1"
-                                    onClick={() => {
-                                      const link = document.createElement("a");
-                                      link.href = workflow.시안URL!;
-                                      link.download = `${workflow.type}_시안_${new Date().toLocaleDateString("ko-KR")}.png`;
-                                      document.body.appendChild(link);
-                                      link.click();
-                                      document.body.removeChild(link);
+                                    onClick={async () => {
+                                      try {
+                                        // 파일 확장자 추출
+                                        const fileExtension = workflow.시안URL?.split('.').pop()?.toLowerCase() || 'png';
+                                        const filename = `${workflow.type}_시안_${new Date().toLocaleDateString("ko-KR")}.${fileExtension}`;
+
+                                        // 프록시 API를 통해 다운로드
+                                        const downloadUrl = `/api/workflows/download?url=${encodeURIComponent(workflow.시안URL!)}&filename=${encodeURIComponent(filename)}`;
+
+                                        const link = document.createElement("a");
+                                        link.href = downloadUrl;
+                                        link.download = filename;
+                                        document.body.appendChild(link);
+                                        link.click();
+                                        document.body.removeChild(link);
+                                      } catch (error) {
+                                        console.error("다운로드 실패:", error);
+                                        alert("다운로드에 실패했습니다.");
+                                      }
                                     }}
                                   >
                                     원본 다운로드
