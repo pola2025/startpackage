@@ -1016,7 +1016,6 @@ export default function SubmissionPage() {
                       <li><span className="font-semibold">원하는 느낌:</span> 어떤 분위기를 원하시나요? (예: 모던한, 클래식한, 친근한)</li>
                       <li><span className="font-semibold">포함 요소:</span> 로고에 꼭 들어가야 할 것은? (예: 브랜드명, 특정 심볼)</li>
                       <li><span className="font-semibold">참고 사항:</span> 선호하는 스타일이나 피하고 싶은 스타일</li>
-                      <li><span className="font-semibold">활용 계획:</span> 어디에 사용하실 건가요? (예: 명함, 간판, SNS)</li>
                     </ul>
                   </div>
                 </div>
