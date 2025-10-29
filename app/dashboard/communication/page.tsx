@@ -117,7 +117,7 @@ export default function UserCommunicationPage() {
   const isConsecutiveMessage = (currentMsg: CommunicationMessage, prevMsg: CommunicationMessage | null): boolean => {
     if (!prevMsg) return false;
 
-    const sameAuthor = currentMsg.authorType === prevMsg.authorType && currentMsg.authorId === prevMsg.authorId;
+    const sameAuthor = currentMsg.authorType === prevMsg.authorType;
     const timeDiff = new Date(currentMsg.createdAt).getTime() - new Date(prevMsg.createdAt).getTime();
     const withinFiveMinutes = timeDiff < 5 * 60 * 1000;
 
