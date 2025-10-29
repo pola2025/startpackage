@@ -953,6 +953,45 @@ export default function SubmissionPage() {
                   </div>
                 </div>
 
+                {/* 상세 제작 요청사항 (필수) */}
+                <div className="space-y-3 p-4 rounded-lg border-2 border-orange-200 bg-orange-50/50">
+                  <div className="flex items-start gap-2">
+                    <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <Label htmlFor="로고제작요청사항" className="text-sm sm:text-base font-semibold text-orange-900">
+                        상세 제작 요청사항 *
+                      </Label>
+                      <p className="text-xs text-orange-700 mt-1">
+                        이 항목을 작성해야 로고 제작이 시작됩니다. 임시저장은 가능하지만, 최종 제출하려면 반드시 작성해주세요.
+                      </p>
+                    </div>
+                  </div>
+
+                  <textarea
+                    id="로고제작요청사항"
+                    name="로고제작요청사항"
+                    rows={6}
+                    defaultValue={submission?.로고제작요청사항}
+                    disabled={submission?.isComplete || !isEditingLogo}
+                    placeholder="명확하고 구체적인 요청사항을 작성해주세요. 예시:&#10;&#10;✅ 좋은 예시:&#10;- 브랜드 컨셉: 신뢰감과 전문성을 주는 깔끔한 이미지&#10;- 원하는 느낌: 모던하고 세련된 느낌, 너무 화려하지 않게&#10;- 포함 요소: 브랜드명 'ABC', 심볼은 간결한 도형으로&#10;- 참고 이미지: (있다면) 비슷한 느낌의 로고 설명&#10;- 피하고 싶은 것: 너무 복잡한 디자인, 어두운 색상&#10;&#10;❌ 나쁜 예시:&#10;- '예쁘게 해주세요'&#10;- '멋진 로고 부탁드립니다'&#10;- '아무거나 괜찮아요'"
+                    className="w-full p-3 rounded-lg border border-orange-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 resize-none disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                  />
+
+                  <div className="space-y-2 mt-3 p-3 bg-white rounded-lg border border-orange-200">
+                    <p className="text-sm font-semibold text-orange-900 flex items-center gap-1">
+                      <CheckCircle2 className="w-4 h-4" />
+                      명확한 요청사항 작성 가이드
+                    </p>
+                    <ul className="text-xs text-gray-700 space-y-1 ml-5 list-disc">
+                      <li><span className="font-semibold">브랜드 컨셉:</span> 어떤 이미지를 주고 싶으신가요? (예: 신뢰감, 역동성, 전문성)</li>
+                      <li><span className="font-semibold">원하는 느낌:</span> 어떤 분위기를 원하시나요? (예: 모던한, 클래식한, 친근한)</li>
+                      <li><span className="font-semibold">포함 요소:</span> 로고에 꼭 들어가야 할 것은? (예: 브랜드명, 특정 심볼)</li>
+                      <li><span className="font-semibold">참고 사항:</span> 선호하는 스타일이나 피하고 싶은 스타일</li>
+                      <li><span className="font-semibold">활용 계획:</span> 어디에 사용하실 건가요? (예: 명함, 간판, SNS)</li>
+                    </ul>
+                  </div>
+                </div>
+
                 {!submission?.isComplete && (
                   <div className="flex gap-2">
                     {hasLogoInfo() && !isEditingLogo ? (

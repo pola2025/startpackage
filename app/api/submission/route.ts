@@ -93,7 +93,7 @@ export async function POST(request: Request) {
     });
 
     // 로고 정보가 저장되면 로고 워크플로우 자동 생성
-    if (validatedData.로고선호스타일 || validatedData.로고선호폰트 || validatedData.명함색상) {
+    if (validatedData.로고선호스타일 || validatedData.로고선호폰트 || validatedData.명함색상 || validatedData.로고제작요청사항) {
       const existingLogoWorkflow = await prisma.workflow.findFirst({
         where: {
           userId,
@@ -101,17 +101,48 @@ export async function POST(request: Request) {
         },
       });
 
+      // 로고제작요청사항이 작성되었는지 확인
+      const hasDetailedRequest = validatedData.로고제작요청사항 && validatedData.로고제작요청사항.trim().length > 0;
+
       if (!existingLogoWorkflow) {
-        console.log(`✅ 로고 워크플로우 생성: userId=${userId}`);
+        console.log(`✅ 로고 워크플로우 생성: userId=${userId}, isDraft=${!hasDetailedRequest}`);
         await prisma.workflow.create({
           data: {
             userId,
             type: "로고",
-            status: "시안제작중",
-            자료제출일: new Date(),
+            status: hasDetailedRequest ? "시안제작중" : "대기",
+            자료제출일: hasDetailedRequest ? new Date() : null,
+            isDraft: !hasDetailedRequest, // 상세 요청사항이 있으면 최종 저장
+            draftSavedAt: !hasDetailedRequest ? new Date() : null,
           },
         });
-        console.log(`✅ 로고 워크플로우 생성 완료`);
+        console.log(`✅ 로고 워크플로우 생성 완료 (isDraft=${!hasDetailedRequest})`);
+      } else {
+        // 기존 워크플로우가 있고 상세 요청사항이 작성되면 최종 저장으로 변경
+        if (hasDetailedRequest && existingLogoWorkflow.isDraft) {
+          console.log(`✅ 로고 워크플로우 최종 저장으로 변경: userId=${userId}`);
+          await prisma.workflow.update({
+            where: { id: existingLogoWorkflow.id },
+            data: {
+              isDraft: false,
+              status: "시안제작중",
+              자료제출일: new Date(),
+            },
+          });
+          console.log(`✅ 로고 워크플로우 최종 저장 완료`);
+        } else if (!hasDetailedRequest && !existingLogoWorkflow.isDraft) {
+          // 상세 요청사항이 삭제되면 다시 임시저장으로 변경
+          console.log(`✅ 로고 워크플로우 임시저장으로 변경: userId=${userId}`);
+          await prisma.workflow.update({
+            where: { id: existingLogoWorkflow.id },
+            data: {
+              isDraft: true,
+              status: "대기",
+              자료제출일: null,
+              draftSavedAt: new Date(),
+            },
+          });
+        }
       }
     }
 

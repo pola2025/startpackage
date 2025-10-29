@@ -146,6 +146,7 @@ model Submission {
   로고선호스타일 String?
   로고선호색상   String?
   로고선호폰트   String?
+  로고제작요청사항 String? @db.Text // 상세 제작 요청사항 (필수)
 
   // 명함
   명함색상 String?
