@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { redirect } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { LogOut, Package, LayoutDashboard, FileText, Workflow, BookOpen, MessageSquare, Megaphone, Lightbulb } from "lucide-react";
 import Link from "next/link";
 import { DesignConfirmationModal } from "@/components/ui/design-confirmation-modal";
+import { MessageNotificationModal } from "@/components/ui/message-notification-modal";
 
 export default function UserLayout({
   children,
@@ -17,6 +18,20 @@ export default function UserLayout({
   const { data: session, status } = useSession();
   const router = useRouter();
   const pathname = usePathname();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // 미확인 메시지 가져오기
+  const fetchUnreadCount = async () => {
+    try {
+      const response = await fetch("/api/communication/unread-count");
+      if (response.ok) {
+        const data = await response.json();
+        setUnreadCount(data.unreadCount);
+      }
+    } catch (error) {
+      console.error("Failed to fetch unread count:", error);
+    }
+  };
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -29,6 +44,12 @@ export default function UserLayout({
     } else if (status === "authenticated") {
       const cohortName = (session?.user as any)?.cohortName;
 
+      // 미확인 메시지 가져오기
+      fetchUnreadCount();
+
+      // 1분마다 자동 새로고침
+      const interval = setInterval(fetchUnreadCount, 60000);
+      return () => clearInterval(interval);
     }
   }, [status, session, router]);
 
@@ -61,6 +82,9 @@ export default function UserLayout({
     <div className="relative min-h-screen bg-gray-50">
       {/* 시안 확인 자동 모달 */}
       <DesignConfirmationModal />
+
+      {/* 메시지 알림 모달 */}
+      <MessageNotificationModal onRead={fetchUnreadCount} />
 
       {/* Subtle Pattern Background */}
       <div className="fixed inset-0 pattern-background opacity-50" />
@@ -141,10 +165,15 @@ export default function UserLayout({
               <Button
                 variant="ghost"
                 size="sm"
-                className={`${pathname === "/dashboard/communication" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} text-xs sm:text-sm h-8 px-2 sm:h-9 sm:px-3 w-full`}
+                className={`${pathname === "/dashboard/communication" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} text-xs sm:text-sm h-8 px-2 sm:h-9 sm:px-3 w-full relative`}
               >
                 <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                 문의하기
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
               </Button>
             </Link>
             <Link href="/dashboard/announcements">

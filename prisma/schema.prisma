@@ -482,6 +482,9 @@ model CommunicationMessage {
   // 완료 예상일 (관리자 답변 시)
   expectedCompletionDate DateTime?
 
+  // 읽음 상태 (사용자가 관리자 메시지를 읽었는지)
+  isReadByUser Boolean @default(false)
+
   createdAt DateTime @default(now())
 
   @@index([threadId])

@@ -104,6 +104,22 @@ export default function UserCommunicationPage() {
     }
   };
 
+  // 스레드 선택 시 읽음 처리
+  const handleSelectThread = async (thread: CommunicationThread) => {
+    setSelectedThread(thread);
+
+    // 읽음 처리
+    try {
+      await fetch("/api/communication/mark-read", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ threadId: thread.id }),
+      });
+    } catch (error) {
+      console.error("Failed to mark as read:", error);
+    }
+  };
+
   useEffect(() => {
     fetchThreads();
   }, []);
@@ -423,7 +439,7 @@ export default function UserCommunicationPage() {
                 {threads.map((thread) => (
                   <div
                     key={thread.id}
-                    onClick={() => setSelectedThread(thread)}
+                    onClick={() => handleSelectThread(thread)}
                     className={`p-4 rounded-lg cursor-pointer transition-all border-2 ${
                       selectedThread?.id === thread.id
                         ? "bg-blue-50 border-blue-300"
