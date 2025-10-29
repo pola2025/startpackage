@@ -26,7 +26,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, Trash2, Eye, ExternalLink, GraduationCap, UserCheck, Send } from "lucide-react";
+import { MoreVertical, Trash2, Eye, ExternalLink, GraduationCap, UserCheck, Send, MessageSquare } from "lucide-react";
 
 interface UserActionsProps {
   user: any;
@@ -45,6 +45,13 @@ export default function UserActions({ user }: UserActionsProps) {
   const [messageChannel, setMessageChannel] = useState<"SMS" | "EMAIL">("SMS");
   const [messageTitle, setMessageTitle] = useState("");
   const [messageContent, setMessageContent] = useState("");
+
+  // 문의하기 메시지 (Communication Thread)
+  const [showCommunicationDialog, setShowCommunicationDialog] = useState(false);
+  const [sendingCommunication, setSendingCommunication] = useState(false);
+  const [commThreadTitle, setCommThreadTitle] = useState("");
+  const [commCategory, setCommCategory] = useState<"일반" | "제작" | "배송" | "기타">("일반");
+  const [commContent, setCommContent] = useState("");
 
   const fetchSubmission = async () => {
     setLoadingSubmission(true);
@@ -153,6 +160,46 @@ export default function UserActions({ user }: UserActionsProps) {
     }
   };
 
+  const handleSendCommunication = async () => {
+    if (!commThreadTitle.trim() || !commContent.trim()) {
+      alert("제목과 내용을 모두 입력해주세요.");
+      return;
+    }
+
+    if (sendingCommunication) return;
+
+    setSendingCommunication(true);
+    try {
+      const response = await fetch("/api/admin/communication/create-thread", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user.id,
+          title: commThreadTitle,
+          category: commCategory,
+          content: commContent,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "문의하기 메시지 전송 실패");
+      }
+
+      alert("문의하기 메시지를 성공적으로 전송했습니다.\n사용자에게 실시간 알림이 전송되었습니다.");
+      setShowCommunicationDialog(false);
+      setCommThreadTitle("");
+      setCommCategory("일반");
+      setCommContent("");
+      router.refresh();
+    } catch (error: any) {
+      alert(error.message || "문의하기 메시지 전송 중 오류가 발생했습니다.");
+    } finally {
+      setSendingCommunication(false);
+    }
+  };
+
   return (
     <>
       <DropdownMenu>
@@ -179,7 +226,15 @@ export default function UserActions({ user }: UserActionsProps) {
             className="text-purple-600 hover:bg-purple-50 cursor-pointer"
           >
             <Send className="w-4 h-4 mr-2" />
-            메시지 발송
+            메시지 발송 (SMS/이메일)
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => setShowCommunicationDialog(true)}
+            disabled={loading}
+            className="text-indigo-600 hover:bg-indigo-50 cursor-pointer"
+          >
+            <MessageSquare className="w-4 h-4 mr-2" />
+            문의하기 메시지
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => setShowGraduateDialog(true)}
@@ -577,6 +632,113 @@ export default function UserActions({ user }: UserActionsProps) {
                   <>
                     <Send className="w-4 h-4 mr-2" />
                     {messageChannel === "SMS" ? "문자" : "이메일"} 발송
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* 문의하기 메시지 다이얼로그 */}
+      <Dialog open={showCommunicationDialog} onOpenChange={setShowCommunicationDialog}>
+        <DialogContent className="bg-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-indigo-900">
+              <MessageSquare className="w-5 h-5 inline mr-2" />
+              문의하기 메시지 보내기
+            </DialogTitle>
+            <DialogDescription className="text-gray-600">
+              <strong>{user.이름}</strong>님에게 문의하기 스레드를 생성하고 메시지를 보냅니다.
+              <br />
+              사용자에게 실시간 알림이 전송됩니다.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 mt-4">
+            {/* 제목 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                제목 <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={commThreadTitle}
+                onChange={(e) => setCommThreadTitle(e.target.value)}
+                placeholder="예: 로고 디자인 관련 문의"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                maxLength={100}
+              />
+            </div>
+
+            {/* 카테고리 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                카테고리
+              </label>
+              <div className="flex gap-2">
+                {(["일반", "제작", "배송", "기타"] as const).map((cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setCommCategory(cat)}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                      commCategory === cat
+                        ? "bg-indigo-600 text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 메시지 내용 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                메시지 내용 <span className="text-red-500">*</span>
+              </label>
+              <textarea
+                value={commContent}
+                onChange={(e) => setCommContent(e.target.value)}
+                placeholder="사용자에게 전달할 메시지를 작성해주세요."
+                rows={8}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                현재 {commContent.length}자
+              </p>
+            </div>
+
+            {/* 버튼 */}
+            <div className="flex gap-3 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setShowCommunicationDialog(false);
+                  setCommThreadTitle("");
+                  setCommCategory("일반");
+                  setCommContent("");
+                }}
+                disabled={sendingCommunication}
+                className="flex-1"
+              >
+                취소
+              </Button>
+              <Button
+                type="button"
+                onClick={handleSendCommunication}
+                disabled={sendingCommunication || !commThreadTitle.trim() || !commContent.trim()}
+                className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white"
+              >
+                {sendingCommunication ? (
+                  "전송 중..."
+                ) : (
+                  <>
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    메시지 전송
                   </>
                 )}
               </Button>
