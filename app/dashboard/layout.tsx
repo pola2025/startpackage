@@ -182,7 +182,7 @@ export default function UserLayout({
             </div>
           </div>
           {/* 네비게이션 메뉴 */}
-          <nav className={`${isGraduated ? "flex flex-wrap" : "grid grid-cols-3 md:flex"} gap-1 pb-2 sm:pb-4`}>
+          <nav className="grid grid-cols-3 md:flex gap-1 pb-2 sm:pb-4">
             {/* 수료생이 아닌 경우에만 표시 */}
             {!isGraduated && (
               <>
