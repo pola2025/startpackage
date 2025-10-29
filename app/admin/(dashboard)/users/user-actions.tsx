@@ -26,7 +26,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, Trash2, Eye, ExternalLink, GraduationCap, UserCheck, Send, MessageSquare } from "lucide-react";
+import { MoreVertical, Trash2, Eye, ExternalLink, GraduationCap, UserCheck, Send, MessageSquare, Paperclip, X, Loader2 } from "lucide-react";
 
 interface UserActionsProps {
   user: any;
@@ -52,6 +52,8 @@ export default function UserActions({ user }: UserActionsProps) {
   const [commThreadTitle, setCommThreadTitle] = useState("");
   const [commCategory, setCommCategory] = useState<"일반" | "제작" | "배송" | "기타">("일반");
   const [commContent, setCommContent] = useState("");
+  const [commAttachments, setCommAttachments] = useState<string[]>([]);
+  const [uploadingCommAttachment, setUploadingCommAttachment] = useState(false);
 
   const fetchSubmission = async () => {
     setLoadingSubmission(true);
@@ -160,6 +162,48 @@ export default function UserActions({ user }: UserActionsProps) {
     }
   };
 
+  const handleCommAttachmentUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      alert("이미지 파일만 업로드 가능합니다.");
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      alert("파일 크기는 10MB 이하여야 합니다.");
+      return;
+    }
+
+    setUploadingCommAttachment(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/communication/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("파일 업로드 실패");
+      }
+
+      const data = await response.json();
+      setCommAttachments([...commAttachments, data.url]);
+    } catch (error) {
+      alert("파일 업로드 중 오류가 발생했습니다.");
+    } finally {
+      setUploadingCommAttachment(false);
+      e.target.value = "";
+    }
+  };
+
+  const handleRemoveCommAttachment = (index: number) => {
+    setCommAttachments(commAttachments.filter((_, i) => i !== index));
+  };
+
   const handleSendCommunication = async () => {
     if (!commThreadTitle.trim() || !commContent.trim()) {
       alert("제목과 내용을 모두 입력해주세요.");
@@ -178,6 +222,7 @@ export default function UserActions({ user }: UserActionsProps) {
           title: commThreadTitle,
           category: commCategory,
           content: commContent,
+          attachments: commAttachments,
         }),
       });
 
@@ -192,6 +237,7 @@ export default function UserActions({ user }: UserActionsProps) {
       setCommThreadTitle("");
       setCommCategory("일반");
       setCommContent("");
+      setCommAttachments([]);
       router.refresh();
     } catch (error: any) {
       alert(error.message || "문의하기 메시지 전송 중 오류가 발생했습니다.");
@@ -711,6 +757,75 @@ export default function UserActions({ user }: UserActionsProps) {
               </p>
             </div>
 
+            {/* 첨부파일 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                첨부파일 (선택)
+              </label>
+              <div className="space-y-2">
+                {/* 업로드 버튼 */}
+                <div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleCommAttachmentUpload}
+                    disabled={uploadingCommAttachment}
+                    className="hidden"
+                    id="comm-attachment-upload"
+                  />
+                  <label
+                    htmlFor="comm-attachment-upload"
+                    className={`inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors ${
+                      uploadingCommAttachment ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
+                  >
+                    {uploadingCommAttachment ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        업로드 중...
+                      </>
+                    ) : (
+                      <>
+                        <Paperclip className="w-4 h-4 mr-2" />
+                        이미지 첨부
+                      </>
+                    )}
+                  </label>
+                  <p className="text-xs text-gray-500 mt-1">
+                    이미지 파일만 가능 (최대 10MB)
+                  </p>
+                </div>
+
+                {/* 첨부된 파일 목록 */}
+                {commAttachments.length > 0 && (
+                  <div className="space-y-2">
+                    {commAttachments.map((url, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center gap-2 p-2 bg-indigo-50 rounded-lg border border-indigo-200"
+                      >
+                        <img
+                          src={url}
+                          alt={`첨부파일 ${index + 1}`}
+                          className="w-12 h-12 object-cover rounded"
+                        />
+                        <div className="flex-1 text-xs text-gray-700 truncate">
+                          이미지 {index + 1}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveCommAttachment(index)}
+                          className="p-1 text-red-600 hover:bg-red-100 rounded transition-colors"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* 버튼 */}
             <div className="flex gap-3 pt-4">
               <Button
@@ -721,6 +836,7 @@ export default function UserActions({ user }: UserActionsProps) {
                   setCommThreadTitle("");
                   setCommCategory("일반");
                   setCommContent("");
+                  setCommAttachments([]);
                 }}
                 disabled={sendingCommunication}
                 className="flex-1"
