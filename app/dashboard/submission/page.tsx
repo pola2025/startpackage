@@ -1036,55 +1036,55 @@ export default function SubmissionPage() {
                         <ul className="text-xs text-gray-800 space-y-1.5 bg-red-50 p-3 rounded-lg border border-red-200">
                           <li className="flex items-start gap-2">
                             <span className="text-red-600 font-bold mt-0.5">✗</span>
-                            <span className="line-through">'예쁘게 해주세요'</span>
+                            <span className="line-through">&apos;예쁘게 해주세요&apos;</span>
                           </li>
                           <li className="flex items-start gap-2">
                             <span className="text-red-600 font-bold mt-0.5">✗</span>
-                            <span className="line-through">'멋진 로고 부탁드립니다'</span>
+                            <span className="line-through">&apos;멋진 로고 부탁드립니다&apos;</span>
                           </li>
                           <li className="flex items-start gap-2">
                             <span className="text-red-600 font-bold mt-0.5">✗</span>
-                            <span className="line-through">'고급스럽게 해주세요'</span>
+                            <span className="line-through">&apos;고급스럽게 해주세요&apos;</span>
                           </li>
                           <li className="flex items-start gap-2">
                             <span className="text-red-600 font-bold mt-0.5">✗</span>
-                            <span className="line-through">'깔끔하게 만들어주세요'</span>
+                            <span className="line-through">&apos;깔끔하게 만들어주세요&apos;</span>
                           </li>
                           <li className="flex items-start gap-2">
                             <span className="text-red-600 font-bold mt-0.5">✗</span>
-                            <span className="line-through">'심플하게 해주세요'</span>
+                            <span className="line-through">&apos;심플하게 해주세요&apos;</span>
                           </li>
                           <li className="flex items-start gap-2">
                             <span className="text-red-600 font-bold mt-0.5">✗</span>
-                            <span className="line-through">'디자인 요소 추가해주세요'</span>
+                            <span className="line-through">&apos;디자인 요소 추가해주세요&apos;</span>
                           </li>
                           <li className="flex items-start gap-2">
                             <span className="text-red-600 font-bold mt-0.5">✗</span>
-                            <span className="line-through">'디자인해주세요'</span>
+                            <span className="line-through">&apos;디자인해주세요&apos;</span>
                           </li>
                           <li className="flex items-start gap-2">
                             <span className="text-red-600 font-bold mt-0.5">✗</span>
-                            <span className="line-through">'세련되게 만들어주세요'</span>
+                            <span className="line-through">&apos;세련되게 만들어주세요&apos;</span>
                           </li>
                           <li className="flex items-start gap-2">
                             <span className="text-red-600 font-bold mt-0.5">✗</span>
-                            <span className="line-through">'트렌디하게 해주세요'</span>
+                            <span className="line-through">&apos;트렌디하게 해주세요&apos;</span>
                           </li>
                           <li className="flex items-start gap-2">
                             <span className="text-red-600 font-bold mt-0.5">✗</span>
-                            <span className="line-through">'감각적으로 부탁드립니다'</span>
+                            <span className="line-through">&apos;감각적으로 부탁드립니다&apos;</span>
                           </li>
                           <li className="flex items-start gap-2">
                             <span className="text-red-600 font-bold mt-0.5">✗</span>
-                            <span className="line-through">'센스있게 해주세요'</span>
+                            <span className="line-through">&apos;센스있게 해주세요&apos;</span>
                           </li>
                           <li className="flex items-start gap-2">
                             <span className="text-red-600 font-bold mt-0.5">✗</span>
-                            <span className="line-through">'잘 부탁드립니다'</span>
+                            <span className="line-through">&apos;잘 부탁드립니다&apos;</span>
                           </li>
                           <li className="flex items-start gap-2">
                             <span className="text-red-600 font-bold mt-0.5">✗</span>
-                            <span className="line-through">'아무거나 괜찮아요'</span>
+                            <span className="line-through">&apos;아무거나 괜찮아요&apos;</span>
                           </li>
                         </ul>
                       </div>
