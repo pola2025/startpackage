@@ -892,7 +892,36 @@ export default function SubmissionPage() {
 
                 {/* 로고 선호 폰트 */}
                 <div className="space-y-3">
-                  <Label className="text-sm sm:text-base">로고 선호 폰트</Label>
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm sm:text-base">로고 선호 폰트</Label>
+                    <a
+                      href="https://noonnu.cc/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs sm:text-sm text-blue-600 hover:text-blue-700 hover:underline font-medium flex items-center gap-1"
+                    >
+                      <span>폰트 찾기 (눈누)</span>
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </a>
+                  </div>
+
+                  {/* 폰트 안내 */}
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-start gap-2">
+                      <AlertCircle className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+                      <div className="flex-1 text-xs text-blue-700 space-y-1">
+                        <p className="font-semibold">📌 폰트 선택 안내</p>
+                        <ul className="list-disc ml-4 space-y-0.5">
+                          <li><span className="font-semibold">무료 폰트만 사용 가능</span>합니다 (눈누 사이트에서 무료 폰트 검색)</li>
+                          <li><span className="font-semibold">유료 폰트는 직접 구매 후 파일 전달</span>이 필요합니다</li>
+                          <li>원하는 폰트명을 아래 요청사항에 작성해주세요</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
                   <input type="hidden" name="로고선호폰트" value={selectedFont} />
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {[
