@@ -1002,28 +1002,56 @@ export default function SubmissionPage() {
                       {/* 좋은 예시 */}
                       <div className="space-y-2">
                         <p className="text-sm font-bold text-green-700 flex items-center gap-1">
-                          ✅ 좋은 예시 (구체적으로 작성)
+                          ✅ 좋은 예시 (구체적이고 명확한 표현)
                         </p>
-                        <ul className="text-xs text-gray-800 space-y-1.5 bg-green-50 p-3 rounded-lg border border-green-200">
+                        <ul className="text-xs text-gray-800 space-y-1.5 bg-green-50 p-3 rounded-lg border border-green-200 max-h-[400px] overflow-y-auto">
                           <li className="flex items-start gap-2">
-                            <span className="text-green-600 font-bold mt-0.5">•</span>
-                            <span><span className="font-semibold">브랜드 컨셉:</span> 신뢰감과 전문성을 주는 깔끔한 이미지</span>
+                            <span className="text-green-600 font-bold mt-0.5">1.</span>
+                            <span>로고는 파란색 계열(#2563EB)을 메인 컬러로, 흰색 배경에서 명확히 보이게</span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-green-600 font-bold mt-0.5">•</span>
-                            <span><span className="font-semibold">원하는 느낌:</span> 모던하고 세련된 느낌, 너무 화려하지 않게</span>
+                            <span className="text-green-600 font-bold mt-0.5">2.</span>
+                            <span>브랜드명과 심볼을 좌우로 배치, 심볼은 원형 또는 사각형 프레임 안에</span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-green-600 font-bold mt-0.5">•</span>
-                            <span><span className="font-semibold">포함 요소:</span> 브랜드명 &apos;ABC&apos;, 심볼은 간결한 도형으로</span>
+                            <span className="text-green-600 font-bold mt-0.5">3.</span>
+                            <span>폰트는 산세리프체(고딕체) 사용, 가독성 우선</span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-green-600 font-bold mt-0.5">•</span>
-                            <span><span className="font-semibold">참고 이미지:</span> 비슷한 느낌의 로고 설명</span>
+                            <span className="text-green-600 font-bold mt-0.5">4.</span>
+                            <span>심볼은 업종과 연관된 아이콘 (예: IT 기업 - 클라우드/데이터 모티브)</span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-green-600 font-bold mt-0.5">•</span>
-                            <span><span className="font-semibold">피하고 싶은 것:</span> 너무 복잡한 디자인, 어두운 색상</span>
+                            <span className="text-green-600 font-bold mt-0.5">5.</span>
+                            <span>장식 요소 최소화, 선의 굵기는 균일하게 2-3px 유지</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-green-600 font-bold mt-0.5">6.</span>
+                            <span>명함/간판에 사용 시 최소 2cm 크기에서도 식별 가능하도록</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-green-600 font-bold mt-0.5">7.</span>
+                            <span>그라데이션 지양, 단색으로 인쇄 가능한 디자인</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-green-600 font-bold mt-0.5">8.</span>
+                            <span>참고 브랜드: 삼성 (블루 계열), 네이버 (심볼+텍스트 조합)</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-green-600 font-bold mt-0.5">9.</span>
+                            <span>제외 요소: 빨강/노랑 색상, 세리프체, 손글씨체, 3D 효과</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-green-600 font-bold mt-0.5">10.</span>
+                            <span>타겟: 30-40대 전문직, B2B 고객 대상, 신뢰감 중시</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-green-600 font-bold mt-0.5">11.</span>
+                            <span>로고 변형: 가로형/세로형/아이콘형 3가지 버전 필요</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-green-600 font-bold mt-0.5">12.</span>
+                            <span>사용처: 웹사이트 헤더(150x50px), 명함(3x3cm), SNS 프로필(500x500px)</span>
                           </li>
                         </ul>
                       </div>
