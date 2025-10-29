@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
+import prisma from "@/lib/prisma";
 import { z } from "zod";
 
 /**
@@ -20,9 +19,9 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
-    if (!session?.user?.id) {
+    if (!session?.user) {
       return NextResponse.json(
         { error: "인증이 필요합니다." },
         { status: 401 }
@@ -30,7 +29,7 @@ export async function POST(
     }
 
     const { id: workflowId } = await params;
-    const userId = session.user.id;
+    const userId = (session.user as any).id;
 
     // 워크플로우 권한 확인
     const workflow = await prisma.workflow.findFirst({
