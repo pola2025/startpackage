@@ -70,8 +70,13 @@ export async function POST(
         },
       });
 
+      // Submission 데이터 조회
+      const submission = await prisma.submission.findUnique({
+        where: { userId },
+      });
+
       const missingFields: string[] = [];
-      const data = workflowData || (workflow.workflowData as Record<string, unknown>) || {};
+      const data = workflowData || (submission?.기본정보 as Record<string, unknown>) || {};
 
       for (const field of requiredFields) {
         const value = data[field.fieldName];
@@ -117,12 +122,29 @@ export async function POST(
       }
     }
 
-    // 워크플로우 업데이트
+    // Submission 업데이트
     const now = new Date();
+
+    // Submission 데이터 업데이트
+    if (workflowData) {
+      const submission = await prisma.submission.findUnique({
+        where: { userId },
+      });
+
+      if (submission) {
+        await prisma.submission.update({
+          where: { userId },
+          data: {
+            기본정보: workflowData as any,
+          },
+        });
+      }
+    }
+
+    // Workflow 업데이트 (임시저장/최종저장 상태)
     const updatedWorkflow = await prisma.workflow.update({
       where: { id: workflowId },
       data: {
-        ...(workflowData && { workflowData }),
         isDraft,
         draftSavedAt: isDraft ? now : workflow.draftSavedAt,
         updatedAt: now,
