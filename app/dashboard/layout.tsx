@@ -19,6 +19,7 @@ export default function UserLayout({
   const router = useRouter();
   const pathname = usePathname();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [pendingDesignCount, setPendingDesignCount] = useState(0);
   const [showNotificationModal, setShowNotificationModal] = useState(false);
 
   // 미확인 메시지 가져오기
@@ -34,6 +35,19 @@ export default function UserLayout({
     }
   };
 
+  // 시안 검토 요청 개수 가져오기
+  const fetchPendingDesignCount = async () => {
+    try {
+      const response = await fetch("/api/workflows/pending-confirmation");
+      if (response.ok) {
+        const data = await response.json();
+        setPendingDesignCount(data.workflows?.length || 0);
+      }
+    } catch (error) {
+      console.error("Failed to fetch pending design count:", error);
+    }
+  };
+
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/");
@@ -43,8 +57,9 @@ export default function UserLayout({
     ) {
       router.push("/admin");
     } else if (status === "authenticated") {
-      // 초기 미확인 메시지 가져오기
+      // 초기 데이터 가져오기
       fetchUnreadCount();
+      fetchPendingDesignCount();
 
       // ✅ SSE 연결로 실시간 알림 받기
       const eventSource = new EventSource("/api/notifications/stream");
@@ -184,10 +199,15 @@ export default function UserLayout({
               <Button
                 variant="ghost"
                 size="sm"
-                className={`${pathname === "/dashboard/workflows" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} text-xs sm:text-sm h-8 px-2 sm:h-9 sm:px-3 w-full`}
+                className={`${pathname === "/dashboard/workflows" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} text-xs sm:text-sm h-8 px-2 sm:h-9 sm:px-3 w-full relative`}
               >
                 <Workflow className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                 제작 현황
+                {pendingDesignCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                    {pendingDesignCount > 9 ? "9+" : pendingDesignCount}
+                  </span>
+                )}
               </Button>
             </Link>
             <Link href="/dashboard/guides">
