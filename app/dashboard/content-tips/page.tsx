@@ -275,7 +275,9 @@ export default function UserContentTipsPage() {
                     </p>
                   </div>
                 </div>
-                {total > 4 && (
+                {/* 더보기 버튼 - 인스타그램: 12개 초과, 나머지: 8개 초과 */}
+                {((categoryId === 'instagram' && total > 12) ||
+                  (categoryId !== 'instagram' && total > 8)) && (
                   <Button
                     variant="outline"
                     onClick={() => router.push(`/dashboard/content-tips/${categoryId}`)}

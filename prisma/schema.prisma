@@ -88,6 +88,7 @@ model User {
   notifications             Notification[]
   marketingExtensionRequests MarketingExtensionRequest[]
   communicationThreads      CommunicationThread[]
+  modalDismissals           ModalDismissal[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -224,9 +225,14 @@ model Workflow {
   feedbackDate DateTime? // 피드백 작성 시간
   feedbackRead Boolean @default(false) // 관리자 피드백 확인 여부
 
+  // === 임시저장 관련 ===
+  isDraft Boolean @default(true) // true: 임시저장, false: 최종저장
+  draftSavedAt DateTime? // 임시저장 시각
+
   // 관계
   logs WorkflowLog[]
   designHistory DesignHistory[]
+  modalDismissals ModalDismissal[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -559,4 +565,60 @@ enum UserStatus {
   active    // 현재 수강생 (워크플로우, 자료 제출 등 모든 기능 사용 가능)
   graduated // 수료생 (커뮤니케이션, 마케팅 소식만 접근 가능)
   inactive  // 비활성 (탈퇴, 휴학 등)
+}
+
+// ============================================
+// 시안 확인 모달 숨김 기록
+// ============================================
+
+model ModalDismissal {
+  id         String   @id @default(cuid())
+
+  // 사용자
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // 워크플로우
+  workflowId String
+  workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  // 숨김 정보
+  dismissedAt DateTime @default(now())  // 숨김 시각
+  expiresAt   DateTime                  // 만료 시각 (dismissedAt + 24시간)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, workflowId])
+  @@index([userId, expiresAt])
+  @@map("modal_dismissals")
+}
+
+// ============================================
+// 필수 필드 설정
+// ============================================
+
+model RequiredFieldConfig {
+  id           String   @id @default(cuid())
+
+  // 워크플로우 타입
+  workflowType String   // "로고", "명함", "리플렛" 등
+
+  // 필수 필드
+  fieldName    String   // "브랜드명", "이름" 등
+  fieldLabel   String   // "브랜드명 (한글)"
+  fieldReason  String   // "로고에 표시될 브랜드명"
+  fieldOrder   Int      // 표시 순서
+
+  // 검증 규칙
+  validationType String @default("notEmpty") // "notEmpty", "email", "phone" 등
+  minLength      Int?
+  maxLength      Int?
+
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([workflowType, fieldName])
+  @@index([workflowType, isActive])
+  @@map("required_field_configs")
 }

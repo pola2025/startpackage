@@ -7,6 +7,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { LogOut, Package, LayoutDashboard, FileText, Workflow, BookOpen, MessageSquare, Megaphone, Lightbulb } from "lucide-react";
 import Link from "next/link";
+import { DesignConfirmationModal } from "@/components/ui/design-confirmation-modal";
 
 export default function UserLayout({
   children,
@@ -58,6 +59,9 @@ export default function UserLayout({
   // 일반 사용자 레이아웃
   return (
     <div className="relative min-h-screen bg-gray-50">
+      {/* 시안 확인 자동 모달 */}
+      <DesignConfirmationModal />
+
       {/* Subtle Pattern Background */}
       <div className="fixed inset-0 pattern-background opacity-50" />
 
