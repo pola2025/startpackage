@@ -114,6 +114,20 @@ export async function POST(request: Request) {
       );
     }
 
+    // 사용자의 Submission 데이터 조회
+    const submission = await prisma.submission.findUnique({
+      where: {
+        userId,
+      },
+    });
+
+    if (!submission) {
+      return NextResponse.json(
+        { error: "제출 데이터를 찾을 수 없습니다." },
+        { status: 404 }
+      );
+    }
+
     // 필수 필드 설정 조회
     const requiredFields = await prisma.requiredFieldConfig.findMany({
       where: {
@@ -129,10 +143,11 @@ export async function POST(request: Request) {
       fieldReason: string;
     }> = [];
 
-    const workflowData = workflow.workflowData as Record<string, unknown>;
+    // Submission 데이터를 Record로 변환
+    const submissionData = submission as unknown as Record<string, unknown>;
 
     for (const field of requiredFields) {
-      const value = workflowData?.[field.fieldName];
+      const value = submissionData[field.fieldName];
 
       // notEmpty 검증
       if (field.validationType === "notEmpty") {

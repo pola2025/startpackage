@@ -40,7 +40,10 @@ export async function GET() {
     const pendingWorkflows = await prisma.workflow.findMany({
       where: {
         userId,
-        status: "design_uploaded", // 디자인 업로드 완료 상태
+        status: "시안중", // 시안 업로드 완료 상태
+        시안URL: {
+          not: null, // 시안 URL이 존재하는 경우만
+        },
         id: {
           notIn: dismissedIds, // 숨김 처리된 시안 제외
         },
@@ -48,9 +51,8 @@ export async function GET() {
       select: {
         id: true,
         type: true,
-        designUrl: true,
+        시안URL: true,
         updatedAt: true,
-        adminName: true,
       },
       orderBy: {
         updatedAt: "asc", // 오래된 순서대로 (먼저 업로드된 시안부터)
