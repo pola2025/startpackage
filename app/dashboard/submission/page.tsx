@@ -833,7 +833,13 @@ export default function SubmissionPage() {
 
                 {/* 로고 선호 스타일 */}
                 <div className="space-y-3">
-                  <Label className="text-sm sm:text-base">로고 선호 스타일</Label>
+                  <div className="flex items-start gap-2">
+                    <Label className="text-sm sm:text-base">로고 선호 스타일</Label>
+                    <p className="text-xs text-red-600 font-medium mt-0.5">
+                      ※ 로고 선택 후 시안은 심볼형, 워드마크형 중 선택한 사항으로만 구성 가능합니다.<br />
+                      (심볼형 시안 요청 시 워드마크형 시안 요청 불가)
+                    </p>
+                  </div>
                   <input type="hidden" name="로고선호스타일" value={selectedStyle} />
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {[
@@ -1011,7 +1017,7 @@ export default function SubmissionPage() {
                           <ul className="text-xs text-gray-800 space-y-1.5 ml-4">
                             <li className="flex items-start gap-2">
                               <span className="text-red-600 font-bold">✓</span>
-                              <span><span className="font-semibold">심볼형:</span> 아이콘/도형 + 브랜드명 조합 (예: 나이키, 애플)</span>
+                              <span><span className="font-semibold">심볼형:</span> 아이콘/도형 (예: 나이키, 애플)</span>
                             </li>
                             <li className="flex items-start gap-2">
                               <span className="text-red-600 font-bold">✓</span>
@@ -1038,7 +1044,7 @@ export default function SubmissionPage() {
                         <ul className="text-xs text-gray-800 space-y-1.5 bg-green-50 p-3 rounded-lg border border-green-200 max-h-[400px] overflow-y-auto">
                           <li className="flex items-start gap-2">
                             <span className="text-green-600 font-bold mt-0.5">1.</span>
-                            <span><span className="font-bold text-red-700">로고 형태:</span> 심볼형(아이콘+브랜드명) 선택 - 원형 프레임 안에 클라우드 아이콘 배치</span>
+                            <span><span className="font-bold text-red-700">로고 형태:</span> 심볼형 선택 - 원형 프레임 안에 클라우드 아이콘 배치</span>
                           </li>
                           <li className="flex items-start gap-2">
                             <span className="text-green-600 font-bold mt-0.5">2.</span>
@@ -1058,30 +1064,26 @@ export default function SubmissionPage() {
                           </li>
                           <li className="flex items-start gap-2">
                             <span className="text-green-600 font-bold mt-0.5">6.</span>
-                            <span>명함/간판에 사용 시 최소 2cm 크기에서도 식별 가능하도록</span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-green-600 font-bold mt-0.5">7.</span>
                             <span>그라데이션 지양, 단색으로 인쇄 가능한 디자인</span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-green-600 font-bold mt-0.5">8.</span>
+                            <span className="text-green-600 font-bold mt-0.5">7.</span>
                             <span>참고 브랜드: 삼성 (블루 계열), 네이버 (심볼+텍스트 조합)</span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-green-600 font-bold mt-0.5">9.</span>
+                            <span className="text-green-600 font-bold mt-0.5">8.</span>
                             <span>제외 요소: 빨강/노랑 색상, 세리프체, 손글씨체, 3D 효과</span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-green-600 font-bold mt-0.5">10.</span>
+                            <span className="text-green-600 font-bold mt-0.5">9.</span>
                             <span>타겟: 30-40대 전문직, B2B 고객 대상, 신뢰감 중시</span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-green-600 font-bold mt-0.5">11.</span>
+                            <span className="text-green-600 font-bold mt-0.5">10.</span>
                             <span>로고 변형: 가로형/세로형/아이콘형 3가지 버전 필요</span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-green-600 font-bold mt-0.5">12.</span>
+                            <span className="text-green-600 font-bold mt-0.5">11.</span>
                             <span>사용처: 웹사이트 헤더(150x50px), 명함(3x3cm), SNS 프로필(500x500px)</span>
                           </li>
                         </ul>
