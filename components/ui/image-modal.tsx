@@ -2,6 +2,7 @@
 
 import { X, ChevronLeft, ChevronRight, Download } from "lucide-react"
 import { useEffect, useState } from "react"
+import Image from "next/image"
 
 interface ImageModalProps {
   images: string[]
@@ -98,12 +99,16 @@ export function ImageModal({ images, initialIndex, onClose }: ImageModalProps) {
       )}
 
       {/* 이미지 */}
-      <img
-        src={images[currentIndex]}
-        alt={`이미지 ${currentIndex + 1}`}
-        className="max-w-[90vw] max-h-[90vh] object-contain"
-        onClick={(e) => e.stopPropagation()}
-      />
+      <div className="relative max-w-[90vw] max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+        <Image
+          src={images[currentIndex]}
+          alt={`이미지 ${currentIndex + 1}`}
+          width={1920}
+          height={1080}
+          className="max-w-[90vw] max-h-[90vh] object-contain w-auto h-auto"
+          unoptimized
+        />
+      </div>
     </div>
   )
 }

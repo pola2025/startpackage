@@ -30,6 +30,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { ImageModal } from "@/components/ui/image-modal";
+import Image from "next/image";
 
 interface CommunicationThread {
   id: string;
@@ -532,17 +533,20 @@ export default function AdminCommunicationPage() {
                             {message.attachments.length > 0 && (
                               <div className="space-y-2 mt-3">
                                 {message.attachments.map((url, idx) => (
-                                  <img
-                                    key={idx}
-                                    src={url}
-                                    alt="첨부 이미지"
-                                    className="rounded-lg max-w-full h-auto border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity"
-                                    onClick={() => {
-                                      setModalImages(message.attachments);
-                                      setModalInitialIndex(idx);
-                                      setImageModalOpen(true);
-                                    }}
-                                  />
+                                  <div key={idx} className="relative w-full cursor-pointer" onClick={() => {
+                                    setModalImages(message.attachments);
+                                    setModalInitialIndex(idx);
+                                    setImageModalOpen(true);
+                                  }}>
+                                    <Image
+                                      src={url}
+                                      alt="첨부 이미지"
+                                      width={800}
+                                      height={600}
+                                      className="rounded-lg max-w-full h-auto border border-gray-200 hover:opacity-90 transition-opacity"
+                                      unoptimized
+                                    />
+                                  </div>
                                 ))}
                               </div>
                             )}
@@ -572,8 +576,15 @@ export default function AdminCommunicationPage() {
                   {replyAttachments.length > 0 && (
                     <div className="flex flex-wrap gap-2">
                       {replyAttachments.map((url, idx) => (
-                        <div key={idx} className="relative">
-                          <img src={url} alt="첨부" className="w-20 h-20 object-cover rounded border border-gray-200" />
+                        <div key={idx} className="relative w-20 h-20">
+                          <Image
+                            src={url}
+                            alt="첨부"
+                            width={80}
+                            height={80}
+                            className="w-20 h-20 object-cover rounded border border-gray-200"
+                            unoptimized
+                          />
                           <button
                             onClick={() => setReplyAttachments(replyAttachments.filter((_, i) => i !== idx))}
                             className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"

@@ -34,6 +34,7 @@ import {
   Calendar as CalendarIcon,
 } from "lucide-react";
 import { ImageModal } from "@/components/ui/image-modal";
+import Image from "next/image";
 
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
@@ -428,8 +429,15 @@ export default function UserCommunicationPage() {
               {newAttachments.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {newAttachments.map((url, idx) => (
-                    <div key={idx} className="relative">
-                      <img src={url} alt="첨부" className="w-20 h-20 object-cover rounded border" />
+                    <div key={idx} className="relative w-20 h-20">
+                      <Image
+                        src={url}
+                        alt="첨부"
+                        width={80}
+                        height={80}
+                        className="w-20 h-20 object-cover rounded border"
+                        unoptimized
+                      />
                       <button
                         onClick={() => setNewAttachments(newAttachments.filter((_, i) => i !== idx))}
                         className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
@@ -621,12 +629,16 @@ export default function UserCommunicationPage() {
                             {message.attachments.length > 0 && (
                               <div className="space-y-2 mt-3">
                                 {message.attachments.map((url, idx) => (
-                                  <img
-                                    key={idx}
-                                    src={url}
-                                    alt="첨부 이미지"
-                                    className="rounded-lg max-w-full h-auto border"
-                                  />
+                                  <div key={idx} className="relative w-full">
+                                    <Image
+                                      src={url}
+                                      alt="첨부 이미지"
+                                      width={800}
+                                      height={600}
+                                      className="rounded-lg max-w-full h-auto border"
+                                      unoptimized
+                                    />
+                                  </div>
                                 ))}
                               </div>
                             )}
@@ -650,8 +662,15 @@ export default function UserCommunicationPage() {
                   {replyAttachments.length > 0 && (
                     <div className="flex flex-wrap gap-2">
                       {replyAttachments.map((url, idx) => (
-                        <div key={idx} className="relative">
-                          <img src={url} alt="첨부" className="w-20 h-20 object-cover rounded border" />
+                        <div key={idx} className="relative w-20 h-20">
+                          <Image
+                            src={url}
+                            alt="첨부"
+                            width={80}
+                            height={80}
+                            className="w-20 h-20 object-cover rounded border"
+                            unoptimized
+                          />
                           <button
                             onClick={() => setReplyAttachments(replyAttachments.filter((_, i) => i !== idx))}
                             className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
