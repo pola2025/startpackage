@@ -47,7 +47,10 @@
       "Bash(del F:startpackagemiddleware.ts)",
       "Bash(git checkout:*)",
       "Read(//f/obsidian/**)",
-      "Read(//f/**)"
+      "Read(//f/**)",
+      "Bash(git revert:*)",
+      "Bash(tasklist:*)",
+      "Bash(git init:*)"
     ],
     "deny": [],
     "ask": []

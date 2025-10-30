@@ -19,7 +19,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { Package, Truck, Calendar, User, Maximize2, Minimize2 } from "lucide-react";
+import { Package, Truck, Calendar, User, Maximize2, Minimize2, ChevronDown, ChevronRight, Users } from "lucide-react";
 import WorkflowActions from "./workflow-actions";
 import SubmissionViewButton from "./submission-view-button";
 import UserWorkflowSMSButton from "./user-workflow-sms-button";
@@ -64,6 +64,10 @@ export default function WorkflowsClient({
   const [viewMode, setViewMode] = useState<"user" | "status" | "kanban">("user");
   const [compactView, setCompactView] = useState(false);
   const [selectedWorkflows, setSelectedWorkflows] = useState<Set<string>>(new Set());
+
+  // 기수별/사용자별 접기/펼치기 상태
+  const [expandedCohorts, setExpandedCohorts] = useState<Set<string>>(new Set());
+  const [expandedUsers, setExpandedUsers] = useState<Set<string>>(new Set());
 
   const getStatusBadge = (status: string) => {
     const statusMap: Record<string, { color: string; bg: string; label: string }> = {
@@ -193,6 +197,27 @@ export default function WorkflowsClient({
 
     return `${baseClass} hover:bg-blue-50/50`;
   };
+
+  // 기수별 그룹화
+  const groupedByCohort = useMemo(() => {
+    const groups: Record<string, { cohort: any; userGroups: Record<string, { user: any; workflows: any[] }> }> = {};
+
+    Object.entries(filteredAndSortedData).forEach(([userId, { user, workflows }]) => {
+      const cohortId = user.cohortId || "미지정";
+      const cohortName = user.cohort?.name || "미지정";
+
+      if (!groups[cohortId]) {
+        groups[cohortId] = {
+          cohort: { id: cohortId, name: cohortName },
+          userGroups: {},
+        };
+      }
+
+      groups[cohortId].userGroups[userId] = { user, workflows };
+    });
+
+    return groups;
+  }, [filteredAndSortedData]);
 
   // 상태별 뷰를 위한 데이터 그룹화
   const groupedByStatus = useMemo(() => {
@@ -631,59 +656,132 @@ export default function WorkflowsClient({
         </CardContent>
       </Card>
 
-      {/* User-Grouped View */}
+      {/* User-Grouped View - 기수별 → 사용자별 */}
       {viewMode === "user" && (
-        <div className="space-y-4">
-          {Object.entries(filteredAndSortedData).map(([userId, { user, workflows: userWorkflows }]) => (
-            <Card key={userId} className="bg-white border-2 border-gray-200 shadow-lg">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                      <User className="w-5 h-5 text-blue-600" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-lg text-gray-900 flex items-center gap-2">
-                        {user.이름}
-                        <Badge variant="outline" className="border-blue-300 text-blue-700 bg-blue-50">
-                          {user.cohort?.name || "미지정"}
-                        </Badge>
-                      </CardTitle>
-                      <CardDescription className="text-gray-600 text-sm">
-                        워크플로우 {userWorkflows.length}개 · 연락처: {user.연락처 || "미등록"}
-                      </CardDescription>
-                    </div>
+        <div className="space-y-6">
+          {Object.entries(groupedByCohort).map(([cohortId, { cohort, userGroups }]) => {
+            const isCohortExpanded = expandedCohorts.has(cohortId);
+            const totalUsers = Object.keys(userGroups).length;
+            const totalWorkflows = Object.values(userGroups).reduce((sum, { workflows }) => sum + workflows.length, 0);
+
+            return (
+              <div key={cohortId} className="space-y-3">
+                {/* 기수별 헤더 */}
+                <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 shadow-md">
+                  <CardHeader className="py-4">
+                    <button
+                      onClick={() => {
+                        const newExpanded = new Set(expandedCohorts);
+                        if (isCohortExpanded) {
+                          newExpanded.delete(cohortId);
+                        } else {
+                          newExpanded.add(cohortId);
+                        }
+                        setExpandedCohorts(newExpanded);
+                      }}
+                      className="w-full flex items-center justify-between hover:opacity-80 transition-opacity"
+                    >
+                      <div className="flex items-center gap-3">
+                        {isCohortExpanded ? (
+                          <ChevronDown className="w-6 h-6 text-blue-600" />
+                        ) : (
+                          <ChevronRight className="w-6 h-6 text-blue-600" />
+                        )}
+                        <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center">
+                          <Users className="w-6 h-6 text-white" />
+                        </div>
+                        <div className="text-left">
+                          <CardTitle className="text-xl text-gray-900 flex items-center gap-2">
+                            {cohort.name}
+                          </CardTitle>
+                          <CardDescription className="text-gray-700 text-sm font-medium">
+                            수강생 {totalUsers}명 · 워크플로우 {totalWorkflows}개
+                          </CardDescription>
+                        </div>
+                      </div>
+                    </button>
+                  </CardHeader>
+                </Card>
+
+                {/* 사용자별 카드 */}
+                {isCohortExpanded && (
+                  <div className="ml-8 space-y-3">
+                    {Object.entries(userGroups).map(([userId, { user, workflows: userWorkflows }]) => {
+                      const isUserExpanded = expandedUsers.has(userId);
+
+                      return (
+                        <Card key={userId} className="bg-white border-2 border-gray-200 shadow-lg">
+                          <CardHeader className="py-3">
+                            <button
+                              onClick={() => {
+                                const newExpanded = new Set(expandedUsers);
+                                if (isUserExpanded) {
+                                  newExpanded.delete(userId);
+                                } else {
+                                  newExpanded.add(userId);
+                                }
+                                setExpandedUsers(newExpanded);
+                              }}
+                              className="w-full flex items-center justify-between hover:opacity-80 transition-opacity"
+                            >
+                              <div className="flex items-center gap-3">
+                                {isUserExpanded ? (
+                                  <ChevronDown className="w-5 h-5 text-gray-600" />
+                                ) : (
+                                  <ChevronRight className="w-5 h-5 text-gray-600" />
+                                )}
+                                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                  <User className="w-5 h-5 text-blue-600" />
+                                </div>
+                                <div className="text-left">
+                                  <CardTitle className="text-lg text-gray-900">
+                                    {user.이름}
+                                  </CardTitle>
+                                  <CardDescription className="text-gray-600 text-sm">
+                                    워크플로우 {userWorkflows.length}개 · 연락처: {user.연락처 || "미등록"}
+                                  </CardDescription>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                                <UserWorkflowSMSButton
+                                  userId={userId}
+                                  userName={user.이름}
+                                  userPhone={user.연락처}
+                                  workflows={userWorkflows}
+                                />
+                                <UserOrderCompleteButton
+                                  userId={userId}
+                                  userName={user.이름}
+                                  userPhone={user.연락처}
+                                  userEmail={user.email}
+                                  workflows={userWorkflows}
+                                />
+                                <UserShippingSMSButton
+                                  userId={userId}
+                                  userName={user.이름}
+                                  userPhone={user.연락처}
+                                  workflows={userWorkflows}
+                                />
+                              </div>
+                            </button>
+                          </CardHeader>
+
+                          {/* 워크플로우 상세 테이블 */}
+                          {isUserExpanded && (
+                            <CardContent>
+                              <div className="overflow-x-auto">
+                                {renderWorkflowTable(userWorkflows, false)}
+                              </div>
+                            </CardContent>
+                          )}
+                        </Card>
+                      );
+                    })}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <UserWorkflowSMSButton
-                      userId={userId}
-                      userName={user.이름}
-                      userPhone={user.연락처}
-                      workflows={userWorkflows}
-                    />
-                    <UserOrderCompleteButton
-                      userId={userId}
-                      userName={user.이름}
-                      userPhone={user.연락처}
-                      userEmail={user.email}
-                      workflows={userWorkflows}
-                    />
-                    <UserShippingSMSButton
-                      userId={userId}
-                      userName={user.이름}
-                      userPhone={user.연락처}
-                      workflows={userWorkflows}
-                    />
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="overflow-x-auto">
-                  {renderWorkflowTable(userWorkflows, false)}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
 

@@ -33,6 +33,7 @@ import {
   Loader2,
   Calendar as CalendarIcon,
 } from "lucide-react";
+import { ImageModal } from "@/components/ui/image-modal";
 
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";

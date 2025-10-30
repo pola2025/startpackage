@@ -29,6 +29,7 @@ import {
   Image as ImageIcon,
   Trash2,
 } from "lucide-react";
+import { ImageModal } from "@/components/ui/image-modal";
 
 interface CommunicationThread {
   id: string;
@@ -73,6 +74,11 @@ export default function AdminCommunicationPage() {
   const [expectedDate, setExpectedDate] = useState<Date>();
   const [uploading, setUploading] = useState(false);
   const [sending, setSending] = useState(false);
+
+  // 이미지 모달 상태
+  const [imageModalOpen, setImageModalOpen] = useState(false);
+  const [modalImages, setModalImages] = useState<string[]>([]);
+  const [modalInitialIndex, setModalInitialIndex] = useState(0);
 
   // 상대 시간 표시 함수
   const getRelativeTime = (date: string): string => {
@@ -530,7 +536,12 @@ export default function AdminCommunicationPage() {
                                     key={idx}
                                     src={url}
                                     alt="첨부 이미지"
-                                    className="rounded-lg max-w-full h-auto border border-gray-200"
+                                    className="rounded-lg max-w-full h-auto border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity"
+                                    onClick={() => {
+                                      setModalImages(message.attachments);
+                                      setModalInitialIndex(idx);
+                                      setImageModalOpen(true);
+                                    }}
                                   />
                                 ))}
                               </div>
@@ -660,6 +671,15 @@ export default function AdminCommunicationPage() {
           )}
         </Card>
       </div>
+
+      {/* 이미지 모달 */}
+      {imageModalOpen && (
+        <ImageModal
+          images={modalImages}
+          initialIndex={modalInitialIndex}
+          onClose={() => setImageModalOpen(false)}
+        />
+      )}
     </div>
   );
 }
