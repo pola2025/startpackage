@@ -9,6 +9,7 @@ import { LogOut, Package, LayoutDashboard, FileText, Workflow, BookOpen, Message
 import Link from "next/link";
 import { DesignConfirmationModal } from "@/components/ui/design-confirmation-modal";
 import { MessageNotificationModal } from "@/components/ui/message-notification-modal";
+import { SystemAlertModal } from "@/components/ui/system-alert-modal";
 
 export default function UserLayout({
   children,
@@ -129,6 +130,9 @@ export default function UserLayout({
   // 일반 사용자 레이아웃
   return (
     <div className="relative min-h-screen bg-gray-50">
+      {/* 시스템 알림 모달 - 모든 사용자 */}
+      <SystemAlertModal />
+
       {/* 시안 확인 자동 모달 - 수료생 제외 */}
       {!isGraduated && <DesignConfirmationModal />}
 

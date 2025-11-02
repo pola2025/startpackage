@@ -89,6 +89,7 @@ model User {
   marketingExtensionRequests MarketingExtensionRequest[]
   communicationThreads      CommunicationThread[]
   modalDismissals           ModalDismissal[]
+  alertDismissals           AlertDismissal[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -625,4 +626,67 @@ model RequiredFieldConfig {
   @@unique([workflowType, fieldName])
   @@index([workflowType, isActive])
   @@map("required_field_configs")
+}
+
+// ============================================
+// 시스템 알림 (관리자가 등록하는 범용 모달 알림)
+// ============================================
+
+model SystemAlert {
+  id      String @id @default(cuid())
+
+  // 알림 내용
+  title   String       // 알림 제목
+  content String @db.Text // 알림 내용 (마크다운 지원 가능)
+
+  // 알림 유형
+  type     String       // "info" | "warning" | "urgent"
+  priority Int          // 우선순위 (높을수록 먼저 표시)
+
+  // 표시 기간
+  startDate DateTime     // 표시 시작일
+  endDate   DateTime     // 표시 종료일
+
+  // 상태
+  isActive Boolean @default(true) // 활성화 여부
+
+  // 작성자
+  createdBy     String  // 작성한 관리자 ID
+  createdByName String  // 작성한 관리자 이름
+
+  // 관계
+  dismissals AlertDismissal[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive, startDate, endDate])
+  @@index([priority])
+  @@map("system_alerts")
+}
+
+// ============================================
+// 알림 숨김 기록 (24시간)
+// ============================================
+
+model AlertDismissal {
+  id      String @id @default(cuid())
+
+  // 사용자
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // 알림
+  alertId String
+  alert   SystemAlert @relation(fields: [alertId], references: [id], onDelete: Cascade)
+
+  // 숨김 정보
+  dismissedAt DateTime @default(now()) // 숨김 시각
+  expiresAt   DateTime                 // 만료 시각 (dismissedAt + 24시간)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, alertId])
+  @@index([userId, expiresAt])
+  @@map("alert_dismissals")
 }

@@ -10,6 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Upload, FileText, CheckCircle2, AlertCircle, Loader2, Square } from "lucide-react";
 import imageCompression from "browser-image-compression";
+import { ProgressBar } from "@/components/ui/progress-bar";
+import { calculateProgress, type ProgressResult } from "@/lib/submission-progress";
 
 export default function SubmissionPage() {
   const { data: session } = useSession();
@@ -47,6 +49,9 @@ export default function SubmissionPage() {
   const [businessCardColor, setBusinessCardColor] = useState<string>("#3B82F6");
   const [selectedNamecard, setSelectedNamecard] = useState<string>("");
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+
+  // 진행률 상태
+  const [progress, setProgress] = useState<ProgressResult | null>(null);
 
   // 제출 데이터 및 워크플로우 로드
   useEffect(() => {
@@ -124,6 +129,15 @@ export default function SubmissionPage() {
         const data = await res.json();
         setSubmission(data);
         calculateCompletionRate(data);
+
+        // 진행률 계산
+        if (session?.user) {
+          const progressData = calculateProgress(data, {
+            이름: (session.user as any).이름 || session.user.name || "",
+            연락처: (session.user as any).연락처 || "",
+          });
+          setProgress(progressData);
+        }
 
         // 각 섹션별로 데이터 유무를 확인하여 편집 모드 설정
         // 데이터가 없으면 편집 모드(true), 있으면 읽기 모드(false)
@@ -433,6 +447,14 @@ export default function SubmissionPage() {
             )}
           </div>
         </div>
+      )}
+
+      {/* 진행률 바 */}
+      {progress && (
+        <ProgressBar
+          sections={progress.sections}
+          overallPercentage={progress.overallPercentage}
+        />
       )}
 
       {/* 헤더 - 깔끔하고 명확한 */}
@@ -1575,6 +1597,10 @@ export default function SubmissionPage() {
               <CardDescription className="text-gray-600 text-xs sm:text-sm">
                 SMS 발신번호 등록에 필요한 서류를 업로드해주세요
               </CardDescription>
+              <div className="text-xs sm:text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded-md p-3 mt-3">
+                <p className="font-medium mb-1.5">📋 SMS 발신 이용 안내</p>
+                <p className="text-blue-600">DB 자동화 적용 시 고객 접수 시 자동 안내 문자가 발송됩니다</p>
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* 대표자신분증 */}
@@ -1638,6 +1664,16 @@ export default function SubmissionPage() {
               {/* 통신서비스이용증명원 */}
               <div className="space-y-2">
                 <Label className="text-sm sm:text-base break-words">통신서비스 이용증명원 (통신사 모바일앱 또는 고객센터에서 발급가능)</Label>
+                <div className="text-xs sm:text-sm text-gray-600 space-y-1 pl-1">
+                  <p className="flex items-start gap-1.5">
+                    <span className="text-blue-600 font-medium mt-0.5">•</span>
+                    <span><span className="font-medium">대표번호 등록 시:</span> 1차 안내 문자 발송 후 고객 문자 수신 불가</span>
+                  </p>
+                  <p className="flex items-start gap-1.5">
+                    <span className="text-green-600 font-medium mt-0.5">•</span>
+                    <span><span className="font-medium">핸드폰 번호 등록 시:</span> 1차 안내 문자 발송 후 고객 문자 수신 가능</span>
+                  </p>
+                </div>
                 {submission?.통신서비스이용증명원URL ? (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 border border-green-200">
