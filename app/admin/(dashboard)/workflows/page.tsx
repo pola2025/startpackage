@@ -20,6 +20,11 @@ async function getWorkflows() {
               name: true,
             },
           },
+          // 광고자동화 정보
+          adAutomationEnabled: true,
+          adAutomationStartDate: true,
+          adAutomationEndDate: true,
+          marketingSupportEndDate: true,
         },
       },
     },

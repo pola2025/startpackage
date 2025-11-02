@@ -82,6 +82,11 @@ model User {
   marketingSupportStartDate DateTime? // 시작일
   marketingSupportEndDate   DateTime? // 종료일
 
+  // 광고자동화 (시점 관리)
+  adAutomationEnabled   Boolean   @default(false) // 광고자동화 활성화 여부
+  adAutomationStartDate DateTime? // 광고자동화 시작일
+  adAutomationEndDate   DateTime? // 광고자동화 종료일
+
   // 관계
   submission                Submission?
   workflows                 Workflow[]
@@ -90,6 +95,8 @@ model User {
   communicationThreads      CommunicationThread[]
   modalDismissals           ModalDismissal[]
   alertDismissals           AlertDismissal[]
+  adAutomationHistory       AdAutomationHistory[]
+  adAutomationPayments      AdAutomationPayment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -689,4 +696,68 @@ model AlertDismissal {
   @@unique([userId, alertId])
   @@index([userId, expiresAt])
   @@map("alert_dismissals")
+}
+
+// ============================================
+// 광고자동화 이력
+// ============================================
+
+model AdAutomationHistory {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // 이력 정보
+  action      String   // "enabled" | "disabled"
+  actionBy    String   // 관리자 ID
+  actionByName String  // 관리자 이름
+  reason      String?  @db.Text // 사유 (선택)
+
+  // 기간 정보
+  startDate DateTime? // 활성화 시작일
+  endDate   DateTime? // 활성화 종료일
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("ad_automation_history")
+}
+
+// ============================================
+// 광고자동화 결제
+// ============================================
+
+model AdAutomationPayment {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // 결제 정보
+  paymentDate    DateTime // 결제일
+  paymentAmount  Int      // 결제 금액 (원)
+  paymentMethod  String   // "카드" | "계좌이체" | "현금"
+  receiptUrl     String?  // 영수증 URL
+
+  // 기간 정보
+  serviceStartDate DateTime // 서비스 시작일
+  serviceEndDate   DateTime // 서비스 종료일
+
+  // 상태
+  status         String   @default("completed") // "completed" | "cancelled" | "refunded"
+
+  // 메모
+  memo           String?  @db.Text
+
+  // 관리자 정보
+  registeredBy     String  // 등록한 관리자 ID
+  registeredByName String  // 등록한 관리자 이름
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([paymentDate])
+  @@index([status])
+  @@map("ad_automation_payments")
 }
