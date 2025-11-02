@@ -724,7 +724,7 @@ export default function WorkflowsClient({
                                 }
                                 setExpandedUsers(newExpanded);
                               }}
-                              className="w-full flex items-center justify-between hover:opacity-80 transition-opacity"
+                              className="w-full grid grid-cols-[1fr_auto] gap-4 items-center hover:opacity-80 transition-opacity"
                             >
                               <div className="flex items-center gap-3">
                                 {isUserExpanded ? (
