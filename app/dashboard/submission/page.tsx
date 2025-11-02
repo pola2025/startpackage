@@ -1490,7 +1490,24 @@ export default function SubmissionPage() {
               >
                 {/* 네이버 검색광고 */}
                 <div className="space-y-4 p-4 rounded-lg border-2 border-blue-200 bg-blue-50/50">
-                  <Label className="text-sm sm:text-base font-semibold">네이버 검색광고</Label>
+                  <div className="space-y-2">
+                    <Label className="text-sm sm:text-base font-semibold">네이버 검색광고</Label>
+                    <div className="text-xs sm:text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded-md p-3">
+                      <p className="font-medium mb-1.5">📋 가입 안내</p>
+                      <p className="text-blue-600 mb-2">
+                        <a
+                          href="https://ads.naver.com/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline hover:text-blue-800 font-medium"
+                        >
+                          네이버 검색광고 가입하기 →
+                        </a>
+                      </p>
+                      <p className="text-blue-600 mb-1">• 가입만하면 안되고 사업자 정보 정확히 입력 및 본인인증 필수</p>
+                      <p className="text-blue-600">• 사업자 대표 명의 계정으로 진행 필수</p>
+                    </div>
+                  </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="네이버검색광고ID" className="text-sm sm:text-base">ID</Label>
@@ -1516,7 +1533,24 @@ export default function SubmissionPage() {
 
                 {/* 네이버 클라우드 */}
                 <div className="space-y-4 p-4 rounded-lg border-2 border-blue-200 bg-blue-50/50">
-                  <Label className="text-sm sm:text-base font-semibold">네이버 클라우드</Label>
+                  <div className="space-y-2">
+                    <Label className="text-sm sm:text-base font-semibold">네이버 클라우드</Label>
+                    <div className="text-xs sm:text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded-md p-3">
+                      <p className="font-medium mb-1.5">📋 가입 안내</p>
+                      <p className="text-blue-600 mb-2">
+                        <a
+                          href="https://www.ncloud.com/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline hover:text-blue-800 font-medium"
+                        >
+                          네이버 클라우드 가입하기 →
+                        </a>
+                      </p>
+                      <p className="text-blue-600 mb-1">• 가입하고 로그아웃 창 옆에 결제수단 등록 해야함</p>
+                      <p className="text-blue-600">• 사업자 대표 명의 계정으로 진행 필수</p>
+                    </div>
+                  </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="네이버클라우드ID" className="text-sm sm:text-base">ID</Label>
