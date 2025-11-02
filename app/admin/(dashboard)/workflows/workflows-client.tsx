@@ -742,18 +742,16 @@ export default function WorkflowsClient({
                                   <CardDescription className="text-gray-600 text-sm">
                                     워크플로우 {userWorkflows.length}개 · 연락처: {user.연락처 || "미등록"}
                                   </CardDescription>
-                                  <div className="flex items-center gap-3 mt-2">
-                                    <WorkflowStatusIcons workflows={userWorkflows} />
-                                    <AdAutomationBadge
-                                      enabled={user.adAutomationEnabled || false}
-                                      startDate={user.adAutomationStartDate}
-                                      endDate={user.adAutomationEndDate}
-                                      marketingSupportEndDate={user.marketingSupportEndDate}
-                                    />
-                                  </div>
                                 </div>
                               </div>
-                              <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                              <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+                                <WorkflowStatusIcons workflows={userWorkflows} />
+                                <AdAutomationBadge
+                                  enabled={user.adAutomationEnabled || false}
+                                  startDate={user.adAutomationStartDate}
+                                  endDate={user.adAutomationEndDate}
+                                  marketingSupportEndDate={user.marketingSupportEndDate}
+                                />
                                 <UserWorkflowSMSButton
                                   userId={userId}
                                   userName={user.이름}
