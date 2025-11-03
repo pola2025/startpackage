@@ -89,6 +89,7 @@ export default function AdminLayout({
   const pathname = usePathname();
   const { data: session, status } = useSession();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [unreadMessageCount, setUnreadMessageCount] = useState(0);
 
   // 인증 및 권한 체크 (Middleware 대체)
   useEffect(() => {
@@ -107,6 +108,29 @@ export default function AdminLayout({
       return;
     }
   }, [status, session, router]);
+
+  // 미확인 메시지 개수 가져오기
+  useEffect(() => {
+    if (status !== "authenticated") return;
+
+    const fetchUnreadCount = async () => {
+      try {
+        const response = await fetch("/api/admin/communication/unread-count");
+        if (response.ok) {
+          const data = await response.json();
+          setUnreadMessageCount(data.unreadCount);
+        }
+      } catch (error) {
+        console.error("Failed to fetch unread count:", error);
+      }
+    };
+
+    fetchUnreadCount();
+
+    // 30초마다 갱신
+    const interval = setInterval(fetchUnreadCount, 30000);
+    return () => clearInterval(interval);
+  }, [status]);
 
   const handleLogout = async () => {
     await signOut({ redirect: false });
@@ -179,6 +203,7 @@ export default function AdminLayout({
             {navigation.map((item) => {
               const isActive = pathname === item.href;
               const Icon = item.icon;
+              const showBadge = item.href === "/admin/communication" && unreadMessageCount > 0;
 
               return (
                 <Link
@@ -186,7 +211,7 @@ export default function AdminLayout({
                   href={item.href}
                   onClick={() => setSidebarOpen(false)}
                   className={`
-                    flex items-center gap-3 px-4 py-3 rounded-lg transition-all
+                    flex items-center gap-3 px-4 py-3 rounded-lg transition-all relative
                     ${
                       isActive
                         ? "bg-red-50 text-red-700 font-medium border border-red-200"
@@ -196,6 +221,11 @@ export default function AdminLayout({
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
                   <span className="font-medium">{item.name}</span>
+                  {showBadge && (
+                    <span className="ml-auto bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                      {unreadMessageCount > 99 ? "99+" : unreadMessageCount}
+                    </span>
+                  )}
                 </Link>
               );
             })}

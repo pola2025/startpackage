@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { LogOut, Package, LayoutDashboard, FileText, Workflow, BookOpen, MessageSquare, Megaphone, Lightbulb } from "lucide-react";
+import { LogOut, Package, LayoutDashboard, FileText, Workflow, BookOpen, MessageSquare, Megaphone, Lightbulb, Facebook } from "lucide-react";
 import Link from "next/link";
 import { DesignConfirmationModal } from "@/components/ui/design-confirmation-modal";
 import { MessageNotificationModal } from "@/components/ui/message-notification-modal";
@@ -233,6 +233,16 @@ export default function UserLayout({
                   >
                     <BookOpen className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                     가이드
+                  </Button>
+                </Link>
+                <Link href="/dashboard/meta-ads">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`${pathname === "/dashboard/meta-ads" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} text-xs sm:text-sm h-8 px-2 sm:h-9 sm:px-3 w-full`}
+                  >
+                    <Facebook className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                    Meta 광고
                   </Button>
                 </Link>
               </>

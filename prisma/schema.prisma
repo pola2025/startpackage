@@ -492,6 +492,11 @@ model CommunicationMessage {
 
   // 읽음 상태 (사용자가 관리자 메시지를 읽었는지)
   isReadByUser Boolean @default(false)
+  readByUserAt DateTime? // 사용자가 읽은 시간
+
+  // 관리자 읽음 상태 (관리자가 사용자 메시지를 읽었는지)
+  isReadByAdmin Boolean @default(false)
+  readByAdminAt DateTime? // 관리자가 읽은 시간
 
   createdAt DateTime @default(now())
 

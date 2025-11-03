@@ -4,9 +4,9 @@ import prisma from "@/lib/prisma";
 import { z } from "zod";
 
 /**
- * POST /api/communication/mark-read
+ * POST /api/admin/communication/mark-read
  *
- * 특정 스레드의 모든 관리자 메시지를 읽음 처리
+ * 특정 스레드의 모든 사용자 메시지를 읽음 처리 (관리자)
  */
 
 const markReadSchema = z.object({
@@ -16,15 +16,15 @@ const markReadSchema = z.object({
 export async function POST(request: Request) {
   try {
     const session = await auth();
+    const userRole = (session?.user as any)?.role;
 
-    if (!session?.user) {
+    if (!session || !["super", "designer", "operator"].includes(userRole)) {
       return NextResponse.json(
-        { error: "인증이 필요합니다." },
-        { status: 401 }
+        { error: "권한이 없습니다." },
+        { status: 403 }
       );
     }
 
-    const userId = (session.user as any).id;
     const body = await request.json();
     const validation = markReadSchema.safeParse(body);
 
@@ -40,12 +40,9 @@ export async function POST(request: Request) {
 
     const { threadId } = validation.data;
 
-    // 스레드 소유권 확인
-    const thread = await prisma.communicationThread.findFirst({
-      where: {
-        id: threadId,
-        userId,
-      },
+    // 스레드 존재 확인
+    const thread = await prisma.communicationThread.findUnique({
+      where: { id: threadId },
     });
 
     if (!thread) {
@@ -55,16 +52,16 @@ export async function POST(request: Request) {
       );
     }
 
-    // 해당 스레드의 모든 관리자 메시지를 읽음 처리
+    // 해당 스레드의 모든 사용자 메시지를 읽음 처리
     const result = await prisma.communicationMessage.updateMany({
       where: {
         threadId,
-        authorType: "admin",
-        isReadByUser: false,
+        authorType: "user",
+        isReadByAdmin: false,
       },
       data: {
-        isReadByUser: true,
-        readByUserAt: new Date(),
+        isReadByAdmin: true,
+        readByAdminAt: new Date(),
       },
     });
 
@@ -73,7 +70,7 @@ export async function POST(request: Request) {
       markedCount: result.count,
     });
   } catch (error) {
-    console.error("❌ 메시지 읽음 처리 실패:", error);
+    console.error("❌ 관리자 메시지 읽음 처리 실패:", error);
     return NextResponse.json(
       { error: "메시지 읽음 처리 중 오류가 발생했습니다." },
       { status: 500 }

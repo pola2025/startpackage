@@ -11,6 +11,12 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -28,6 +34,7 @@ import {
   XCircle,
   Image as ImageIcon,
   Trash2,
+  AlertCircle,
 } from "lucide-react";
 import { ImageModal } from "@/components/ui/image-modal";
 import Image from "next/image";
@@ -61,6 +68,10 @@ interface CommunicationMessage {
   attachments: string[];
   createdAt: string;
   expectedCompletionDate: string | null;
+  isReadByUser: boolean;
+  readByUserAt: string | null;
+  isReadByAdmin: boolean;
+  readByAdminAt: string | null;
 }
 
 export default function AdminCommunicationPage() {
@@ -148,6 +159,40 @@ export default function AdminCommunicationPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // 사용자별로 스레드 그룹핑
+  const groupThreadsByUser = () => {
+    const grouped = threads.reduce((acc, thread) => {
+      const userId = thread.user.id;
+      if (!acc[userId]) {
+        acc[userId] = {
+          user: thread.user,
+          threads: [],
+          unreadCount: 0,
+        };
+      }
+      acc[userId].threads.push(thread);
+
+      // 미확인 메시지 개수 계산
+      const unreadMessages = thread.messages.filter(
+        (msg) => msg.authorType === "user" && !msg.isReadByAdmin
+      ).length;
+      acc[userId].unreadCount += unreadMessages;
+
+      return acc;
+    }, {} as Record<string, { user: CommunicationThread["user"]; threads: CommunicationThread[]; unreadCount: number }>);
+
+    // 배열로 변환하고 정렬 (미확인 메시지 있는 사용자 우선)
+    return Object.values(grouped).sort((a, b) => {
+      if (a.unreadCount !== b.unreadCount) {
+        return b.unreadCount - a.unreadCount; // 미확인 많은 순
+      }
+      // 최신 답글 순
+      const aLastReply = Math.max(...a.threads.map(t => new Date(t.lastReplyAt).getTime()));
+      const bLastReply = Math.max(...b.threads.map(t => new Date(t.lastReplyAt).getTime()));
+      return bLastReply - aLastReply;
+    });
   };
 
   useEffect(() => {
@@ -249,6 +294,24 @@ export default function AdminCommunicationPage() {
       alert("답글 전송 중 오류가 발생했습니다");
     } finally {
       setSending(false);
+    }
+  };
+
+  const handleSelectThread = async (thread: CommunicationThread) => {
+    setSelectedThread(thread);
+
+    // 관리자가 스레드를 열면 사용자 메시지를 읽음 처리
+    try {
+      await fetch("/api/admin/communication/mark-read", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ threadId: thread.id }),
+      });
+
+      // 읽음 처리 후 스레드 목록 새로고침
+      fetchThreads();
+    } catch (error) {
+      console.error("Failed to mark messages as read:", error);
     }
   };
 
@@ -387,54 +450,129 @@ export default function AdminCommunicationPage() {
             ) : threads.length === 0 ? (
               <p className="text-center text-gray-500">문의가 없습니다</p>
             ) : (
-              <div className="space-y-2">
-                {threads.map((thread) => (
-                  <div
-                    key={thread.id}
-                    className={`p-4 rounded-lg transition-all border ${
-                      selectedThread?.id === thread.id
-                        ? "bg-red-50 border-red-300"
-                        : "bg-gray-50 border-gray-200 hover:bg-gray-100"
-                    }`}
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <div
-                        className="flex-1 min-w-0 cursor-pointer"
-                        onClick={() => setSelectedThread(thread)}
-                      >
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm font-semibold text-gray-900 truncate">
-                            {thread.user.이름}
-                          </span>
-                          <Badge variant="outline" className="text-xs border-gray-300 text-gray-600">
-                            {thread.category}
-                          </Badge>
+              <Accordion type="multiple" className="space-y-2">
+                {groupThreadsByUser().map((userGroup) => {
+                  const hasUnread = userGroup.unreadCount > 0;
+
+                  return (
+                    <AccordionItem
+                      key={userGroup.user.id}
+                      value={userGroup.user.id}
+                      className={`rounded-lg overflow-hidden transition-all ${
+                        hasUnread
+                          ? "border-2 border-red-500 bg-red-50 shadow-lg"
+                          : "border border-gray-200 bg-white"
+                      }`}
+                    >
+                      <AccordionTrigger className={`px-4 py-3 hover:no-underline ${
+                        hasUnread ? "hover:bg-red-100" : "hover:bg-gray-50"
+                      }`}>
+                        <div className="flex items-center justify-between w-full pr-2">
+                          <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2">
+                              {hasUnread && (
+                                <AlertCircle className="w-5 h-5 text-red-600 animate-pulse" />
+                              )}
+                              <span className={`text-sm font-semibold ${
+                                hasUnread ? "text-red-900" : "text-gray-900"
+                              }`}>
+                                {userGroup.user.이름}
+                              </span>
+                              {userGroup.user.cohort && (
+                                <Badge variant="outline" className={`text-xs ${
+                                  hasUnread
+                                    ? "border-red-400 text-red-700 bg-red-100"
+                                    : "border-gray-300 text-gray-600"
+                                }`}>
+                                  {userGroup.user.cohort.name}
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className={`text-xs ${
+                                hasUnread ? "text-red-700 font-medium" : "text-gray-500"
+                              }`}>
+                                {userGroup.threads.length}개 스레드
+                              </span>
+                              {hasUnread && (
+                                <Badge className="bg-red-600 text-white text-sm font-bold px-3 py-1 animate-pulse">
+                                  <AlertCircle className="w-4 h-4 mr-1" />
+                                  {userGroup.unreadCount}개 미확인
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                        <p className="text-sm text-gray-900 font-medium truncate">
-                          {thread.title}
-                        </p>
+                      </AccordionTrigger>
+                    <AccordionContent className="px-2 pb-2">
+                      <div className="space-y-2">
+                        {userGroup.threads.map((thread) => {
+                          const threadUnreadCount = thread.messages.filter(
+                            (msg) => msg.authorType === "user" && !msg.isReadByAdmin
+                          ).length;
+
+                          const hasThreadUnread = threadUnreadCount > 0;
+
+                          return (
+                            <div
+                              key={thread.id}
+                              className={`p-3 rounded-lg transition-all border cursor-pointer ${
+                                selectedThread?.id === thread.id
+                                  ? "bg-red-50 border-red-300"
+                                  : hasThreadUnread
+                                  ? "bg-red-100 border-red-400 hover:bg-red-200 shadow-md"
+                                  : "bg-gray-50 border-gray-200 hover:bg-gray-100"
+                              }`}
+                              onClick={() => handleSelectThread(thread)}
+                            >
+                              <div className="flex items-start justify-between mb-2">
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    {hasThreadUnread && (
+                                      <div className="flex items-center gap-1 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">
+                                        <AlertCircle className="w-3 h-3" />
+                                        <span>{threadUnreadCount}개 미확인</span>
+                                      </div>
+                                    )}
+                                    <Badge variant="outline" className={`text-xs ${
+                                      hasThreadUnread
+                                        ? "border-red-600 text-red-800 bg-red-50"
+                                        : "border-gray-300 text-gray-600"
+                                    }`}>
+                                      {thread.category}
+                                    </Badge>
+                                  </div>
+                                  <p className="text-sm text-gray-900 font-medium truncate">
+                                    {thread.title}
+                                  </p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  {getStatusBadge(thread.status)}
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeleteThread(thread.id);
+                                    }}
+                                    className="p-1.5 hover:bg-red-100 rounded-md transition-colors text-red-600"
+                                    title="삭제"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              </div>
+                              <div className="flex items-center justify-between text-xs text-gray-500">
+                                <span>{thread._count.messages}개 메시지</span>
+                                <span>{formatTime(thread.lastReplyAt)}</span>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
-                      <div className="flex items-center gap-2">
-                        {getStatusBadge(thread.status)}
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteThread(thread.id);
-                          }}
-                          className="p-1.5 hover:bg-red-100 rounded-md transition-colors text-red-600"
-                          title="삭제"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between text-xs text-gray-500">
-                      <span>{thread._count.messages}개 메시지</span>
-                      <span>{formatTime(thread.lastReplyAt)}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                  );
+                })}
+              </Accordion>
             )}
           </CardContent>
         </Card>
@@ -560,6 +698,17 @@ export default function AdminCommunicationPage() {
                             {isConsecutive && (
                               <p className="text-[10px] mt-2 text-gray-400">
                                 {getRelativeTime(message.createdAt)}
+                              </p>
+                            )}
+                            {/* 읽음 상태 표시 */}
+                            {message.authorType === "admin" && message.isReadByUser && message.readByUserAt && (
+                              <p className="text-[10px] mt-1 text-blue-500">
+                                읽음 · {format(new Date(message.readByUserAt), "M월 d일 HH:mm", { locale: ko })}
+                              </p>
+                            )}
+                            {message.authorType === "user" && message.isReadByAdmin && message.readByAdminAt && (
+                              <p className="text-[10px] mt-1 text-green-600">
+                                읽음 · {format(new Date(message.readByAdminAt), "M월 d일 HH:mm", { locale: ko })}
                               </p>
                             )}
                           </div>

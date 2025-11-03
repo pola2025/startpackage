@@ -61,6 +61,10 @@ interface CommunicationMessage {
   attachments: string[];
   createdAt: string;
   expectedCompletionDate: string | null;
+  isReadByUser: boolean;
+  readByUserAt: string | null;
+  isReadByAdmin: boolean;
+  readByAdminAt: string | null;
 }
 
 export default function UserCommunicationPage() {
@@ -646,6 +650,17 @@ export default function UserCommunicationPage() {
                             {isConsecutive && (
                               <p className={`text-[10px] mt-2 ${message.authorType === "admin" ? "text-gray-400" : "text-blue-200"}`}>
                                 {getRelativeTime(message.createdAt)}
+                              </p>
+                            )}
+                            {/* 읽음 상태 표시 */}
+                            {message.authorType === "user" && message.isReadByAdmin && message.readByAdminAt && (
+                              <p className="text-[10px] mt-1 text-green-500">
+                                읽음 · {format(new Date(message.readByAdminAt), "M월 d일 HH:mm", { locale: ko })}
+                              </p>
+                            )}
+                            {message.authorType === "admin" && message.isReadByUser && message.readByUserAt && (
+                              <p className="text-[10px] mt-1 text-gray-400">
+                                읽음 · {format(new Date(message.readByUserAt), "M월 d일 HH:mm", { locale: ko })}
                               </p>
                             )}
                           </div>
