@@ -86,7 +86,7 @@ export default function MetaAdsPage() {
                           </li>
                           <li className="flex items-start gap-2">
                             <span className="text-green-600">▪</span>
-                            <span>담당자 이메일: <a href="mailto:framei@naver.com" className="text-blue-600 underline font-semibold">framei@naver.com</a></span>
+                            <span>담당자 이메일: <a href="mailto:mkt@polarad.co.kr" className="text-blue-600 underline font-semibold">mkt@polarad.co.kr</a></span>
                           </li>
                         </ul>
                       </div>
@@ -116,7 +116,7 @@ export default function MetaAdsPage() {
                           </li>
                           <li><strong>사람</strong> → <strong className="bg-green-100 px-1 rounded">+초대하기</strong> 버튼 클릭</li>
                           <li>
-                            초대할 사람 이메일 주소 입력: <strong className="text-blue-600">framei@naver.com</strong>
+                            초대할 사람 이메일 주소 입력: <strong className="text-blue-600">mkt@polarad.co.kr</strong>
                             <div className="ml-6 mt-1 text-red-600 font-medium">
                               ⚠️ 임시 액세스 설정하지 마세요
                             </div>

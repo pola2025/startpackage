@@ -296,7 +296,7 @@ export default function GuidesPage() {
                   <li>비즈니스 설정 클릭</li>
                   <li>사용자 &gt; 사람 메뉴 선택</li>
                   <li>&apos;추가&apos; 버튼 클릭</li>
-                  <li>초대할 사람의 이메일 입력</li>
+                  <li>초대할 사람의 이메일 입력: <strong className="text-blue-600">mkt@polarad.co.kr</strong></li>
                   <li>권한 수준: &apos;관리자 액세스&apos; 선택</li>
                   <li>&apos;다음&apos; 클릭 후 초대 완료</li>
                 </ol>
