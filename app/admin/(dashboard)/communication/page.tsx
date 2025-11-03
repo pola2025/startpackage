@@ -136,7 +136,7 @@ export default function AdminCommunicationPage() {
     return sameAuthor && withinFiveMinutes;
   };
 
-  const fetchThreads = async () => {
+  const fetchThreads = async (keepSelectedThreadId?: string) => {
     try {
       setLoading(true);
       const params = new URLSearchParams();
@@ -148,9 +148,10 @@ export default function AdminCommunicationPage() {
 
       if (response.ok) {
         setThreads(data);
-        // 선택된 스레드 업데이트
-        if (selectedThread) {
-          const updated = data.find((t: CommunicationThread) => t.id === selectedThread.id);
+        // 선택된 스레드 업데이트 (keepSelectedThreadId가 있으면 우선 사용)
+        const threadIdToKeep = keepSelectedThreadId || selectedThread?.id;
+        if (threadIdToKeep) {
+          const updated = data.find((t: CommunicationThread) => t.id === threadIdToKeep);
           if (updated) setSelectedThread(updated);
         }
       }
@@ -308,8 +309,8 @@ export default function AdminCommunicationPage() {
         body: JSON.stringify({ threadId: thread.id }),
       });
 
-      // 읽음 처리 후 스레드 목록 새로고침
-      fetchThreads();
+      // 읽음 처리 후 스레드 목록 새로고침 (현재 선택한 스레드 ID 유지)
+      fetchThreads(thread.id);
     } catch (error) {
       console.error("Failed to mark messages as read:", error);
     }

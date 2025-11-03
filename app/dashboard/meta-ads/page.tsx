@@ -90,14 +90,51 @@ export default function MetaAdsPage() {
                           </li>
                         </ul>
                       </div>
+                      <Alert className="bg-red-50 border-red-200 mb-3">
+                        <AlertTriangle className="h-4 w-4 text-red-600" />
+                        <AlertDescription className="text-red-800 text-sm">
+                          <strong>중요:</strong> 광고관리자 초대는 <strong className="text-red-900">PC에서만 가능</strong>합니다.
+                        </AlertDescription>
+                      </Alert>
                       <div className="bg-white rounded-lg p-4 border border-green-200">
-                        <p className="text-sm text-green-800">
-                          <strong>📌 진행 방법:</strong><br />
-                          1. Meta 광고 관리자에 접속<br />
-                          2. 설정 → 사용자 → 파트너 추가<br />
-                          3. framei@naver.com 이메일로 관리자 권한 부여<br />
-                          4. 문의하기를 통해 권한 부여 완료 안내
+                        <p className="text-sm text-green-800 mb-3">
+                          <strong>📌 진행 방법 (PC에서만 가능):</strong>
                         </p>
+                        <ol className="space-y-2 text-sm text-green-800 list-decimal list-inside">
+                          <li className="font-medium">
+                            광고관리자 초대 페이지 접속
+                            <div className="ml-6 mt-1 mb-2">
+                              <a
+                                href="https://business.facebook.com/latest/settings/business_users"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 underline hover:text-blue-800 break-all text-xs"
+                              >
+                                https://business.facebook.com/latest/settings/business_users
+                              </a>
+                            </div>
+                          </li>
+                          <li><strong>사람</strong> → <strong className="bg-green-100 px-1 rounded">+초대하기</strong> 버튼 클릭</li>
+                          <li>
+                            초대할 사람 이메일 주소 입력: <strong className="text-blue-600">framei@naver.com</strong>
+                            <div className="ml-6 mt-1 text-red-600 font-medium">
+                              ⚠️ 임시 액세스 설정하지 마세요
+                            </div>
+                          </li>
+                          <li><strong>전체 관리권한</strong> 활성화</li>
+                          <li><strong>고급옵션 보기</strong> 클릭</li>
+                          <li><strong>전체 관리권한</strong> 활성화</li>
+                          <li><strong>고급옵션 보기/관리</strong> 활성화</li>
+                          <li>
+                            페이지, 광고계정, 인스타그램 선택 → <strong>모든 권한 할당</strong>
+                            <div className="ml-6 mt-1 bg-yellow-50 border border-yellow-200 rounded p-2">
+                              <p className="text-yellow-800 font-medium">⚠️ 스크롤로 권한 다 확인하고 활성화 필수</p>
+                              <p className="text-yellow-700 text-xs mt-1">누락 부분 있으면 관리 불가</p>
+                            </div>
+                          </li>
+                          <li><strong>다음</strong> → <strong className="bg-green-100 px-1 rounded">초대</strong> 버튼 클릭</li>
+                          <li>문의하기를 통해 권한 부여 완료 안내</li>
+                        </ol>
                       </div>
                     </div>
                   </div>
