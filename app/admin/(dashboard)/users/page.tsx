@@ -32,7 +32,7 @@ async function getUsers() {
         },
       },
     },
-    orderBy: { createdAt: "desc" },
+    orderBy: { 이름: "asc" },
   });
 }
 
