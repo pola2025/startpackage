@@ -6,9 +6,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Package, Clock, CheckCircle2, FileText, AlertTriangle, Truck, Calendar } from "lucide-react";
+import { Package, Clock, CheckCircle2, FileText, AlertTriangle, Truck, Calendar, Info } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { formatArrivalDate } from "@/lib/utils/businessDays";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface Workflow {
   id: string;
@@ -185,6 +186,77 @@ export default function WorkflowsPage() {
           인쇄물 및 홈페이지 제작 진행 상황을 확인하세요
         </p>
       </div>
+
+      {/* 제작 소요 기간 안내 */}
+      <Alert className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 shadow-lg">
+        <Info className="h-5 w-5 text-blue-700" />
+        <AlertDescription>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <p className="text-blue-900 font-bold text-base">📦 제품별 제작 소요 기간 (영업일 기준)</p>
+              <div className="inline-block bg-orange-100 border-2 border-orange-400 px-4 py-2 rounded-lg">
+                <p className="text-orange-900 font-bold text-sm">⚠️ 발주요청 후 제작기간입니다</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* 명함/명찰 */}
+              <Card className="bg-white border-2 border-blue-200 shadow-md hover:shadow-xl transition-all">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                      <Package className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <h3 className="font-bold text-gray-900 text-lg">명함 / 명찰</h3>
+                  </div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-bold text-blue-700">2~3일</span>
+                    <span className="text-sm text-gray-600">영업일</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">발주 승인 후 제작 및 배송</p>
+                </CardContent>
+              </Card>
+
+              {/* 대봉투 */}
+              <Card className="bg-white border-2 border-orange-200 shadow-md hover:shadow-xl transition-all">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
+                      <Package className="w-5 h-5 text-orange-600" />
+                    </div>
+                    <h3 className="font-bold text-gray-900 text-lg">대봉투</h3>
+                  </div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-bold text-orange-700">4~5일</span>
+                    <span className="text-sm text-gray-600">영업일</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">발주 승인 후 제작 및 배송</p>
+                </CardContent>
+              </Card>
+
+              {/* 자문계약서 */}
+              <Card className="bg-white border-2 border-green-200 shadow-md hover:shadow-xl transition-all">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                      <FileText className="w-5 h-5 text-green-600" />
+                    </div>
+                    <h3 className="font-bold text-gray-900 text-lg">자문계약서</h3>
+                  </div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-bold text-green-700">7일</span>
+                    <span className="text-sm text-gray-600">영업일</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">발주 승인 후 제작 및 배송</p>
+                </CardContent>
+              </Card>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-blue-800 bg-blue-100 px-3 py-2 rounded-md">
+              <AlertTriangle className="w-4 h-4" />
+              <span className="font-medium">주말 및 공휴일은 제외되며, 실제 도착일은 제작 완료 후 안내됩니다.</span>
+            </div>
+          </div>
+        </AlertDescription>
+      </Alert>
 
       {workflows.length === 0 ? (
         <Card className="bg-white border-2 border-gray-200">
