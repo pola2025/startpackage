@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Megaphone, Bell, BellOff, Settings, X, ArrowLeft, Youtube } from "lucide-react";
+import { Megaphone, Bell, BellOff, Settings, X, ArrowLeft, Youtube, CreditCard, ExternalLink } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -273,6 +273,43 @@ export default function UserAnnouncementsPage() {
             >
               변경
             </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* 네이버 검색광고 충전 안내 */}
+      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300">
+        <CardContent className="p-6">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+              <CreditCard className="w-6 h-6 text-blue-600" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-bold text-blue-900 mb-2">
+                💳 네이버 검색광고 충전 안내
+              </h3>
+              <p className="text-sm text-blue-800 mb-4">
+                네이버 검색광고를 사용하시려면 광고비를 충전해주세요
+              </p>
+              <div className="space-y-3">
+                <a
+                  href="https://manage.searchad.naver.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block"
+                >
+                  <Button className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white">
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    네이버 검색광고 충전하기
+                  </Button>
+                </a>
+                <div className="bg-blue-100 border border-blue-300 rounded-lg p-3">
+                  <p className="text-xs text-blue-900">
+                    <strong>💡 충전 방법:</strong> 위 버튼을 클릭하여 네이버 검색광고 관리 페이지로 이동 → <strong>충전하기</strong> 버튼 클릭
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
