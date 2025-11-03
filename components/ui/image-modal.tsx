@@ -24,20 +24,25 @@ export function ImageModal({ images, initialIndex, onClose }: ImageModalProps) {
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [currentIndex, images.length, onClose])
 
-  const handleDownload = async () => {
+  const handleDownload = () => {
     try {
-      const response = await fetch(images[currentIndex])
-      const blob = await response.blob()
-      const url = window.URL.createObjectURL(blob)
+      const imageUrl = images[currentIndex]
+
+      // URL에서 파일명 추출
+      const urlParts = imageUrl.split('/')
+      const filename = urlParts[urlParts.length - 1] || `image-${currentIndex + 1}.webp`
+
+      // 간단한 다운로드 방법 (CORS 문제 없음)
       const a = document.createElement("a")
-      a.href = url
-      a.download = `image-${currentIndex + 1}.jpg`
+      a.href = imageUrl
+      a.download = filename
+      a.target = "_blank" // 새 탭에서 열기 (다운로드 실패 시 이미지 보기)
       document.body.appendChild(a)
       a.click()
-      window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
     } catch (error) {
       console.error("다운로드 실패:", error)
+      alert("다운로드에 실패했습니다. 이미지를 우클릭하여 다운로드해주세요.")
     }
   }
 
