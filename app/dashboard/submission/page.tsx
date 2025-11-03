@@ -332,10 +332,19 @@ export default function SubmissionPage() {
       return;
     }
 
-    setLoading(true);
-
     const formData = new FormData(e.target as HTMLFormElement);
     const data = Object.fromEntries(formData.entries());
+
+    // 로고 섹션 저장 시 색상 필수 검증
+    if (section === "logo") {
+      const logoColor = data.명함색상 as string;
+      if (!logoColor || logoColor.trim() === "" || logoColor === "#3B82F6") {
+        alert("로고/명함 색상을 선택해주세요!\n\n컬러피커에서 원하는 색상을 선택한 후 저장해주세요.");
+        return;
+      }
+    }
+
+    setLoading(true);
 
     try {
       const res = await fetch("/api/submission", {
@@ -979,15 +988,20 @@ export default function SubmissionPage() {
                 </div>
 
                 {/* 로고 색상 선택 */}
-                <div className="space-y-3 p-4 rounded-lg border-2 border-blue-200 bg-blue-50/50">
-                  <Label htmlFor="명함색상" className="text-sm sm:text-base font-semibold">로고/명함 색상 선택</Label>
+                <div className="space-y-3 p-4 rounded-lg border-2 border-orange-300 bg-orange-50/50">
+                  <div className="flex items-start gap-2">
+                    <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                    <Label htmlFor="명함색상" className="text-sm sm:text-base font-semibold text-orange-900">
+                      로고/명함 색상 선택 *
+                    </Label>
+                  </div>
                   <div className="flex gap-3 items-center">
                     <input
                       type="color"
                       value={businessCardColor}
                       onChange={(e) => setBusinessCardColor(e.target.value)}
                       disabled={submission?.isComplete || !isEditingLogo}
-                      className="w-20 h-20 rounded-lg border-2 border-gray-300 cursor-pointer disabled:opacity-50"
+                      className="w-20 h-20 rounded-lg border-2 border-orange-400 cursor-pointer disabled:opacity-50"
                     />
                     <div className="flex-1 space-y-2">
                       <Input
@@ -997,15 +1011,18 @@ export default function SubmissionPage() {
                         onChange={(e) => setBusinessCardColor(e.target.value)}
                         placeholder="#3B82F6"
                         disabled={submission?.isComplete || !isEditingLogo}
-                        className="font-mono bg-white"
+                        className="font-mono bg-white border-orange-300"
+                        required
                       />
-                      <p className="text-xs text-gray-600">
-                        컬러피커에서 선택하거나 직접 16진수 색상값을 입력하세요 (예: #3B82F6)
+                      <p className="text-xs text-orange-700 font-medium">
+                        컬러피커에서 선택하거나 직접 16진수 색상값을 입력하세요 (예: #FF5733)
                       </p>
-                      <p className="text-xs sm:text-sm font-semibold text-blue-700 flex items-center gap-1">
-                        <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5" />
-                        색상 선택 후 아래 &quot;저장하기&quot; 버튼을 꼭 눌러주세요!
-                      </p>
+                      <div className="bg-orange-100 border border-orange-300 rounded-md p-2">
+                        <p className="text-xs sm:text-sm font-bold text-orange-900 flex items-center gap-1">
+                          <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+                          필수! 색상을 반드시 선택한 후 &quot;저장하기&quot; 버튼을 눌러주세요!
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
