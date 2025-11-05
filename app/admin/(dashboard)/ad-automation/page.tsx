@@ -422,7 +422,15 @@ export default function AdAutomationManagementPage() {
                   <Switch
                     id="ad-enabled"
                     checked={adEnabled}
-                    onCheckedChange={setAdEnabled}
+                    onCheckedChange={(checked) => {
+                      setAdEnabled(checked);
+                      if (checked && !adStartDate) {
+                        setAdStartDate(new Date());
+                      }
+                      if (checked && !adEndDate && selectedUser?.marketingSupportEndDate) {
+                        setAdEndDate(new Date(selectedUser.marketingSupportEndDate));
+                      }
+                    }}
                   />
                 </div>
               </div>
@@ -474,41 +482,21 @@ export default function AdAutomationManagementPage() {
                   <Switch
                     id="sms-enabled"
                     checked={smsEnabled}
-                    onCheckedChange={setSmsEnabled}
+                    onCheckedChange={(checked) => {
+                      setSmsEnabled(checked);
+                      if (checked && !smsStartDate) {
+                        setSmsStartDate(new Date());
+                      } else if (!checked) {
+                        setSmsEndDate(new Date());
+                      }
+                    }}
                   />
                 </div>
               </div>
 
-              {smsEnabled && (
-                <div className="grid grid-cols-2 gap-3 mt-3">
-                  <div className="space-y-2">
-                    <Label className="text-xs">시작일</Label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button variant="outline" size="sm" className="w-full justify-start text-left">
-                          <CalendarIcon className="w-3 h-3 mr-2" />
-                          <span className="text-xs">{smsStartDate ? format(smsStartDate, "yyyy-MM-dd") : "선택"}</span>
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
-                        <Calendar mode="single" selected={smsStartDate} onSelect={setSmsStartDate} />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-xs">종료일</Label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button variant="outline" size="sm" className="w-full justify-start text-left">
-                          <CalendarIcon className="w-3 h-3 mr-2" />
-                          <span className="text-xs">{smsEndDate ? format(smsEndDate, "yyyy-MM-dd") : "선택"}</span>
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
-                        <Calendar mode="single" selected={smsEndDate} onSelect={setSmsEndDate} disabled={(date) => smsStartDate ? date < smsStartDate : false} />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
+              {smsEnabled && smsStartDate && (
+                <div className="text-sm text-gray-600 mt-2">
+                  설정 완료일: {format(smsStartDate, "yyyy년 M월 d일", { locale: ko })}
                 </div>
               )}
             </div>
@@ -526,41 +514,21 @@ export default function AdAutomationManagementPage() {
                   <Switch
                     id="naver-enabled"
                     checked={naverEnabled}
-                    onCheckedChange={setNaverEnabled}
+                    onCheckedChange={(checked) => {
+                      setNaverEnabled(checked);
+                      if (checked && !naverStartDate) {
+                        setNaverStartDate(new Date());
+                      } else if (!checked) {
+                        setNaverEndDate(new Date());
+                      }
+                    }}
                   />
                 </div>
               </div>
 
-              {naverEnabled && (
-                <div className="grid grid-cols-2 gap-3 mt-3">
-                  <div className="space-y-2">
-                    <Label className="text-xs">시작일</Label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button variant="outline" size="sm" className="w-full justify-start text-left">
-                          <CalendarIcon className="w-3 h-3 mr-2" />
-                          <span className="text-xs">{naverStartDate ? format(naverStartDate, "yyyy-MM-dd") : "선택"}</span>
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
-                        <Calendar mode="single" selected={naverStartDate} onSelect={setNaverStartDate} />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-xs">종료일</Label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button variant="outline" size="sm" className="w-full justify-start text-left">
-                          <CalendarIcon className="w-3 h-3 mr-2" />
-                          <span className="text-xs">{naverEndDate ? format(naverEndDate, "yyyy-MM-dd") : "선택"}</span>
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
-                        <Calendar mode="single" selected={naverEndDate} onSelect={setNaverEndDate} disabled={(date) => naverStartDate ? date < naverStartDate : false} />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
+              {naverEnabled && naverStartDate && (
+                <div className="text-sm text-gray-600 mt-2">
+                  설정 완료일: {format(naverStartDate, "yyyy년 M월 d일", { locale: ko })}
                 </div>
               )}
             </div>
