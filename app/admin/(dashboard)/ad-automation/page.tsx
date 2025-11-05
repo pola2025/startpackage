@@ -52,6 +52,8 @@ interface User {
   naverAdSettingEnabled: boolean;
   naverAdSettingStartDate: Date | null;
   naverAdSettingEndDate: Date | null;
+  homepageCompleted: boolean;
+  homepageCompletedAt: Date | null;
   marketingSupportEndDate: Date | null;
 }
 
@@ -92,6 +94,10 @@ export default function AdAutomationManagementPage() {
   const [naverEnabled, setNaverEnabled] = useState(false);
   const [naverStartDate, setNaverStartDate] = useState<Date>();
   const [naverEndDate, setNaverEndDate] = useState<Date>();
+
+  // 홈페이지 설정
+  const [homepageCompleted, setHomepageCompleted] = useState(false);
+  const [homepageCompletedAt, setHomepageCompletedAt] = useState<Date>();
 
   const [reason, setReason] = useState("");
 
@@ -163,6 +169,10 @@ export default function AdAutomationManagementPage() {
     setNaverStartDate(user.naverAdSettingStartDate ? new Date(user.naverAdSettingStartDate) : undefined);
     setNaverEndDate(user.naverAdSettingEndDate ? new Date(user.naverAdSettingEndDate) : undefined);
 
+    // 홈페이지 설정
+    setHomepageCompleted(user.homepageCompleted);
+    setHomepageCompletedAt(user.homepageCompletedAt ? new Date(user.homepageCompletedAt) : undefined);
+
     setReason("");
     setToggleDialogOpen(true);
   };
@@ -190,6 +200,10 @@ export default function AdAutomationManagementPage() {
           naverAdSettingEnabled: naverEnabled,
           naverAdSettingStartDate: naverStartDate?.toISOString() || null,
           naverAdSettingEndDate: naverEndDate?.toISOString() || null,
+
+          // 홈페이지 설정
+          homepageCompleted: homepageCompleted,
+          homepageCompletedAt: homepageCompletedAt?.toISOString() || null,
 
           reason: reason || undefined,
         }),
@@ -534,6 +548,41 @@ export default function AdAutomationManagementPage() {
               {naverEnabled && naverStartDate && (
                 <div className="text-sm text-gray-600 mt-2">
                   설정 완료일: {format(naverStartDate, "yyyy년 M월 d일", { locale: ko })}
+                </div>
+              )}
+            </div>
+
+            {/* 홈페이지 설정 */}
+            <div className="border rounded-lg p-4 space-y-3">
+              <div className="flex items-center gap-2 mb-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-purple-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                  <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                <h3 className="font-semibold text-lg">홈페이지</h3>
+              </div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="homepage-completed">완료 상태</Label>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600">{homepageCompleted ? "완료" : "미완료"}</span>
+                  <Switch
+                    id="homepage-completed"
+                    checked={homepageCompleted}
+                    onCheckedChange={(checked) => {
+                      setHomepageCompleted(checked);
+                      if (checked) {
+                        setHomepageCompletedAt(new Date());
+                      } else {
+                        setHomepageCompletedAt(undefined);
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+
+              {homepageCompleted && homepageCompletedAt && (
+                <div className="text-sm text-gray-600 mt-2">
+                  완료일: {format(homepageCompletedAt, "yyyy년 M월 d일", { locale: ko })}
                 </div>
               )}
             </div>

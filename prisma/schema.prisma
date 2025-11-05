@@ -97,6 +97,10 @@ model User {
   naverAdSettingStartDate DateTime? // 네이버 광고 설정 완료일
   naverAdSettingEndDate   DateTime? // 네이버 광고 설정 종료일
 
+  // 홈페이지 설정 (완료/미완료)
+  homepageCompleted   Boolean   @default(false) // 홈페이지 완료 여부
+  homepageCompletedAt DateTime? // 홈페이지 완료일 (완료 버튼 누른 시점)
+
   // 관계
   submission                Submission?
   workflows                 Workflow[]

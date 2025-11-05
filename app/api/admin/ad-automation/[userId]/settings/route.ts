@@ -19,6 +19,10 @@ const settingsSchema = z.object({
   naverAdSettingStartDate: z.string().datetime().optional().nullable(),
   naverAdSettingEndDate: z.string().datetime().optional().nullable(),
 
+  // 홈페이지 설정
+  homepageCompleted: z.boolean(),
+  homepageCompletedAt: z.string().datetime().optional().nullable(),
+
   reason: z.string().optional(),
 });
 
@@ -86,6 +90,8 @@ export async function POST(
       naverAdSettingEnabled,
       naverAdSettingStartDate,
       naverAdSettingEndDate,
+      homepageCompleted,
+      homepageCompletedAt,
       reason,
     } = validation.data;
 
@@ -107,6 +113,10 @@ export async function POST(
         naverAdSettingEnabled,
         naverAdSettingStartDate: naverAdSettingStartDate ? new Date(naverAdSettingStartDate) : null,
         naverAdSettingEndDate: naverAdSettingEndDate ? new Date(naverAdSettingEndDate) : null,
+
+        // 홈페이지 설정
+        homepageCompleted,
+        homepageCompletedAt: homepageCompletedAt ? new Date(homepageCompletedAt) : null,
       },
     });
 
@@ -130,6 +140,7 @@ export async function POST(
         adAutomationEnabled: updatedUser.adAutomationEnabled,
         smsSettingEnabled: updatedUser.smsSettingEnabled,
         naverAdSettingEnabled: updatedUser.naverAdSettingEnabled,
+        homepageCompleted: updatedUser.homepageCompleted,
       },
     });
   } catch (error) {

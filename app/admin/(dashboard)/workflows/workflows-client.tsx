@@ -36,6 +36,7 @@ import { WorkflowStatusIcons } from "@/components/admin/workflow-status-icons";
 import { AdAutomationBadge } from "@/components/admin/ad-automation-badge";
 import { SmsSettingBadge } from "@/components/admin/sms-setting-badge";
 import { NaverAdSettingBadge } from "@/components/admin/naver-ad-setting-badge";
+import { HomepageBadge } from "@/components/admin/homepage-badge";
 
 interface WorkflowsClientProps {
   workflowsByUser: Record<string, { user: any; workflows: any[] }>;
@@ -756,6 +757,10 @@ export default function WorkflowsClient({
                                 />
                                 <SmsSettingBadge enabled={user.smsSettingEnabled || false} />
                                 <NaverAdSettingBadge enabled={user.naverAdSettingEnabled || false} />
+                                <HomepageBadge
+                                  completed={user.homepageCompleted || false}
+                                  completedAt={user.homepageCompletedAt}
+                                />
                                 <UserWorkflowSMSButton
                                   userId={userId}
                                   userName={user.이름}
