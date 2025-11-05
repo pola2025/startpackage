@@ -503,8 +503,8 @@ export default function UserCommunicationPage() {
       </Alert>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* 스레드 목록 */}
-        <Card className="lg:col-span-1 h-[calc(100vh-250px)] flex flex-col">
+        {/* 스레드 목록 - 모바일: 선택된 스레드가 있으면 숨김 */}
+        <Card className={`lg:col-span-1 flex flex-col ${selectedThread ? 'hidden lg:flex' : 'flex'} h-[60vh] lg:h-[calc(100vh-250px)]`}>
           <CardHeader>
             <CardTitle className="text-lg">내 문의 목록</CardTitle>
           </CardHeader>
@@ -553,13 +553,22 @@ export default function UserCommunicationPage() {
           </CardContent>
         </Card>
 
-        {/* 대화 내용 */}
-        <Card className="lg:col-span-2 h-[calc(100vh-250px)] flex flex-col">
+        {/* 대화 내용 - 모바일: 스레드 선택 시에만 표시 */}
+        <Card className={`lg:col-span-2 flex flex-col ${selectedThread ? 'flex' : 'hidden lg:flex'} h-[80vh] lg:h-[calc(100vh-250px)]`}>
           {selectedThread ? (
             <>
               <CardHeader className="border-b">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
+                    {/* 모바일 뒤로가기 버튼 */}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSelectedThread(null)}
+                      className="lg:hidden mb-2 -ml-2"
+                    >
+                      ← 목록으로
+                    </Button>
                     <CardTitle className="text-xl">{selectedThread.title}</CardTitle>
                     <CardDescription className="mt-1">
                       카테고리: {selectedThread.category}
@@ -569,8 +578,8 @@ export default function UserCommunicationPage() {
                 </div>
               </CardHeader>
 
-              {/* 메시지 목록 */}
-              <CardContent className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50">
+              {/* 메시지 목록 - 모바일 패딩 최적화 */}
+              <CardContent className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 bg-gray-50">
                 {groupMessagesByDate(selectedThread.messages).map((item, groupIndex) => {
                   if (item.type === "date") {
                     return (
@@ -595,7 +604,7 @@ export default function UserCommunicationPage() {
                           isConsecutive ? "mt-1" : "mt-4"
                         }`}
                       >
-                        <div className={`max-w-[80%] ${message.authorType === "admin" ? "" : ""}`}>
+                        <div className={`max-w-[85%] sm:max-w-[80%] ${message.authorType === "admin" ? "" : ""}`}>
                           {/* 작성자 정보 (연속 메시지가 아닐 때만 표시) */}
                           {!isConsecutive && (
                             <div className={`flex items-center gap-2 mb-1 ${message.authorType === "admin" ? "" : "justify-end"}`}>
@@ -671,8 +680,8 @@ export default function UserCommunicationPage() {
                 })}
               </CardContent>
 
-              {/* 답글 작성 */}
-              <div className="p-4 border-t bg-white">
+              {/* 답글 작성 - 모바일 최적화 */}
+              <div className="p-3 sm:p-4 border-t bg-white">
                 <div className="space-y-3">
                   {replyAttachments.length > 0 && (
                     <div className="flex flex-wrap gap-2">
@@ -688,7 +697,8 @@ export default function UserCommunicationPage() {
                           />
                           <button
                             onClick={() => setReplyAttachments(replyAttachments.filter((_, i) => i !== idx))}
-                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                            aria-label="첨부 이미지 삭제"
                           >
                             ×
                           </button>
@@ -700,9 +710,9 @@ export default function UserCommunicationPage() {
                     value={replyContent}
                     onChange={(e) => setReplyContent(e.target.value)}
                     placeholder="답글을 입력하세요..."
-                    className="resize-none min-h-[80px]"
+                    className="resize-none min-h-[80px] text-base"
                   />
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <div>
                       <input
                         type="file"
@@ -721,6 +731,7 @@ export default function UserCommunicationPage() {
                         variant="outline"
                         disabled={uploading}
                         onClick={() => document.getElementById("reply-file")?.click()}
+                        className="w-full sm:w-auto min-h-[44px]"
                       >
                         <Paperclip className="w-4 h-4 mr-2" />
                         {uploading ? "업로드 중..." : "이미지 첨부"}
@@ -729,6 +740,7 @@ export default function UserCommunicationPage() {
                     <Button
                       onClick={handleSendReply}
                       disabled={!replyContent.trim() || sending}
+                      className="w-full sm:w-auto min-h-[44px]"
                     >
                       <Send className="w-4 h-4 mr-2" />
                       {sending ? "전송 중..." : "전송"}

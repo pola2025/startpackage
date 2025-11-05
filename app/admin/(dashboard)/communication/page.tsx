@@ -414,9 +414,9 @@ export default function AdminCommunicationPage() {
         </AlertDescription>
       </Alert>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-200px)]">
-        {/* 스레드 목록 */}
-        <Card className="border-gray-200 bg-white lg:col-span-1 overflow-hidden flex flex-col shadow-sm">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* 스레드 목록 - 모바일: 선택된 스레드가 있으면 숨김 */}
+        <Card className={`border-gray-200 bg-white lg:col-span-1 overflow-hidden flex flex-col shadow-sm ${selectedThread ? 'hidden lg:flex' : 'flex'} h-[60vh] lg:h-[calc(100vh-200px)]`}>
           <CardHeader className="pb-4">
             <CardTitle className="text-gray-900 text-lg">문의 목록</CardTitle>
             <div className="flex gap-2 mt-4">
@@ -578,13 +578,22 @@ export default function AdminCommunicationPage() {
           </CardContent>
         </Card>
 
-        {/* 대화 내용 */}
-        <Card className="border-gray-200 bg-white lg:col-span-2 overflow-hidden flex flex-col shadow-sm">
+        {/* 대화 내용 - 모바일: 스레드 선택 시에만 표시 */}
+        <Card className={`border-gray-200 bg-white lg:col-span-2 overflow-hidden flex flex-col shadow-sm ${selectedThread ? 'flex' : 'hidden lg:flex'} h-[80vh] lg:h-[calc(100vh-200px)]`}>
           {selectedThread ? (
             <>
               <CardHeader className="pb-4 border-b border-gray-200">
                 <div className="flex items-start justify-between">
                   <div>
+                    {/* 모바일 뒤로가기 버튼 */}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSelectedThread(null)}
+                      className="lg:hidden mb-2 -ml-2"
+                    >
+                      ← 목록으로
+                    </Button>
                     <CardTitle className="text-gray-900 text-xl mb-2">{selectedThread.title}</CardTitle>
                     <div className="flex items-center gap-3 text-sm text-gray-600">
                       <span className="flex items-center gap-1">
@@ -616,8 +625,8 @@ export default function AdminCommunicationPage() {
                 </div>
               </CardHeader>
 
-              {/* 메시지 목록 */}
-              <CardContent className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50">
+              {/* 메시지 목록 - 모바일 패딩 최적화 */}
+              <CardContent className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 bg-gray-50">
                 {groupMessagesByDate(selectedThread.messages).map((item, groupIndex) => {
                   if (item.type === "date") {
                     return (
@@ -642,7 +651,7 @@ export default function AdminCommunicationPage() {
                           isConsecutive ? "mt-1" : "mt-4"
                         }`}
                       >
-                        <div className={`max-w-[80%]`}>
+                        <div className={`max-w-[85%] sm:max-w-[80%]`}>
                           {/* 작성자 정보 (연속 메시지가 아닐 때만 표시) */}
                           {!isConsecutive && (
                             <div className={`flex items-center gap-2 mb-1 ${message.authorType === "admin" ? "justify-end" : ""}`}>
@@ -720,8 +729,8 @@ export default function AdminCommunicationPage() {
                 })}
               </CardContent>
 
-              {/* 답글 작성 */}
-              <div className="p-4 border-t border-gray-200 bg-white">
+              {/* 답글 작성 - 모바일 최적화 */}
+              <div className="p-3 sm:p-4 border-t border-gray-200 bg-white">
                 <div className="space-y-3">
                   {replyAttachments.length > 0 && (
                     <div className="flex flex-wrap gap-2">
@@ -737,7 +746,8 @@ export default function AdminCommunicationPage() {
                           />
                           <button
                             onClick={() => setReplyAttachments(replyAttachments.filter((_, i) => i !== idx))}
-                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                            aria-label="첨부 이미지 삭제"
                           >
                             ×
                           </button>
@@ -749,18 +759,19 @@ export default function AdminCommunicationPage() {
                     value={replyContent}
                     onChange={(e) => setReplyContent(e.target.value)}
                     placeholder="답글을 입력하세요..."
-                    className="bg-white border-gray-200 text-gray-900 resize-none min-h-[100px]"
+                    className="bg-white border-gray-200 text-gray-900 resize-none min-h-[100px] text-base"
                   />
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
                           type="button"
                           variant="outline"
-                          className={`border-gray-200 ${expectedDate ? "text-gray-900" : "text-gray-500"}`}
+                          className={`border-gray-200 min-h-[44px] ${expectedDate ? "text-gray-900" : "text-gray-500"}`}
                         >
                           <CalendarIcon className="w-4 h-4 mr-2" />
-                          {expectedDate ? format(expectedDate, "PPP", { locale: ko }) : "완료 예상일 선택"}
+                          <span className="hidden sm:inline">{expectedDate ? format(expectedDate, "PPP", { locale: ko }) : "완료 예상일 선택"}</span>
+                          <span className="sm:hidden">{expectedDate ? format(expectedDate, "yy.MM.dd", { locale: ko }) : "예상일"}</span>
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0 bg-white" align="start">
@@ -778,14 +789,14 @@ export default function AdminCommunicationPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => setExpectedDate(undefined)}
-                        className="text-gray-500 hover:text-gray-700"
+                        className="text-gray-500 hover:text-gray-700 min-h-[44px]"
                       >
                         ×
                       </Button>
                     )}
                   </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
                       <input
                         type="file"
                         id="admin-reply-file"
@@ -801,19 +812,19 @@ export default function AdminCommunicationPage() {
                       <Button
                         type="button"
                         variant="outline"
-                        className="border-gray-200 text-gray-600"
+                        className="border-gray-200 text-gray-600 w-full sm:w-auto min-h-[44px]"
                         disabled={uploading}
                         onClick={() => document.getElementById("admin-reply-file")?.click()}
                       >
                         <Paperclip className="w-4 h-4 mr-2" />
                         {uploading ? "업로드 중..." : "이미지 첨부"}
                       </Button>
-                      <span className="text-xs text-gray-500">10MB 이하, 이미지만 가능 (자동 압축)</span>
+                      <span className="text-xs text-gray-500 hidden sm:inline">10MB 이하, 이미지만 가능</span>
                     </div>
                     <Button
                       onClick={handleSendReply}
                       disabled={!replyContent.trim() || sending}
-                      className="bg-red-600 hover:bg-red-700 text-white"
+                      className="bg-red-600 hover:bg-red-700 text-white w-full sm:w-auto min-h-[44px]"
                     >
                       <Send className="w-4 h-4 mr-2" />
                       {sending ? "전송 중..." : "전송"}
