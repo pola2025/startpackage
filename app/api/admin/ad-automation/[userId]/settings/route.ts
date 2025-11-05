@@ -6,18 +6,18 @@ import { z } from "zod";
 const settingsSchema = z.object({
   // 광고 자동화
   adAutomationEnabled: z.boolean(),
-  adAutomationStartDate: z.string().datetime().optional(),
-  adAutomationEndDate: z.string().datetime().optional(),
+  adAutomationStartDate: z.string().datetime().optional().nullable(),
+  adAutomationEndDate: z.string().datetime().optional().nullable(),
 
   // SMS 설정
   smsSettingEnabled: z.boolean(),
-  smsSettingStartDate: z.string().datetime().optional(),
-  smsSettingEndDate: z.string().datetime().optional(),
+  smsSettingStartDate: z.string().datetime().optional().nullable(),
+  smsSettingEndDate: z.string().datetime().optional().nullable(),
 
   // 네이버 광고 설정
   naverAdSettingEnabled: z.boolean(),
-  naverAdSettingStartDate: z.string().datetime().optional(),
-  naverAdSettingEndDate: z.string().datetime().optional(),
+  naverAdSettingStartDate: z.string().datetime().optional().nullable(),
+  naverAdSettingEndDate: z.string().datetime().optional().nullable(),
 
   reason: z.string().optional(),
 });

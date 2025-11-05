@@ -178,18 +178,18 @@ export default function AdAutomationManagementPage() {
         body: JSON.stringify({
           // 광고 자동화
           adAutomationEnabled: adEnabled,
-          adAutomationStartDate: adStartDate?.toISOString(),
-          adAutomationEndDate: adEndDate?.toISOString(),
+          adAutomationStartDate: adStartDate?.toISOString() || null,
+          adAutomationEndDate: adEndDate?.toISOString() || null,
 
           // SMS 설정
           smsSettingEnabled: smsEnabled,
-          smsSettingStartDate: smsStartDate?.toISOString(),
-          smsSettingEndDate: smsEndDate?.toISOString(),
+          smsSettingStartDate: smsStartDate?.toISOString() || null,
+          smsSettingEndDate: smsEndDate?.toISOString() || null,
 
           // 네이버 광고 설정
           naverAdSettingEnabled: naverEnabled,
-          naverAdSettingStartDate: naverStartDate?.toISOString(),
-          naverAdSettingEndDate: naverEndDate?.toISOString(),
+          naverAdSettingStartDate: naverStartDate?.toISOString() || null,
+          naverAdSettingEndDate: naverEndDate?.toISOString() || null,
 
           reason: reason || undefined,
         }),
