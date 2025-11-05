@@ -34,6 +34,8 @@ import BulkActions from "./bulk-actions";
 import { KanbanBoard, WorkflowStatus } from "@/app/components/workflows/kanban-board";
 import { WorkflowStatusIcons } from "@/components/admin/workflow-status-icons";
 import { AdAutomationBadge } from "@/components/admin/ad-automation-badge";
+import { SmsSettingBadge } from "@/components/admin/sms-setting-badge";
+import { NaverAdSettingBadge } from "@/components/admin/naver-ad-setting-badge";
 
 interface WorkflowsClientProps {
   workflowsByUser: Record<string, { user: any; workflows: any[] }>;
@@ -752,6 +754,8 @@ export default function WorkflowsClient({
                                   endDate={user.adAutomationEndDate}
                                   marketingSupportEndDate={user.marketingSupportEndDate}
                                 />
+                                <SmsSettingBadge enabled={user.smsSettingEnabled || false} />
+                                <NaverAdSettingBadge enabled={user.naverAdSettingEnabled || false} />
                                 <UserWorkflowSMSButton
                                   userId={userId}
                                   userName={user.이름}

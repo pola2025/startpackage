@@ -87,6 +87,16 @@ model User {
   adAutomationStartDate DateTime? // 광고자동화 시작일
   adAutomationEndDate   DateTime? // 광고자동화 종료일
 
+  // SMS 설정 (시점 관리)
+  smsSettingEnabled   Boolean   @default(false) // SMS 설정 완료 여부
+  smsSettingStartDate DateTime? // SMS 설정 완료일
+  smsSettingEndDate   DateTime? // SMS 설정 종료일
+
+  // 네이버 키워드 광고 설정 (시점 관리)
+  naverAdSettingEnabled   Boolean   @default(false) // 네이버 광고 설정 완료 여부
+  naverAdSettingStartDate DateTime? // 네이버 광고 설정 완료일
+  naverAdSettingEndDate   DateTime? // 네이버 광고 설정 종료일
+
   // 관계
   submission                Submission?
   workflows                 Workflow[]

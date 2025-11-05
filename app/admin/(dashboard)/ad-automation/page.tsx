@@ -32,7 +32,8 @@ import {
 } from "@/components/ui/table";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Settings, Calendar as CalendarIcon, History, Filter, Search } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Settings, Calendar as CalendarIcon, History, Filter, Search, Zap, MessageSquare, Search as SearchIcon } from "lucide-react";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 
@@ -45,6 +46,12 @@ interface User {
   adAutomationEnabled: boolean;
   adAutomationStartDate: Date | null;
   adAutomationEndDate: Date | null;
+  smsSettingEnabled: boolean;
+  smsSettingStartDate: Date | null;
+  smsSettingEndDate: Date | null;
+  naverAdSettingEnabled: boolean;
+  naverAdSettingStartDate: Date | null;
+  naverAdSettingEndDate: Date | null;
   marketingSupportEndDate: Date | null;
 }
 
@@ -282,9 +289,9 @@ export default function AdAutomationManagementPage() {
                     <TableHead>이름</TableHead>
                     <TableHead>기수</TableHead>
                     <TableHead>이메일</TableHead>
-                    <TableHead>상태</TableHead>
-                    <TableHead>시작일</TableHead>
-                    <TableHead>종료일</TableHead>
+                    <TableHead className="text-center">광고 자동화</TableHead>
+                    <TableHead className="text-center">SMS 설정</TableHead>
+                    <TableHead className="text-center">네이버 설정</TableHead>
                     <TableHead className="text-right">관리</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -300,16 +307,30 @@ export default function AdAutomationManagementPage() {
                         )}
                       </TableCell>
                       <TableCell className="text-sm text-gray-600">{user.email}</TableCell>
-                      <TableCell>{getStatusBadge(user)}</TableCell>
-                      <TableCell className="text-sm">
-                        {user.adAutomationStartDate
-                          ? format(new Date(user.adAutomationStartDate), "yyyy-MM-dd", { locale: ko })
-                          : "-"}
+                      <TableCell className="text-center">{getStatusBadge(user)}</TableCell>
+                      <TableCell className="text-center">
+                        <Badge
+                          variant="outline"
+                          className={
+                            user.smsSettingEnabled
+                              ? "bg-green-100 border-green-300 text-green-700"
+                              : "bg-gray-100 border-gray-300 text-gray-700"
+                          }
+                        >
+                          {user.smsSettingEnabled ? "🟢 켜짐" : "🔴 꺼짐"}
+                        </Badge>
                       </TableCell>
-                      <TableCell className="text-sm">
-                        {user.adAutomationEndDate
-                          ? format(new Date(user.adAutomationEndDate), "yyyy-MM-dd", { locale: ko })
-                          : "-"}
+                      <TableCell className="text-center">
+                        <Badge
+                          variant="outline"
+                          className={
+                            user.naverAdSettingEnabled
+                              ? "bg-green-100 border-green-300 text-green-700"
+                              : "bg-gray-100 border-gray-300 text-gray-700"
+                          }
+                        >
+                          {user.naverAdSettingEnabled ? "🟢 켜짐" : "🔴 꺼짐"}
+                        </Badge>
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
