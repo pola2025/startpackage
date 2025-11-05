@@ -87,6 +87,10 @@ export default function AdminCommunicationPage() {
   const [uploading, setUploading] = useState(false);
   const [sending, setSending] = useState(false);
 
+  // 새 메시지 알림
+  const [newMessageAlert, setNewMessageAlert] = useState(false);
+  const [lastMessageCount, setLastMessageCount] = useState(0);
+
   // 이미지 모달 상태
   const [imageModalOpen, setImageModalOpen] = useState(false);
   const [modalImages, setModalImages] = useState<string[]>([]);
@@ -106,12 +110,14 @@ export default function AdminCommunicationPage() {
     return format(targetDate, "M월 d일 HH:mm", { locale: ko });
   };
 
-  // 날짜별 메시지 그룹핑
+  // 날짜별 메시지 그룹핑 (역순 - 최신 메시지가 위로)
   const groupMessagesByDate = (messages: CommunicationMessage[]) => {
     const groups: Array<{ type: "date"; date: string } | { type: "message"; data: CommunicationMessage; index: number }> = [];
     let currentDate: string | null = null;
 
-    messages.forEach((message, index) => {
+    // 메시지를 역순으로 순회 (최신 메시지부터)
+    [...messages].reverse().forEach((message, reverseIndex) => {
+      const originalIndex = messages.length - 1 - reverseIndex;
       const messageDate = format(new Date(message.createdAt), "yyyy-MM-dd", { locale: ko });
 
       if (messageDate !== currentDate) {
@@ -119,18 +125,18 @@ export default function AdminCommunicationPage() {
         currentDate = messageDate;
       }
 
-      groups.push({ type: "message", data: message, index });
+      groups.push({ type: "message", data: message, index: originalIndex });
     });
 
     return groups;
   };
 
-  // 연속 메시지 체크
-  const isConsecutiveMessage = (currentMsg: CommunicationMessage, prevMsg: CommunicationMessage | null): boolean => {
-    if (!prevMsg) return false;
+  // 연속 메시지 체크 (역순에서는 다음 메시지와 비교)
+  const isConsecutiveMessage = (currentMsg: CommunicationMessage, nextMsg: CommunicationMessage | null): boolean => {
+    if (!nextMsg) return false;
 
-    const sameAuthor = currentMsg.authorType === prevMsg.authorType;
-    const timeDiff = new Date(currentMsg.createdAt).getTime() - new Date(prevMsg.createdAt).getTime();
+    const sameAuthor = currentMsg.authorType === nextMsg.authorType;
+    const timeDiff = new Date(nextMsg.createdAt).getTime() - new Date(currentMsg.createdAt).getTime();
     const withinFiveMinutes = timeDiff < 5 * 60 * 1000;
 
     return sameAuthor && withinFiveMinutes;
@@ -152,7 +158,15 @@ export default function AdminCommunicationPage() {
         const threadIdToKeep = keepSelectedThreadId || selectedThread?.id;
         if (threadIdToKeep) {
           const updated = data.find((t: CommunicationThread) => t.id === threadIdToKeep);
-          if (updated) setSelectedThread(updated);
+          if (updated) {
+            // 새 메시지 감지
+            if (lastMessageCount > 0 && updated.messages.length > lastMessageCount) {
+              setNewMessageAlert(true);
+            }
+
+            setSelectedThread(updated);
+            setLastMessageCount(updated.messages.length);
+          }
         }
       }
     } catch (error) {
@@ -300,6 +314,8 @@ export default function AdminCommunicationPage() {
 
   const handleSelectThread = async (thread: CommunicationThread) => {
     setSelectedThread(thread);
+    setLastMessageCount(thread.messages.length);
+    setNewMessageAlert(false);
 
     // 관리자가 스레드를 열면 사용자 메시지를 읽음 처리
     try {
@@ -625,6 +641,21 @@ export default function AdminCommunicationPage() {
                 </div>
               </CardHeader>
 
+              {/* 새 메시지 알림 */}
+              {newMessageAlert && (
+                <div className="sticky top-0 z-10 mx-3 sm:mx-6 mt-3">
+                  <div className="bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center justify-between animate-bounce">
+                    <span className="text-sm font-medium">사용자가 새 메시지를 보냈습니다</span>
+                    <button
+                      onClick={() => setNewMessageAlert(false)}
+                      className="text-white hover:text-gray-200"
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* 메시지 목록 - 모바일 패딩 최적화 */}
               <CardContent className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 bg-gray-50">
                 {groupMessagesByDate(selectedThread.messages).map((item, groupIndex) => {
@@ -641,8 +672,8 @@ export default function AdminCommunicationPage() {
                   }
 
                   const message = item.data;
-                  const prevMessage = item.index > 0 ? selectedThread.messages[item.index - 1] : null;
-                  const isConsecutive = isConsecutiveMessage(message, prevMessage);
+                  const nextMessage = item.index < selectedThread.messages.length - 1 ? selectedThread.messages[item.index + 1] : null;
+                  const isConsecutive = isConsecutiveMessage(message, nextMessage);
 
                   return (
                     <div key={message.id}>

@@ -17,7 +17,9 @@ import {
   TrendingUp,
   Bell,
   Package,
+  MessageSquare,
 } from "lucide-react";
+import Link from "next/link";
 
 // Temporary Progress component
 function Progress({ value, className }: { value: number; className?: string }) {
@@ -32,7 +34,7 @@ function Progress({ value, className }: { value: number; className?: string }) {
 }
 
 async function getDashboardStats() {
-  const [totalUsers, activeCohorts, workflows, notifications] =
+  const [totalUsers, activeCohorts, workflows, notifications, unreadMessages] =
     await Promise.all([
       prisma.user.count(),
       prisma.cohort.count({ where: { isActive: true } }),
@@ -55,6 +57,13 @@ async function getDashboardStats() {
           },
         },
       }),
+      // 미확인 메시지 개수
+      prisma.communicationMessage.count({
+        where: {
+          authorType: "user",
+          isReadByAdmin: false,
+        },
+      }),
     ]);
 
   const workflowStats = await prisma.workflow.groupBy({
@@ -67,6 +76,7 @@ async function getDashboardStats() {
     activeCohorts,
     recentWorkflows: workflows,
     notifications,
+    unreadMessages,
     workflowStats,
   };
 }
@@ -109,6 +119,29 @@ export default async function AdminDashboard() {
           스타트패키지 시스템 전체 현황을 한눈에 확인하세요
         </p>
       </div>
+
+      {/* 미확인 메시지 알림 */}
+      {stats.unreadMessages > 0 && (
+        <Link href="/admin/communication">
+          <Card className="bg-gradient-to-br from-red-50 to-white border-2 border-red-300 shadow-lg hover:shadow-xl transition-all cursor-pointer animate-pulse hover:animate-none">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-center w-14 h-14 bg-red-600 rounded-xl shadow-md">
+                    <MessageSquare className="w-7 h-7 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-red-800 mb-1">확인 안 한 메시지</p>
+                    <p className="text-5xl font-bold text-red-600">{stats.unreadMessages}</p>
+                  </div>
+                </div>
+                <AlertCircle className="w-10 h-10 text-red-500" />
+              </div>
+              <p className="text-sm text-red-700 mt-4 font-medium">사용자 문의를 확인해주세요 →</p>
+            </CardContent>
+          </Card>
+        </Link>
+      )}
 
       {/* Quick Stats */}
       <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
