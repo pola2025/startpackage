@@ -19,6 +19,7 @@ import {
   MessageSquare,
   Shield,
   Lightbulb,
+  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -67,6 +68,11 @@ const navigation = [
     name: "커뮤니케이션",
     href: "/admin/communication",
     icon: MessageSquare,
+  },
+  {
+    name: "광고 자동화",
+    href: "/admin/ad-automation",
+    icon: Zap,
   },
   {
     name: "마케팅 소식",
