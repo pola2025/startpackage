@@ -38,8 +38,8 @@ export default function UserShippingSMSButton({
   // 배송 정보가 없으면 버튼 비활성화
   if (shippingWorkflows.length === 0) {
     return (
-      <Button variant="outline" size="sm" disabled>
-        <Truck className="w-4 h-4 mr-2" />
+      <Button variant="outline" size="sm" disabled className="h-7 px-2 text-xs">
+        <Truck className="w-3 h-3 mr-1" />
         배송정보 없음
       </Button>
     );
@@ -79,9 +79,9 @@ export default function UserShippingSMSButton({
         variant="outline"
         size="sm"
         onClick={() => setIsOpen(true)}
-        className="border-blue-300 text-blue-700 hover:bg-blue-50"
+        className="h-7 px-2 text-xs border-blue-300 text-blue-700 hover:bg-blue-50"
       >
-        <Truck className="w-4 h-4 mr-2" />
+        <Truck className="w-3 h-3 mr-1" />
         배송정보 SMS
       </Button>
 

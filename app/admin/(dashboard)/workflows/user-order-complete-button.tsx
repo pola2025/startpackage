@@ -40,8 +40,8 @@ export default function UserOrderCompleteButton({
   // 발주완료 상태가 없으면 버튼 비활성화
   if (orderCompleteWorkflows.length === 0) {
     return (
-      <Button variant="outline" size="sm" disabled>
-        <CheckCircle2 className="w-4 h-4 mr-2" />
+      <Button variant="outline" size="sm" disabled className="h-7 px-2 text-xs">
+        <CheckCircle2 className="w-3 h-3 mr-1" />
         발주완료 없음
       </Button>
     );
@@ -81,9 +81,9 @@ export default function UserOrderCompleteButton({
         variant="outline"
         size="sm"
         onClick={() => setIsOpen(true)}
-        className="border-green-300 text-green-700 hover:bg-green-50"
+        className="h-7 px-2 text-xs border-green-300 text-green-700 hover:bg-green-50"
       >
-        <CheckCircle2 className="w-4 h-4 mr-2" />
+        <CheckCircle2 className="w-3 h-3 mr-1" />
         발주완료 알림
       </Button>
 
