@@ -378,7 +378,6 @@ export default function AdAutomationManagementPage() {
                         mode="single"
                         selected={startDate}
                         onSelect={setStartDate}
-                        locale={ko}
                       />
                     </PopoverContent>
                   </Popover>
@@ -399,7 +398,6 @@ export default function AdAutomationManagementPage() {
                         selected={endDate}
                         onSelect={setEndDate}
                         disabled={(date) => startDate ? date < startDate : false}
-                        locale={ko}
                       />
                     </PopoverContent>
                   </Popover>
