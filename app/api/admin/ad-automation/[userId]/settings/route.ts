@@ -34,7 +34,8 @@ export async function POST(
   try {
     // 인증 확인
     const session = await auth();
-    if (!session?.user || (session.user as any).role !== "admin") {
+    const userRole = (session?.user as any)?.role;
+    if (!session?.user || !["super", "designer", "operator"].includes(userRole)) {
       return NextResponse.json(
         { success: false, error: "권한이 없습니다." },
         { status: 403 }
