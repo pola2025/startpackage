@@ -436,35 +436,40 @@ export default function AdAutomationManagementPage() {
               </div>
 
               {adEnabled && (
-                <div className="grid grid-cols-2 gap-3 mt-3">
-                  <div className="space-y-2">
-                    <Label className="text-xs">시작일</Label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button variant="outline" size="sm" className="w-full justify-start text-left">
-                          <CalendarIcon className="w-3 h-3 mr-2" />
-                          <span className="text-xs">{adStartDate ? format(adStartDate, "yyyy-MM-dd") : "선택"}</span>
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
-                        <Calendar mode="single" selected={adStartDate} onSelect={setAdStartDate} />
-                      </PopoverContent>
-                    </Popover>
+                <div className="space-y-3 mt-3">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <div className="flex items-start gap-2">
+                      <CalendarIcon className="w-4 h-4 text-blue-600 mt-0.5" />
+                      <div className="flex-1 text-sm">
+                        <p className="text-gray-700 mb-1">
+                          <span className="font-medium">시작일:</span> {adStartDate ? format(adStartDate, "yyyy년 M월 d일", { locale: ko }) : "미설정"}
+                        </p>
+                        <p className="text-gray-700">
+                          <span className="font-medium">종료일:</span> {adEndDate ? format(adEndDate, "yyyy년 M월 d일", { locale: ko }) : "미설정"}
+                          {selectedUser?.marketingSupportEndDate && adEndDate &&
+                           new Date(adEndDate).getTime() === new Date(selectedUser.marketingSupportEndDate).getTime() && (
+                            <span className="ml-2 text-xs text-blue-600">(기수 마케팅 종료일)</span>
+                          )}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-xs">종료일</Label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button variant="outline" size="sm" className="w-full justify-start text-left">
-                          <CalendarIcon className="w-3 h-3 mr-2" />
-                          <span className="text-xs">{adEndDate ? format(adEndDate, "yyyy-MM-dd") : "선택"}</span>
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
-                        <Calendar mode="single" selected={adEndDate} onSelect={setAdEndDate} disabled={(date) => adStartDate ? date < adStartDate : false} />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => {
+                      if (adEndDate) {
+                        const newEndDate = new Date(adEndDate);
+                        newEndDate.setMonth(newEndDate.getMonth() + 3);
+                        setAdEndDate(newEndDate);
+                      }
+                    }}
+                    disabled={!adEndDate}
+                  >
+                    + 3개월 연장
+                  </Button>
                 </div>
               )}
             </div>
