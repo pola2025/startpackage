@@ -13,7 +13,7 @@ interface NaverAdSettingBadgeProps {
  */
 export function NaverAdSettingBadge({ enabled }: NaverAdSettingBadgeProps) {
   return (
-    <div className="flex flex-col items-center gap-1">
+    <div className="flex flex-col items-center gap-1 h-[52px] justify-start">
       <span className="text-xs text-gray-600">네이버 설정</span>
       <Badge
         variant="outline"

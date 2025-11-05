@@ -40,7 +40,7 @@ export function AdAutomationBadge({
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="flex flex-col items-center gap-1">
+            <div className="flex flex-col items-center gap-1 h-[52px] justify-start">
               <span className="text-xs text-gray-600">자동화</span>
               <Badge variant="outline" className="bg-gray-100 border-gray-300 text-gray-700">
                 🔴 꺼짐
@@ -64,7 +64,7 @@ export function AdAutomationBadge({
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="flex flex-col items-center gap-1">
+            <div className="flex flex-col items-center gap-1 h-[52px] justify-start">
               <span className="text-xs text-gray-600">자동화</span>
               <Badge variant="outline" className="bg-red-100 border-red-300 text-red-700">
                 🔴 만료됨
@@ -94,13 +94,13 @@ export function AdAutomationBadge({
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <div className="flex flex-col items-center gap-1">
+          <div className="flex flex-col items-center gap-1 h-[52px] justify-start">
             <span className="text-xs text-gray-600">자동화</span>
             <Badge variant="outline" className={badgeColor}>
               {badgeIcon} {badgeText}
             </Badge>
-            <span className="text-xs text-gray-600">
-              D-{daysRemaining}일
+            <span className="text-[10px] text-gray-500">
+              D-{daysRemaining}
             </span>
           </div>
         </TooltipTrigger>

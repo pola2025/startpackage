@@ -14,7 +14,7 @@ interface HomepageBadgeProps {
  */
 export function HomepageBadge({ completed, completedAt }: HomepageBadgeProps) {
   return (
-    <div className="flex flex-col items-center gap-1">
+    <div className="flex flex-col items-center gap-1 h-[52px] justify-start">
       <span className="text-xs text-gray-600">홈페이지</span>
       <Badge
         variant="outline"
@@ -27,8 +27,8 @@ export function HomepageBadge({ completed, completedAt }: HomepageBadgeProps) {
         {completed ? "✅ 완료" : "⏳ 미완료"}
       </Badge>
       {completed && completedAt && (
-        <span className="text-xs text-gray-500">
-          {new Date(completedAt).toLocaleDateString("ko-KR")}
+        <span className="text-[10px] text-gray-500">
+          {new Date(completedAt).toLocaleDateString("ko-KR", { month: "short", day: "numeric" })}
         </span>
       )}
     </div>

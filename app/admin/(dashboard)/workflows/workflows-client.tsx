@@ -747,7 +747,7 @@ export default function WorkflowsClient({
                                   </CardDescription>
                                 </div>
                               </div>
-                              <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+                              <div className="flex items-start gap-3 pt-1" onClick={(e) => e.stopPropagation()}>
                                 <WorkflowStatusIcons workflows={userWorkflows} />
                                 <AdAutomationBadge
                                   enabled={user.adAutomationEnabled || false}
