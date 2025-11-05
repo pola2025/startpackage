@@ -77,9 +77,22 @@ export default function AdAutomationManagementPage() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [toggleDialogOpen, setToggleDialogOpen] = useState(false);
   const [toggling, setToggling] = useState(false);
-  const [enabled, setEnabled] = useState(false);
-  const [startDate, setStartDate] = useState<Date>();
-  const [endDate, setEndDate] = useState<Date>();
+
+  // 광고 자동화
+  const [adEnabled, setAdEnabled] = useState(false);
+  const [adStartDate, setAdStartDate] = useState<Date>();
+  const [adEndDate, setAdEndDate] = useState<Date>();
+
+  // SMS 설정
+  const [smsEnabled, setSmsEnabled] = useState(false);
+  const [smsStartDate, setSmsStartDate] = useState<Date>();
+  const [smsEndDate, setSmsEndDate] = useState<Date>();
+
+  // 네이버 광고 설정
+  const [naverEnabled, setNaverEnabled] = useState(false);
+  const [naverStartDate, setNaverStartDate] = useState<Date>();
+  const [naverEndDate, setNaverEndDate] = useState<Date>();
+
   const [reason, setReason] = useState("");
 
   // 이력 조회
@@ -134,9 +147,22 @@ export default function AdAutomationManagementPage() {
 
   const openToggleDialog = (user: User) => {
     setSelectedUser(user);
-    setEnabled(user.adAutomationEnabled);
-    setStartDate(user.adAutomationStartDate ? new Date(user.adAutomationStartDate) : undefined);
-    setEndDate(user.adAutomationEndDate ? new Date(user.adAutomationEndDate) : undefined);
+
+    // 광고 자동화
+    setAdEnabled(user.adAutomationEnabled);
+    setAdStartDate(user.adAutomationStartDate ? new Date(user.adAutomationStartDate) : undefined);
+    setAdEndDate(user.adAutomationEndDate ? new Date(user.adAutomationEndDate) : undefined);
+
+    // SMS 설정
+    setSmsEnabled(user.smsSettingEnabled);
+    setSmsStartDate(user.smsSettingStartDate ? new Date(user.smsSettingStartDate) : undefined);
+    setSmsEndDate(user.smsSettingEndDate ? new Date(user.smsSettingEndDate) : undefined);
+
+    // 네이버 광고 설정
+    setNaverEnabled(user.naverAdSettingEnabled);
+    setNaverStartDate(user.naverAdSettingStartDate ? new Date(user.naverAdSettingStartDate) : undefined);
+    setNaverEndDate(user.naverAdSettingEndDate ? new Date(user.naverAdSettingEndDate) : undefined);
+
     setReason("");
     setToggleDialogOpen(true);
   };
@@ -146,19 +172,31 @@ export default function AdAutomationManagementPage() {
 
     setToggling(true);
     try {
-      const response = await fetch(`/api/admin/ad-automation/${selectedUser.id}/toggle`, {
+      const response = await fetch(`/api/admin/ad-automation/${selectedUser.id}/settings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          enabled,
+          // 광고 자동화
+          adAutomationEnabled: adEnabled,
+          adAutomationStartDate: adStartDate?.toISOString(),
+          adAutomationEndDate: adEndDate?.toISOString(),
+
+          // SMS 설정
+          smsSettingEnabled: smsEnabled,
+          smsSettingStartDate: smsStartDate?.toISOString(),
+          smsSettingEndDate: smsEndDate?.toISOString(),
+
+          // 네이버 광고 설정
+          naverAdSettingEnabled: naverEnabled,
+          naverAdSettingStartDate: naverStartDate?.toISOString(),
+          naverAdSettingEndDate: naverEndDate?.toISOString(),
+
           reason: reason || undefined,
-          startDate: startDate?.toISOString(),
-          endDate: endDate?.toISOString(),
         }),
       });
 
       if (response.ok) {
-        alert(enabled ? "광고 자동화가 활성화되었습니다." : "광고 자동화가 비활성화되었습니다.");
+        alert("설정이 저장되었습니다.");
         setToggleDialogOpen(false);
         fetchUsers();
       } else {
@@ -363,68 +401,169 @@ export default function AdAutomationManagementPage() {
 
       {/* 토글 다이얼로그 */}
       <Dialog open={toggleDialogOpen} onOpenChange={setToggleDialogOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>광고 자동화 설정</DialogTitle>
             <DialogDescription>
-              {selectedUser?.이름}님의 광고 자동화 상태를 변경합니다
+              {selectedUser?.이름}님의 광고 자동화, SMS 설정, 네이버 광고 설정을 관리합니다
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="enabled">활성화 상태</Label>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">{enabled ? "켜짐" : "꺼짐"}</span>
-                <Switch
-                  id="enabled"
-                  checked={enabled}
-                  onCheckedChange={setEnabled}
-                />
+          <div className="space-y-6 py-4">
+            {/* 광고 자동화 */}
+            <div className="border rounded-lg p-4 space-y-3">
+              <div className="flex items-center gap-2 mb-2">
+                <Zap className="w-5 h-5 text-blue-600" />
+                <h3 className="font-semibold text-lg">광고 자동화</h3>
               </div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="ad-enabled">활성화 상태</Label>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600">{adEnabled ? "켜짐" : "꺼짐"}</span>
+                  <Switch
+                    id="ad-enabled"
+                    checked={adEnabled}
+                    onCheckedChange={setAdEnabled}
+                  />
+                </div>
+              </div>
+
+              {adEnabled && (
+                <div className="grid grid-cols-2 gap-3 mt-3">
+                  <div className="space-y-2">
+                    <Label className="text-xs">시작일</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" size="sm" className="w-full justify-start text-left">
+                          <CalendarIcon className="w-3 h-3 mr-2" />
+                          <span className="text-xs">{adStartDate ? format(adStartDate, "yyyy-MM-dd") : "선택"}</span>
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar mode="single" selected={adStartDate} onSelect={setAdStartDate} />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs">종료일</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" size="sm" className="w-full justify-start text-left">
+                          <CalendarIcon className="w-3 h-3 mr-2" />
+                          <span className="text-xs">{adEndDate ? format(adEndDate, "yyyy-MM-dd") : "선택"}</span>
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar mode="single" selected={adEndDate} onSelect={setAdEndDate} disabled={(date) => adStartDate ? date < adStartDate : false} />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+              )}
             </div>
 
-            {enabled && (
-              <>
-                <div className="space-y-2">
-                  <Label>시작일</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" className="w-full justify-start text-left">
-                        <CalendarIcon className="w-4 h-4 mr-2" />
-                        {startDate ? format(startDate, "PPP", { locale: ko }) : "날짜 선택"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={startDate}
-                        onSelect={setStartDate}
-                      />
-                    </PopoverContent>
-                  </Popover>
+            {/* SMS 설정 */}
+            <div className="border rounded-lg p-4 space-y-3">
+              <div className="flex items-center gap-2 mb-2">
+                <MessageSquare className="w-5 h-5 text-green-600" />
+                <h3 className="font-semibold text-lg">SMS 설정</h3>
+              </div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="sms-enabled">활성화 상태</Label>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600">{smsEnabled ? "켜짐" : "꺼짐"}</span>
+                  <Switch
+                    id="sms-enabled"
+                    checked={smsEnabled}
+                    onCheckedChange={setSmsEnabled}
+                  />
                 </div>
+              </div>
 
-                <div className="space-y-2">
-                  <Label>종료일</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" className="w-full justify-start text-left">
-                        <CalendarIcon className="w-4 h-4 mr-2" />
-                        {endDate ? format(endDate, "PPP", { locale: ko }) : "날짜 선택"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={endDate}
-                        onSelect={setEndDate}
-                        disabled={(date) => startDate ? date < startDate : false}
-                      />
-                    </PopoverContent>
-                  </Popover>
+              {smsEnabled && (
+                <div className="grid grid-cols-2 gap-3 mt-3">
+                  <div className="space-y-2">
+                    <Label className="text-xs">시작일</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" size="sm" className="w-full justify-start text-left">
+                          <CalendarIcon className="w-3 h-3 mr-2" />
+                          <span className="text-xs">{smsStartDate ? format(smsStartDate, "yyyy-MM-dd") : "선택"}</span>
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar mode="single" selected={smsStartDate} onSelect={setSmsStartDate} />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs">종료일</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" size="sm" className="w-full justify-start text-left">
+                          <CalendarIcon className="w-3 h-3 mr-2" />
+                          <span className="text-xs">{smsEndDate ? format(smsEndDate, "yyyy-MM-dd") : "선택"}</span>
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar mode="single" selected={smsEndDate} onSelect={setSmsEndDate} disabled={(date) => smsStartDate ? date < smsStartDate : false} />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                 </div>
-              </>
-            )}
+              )}
+            </div>
+
+            {/* 네이버 광고 설정 */}
+            <div className="border rounded-lg p-4 space-y-3">
+              <div className="flex items-center gap-2 mb-2">
+                <SearchIcon className="w-5 h-5 text-green-600" />
+                <h3 className="font-semibold text-lg">네이버 광고 설정</h3>
+              </div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="naver-enabled">활성화 상태</Label>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600">{naverEnabled ? "켜짐" : "꺼짐"}</span>
+                  <Switch
+                    id="naver-enabled"
+                    checked={naverEnabled}
+                    onCheckedChange={setNaverEnabled}
+                  />
+                </div>
+              </div>
+
+              {naverEnabled && (
+                <div className="grid grid-cols-2 gap-3 mt-3">
+                  <div className="space-y-2">
+                    <Label className="text-xs">시작일</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" size="sm" className="w-full justify-start text-left">
+                          <CalendarIcon className="w-3 h-3 mr-2" />
+                          <span className="text-xs">{naverStartDate ? format(naverStartDate, "yyyy-MM-dd") : "선택"}</span>
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar mode="single" selected={naverStartDate} onSelect={setNaverStartDate} />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs">종료일</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" size="sm" className="w-full justify-start text-left">
+                          <CalendarIcon className="w-3 h-3 mr-2" />
+                          <span className="text-xs">{naverEndDate ? format(naverEndDate, "yyyy-MM-dd") : "선택"}</span>
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar mode="single" selected={naverEndDate} onSelect={setNaverEndDate} disabled={(date) => naverStartDate ? date < naverStartDate : false} />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+              )}
+            </div>
 
             <div className="space-y-2">
               <Label htmlFor="reason">변경 사유 (선택)</Label>
