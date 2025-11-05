@@ -215,6 +215,7 @@ export default function AdAutomationManagementPage() {
         fetchUsers();
       } else {
         const data = await response.json();
+        console.error("API Error:", data);
         alert(data.error || "변경 실패");
       }
     } catch (error) {
