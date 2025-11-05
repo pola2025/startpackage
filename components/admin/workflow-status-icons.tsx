@@ -34,17 +34,17 @@ export function WorkflowStatusIcons({ workflows }: WorkflowStatusIconsProps) {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <div className="flex items-center gap-2 h-[52px]">
+          <div className="flex items-center gap-2 h-[28px]">
             {WORKFLOW_TYPES.map((type) => {
               const status = statusMap[type];
               const completed = isCompleted(type, status);
 
               return (
-                <div key={type} className="flex flex-col items-center gap-0.5 justify-start pt-[18px]">
-                  <span className="text-[10px] text-gray-500 font-medium">
+                <div key={type} className="flex flex-col items-center gap-0.5 h-[28px] justify-center">
+                  <span className="text-[10px] text-gray-500 font-medium leading-tight">
                     {type}
                   </span>
-                  <span className="text-base">
+                  <span className="text-sm leading-none">
                     {completed ? "🟢" : "🔴"}
                   </span>
                 </div>

@@ -61,7 +61,7 @@ export default function UserWorkflowSMSButton({
         size="sm"
         variant="outline"
         disabled
-        className="h-7 px-1.5 text-[10px] border-gray-300 text-gray-400 opacity-50 cursor-not-allowed"
+        className="h-[28px] px-1.5 text-[10px] border-gray-300 text-gray-400 opacity-50 cursor-not-allowed leading-none"
         title="연락처가 등록되지 않았습니다"
       >
         <MessageSquare className="w-3 h-3 mr-0.5" />
@@ -76,7 +76,7 @@ export default function UserWorkflowSMSButton({
       variant="outline"
       onClick={handleSendSMS}
       disabled={!hasAnyDesign || sending}
-      className={`h-7 px-1.5 text-[10px] border-blue-300 text-blue-700 hover:bg-blue-50 ${
+      className={`h-[28px] px-1.5 text-[10px] border-blue-300 text-blue-700 hover:bg-blue-50 leading-none ${
         !hasAnyDesign ? "opacity-50 cursor-not-allowed" : ""
       }`}
       title={!hasAnyDesign ? "시안 업로드된 워크플로우가 없습니다" : `${workflowsWithDesign.length}개 시안 SMS 발송`}

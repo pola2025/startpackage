@@ -40,9 +40,9 @@ export function AdAutomationBadge({
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="flex flex-col items-center gap-1 h-[52px] justify-start">
-              <span className="text-xs text-gray-600">자동화</span>
-              <Badge variant="outline" className="bg-gray-100 border-gray-300 text-gray-700">
+            <div className="flex flex-col items-center gap-0.5 h-[28px] justify-center">
+              <span className="text-[10px] text-gray-600 leading-tight">자동화</span>
+              <Badge variant="outline" className="bg-gray-100 border-gray-300 text-gray-700 h-[18px] text-[10px] px-1.5 leading-none">
                 🔴 꺼짐
               </Badge>
             </div>
@@ -64,10 +64,10 @@ export function AdAutomationBadge({
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="flex flex-col items-center gap-1 h-[52px] justify-start">
-              <span className="text-xs text-gray-600">자동화</span>
-              <Badge variant="outline" className="bg-red-100 border-red-300 text-red-700">
-                🔴 만료됨
+            <div className="flex flex-col items-center gap-0.5 h-[28px] justify-center">
+              <span className="text-[10px] text-gray-600 leading-tight">자동화</span>
+              <Badge variant="outline" className="bg-red-100 border-red-300 text-red-700 h-[18px] text-[10px] px-1.5 leading-none">
+                🔴 만료
               </Badge>
             </div>
           </TooltipTrigger>
@@ -94,14 +94,16 @@ export function AdAutomationBadge({
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <div className="flex flex-col items-center gap-1 h-[52px] justify-start">
-            <span className="text-xs text-gray-600">자동화</span>
-            <Badge variant="outline" className={badgeColor}>
-              {badgeIcon} {badgeText}
-            </Badge>
-            <span className="text-[10px] text-gray-500">
-              D-{daysRemaining}
-            </span>
+          <div className="flex flex-col items-center gap-0.5 h-[28px] justify-center">
+            <span className="text-[10px] text-gray-600 leading-tight">자동화</span>
+            <div className="flex items-center gap-0.5">
+              <Badge variant="outline" className={`${badgeColor} h-[18px] text-[10px] px-1.5 leading-none`}>
+                {badgeIcon} {badgeText}
+              </Badge>
+              <span className="text-[9px] text-gray-500 leading-none">
+                D-{daysRemaining}
+              </span>
+            </div>
           </div>
         </TooltipTrigger>
         <TooltipContent>
