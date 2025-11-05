@@ -582,37 +582,37 @@ export default function AdminCommunicationPage() {
         <Card className={`border-gray-200 bg-white lg:col-span-2 overflow-hidden flex flex-col shadow-sm ${selectedThread ? 'flex' : 'hidden lg:flex'} h-[80vh] lg:h-[calc(100vh-200px)]`}>
           {selectedThread ? (
             <>
-              <CardHeader className="pb-4 border-b border-gray-200">
-                <div className="flex items-start justify-between">
-                  <div>
+              <CardHeader className="py-2 sm:py-4 border-b border-gray-200">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
                     {/* 모바일 뒤로가기 버튼 */}
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => setSelectedThread(null)}
-                      className="lg:hidden mb-2 -ml-2"
+                      className="lg:hidden mb-1 -ml-2 h-7 px-2 text-xs"
                     >
                       ← 목록으로
                     </Button>
-                    <CardTitle className="text-gray-900 text-xl mb-2">{selectedThread.title}</CardTitle>
-                    <div className="flex items-center gap-3 text-sm text-gray-600">
+                    <CardTitle className="text-gray-900 text-base sm:text-xl mb-1 truncate">{selectedThread.title}</CardTitle>
+                    <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-gray-600">
                       <span className="flex items-center gap-1">
-                        <User className="w-4 h-4" />
+                        <User className="w-3 h-3 sm:w-4 sm:h-4" />
                         {selectedThread.user.이름}
                       </span>
                       {selectedThread.user.cohort && (
-                        <span>{selectedThread.user.cohort.name}</span>
+                        <span className="hidden sm:inline">{selectedThread.user.cohort.name}</span>
                       )}
-                      <span>{selectedThread.user.email}</span>
+                      <span className="hidden sm:inline">{selectedThread.user.email}</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
                     {getStatusBadge(selectedThread.status)}
                     <Select
                       value={selectedThread.status}
                       onValueChange={(value) => handleStatusChange(selectedThread.id, value)}
                     >
-                      <SelectTrigger className="w-32 bg-gray-50 border-gray-200 text-gray-900 text-sm">
+                      <SelectTrigger className="w-24 sm:w-32 bg-gray-50 border-gray-200 text-gray-900 text-xs sm:text-sm h-7 sm:h-10">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="bg-white border-gray-200">
@@ -730,23 +730,23 @@ export default function AdminCommunicationPage() {
               </CardContent>
 
               {/* 답글 작성 - 모바일 최적화 */}
-              <div className="p-3 sm:p-4 border-t border-gray-200 bg-white">
-                <div className="space-y-3">
+              <div className="p-2 sm:p-4 border-t border-gray-200 bg-white">
+                <div className="space-y-2">
                   {replyAttachments.length > 0 && (
                     <div className="flex flex-wrap gap-2">
                       {replyAttachments.map((url, idx) => (
-                        <div key={idx} className="relative w-20 h-20">
+                        <div key={idx} className="relative w-16 h-16">
                           <Image
                             src={url}
                             alt="첨부"
-                            width={80}
-                            height={80}
-                            className="w-20 h-20 object-cover rounded border border-gray-200"
+                            width={64}
+                            height={64}
+                            className="w-16 h-16 object-cover rounded border border-gray-200"
                             unoptimized
                           />
                           <button
                             onClick={() => setReplyAttachments(replyAttachments.filter((_, i) => i !== idx))}
-                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                            className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
                             aria-label="첨부 이미지 삭제"
                           >
                             ×
@@ -759,7 +759,7 @@ export default function AdminCommunicationPage() {
                     value={replyContent}
                     onChange={(e) => setReplyContent(e.target.value)}
                     placeholder="답글을 입력하세요..."
-                    className="bg-white border-gray-200 text-gray-900 resize-none min-h-[100px] text-base"
+                    className="bg-white border-gray-200 text-gray-900 resize-none min-h-[60px] sm:min-h-[100px] text-sm sm:text-base"
                   />
                   <div className="flex flex-wrap items-center gap-2">
                     <Popover>
@@ -767,11 +767,12 @@ export default function AdminCommunicationPage() {
                         <Button
                           type="button"
                           variant="outline"
-                          className={`border-gray-200 min-h-[44px] ${expectedDate ? "text-gray-900" : "text-gray-500"}`}
+                          size="sm"
+                          className={`border-gray-200 h-8 px-2 text-xs sm:h-10 sm:px-4 sm:text-sm ${expectedDate ? "text-gray-900" : "text-gray-500"}`}
                         >
-                          <CalendarIcon className="w-4 h-4 mr-2" />
-                          <span className="hidden sm:inline">{expectedDate ? format(expectedDate, "PPP", { locale: ko }) : "완료 예상일 선택"}</span>
-                          <span className="sm:hidden">{expectedDate ? format(expectedDate, "yy.MM.dd", { locale: ko }) : "예상일"}</span>
+                          <CalendarIcon className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+                          <span className="hidden sm:inline">{expectedDate ? format(expectedDate, "PPP", { locale: ko }) : "완료 예상일"}</span>
+                          <span className="sm:hidden ml-1">{expectedDate ? format(expectedDate, "M.d", { locale: ko }) : "예상일"}</span>
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0 bg-white" align="start">
@@ -789,14 +790,14 @@ export default function AdminCommunicationPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => setExpectedDate(undefined)}
-                        className="text-gray-500 hover:text-gray-700 min-h-[44px]"
+                        className="text-gray-500 hover:text-gray-700 h-8 px-2 sm:h-10 sm:px-3"
                       >
                         ×
                       </Button>
                     )}
                   </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
                       <input
                         type="file"
                         id="admin-reply-file"
@@ -812,21 +813,22 @@ export default function AdminCommunicationPage() {
                       <Button
                         type="button"
                         variant="outline"
-                        className="border-gray-200 text-gray-600 w-full sm:w-auto min-h-[44px]"
+                        size="sm"
+                        className="border-gray-200 text-gray-600 h-8 px-2 text-xs sm:h-10 sm:px-4 sm:text-sm"
                         disabled={uploading}
                         onClick={() => document.getElementById("admin-reply-file")?.click()}
                       >
-                        <Paperclip className="w-4 h-4 mr-2" />
-                        {uploading ? "업로드 중..." : "이미지 첨부"}
+                        <Paperclip className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+                        <span className="hidden sm:inline">{uploading ? "업로드 중..." : "이미지"}</span>
                       </Button>
-                      <span className="text-xs text-gray-500 hidden sm:inline">10MB 이하, 이미지만 가능</span>
                     </div>
                     <Button
                       onClick={handleSendReply}
                       disabled={!replyContent.trim() || sending}
-                      className="bg-red-600 hover:bg-red-700 text-white w-full sm:w-auto min-h-[44px]"
+                      size="sm"
+                      className="bg-red-600 hover:bg-red-700 text-white h-8 px-3 text-xs sm:h-10 sm:px-4 sm:text-sm"
                     >
-                      <Send className="w-4 h-4 mr-2" />
+                      <Send className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
                       {sending ? "전송 중..." : "전송"}
                     </Button>
                   </div>

@@ -286,6 +286,7 @@ export async function POST(request: Request) {
         { key: "브랜드명", label: "브랜드명" },
         { key: "업종", label: "업종" },
         { key: "주소", label: "주소" },
+        { key: "인쇄물받을주소", label: "배송받을곳 주소" },
         { key: "대표번호", label: "대표번호" },
         { key: "이메일", label: "이메일" },
         { key: "로고선호스타일", label: "로고 선호 스타일" },

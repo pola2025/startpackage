@@ -479,6 +479,7 @@ export async function pushSubmissionData(params: {
     { key: "브랜드명", label: "브랜드명" },
     { key: "업종", label: "업종" },
     { key: "주소", label: "주소" },
+    { key: "인쇄물받을주소", label: "배송받을곳 주소" },
     { key: "대표번호", label: "대표번호" },
     { key: "이메일", label: "이메일" },
     { key: "홈페이지컬러컨셉", label: "홈페이지 컬러" },

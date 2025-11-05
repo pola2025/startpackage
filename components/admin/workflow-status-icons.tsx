@@ -13,7 +13,7 @@ const WORKFLOW_TYPES = ["로고", "명함", "명찰", "대봉투"];
 
 /**
  * 제작물 완료 현황 아이콘
- * 🟢 = 완료 (로고: 최종확정, 인쇄물: 발송완료)
+ * 🟢 = 완료 (최종확정 또는 발송완료)
  * 🔴 = 미완료
  */
 export function WorkflowStatusIcons({ workflows }: WorkflowStatusIconsProps) {
@@ -26,13 +26,8 @@ export function WorkflowStatusIcons({ workflows }: WorkflowStatusIconsProps) {
   const isCompleted = (type: string, status: string) => {
     if (!status) return false;
 
-    // 로고는 "최종확정"도 완료로 인정
-    if (type === "로고") {
-      return status === "최종확정" || status === "발송완료";
-    }
-
-    // 인쇄물(명함, 명찰, 대봉투)은 "발송완료"만 완료
-    return status === "발송완료";
+    // 모든 디자인 항목은 "최종확정" 또는 "발송완료"를 완료로 인정
+    return status === "최종확정" || status === "발송완료";
   };
 
   return (

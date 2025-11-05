@@ -35,7 +35,8 @@ const getUrgencyLevel = (
   수정횟수: number,
   status: string
 ): { level: "low" | "medium" | "high"; label: string } => {
-  if (status === "발송완료") {
+  // 완료 상태 (최종확정 또는 발송완료)는 긴급도 없음
+  if (status === "최종확정" || status === "발송완료") {
     return { level: "low", label: "" };
   }
 

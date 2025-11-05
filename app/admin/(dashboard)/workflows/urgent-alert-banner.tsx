@@ -40,7 +40,8 @@ export default function UrgentAlertBanner({
     {
       type: "지연",
       count: workflows.filter((w) => {
-        if (!w.자료제출일 || w.status === "발송완료") return false;
+        // 완료 상태(최종확정 또는 발송완료)는 제외
+        if (!w.자료제출일 || w.status === "최종확정" || w.status === "발송완료") return false;
         const daysSince = Math.floor(
           (now.getTime() - new Date(w.자료제출일).getTime()) /
             (1000 * 60 * 60 * 24)

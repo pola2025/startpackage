@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Upload, FileText, CheckCircle2, AlertCircle, Loader2, Square } from "lucide-react";
+import { Upload, FileText, CheckCircle2, AlertCircle, Loader2, Square, CreditCard, ExternalLink } from "lucide-react";
 import imageCompression from "browser-image-compression";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { calculateProgress, type ProgressResult } from "@/lib/submission-progress";
@@ -1544,6 +1544,42 @@ export default function SubmissionPage() {
                         defaultValue={submission?.네이버검색광고PW}
                         disabled={!isEditingMarketing}
                       />
+                    </div>
+                  </div>
+
+                  {/* 광고비 충전 안내 */}
+                  <div className="mt-4 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                        <CreditCard className="w-5 h-5 text-green-600" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="text-sm sm:text-base font-bold text-green-900 mb-2">
+                          💳 광고비 충전 안내
+                        </h4>
+                        <p className="text-xs sm:text-sm text-green-800 mb-3">
+                          네이버 검색광고를 사용하시려면 광고비를 충전해주세요
+                        </p>
+                        <a
+                          href="https://manage.searchad.naver.com/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-block"
+                        >
+                          <Button
+                            type="button"
+                            className="bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm h-8 sm:h-9"
+                          >
+                            <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5" />
+                            네이버 검색광고 충전하기
+                          </Button>
+                        </a>
+                        <div className="mt-3 bg-green-100 border border-green-300 rounded-md p-2">
+                          <p className="text-xs text-green-900">
+                            <strong>💡 충전 방법:</strong> 위 버튼 클릭 → 네이버 검색광고 관리 페이지 → <strong>충전하기</strong> 버튼 클릭
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>

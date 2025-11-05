@@ -557,24 +557,26 @@ export default function UserCommunicationPage() {
         <Card className={`lg:col-span-2 flex flex-col ${selectedThread ? 'flex' : 'hidden lg:flex'} h-[80vh] lg:h-[calc(100vh-250px)]`}>
           {selectedThread ? (
             <>
-              <CardHeader className="border-b">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
+              <CardHeader className="border-b py-2 sm:py-4">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
                     {/* 모바일 뒤로가기 버튼 */}
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => setSelectedThread(null)}
-                      className="lg:hidden mb-2 -ml-2"
+                      className="lg:hidden mb-1 -ml-2 h-7 px-2 text-xs"
                     >
                       ← 목록으로
                     </Button>
-                    <CardTitle className="text-xl">{selectedThread.title}</CardTitle>
-                    <CardDescription className="mt-1">
-                      카테고리: {selectedThread.category}
+                    <CardTitle className="text-base sm:text-xl truncate">{selectedThread.title}</CardTitle>
+                    <CardDescription className="mt-0.5 text-xs sm:text-sm">
+                      {selectedThread.category}
                     </CardDescription>
                   </div>
-                  {getStatusBadge(selectedThread.status)}
+                  <div className="flex-shrink-0">
+                    {getStatusBadge(selectedThread.status)}
+                  </div>
                 </div>
               </CardHeader>
 
@@ -681,23 +683,23 @@ export default function UserCommunicationPage() {
               </CardContent>
 
               {/* 답글 작성 - 모바일 최적화 */}
-              <div className="p-3 sm:p-4 border-t bg-white">
-                <div className="space-y-3">
+              <div className="p-2 sm:p-4 border-t bg-white">
+                <div className="space-y-2">
                   {replyAttachments.length > 0 && (
                     <div className="flex flex-wrap gap-2">
                       {replyAttachments.map((url, idx) => (
-                        <div key={idx} className="relative w-20 h-20">
+                        <div key={idx} className="relative w-16 h-16">
                           <Image
                             src={url}
                             alt="첨부"
-                            width={80}
-                            height={80}
-                            className="w-20 h-20 object-cover rounded border"
+                            width={64}
+                            height={64}
+                            className="w-16 h-16 object-cover rounded border"
                             unoptimized
                           />
                           <button
                             onClick={() => setReplyAttachments(replyAttachments.filter((_, i) => i !== idx))}
-                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                            className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
                             aria-label="첨부 이미지 삭제"
                           >
                             ×
@@ -710,9 +712,9 @@ export default function UserCommunicationPage() {
                     value={replyContent}
                     onChange={(e) => setReplyContent(e.target.value)}
                     placeholder="답글을 입력하세요..."
-                    className="resize-none min-h-[80px] text-base"
+                    className="resize-none min-h-[60px] sm:min-h-[80px] text-sm sm:text-base"
                   />
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <div className="flex items-center justify-between gap-2">
                     <div>
                       <input
                         type="file"
@@ -729,20 +731,22 @@ export default function UserCommunicationPage() {
                       <Button
                         type="button"
                         variant="outline"
+                        size="sm"
                         disabled={uploading}
                         onClick={() => document.getElementById("reply-file")?.click()}
-                        className="w-full sm:w-auto min-h-[44px]"
+                        className="h-8 px-2 text-xs sm:h-10 sm:px-4 sm:text-sm"
                       >
-                        <Paperclip className="w-4 h-4 mr-2" />
-                        {uploading ? "업로드 중..." : "이미지 첨부"}
+                        <Paperclip className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+                        <span className="hidden sm:inline">{uploading ? "업로드 중..." : "이미지"}</span>
                       </Button>
                     </div>
                     <Button
                       onClick={handleSendReply}
                       disabled={!replyContent.trim() || sending}
-                      className="w-full sm:w-auto min-h-[44px]"
+                      size="sm"
+                      className="h-8 px-3 text-xs sm:h-10 sm:px-4 sm:text-sm"
                     >
-                      <Send className="w-4 h-4 mr-2" />
+                      <Send className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
                       {sending ? "전송 중..." : "전송"}
                     </Button>
                   </div>
