@@ -17,7 +17,7 @@ export async function PATCH(
 
     const { id } = await params;
     const body = await request.json();
-    const { title, content, imageUrl, youtubeUrl, published } = body;
+    const { title, content, imageUrls, youtubeUrl, published } = body;
 
     // 공지사항 존재 여부 확인
     const existingAnnouncement = await prisma.announcement.findUnique({
@@ -37,7 +37,7 @@ export async function PATCH(
       data: {
         ...(title !== undefined && { title }),
         ...(content !== undefined && { content }),
-        ...(imageUrl !== undefined && { imageUrl: imageUrl || null }),
+        ...(imageUrls !== undefined && { imageUrls: Array.isArray(imageUrls) ? imageUrls : [] }),
         ...(youtubeUrl !== undefined && { youtubeUrl: youtubeUrl || null }),
         ...(published !== undefined && { published }),
       },

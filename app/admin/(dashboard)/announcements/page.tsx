@@ -32,7 +32,7 @@ type Announcement = {
   authorName: string;
   title: string;
   content: string;
-  imageUrl: string | null;
+  imageUrls: string[];
   youtubeUrl: string | null;
   published: boolean;
   createdAt: string;
@@ -48,13 +48,13 @@ export default function AdminAnnouncementsPage() {
   const [formData, setFormData] = useState({
     title: "",
     content: "",
-    imageUrl: "",
+    imageUrls: [] as string[],
     youtubeUrl: "",
     published: true,
   });
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -81,21 +81,21 @@ export default function AdminAnnouncementsPage() {
       setFormData({
         title: announcement.title,
         content: announcement.content,
-        imageUrl: announcement.imageUrl || "",
+        imageUrls: announcement.imageUrls || [],
         youtubeUrl: announcement.youtubeUrl || "",
         published: announcement.published,
       });
-      setImagePreview(announcement.imageUrl || null);
+      setImagePreviews(announcement.imageUrls || []);
     } else {
       setEditingAnnouncement(null);
       setFormData({
         title: "",
         content: "",
-        imageUrl: "",
+        imageUrls: [],
         youtubeUrl: "",
         published: true,
       });
-      setImagePreview(null);
+      setImagePreviews([]);
     }
     setIsDialogOpen(true);
   };
@@ -106,55 +106,72 @@ export default function AdminAnnouncementsPage() {
     setFormData({
       title: "",
       content: "",
-      imageUrl: "",
+      imageUrls: [],
       youtubeUrl: "",
       published: true,
     });
-    setImagePreview(null);
+    setImagePreviews([]);
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
-    // 10MB 체크
-    if (file.size > 10 * 1024 * 1024) {
-      alert("파일 크기는 10MB 이하여야 합니다");
-      return;
+    // 여러 파일 업로드 지원
+    const fileArray = Array.from(files);
+
+    // 각 파일 크기 체크 (10MB)
+    for (const file of fileArray) {
+      if (file.size > 10 * 1024 * 1024) {
+        alert(`${file.name} 파일 크기는 10MB 이하여야 합니다`);
+        return;
+      }
     }
 
     setUploading(true);
     try {
-      const formData = new FormData();
-      formData.append("file", file);
+      const uploadPromises = fileArray.map(async (file) => {
+        const formDataToUpload = new FormData();
+        formDataToUpload.append("file", file);
 
-      const res = await fetch("/api/announcements/upload", {
-        method: "POST",
-        body: formData,
+        const res = await fetch("/api/announcements/upload", {
+          method: "POST",
+          body: formDataToUpload,
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          return data.url;
+        } else {
+          throw new Error(data.error || "이미지 업로드 실패");
+        }
       });
 
-      const data = await res.json();
+      const uploadedUrls = await Promise.all(uploadPromises);
 
-      if (data.success) {
-        setFormData((prev) => ({ ...prev, imageUrl: data.url }));
-        setImagePreview(data.url);
-      } else {
-        alert(data.error || "이미지 업로드 실패");
-      }
+      setFormData((prev) => ({
+        ...prev,
+        imageUrls: [...prev.imageUrls, ...uploadedUrls],
+      }));
+      setImagePreviews((prev) => [...prev, ...uploadedUrls]);
     } catch (error) {
       console.error("이미지 업로드 실패:", error);
       alert("이미지 업로드 중 오류가 발생했습니다");
     } finally {
       setUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
   };
 
-  const handleRemoveImage = () => {
-    setFormData((prev) => ({ ...prev, imageUrl: "" }));
-    setImagePreview(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+  const handleRemoveImage = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      imageUrls: prev.imageUrls.filter((_, i) => i !== index),
+    }));
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async () => {
@@ -304,14 +321,19 @@ export default function AdminAnnouncementsPage() {
                   className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
                 >
                   {/* 썸네일 이미지 */}
-                  {announcement.imageUrl ? (
+                  {announcement.imageUrls && announcement.imageUrls.length > 0 ? (
                     <div className="relative w-full aspect-square bg-gray-100">
                       <Image
-                        src={announcement.imageUrl}
+                        src={announcement.imageUrls[0]}
                         alt={announcement.title}
                         fill
                         className="object-cover"
                       />
+                      {announcement.imageUrls.length > 1 && (
+                        <div className="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs font-medium">
+                          +{announcement.imageUrls.length - 1}
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="w-full aspect-square bg-gradient-to-br from-red-50 to-pink-100 flex items-center justify-center">
@@ -420,57 +442,70 @@ export default function AdminAnnouncementsPage() {
               />
             </div>
 
-            {/* 이미지 업로드 */}
+            {/* 이미지 업로드 (여러 이미지 지원) */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                썸네일 이미지 (선택사항)
+                이미지 ({imagePreviews.length}개)
               </label>
 
-              {imagePreview ? (
-                <div className="relative w-full h-64 rounded-lg overflow-hidden border-2 border-gray-200">
-                  <Image
-                    src={imagePreview}
-                    alt="미리보기"
-                    fill
-                    className="object-cover"
-                  />
-                  <button
-                    onClick={handleRemoveImage}
-                    className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full hover:bg-red-700"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              ) : (
-                <div>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                    id="image-upload"
-                  />
-                  <label
-                    htmlFor="image-upload"
-                    className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50"
-                  >
-                    {uploading ? (
-                      <div className="text-gray-500">업로드 중...</div>
-                    ) : (
-                      <>
-                        <Upload className="w-12 h-12 text-gray-400 mb-2" />
-                        <p className="text-sm text-gray-600">
-                          클릭하여 이미지 업로드
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          JPG, PNG, GIF, WEBP (최대 10MB)
-                        </p>
-                      </>
-                    )}
-                  </label>
+              {/* 이미지 미리보기 그리드 */}
+              {imagePreviews.length > 0 && (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-3">
+                  {imagePreviews.map((url, index) => (
+                    <div
+                      key={index}
+                      className="relative aspect-square rounded-lg overflow-hidden border-2 border-gray-200 group"
+                    >
+                      <Image
+                        src={url}
+                        alt={`이미지 ${index + 1}`}
+                        fill
+                        className="object-cover"
+                      />
+                      <button
+                        onClick={() => handleRemoveImage(index)}
+                        className="absolute top-2 right-2 bg-red-600 text-white p-1.5 rounded-full hover:bg-red-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                      <div className="absolute bottom-2 left-2 bg-black/70 text-white px-2 py-0.5 rounded text-xs">
+                        {index + 1}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
+
+              {/* 이미지 업로드 버튼 */}
+              <div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleImageUpload}
+                  className="hidden"
+                  id="image-upload"
+                />
+                <label
+                  htmlFor="image-upload"
+                  className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50"
+                >
+                  {uploading ? (
+                    <div className="text-gray-500">업로드 중...</div>
+                  ) : (
+                    <>
+                      <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                      <p className="text-sm text-gray-600">
+                        클릭하여 이미지 추가 (여러 개 선택 가능)
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        JPG, PNG, GIF, WEBP (최대 10MB)
+                      </p>
+                    </>
+                  )}
+                </label>
+              </div>
             </div>
 
             <div>

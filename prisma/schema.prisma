@@ -535,7 +535,7 @@ model Announcement {
   content String @db.Text
 
   // 미디어
-  imageUrl   String? // 게시글 대표 이미지
+  imageUrls  String[] @default([]) // 게시글 이미지 (여러 개)
   youtubeUrl String? // 유튜브 영상 링크
 
   // 발행 상태

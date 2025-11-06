@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     const adminId = (session.user as any).id;
     const adminName = (session.user as any).name;
     const body = await request.json();
-    const { title, content, imageUrl, youtubeUrl, published = true } = body;
+    const { title, content, imageUrls = [], youtubeUrl, published = true } = body;
 
     if (!title || !content) {
       return NextResponse.json(
@@ -55,7 +55,7 @@ export async function POST(request: Request) {
         authorName: adminName,
         title,
         content,
-        imageUrl: imageUrl || null,
+        imageUrls: Array.isArray(imageUrls) ? imageUrls : [],
         youtubeUrl: youtubeUrl || null,
         published,
       },
@@ -80,10 +80,12 @@ export async function POST(request: Request) {
         // 이메일 발송
         const { sendEmail } = await import("@/lib/email/resendClient");
 
-        // 이미지 HTML 생성
-        const imageHtml = imageUrl
+        // 이미지 HTML 생성 (여러 이미지 지원)
+        const imagesHtml = imageUrls && imageUrls.length > 0
           ? `<div style="margin: 20px 0;">
-               <img src="${process.env.NEXTAUTH_URL}${imageUrl}" alt="${title}" style="max-width: 100%; height: auto; border-radius: 8px;" />
+               ${imageUrls.map((url: string) =>
+                 `<img src="${process.env.NEXTAUTH_URL}${url}" alt="${title}" style="max-width: 100%; height: auto; border-radius: 8px; margin-bottom: 10px; display: block;" />`
+               ).join('')}
              </div>`
           : '';
 
@@ -112,7 +114,7 @@ export async function POST(request: Request) {
                 </p>
                 <div style="background-color: #f9fafb; border-left: 4px solid #dc2626; padding: 20px; margin: 20px 0;">
                   <h3 style="color: #1f2937; margin-top: 0;">${title}</h3>
-                  ${imageHtml}
+                  ${imagesHtml}
                   <div style="color: #4b5563; line-height: 1.6; white-space: pre-wrap;">
 ${content}
                   </div>

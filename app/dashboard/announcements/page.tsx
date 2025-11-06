@@ -21,7 +21,7 @@ type Announcement = {
   authorName: string;
   title: string;
   content: string;
-  imageUrl: string | null;
+  imageUrls: string[];
   youtubeUrl: string | null;
   published: boolean;
   createdAt: string;
@@ -167,16 +167,20 @@ export default function UserAnnouncementsPage() {
               <span>{formatDate(selectedAnnouncement.createdAt)}</span>
             </div>
 
-            {/* 대표 이미지 */}
-            {selectedAnnouncement.imageUrl && (
-              <div className="relative w-full mb-6 rounded-lg overflow-hidden">
-                <Image
-                  src={selectedAnnouncement.imageUrl}
-                  alt={selectedAnnouncement.title}
-                  width={1200}
-                  height={800}
-                  className="w-full h-auto"
-                />
+            {/* 이미지 갤러리 */}
+            {selectedAnnouncement.imageUrls && selectedAnnouncement.imageUrls.length > 0 && (
+              <div className="space-y-4 mb-6">
+                {selectedAnnouncement.imageUrls.map((imageUrl, index) => (
+                  <div key={index} className="relative w-full rounded-lg overflow-hidden">
+                    <Image
+                      src={imageUrl}
+                      alt={`${selectedAnnouncement.title} - 이미지 ${index + 1}`}
+                      width={1200}
+                      height={800}
+                      className="w-full h-auto"
+                    />
+                  </div>
+                ))}
               </div>
             )}
 
@@ -332,14 +336,19 @@ export default function UserAnnouncementsPage() {
               onClick={() => setSelectedAnnouncement(announcement)}
             >
               {/* 썸네일 이미지 */}
-              {announcement.imageUrl ? (
+              {announcement.imageUrls && announcement.imageUrls.length > 0 ? (
                 <div className="relative w-full aspect-square bg-gray-100">
                   <Image
-                    src={announcement.imageUrl}
+                    src={announcement.imageUrls[0]}
                     alt={announcement.title}
                     fill
                     className="object-cover"
                   />
+                  {announcement.imageUrls.length > 1 && (
+                    <div className="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs font-medium">
+                      +{announcement.imageUrls.length - 1}
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="w-full aspect-square bg-gradient-to-br from-red-50 via-pink-50 to-orange-50 flex items-center justify-center">
