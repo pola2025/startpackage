@@ -193,7 +193,6 @@ export default function AdminAnnouncementsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          imageUrl: formData.imageUrl || null,
           youtubeUrl: formData.youtubeUrl || null,
         }),
       });
