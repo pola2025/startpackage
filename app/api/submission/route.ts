@@ -484,36 +484,36 @@ export async function POST(request: Request) {
       });
 
       if (user) {
-        // 워크플로우 확인 및 생성/업데이트
-        const existingWorkflows = await prisma.workflow.findMany({
-          where: { userId },
-        });
+        // 워크플로우 생성/업데이트 (upsert로 안전하게 처리)
+        console.log(`✅ 워크플로우 생성/업데이트 중: userId=${userId}`);
+        const submitDate = new Date();
+        const printTypes = ["명함", "명찰", "대봉투", "자문계약서 표지", "자문계약서 내지"];
 
-        if (existingWorkflows.length === 0) {
-          // 워크플로우가 없으면 새로 생성 (시안중 상태로)
-          console.log(`✅ 워크플로우 생성 중: userId=${userId}`);
-          await prisma.workflow.createMany({
-            data: [
-              { userId, type: "명함", status: "시안중", 자료제출일: new Date() },
-              { userId, type: "명찰", status: "시안중", 자료제출일: new Date() },
-              { userId, type: "대봉투", status: "시안중", 자료제출일: new Date() },
-              { userId, type: "자문계약서 표지", status: "시안중", 자료제출일: new Date() },
-              { userId, type: "자문계약서 내지", status: "시안중", 자료제출일: new Date() },
-            ],
-          });
-          console.log(`✅ 워크플로우 5개 생성 완료`);
-        } else {
-          // 워크플로우가 있으면 상태만 업데이트
-          console.log(`✅ 워크플로우 업데이트 중: ${existingWorkflows.length}개`);
-          await prisma.workflow.updateMany({
-            where: { userId },
-            data: {
-              status: "시안중",
-              자료제출일: new Date(),
-            },
-          });
-          console.log(`✅ 워크플로우 업데이트 완료`);
-        }
+        await prisma.$transaction(
+          printTypes.map((type) =>
+            prisma.workflow.upsert({
+              where: {
+                userId_type: {
+                  userId,
+                  type,
+                },
+              },
+              create: {
+                userId,
+                type,
+                status: "시안중",
+                자료제출일: submitDate,
+                isDraft: false,
+              },
+              update: {
+                status: "시안중",
+                자료제출일: submitDate,
+                isDraft: false,
+              },
+            })
+          )
+        );
+        console.log(`✅ 워크플로우 ${printTypes.length}개 생성/업데이트 완료`);
 
         // 슬랙 채널명 생성을 위한 이름 (한글 자동 변환)
         const cohortName = user.cohort?.englishName || user.cohort?.name || "unknown";
