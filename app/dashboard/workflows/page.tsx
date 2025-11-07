@@ -187,6 +187,22 @@ export default function WorkflowsPage() {
         </p>
       </div>
 
+      {/* 인쇄물 배송 안내 */}
+      <Alert className="bg-gradient-to-r from-orange-50 to-amber-50 border-2 border-orange-300 shadow-lg">
+        <Truck className="h-5 w-5 text-orange-700" />
+        <AlertDescription>
+          <div className="space-y-2">
+            <p className="text-orange-900 font-bold text-base">📦 인쇄물 배송 안내</p>
+            <div className="bg-white border border-orange-200 rounded-lg p-3">
+              <p className="text-gray-800 text-sm leading-relaxed">
+                인쇄물(명함, 대봉투, 계약서)은 <span className="font-bold text-orange-700">각각의 제작 일정에 따라 개별 배송</span>됩니다.<br />
+                합배송되지 않으니 참고해 주세요.
+              </p>
+            </div>
+          </div>
+        </AlertDescription>
+      </Alert>
+
       {/* 제작 소요 기간 안내 */}
       <Alert className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 shadow-lg">
         <Info className="h-5 w-5 text-blue-700" />
