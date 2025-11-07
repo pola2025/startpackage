@@ -430,17 +430,6 @@ export async function POST(request: Request) {
             },
           ],
         }).catch(err => console.error("명함 스타일 메시지 전송 실패", err));
-
-        // 명함 워크플로우에 스타일 정보 기록 (메모 필드 활용)
-        await prisma.workflow.updateMany({
-          where: {
-            userId,
-            type: "명함",
-          },
-          data: {
-            // 추후 메모 필드 추가 가능
-          },
-        }).catch(err => console.error("워크플로우 업데이트 실패", err));
       }
     }
 
