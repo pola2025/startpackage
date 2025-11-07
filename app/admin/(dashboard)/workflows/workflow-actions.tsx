@@ -193,8 +193,8 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
           수정
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-white border-gray-200">
-        <DialogHeader>
+      <DialogContent className="bg-white border-gray-200 max-h-[85vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle className="text-xl text-gray-900">
             워크플로우 수정
           </DialogTitle>
@@ -203,7 +203,7 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 mt-4">
+        <div className="flex-1 overflow-y-auto min-h-0 space-y-4 mt-4">
           {/* Revision Count Warning */}
           {workflow.수정횟수 >= 2 && (
             <div className={`p-3 rounded-lg border ${workflow.수정횟수 > 2 ? 'bg-red-50 border-red-200' : 'bg-amber-50 border-amber-200'}`}>

@@ -73,8 +73,8 @@ export default function SubmissionViewButton({ workflow }: SubmissionViewButtonP
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="bg-white border-gray-200 max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="bg-white border-gray-200 max-w-4xl max-h-[85vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle className="text-xl text-gray-900">
             {workflow.user.이름} - {workflow.type} 제작 정보
           </DialogTitle>
@@ -83,13 +83,14 @@ export default function SubmissionViewButton({ workflow }: SubmissionViewButtonP
           </DialogDescription>
         </DialogHeader>
 
-        {loading ? (
-          <div className="py-12 text-center">
-            <Loader2 className="w-8 h-8 mx-auto animate-spin text-blue-600 mb-3" />
-            <p className="text-gray-500">정보를 불러오는 중...</p>
-          </div>
-        ) : submission ? (
-          <Tabs defaultValue={getDefaultTab()} className="mt-4">
+        <div className="flex-1 overflow-y-auto min-h-0">
+          {loading ? (
+            <div className="py-12 text-center">
+              <Loader2 className="w-8 h-8 mx-auto animate-spin text-blue-600 mb-3" />
+              <p className="text-gray-500">정보를 불러오는 중...</p>
+            </div>
+          ) : submission ? (
+            <Tabs defaultValue={getDefaultTab()} className="mt-4">
             <TabsList className="grid w-full grid-cols-5 bg-gray-100">
               <TabsTrigger value="basic">기본 정보</TabsTrigger>
               <TabsTrigger value="logo">로고</TabsTrigger>
@@ -422,11 +423,12 @@ export default function SubmissionViewButton({ workflow }: SubmissionViewButtonP
               </div>
             </TabsContent>
           </Tabs>
-        ) : (
-          <div className="py-12 text-center text-gray-500">
-            제출된 정보가 없습니다.
-          </div>
-        )}
+          ) : (
+            <div className="py-12 text-center text-gray-500">
+              제출된 정보가 없습니다.
+            </div>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );
