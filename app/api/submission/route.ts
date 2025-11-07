@@ -169,6 +169,7 @@ export async function POST(request: Request) {
             status: "제작 진행 중",
             자료제출일: new Date(),
             예상도착일: deadlineString,
+            isDraft: false, // 스타일/컬러 선택 시 최종저장
           },
         });
         console.log(`✅ 홈페이지 워크플로우 생성 완료 (예상 완료일: ${deadlineString})`);
@@ -180,6 +181,7 @@ export async function POST(request: Request) {
           data: {
             예상도착일: deadlineString,
             status: "제작 진행 중",
+            isDraft: false, // 스타일/컬러 선택 시 최종저장
           },
         });
         console.log(`✅ 홈페이지 워크플로우 업데이트 완료 (예상 완료일: ${deadlineString})`);
