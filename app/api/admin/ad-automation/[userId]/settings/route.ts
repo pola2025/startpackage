@@ -120,6 +120,34 @@ export async function POST(
       },
     });
 
+    // 홈페이지 완료 체크 시 워크플로우 자동 생성 또는 업데이트
+    if (homepageCompleted) {
+      // 기존 홈페이지 워크플로우가 있는지 확인
+      const existingWorkflow = await prisma.workflow.findFirst({
+        where: {
+          userId,
+          type: "홈페이지",
+        },
+      });
+
+      if (existingWorkflow) {
+        // 기존 워크플로우가 있으면 발송완료로 상태 변경
+        await prisma.workflow.update({
+          where: { id: existingWorkflow.id },
+          data: { status: "발송완료" },
+        });
+      } else {
+        // 기존 워크플로우가 없으면 새로 생성하고 바로 발송완료 상태로 설정
+        await prisma.workflow.create({
+          data: {
+            userId,
+            type: "홈페이지",
+            status: "발송완료",
+          },
+        });
+      }
+    }
+
     // 이력 기록 (광고 자동화만)
     await prisma.adAutomationHistory.create({
       data: {

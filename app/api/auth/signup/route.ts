@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // 기본 워크플로우 생성 (명함, 명찰, 대봉투, 자문계약서 표지, 자문계약서 내지)
+    // 기본 워크플로우 생성 (명함, 명찰, 대봉투, 자문계약서 표지, 자문계약서 내지, 홈페이지)
     await prisma.workflow.createMany({
       data: [
         { userId: user.id, type: "명함", status: "대기" },
@@ -111,6 +111,7 @@ export async function POST(request: NextRequest) {
         { userId: user.id, type: "대봉투", status: "대기" },
         { userId: user.id, type: "자문계약서 표지", status: "대기" },
         { userId: user.id, type: "자문계약서 내지", status: "대기" },
+        { userId: user.id, type: "홈페이지", status: "대기" },
       ],
     });
 
