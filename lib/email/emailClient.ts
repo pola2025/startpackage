@@ -34,7 +34,7 @@ export async function sendEmail({ to, subject, html, from }: SendEmailParams) {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: from || "스타트패키지 <noreply@startpackage.com>",
+        from: from || "스타트패키지 <noreply@polaai.co.kr>",
         to: [to],
         subject,
         html,
