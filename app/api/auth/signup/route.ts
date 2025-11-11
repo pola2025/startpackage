@@ -87,39 +87,44 @@ export async function POST(request: NextRequest) {
     // 비밀번호 해시
     const hashedPassword = await hash(password, 10);
 
+    // 트랜잭션으로 사용자, 워크플로우, submission 생성 (원자성 보장)
+    const user = await prisma.$transaction(async (tx) => {
+      // 사용자 생성
+      const newUser = await tx.user.create({
+        data: {
+          email: 이메일,
+          password: hashedPassword,
+          이름,
+          연락처: 연락처.replace(/-/g, ""), // 하이픈 제거
+          cohortId,
+          SMS수신동의: true,
+          이메일수신동의: true,
+          role: "user",
+        },
+      });
 
-    // 사용자 생성
-    const user = await prisma.user.create({
-      data: {
-        email: 이메일,
-        password: hashedPassword,
-        이름,
-        연락처: 연락처.replace(/-/g, ""), // 하이픈 제거
-        cohortId,
-        SMS수신동의: true,
-        이메일수신동의: true,
-        role: "user",
-        
-      },
-    });
+      // 기본 워크플로우 생성 (명함, 명찰, 대봉투, 자문계약서 표지, 자문계약서 내지, 홈페이지)
+      await tx.workflow.createMany({
+        data: [
+          { userId: newUser.id, type: "명함", status: "대기" },
+          { userId: newUser.id, type: "명찰", status: "대기" },
+          { userId: newUser.id, type: "대봉투", status: "대기" },
+          { userId: newUser.id, type: "자문계약서 표지", status: "대기" },
+          { userId: newUser.id, type: "자문계약서 내지", status: "대기" },
+          { userId: newUser.id, type: "홈페이지", status: "대기" },
+        ],
+      });
 
-    // 기본 워크플로우 생성 (명함, 명찰, 대봉투, 자문계약서 표지, 자문계약서 내지, 홈페이지)
-    await prisma.workflow.createMany({
-      data: [
-        { userId: user.id, type: "명함", status: "대기" },
-        { userId: user.id, type: "명찰", status: "대기" },
-        { userId: user.id, type: "대봉투", status: "대기" },
-        { userId: user.id, type: "자문계약서 표지", status: "대기" },
-        { userId: user.id, type: "자문계약서 내지", status: "대기" },
-        { userId: user.id, type: "홈페이지", status: "대기" },
-      ],
-    });
+      // 기본 submission 생성
+      await tx.submission.create({
+        data: {
+          userId: newUser.id,
+        },
+      });
 
-    // 기본 submission 생성
-    await prisma.submission.create({
-      data: {
-        userId: user.id,
-      },
+      console.log(`✅ 사용자 생성 완료: ${newUser.이름} (워크플로우 6개, submission 1개)`);
+
+      return newUser;
     });
 
     // 텔레그램 관리자 알림 (신규 회원 가입)

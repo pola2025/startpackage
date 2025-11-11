@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatDate, formatDday } from "@/lib/utils";
 import PrintRequestButton from "./print-request-button";
 import MarketingExtensionDialog from "./marketing-extension-dialog";
+import { ensureUserWorkflows } from "@/lib/ensureUserWorkflows";
 
 // Temporary Progress component
 function Progress({ value, className }: { value: number; className?: string }) {
@@ -54,6 +55,9 @@ export default async function UserDashboard() {
   }
 
   const userId = (session.user as any).id;
+
+  // 워크플로우 누락 체크 및 자동 생성
+  await ensureUserWorkflows(userId);
 
   // 사용자 정보 조회
   const user = await prisma.user.findUnique({
