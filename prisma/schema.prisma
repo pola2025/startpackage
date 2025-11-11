@@ -150,6 +150,8 @@ model Submission {
   네이버클라우드PW String?
   InstagramID     String?
   InstagramPW     String?
+  GmailID         String? // Gmail 계정 ID (메일발신용)
+  GmailPW         String? // Gmail 계정 비밀번호
 
   // 홈페이지
   홈페이지스타일   String? // "기본스타일" | URL (템플릿 링크)

@@ -145,7 +145,7 @@ export default function SubmissionPage() {
           const hasBasic = data.브랜드명 || data.업종 || data.주소;
           const hasLogo = data.로고선호스타일 || data.로고선호폰트 || data.명함색상;
           const hasNamecard = data.명함시안;
-          const hasMarketing = data.네이버검색광고ID || data.네이버검색광고PW || data.네이버클라우드ID || data.네이버클라우드PW || data.InstagramID;
+          const hasMarketing = data.네이버검색광고ID || data.네이버검색광고PW || data.네이버클라우드ID || data.네이버클라우드PW || data.InstagramID || data.GmailID;
           const hasWebsite = data.홈페이지스타일 || data.홈페이지컬러컨셉 || data.아임웹ID || data.아임웹PW || data.아임웹관리자PW;
 
           setIsEditingBasicInfo(!hasBasic);
@@ -190,7 +190,8 @@ export default function SubmissionPage() {
       submission.네이버검색광고PW ||
       submission.네이버클라우드ID ||
       submission.네이버클라우드PW ||
-      submission.InstagramID
+      submission.InstagramID ||
+      submission.GmailID
     );
   };
 
@@ -1648,6 +1649,37 @@ export default function SubmissionPage() {
                         name="InstagramPW"
                         type="password"
                         defaultValue={submission?.InstagramPW}
+                        placeholder="비밀번호"
+                        disabled={!isEditingMarketing}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Gmail (메일발신용) */}
+                <div className="space-y-4 p-4 rounded-lg border-2 border-purple-200 bg-purple-50/50">
+                  <div className="space-y-2">
+                    <Label className="text-sm sm:text-base font-semibold">Gmail (메일발신용)</Label>
+                    <p className="text-xs sm:text-sm text-gray-600">신규 개설한 Gmail 계정 ID/PW를 입력해주세요</p>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="GmailID" className="text-sm sm:text-base">ID</Label>
+                      <Input
+                        id="GmailID"
+                        name="GmailID"
+                        defaultValue={submission?.GmailID}
+                        placeholder="example@gmail.com"
+                        disabled={!isEditingMarketing}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="GmailPW" className="text-sm sm:text-base">비밀번호</Label>
+                      <Input
+                        id="GmailPW"
+                        name="GmailPW"
+                        type="password"
+                        defaultValue={submission?.GmailPW}
                         placeholder="비밀번호"
                         disabled={!isEditingMarketing}
                       />
