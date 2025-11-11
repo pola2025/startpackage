@@ -1243,6 +1243,26 @@ export default function SubmissionPage() {
         {/* 인쇄물 */}
         <TabsContent value="print">
           <div className="space-y-6">
+            {/* 인쇄물 디자인 제한 안내 */}
+            <div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-blue-900 font-semibold text-sm mb-2">📋 인쇄물 디자인 안내</p>
+                  <p className="text-blue-800 text-xs leading-relaxed mb-2">
+                    인쇄물 디자인은 <strong>기본 디자인에서 일부 변경만 가능</strong>합니다.
+                  </p>
+                  <div className="text-blue-700 text-xs space-y-1">
+                    <p>• 신규 디자인 제작 불가</p>
+                    <p>• 지정된 레이아웃 변형 불가</p>
+                    <p className="text-blue-600 text-[11px] mt-2 pl-2">
+                      예) 대봉투 디자인 다른 도안으로 변경, 자문계약서 표지 문양 교체 또는 이미지 삽입 등
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {!isBasicInfoComplete() && (
               <div className="flex items-center gap-2 p-4 bg-amber-50 border border-amber-200 rounded-lg">
                 <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0" />
