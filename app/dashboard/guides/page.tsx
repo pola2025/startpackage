@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookOpen, MessageSquare, CreditCard, Globe, Mail, FileText, Instagram, UserPlus, Palette, Sparkles } from "lucide-react";
@@ -581,6 +582,25 @@ export default function GuidesPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* 인쇄물 디자인 제한 안내 */}
+              <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
+                <h3 className="text-blue-900 font-bold mb-3 flex items-center gap-2">
+                  📋 인쇄물 디자인 안내
+                </h3>
+                <div className="space-y-2 text-gray-700 text-sm">
+                  <p className="text-blue-800 font-medium">
+                    인쇄물 디자인은 <strong>기본 디자인에서 일부 변경만 가능</strong>합니다.
+                  </p>
+                  <ul className="space-y-1.5 text-blue-700">
+                    <li>• 신규 디자인 제작 불가</li>
+                    <li>• 지정된 레이아웃 변형 불가</li>
+                  </ul>
+                  <p className="text-blue-600 text-xs pl-2 pt-1">
+                    예) 대봉투 디자인 다른 도안으로 변경, 자문계약서 표지 문양 교체 또는 이미지 삽입 등
+                  </p>
+                </div>
+              </div>
+
               <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4">
                 <h3 className="text-red-600 font-bold mb-3 flex items-center gap-2">
                   ⚠️ 필독! 발주 전 주의사항
@@ -632,6 +652,119 @@ export default function GuidesPage() {
                     <h4 className="font-medium text-gray-900 mb-1">자문계약서</h4>
                     <p className="text-sm text-gray-600">A3 모조지 180g / 500매 포함</p>
                     <p className="text-xs text-orange-600 mt-1">추가 제작: 30만원 (VAT 별도)</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* 인쇄물 예시 이미지 */}
+              <div>
+                <h3 className="text-blue-600 font-semibold mb-3">🖼️ 인쇄물 예시</h3>
+
+                {/* 명함 */}
+                <div className="mb-6">
+                  <h4 className="font-medium text-gray-900 mb-3">명함</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+                    <div className="border border-gray-200 rounded-lg overflow-hidden">
+                      <Image
+                        src="/guides/print/namecard_1.jpg"
+                        alt="명함 예시 1"
+                        width={300}
+                        height={200}
+                        className="w-full h-auto"
+                      />
+                    </div>
+                    <div className="border border-gray-200 rounded-lg overflow-hidden">
+                      <Image
+                        src="/guides/print/namecard_2.jpg"
+                        alt="명함 예시 2"
+                        width={300}
+                        height={200}
+                        className="w-full h-auto"
+                      />
+                    </div>
+                    <div className="border border-gray-200 rounded-lg overflow-hidden">
+                      <Image
+                        src="/guides/print/namecard_3.jpg"
+                        alt="명함 예시 3"
+                        width={300}
+                        height={200}
+                        className="w-full h-auto"
+                      />
+                    </div>
+                    <div className="border border-gray-200 rounded-lg overflow-hidden">
+                      <Image
+                        src="/guides/print/namecard_4.jpg"
+                        alt="명함 예시 4"
+                        width={300}
+                        height={200}
+                        className="w-full h-auto"
+                      />
+                    </div>
+                  </div>
+                  <div className="border border-gray-200 rounded-lg overflow-hidden max-w-md">
+                    <p className="text-xs text-gray-500 mb-2 px-3 pt-3">실제 제작 사례</p>
+                    <Image
+                      src="/guides/print/namecard_sample.jpg"
+                      alt="명함 실제 제작 사례"
+                      width={600}
+                      height={400}
+                      className="w-full h-auto"
+                    />
+                  </div>
+                </div>
+
+                {/* 자문계약서 */}
+                <div className="mb-6">
+                  <h4 className="font-medium text-gray-900 mb-3">자문계약서</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="border border-gray-200 rounded-lg overflow-hidden">
+                      <p className="text-xs text-gray-500 mb-1 px-3 pt-3">표지</p>
+                      <Image
+                        src="/guides/print/contract_cover.jpg"
+                        alt="자문계약서 표지"
+                        width={400}
+                        height={600}
+                        className="w-full h-auto"
+                      />
+                    </div>
+                    <div className="border border-gray-200 rounded-lg overflow-hidden">
+                      <p className="text-xs text-gray-500 mb-1 px-3 pt-3">내지</p>
+                      <Image
+                        src="/guides/print/contract_inner.jpg"
+                        alt="자문계약서 내지"
+                        width={400}
+                        height={600}
+                        className="w-full h-auto"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 대봉투 & 명찰 */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-3">대봉투</h4>
+                    <div className="border border-gray-200 rounded-lg overflow-hidden">
+                      <Image
+                        src="/guides/print/envelope.jpg"
+                        alt="대봉투"
+                        width={600}
+                        height={400}
+                        className="w-full h-auto"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-3">명찰</h4>
+                    <div className="border border-gray-200 rounded-lg overflow-hidden">
+                      <Image
+                        src="/guides/print/badge.jpg"
+                        alt="명찰"
+                        width={600}
+                        height={400}
+                        className="w-full h-auto"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
