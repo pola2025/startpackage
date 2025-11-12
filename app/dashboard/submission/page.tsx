@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +16,9 @@ import { calculateProgress, type ProgressResult } from "@/lib/submission-progres
 
 export default function SubmissionPage() {
   const { data: session } = useSession();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [loading, setLoading] = useState(false);
   const [submission, setSubmission] = useState<any>(null);
   const [uploading, setUploading] = useState(false);
@@ -53,8 +57,30 @@ export default function SubmissionPage() {
   // 진행률 상태
   const [progress, setProgress] = useState<ProgressResult | null>(null);
 
-  // 탭 상태
-  const [activeTab, setActiveTab] = useState<string>("basic");
+  // 탭 상태 - URL 쿼리 파라미터에서 가져오기
+  const activeTab = searchParams.get("tab") || "basic";
+
+  // 탭 변경 함수 - URL 쿼리 파라미터 업데이트
+  const handleTabChange = (tab: string) => {
+    router.push(`/dashboard/submission?tab=${tab}`);
+  };
+
+  // URL이 변경되면 해당 섹션으로 스크롤
+  useEffect(() => {
+    const hash = window.location.hash.substring(1); // # 제거
+    if (hash) {
+      setTimeout(() => {
+        const element = document.getElementById(hash);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "start" });
+          // 추가 여백을 위해 약간 위로 스크롤
+          setTimeout(() => {
+            window.scrollBy({ top: -100, behavior: "smooth" });
+          }, 300);
+        }
+      }, 300);
+    }
+  }, [activeTab]); // activeTab이 변경될 때마다 실행
 
   // 제출 데이터 및 워크플로우 로드
   useEffect(() => {
@@ -467,7 +493,7 @@ export default function SubmissionPage() {
         <ProgressBar
           sections={progress.sections}
           overallPercentage={progress.overallPercentage}
-          onTabChange={setActiveTab}
+          onTabChange={handleTabChange}
         />
       )}
 
@@ -571,7 +597,7 @@ export default function SubmissionPage() {
         )}
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6 w-full">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6 w-full">
         {/* 깔끔하고 직관적인 탭 네비게이션 - 모바일 2단 구조 */}
         <TabsList className="bg-white border-2 border-gray-200 p-1.5 rounded-xl shadow-sm grid grid-cols-3 md:grid-cols-5 gap-1 h-auto">
           <TabsTrigger
@@ -649,7 +675,7 @@ export default function SubmissionPage() {
                 className="space-y-4"
               >
                 <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
-                  <div className="space-y-2">
+                  <div id="brand-section" className="space-y-2">
                     <Label htmlFor="브랜드명" className="text-sm sm:text-base">브랜드명 *</Label>
                     <Input
                       id="브랜드명"
@@ -1286,9 +1312,9 @@ export default function SubmissionPage() {
                   사업자등록증과 프로필 사진을 업로드해주세요
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4" id="business-files">
+              <CardContent className="space-y-4">
                 {/* 사업자등록증 */}
-                <div className="space-y-2">
+                <div id="business-license-section" className="space-y-2">
                   <Label className="text-sm sm:text-base">사업자등록증 *</Label>
                   {submission?.사업자등록증URL ? (
                     <div className="space-y-2">
@@ -1346,7 +1372,7 @@ export default function SubmissionPage() {
                 </div>
 
                 {/* 프로필사진 */}
-                <div className="space-y-2">
+                <div id="profile-photo-section" className="space-y-2">
                   <Label className="text-sm sm:text-base break-words">프로필사진 * (1000px 이하)</Label>
                   {submission?.프로필사진URL ? (
                     <div className="space-y-2">
@@ -1406,7 +1432,7 @@ export default function SubmissionPage() {
             </Card>
 
             {/* 명함 정보 */}
-            <Card className="glass border-white/10">
+            <Card id="namecard-section" className="glass border-white/10">
               <CardHeader>
                 <div>
                   <CardTitle className="text-gray-900 text-lg sm:text-xl">명함 스타일</CardTitle>
@@ -1987,7 +2013,7 @@ export default function SubmissionPage() {
                 className="space-y-6"
               >
                 {/* 아임웹 계정 정보 */}
-                <div className="space-y-4 p-4 rounded-lg border-2 border-purple-200 bg-purple-50/50">
+                <div id="website-section" className="space-y-4 p-4 rounded-lg border-2 border-purple-200 bg-purple-50/50">
                   <Label className="text-sm sm:text-base font-semibold">아임웹 계정 정보</Label>
                   <div className="grid grid-cols-1 gap-4">
                     <div className="space-y-2">
@@ -2029,7 +2055,7 @@ export default function SubmissionPage() {
                 </div>
 
                 {/* 홈페이지 스타일 선택 */}
-                <div className="space-y-3">
+                <div id="homepage-section" className="space-y-3">
                   <Label className="text-sm sm:text-base break-words">홈페이지 스타일 선택 (썸네일 클릭 시 크게 보기)</Label>
                   <input type="hidden" name="홈페이지스타일" value={selectedWebsiteStyle} />
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">

@@ -38,39 +38,33 @@ export function ProgressBar({ sections, overallPercentage, onTabChange }: Progre
       {/* 섹션별 진행률 */}
       <div className="space-y-3">
         {sections.map((section) => {
+          console.log('Section data:', section.name, section.href);
+
           const handleClick = () => {
-            if (section.href && onTabChange) {
+            if (section.href) {
               // href 형식: "tab#elementId"
               const [tab, elementId] = section.href.split('#');
 
               console.log('Progress bar clicked:', { tab, elementId });
 
-              // 탭 변경
-              onTabChange(tab);
+              // URL 변경 (쿼리 파라미터 + 해시)
+              const url = elementId
+                ? `/dashboard/submission?tab=${tab}#${elementId}`
+                : `/dashboard/submission?tab=${tab}`;
 
-              // 탭이 변경된 후 스크롤 (더 긴 딜레이로 렌더링 완료 보장)
-              if (elementId) {
-                setTimeout(() => {
-                  const element = document.getElementById(elementId);
-                  console.log('Scrolling to element:', elementId, element);
-                  if (element) {
-                    element.scrollIntoView({ behavior: "smooth", block: "start" });
-                    // 추가 여백을 위해 약간 위로 스크롤
-                    setTimeout(() => {
-                      window.scrollBy({ top: -100, behavior: "smooth" });
-                    }, 300);
-                  } else {
-                    console.warn('Element not found:', elementId);
-                  }
-                }, 300);
-              }
+              window.location.href = url;
             }
           };
 
           return (
             <div
               key={section.name}
-              onClick={handleClick}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('🔴 Div clicked!', section.name, section.href);
+                handleClick();
+              }}
               className={`flex items-center justify-between p-3 rounded-lg border transition-all ${
                 section.isComplete
                   ? "bg-green-50 border-green-200"
@@ -78,6 +72,7 @@ export function ProgressBar({ sections, overallPercentage, onTabChange }: Progre
                   ? "bg-yellow-50 border-yellow-200"
                   : "bg-gray-50 border-gray-200"
               } ${section.href ? "cursor-pointer hover:shadow-md hover:scale-[1.02]" : ""}`}
+              style={{ pointerEvents: 'auto' }}
             >
               <div className="flex items-center gap-2">
                 {section.isComplete ? (

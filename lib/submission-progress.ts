@@ -1,23 +1,29 @@
 /**
- * 자료 제출 진행률 계산 유틸리티
+ * 자료 제출 진행률 계산 유틸리티 v2
+ * 7개 섹션: 브랜드정보, 사업자등록증, 프로필사진, 명함스타일, 로고, 홈페이지, 마케팅
  */
 
 export interface SubmissionData {
-  // 로고 제작
+  // 기본 정보
   브랜드명: string | null;
+
+  // 인쇄물
+  사업자등록증URL: string | null;
+  프로필사진URL: string | null;
+  명함시안: string | null;
+  명함색상: string | null;
+
+  // 로고
   로고선호스타일: string | null;
   로고선호색상: string | null;
   로고선호폰트: string | null;
   로고제작요청사항: string | null;
+
+  // 홈페이지
   홈페이지컬러컨셉: string | null;
+  홈페이지스타일: string | null;
 
-  // 인쇄물 제작
-  주소: string | null;
-  인쇄물받을주소: string | null;
-
-  // 계정 정보
-  아임웹ID: string | null;
-  아임웹PW: string | null;
+  // 마케팅
   InstagramID: string | null;
   InstagramPW: string | null;
   네이버검색광고ID: string | null;
@@ -37,7 +43,7 @@ export interface ProgressSection {
   total: number;
   percentage: number;
   isComplete: boolean;
-  href?: string; // 클릭 시 이동할 앵커 또는 URL
+  href?: string;
 }
 
 export interface ProgressResult {
@@ -46,38 +52,6 @@ export interface ProgressResult {
   totalRequired: number;
   overallPercentage: number;
 }
-
-/**
- * 필수 항목 정의
- */
-const REQUIRED_FIELDS = {
-  로고제작: {
-    label: "로고 제작 정보",
-    fields: [
-      "브랜드명",
-      "로고선호스타일",
-      "로고선호색상",
-      "로고선호폰트",
-      "로고제작요청사항",
-      "홈페이지컬러컨셉",
-    ],
-  },
-  인쇄물제작: {
-    label: "인쇄물 제작 정보",
-    fields: ["이름", "연락처", "주소"],
-  },
-  계정정보: {
-    label: "계정 정보",
-    fields: [
-      "아임웹ID",
-      "아임웹PW",
-      "InstagramID",
-      "InstagramPW",
-      "네이버검색광고ID",
-      "네이버검색광고PW",
-    ],
-  },
-};
 
 /**
  * 필드 값이 비어있는지 확인
@@ -95,14 +69,72 @@ export function calculateProgress(
 ): ProgressResult {
   const sections: ProgressSection[] = [];
 
-  // 로고 제작 섹션
-  const logoFields = REQUIRED_FIELDS.로고제작.fields;
+  // 1. 브랜드정보
+  const brandCompleted = !isEmpty(submission.브랜드명) ? 1 : 0;
+  sections.push({
+    name: "브랜드정보",
+    label: "브랜드정보",
+    fields: ["브랜드명"],
+    completed: brandCompleted,
+    total: 1,
+    percentage: brandCompleted * 100,
+    isComplete: brandCompleted === 1,
+    href: "basic#brand-section",
+  });
+
+  // 2. 사업자등록증
+  const licenseCompleted = !isEmpty(submission.사업자등록증URL) ? 1 : 0;
+  sections.push({
+    name: "사업자등록증",
+    label: "사업자등록증",
+    fields: ["사업자등록증URL"],
+    completed: licenseCompleted,
+    total: 1,
+    percentage: licenseCompleted * 100,
+    isComplete: licenseCompleted === 1,
+    href: "print#business-license-section",
+  });
+
+  // 3. 프로필사진
+  const profileCompleted = !isEmpty(submission.프로필사진URL) ? 1 : 0;
+  sections.push({
+    name: "프로필사진",
+    label: "프로필사진",
+    fields: ["프로필사진URL"],
+    completed: profileCompleted,
+    total: 1,
+    percentage: profileCompleted * 100,
+    isComplete: profileCompleted === 1,
+    href: "print#profile-photo-section",
+  });
+
+  // 4. 명함스타일 (명함시안 OR 명함색상)
+  const namecardCompleted =
+    (!isEmpty(submission.명함시안) || !isEmpty(submission.명함색상)) ? 1 : 0;
+  sections.push({
+    name: "명함스타일",
+    label: "명함스타일",
+    fields: ["명함시안", "명함색상"],
+    completed: namecardCompleted,
+    total: 1,
+    percentage: namecardCompleted * 100,
+    isComplete: namecardCompleted === 1,
+    href: "print#namecard-section",
+  });
+
+  // 5. 로고
+  const logoFields = [
+    "로고선호스타일",
+    "로고선호색상",
+    "로고선호폰트",
+    "로고제작요청사항",
+  ];
   const logoCompleted = logoFields.filter(
     (field) => !isEmpty(submission[field as keyof SubmissionData] as string)
   ).length;
   sections.push({
-    name: "로고제작",
-    label: REQUIRED_FIELDS.로고제작.label,
+    name: "로고",
+    label: "로고",
     fields: logoFields,
     completed: logoCompleted,
     total: logoFields.length,
@@ -111,43 +143,40 @@ export function calculateProgress(
     href: "logo#logo-section",
   });
 
-  // 인쇄물 제작 섹션
-  const printFields = REQUIRED_FIELDS.인쇄물제작.fields;
-  let printCompleted = 0;
-
-  // user 데이터 체크
-  if (!isEmpty(user.이름)) printCompleted++;
-  if (!isEmpty(user.연락처)) printCompleted++;
-
-  // submission 데이터 체크 (주소 또는 인쇄물받을주소 중 하나만 있어도 됨)
-  if (!isEmpty(submission.주소) || !isEmpty(submission.인쇄물받을주소)) {
-    printCompleted++;
-  }
-
-  sections.push({
-    name: "인쇄물제작",
-    label: REQUIRED_FIELDS.인쇄물제작.label,
-    fields: printFields,
-    completed: printCompleted,
-    total: printFields.length,
-    percentage: Math.round((printCompleted / printFields.length) * 100),
-    isComplete: printCompleted === printFields.length,
-    href: "basic#business-files",
-  });
-
-  // 계정 정보 섹션
-  const accountFields = REQUIRED_FIELDS.계정정보.fields;
-  const accountCompleted = accountFields.filter(
+  // 6. 홈페이지
+  const homepageFields = ["홈페이지컬러컨셉", "홈페이지스타일"];
+  const homepageCompleted = homepageFields.filter(
     (field) => !isEmpty(submission[field as keyof SubmissionData] as string)
   ).length;
   sections.push({
-    name: "계정정보",
-    label: REQUIRED_FIELDS.계정정보.label,
-    fields: accountFields,
-    completed: accountCompleted,
-    total: accountFields.length,
-    percentage: Math.round((accountCompleted / accountFields.length) * 100),
-    isComplete: accountCompleted === accountFields.length,
+    name: "홈페이지",
+    label: "홈페이지",
+    fields: homepageFields,
+    completed: homepageCompleted,
+    total: homepageFields.length,
+    percentage: Math.round((homepageCompleted / homepageFields.length) * 100),
+    isComplete: homepageCompleted === homepageFields.length,
+    href: "website#homepage-section",
+  });
+
+  // 7. 마케팅
+  const marketingFields = [
+    "InstagramID",
+    "InstagramPW",
+    "네이버검색광고ID",
+    "네이버검색광고PW",
+  ];
+  const marketingCompleted = marketingFields.filter(
+    (field) => !isEmpty(submission[field as keyof SubmissionData] as string)
+  ).length;
+  sections.push({
+    name: "마케팅",
+    label: "마케팅",
+    fields: marketingFields,
+    completed: marketingCompleted,
+    total: marketingFields.length,
+    percentage: Math.round((marketingCompleted / marketingFields.length) * 100),
+    isComplete: marketingCompleted === marketingFields.length,
     href: "marketing#account-section",
   });
 
@@ -169,16 +198,16 @@ export function calculateProgress(
  */
 export const FIELD_LABELS: Record<string, string> = {
   브랜드명: "브랜드명",
+  사업자등록증URL: "사업자등록증",
+  프로필사진URL: "프로필사진",
+  명함시안: "명함 시안",
+  명함색상: "명함 색상",
   로고선호스타일: "로고 선호 스타일",
   로고선호색상: "로고 선호 색상",
   로고선호폰트: "로고 선호 폰트",
   로고제작요청사항: "로고 제작 요청사항",
   홈페이지컬러컨셉: "홈페이지 컬러 컨셉",
-  이름: "이름",
-  연락처: "연락처",
-  주소: "주소",
-  아임웹ID: "아임웹 ID",
-  아임웹PW: "아임웹 PW",
+  홈페이지스타일: "홈페이지 스타일",
   InstagramID: "인스타그램 ID",
   InstagramPW: "인스타그램 PW",
   네이버검색광고ID: "네이버 검색광고 ID",
