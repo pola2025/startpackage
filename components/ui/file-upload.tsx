@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Upload, X, CheckCircle, AlertCircle } from "lucide-react";
 
 interface FileUploadProps {
@@ -46,10 +47,57 @@ export function FileUpload({
   showPreview = false,
   onDelete,
 }: FileUploadProps) {
+  // 내부 에러 상태 (검증 에러)
+  const [internalError, setInternalError] = useState<string | null>(null);
+
+  // 파일 검증 함수
+  const validateFile = (file: File): string | null => {
+    // 파일 크기 검증 (MB 단위)
+    const fileSizeMB = file.size / 1024 / 1024;
+    if (fileSizeMB > maxSize) {
+      return `파일 크기가 너무 큽니다. 최대 ${maxSize}MB까지 업로드 가능합니다.`;
+    }
+
+    // 파일 형식 검증
+    if (accept && accept !== "*") {
+      const acceptedTypes = accept.split(",").map(t => t.trim().toLowerCase());
+      const fileExtension = `.${file.name.split(".").pop()?.toLowerCase()}`;
+      const fileMimeType = file.type.toLowerCase();
+
+      const isAccepted = acceptedTypes.some(type => {
+        if (type.startsWith(".")) {
+          // 확장자 검증 (예: .jpg, .png)
+          return fileExtension === type;
+        } else if (type.includes("/*")) {
+          // MIME 타입 와일드카드 검증 (예: image/*)
+          const baseType = type.split("/")[0];
+          return fileMimeType.startsWith(`${baseType}/`);
+        } else {
+          // 정확한 MIME 타입 검증 (예: application/pdf)
+          return fileMimeType === type;
+        }
+      });
+
+      if (!isAccepted) {
+        return `지원하지 않는 파일 형식입니다. (허용: ${accept})`;
+      }
+    }
+
+    return null;
+  };
+
   // 파일 선택 핸들러
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      const validationError = validateFile(file);
+      if (validationError) {
+        // 내부 에러 상태 설정
+        setInternalError(validationError);
+        return;
+      }
+      // 검증 통과 시 에러 초기화하고 onChange 호출
+      setInternalError(null);
       onChange(file);
     }
   };
@@ -129,12 +177,12 @@ export function FileUpload({
         </div>
       )}
 
-      {/* Level 3: 에러 표시 */}
-      {error && (
+      {/* Level 3: 에러 표시 (외부 에러 또는 내부 검증 에러) */}
+      {(error || internalError) && (
         <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
           <AlertCircle className="w-4 h-4 text-red-600" />
           <p className="text-sm text-red-600">
-            {error}
+            {error || internalError}
           </p>
         </div>
       )}
