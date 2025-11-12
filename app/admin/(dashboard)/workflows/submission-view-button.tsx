@@ -143,17 +143,20 @@ export default function SubmissionViewButton({ workflow }: SubmissionViewButtonP
               </div>
 
               {/* 배송 정보 */}
-              {workflow.type !== "로고" && workflow.type !== "홈페이지" && (
-                <div className="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <h3 className="font-semibold text-gray-900">배송 정보</h3>
-                  <div className="text-sm">
-                    <span className="text-gray-600">인쇄물 받을 주소:</span>
-                    <p className="font-medium text-gray-900 mt-1">
-                      {submission.인쇄물받을주소 || submission.주소 || "-"}
+              <div className="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <h3 className="font-semibold text-gray-900">배송 정보</h3>
+                <div className="text-sm">
+                  <span className="text-gray-600">인쇄물 받을 주소:</span>
+                  <p className="font-medium text-gray-900 mt-1">
+                    {submission.인쇄물받을주소 || submission.주소 || "-"}
+                  </p>
+                  {submission.인쇄물받을주소 && submission.인쇄물받을주소 !== submission.주소 && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      (사업장 주소: {submission.주소})
                     </p>
-                  </div>
+                  )}
                 </div>
-              )}
+              </div>
 
               {/* 파일 */}
               <div className="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
