@@ -323,6 +323,53 @@ export async function POST(request: Request) {
         }
       }
 
+      // 배송지 변경 감지 (우선순위 높음)
+      const deliveryAddressChanged = changedTextFields.find(f => f.label === "배송받을곳 주소");
+
+      // 배송지 변경 시 별도 강조 메시지
+      if (deliveryAddressChanged) {
+        await postMessage({
+          channelId: user.slackChannelId,
+          text: "🚚 배송지 정보 변경됨",
+          blocks: [
+            {
+              type: "header",
+              text: {
+                type: "plain_text",
+                text: "🚚 배송지 정보 변경됨",
+              },
+            },
+            {
+              type: "section",
+              text: {
+                type: "mrkdwn",
+                text: deliveryAddressChanged.isNew
+                  ? `*새로운 배송지 주소:*\n✨ *${deliveryAddressChanged.newValue}*`
+                  : `*배송지 주소 변경:*\n~${deliveryAddressChanged.oldValue}~ → *${deliveryAddressChanged.newValue}*`,
+              },
+            },
+            {
+              type: "context",
+              elements: [
+                {
+                  type: "mrkdwn",
+                  text: `⚠️ 배송지가 변경되었습니다. 인쇄물 발주 시 확인 필요`,
+                },
+              ],
+            },
+            {
+              type: "context",
+              elements: [
+                {
+                  type: "mrkdwn",
+                  text: `📅 ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`,
+                },
+              ],
+            },
+          ],
+        }).catch(err => console.error("배송지 변경 슬랙 메시지 전송 실패", err));
+      }
+
       // 변경된 텍스트 필드가 있으면 슬랙에 메시지 전송
       if (changedTextFields.length > 0) {
         const fields = changedTextFields.map(({ label, oldValue, newValue, isNew }) => ({
