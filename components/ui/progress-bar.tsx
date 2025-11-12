@@ -43,17 +43,26 @@ export function ProgressBar({ sections, overallPercentage, onTabChange }: Progre
               // href 형식: "tab#elementId"
               const [tab, elementId] = section.href.split('#');
 
+              console.log('Progress bar clicked:', { tab, elementId });
+
               // 탭 변경
               onTabChange(tab);
 
-              // 탭이 변경된 후 스크롤 (약간의 딜레이 필요)
+              // 탭이 변경된 후 스크롤 (더 긴 딜레이로 렌더링 완료 보장)
               if (elementId) {
                 setTimeout(() => {
                   const element = document.getElementById(elementId);
+                  console.log('Scrolling to element:', elementId, element);
                   if (element) {
                     element.scrollIntoView({ behavior: "smooth", block: "start" });
+                    // 추가 여백을 위해 약간 위로 스크롤
+                    setTimeout(() => {
+                      window.scrollBy({ top: -100, behavior: "smooth" });
+                    }, 300);
+                  } else {
+                    console.warn('Element not found:', elementId);
                   }
-                }, 100);
+                }, 300);
               }
             }
           };
