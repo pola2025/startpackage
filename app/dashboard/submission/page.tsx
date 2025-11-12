@@ -810,7 +810,7 @@ export default function SubmissionPage() {
                 className="space-y-6"
               >
                 {/* 로고 파일 업로드 */}
-                <div className="space-y-2">
+                <div id="logo-section" className="space-y-2">
                   <Label className="text-sm sm:text-base">로고 파일 (있는 경우)</Label>
                   <p className="text-xs text-gray-500">이미지 파일(JPG, PNG 등) 또는 ZIP 파일을 업로드할 수 있습니다</p>
                   {submission?.로고URL ? (
@@ -1286,7 +1286,7 @@ export default function SubmissionPage() {
                   사업자등록증과 프로필 사진을 업로드해주세요
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4" id="business-files">
                 {/* 사업자등록증 */}
                 <div className="space-y-2">
                   <Label className="text-sm sm:text-base">사업자등록증 *</Label>
@@ -1532,7 +1532,7 @@ export default function SubmissionPage() {
                 className="space-y-4"
               >
                 {/* 네이버 검색광고 */}
-                <div className="space-y-4 p-4 rounded-lg border-2 border-blue-200 bg-blue-50/50">
+                <div id="account-section" className="space-y-4 p-4 rounded-lg border-2 border-blue-200 bg-blue-50/50">
                   <div className="space-y-2">
                     <Label className="text-sm sm:text-base font-semibold">네이버 검색광고</Label>
                     <div className="text-xs sm:text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded-md p-3">

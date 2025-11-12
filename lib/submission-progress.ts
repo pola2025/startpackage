@@ -108,7 +108,7 @@ export function calculateProgress(
     total: logoFields.length,
     percentage: Math.round((logoCompleted / logoFields.length) * 100),
     isComplete: logoCompleted === logoFields.length,
-    href: "logo",
+    href: "logo#logo-section",
   });
 
   // 인쇄물 제작 섹션
@@ -132,7 +132,7 @@ export function calculateProgress(
     total: printFields.length,
     percentage: Math.round((printCompleted / printFields.length) * 100),
     isComplete: printCompleted === printFields.length,
-    href: "basic",
+    href: "basic#business-files",
   });
 
   // 계정 정보 섹션
@@ -148,7 +148,7 @@ export function calculateProgress(
     total: accountFields.length,
     percentage: Math.round((accountCompleted / accountFields.length) * 100),
     isComplete: accountCompleted === accountFields.length,
-    href: "marketing",
+    href: "marketing#account-section",
   });
 
   // 전체 진행률

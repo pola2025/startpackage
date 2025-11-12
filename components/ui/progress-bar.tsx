@@ -40,8 +40,21 @@ export function ProgressBar({ sections, overallPercentage, onTabChange }: Progre
         {sections.map((section) => {
           const handleClick = () => {
             if (section.href && onTabChange) {
+              // href 형식: "tab#elementId"
+              const [tab, elementId] = section.href.split('#');
+
               // 탭 변경
-              onTabChange(section.href);
+              onTabChange(tab);
+
+              // 탭이 변경된 후 스크롤 (약간의 딜레이 필요)
+              if (elementId) {
+                setTimeout(() => {
+                  const element = document.getElementById(elementId);
+                  if (element) {
+                    element.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }
+                }, 100);
+              }
             }
           };
 
