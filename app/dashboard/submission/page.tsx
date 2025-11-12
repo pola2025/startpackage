@@ -53,6 +53,9 @@ export default function SubmissionPage() {
   // 진행률 상태
   const [progress, setProgress] = useState<ProgressResult | null>(null);
 
+  // 탭 상태
+  const [activeTab, setActiveTab] = useState<string>("basic");
+
   // 제출 데이터 및 워크플로우 로드
   useEffect(() => {
     fetchSubmission();
@@ -464,6 +467,7 @@ export default function SubmissionPage() {
         <ProgressBar
           sections={progress.sections}
           overallPercentage={progress.overallPercentage}
+          onTabChange={setActiveTab}
         />
       )}
 
@@ -567,7 +571,7 @@ export default function SubmissionPage() {
         )}
       </div>
 
-      <Tabs defaultValue="basic" className="space-y-6 w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6 w-full">
         {/* 깔끔하고 직관적인 탭 네비게이션 - 모바일 2단 구조 */}
         <TabsList className="bg-white border-2 border-gray-200 p-1.5 rounded-xl shadow-sm grid grid-cols-3 md:grid-cols-5 gap-1 h-auto">
           <TabsTrigger
@@ -609,7 +613,7 @@ export default function SubmissionPage() {
         </TabsList>
 
         {/* 기본 정보 */}
-        <TabsContent value="basic">
+        <TabsContent value="basic" id="basic">
           <Card className="glass border-white/10">
             <CardHeader>
               <div>
@@ -778,7 +782,7 @@ export default function SubmissionPage() {
         </TabsContent>
 
         {/* 로고 */}
-        <TabsContent value="logo">
+        <TabsContent value="logo" id="logo">
           <Card className="glass border-white/10">
             <CardHeader>
               <div>
@@ -808,6 +812,7 @@ export default function SubmissionPage() {
                 {/* 로고 파일 업로드 */}
                 <div className="space-y-2">
                   <Label className="text-sm sm:text-base">로고 파일 (있는 경우)</Label>
+                  <p className="text-xs text-gray-500">이미지 파일(JPG, PNG 등) 또는 ZIP 파일을 업로드할 수 있습니다</p>
                   {submission?.로고URL ? (
                     <div className="space-y-2">
                       <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 border border-green-200">
@@ -827,7 +832,7 @@ export default function SubmissionPage() {
                       <label className="block">
                         <input
                           type="file"
-                          accept="image/*"
+                          accept="image/*,.zip"
                           className="hidden"
                           onChange={(e) => {
                             if (e.target.files?.[0]) {
@@ -846,7 +851,7 @@ export default function SubmissionPage() {
                     <label className="block">
                       <input
                         type="file"
-                        accept="image/*"
+                        accept="image/*,.zip"
                         className="hidden"
                         onChange={(e) => {
                           if (e.target.files?.[0]) {
@@ -1512,7 +1517,7 @@ export default function SubmissionPage() {
         </TabsContent>
 
         {/* 마케팅 */}
-        <TabsContent value="marketing">
+        <TabsContent value="marketing" id="marketing">
           <Card className="bg-white border-2 border-gray-200">
             <CardHeader>
               <CardTitle className="text-gray-900 text-lg sm:text-xl">마케팅 정보</CardTitle>

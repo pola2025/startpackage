@@ -9,6 +9,7 @@ export interface SubmissionData {
   로고선호색상: string | null;
   로고선호폰트: string | null;
   로고제작요청사항: string | null;
+  홈페이지컬러컨셉: string | null;
 
   // 인쇄물 제작
   주소: string | null;
@@ -36,6 +37,7 @@ export interface ProgressSection {
   total: number;
   percentage: number;
   isComplete: boolean;
+  href?: string; // 클릭 시 이동할 앵커 또는 URL
 }
 
 export interface ProgressResult {
@@ -57,6 +59,7 @@ const REQUIRED_FIELDS = {
       "로고선호색상",
       "로고선호폰트",
       "로고제작요청사항",
+      "홈페이지컬러컨셉",
     ],
   },
   인쇄물제작: {
@@ -105,6 +108,7 @@ export function calculateProgress(
     total: logoFields.length,
     percentage: Math.round((logoCompleted / logoFields.length) * 100),
     isComplete: logoCompleted === logoFields.length,
+    href: "logo",
   });
 
   // 인쇄물 제작 섹션
@@ -128,6 +132,7 @@ export function calculateProgress(
     total: printFields.length,
     percentage: Math.round((printCompleted / printFields.length) * 100),
     isComplete: printCompleted === printFields.length,
+    href: "basic",
   });
 
   // 계정 정보 섹션
@@ -143,6 +148,7 @@ export function calculateProgress(
     total: accountFields.length,
     percentage: Math.round((accountCompleted / accountFields.length) * 100),
     isComplete: accountCompleted === accountFields.length,
+    href: "marketing",
   });
 
   // 전체 진행률
@@ -167,6 +173,7 @@ export const FIELD_LABELS: Record<string, string> = {
   로고선호색상: "로고 선호 색상",
   로고선호폰트: "로고 선호 폰트",
   로고제작요청사항: "로고 제작 요청사항",
+  홈페이지컬러컨셉: "홈페이지 컬러 컨셉",
   이름: "이름",
   연락처: "연락처",
   주소: "주소",
