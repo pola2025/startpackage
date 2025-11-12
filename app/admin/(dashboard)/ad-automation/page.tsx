@@ -36,6 +36,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Settings, Calendar as CalendarIcon, History, Filter, Search, Zap, MessageSquare, Search as SearchIcon } from "lucide-react";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
+import { HomepageBadge } from "@/components/admin/homepage-badge";
 
 interface User {
   id: string;
@@ -345,6 +346,7 @@ export default function AdAutomationManagementPage() {
                     <TableHead className="text-center">광고 자동화</TableHead>
                     <TableHead className="text-center">SMS 설정</TableHead>
                     <TableHead className="text-center">네이버 설정</TableHead>
+                    <TableHead className="text-center">홈페이지</TableHead>
                     <TableHead className="text-right">관리</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -384,6 +386,12 @@ export default function AdAutomationManagementPage() {
                         >
                           {user.naverAdSettingEnabled ? "🟢 켜짐" : "🔴 꺼짐"}
                         </Badge>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <HomepageBadge
+                          completed={user.homepageCompleted}
+                          completedAt={user.homepageCompletedAt}
+                        />
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">

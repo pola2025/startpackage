@@ -7,6 +7,7 @@ interface WorkflowStatusIconsProps {
     type: string;
     status: string;
   }>;
+  homepageCompleted?: boolean; // 광고자동화에서 설정한 홈페이지 완료 상태
 }
 
 const WORKFLOW_TYPES = ["로고", "명함", "명찰", "대봉투", "홈페이지"];
@@ -16,7 +17,7 @@ const WORKFLOW_TYPES = ["로고", "명함", "명찰", "대봉투", "홈페이지
  * 🟢 = 완료 (최종확정, 제작완료, 또는 발송완료)
  * 🔴 = 미완료
  */
-export function WorkflowStatusIcons({ workflows }: WorkflowStatusIconsProps) {
+export function WorkflowStatusIcons({ workflows, homepageCompleted }: WorkflowStatusIconsProps) {
   const statusMap = workflows.reduce((acc, w) => {
     acc[w.type] = w.status;
     return acc;
@@ -26,7 +27,13 @@ export function WorkflowStatusIcons({ workflows }: WorkflowStatusIconsProps) {
   const isCompleted = (type: string, status: string) => {
     if (!status) return false;
 
-    // 모든 디자인 항목은 "최종확정", "제작완료" 또는 "발송완료"를 완료로 인정
+    // 홈페이지는 워크플로우 상태 OR 광고자동화 완료 체크 둘 중 하나라도 완료면 녹색
+    if (type === "홈페이지") {
+      const workflowCompleted = status === "제작 완료";
+      return workflowCompleted || homepageCompleted || false;
+    }
+
+    // 다른 디자인 항목은 "최종확정", "제작완료" 또는 "발송완료"를 완료로 인정
     return status === "최종확정" || status === "제작완료" || status === "발송완료";
   };
 

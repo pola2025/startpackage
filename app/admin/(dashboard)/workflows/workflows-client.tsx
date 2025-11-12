@@ -748,7 +748,10 @@ export default function WorkflowsClient({
                                 </div>
                               </div>
                               <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                                <WorkflowStatusIcons workflows={userWorkflows} />
+                                <WorkflowStatusIcons
+                                  workflows={userWorkflows}
+                                  homepageCompleted={user.homepageCompleted || false}
+                                />
                                 <AdAutomationBadge
                                   enabled={user.adAutomationEnabled || false}
                                   startDate={user.adAutomationStartDate}
@@ -757,10 +760,6 @@ export default function WorkflowsClient({
                                 />
                                 <SmsSettingBadge enabled={user.smsSettingEnabled || false} />
                                 <NaverAdSettingBadge enabled={user.naverAdSettingEnabled || false} />
-                                <HomepageBadge
-                                  completed={user.homepageCompleted || false}
-                                  completedAt={user.homepageCompletedAt}
-                                />
                                 <UserWorkflowSMSButton
                                   userId={userId}
                                   userName={user.이름}

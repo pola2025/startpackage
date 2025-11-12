@@ -150,6 +150,21 @@ export async function POST(request: NextRequest) {
       updateData.발송일 = now;
     }
 
+    // 홈페이지가 "제작 완료" 상태로 변경되면 User.homepageCompleted도 true로 설정
+    if (
+      currentWorkflow.type === "홈페이지" &&
+      status === "제작 완료" &&
+      currentWorkflow.status !== "제작 완료"
+    ) {
+      await prisma.user.update({
+        where: { id: currentWorkflow.userId },
+        data: {
+          homepageCompleted: true,
+          homepageCompletedAt: now,
+        },
+      });
+    }
+
     // Update workflow
     const updatedWorkflow = await prisma.workflow.update({
       where: { id: workflowId },

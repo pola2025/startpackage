@@ -131,18 +131,18 @@ export async function POST(
       });
 
       if (existingWorkflow) {
-        // 기존 워크플로우가 있으면 제작완료로 상태 변경
+        // 기존 워크플로우가 있으면 제작 완료로 상태 변경
         await prisma.workflow.update({
           where: { id: existingWorkflow.id },
-          data: { status: "제작완료" },
+          data: { status: "제작 완료" },
         });
       } else {
-        // 기존 워크플로우가 없으면 새로 생성하고 바로 제작완료 상태로 설정
+        // 기존 워크플로우가 없으면 새로 생성하고 바로 제작 완료 상태로 설정
         await prisma.workflow.create({
           data: {
             userId,
             type: "홈페이지",
-            status: "제작완료",
+            status: "제작 완료",
           },
         });
       }
