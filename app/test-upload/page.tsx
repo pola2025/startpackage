@@ -4,26 +4,23 @@ import { useState } from "react";
 import { FileUpload } from "@/components/ui/file-upload";
 
 export default function TestUploadPage() {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<Array<{ name: string }>>([]);
   const [uploading, setUploading] = useState(false);
-  const [uploadSuccess, setUploadSuccess] = useState(false);
 
-  const handleFileChange = (file: File) => {
-    console.log("Selected file:", file);
-    setSelectedFile(file);
-    setUploadSuccess(false);
+  const handleFileChange = (files: File | File[]) => {
+    const fileArray = Array.isArray(files) ? files : [files];
+    console.log("Selected files:", fileArray);
 
     // 업로드 시뮬레이션
     setUploading(true);
     setTimeout(() => {
       setUploading(false);
-      setUploadSuccess(true);
+      setSelectedFiles(prev => [...prev, ...fileArray.map(f => ({ name: f.name }))]);
     }, 2000);
   };
 
-  const handleDelete = () => {
-    setSelectedFile(null);
-    setUploadSuccess(false);
+  const handleDelete = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -34,21 +31,33 @@ export default function TestUploadPage() {
         </h1>
 
         <div className="space-y-8">
-          {/* 테스트 1: 기본 사용 - 파일 크기 검증 */}
+          {/* 테스트 1: 다중 파일 업로드 (최대 3개) */}
+          <FileUpload
+            label="시안 파일 (최대 3개)"
+            description="AI, JPEG, PNG 파일을 최대 3개까지 업로드하세요"
+            accept="image/*,.ai"
+            maxSize={20}
+            maxFiles={3}
+            required
+            onChange={handleFileChange}
+            uploading={uploading}
+            currentFiles={selectedFiles}
+            onDelete={handleDelete}
+          />
+
+          {/* 테스트 2: 단일 파일 - 파일 크기 검증 */}
           <FileUpload
             label="로고"
             description="회사 또는 브랜드 로고를 업로드하세요"
             accept="image/*"
             maxSize={5}
-            required
             onChange={handleFileChange}
             uploading={uploading}
-            uploadSuccess={uploadSuccess}
-            currentFileName={selectedFile?.name}
+            currentFiles={selectedFiles}
             onDelete={handleDelete}
           />
 
-          {/* 테스트 2: compact 버전 - 파일 형식 검증 */}
+          {/* 테스트 3: compact 버전 - 파일 형식 검증 */}
           <FileUpload
             label="사업자등록증"
             description="사업자등록증 또는 고유번호증을 업로드하세요 (이미지 또는 PDF만 가능)"
@@ -56,20 +65,7 @@ export default function TestUploadPage() {
             maxSize={10}
             onChange={handleFileChange}
             variant="compact"
-            uploadSuccess={uploadSuccess}
-            currentFileName={selectedFile?.name}
-            onDelete={handleDelete}
-          />
-
-          {/* 테스트 3: 확장자 검증 */}
-          <FileUpload
-            label="ZIP 파일 테스트"
-            description="ZIP 파일만 업로드 가능"
-            accept=".zip,application/zip"
-            maxSize={20}
-            onChange={handleFileChange}
-            uploadSuccess={uploadSuccess}
-            currentFileName={selectedFile?.name}
+            currentFiles={selectedFiles}
             onDelete={handleDelete}
           />
 
@@ -82,20 +78,18 @@ export default function TestUploadPage() {
           />
 
           {/* 선택된 파일 정보 */}
-          {selectedFile && (
-            <div className="mt-8 p-4 bg-green-50 border border-green-200 rounded-lg">
-              <h3 className="font-semibold text-green-900 mb-2">
-                선택된 파일:
+          {selectedFiles.length > 0 && (
+            <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <h3 className="font-semibold text-blue-900 mb-2">
+                전체 업로드된 파일: {selectedFiles.length}개
               </h3>
-              <p className="text-sm text-green-700">
-                이름: {selectedFile.name}
-              </p>
-              <p className="text-sm text-green-700">
-                크기: {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-              </p>
-              <p className="text-sm text-green-700">
-                타입: {selectedFile.type}
-              </p>
+              <ul className="space-y-1">
+                {selectedFiles.map((file, index) => (
+                  <li key={index} className="text-sm text-blue-700">
+                    {index + 1}. {file.name}
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
         </div>

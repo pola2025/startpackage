@@ -7,13 +7,13 @@ interface FileUploadProps {
   // 필수
   label: string;
   accept: string;
-  onChange: (file: File) => void;
+  onChange: (file: File | File[]) => void;
 
   // 선택
   description?: string;
   maxSize?: number; // MB 단위
-  currentFile?: string;
-  currentFileName?: string;
+  maxFiles?: number; // 최대 파일 개수 (기본: 1)
+  currentFiles?: Array<{ name: string; url?: string }>;
   required?: boolean;
   disabled?: boolean;
   uploading?: boolean;
@@ -21,7 +21,7 @@ interface FileUploadProps {
   error?: string;
   variant?: "default" | "compact";
   showPreview?: boolean;
-  onDelete?: () => void;
+  onDelete?: (index: number) => void;
 }
 
 /**
@@ -36,8 +36,8 @@ export function FileUpload({
   onChange,
   description,
   maxSize = 10,
-  currentFile,
-  currentFileName,
+  maxFiles = 1,
+  currentFiles = [],
   required = false,
   disabled = false,
   uploading = false,
@@ -88,15 +88,39 @@ export function FileUpload({
 
   // 파일 선택 핸들러
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    // 다중 파일 업로드인 경우
+    if (maxFiles > 1) {
+      const fileArray = Array.from(files);
+
+      // 최대 개수 체크
+      if (currentFiles.length + fileArray.length > maxFiles) {
+        setInternalError(`최대 ${maxFiles}개의 파일만 업로드할 수 있습니다.`);
+        return;
+      }
+
+      // 각 파일 검증
+      for (const file of fileArray) {
+        const validationError = validateFile(file);
+        if (validationError) {
+          setInternalError(validationError);
+          return;
+        }
+      }
+
+      // 모든 파일 검증 통과
+      setInternalError(null);
+      onChange(fileArray);
+    } else {
+      // 단일 파일 업로드
+      const file = files[0];
       const validationError = validateFile(file);
       if (validationError) {
-        // 내부 에러 상태 설정
         setInternalError(validationError);
         return;
       }
-      // 검증 통과 시 에러 초기화하고 onChange 호출
       setInternalError(null);
       onChange(file);
     }
@@ -128,9 +152,10 @@ export function FileUpload({
         <input
           type="file"
           accept={accept}
+          multiple={maxFiles > 1}
           className="hidden"
           onChange={handleFileChange}
-          disabled={disabled || uploading}
+          disabled={disabled || uploading || (maxFiles > 1 && currentFiles.length >= maxFiles)}
         />
         <div
           className={`
@@ -156,23 +181,35 @@ export function FileUpload({
         </div>
       </label>
 
-      {/* 업로드 성공 표시 */}
-      {uploadSuccess && currentFileName && (
-        <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
-          <div className="flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-green-600" />
-            <span className="text-sm text-green-700 font-medium">
-              {currentFileName}
-            </span>
-          </div>
-          {onDelete && (
-            <button
-              onClick={onDelete}
-              className="p-1 hover:bg-green-100 rounded transition-colors"
-              aria-label="파일 삭제"
+      {/* 업로드된 파일 목록 */}
+      {currentFiles.length > 0 && (
+        <div className="space-y-2">
+          {currentFiles.map((file, index) => (
+            <div
+              key={index}
+              className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg"
             >
-              <X className="w-4 h-4 text-green-600" />
-            </button>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-600" />
+                <span className="text-sm text-green-700 font-medium">
+                  {file.name}
+                </span>
+              </div>
+              {onDelete && (
+                <button
+                  onClick={() => onDelete(index)}
+                  className="p-1 hover:bg-green-100 rounded transition-colors"
+                  aria-label="파일 삭제"
+                >
+                  <X className="w-4 h-4 text-green-600" />
+                </button>
+              )}
+            </div>
+          ))}
+          {maxFiles > 1 && (
+            <p className="text-xs text-gray-500">
+              {currentFiles.length} / {maxFiles}개 파일 업로드됨
+            </p>
           )}
         </div>
       )}
