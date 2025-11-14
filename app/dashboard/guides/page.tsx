@@ -1,12 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookOpen, MessageSquare, CreditCard, Globe, Mail, FileText, Instagram, UserPlus, Palette, Sparkles } from "lucide-react";
 
 export default function GuidesPage() {
+  const [activeTab, setActiveTab] = useState("telegram");
+
+  // URL 해시에서 탭 읽기
+  useEffect(() => {
+    const hash = window.location.hash.slice(1); // # 제거
+    if (hash) {
+      setActiveTab(hash);
+    }
+  }, []);
+
+  // 탭 변경 시 URL 해시 업데이트
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    window.history.pushState(null, "", `#${value}`);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -17,7 +33,7 @@ export default function GuidesPage() {
         </p>
       </div>
 
-      <Tabs defaultValue="telegram" className="space-y-4">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-4">
         <TabsList className="bg-white border-2 border-gray-200">
           <TabsTrigger value="telegram">
             <MessageSquare className="w-4 h-4 mr-2" />
@@ -239,16 +255,116 @@ export default function GuidesPage() {
               </div>
 
               <div>
-                <h3 className="text-blue-600 font-semibold mb-3">💰 아임웹 요금</h3>
-                <div className="space-y-2">
-                  <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
-                    <p className="font-medium text-gray-900">월 22,000원 요금제 (권장)</p>
-                    <p className="text-sm text-gray-600">11,000원 요금제는 기능 제한</p>
+                <h3 className="text-blue-600 font-semibold mb-3">💰 아임웹 요금 체계</h3>
+                <div className="space-y-3">
+                  <div className="bg-indigo-50 border-2 border-indigo-200 rounded-lg p-3 mb-3">
+                    <p className="text-sm text-indigo-900 font-medium">
+                      💡 <strong>도메인 + 호스팅 비용이 포함된 금액</strong>입니다
+                    </p>
                   </div>
-                  <p className="text-sm text-gray-600">
-                    • 6개월/12개월 결제 시 할인 적용<br/>
-                    • 중도 해지 시 할인 금액 일부만 환불
-                  </p>
+                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg overflow-hidden">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="bg-blue-100">
+                          <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">결제 기간</th>
+                          <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">총 금액</th>
+                          <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">월 환산</th>
+                          <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">할인율</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white">
+                        <tr className="border-t border-blue-100">
+                          <td className="px-4 py-3 text-sm text-gray-900">1개월</td>
+                          <td className="px-4 py-3 text-sm font-medium text-gray-900">22,000원</td>
+                          <td className="px-4 py-3 text-sm text-gray-600">월 22,000원</td>
+                          <td className="px-4 py-3 text-sm text-gray-500">-</td>
+                        </tr>
+                        <tr className="border-t border-blue-100 bg-green-50">
+                          <td className="px-4 py-3 text-sm text-gray-900">3개월</td>
+                          <td className="px-4 py-3 text-sm font-medium text-gray-900">62,700원</td>
+                          <td className="px-4 py-3 text-sm font-semibold text-green-700">월 20,900원</td>
+                          <td className="px-4 py-3 text-sm text-green-600 font-medium">5% 할인</td>
+                        </tr>
+                        <tr className="border-t border-blue-100 bg-orange-50">
+                          <td className="px-4 py-3 text-sm text-gray-900">6개월</td>
+                          <td className="px-4 py-3 text-sm font-medium text-gray-900">118,800원</td>
+                          <td className="px-4 py-3 text-sm font-semibold text-orange-700">월 19,800원</td>
+                          <td className="px-4 py-3 text-sm text-orange-600 font-medium">10% 할인</td>
+                        </tr>
+                        <tr className="border-t border-blue-100 bg-purple-50">
+                          <td className="px-4 py-3 text-sm text-gray-900 font-medium">12개월 (추천)</td>
+                          <td className="px-4 py-3 text-sm font-medium text-gray-900">211,200원</td>
+                          <td className="px-4 py-3 text-sm font-bold text-purple-700">월 17,600원</td>
+                          <td className="px-4 py-3 text-sm text-purple-600 font-bold">20% 할인</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div className="p-3 bg-yellow-50 border-2 border-yellow-200 rounded-lg">
+                    <p className="text-sm text-gray-700 font-medium mb-1">📌 결제 안내</p>
+                    <ul className="text-sm text-gray-600 space-y-1">
+                      <li>• 장기 결제 시 <strong>해당 기간 요금을 한번에 결제</strong>하면 할인 적용</li>
+                      <li>• 중도 해지 시 할인 금액 일부만 환불</li>
+                      <li>• 11,000원 요금제는 기능 제한 (22,000원 권장)</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-blue-600 font-semibold mb-3">💳 아임웹 결제 방법</h3>
+                <div className="space-y-3">
+                  <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
+                    <h4 className="font-medium text-blue-900 mb-3">1단계: 결제수단 등록</h4>
+                    <a
+                      href="https://imweb.me/payment_method"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                    >
+                      결제수단 등록하기 →
+                    </a>
+                    <p className="text-sm text-gray-600 mt-2">
+                      먼저 카드 정보를 등록해주세요
+                    </p>
+                  </div>
+
+                  <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4">
+                    <h4 className="font-medium text-green-900 mb-3">2단계: 요금제 결제</h4>
+                    <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700 mb-3">
+                      <li>
+                        <a
+                          href="https://imweb.me/mysite"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline font-medium"
+                        >
+                          내 사이트 페이지
+                        </a>
+                        {' '}접속
+                      </li>
+                      <li>
+                        <span className="text-blue-600 font-medium">&apos;Starter 결제&apos;</span> 파란 글자 클릭
+                      </li>
+                      <li>결제 기간 선택 (1개월/3개월/6개월/12개월)</li>
+                      <li>결제 버튼 클릭하여 완료</li>
+                    </ol>
+                    <a
+                      href="https://imweb.me/mysite"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+                    >
+                      결제하러 가기 →
+                    </a>
+                  </div>
+
+                  <div className="bg-orange-50 border-2 border-orange-200 rounded-lg p-4">
+                    <p className="text-sm text-gray-700">
+                      ⚠️ <strong>주의:</strong> 결제 전 요금제와 기간을 다시 한번 확인하세요. 중도 해지 시 할인 금액은 일부만 환불됩니다.
+                    </p>
+                  </div>
                 </div>
               </div>
 
