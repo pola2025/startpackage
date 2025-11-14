@@ -633,7 +633,7 @@ export default function UserActions({ user }: UserActionsProps) {
                 placeholder="메시지 내용을 입력하세요"
                 rows={8}
                 maxLength={1000}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none overflow-y-auto max-h-[400px]"
               />
               <p className="text-xs text-gray-500">{messageContent.length}/1000자</p>
             </div>
@@ -750,7 +750,7 @@ export default function UserActions({ user }: UserActionsProps) {
                 onChange={(e) => setCommContent(e.target.value)}
                 placeholder="사용자에게 전달할 메시지를 작성해주세요."
                 rows={8}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none overflow-y-auto max-h-[400px]"
               />
               <p className="text-xs text-gray-500 mt-1">
                 현재 {commContent.length}자
