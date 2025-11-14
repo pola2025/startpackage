@@ -2,11 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { redirect } from "next/navigation";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { LogOut, Package, LayoutDashboard, FileText, Workflow, BookOpen, MessageSquare, Megaphone, Lightbulb, Facebook } from "lucide-react";
-import Link from "next/link";
+import { Sidebar } from "@/components/ui/sidebar";
 import { DesignConfirmationModal } from "@/components/ui/design-confirmation-modal";
 import { MessageNotificationModal } from "@/components/ui/message-notification-modal";
 import { SystemAlertModal } from "@/components/ui/system-alert-modal";
@@ -119,11 +117,6 @@ export default function UserLayout({
   const cohortName = (session?.user as any)?.cohortName;
 
 
-  const handleLogout = async () => {
-    await signOut({ redirect: false });
-    router.push("/");
-  };
-
   // 수료생 여부 확인
   const isGraduated = (session?.user as any)?.isGraduated === true;
 
@@ -150,153 +143,25 @@ export default function UserLayout({
       {/* Subtle Pattern Background */}
       <div className="fixed inset-0 pattern-background opacity-50" />
 
-      {/* Header */}
-      <header className="relative z-10 bg-white border-b border-gray-200 shadow-sm">
-        <div className="container mx-auto px-3 sm:px-4">
-          {/* Top Bar */}
-          <div className="flex h-12 sm:h-16 items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-lg bg-blue-600 flex items-center justify-center shadow-sm">
-                <Package className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
-              </div>
-              <h1 className="text-sm sm:text-xl font-bold text-gray-900">START PACKAGE</h1>
-            </div>
-            <div className="flex items-center gap-2 sm:gap-4">
-              <div className="text-xs sm:text-sm hidden sm:block">
-                <span className="text-gray-600">안녕하세요, </span>
-                <span className="text-blue-600 font-semibold">
-                  {session?.user?.name}
-                </span>
-                <span className="text-gray-600">님</span>
-                {isGraduated && (
-                  <span className="ml-2 px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded">
-                    수료생
-                  </span>
-                )}
-              </div>
-              <Button
-                onClick={handleLogout}
-                variant="outline"
-                size="sm"
-                className="text-xs sm:text-sm h-7 px-2 sm:h-9 sm:px-3"
-              >
-                <LogOut className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
-                <span className="hidden sm:inline">로그아웃</span>
-              </Button>
-            </div>
-          </div>
-          {/* 네비게이션 메뉴 */}
-          <nav className="grid grid-cols-3 md:flex gap-1 pb-2 sm:pb-4">
-            {/* 수료생이 아닌 경우에만 표시 */}
-            {!isGraduated && (
-              <>
-                <Link href="/dashboard">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`${pathname === "/dashboard" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} text-xs sm:text-sm h-8 px-2 sm:h-9 sm:px-3 w-full`}
-                  >
-                    <LayoutDashboard className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                    대시보드
-                  </Button>
-                </Link>
-                <Link href="/dashboard/submission">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`${pathname === "/dashboard/submission" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} text-xs sm:text-sm h-8 px-2 sm:h-9 sm:px-3 w-full`}
-                  >
-                    <FileText className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                    자료 제출
-                  </Button>
-                </Link>
-                <Link href="/dashboard/workflows">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`${pathname === "/dashboard/workflows" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} text-xs sm:text-sm h-8 px-2 sm:h-9 sm:px-3 w-full relative`}
-                  >
-                    <Workflow className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                    제작 현황
-                    {pendingDesignCount > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                        {pendingDesignCount > 9 ? "9+" : pendingDesignCount}
-                      </span>
-                    )}
-                  </Button>
-                </Link>
-                <Link href="/dashboard/guides">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`${pathname === "/dashboard/guides" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} text-xs sm:text-sm h-8 px-2 sm:h-9 sm:px-3 w-full`}
-                  >
-                    <BookOpen className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                    가이드
-                  </Button>
-                </Link>
-                <Link href="/dashboard/meta-ads">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`${pathname === "/dashboard/meta-ads" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} text-xs sm:text-sm h-8 px-2 sm:h-9 sm:px-3 w-full`}
-                  >
-                    <Facebook className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                    Meta 광고
-                  </Button>
-                </Link>
-              </>
-            )}
-
-            {/* 모든 사용자에게 표시 (수료생 포함) */}
-            <Link href="/dashboard/communication">
-              <Button
-                variant="ghost"
-                size="sm"
-                className={`${pathname === "/dashboard/communication" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} text-xs sm:text-sm h-8 px-2 sm:h-9 sm:px-3 w-full relative`}
-              >
-                <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                문의하기
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                    {unreadCount > 9 ? "9+" : unreadCount}
-                  </span>
-                )}
-              </Button>
-            </Link>
-            <Link href="/dashboard/announcements">
-              <Button
-                variant="ghost"
-                size="sm"
-                className={`${pathname === "/dashboard/announcements" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} text-xs sm:text-sm h-8 px-2 sm:h-9 sm:px-3 w-full`}
-              >
-                <Megaphone className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                마케팅 소식
-              </Button>
-            </Link>
-            <Link href="/dashboard/content-tips">
-              <Button
-                variant="ghost"
-                size="sm"
-                className={`${pathname === "/dashboard/content-tips" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} text-xs sm:text-sm h-8 px-2 sm:h-9 sm:px-3 w-full`}
-              >
-                <Lightbulb className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                콘텐츠 제작 Tip
-              </Button>
-            </Link>
-          </nav>
-        </div>
-      </header>
+      {/* Sidebar */}
+      <Sidebar
+        userName={session?.user?.name || "사용자"}
+        isGraduated={isGraduated}
+        unreadCount={unreadCount}
+        pendingDesignCount={pendingDesignCount}
+      />
 
       {/* Main Content */}
-      <main className="relative container mx-auto p-3 sm:p-4 md:p-6">{children}</main>
+      <main className="relative lg:ml-64 pt-16 lg:pt-0 min-h-screen">
+        <div className="container mx-auto p-3 sm:p-4 md:p-6">{children}</div>
 
-      {/* Footer */}
-      <footer className="relative mt-8 sm:mt-12 border-t border-gray-200 bg-white py-4 sm:py-6">
-        <div className="container mx-auto px-4 text-center text-xs sm:text-sm text-gray-500">
-          <p>© 비즈액터스쿨 스타트패키지. All rights reserved.</p>
-        </div>
-      </footer>
+        {/* Footer */}
+        <footer className="mt-8 sm:mt-12 border-t border-gray-200 bg-white py-4 sm:py-6">
+          <div className="container mx-auto px-4 text-center text-xs sm:text-sm text-gray-500">
+            <p>© 비즈액터스쿨 스타트패키지. All rights reserved.</p>
+          </div>
+        </footer>
+      </main>
     </div>
   );
 }

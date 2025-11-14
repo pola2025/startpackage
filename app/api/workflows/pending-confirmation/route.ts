@@ -40,7 +40,11 @@ export async function GET() {
     const pendingWorkflows = await prisma.workflow.findMany({
       where: {
         userId,
-        status: "시안중", // 시안 업로드 완료 상태
+        OR: [
+          { status: "시안컨펌요청" }, // 로고
+          { status: "발주대기" },     // 인쇄물
+          { status: "제작 완료" },    // 홈페이지
+        ],
         시안URL: {
           not: null, // 시안 URL이 존재하는 경우만
         },

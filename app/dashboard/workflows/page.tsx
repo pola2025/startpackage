@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -31,15 +32,32 @@ interface Workflow {
 
 export default function WorkflowsPage() {
   const { data: session } = useSession();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedWorkflow, setSelectedWorkflow] = useState<Workflow | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [feedbackText, setFeedbackText] = useState("");
   const [submittingFeedback, setSubmittingFeedback] = useState(false);
 
   useEffect(() => {
     fetchWorkflows();
   }, []);
+
+  // URL 파라미터로 특정 워크플로우 다이얼로그 자동 오픈
+  useEffect(() => {
+    const openWorkflowId = searchParams.get("open");
+    if (openWorkflowId && workflows.length > 0) {
+      const workflow = workflows.find((w) => w.id === openWorkflowId);
+      if (workflow) {
+        setSelectedWorkflow(workflow);
+        setDialogOpen(true);
+        // URL 파라미터 제거 (깔끔하게)
+        router.replace("/dashboard/workflows", { scroll: false });
+      }
+    }
+  }, [searchParams, workflows, router]);
 
   const fetchWorkflows = async () => {
     try {
@@ -360,13 +378,25 @@ export default function WorkflowsPage() {
                     workflow.status === "발주대기" ||
                     (workflow.type === "홈페이지" && workflow.status === "제작 완료")) && workflow.시안URL && (
                     <>
-                      <Dialog>
+                      <Dialog
+                        open={selectedWorkflow?.id === workflow.id && dialogOpen}
+                        onOpenChange={(open) => {
+                          if (!open) {
+                            setDialogOpen(false);
+                            setSelectedWorkflow(null);
+                            setFeedbackText("");
+                          }
+                        }}
+                      >
                         <DialogTrigger asChild>
                           <Button
                             variant="outline"
                             size="sm"
                             className="flex-1 border-blue-500 text-blue-600 hover:bg-blue-50"
-                            onClick={() => setSelectedWorkflow(workflow)}
+                            onClick={() => {
+                              setSelectedWorkflow(workflow);
+                              setDialogOpen(true);
+                            }}
                           >
                             시안 확인
                           </Button>

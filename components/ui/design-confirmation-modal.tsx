@@ -85,8 +85,8 @@ export function DesignConfirmationModal({
   const handleConfirmDesign = () => {
     if (!currentWorkflow) return;
 
-    // 워크플로우 상세 페이지로 이동
-    router.push(`/dashboard/workflows/${currentWorkflow.id}`);
+    // 제작현황 페이지로 이동하고 해당 워크플로우 다이얼로그 자동 오픈
+    router.push(`/dashboard/workflows?open=${currentWorkflow.id}`);
     handleClose();
   };
 
