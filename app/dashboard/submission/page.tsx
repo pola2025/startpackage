@@ -250,11 +250,6 @@ export default function SubmissionPage() {
   };
 
   const handleFileUpload = async (field: string, file: File) => {
-    if (isDeadlinePassed) {
-      alert("자료 제출 마감일이 지났습니다. JJK 비즈액터스쿨에 문의해주세요.");
-      return;
-    }
-
     setUploading(true);
 
     // 사업자등록증URL 또는 프로필사진URL 필드이고 이미지인 경우 자동 압축
@@ -357,11 +352,6 @@ export default function SubmissionPage() {
   const handleSubmit = async (e: React.FormEvent, section: string) => {
     e.preventDefault();
 
-    if (isDeadlinePassed) {
-      alert("자료 제출 마감일이 지났습니다. JJK 비즈액터스쿨에 문의해주세요.");
-      return;
-    }
-
     const formData = new FormData(e.target as HTMLFormElement);
     const data = Object.fromEntries(formData.entries());
 
@@ -424,11 +414,6 @@ export default function SubmissionPage() {
   };
 
   const handlePrintRequest = async () => {
-    if (isDeadlinePassed) {
-      alert("자료 제출 마감일이 지났습니다. JJK 비즈액터스쿨에 문의해주세요.");
-      return;
-    }
-
     if (completionRate !== 100) {
       alert("필수 자료를 모두 제출해주세요.");
       return;
@@ -465,17 +450,17 @@ export default function SubmissionPage() {
     <div className="space-y-8 overflow-x-hidden w-full max-w-full">
       {/* 마감일 경고 메시지 */}
       {isDeadlinePassed && (
-        <div className="flex items-center gap-3 p-4 bg-red-50 border-2 border-red-300 rounded-lg">
-          <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+        <div className="flex items-center gap-3 p-4 bg-yellow-50 border-2 border-yellow-300 rounded-lg">
+          <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0" />
           <div className="flex-1">
-            <p className="text-red-800 font-bold text-base sm:text-lg">
+            <p className="text-yellow-800 font-bold text-base sm:text-lg">
               자료 제출 마감일이 지났습니다
             </p>
-            <p className="text-red-700 text-sm mt-1">
-              자료 제출 기능이 비활성화되었습니다. JJK 비즈액터스쿨에 문의해주세요.
+            <p className="text-yellow-700 text-sm mt-1">
+              마감일이 경과했으나 자료 제출은 가능합니다. 빠른 시일 내에 제출해주세요.
             </p>
             {deadlineDate && (
-              <p className="text-red-600 text-xs mt-2">
+              <p className="text-yellow-600 text-xs mt-2">
                 마감일: {deadlineDate.toLocaleDateString("ko-KR", {
                   year: "numeric",
                   month: "long",
@@ -574,10 +559,10 @@ export default function SubmissionPage() {
                 각 카테고리별 필요한 자료를 제출해주세요. 디자인 제작요청 전까지 언제든 수정 가능합니다.
               </p>
             </div>
-            {completionRate === 100 && !hasWorkflows && !isDeadlinePassed && (
+            {completionRate === 100 && !hasWorkflows && (
               <Button
                 onClick={handlePrintRequest}
-                disabled={requestingPrint || hasWorkflows || isDeadlinePassed}
+                disabled={requestingPrint || hasWorkflows}
                 className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 sm:py-4 text-sm sm:text-lg"
               >
                 {requestingPrint ? (
@@ -682,7 +667,7 @@ export default function SubmissionPage() {
                       name="브랜드명"
                       defaultValue={submission?.브랜드명}
                       required
-                      disabled={submission?.isComplete || !isEditingBasicInfo || isDeadlinePassed}
+                      disabled={submission?.isComplete || !isEditingBasicInfo}
                       className="bg-white border-gray-200"
                     />
                   </div>
@@ -693,7 +678,7 @@ export default function SubmissionPage() {
                       name="업종"
                       defaultValue={submission?.업종}
                       required
-                      disabled={submission?.isComplete || !isEditingBasicInfo || isDeadlinePassed}
+                      disabled={submission?.isComplete || !isEditingBasicInfo}
                       className="bg-white border-gray-200"
                     />
                   </div>
@@ -703,7 +688,7 @@ export default function SubmissionPage() {
                       id="대표번호"
                       name="대표번호"
                       defaultValue={submission?.대표번호}
-                      disabled={submission?.isComplete || !isEditingBasicInfo || isDeadlinePassed}
+                      disabled={submission?.isComplete || !isEditingBasicInfo}
                       className="bg-white border-gray-200"
                     />
                   </div>
@@ -714,7 +699,7 @@ export default function SubmissionPage() {
                       name="이메일"
                       type="email"
                       defaultValue={submission?.이메일}
-                      disabled={submission?.isComplete || !isEditingBasicInfo || isDeadlinePassed}
+                      disabled={submission?.isComplete || !isEditingBasicInfo}
                       className="bg-white border-gray-200"
                     />
                   </div>
@@ -725,7 +710,7 @@ export default function SubmissionPage() {
                       name="주소"
                       defaultValue={submission?.주소}
                       required
-                      disabled={submission?.isComplete || !isEditingBasicInfo || isDeadlinePassed}
+                      disabled={submission?.isComplete || !isEditingBasicInfo}
                       className="bg-white border-gray-200"
                     />
                   </div>
@@ -736,7 +721,7 @@ export default function SubmissionPage() {
                       name="은행명"
                       defaultValue={submission?.은행명}
                       placeholder="예: 국민은행"
-                      disabled={submission?.isComplete || !isEditingBasicInfo || isDeadlinePassed}
+                      disabled={submission?.isComplete || !isEditingBasicInfo}
                       className="bg-white border-gray-200"
                     />
                   </div>
@@ -747,7 +732,7 @@ export default function SubmissionPage() {
                       name="계좌번호"
                       defaultValue={submission?.계좌번호}
                       placeholder="예: 123-45-678910"
-                      disabled={submission?.isComplete || !isEditingBasicInfo || isDeadlinePassed}
+                      disabled={submission?.isComplete || !isEditingBasicInfo}
                       className="bg-white border-gray-200"
                     />
                   </div>
@@ -775,12 +760,12 @@ export default function SubmissionPage() {
                         defaultValue={submission?.인쇄물받을주소}
                         placeholder="사업장 주소와 다른 경우만 입력"
                         className="bg-white border-gray-200"
-                        disabled={sameAddress || submission?.isComplete || !isEditingBasicInfo || isDeadlinePassed}
+                        disabled={sameAddress || submission?.isComplete || !isEditingBasicInfo}
                       />
                     </div>
                   </div>
                 </div>
-                {!submission?.isComplete && !isDeadlinePassed && (
+                {!submission?.isComplete && (
                   <div className="flex gap-2">
                     {hasBasicInfo() && !isEditingBasicInfo ? (
                       <Button
@@ -793,7 +778,7 @@ export default function SubmissionPage() {
                     ) : (
                       <Button
                         type="submit"
-                        disabled={loading || isDeadlinePassed}
+                        disabled={loading}
                         className="bg-blue-600 text-white hover:bg-blue-700 text-sm sm:text-base"
                       >
                         {loading ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />}
