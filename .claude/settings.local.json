@@ -50,7 +50,9 @@
       "Read(//f/**)",
       "Bash(git revert:*)",
       "Bash(tasklist:*)",
-      "Bash(git init:*)"
+      "Bash(git init:*)",
+      "Bash(git log:*)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []

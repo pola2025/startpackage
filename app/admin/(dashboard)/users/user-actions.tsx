@@ -554,8 +554,8 @@ export default function UserActions({ user }: UserActionsProps) {
 
       {/* 메시지 발송 다이얼로그 */}
       <Dialog open={showMessageDialog} onOpenChange={setShowMessageDialog}>
-        <DialogContent className="bg-white border-gray-200 max-w-2xl">
-          <DialogHeader>
+        <DialogContent className="bg-white border-gray-200 max-w-2xl max-h-[90vh] flex flex-col">
+          <DialogHeader className="flex-shrink-0">
             <DialogTitle className="text-xl text-gray-900">
               {user.이름}님에게 메시지 발송
             </DialogTitle>
@@ -564,7 +564,7 @@ export default function UserActions({ user }: UserActionsProps) {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 mt-4">
+          <div className="space-y-4 mt-4 overflow-y-auto flex-1 pr-2">
             {/* 채널 선택 */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-gray-900">발송 방법 *</label>
@@ -631,9 +631,9 @@ export default function UserActions({ user }: UserActionsProps) {
                 value={messageContent}
                 onChange={(e) => setMessageContent(e.target.value)}
                 placeholder="메시지 내용을 입력하세요"
-                rows={8}
+                rows={6}
                 maxLength={1000}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none overflow-y-auto max-h-[400px]"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-y min-h-[120px] max-h-[300px]"
               />
               <p className="text-xs text-gray-500">{messageContent.length}/1000자</p>
             </div>
@@ -655,41 +655,42 @@ export default function UserActions({ user }: UserActionsProps) {
               </div>
             )}
 
-            {/* 버튼 */}
-            <div className="flex gap-2 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setShowMessageDialog(false)}
-                disabled={sendingMessage}
-                className="flex-1 border-gray-300"
-              >
-                취소
-              </Button>
-              <Button
-                type="button"
-                onClick={handleSendMessage}
-                disabled={sendingMessage || !messageTitle.trim() || !messageContent.trim()}
-                className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
-              >
-                {sendingMessage ? (
-                  "발송 중..."
-                ) : (
-                  <>
-                    <Send className="w-4 h-4 mr-2" />
-                    {messageChannel === "SMS" ? "문자" : "이메일"} 발송
-                  </>
-                )}
-              </Button>
-            </div>
+          </div>
+
+          {/* 버튼 - 하단 고정 */}
+          <div className="flex gap-2 pt-4 border-t border-gray-200 flex-shrink-0 mt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowMessageDialog(false)}
+              disabled={sendingMessage}
+              className="flex-1 border-gray-300"
+            >
+              취소
+            </Button>
+            <Button
+              type="button"
+              onClick={handleSendMessage}
+              disabled={sendingMessage || !messageTitle.trim() || !messageContent.trim()}
+              className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
+            >
+              {sendingMessage ? (
+                "발송 중..."
+              ) : (
+                <>
+                  <Send className="w-4 h-4 mr-2" />
+                  {messageChannel === "SMS" ? "문자" : "이메일"} 발송
+                </>
+              )}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
 
       {/* 문의하기 메시지 다이얼로그 */}
       <Dialog open={showCommunicationDialog} onOpenChange={setShowCommunicationDialog}>
-        <DialogContent className="bg-white max-w-2xl">
-          <DialogHeader>
+        <DialogContent className="bg-white max-w-2xl max-h-[90vh] flex flex-col">
+          <DialogHeader className="flex-shrink-0">
             <DialogTitle className="text-xl font-bold text-indigo-900">
               <MessageSquare className="w-5 h-5 inline mr-2" />
               문의하기 메시지 보내기
@@ -701,7 +702,7 @@ export default function UserActions({ user }: UserActionsProps) {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 mt-4">
+          <div className="space-y-4 mt-4 overflow-y-auto flex-1 pr-2">
             {/* 제목 */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -749,8 +750,8 @@ export default function UserActions({ user }: UserActionsProps) {
                 value={commContent}
                 onChange={(e) => setCommContent(e.target.value)}
                 placeholder="사용자에게 전달할 메시지를 작성해주세요."
-                rows={8}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none overflow-y-auto max-h-[400px]"
+                rows={6}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y min-h-[120px] max-h-[300px]"
               />
               <p className="text-xs text-gray-500 mt-1">
                 현재 {commContent.length}자
@@ -825,40 +826,40 @@ export default function UserActions({ user }: UserActionsProps) {
                 )}
               </div>
             </div>
+          </div>
 
-            {/* 버튼 */}
-            <div className="flex gap-3 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  setShowCommunicationDialog(false);
-                  setCommThreadTitle("");
-                  setCommCategory("일반");
-                  setCommContent("");
-                  setCommAttachments([]);
-                }}
-                disabled={sendingCommunication}
-                className="flex-1"
-              >
-                취소
-              </Button>
-              <Button
-                type="button"
-                onClick={handleSendCommunication}
-                disabled={sendingCommunication || !commThreadTitle.trim() || !commContent.trim()}
-                className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white"
-              >
-                {sendingCommunication ? (
-                  "전송 중..."
-                ) : (
-                  <>
-                    <MessageSquare className="w-4 h-4 mr-2" />
-                    메시지 전송
-                  </>
-                )}
-              </Button>
-            </div>
+          {/* 버튼 - 하단 고정 */}
+          <div className="flex gap-3 pt-4 border-t border-gray-200 flex-shrink-0 mt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setShowCommunicationDialog(false);
+                setCommThreadTitle("");
+                setCommCategory("일반");
+                setCommContent("");
+                setCommAttachments([]);
+              }}
+              disabled={sendingCommunication}
+              className="flex-1"
+            >
+              취소
+            </Button>
+            <Button
+              type="button"
+              onClick={handleSendCommunication}
+              disabled={sendingCommunication || !commThreadTitle.trim() || !commContent.trim()}
+              className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white"
+            >
+              {sendingCommunication ? (
+                "전송 중..."
+              ) : (
+                <>
+                  <MessageSquare className="w-4 h-4 mr-2" />
+                  메시지 전송
+                </>
+              )}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

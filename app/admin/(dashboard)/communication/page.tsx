@@ -595,10 +595,10 @@ export default function AdminCommunicationPage() {
         </Card>
 
         {/* 대화 내용 - 모바일: 스레드 선택 시에만 표시 */}
-        <Card className={`border-gray-200 bg-white lg:col-span-2 overflow-hidden flex flex-col shadow-sm ${selectedThread ? 'flex' : 'hidden lg:flex'} h-[80vh] lg:h-[calc(100vh-200px)]`}>
+        <Card className={`border-gray-200 bg-white lg:col-span-2 overflow-hidden flex flex-col shadow-sm ${selectedThread ? 'flex' : 'hidden lg:flex'} max-h-[85vh] lg:max-h-[calc(100vh-180px)]`}>
           {selectedThread ? (
             <>
-              <CardHeader className="py-2 sm:py-4 border-b border-gray-200">
+              <CardHeader className="py-2 sm:py-4 border-b border-gray-200 flex-shrink-0">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
                     {/* 모바일 뒤로가기 버튼 */}
@@ -643,7 +643,7 @@ export default function AdminCommunicationPage() {
 
               {/* 새 메시지 알림 */}
               {newMessageAlert && (
-                <div className="sticky top-0 z-10 mx-3 sm:mx-6 mt-3">
+                <div className="sticky top-0 z-10 mx-3 sm:mx-6 mt-3 flex-shrink-0">
                   <div className="bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center justify-between animate-bounce">
                     <span className="text-sm font-medium">사용자가 새 메시지를 보냈습니다</span>
                     <button
@@ -656,8 +656,8 @@ export default function AdminCommunicationPage() {
                 </div>
               )}
 
-              {/* 메시지 목록 - 모바일 패딩 최적화 */}
-              <CardContent className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 bg-gray-50">
+              {/* 메시지 목록 - 스크롤 가능 영역 */}
+              <CardContent className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 bg-gray-50 min-h-0">
                 {groupMessagesByDate(selectedThread.messages).map((item, groupIndex) => {
                   if (item.type === "date") {
                     return (
@@ -760,9 +760,9 @@ export default function AdminCommunicationPage() {
                 })}
               </CardContent>
 
-              {/* 답글 작성 - 모바일 최적화 */}
-              <div className="p-2 sm:p-4 border-t border-gray-200 bg-white">
-                <div className="space-y-2">
+              {/* 답글 작성 - 모바일 최적화, 스크롤 영역에서 고정 */}
+              <div className="p-2 sm:p-4 border-t border-gray-200 bg-white flex-shrink-0">
+                <div className="space-y-2 max-h-[300px] overflow-y-auto">
                   {replyAttachments.length > 0 && (
                     <div className="flex flex-wrap gap-2">
                       {replyAttachments.map((url, idx) => (

@@ -596,14 +596,14 @@ export default async function UserDashboard() {
                 {
                   label: "사업자등록증",
                   value: user.submission.사업자등록증URL,
-                  tab: "basic",
+                  tab: "print",
                   icon: FileText
                 },
-                { label: "프로필사진", value: user.submission.프로필사진URL, tab: "basic", icon: User },
+                { label: "프로필사진", value: user.submission.프로필사진URL, tab: "print", icon: User },
                 { label: "브랜드명", value: user.submission.브랜드명, tab: "basic", icon: Package },
                 { label: "업종", value: user.submission.업종, tab: "basic", icon: Package },
                 { label: "주소", value: user.submission.주소, tab: "basic", icon: Package },
-                { label: "명함스타일 선택", value: user.submission.명함시안, tab: "namecard", icon: FileText },
+                { label: "명함스타일 선택", value: user.submission.명함시안, tab: "print", icon: FileText },
                 {
                   label: "홈페이지 컬러",
                   value: user.submission.홈페이지컬러컨셉,
@@ -800,7 +800,7 @@ export default async function UserDashboard() {
                   { icon: Database, label: "잠재고객 접수 자동화", color: "green" },
                   { icon: Bell, label: "실시간 DB 접수 알림", color: "orange" },
                   { icon: MessageSquare, label: "고객 안내 SMS 발송", color: "purple" },
-                  { icon: Sheet, label: "구글 스프레드시트 저장", color: "teal" },
+                  { icon: Sheet, label: "고객 DB 시트 저장", color: "teal" },
                 ].map((item, idx) => {
                   const Icon = item.icon;
                   return (
