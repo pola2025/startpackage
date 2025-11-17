@@ -325,13 +325,11 @@ export default function SubmissionViewButton({ workflow }: SubmissionViewButtonP
                         {(() => {
                           const styles: Record<string, string> = {
                             "https://financialhealing.imweb.me/": "스타일 1",
-                            "https://primeroad.imweb.me/": "스타일 2",
-                            "https://ynjbiz.imweb.me/": "스타일 3",
-                            "https://mjgood.imweb.me/": "스타일 4",
-                            "https://jmbiz.imweb.me/": "스타일 5",
-                            "https://ganaanbiz.imweb.me/": "스타일 6",
-                            "https://ksupport-center.imweb.me/": "스타일 7",
-                            "https://financeable.imweb.me/": "스타일 8",
+                            "https://mjgood.imweb.me/": "스타일 2",
+                            "https://jmbiz.imweb.me/": "스타일 3",
+                            "https://ksupport-center.imweb.me/": "스타일 4",
+                            "https://dkcenter.imweb.me/": "스타일 5",
+                            "https://fpbiz.imweb.me/": "스타일 6",
                           };
                           return styles[submission.홈페이지스타일] || submission.홈페이지스타일;
                         })()}

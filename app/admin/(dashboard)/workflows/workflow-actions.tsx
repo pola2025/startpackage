@@ -242,13 +242,11 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
                           {(() => {
                             const styles = [
                               { url: "https://financialhealing.imweb.me/", name: "스타일 1" },
-                              { url: "https://primeroad.imweb.me/", name: "스타일 2" },
-                              { url: "https://ynjbiz.imweb.me/", name: "스타일 3" },
-                              { url: "https://mjgood.imweb.me/", name: "스타일 4" },
-                              { url: "https://jmbiz.imweb.me/", name: "스타일 5" },
-                              { url: "https://ganaanbiz.imweb.me/", name: "스타일 6" },
-                              { url: "https://ksupport-center.imweb.me/", name: "스타일 7" },
-                              { url: "https://financeable.imweb.me/", name: "스타일 8" },
+                              { url: "https://mjgood.imweb.me/", name: "스타일 2" },
+                              { url: "https://jmbiz.imweb.me/", name: "스타일 3" },
+                              { url: "https://ksupport-center.imweb.me/", name: "스타일 4" },
+                              { url: "https://dkcenter.imweb.me/", name: "스타일 5" },
+                              { url: "https://fpbiz.imweb.me/", name: "스타일 6" },
                             ];
                             return styles.find(s => s.url === submission.홈페이지스타일)?.name || submission.홈페이지스타일;
                           })()}
