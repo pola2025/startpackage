@@ -286,6 +286,48 @@ export async function POST(request: NextRequest) {
         }
       }
 
+      // 홈페이지 "제작 완료" 알림 (주소만 전송)
+      if (
+        currentWorkflow.type === "홈페이지" &&
+        status === "제작 완료" &&
+        currentWorkflow.status !== "제작 완료"
+      ) {
+        const 홈페이지주소 = updatedWorkflow.시안URL || "";
+
+        // 이메일 발송 (홈페이지 주소만 포함)
+        if (updatedWorkflow.user.email && 홈페이지주소) {
+          const { sendEmail } = await import("@/lib/email/resendClient");
+          await sendEmail({
+            to: updatedWorkflow.user.email,
+            subject: `[스타트패키지] 홈페이지 제작이 완료되었습니다`,
+            html: `
+              <h2>홈페이지 제작이 완료되었습니다</h2>
+              <p>안녕하세요, ${updatedWorkflow.user.이름}님!</p>
+              <p>홈페이지 제작이 완료되었습니다.</p>
+              <p><strong>홈페이지 주소:</strong> <a href="${홈페이지주소}" target="_blank">${홈페이지주소}</a></p>
+            `,
+          });
+        }
+
+        // SMS 발송 (홈페이지 주소만 포함)
+        if (updatedWorkflow.user.연락처 && 홈페이지주소) {
+          const { sendSMS } = await import("@/lib/sms/ncpSensClient");
+          const message = `[스타트패키지] 홈페이지 제작이 완료되었습니다.\n\n홈페이지 주소: ${홈페이지주소}`;
+          await sendSMS(updatedWorkflow.user.연락처, message);
+
+          await prisma.notification.create({
+            data: {
+              userId: updatedWorkflow.userId,
+              type: "제작완료",
+              channel: "SMS",
+              title: `[스타트패키지] 홈페이지 제작 완료`,
+              message,
+              status: "성공",
+            },
+          });
+        }
+      }
+
       // 택배 정보 입력 시 알림 (SMS는 수동 발송으로 변경)
       if (택배회사 && 운송장번호) {
         await handleProductionComplete({
@@ -313,17 +355,36 @@ export async function POST(request: NextRequest) {
       }
 
       // 슬랙 진행 로그
-      await logProgress({
-        userId: updatedWorkflow.userId,
-        stage: `${updatedWorkflow.type} 상태 변경`,
-        status,
-        details: {
-          "이전 상태": currentWorkflow.status,
-          "변경 후": status,
-          ...(택배회사 && { 택배회사 }),
-          ...(운송장번호 && { 운송장번호 }),
-        },
-      });
+      // 홈페이지 "제작 완료" 시 주소만 전송
+      if (
+        updatedWorkflow.type === "홈페이지" &&
+        status === "제작 완료" &&
+        currentWorkflow.status !== "제작 완료"
+      ) {
+        const 홈페이지주소 = updatedWorkflow.시안URL || "";
+        await logProgress({
+          userId: updatedWorkflow.userId,
+          stage: `홈페이지 제작 완료`,
+          status: "완료",
+          details: {
+            "홈페이지 주소": 홈페이지주소,
+          },
+          emoji: "✅",
+        });
+      } else {
+        // 일반 상태 변경 로그
+        await logProgress({
+          userId: updatedWorkflow.userId,
+          stage: `${updatedWorkflow.type} 상태 변경`,
+          status,
+          details: {
+            "이전 상태": currentWorkflow.status,
+            "변경 후": status,
+            ...(택배회사 && { 택배회사 }),
+            ...(운송장번호 && { 운송장번호 }),
+          },
+        });
+      }
     } catch (notificationError) {
       console.error("알림 발송 실패:", notificationError);
       // 알림 실패는 무시하고 계속 진행

@@ -58,6 +58,24 @@ export async function POST(request: Request) {
     let validatedData;
     try {
       validatedData = submissionPartialSchema.parse(body);
+
+      // ✅ 빈 문자열 처리: null로 변환하거나 제거
+      const filteredData: any = {};
+      for (const [key, value] of Object.entries(validatedData)) {
+        if (value === null || value === undefined) {
+          // null/undefined는 제외 (업데이트 안 함)
+          continue;
+        } else if (value === "") {
+          // 빈 문자열 → null로 변환 (명시적 삭제)
+          filteredData[key] = null;
+        } else {
+          // 값이 있으면 그대로 사용
+          filteredData[key] = value;
+        }
+      }
+      validatedData = filteredData;
+
+      console.log("📝 [Submission] 필터링된 데이터:", JSON.stringify(validatedData, null, 2));
     } catch (error) {
       if (error instanceof ZodError) {
         console.error("Zod validation error:", error.errors);

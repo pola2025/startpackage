@@ -355,6 +355,9 @@ export default function SubmissionPage() {
     const formData = new FormData(e.target as HTMLFormElement);
     const data = Object.fromEntries(formData.entries());
 
+    console.log(`📤 [제출정보 저장] 섹션: ${section}`);
+    console.log("📋 FormData 수집 결과:", data);
+
     // 로고 섹션 저장 시 색상 필수 검증
     if (section === "logo") {
       const logoColor = data.명함색상 as string;
