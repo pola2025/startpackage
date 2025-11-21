@@ -18,9 +18,10 @@ export async function POST(req: Request) {
   try {
     const session = await auth();
     const userRole = (session?.user as any)?.role;
+    const currentUserId = session?.user?.id;
 
-    // 권한 확인 (super, designer, operator만 허용)
-    if (!session || !["super", "designer", "operator"].includes(userRole)) {
+    // 로그인 확인
+    if (!session || !currentUserId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -39,6 +40,17 @@ export async function POST(req: Request) {
     }
 
     const { userId, 연락처 } = validation.data;
+
+    // 권한 확인: 관리자이거나 본인만 수정 가능
+    const isAdmin = ["super", "designer", "operator"].includes(userRole);
+    const isSelf = currentUserId === userId;
+
+    if (!isAdmin && !isSelf) {
+      return NextResponse.json(
+        { error: "본인의 전화번호만 수정할 수 있습니다" },
+        { status: 403 }
+      );
+    }
 
     // 사용자 존재 확인
     const user = await prisma.user.findUnique({
