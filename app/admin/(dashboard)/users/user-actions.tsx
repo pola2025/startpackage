@@ -26,7 +26,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, Trash2, Eye, ExternalLink, GraduationCap, UserCheck, Send, MessageSquare, Paperclip, X, Loader2 } from "lucide-react";
+import { MoreVertical, Trash2, Eye, ExternalLink, GraduationCap, UserCheck, Send, MessageSquare, Paperclip, X, Loader2, Phone } from "lucide-react";
 
 interface UserActionsProps {
   user: any;
@@ -54,6 +54,11 @@ export default function UserActions({ user }: UserActionsProps) {
   const [commContent, setCommContent] = useState("");
   const [commAttachments, setCommAttachments] = useState<string[]>([]);
   const [uploadingCommAttachment, setUploadingCommAttachment] = useState(false);
+
+  // 전화번호 수정
+  const [showPhoneDialog, setShowPhoneDialog] = useState(false);
+  const [updatingPhone, setUpdatingPhone] = useState(false);
+  const [newPhone, setNewPhone] = useState("");
 
   const fetchSubmission = async () => {
     setLoadingSubmission(true);
@@ -246,6 +251,49 @@ export default function UserActions({ user }: UserActionsProps) {
     }
   };
 
+  const handleUpdatePhone = async () => {
+    if (!newPhone.trim()) {
+      alert("새 전화번호를 입력해주세요.");
+      return;
+    }
+
+    // 전화번호 형식 검증 (프론트엔드)
+    const phoneRegex = /^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$/;
+    if (!phoneRegex.test(newPhone)) {
+      alert("올바른 전화번호 형식이 아닙니다.\n예: 010-1234-5678 또는 01012345678");
+      return;
+    }
+
+    if (updatingPhone) return;
+
+    setUpdatingPhone(true);
+    try {
+      const response = await fetch("/api/admin/users/update-phone", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user.id,
+          연락처: newPhone,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || data.details || "전화번호 수정 실패");
+      }
+
+      alert(data.message || "전화번호가 성공적으로 변경되었습니다.");
+      setShowPhoneDialog(false);
+      setNewPhone("");
+      router.refresh();
+    } catch (error: any) {
+      alert(error.message || "전화번호 수정 중 오류가 발생했습니다.");
+    } finally {
+      setUpdatingPhone(false);
+    }
+  };
+
   return (
     <>
       <DropdownMenu>
@@ -265,6 +313,17 @@ export default function UserActions({ user }: UserActionsProps) {
           >
             <Eye className="w-4 h-4 mr-2" />
             제출 정보 확인
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              setNewPhone(user.연락처 || "");
+              setShowPhoneDialog(true);
+            }}
+            disabled={loading}
+            className="text-teal-600 hover:bg-teal-50 cursor-pointer"
+          >
+            <Phone className="w-4 h-4 mr-2" />
+            전화번호 수정
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => setShowMessageDialog(true)}
@@ -680,6 +739,72 @@ export default function UserActions({ user }: UserActionsProps) {
                 <>
                   <Send className="w-4 h-4 mr-2" />
                   {messageChannel === "SMS" ? "문자" : "이메일"} 발송
+                </>
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* 전화번호 수정 다이얼로그 */}
+      <Dialog open={showPhoneDialog} onOpenChange={setShowPhoneDialog}>
+        <DialogContent className="bg-white border-gray-200 max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl text-gray-900">
+              전화번호 수정
+            </DialogTitle>
+            <DialogDescription className="text-gray-600">
+              <strong>{user.이름}</strong>님의 전화번호를 수정합니다.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <label htmlFor="new-phone" className="text-sm font-semibold text-gray-900">
+                새 전화번호 *
+              </label>
+              <input
+                id="new-phone"
+                type="tel"
+                value={newPhone}
+                onChange={(e) => setNewPhone(e.target.value)}
+                placeholder="010-1234-5678 또는 01012345678"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              />
+              <p className="text-xs text-gray-500">
+                현재 전화번호: {user.연락처 || "없음"}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-2 pt-4 border-t border-gray-200 mt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setShowPhoneDialog(false);
+                setNewPhone("");
+              }}
+              disabled={updatingPhone}
+              className="flex-1 border-gray-300"
+            >
+              취소
+            </Button>
+            <Button
+              type="button"
+              onClick={handleUpdatePhone}
+              disabled={updatingPhone || !newPhone.trim()}
+              className="flex-1 bg-teal-600 hover:bg-teal-700 text-white"
+            >
+              {updatingPhone ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  수정 중...
+                </>
+              ) : (
+                <>
+                  <Phone className="w-4 h-4 mr-2" />
+                  수정
                 </>
               )}
             </Button>

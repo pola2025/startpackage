@@ -57,6 +57,9 @@ export default function SubmissionPage() {
   // 진행률 상태
   const [progress, setProgress] = useState<ProgressResult | null>(null);
 
+  // 연락처 상태 (사용자 로그인 아이디)
+  const [userPhone, setUserPhone] = useState<string>("");
+
   // 탭 상태 - URL 쿼리 파라미터에서 가져오기
   const activeTab = searchParams.get("tab") || "basic";
 
@@ -81,6 +84,14 @@ export default function SubmissionPage() {
       }, 300);
     }
   }, [activeTab]); // activeTab이 변경될 때마다 실행
+
+  // 세션에서 연락처 초기화
+  useEffect(() => {
+    if (session?.user) {
+      const phone = (session.user as any).연락처 || "";
+      setUserPhone(phone);
+    }
+  }, [session]);
 
   // 제출 데이터 및 워크플로우 로드
   useEffect(() => {
@@ -367,9 +378,37 @@ export default function SubmissionPage() {
       }
     }
 
+    // 기본정보 섹션 저장 시 연락처 검증
+    if (section === "basic") {
+      const phoneRegex = /^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$/;
+      if (!phoneRegex.test(userPhone)) {
+        alert("올바른 전화번호 형식이 아닙니다.\n예: 010-1234-5678 또는 01012345678");
+        return;
+      }
+    }
+
     setLoading(true);
 
     try {
+      // 기본정보 섹션 저장 시 연락처도 함께 업데이트
+      if (section === "basic" && userPhone) {
+        const phoneUpdateRes = await fetch("/api/admin/users/update-phone", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: session?.user?.id,
+            연락처: userPhone,
+          }),
+        });
+
+        if (!phoneUpdateRes.ok) {
+          const errorData = await phoneUpdateRes.json();
+          alert(errorData.error || "전화번호 수정에 실패했습니다.");
+          setLoading(false);
+          return;
+        }
+      }
+
       const res = await fetch("/api/submission", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -684,6 +723,24 @@ export default function SubmissionPage() {
                       disabled={submission?.isComplete || !isEditingBasicInfo}
                       className="bg-white border-gray-200"
                     />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="연락처" className="text-sm sm:text-base">
+                      연락처 (로그인 아이디) *
+                    </Label>
+                    <Input
+                      id="연락처"
+                      type="tel"
+                      value={userPhone}
+                      onChange={(e) => setUserPhone(e.target.value)}
+                      placeholder="010-1234-5678"
+                      required
+                      disabled={submission?.isComplete || !isEditingBasicInfo}
+                      className="bg-white border-gray-200"
+                    />
+                    <p className="text-xs text-gray-500">
+                      로그인 시 사용하는 전화번호입니다
+                    </p>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="대표번호" className="text-sm sm:text-base">대표번호</Label>

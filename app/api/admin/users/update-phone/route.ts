@@ -1,0 +1,101 @@
+import { auth } from "@/auth";
+import prisma from "@/lib/prisma";
+import { NextResponse } from "next/server";
+import { z } from "zod";
+
+// 전화번호 검증 스키마
+const updatePhoneSchema = z.object({
+  userId: z.string().cuid(),
+  연락처: z
+    .string()
+    .regex(
+      /^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$/,
+      "올바른 전화번호 형식이 아닙니다 (예: 010-1234-5678)"
+    ),
+});
+
+export async function POST(req: Request) {
+  try {
+    const session = await auth();
+    const userRole = (session?.user as any)?.role;
+
+    // 권한 확인 (super, designer, operator만 허용)
+    if (!session || !["super", "designer", "operator"].includes(userRole)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await req.json();
+
+    // 입력 검증
+    const validation = updatePhoneSchema.safeParse(body);
+    if (!validation.success) {
+      return NextResponse.json(
+        {
+          error: "Invalid input",
+          details: validation.error.errors[0].message,
+        },
+        { status: 400 }
+      );
+    }
+
+    const { userId, 연락처 } = validation.data;
+
+    // 사용자 존재 확인
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        이름: true,
+        연락처: true,
+      },
+    });
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "사용자를 찾을 수 없습니다" },
+        { status: 404 }
+      );
+    }
+
+    // 전화번호 중복 확인 (자기 자신 제외)
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        연락처,
+        NOT: {
+          id: userId,
+        },
+      },
+    });
+
+    if (existingUser) {
+      return NextResponse.json(
+        { error: "이미 사용 중인 전화번호입니다" },
+        { status: 400 }
+      );
+    }
+
+    // 전화번호 업데이트 (비밀번호는 그대로 유지)
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: { 연락처 },
+      select: {
+        id: true,
+        이름: true,
+        연락처: true,
+        email: true,
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: `${user.이름}님의 전화번호가 ${연락처}로 변경되었습니다`,
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error("POST /api/admin/users/update-phone error:", error);
+    return NextResponse.json(
+      { error: "전화번호 수정 중 오류가 발생했습니다" },
+      { status: 500 }
+    );
+  }
+}
