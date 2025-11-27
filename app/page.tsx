@@ -142,12 +142,12 @@ export default function LoginPage() {
                     type="tel"
                     placeholder="01012345678"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={(e) => setPhone(e.target.value.replace(/-/g, ""))}
                     required
                     disabled={loading}
                     className="bg-blue-50/50 border-blue-200 focus:border-blue-600 focus:ring-blue-600"
                   />
-                  <p className="text-xs text-blue-600">하이픈(-) 없이 입력</p>
+                  <p className="text-xs text-blue-600">숫자만 입력 (하이픈 자동 제거)</p>
                 </div>
 
                 <div className="space-y-2">
@@ -204,13 +204,13 @@ export default function LoginPage() {
                     type="tel"
                     placeholder="01012345678"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={(e) => setPhone(e.target.value.replace(/-/g, ""))}
                     required
                     disabled={loading}
                     className="bg-blue-50/50 border-blue-200 focus:border-blue-600 focus:ring-blue-600"
                   />
                   <p className="text-xs text-blue-600">
-                    해당 번호로 4자리 임시 비밀번호가 발송됩니다
+                    숫자만 입력 (해당 번호로 4자리 임시 비밀번호 발송)
                   </p>
                 </div>
 

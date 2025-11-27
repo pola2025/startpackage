@@ -69,10 +69,18 @@ export async function POST(req: Request) {
       );
     }
 
-    // 전화번호 중복 확인 (자기 자신 제외)
+    // 전화번호 정규화 (하이픈 제거)
+    const cleanPhone = 연락처.replace(/-/g, "");
+    // 하이픈 포함 형식도 생성 (중복 확인용)
+    const formattedPhone = cleanPhone.replace(/(\d{3})(\d{3,4})(\d{4})/, "$1-$2-$3");
+
+    // 전화번호 중복 확인 (자기 자신 제외, 양쪽 형식 모두 검색)
     const existingUser = await prisma.user.findFirst({
       where: {
-        연락처,
+        OR: [
+          { 연락처: cleanPhone },
+          { 연락처: formattedPhone },
+        ],
         NOT: {
           id: userId,
         },
@@ -89,7 +97,7 @@ export async function POST(req: Request) {
     // 전화번호 업데이트 (비밀번호는 그대로 유지)
     const updatedUser = await prisma.user.update({
       where: { id: userId },
-      data: { 연락처 },
+      data: { 연락처: cleanPhone },
       select: {
         id: true,
         이름: true,
@@ -100,7 +108,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
-      message: `${user.이름}님의 전화번호가 ${연락처}로 변경되었습니다`,
+      message: `${user.이름}님의 전화번호가 ${cleanPhone}로 변경되었습니다`,
       user: updatedUser,
     });
   } catch (error) {

@@ -194,11 +194,11 @@ export default function HomePage() {
                     type="tel"
                     placeholder="01012345678"
                     value={formData.연락처}
-                    onChange={(e) => setFormData({ ...formData, 연락처: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, 연락처: e.target.value.replace(/-/g, "") })}
                     required
                     className="bg-white border-2 border-gray-300 focus:border-blue-500 text-gray-900"
                   />
-                  <p className="text-xs text-gray-600">하이픈(-) 없이 숫자만 입력</p>
+                  <p className="text-xs text-gray-600">숫자만 입력 (하이픈은 자동 제거됩니다)</p>
                 </div>
 
                 <div className="space-y-2">

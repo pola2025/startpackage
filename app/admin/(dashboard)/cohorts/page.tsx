@@ -125,6 +125,7 @@ export default async function CohortsPage() {
                   <TableHead className="text-gray-700 font-semibold">수강생 수</TableHead>
                   <TableHead className="text-gray-700 font-semibold">교육 시작일</TableHead>
                   <TableHead className="text-gray-700 font-semibold">자료 마감일</TableHead>
+                  <TableHead className="text-gray-700 font-semibold">마케팅 지원 기간</TableHead>
                   <TableHead className="text-gray-700 font-semibold">작업</TableHead>
                 </TableRow>
               </TableHeader>
@@ -180,6 +181,42 @@ export default async function CohortsPage() {
                           <Calendar className="w-3 h-3" />
                           {new Date(cohort.자료제출마감일).toLocaleDateString("ko-KR")}
                         </div>
+                      ) : (
+                        <span className="text-gray-400">-</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-sm">
+                      {cohort.교육시작일 ? (
+                        (() => {
+                          const startDate = new Date(cohort.교육시작일);
+                          const endDate = new Date(cohort.교육시작일);
+                          endDate.setMonth(endDate.getMonth() + 3);
+                          const now = new Date();
+                          const isExpired = now > endDate;
+                          const daysLeft = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+
+                          return (
+                            <div className="flex flex-col gap-1">
+                              <div className="flex items-center gap-1 text-gray-600">
+                                <Calendar className="w-3 h-3" />
+                                <span>~{endDate.toLocaleDateString("ko-KR")}</span>
+                              </div>
+                              {isExpired ? (
+                                <Badge variant="outline" className="text-xs border-gray-300 text-gray-500 bg-gray-50 w-fit">
+                                  종료됨
+                                </Badge>
+                              ) : daysLeft <= 14 ? (
+                                <Badge variant="outline" className="text-xs border-orange-300 text-orange-600 bg-orange-50 w-fit">
+                                  D-{daysLeft}
+                                </Badge>
+                              ) : (
+                                <Badge variant="outline" className="text-xs border-blue-300 text-blue-600 bg-blue-50 w-fit">
+                                  진행중
+                                </Badge>
+                              )}
+                            </div>
+                          );
+                        })()
                       ) : (
                         <span className="text-gray-400">-</span>
                       )}

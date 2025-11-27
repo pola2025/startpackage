@@ -72,6 +72,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 전화번호 중복 확인 (하이픈 포함/미포함 형식 모두 검색)
+    const cleanPhone = 연락처.replace(/-/g, "");
+    const formattedPhone = cleanPhone.replace(/(\d{3})(\d{3,4})(\d{4})/, "$1-$2-$3");
+
+    const existingPhoneUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { 연락처: cleanPhone },
+          { 연락처: formattedPhone },
+        ],
+      },
+    });
+
+    if (existingPhoneUser) {
+      return NextResponse.json(
+        { error: "이미 등록된 전화번호입니다." },
+        { status: 400 }
+      );
+    }
+
     // 선택한 기수 확인
     const cohort = await prisma.cohort.findUnique({
       where: { id: cohortId },
@@ -95,7 +115,7 @@ export async function POST(request: NextRequest) {
           email: 이메일,
           password: hashedPassword,
           이름,
-          연락처: 연락처.replace(/-/g, ""), // 하이픈 제거
+          연락처: cleanPhone, // 하이픈 제거된 전화번호
           cohortId,
           SMS수신동의: true,
           이메일수신동의: true,

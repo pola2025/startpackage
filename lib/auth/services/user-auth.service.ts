@@ -10,8 +10,16 @@ import prisma from "@/lib/prisma";
 export async function authenticateUserByPhone(phone: string, password: string) {
   const cleanPhone = phone.replace(/-/g, "");
 
+  // 하이픈 포함/미포함 형식 모두 검색 (DB 데이터 불일치 대응)
+  const formattedPhone = cleanPhone.replace(/(\d{3})(\d{3,4})(\d{4})/, "$1-$2-$3");
+
   const user = await prisma.user.findFirst({
-    where: { 연락처: cleanPhone },
+    where: {
+      OR: [
+        { 연락처: cleanPhone },
+        { 연락처: formattedPhone },
+      ],
+    },
     include: { cohort: true },
   });
 
