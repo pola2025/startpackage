@@ -9,6 +9,13 @@ import { z } from "zod";
  * 개별 사용자에게 SMS 또는 이메일 발송
  */
 
+const attachmentSchema = z.object({
+  url: z.string().url("유효하지 않은 URL입니다."),
+  filename: z.string().min(1, "파일명이 필요합니다."),
+  size: z.number().positive("파일 크기가 유효하지 않습니다."),
+  type: z.string().min(1, "파일 타입이 필요합니다."),
+});
+
 const sendMessageSchema = z.object({
   userId: z.string().cuid("유효하지 않은 사용자 ID입니다."),
   channel: z.enum(["SMS", "EMAIL"], {
@@ -16,6 +23,7 @@ const sendMessageSchema = z.object({
   }),
   title: z.string().min(1, "제목을 입력해주세요.").max(100, "제목은 100자 이내로 입력해주세요."),
   message: z.string().min(1, "메시지를 입력해주세요.").max(1000, "메시지는 1000자 이내로 입력해주세요."),
+  attachments: z.array(attachmentSchema).optional(),
 });
 
 export async function POST(request: Request) {
@@ -43,7 +51,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { userId, channel, title, message } = validation.data;
+    const { userId, channel, title, message, attachments } = validation.data;
 
     // 사용자 정보 조회
     const user = await prisma.user.findUnique({
@@ -110,11 +118,15 @@ export async function POST(request: Request) {
     } else {
       // 이메일 발송
       try {
-        const { sendEmail } = await import("@/lib/email/emailClient");
-        await sendEmail({
+        const { sendEmailWithAttachments } = await import("@/lib/email/emailClient");
+        await sendEmailWithAttachments({
           to: user.email,
           subject: title,
           html: message.replace(/\n/g, "<br>"),
+          attachments: attachments?.map(att => ({
+            filename: att.filename,
+            path: att.url,
+          })),
         });
         sendResult.success = true;
       } catch (error: any) {

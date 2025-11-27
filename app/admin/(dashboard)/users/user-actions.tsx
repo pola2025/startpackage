@@ -46,6 +46,15 @@ export default function UserActions({ user }: UserActionsProps) {
   const [messageTitle, setMessageTitle] = useState("");
   const [messageContent, setMessageContent] = useState("");
 
+  // 이메일 첨부파일
+  const [emailAttachments, setEmailAttachments] = useState<Array<{
+    url: string;
+    filename: string;
+    size: number;
+    type: string;
+  }>>([]);
+  const [uploadingEmailAttachment, setUploadingEmailAttachment] = useState(false);
+
   // 문의하기 메시지 (Communication Thread)
   const [showCommunicationDialog, setShowCommunicationDialog] = useState(false);
   const [sendingCommunication, setSendingCommunication] = useState(false);
@@ -128,6 +137,63 @@ export default function UserActions({ user }: UserActionsProps) {
     }
   };
 
+  // 이메일 첨부파일 업로드
+  const handleEmailAttachmentUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploadingEmailAttachment(true);
+
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+
+        // 파일 크기 체크 (10MB)
+        if (file.size > 10 * 1024 * 1024) {
+          alert(`"${file.name}" 파일 크기가 10MB를 초과합니다.`);
+          continue;
+        }
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await fetch("/api/admin/email-attachment/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          alert(data.error || `"${file.name}" 업로드에 실패했습니다.`);
+          continue;
+        }
+
+        const data = await response.json();
+        setEmailAttachments(prev => [...prev, {
+          url: data.url,
+          filename: data.filename,
+          size: data.size,
+          type: data.type,
+        }]);
+      }
+    } catch (error) {
+      alert("파일 업로드 중 오류가 발생했습니다.");
+    } finally {
+      setUploadingEmailAttachment(false);
+      e.target.value = "";
+    }
+  };
+
+  const handleRemoveEmailAttachment = (index: number) => {
+    setEmailAttachments(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+  };
+
   const handleSendMessage = async () => {
     if (!messageTitle.trim() || !messageContent.trim()) {
       alert("제목과 메시지를 모두 입력해주세요.");
@@ -146,6 +212,7 @@ export default function UserActions({ user }: UserActionsProps) {
           channel: messageChannel,
           title: messageTitle,
           message: messageContent,
+          attachments: messageChannel === "EMAIL" ? emailAttachments : undefined,
         }),
       });
 
@@ -159,6 +226,7 @@ export default function UserActions({ user }: UserActionsProps) {
       setShowMessageDialog(false);
       setMessageTitle("");
       setMessageContent("");
+      setEmailAttachments([]);
       router.refresh();
     } catch (error: any) {
       alert(error.message || "메시지 발송 중 오류가 발생했습니다.");
@@ -696,6 +764,82 @@ export default function UserActions({ user }: UserActionsProps) {
               />
               <p className="text-xs text-gray-500">{messageContent.length}/1000자</p>
             </div>
+
+            {/* 이메일 첨부파일 (이메일 선택 시만 표시) */}
+            {messageChannel === "EMAIL" && (
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-900">
+                  첨부파일 (선택)
+                </label>
+                <div className="space-y-2">
+                  {/* 파일 업로드 버튼 */}
+                  <div>
+                    <input
+                      type="file"
+                      multiple
+                      onChange={handleEmailAttachmentUpload}
+                      disabled={uploadingEmailAttachment}
+                      className="hidden"
+                      id="email-attachment-upload"
+                      accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip"
+                    />
+                    <label
+                      htmlFor="email-attachment-upload"
+                      className={`inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors ${
+                        uploadingEmailAttachment ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
+                    >
+                      {uploadingEmailAttachment ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          업로드 중...
+                        </>
+                      ) : (
+                        <>
+                          <Paperclip className="w-4 h-4 mr-2" />
+                          파일 첨부
+                        </>
+                      )}
+                    </label>
+                    <p className="text-xs text-gray-500 mt-1">
+                      이미지, PDF, 문서, 엑셀, PPT, 텍스트, ZIP (파일당 최대 10MB, 여러 파일 선택 가능)
+                    </p>
+                  </div>
+
+                  {/* 첨부된 파일 목록 */}
+                  {emailAttachments.length > 0 && (
+                    <div className="space-y-2 mt-3">
+                      <p className="text-xs font-medium text-gray-700">
+                        첨부된 파일 ({emailAttachments.length}개)
+                      </p>
+                      {emailAttachments.map((attachment, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center gap-2 p-2 bg-purple-50 rounded-lg border border-purple-200"
+                        >
+                          <Paperclip className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm text-gray-900 truncate">
+                              {attachment.filename}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {formatFileSize(attachment.size)}
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveEmailAttachment(index)}
+                            className="p-1 text-red-600 hover:bg-red-100 rounded transition-colors flex-shrink-0"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* 미리보기 */}
             {(messageTitle || messageContent) && (

@@ -33,7 +33,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Settings, Calendar as CalendarIcon, History, Filter, Search, Zap, MessageSquare, Search as SearchIcon } from "lucide-react";
+import { Settings, Calendar as CalendarIcon, History, Filter, Search, Zap, MessageSquare, Search as SearchIcon, ChevronDown, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import { HomepageBadge } from "@/components/admin/homepage-badge";
@@ -75,6 +75,9 @@ export default function AdAutomationManagementPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+
+  // 기수별 접기/펼치기 상태
+  const [collapsedCohorts, setCollapsedCohorts] = useState<Set<string>>(new Set());
 
   // 선택된 사용자 및 토글 다이얼로그
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -268,6 +271,50 @@ export default function AdAutomationManagementPage() {
     return <Badge variant="outline" className="bg-green-100 border-green-300 text-green-700">🟢 켜짐 (D-{daysRemaining})</Badge>;
   };
 
+  // 기수별 사용자 그룹화
+  const groupedByCohort = filteredUsers.reduce((acc, user) => {
+    const cohortName = user.cohort?.name || "기수 미지정";
+    if (!acc[cohortName]) {
+      acc[cohortName] = [];
+    }
+    acc[cohortName].push(user);
+    return acc;
+  }, {} as Record<string, User[]>);
+
+  // 기수 이름 정렬 (숫자 기준 내림차순, "기수 미지정"은 마지막)
+  const sortedCohortNames = Object.keys(groupedByCohort).sort((a, b) => {
+    if (a === "기수 미지정") return 1;
+    if (b === "기수 미지정") return -1;
+
+    // 숫자 추출하여 내림차순 정렬
+    const numA = parseInt(a.replace(/[^0-9]/g, "")) || 0;
+    const numB = parseInt(b.replace(/[^0-9]/g, "")) || 0;
+    return numB - numA;
+  });
+
+  // 기수 접기/펼치기 토글
+  const toggleCohort = (cohortName: string) => {
+    setCollapsedCohorts(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(cohortName)) {
+        newSet.delete(cohortName);
+      } else {
+        newSet.add(cohortName);
+      }
+      return newSet;
+    });
+  };
+
+  // 전체 접기
+  const collapseAll = () => {
+    setCollapsedCohorts(new Set(sortedCohortNames));
+  };
+
+  // 전체 펼치기
+  const expandAll = () => {
+    setCollapsedCohorts(new Set());
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -323,12 +370,24 @@ export default function AdAutomationManagementPage() {
       {/* 사용자 목록 */}
       <Card>
         <CardHeader>
-          <CardTitle>
-            사용자 목록 ({filteredUsers.length}명)
-          </CardTitle>
-          <CardDescription>
-            광고 자동화 상태를 관리하고 이력을 확인할 수 있습니다
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>
+                사용자 목록 ({filteredUsers.length}명)
+              </CardTitle>
+              <CardDescription>
+                광고 자동화 상태를 관리하고 이력을 확인할 수 있습니다
+              </CardDescription>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={expandAll}>
+                전체 펼치기
+              </Button>
+              <Button variant="outline" size="sm" onClick={collapseAll}>
+                전체 접기
+              </Button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -336,87 +395,122 @@ export default function AdAutomationManagementPage() {
           ) : filteredUsers.length === 0 ? (
             <p className="text-center py-8 text-gray-500">조건에 맞는 사용자가 없습니다</p>
           ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>이름</TableHead>
-                    <TableHead>기수</TableHead>
-                    <TableHead>이메일</TableHead>
-                    <TableHead className="text-center">광고 자동화</TableHead>
-                    <TableHead className="text-center">SMS 설정</TableHead>
-                    <TableHead className="text-center">네이버 설정</TableHead>
-                    <TableHead className="text-center">홈페이지</TableHead>
-                    <TableHead className="text-right">관리</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredUsers.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell className="font-medium">{user.이름}</TableCell>
-                      <TableCell>
-                        {user.cohort ? (
-                          <Badge variant="outline">{user.cohort.name}</Badge>
+            <div className="space-y-4">
+              {sortedCohortNames.map((cohortName) => {
+                const cohortUsers = groupedByCohort[cohortName];
+                const isCollapsed = collapsedCohorts.has(cohortName);
+                const enabledCount = cohortUsers.filter(u => u.adAutomationEnabled).length;
+
+                return (
+                  <div key={cohortName} className="border rounded-lg overflow-hidden">
+                    {/* 기수 헤더 (클릭하여 접기/펼치기) */}
+                    <button
+                      type="button"
+                      onClick={() => toggleCohort(cohortName)}
+                      className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        {isCollapsed ? (
+                          <ChevronRight className="w-5 h-5 text-gray-500" />
                         ) : (
-                          <span className="text-gray-400">-</span>
+                          <ChevronDown className="w-5 h-5 text-gray-500" />
                         )}
-                      </TableCell>
-                      <TableCell className="text-sm text-gray-600">{user.email}</TableCell>
-                      <TableCell className="text-center">{getStatusBadge(user)}</TableCell>
-                      <TableCell className="text-center">
+                        <span className="font-semibold text-gray-900">{cohortName}</span>
+                        <Badge variant="outline" className="bg-white">
+                          {cohortUsers.length}명
+                        </Badge>
                         <Badge
                           variant="outline"
-                          className={
-                            user.smsSettingEnabled
-                              ? "bg-green-100 border-green-300 text-green-700"
-                              : "bg-gray-100 border-gray-300 text-gray-700"
-                          }
+                          className={enabledCount > 0 ? "bg-green-100 border-green-300 text-green-700" : "bg-gray-100"}
                         >
-                          {user.smsSettingEnabled ? "🟢 켜짐" : "🔴 꺼짐"}
+                          활성 {enabledCount}명
                         </Badge>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Badge
-                          variant="outline"
-                          className={
-                            user.naverAdSettingEnabled
-                              ? "bg-green-100 border-green-300 text-green-700"
-                              : "bg-gray-100 border-gray-300 text-gray-700"
-                          }
-                        >
-                          {user.naverAdSettingEnabled ? "🟢 켜짐" : "🔴 꺼짐"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <HomepageBadge
-                          completed={user.homepageCompleted}
-                          completedAt={user.homepageCompletedAt}
-                        />
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => openToggleDialog(user)}
-                          >
-                            <Settings className="w-4 h-4 mr-1" />
-                            설정
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => openHistoryDialog(user)}
-                          >
-                            <History className="w-4 h-4 mr-1" />
-                            이력
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                      </div>
+                      <span className="text-sm text-gray-500">
+                        {isCollapsed ? "클릭하여 펼치기" : "클릭하여 접기"}
+                      </span>
+                    </button>
+
+                    {/* 사용자 테이블 (접혀있지 않을 때만 표시) */}
+                    {!isCollapsed && (
+                      <div className="overflow-x-auto">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>이름</TableHead>
+                              <TableHead>이메일</TableHead>
+                              <TableHead className="text-center">광고 자동화</TableHead>
+                              <TableHead className="text-center">SMS 설정</TableHead>
+                              <TableHead className="text-center">네이버 설정</TableHead>
+                              <TableHead className="text-center">홈페이지</TableHead>
+                              <TableHead className="text-right">관리</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {cohortUsers.map((user) => (
+                              <TableRow key={user.id}>
+                                <TableCell className="font-medium">{user.이름}</TableCell>
+                                <TableCell className="text-sm text-gray-600">{user.email}</TableCell>
+                                <TableCell className="text-center">{getStatusBadge(user)}</TableCell>
+                                <TableCell className="text-center">
+                                  <Badge
+                                    variant="outline"
+                                    className={
+                                      user.smsSettingEnabled
+                                        ? "bg-green-100 border-green-300 text-green-700"
+                                        : "bg-gray-100 border-gray-300 text-gray-700"
+                                    }
+                                  >
+                                    {user.smsSettingEnabled ? "🟢 켜짐" : "🔴 꺼짐"}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell className="text-center">
+                                  <Badge
+                                    variant="outline"
+                                    className={
+                                      user.naverAdSettingEnabled
+                                        ? "bg-green-100 border-green-300 text-green-700"
+                                        : "bg-gray-100 border-gray-300 text-gray-700"
+                                    }
+                                  >
+                                    {user.naverAdSettingEnabled ? "🟢 켜짐" : "🔴 꺼짐"}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell className="text-center">
+                                  <HomepageBadge
+                                    completed={user.homepageCompleted}
+                                    completedAt={user.homepageCompletedAt}
+                                  />
+                                </TableCell>
+                                <TableCell className="text-right">
+                                  <div className="flex items-center justify-end gap-2">
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => openToggleDialog(user)}
+                                    >
+                                      <Settings className="w-4 h-4 mr-1" />
+                                      설정
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      onClick={() => openHistoryDialog(user)}
+                                    >
+                                      <History className="w-4 h-4 mr-1" />
+                                      이력
+                                    </Button>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
         </CardContent>
