@@ -741,7 +741,16 @@ export default function UserCommunicationPage() {
                   <Textarea
                     value={replyContent}
                     onChange={(e) => setReplyContent(e.target.value)}
-                    placeholder="답글을 입력하세요..."
+                    onKeyDown={(e) => {
+                      // Enter로 전송, Shift+Enter로 줄바꿈
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        if (replyContent.trim() && !sending) {
+                          handleSendReply();
+                        }
+                      }
+                    }}
+                    placeholder="답글을 입력하세요... (Enter: 전송, Shift+Enter: 줄바꿈)"
                     className="resize-none min-h-[60px] sm:min-h-[80px] text-sm sm:text-base"
                   />
                   <div className="flex items-center justify-between gap-2">

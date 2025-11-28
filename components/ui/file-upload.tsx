@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Upload, X, CheckCircle, AlertCircle } from "lucide-react";
+import { Upload, X, CheckCircle, AlertCircle, Shield } from "lucide-react";
 
 interface FileUploadProps {
   // 필수
@@ -22,6 +22,10 @@ interface FileUploadProps {
   variant?: "default" | "compact";
   showPreview?: boolean;
   onDelete?: (index: number) => void;
+  /** 민감 정보 파일 여부 (신분증, 카드 등) */
+  sensitive?: boolean;
+  /** SLACK_ONLY 마커로 저장된 경우 */
+  sentToSlack?: boolean;
 }
 
 /**
@@ -46,6 +50,8 @@ export function FileUpload({
   variant = "default",
   showPreview = false,
   onDelete,
+  sensitive = false,
+  sentToSlack = false,
 }: FileUploadProps) {
   // 내부 에러 상태 (검증 에러)
   const [internalError, setInternalError] = useState<string | null>(null);
@@ -147,6 +153,16 @@ export function FileUpload({
         </p>
       )}
 
+      {/* 민감 정보 안내 */}
+      {sensitive && (
+        <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+          <Shield className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+          <p className="text-sm text-amber-700">
+            이 파일은 보안을 위해 <strong>서버에 저장되지 않습니다</strong>. 담당자에게 안전하게 전달됩니다.
+          </p>
+        </div>
+      )}
+
       {/* Level 2: 업로드 영역 */}
       <label className="block">
         <input
@@ -181,8 +197,21 @@ export function FileUpload({
         </div>
       </label>
 
-      {/* 업로드된 파일 목록 */}
-      {currentFiles.length > 0 && (
+      {/* 슬랙으로 전송된 민감 파일 표시 */}
+      {sentToSlack && (
+        <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+          <div className="flex items-center justify-center w-8 h-8 bg-green-100 rounded-full">
+            <Shield className="w-4 h-4 text-green-600" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-green-700">담당자에게 전송 완료</p>
+            <p className="text-xs text-green-600">보안을 위해 서버에 저장되지 않았습니다</p>
+          </div>
+        </div>
+      )}
+
+      {/* 업로드된 파일 목록 (슬랙 전송된 경우가 아닐 때만) */}
+      {!sentToSlack && currentFiles.length > 0 && (
         <div className="space-y-2">
           {currentFiles.map((file, index) => (
             <div

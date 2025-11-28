@@ -20,6 +20,7 @@ import {
   Shield,
   Lightbulb,
   Zap,
+  Globe,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -73,6 +74,11 @@ const navigation = [
     name: "광고 자동화",
     href: "/admin/ad-automation",
     icon: Zap,
+  },
+  {
+    name: "홈페이지",
+    href: "/admin/homepage",
+    icon: Globe,
   },
   {
     name: "마케팅 소식",

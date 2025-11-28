@@ -16,6 +16,7 @@ import {
   LogOut,
   Menu,
   X,
+  Globe,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -57,6 +58,12 @@ export function Sidebar({
             href: "/dashboard/submission",
             icon: FileText,
             label: "자료 제출",
+            badge: null,
+          },
+          {
+            href: "/dashboard/homepage",
+            icon: Globe,
+            label: "홈페이지 제작요청",
             badge: null,
           },
           {

@@ -2,6 +2,9 @@ import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 import { fileTypeFromBuffer } from "file-type";
 import { uploadToR2, generateFileName, validateR2Config } from "@/lib/storage/r2Client";
+import { isSensitiveField, SENSITIVE_FIELD_LABELS, SLACK_ONLY_MARKER } from "@/lib/constants/sensitiveFields";
+import { uploadSensitiveFileToSlack } from "@/lib/notification/slackClient";
+import prisma from "@/lib/prisma";
 
 // Vercel function 설정
 export const maxDuration = 30; // 30초 타임아웃
@@ -119,7 +122,60 @@ export async function POST(request: Request) {
       );
     }
 
-    // R2에 파일 업로드
+    // 🔐 민감 파일 처리: R2 저장 없이 슬랙으로 직접 전송
+    if (isSensitiveField(field)) {
+      console.log(`🔐 [Upload API] 민감 파일 감지: ${field}`);
+
+      // 사용자의 슬랙 채널 ID 조회
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { slackChannelId: true, 이름: true },
+      });
+
+      if (!user?.slackChannelId) {
+        console.log("[Upload API] 슬랙 채널 없음 - 기본 정보 먼저 제출 필요");
+        return NextResponse.json(
+          { error: "슬랙 채널이 생성되지 않았습니다. 기본 정보(브랜드명, 업종, 주소)를 먼저 제출해주세요." },
+          { status: 400 }
+        );
+      }
+
+      // 메모리에서 바로 슬랙으로 전송
+      const label = SENSITIVE_FIELD_LABELS[field as keyof typeof SENSITIVE_FIELD_LABELS];
+      const extension = file.name.split(".").pop() || "file";
+      const slackFileName = `${label}_${Date.now()}.${extension}`;
+
+      console.log(`🔐 [Upload API] 슬랙 전송 시작: ${slackFileName}`);
+
+      const success = await uploadSensitiveFileToSlack({
+        channelId: user.slackChannelId,
+        buffer,
+        fileName: slackFileName,
+        title: label,
+        userName: user.이름,
+      });
+
+      if (!success) {
+        console.error("[Upload API] 슬랙 전송 실패");
+        return NextResponse.json(
+          { error: "슬랙 전송에 실패했습니다. 다시 시도해주세요." },
+          { status: 500 }
+        );
+      }
+
+      console.log(`✅ [Upload API] 민감 파일 슬랙 전송 완료 (R2 저장 안 함)`);
+
+      // 성공 시 "SLACK_ONLY" 마커 반환 (R2 URL이 아님)
+      return NextResponse.json({
+        url: SLACK_ONLY_MARKER,
+        filename: file.name,
+        mimeType: actualMimeType,
+        sensitive: true,
+        message: "파일이 슬랙으로 안전하게 전송되었습니다. 서버에는 저장되지 않습니다.",
+      });
+    }
+
+    // 일반 파일: R2에 업로드
     console.log("[Upload API] R2 업로드 시작");
     const filename = generateFileName(field, file.name);
 

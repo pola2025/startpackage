@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,8 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Upload, FileText, CheckCircle2, AlertCircle, Loader2, Square, CreditCard, ExternalLink } from "lucide-react";
+import { Upload, FileText, CheckCircle2, AlertCircle, Loader2, Square, CreditCard, ExternalLink, Shield } from "lucide-react";
+import { SLACK_ONLY_MARKER } from "@/lib/constants/sensitiveFields";
 import imageCompression from "browser-image-compression";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { calculateProgress, type ProgressResult } from "@/lib/submission-progress";
@@ -37,17 +37,10 @@ export default function SubmissionPage() {
   const [isEditingLogo, setIsEditingLogo] = useState(false);
   const [isEditingNamecard, setIsEditingNamecard] = useState(false);
   const [isEditingMarketing, setIsEditingMarketing] = useState(false);
-  const [isEditingDesign, setIsEditingDesign] = useState(false);
 
   // 로고 선택 상태
   const [selectedStyle, setSelectedStyle] = useState<string>("");
   const [selectedFont, setSelectedFont] = useState<string>("");
-
-  // 홈페이지 선택 상태
-  const [selectedWebsiteStyle, setSelectedWebsiteStyle] = useState<string>("");
-  const [websiteColor, setWebsiteColor] = useState<string>("#3B82F6");
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const colorSectionRef = useRef<HTMLDivElement>(null);
 
   // 명함 상태
   const [businessCardColor, setBusinessCardColor] = useState<string>("#3B82F6");
@@ -157,8 +150,6 @@ export default function SubmissionPage() {
       setSelectedFont(submission.로고선호폰트 || "");
       setBusinessCardColor(submission.명함색상 || "#3B82F6");
       setSelectedNamecard(submission.명함시안 || "");
-      setSelectedWebsiteStyle(submission.홈페이지스타일 || "");
-      setWebsiteColor(submission.홈페이지컬러컨셉 || "#3B82F6");
     }
   }, [submission]);
 
@@ -186,7 +177,6 @@ export default function SubmissionPage() {
           const hasLogo = data.로고선호스타일 || data.로고선호폰트 || data.명함색상;
           const hasNamecard = data.명함시안;
           const hasMarketing = data.네이버검색광고ID || data.네이버검색광고PW || data.네이버클라우드ID || data.네이버클라우드PW || data.InstagramID || data.GmailID;
-          const hasWebsite = data.홈페이지스타일 || data.홈페이지컬러컨셉 || data.아임웹ID || data.아임웹PW || data.아임웹관리자PW;
 
           setIsEditingBasicInfo(!hasBasic);
           setIsEditingBusiness(true); // 사업자 정보는 항상 편집 가능
@@ -194,7 +184,6 @@ export default function SubmissionPage() {
           setIsEditingLogo(!hasLogo);
           setIsEditingNamecard(!hasNamecard);
           setIsEditingMarketing(!hasMarketing);
-          setIsEditingDesign(!hasWebsite);
         } else {
           // 데이터가 없으면 모두 편집 모드로 (true = 편집 모드)
           setIsEditingBasicInfo(true);
@@ -203,7 +192,6 @@ export default function SubmissionPage() {
           setIsEditingLogo(true);
           setIsEditingNamecard(true);
           setIsEditingMarketing(true);
-          setIsEditingDesign(true);
         }
       }
     } catch (error) {
@@ -232,16 +220,6 @@ export default function SubmissionPage() {
       submission.네이버클라우드PW ||
       submission.InstagramID ||
       submission.GmailID
-    );
-  };
-
-  const hasWebsiteInfo = () => {
-    return submission && (
-      submission.홈페이지스타일 ||
-      submission.홈페이지컬러컨셉 ||
-      submission.아임웹ID ||
-      submission.아임웹PW ||
-      submission.아임웹관리자PW
     );
   };
 
@@ -438,9 +416,6 @@ export default function SubmissionPage() {
           case "marketing":
             setIsEditingMarketing(false);
             break;
-          case "website":
-            setIsEditingDesign(false);
-            break;
         }
 
         alert("저장되었습니다!");
@@ -626,7 +601,7 @@ export default function SubmissionPage() {
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6 w-full">
         {/* 깔끔하고 직관적인 탭 네비게이션 - 모바일 2단 구조 */}
-        <TabsList className="bg-white border-2 border-gray-200 p-1.5 rounded-xl shadow-sm grid grid-cols-3 md:grid-cols-5 gap-1 h-auto">
+        <TabsList className="bg-white border-2 border-gray-200 p-1.5 rounded-xl shadow-sm grid grid-cols-2 md:grid-cols-4 gap-1 h-auto">
           <TabsTrigger
             value="basic"
             className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-semibold text-xs sm:text-sm py-2"
@@ -654,14 +629,6 @@ export default function SubmissionPage() {
             className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-semibold text-xs sm:text-sm py-2"
           >
             📱 마케팅
-          </TabsTrigger>
-          <TabsTrigger
-            value="website"
-            disabled={!isLogoConfirmed()}
-            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm py-2"
-            title={!isLogoConfirmed() ? "로고 시안 확정 후 이용 가능합니다" : ""}
-          >
-            🌐 홈페이지
           </TabsTrigger>
         </TabsList>
 
@@ -1821,7 +1788,38 @@ export default function SubmissionPage() {
               {/* 대표자신분증 */}
               <div className="space-y-2">
                 <Label className="text-sm sm:text-base break-words">대표자 신분증 - 마스킹 없어야 됩니다. (번호안가리고)</Label>
-                {submission?.대표자신분증URL ? (
+                {/* 민감 정보 안내 */}
+                <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <Shield className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                  <p className="text-sm text-amber-700">
+                    이 파일은 보안을 위해 <strong>서버에 저장되지 않습니다</strong>. 담당자에게 안전하게 전달됩니다.
+                  </p>
+                </div>
+                {submission?.대표자신분증URL === SLACK_ONLY_MARKER ? (
+                  <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="flex items-center justify-center w-8 h-8 bg-green-100 rounded-full">
+                      <Shield className="w-4 h-4 text-green-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-green-700">담당자에게 전송 완료</p>
+                      <p className="text-xs text-green-600">보안을 위해 서버에 저장되지 않았습니다</p>
+                    </div>
+                    <label className="cursor-pointer">
+                      <input
+                        type="file"
+                        accept="image/*,application/pdf"
+                        className="hidden"
+                        onChange={(e) => {
+                          if (e.target.files?.[0]) {
+                            handleFileUpload("대표자신분증URL", e.target.files[0]);
+                          }
+                        }}
+                        disabled={uploading}
+                      />
+                      <span className="text-sm text-blue-600 hover:underline">재전송</span>
+                    </label>
+                  </div>
+                ) : submission?.대표자신분증URL ? (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 border border-green-200">
                       <div className="flex items-center gap-2">
@@ -1889,7 +1887,38 @@ export default function SubmissionPage() {
                     <span><span className="font-medium">핸드폰 번호 등록 시:</span> 1차 안내 문자 발송 후 고객 문자 수신 가능</span>
                   </p>
                 </div>
-                {submission?.통신서비스이용증명원URL ? (
+                {/* 민감 정보 안내 */}
+                <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <Shield className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                  <p className="text-sm text-amber-700">
+                    이 파일은 보안을 위해 <strong>서버에 저장되지 않습니다</strong>. 담당자에게 안전하게 전달됩니다.
+                  </p>
+                </div>
+                {submission?.통신서비스이용증명원URL === SLACK_ONLY_MARKER ? (
+                  <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="flex items-center justify-center w-8 h-8 bg-green-100 rounded-full">
+                      <Shield className="w-4 h-4 text-green-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-green-700">담당자에게 전송 완료</p>
+                      <p className="text-xs text-green-600">보안을 위해 서버에 저장되지 않았습니다</p>
+                    </div>
+                    <label className="cursor-pointer">
+                      <input
+                        type="file"
+                        accept="image/*,application/pdf"
+                        className="hidden"
+                        onChange={(e) => {
+                          if (e.target.files?.[0]) {
+                            handleFileUpload("통신서비스이용증명원URL", e.target.files[0]);
+                          }
+                        }}
+                        disabled={uploading}
+                      />
+                      <span className="text-sm text-blue-600 hover:underline">재전송</span>
+                    </label>
+                  </div>
+                ) : submission?.통신서비스이용증명원URL ? (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 border border-green-200">
                       <div className="flex items-center gap-2">
@@ -1947,7 +1976,38 @@ export default function SubmissionPage() {
               {/* 신용카드앞면 */}
               <div className="space-y-2">
                 <Label className="text-sm sm:text-base break-words">신용카드 번호 보이는면 CVC 번호 필수</Label>
-                {submission?.신용카드앞면URL ? (
+                {/* 민감 정보 안내 */}
+                <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <Shield className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                  <p className="text-sm text-amber-700">
+                    이 파일은 보안을 위해 <strong>서버에 저장되지 않습니다</strong>. 담당자에게 안전하게 전달됩니다.
+                  </p>
+                </div>
+                {submission?.신용카드앞면URL === SLACK_ONLY_MARKER ? (
+                  <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="flex items-center justify-center w-8 h-8 bg-green-100 rounded-full">
+                      <Shield className="w-4 h-4 text-green-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-green-700">담당자에게 전송 완료</p>
+                      <p className="text-xs text-green-600">보안을 위해 서버에 저장되지 않았습니다</p>
+                    </div>
+                    <label className="cursor-pointer">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          if (e.target.files?.[0]) {
+                            handleFileUpload("신용카드앞면URL", e.target.files[0]);
+                          }
+                        }}
+                        disabled={uploading}
+                      />
+                      <span className="text-sm text-blue-600 hover:underline">재전송</span>
+                    </label>
+                  </div>
+                ) : submission?.신용카드앞면URL ? (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 border border-green-200">
                       <div className="flex items-center gap-2">
@@ -2001,338 +2061,6 @@ export default function SubmissionPage() {
                   </label>
                 )}
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* 홈페이지 */}
-        <TabsContent value="website">
-          <Card className="bg-white border-2 border-gray-200">
-            <CardHeader>
-              <div className="space-y-3">
-                <div>
-                  <CardTitle className="text-gray-900 text-lg sm:text-xl">홈페이지 제작 정보</CardTitle>
-                  <CardDescription className="text-gray-600 text-xs sm:text-sm">
-                    아임웹 계정 정보와 홈페이지 스타일을 선택해주세요
-                  </CardDescription>
-                </div>
-
-                {/* 카카오톡 로그인 안내 */}
-                <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 flex-shrink-0" />
-                  <p className="text-red-700 font-medium text-sm sm:text-base">
-                    <strong>중요:</strong> 카카오톡 로그인 생성 ✕ / 이메일주소 또는 네이버 로그인으로 가입하세요
-                  </p>
-                </div>
-
-                {/* 아임웹 과정 안내 */}
-                <div className="p-4 bg-blue-50 border-2 border-blue-300 rounded-lg space-y-2">
-                  <div className="flex items-center gap-2">
-                    <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0" />
-                    <h3 className="font-bold text-blue-900 text-sm sm:text-base">아임웹 진행 과정</h3>
-                  </div>
-                  <ol className="list-decimal list-inside space-y-1.5 text-blue-800 text-xs sm:text-sm ml-1">
-                    <li>아임웹 가입 후 ID/PW 제출</li>
-                    <li>홈페이지 제작 및 구성</li>
-                    <li>소유권 이전</li>
-                    <li>홈페이지 결제</li>
-                  </ol>
-                  <p className="text-red-700 font-bold text-xs sm:text-sm mt-3 flex items-start gap-2">
-                    <span className="text-lg">⚠️</span>
-                    <span>절대 가입 후 홈페이지를 자체 생성하거나 결제하지 마세요!</span>
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-2 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                  <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600 flex-shrink-0" />
-                  <p className="text-amber-700 font-medium">
-                    로고 시안 확정 후 제작 진행이 가능합니다
-                  </p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <form
-                key={`website-${submission?.홈페이지스타일}-${isEditingDesign}`}
-                onSubmit={(e) => handleSubmit(e, "website")}
-                className="space-y-6"
-              >
-                {/* 아임웹 계정 정보 */}
-                <div id="website-section" className="space-y-4 p-4 rounded-lg border-2 border-purple-200 bg-purple-50/50">
-                  <Label className="text-sm sm:text-base font-semibold">아임웹 계정 정보</Label>
-                  <div className="grid grid-cols-1 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="아임웹ID" className="text-sm sm:text-base">아임웹 ID (이메일 또는 네이버 로그인)</Label>
-                      <Input
-                        id="아임웹ID"
-                        name="아임웹ID"
-                        defaultValue={submission?.아임웹ID}
-                        placeholder="이메일주소 또는 네이버 계정"
-                        disabled={!isEditingDesign}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="아임웹PW" className="text-sm sm:text-base">아임웹 비밀번호</Label>
-                      <Input
-                        id="아임웹PW"
-                        name="아임웹PW"
-                        type="password"
-                        defaultValue={submission?.아임웹PW}
-                        placeholder="비밀번호"
-                        disabled={!isEditingDesign}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="아임웹관리자PW" className="text-sm sm:text-base">아임웹 관리자 비밀번호 (대문자 포함 필수)</Label>
-                      <Input
-                        id="아임웹관리자PW"
-                        name="아임웹관리자PW"
-                        type="password"
-                        defaultValue={submission?.아임웹관리자PW}
-                        placeholder="대문자 포함 비밀번호"
-                        disabled={!isEditingDesign}
-                      />
-                      <p className="text-xs text-gray-600">
-                        관리자 비밀번호는 반드시 대문자를 포함해야 합니다
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 홈페이지 스타일 선택 */}
-                <div id="homepage-section" className="space-y-3">
-                  <Label className="text-sm sm:text-base break-words">홈페이지 스타일 선택 (썸네일 클릭 시 크게 보기)</Label>
-                  <input type="hidden" name="홈페이지스타일" value={selectedWebsiteStyle} />
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {[
-                      { url: "https://financialhealing.imweb.me/", name: "스타일 1" },
-                      { url: "https://mjgood.imweb.me/", name: "스타일 2" },
-                      { url: "https://jmbiz.imweb.me/", name: "스타일 3" },
-                      { url: "https://ksupport-center.imweb.me/", name: "스타일 4" },
-                      { url: "https://dkcenter.imweb.me/", name: "스타일 5" },
-                      { url: "https://fpbiz.imweb.me/", name: "스타일 6" },
-                    ].map((style) => (
-                      <Dialog key={style.url} open={dialogOpen && selectedWebsiteStyle === style.url} onOpenChange={(open) => {
-                        setDialogOpen(open);
-                        if (!open) {
-                          // Dialog가 닫힐 때는 아무것도 안함
-                        }
-                      }}>
-                        <div
-                          className={`rounded-lg border-2 transition-all overflow-hidden ${
-                            selectedWebsiteStyle === style.url
-                              ? "border-blue-600 ring-2 ring-blue-300"
-                              : "border-gray-300 hover:border-blue-400"
-                          } ${!isEditingDesign ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
-                        >
-                          {/* 썸네일 */}
-                          <DialogTrigger asChild>
-                            <div
-                              className="relative group"
-                              onClick={() => {
-                                if (isEditingDesign) {
-                                  setSelectedWebsiteStyle(style.url);
-                                  setDialogOpen(true);
-                                }
-                              }}
-                            >
-                              <div className="aspect-[4/3] overflow-hidden bg-gray-100">
-                                <iframe
-                                  src={style.url}
-                                  className="w-full h-full scale-[0.33] origin-top-left pointer-events-none"
-                                  style={{ width: '300%', height: '300%' }}
-                                  title={style.name}
-                                />
-                              </div>
-                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all flex items-center justify-center">
-                                <div className="opacity-0 group-hover:opacity-100 bg-white/90 px-3 py-1.5 rounded-lg text-xs font-semibold">
-                                  클릭하여 크게 보기
-                                </div>
-                              </div>
-                            </div>
-                          </DialogTrigger>
-                          {/* 스타일 이름 */}
-                          <div className="p-2 text-center">
-                            <div className="font-semibold text-sm">{style.name}</div>
-                          </div>
-                        </div>
-
-                        {/* 큰 미리보기 Dialog */}
-                        <DialogContent className="w-[96vw] sm:w-[90vw] max-w-5xl max-h-[92vh] overflow-y-auto bg-white border-2 border-gray-200 p-2 sm:p-4 md:p-6">
-                          <DialogHeader className="pb-2 space-y-1">
-                            <DialogTitle className="text-gray-900 text-base sm:text-lg md:text-xl">{style.name} 미리보기</DialogTitle>
-                            <DialogDescription className="text-gray-600 text-xs sm:text-sm">
-                              웹사이트 미리보기
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="w-full aspect-[16/9] overflow-hidden rounded-md border-2 border-gray-200 my-2 sm:my-3 md:my-4 bg-gray-100">
-                            <iframe
-                              src={style.url}
-                              className="w-[200%] h-[200%] origin-top-left"
-                              style={{ transform: 'scale(0.5)' }}
-                              title={`${style.name} 전체보기`}
-                            />
-                          </div>
-                          <div className="flex flex-col sm:flex-row gap-2 pt-2">
-                            <Button
-                              variant="outline"
-                              onClick={() => window.open(style.url, "_blank")}
-                              className="flex-1 text-xs sm:text-sm h-9 sm:h-10"
-                            >
-                              새 탭에서 열기
-                            </Button>
-                            <Button
-                              onClick={() => {
-                                if (!isEditingDesign) return;
-
-                                setSelectedWebsiteStyle(style.url);
-                                setDialogOpen(false);
-
-                                // 컬러 선택 섹션으로 스크롤
-                                setTimeout(() => {
-                                  colorSectionRef.current?.scrollIntoView({
-                                    behavior: 'smooth',
-                                    block: 'center'
-                                  });
-                                }, 100);
-                              }}
-                              disabled={!isEditingDesign}
-                              className="flex-1 bg-blue-600 hover:bg-blue-700 text-xs sm:text-sm h-9 sm:h-10"
-                            >
-                              스타일 선택하기
-                            </Button>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 컬러 컨셉 선택 */}
-                <div ref={colorSectionRef} className="space-y-3 p-4 rounded-lg border-2 border-blue-200 bg-blue-50/50">
-                  <Label className="text-sm sm:text-base font-semibold break-words">
-                    선택한 스타일과 컬러 컨셉
-                    {!isLogoConfirmed() && (
-                      <span className="ml-2 text-xs text-amber-600">
-                        (로고 시안 확정 후 선택 가능)
-                      </span>
-                    )}
-                  </Label>
-
-                  {/* 선택된 스타일 표시 */}
-                  {selectedWebsiteStyle && (
-                    <div className="p-3 rounded-lg bg-white border border-blue-300">
-                      <p className="text-sm font-medium text-gray-700 mb-1">선택한 스타일:</p>
-                      <a
-                        href={selectedWebsiteStyle}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline text-sm"
-                      >
-                        {(() => {
-                          const styles = [
-                            { url: "https://financialhealing.imweb.me/", name: "스타일 1" },
-                            { url: "https://mjgood.imweb.me/", name: "스타일 2" },
-                            { url: "https://jmbiz.imweb.me/", name: "스타일 3" },
-                            { url: "https://ksupport-center.imweb.me/", name: "스타일 4" },
-                            { url: "https://dkcenter.imweb.me/", name: "스타일 5" },
-                            { url: "https://fpbiz.imweb.me/", name: "스타일 6" },
-                          ];
-                          return styles.find(s => s.url === selectedWebsiteStyle)?.name || "선택됨";
-                        })()}
-                      </a>
-                    </div>
-                  )}
-
-                  {/* 컬러 선택 */}
-                  <div>
-                    <Label htmlFor="홈페이지컬러컨셉" className="text-sm font-medium mb-2 block">
-                      홈페이지 컬러 컨셉
-                    </Label>
-                    <div className="flex gap-3 items-center">
-                      <input
-                        type="color"
-                        value={websiteColor}
-                        onChange={(e) => setWebsiteColor(e.target.value)}
-                        disabled={!isEditingDesign || !isLogoConfirmed()}
-                        className="w-20 h-20 rounded-lg border-2 border-gray-300 cursor-pointer disabled:opacity-50"
-                      />
-                      <div className="flex-1 space-y-2">
-                        <Input
-                          id="홈페이지컬러컨셉"
-                          name="홈페이지컬러컨셉"
-                          value={websiteColor}
-                          onChange={(e) => setWebsiteColor(e.target.value)}
-                          placeholder="#3B82F6"
-                          disabled={!isEditingDesign || !isLogoConfirmed()}
-                          className="font-mono bg-white"
-                        />
-                        <p className="text-xs text-gray-600">
-                          컬러피커에서 선택하거나 직접 16진수 색상값을 입력하세요 (예: #3B82F6)
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 통합 저장 버튼 */}
-                  {isEditingDesign && selectedWebsiteStyle && (
-                    <Button
-                      onClick={async (e) => {
-                        e.preventDefault();
-                        setLoading(true);
-                        try {
-                          const res = await fetch("/api/submission", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                              홈페이지스타일: selectedWebsiteStyle,
-                              홈페이지컬러컨셉: websiteColor
-                            }),
-                          });
-                          if (res.ok) {
-                            await fetchSubmission();
-                            setIsEditingDesign(false);
-                            alert("스타일과 컬러가 저장되었습니다!");
-                          } else {
-                            alert("저장에 실패했습니다.");
-                          }
-                        } catch (error) {
-                          console.error("Submit failed:", error);
-                          alert("저장 중 오류가 발생했습니다.");
-                        } finally {
-                          setLoading(false);
-                        }
-                      }}
-                      disabled={loading || !isLogoConfirmed()}
-                      className="w-full bg-green-600 text-white hover:bg-green-700 text-sm sm:text-base py-3"
-                    >
-                      {loading ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />}
-                      스타일 & 컬러 저장하기
-                    </Button>
-                  )}
-                </div>
-
-                <div className="flex gap-2">
-                  {hasWebsiteInfo() && !isEditingDesign ? (
-                    <Button
-                      type="button"
-                      onClick={() => setIsEditingDesign(true)}
-                      className="bg-amber-600 text-white hover:bg-amber-700 text-sm sm:text-base"
-                    >
-                      수정하기
-                    </Button>
-                  ) : (
-                    <Button
-                      type="submit"
-                      disabled={loading}
-                      className="bg-blue-600 text-white hover:bg-blue-700 text-sm sm:text-base"
-                    >
-                      {loading ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />}
-                      저장하기
-                    </Button>
-                  )}
-                </div>
-              </form>
             </CardContent>
           </Card>
         </TabsContent>
