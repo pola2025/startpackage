@@ -546,6 +546,24 @@ export default function UserActions({ user }: UserActionsProps) {
                     <p className="font-medium text-gray-900">{submission.로고선호폰트 || "-"}</p>
                   </div>
                   <div>
+                    <span className="text-gray-600">로고 선호 색상:</span>
+                    <div className="flex items-center gap-2">
+                      {submission.로고선호색상 && (
+                        <div
+                          className="w-6 h-6 rounded border border-gray-300"
+                          style={{ backgroundColor: submission.로고선호색상 }}
+                        />
+                      )}
+                      <p className="font-medium text-gray-900">{submission.로고선호색상 || "-"}</p>
+                    </div>
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-gray-600">로고 제작 요청사항:</span>
+                    <p className="font-medium text-gray-900 whitespace-pre-wrap mt-1">
+                      {submission.로고제작요청사항 || "-"}
+                    </p>
+                  </div>
+                  <div>
                     <span className="text-gray-600">명함 색상:</span>
                     <div className="flex items-center gap-2">
                       {submission.명함색상 && (

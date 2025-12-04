@@ -520,7 +520,7 @@ export async function pushSubmissionData(params: {
 
   const fields: any[] = [];
 
-  // 텍스트 정보만 필드로 추가
+  // 텍스트 정보만 필드로 추가 (짧은 필드들)
   const textFields = [
     { key: "브랜드명", label: "브랜드명" },
     { key: "업종", label: "업종" },
@@ -530,6 +530,8 @@ export async function pushSubmissionData(params: {
     { key: "이메일", label: "이메일" },
     { key: "홈페이지컬러컨셉", label: "홈페이지 컬러" },
     { key: "로고선호스타일", label: "로고 스타일" },
+    { key: "로고선호색상", label: "로고 색상" },
+    { key: "로고선호폰트", label: "로고 폰트" },
     { key: "명함색상", label: "명함 색상" },
     { key: "명함시안", label: "명함 스타일" },
   ];
@@ -544,32 +546,53 @@ export async function pushSubmissionData(params: {
     }
   });
 
+  // 블록 구성
+  const blocks: any[] = [
+    {
+      type: "header",
+      text: {
+        type: "plain_text",
+        text: "📋 제작 정보",
+      },
+    },
+    {
+      type: "section",
+      fields,
+    },
+  ];
+
+  // 로고 제작 요청사항은 긴 텍스트일 수 있으므로 별도 섹션으로 추가
+  if (submissionData["로고제작요청사항"]) {
+    blocks.push(
+      {
+        type: "divider",
+      },
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: `*🎨 로고 제작 요청사항:*\n${submissionData["로고제작요청사항"]}`,
+        },
+      }
+    );
+  }
+
+  // 타임스탬프 추가
+  blocks.push({
+    type: "context",
+    elements: [
+      {
+        type: "mrkdwn",
+        text: `📅 ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`,
+      },
+    ],
+  });
+
   // 기본 정보 메시지 전송
   const messageResult = await postMessage({
     channelId,
     text: "📋 제작 정보",
-    blocks: [
-      {
-        type: "header",
-        text: {
-          type: "plain_text",
-          text: "📋 제작 정보",
-        },
-      },
-      {
-        type: "section",
-        fields,
-      },
-      {
-        type: "context",
-        elements: [
-          {
-            type: "mrkdwn",
-            text: `📅 ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`,
-          },
-        ],
-      },
-    ],
+    blocks,
   });
 
   // 초기 제작요청 시 필수 파일만 업로드

@@ -219,6 +219,12 @@ export default function SubmissionViewButton({ workflow }: SubmissionViewButtonP
                       <p className="font-medium text-gray-900">-</p>
                     )}
                   </div>
+                  <div className="col-span-2">
+                    <span className="text-gray-600">제작 요청사항:</span>
+                    <p className="font-medium text-gray-900 whitespace-pre-wrap mt-1">
+                      {submission.로고제작요청사항 || "-"}
+                    </p>
+                  </div>
                 </div>
               </div>
 
