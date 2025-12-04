@@ -20,7 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Edit, Truck, CheckCircle2, Upload, Loader2, Clock, MessageSquare, ExternalLink, Globe } from "lucide-react";
+import { Edit, Truck, CheckCircle2, Upload, Loader2, Clock, MessageSquare, ExternalLink, Globe, Trash2 } from "lucide-react";
 
 interface DesignHistory {
   id: string;
@@ -39,6 +39,7 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [deleting, setDeleting] = useState<string | null>(null);
   const [designHistory, setDesignHistory] = useState<DesignHistory[]>([]);
 
   const [status, setStatus] = useState(workflow.status);
@@ -68,6 +69,33 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
       }
     } catch (error) {
       console.error("Failed to fetch design history:", error);
+    }
+  };
+
+  const handleDeleteDesign = async (historyId: string, version: number) => {
+    if (!confirm(`${version}차 시안을 삭제하시겠습니까?\n삭제 후 복구할 수 없습니다.`)) {
+      return;
+    }
+
+    setDeleting(historyId);
+    try {
+      const response = await fetch(
+        `/api/admin/workflows/${workflow.id}/design-history?historyId=${historyId}`,
+        { method: "DELETE" }
+      );
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "삭제 실패");
+      }
+
+      // 이력 다시 불러오기
+      await fetchDesignHistory();
+      router.refresh();
+    } catch (error: any) {
+      alert(error.message || "시안 삭제 중 오류가 발생했습니다.");
+    } finally {
+      setDeleting(null);
     }
   };
 
@@ -334,6 +362,19 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
                       >
                         {history.version}차시안
                       </a>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteDesign(history.id, history.version)}
+                        disabled={deleting === history.id}
+                        className="h-7 px-2 text-red-500 hover:text-red-700 hover:bg-red-50"
+                      >
+                        {deleting === history.id ? (
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-3 h-3" />
+                        )}
+                      </Button>
                     </div>
                     <div className="space-y-1 text-xs text-gray-600">
                       <div className="flex items-center gap-2">
