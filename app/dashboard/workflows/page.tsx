@@ -373,10 +373,10 @@ export default function WorkflowsPage() {
 
                 {/* 액션 버튼 */}
                 <div className="flex gap-2">
-                  {/* 로고는 시안컨펌요청, 인쇄물은 발주대기, 홈페이지는 제작 완료 상태에서 확인 가능 */}
-                  {((workflow.type === "로고" && workflow.status === "시안컨펌요청") ||
-                    workflow.status === "발주대기" ||
-                    (workflow.type === "홈페이지" && workflow.status === "제작 완료")) && workflow.시안URL && (
+                  {/* 로고는 시안컨펌요청/최종확정, 인쇄물은 발주대기/발주요청/발주완료/제작완료/발송완료, 홈페이지는 제작 완료/최종확정 상태에서 확인 가능 */}
+                  {((workflow.type === "로고" && (workflow.status === "시안컨펌요청" || workflow.status === "최종확정")) ||
+                    ["발주대기", "발주요청", "발주완료", "제작완료", "발송완료"].includes(workflow.status) ||
+                    (workflow.type === "홈페이지" && (workflow.status === "제작 완료" || workflow.status === "최종확정"))) && workflow.시안URL && (
                     <>
                       <Dialog
                         open={selectedWorkflow?.id === workflow.id && dialogOpen}
@@ -477,60 +477,68 @@ export default function WorkflowsPage() {
                                 </div>
                               )}
 
-                              {/* 로고와 홈페이지: 시안 확정 버튼 */}
+                              {/* 로고와 홈페이지: 시안 확정 버튼 (미확정 상태일 때만) */}
                               {(workflow.type === "로고" || workflow.type === "홈페이지") ? (
-                                <Button
-                                  onClick={async () => {
-                                    if (!confirm(`${workflow.type} 시안을 최종 확정하시겠습니까?\n확정 후에는 수정이 어려울 수 있습니다.`)) {
-                                      return;
-                                    }
-
-                                    setLoading(true);
-                                    try {
-                                      const res = await fetch(`/api/workflows/${workflow.id}/approve`, {
-                                        method: "POST",
-                                      });
-
-                                      if (res.ok) {
-                                        alert(`${workflow.type} 시안이 최종 확정되었습니다!`);
-                                        await fetchWorkflows();
-                                      } else {
-                                        const error = await res.json();
-                                        alert(error.error || "확정에 실패했습니다");
+                                workflow.status !== "최종확정" && (
+                                  <Button
+                                    onClick={async () => {
+                                      if (!confirm(`${workflow.type} 시안을 최종 확정하시겠습니까?\n확정 후에는 수정이 어려울 수 있습니다.`)) {
+                                        return;
                                       }
-                                    } catch (error) {
-                                      console.error("Failed to approve:", error);
-                                      alert("확정 중 오류가 발생했습니다");
-                                    } finally {
-                                      setLoading(false);
-                                    }
-                                  }}
-                                  disabled={loading}
-                                  className="w-full bg-green-600 hover:bg-green-700 text-white"
-                                >
-                                  시안 확정
-                                </Button>
+
+                                      setLoading(true);
+                                      try {
+                                        const res = await fetch(`/api/workflows/${workflow.id}/approve`, {
+                                          method: "POST",
+                                        });
+
+                                        if (res.ok) {
+                                          alert(`${workflow.type} 시안이 최종 확정되었습니다!`);
+                                          await fetchWorkflows();
+                                        } else {
+                                          const error = await res.json();
+                                          alert(error.error || "확정에 실패했습니다");
+                                        }
+                                      } catch (error) {
+                                        console.error("Failed to approve:", error);
+                                        alert("확정 중 오류가 발생했습니다");
+                                      } finally {
+                                        setLoading(false);
+                                      }
+                                    }}
+                                    disabled={loading}
+                                    className="w-full bg-green-600 hover:bg-green-700 text-white"
+                                  >
+                                    시안 확정
+                                  </Button>
+                                )
                               ) : (
-                                // 인쇄물: 발주 요청 버튼
-                                <Button
-                                  onClick={() => handleOrderRequest(workflow.id)}
-                                  disabled={loading}
-                                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                                >
-                                  발주 요청
-                                </Button>
+                                // 인쇄물: 발주 요청 버튼 (발주대기 상태일 때만)
+                                workflow.status === "발주대기" && (
+                                  <Button
+                                    onClick={() => handleOrderRequest(workflow.id)}
+                                    disabled={loading}
+                                    className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                                  >
+                                    발주 요청
+                                  </Button>
+                                )
                               )}
                             </div>
 
-                            {workflow.type !== "홈페이지" && (
+                            {/* 발주 전 주의사항 - 인쇄물 발주대기 또는 로고 미확정 상태일 때만 */}
+                            {((workflow.type !== "홈페이지" && workflow.status === "발주대기") ||
+                              (workflow.type === "로고" && workflow.status !== "최종확정")) && (
                               <div className="bg-orange-50 border-2 border-orange-200 rounded-lg p-3">
                                 <div className="flex items-start gap-2">
                                   <AlertTriangle className="w-4 h-4 text-orange-600 mt-0.5 flex-shrink-0" />
                                   <div className="text-xs text-gray-700">
-                                    <p className="font-bold text-orange-600 mb-1">발주 전 필독!</p>
+                                    <p className="font-bold text-orange-600 mb-1">
+                                      {workflow.type === "로고" ? "확정 전 필독!" : "발주 전 필독!"}
+                                    </p>
                                     <ul className="space-y-0.5 list-disc list-inside">
-                                      <li>발주 후 정보 변경 불가</li>
-                                      <li>오탈자 발견 시 재발주 비용 본인 부담</li>
+                                      <li>{workflow.type === "로고" ? "확정 후 수정 불가" : "발주 후 정보 변경 불가"}</li>
+                                      {workflow.type !== "로고" && <li>오탈자 발견 시 재발주 비용 본인 부담</li>}
                                       <li>디자인 수정은 최대 2회까지 가능</li>
                                       <li>3회 이상 수정 시 건당 1만원 추가 비용 발생</li>
                                     </ul>
@@ -553,28 +561,33 @@ export default function WorkflowsPage() {
                                 </div>
                               )}
 
-                              <div className="space-y-1.5">
-                                <label className="text-xs font-semibold text-gray-700">
-                                  수정 요청사항 {workflow.feedback ? "(추가 피드백)" : "(선택사항)"}
-                                </label>
-                                <textarea
-                                  value={feedbackText}
-                                  onChange={(e) => setFeedbackText(e.target.value)}
-                                  placeholder="예: 로고 색상을 파란색으로 변경해주세요"
-                                  className="w-full h-20 px-3 py-2 text-sm border-2 border-gray-300 rounded-lg resize-none focus:outline-none focus:border-blue-500"
-                                />
-                                {feedbackText.trim() && (
-                                  <Button
-                                    onClick={() => handleFeedbackSubmit(workflow.id)}
-                                    disabled={submittingFeedback}
-                                    variant="outline"
-                                    size="sm"
-                                    className="w-full border-orange-300 text-orange-700 hover:bg-orange-50"
-                                  >
-                                    {submittingFeedback ? "저장 중..." : "피드백 저장"}
-                                  </Button>
-                                )}
-                              </div>
+                              {/* 피드백 입력 - 확정/발주 전에만 표시 */}
+                              {((workflow.type === "로고" && workflow.status !== "최종확정") ||
+                                (workflow.type === "홈페이지" && workflow.status !== "최종확정") ||
+                                (workflow.type !== "로고" && workflow.type !== "홈페이지" && workflow.status === "발주대기")) && (
+                                <div className="space-y-1.5">
+                                  <label className="text-xs font-semibold text-gray-700">
+                                    수정 요청사항 {workflow.feedback ? "(추가 피드백)" : "(선택사항)"}
+                                  </label>
+                                  <textarea
+                                    value={feedbackText}
+                                    onChange={(e) => setFeedbackText(e.target.value)}
+                                    placeholder="예: 로고 색상을 파란색으로 변경해주세요"
+                                    className="w-full h-20 px-3 py-2 text-sm border-2 border-gray-300 rounded-lg resize-none focus:outline-none focus:border-blue-500"
+                                  />
+                                  {feedbackText.trim() && (
+                                    <Button
+                                      onClick={() => handleFeedbackSubmit(workflow.id)}
+                                      disabled={submittingFeedback}
+                                      variant="outline"
+                                      size="sm"
+                                      className="w-full border-orange-300 text-orange-700 hover:bg-orange-50"
+                                    >
+                                      {submittingFeedback ? "저장 중..." : "피드백 저장"}
+                                    </Button>
+                                  )}
+                                </div>
+                              )}
                             </div>
                           </div>
                         </DialogContent>
