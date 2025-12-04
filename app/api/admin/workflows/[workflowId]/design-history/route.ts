@@ -89,11 +89,30 @@ export async function DELETE(
       orderBy: { version: "desc" },
     });
 
+    // 워크플로우 정보 조회 (타입 확인용)
+    const workflow = await prisma.workflow.findUnique({
+      where: { id: workflowId },
+    });
+
+    // 시안이 모두 삭제된 경우 상태도 되돌림
+    let newStatus = workflow?.status;
+    if (remainingHistory.length === 0) {
+      // 타입별 초기 상태로 되돌림
+      if (workflow?.type === "로고") {
+        newStatus = "시안제작중";
+      } else if (workflow?.type === "홈페이지") {
+        newStatus = "제작 진행 중";
+      } else {
+        newStatus = "시안중";
+      }
+    }
+
     await prisma.workflow.update({
       where: { id: workflowId },
       data: {
         시안URL: latestHistory?.fileUrl || null,
         수정횟수: remainingHistory.length > 0 ? remainingHistory.length - 1 : 0,
+        ...(remainingHistory.length === 0 && { status: newStatus }),
       },
     });
 
