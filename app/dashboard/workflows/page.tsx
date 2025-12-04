@@ -373,10 +373,8 @@ export default function WorkflowsPage() {
 
                 {/* 액션 버튼 */}
                 <div className="flex gap-2">
-                  {/* 로고는 시안컨펌요청/최종확정, 인쇄물은 발주대기/발주요청/발주완료/제작완료/발송완료, 홈페이지는 제작 완료/최종확정 상태에서 확인 가능 */}
-                  {((workflow.type === "로고" && (workflow.status === "시안컨펌요청" || workflow.status === "최종확정")) ||
-                    ["발주대기", "발주요청", "발주완료", "제작완료", "발송완료"].includes(workflow.status) ||
-                    (workflow.type === "홈페이지" && (workflow.status === "제작 완료" || workflow.status === "최종확정"))) && workflow.시안URL && (
+                  {/* 시안URL이 있으면 시안 확인 버튼 표시 */}
+                  {workflow.시안URL && (
                     <>
                       <Dialog
                         open={selectedWorkflow?.id === workflow.id && dialogOpen}
