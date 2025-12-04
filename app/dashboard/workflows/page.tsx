@@ -436,8 +436,8 @@ export default function WorkflowsPage() {
 
                             {/* 버튼 섹션 */}
                             <div className="flex flex-col gap-2">
-                              {/* 인쇄물만 새 탭에서 보기/다운로드 버튼 표시 */}
-                              {workflow.type !== "홈페이지" && (
+                              {/* 인쇄물만 새 탭에서 보기/다운로드 버튼 표시 (시안URL 있을 때만) */}
+                              {workflow.type !== "홈페이지" && workflow.시안URL && (
                                 <div className="flex gap-2">
                                   <Button
                                     variant="outline"
