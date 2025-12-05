@@ -317,17 +317,27 @@ export default function GuidesPage() {
                 <div className="space-y-3">
                   <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
                     <h4 className="font-medium text-blue-900 mb-3">1단계: 결제수단 등록</h4>
-                    <a
-                      href="https://imweb.me/payment_method"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-                    >
-                      결제수단 등록하기 →
-                    </a>
-                    <p className="text-sm text-gray-600 mt-2">
+                    <p className="text-sm text-gray-600 mb-3">
                       먼저 카드 정보를 등록해주세요
                     </p>
+                    <div className="flex flex-wrap gap-2">
+                      <a
+                        href="https://imweb.me/payment_method"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                      >
+                        결제수단 등록하기 →
+                      </a>
+                      <a
+                        href="https://imweb.me/faq?mode=view&category=28&category2=31&idx=71930"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm font-medium"
+                      >
+                        카드 등록 가이드 보기 →
+                      </a>
+                    </div>
                   </div>
 
                   <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4">
