@@ -288,6 +288,19 @@ export default function HomepageSettingsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="p-4 bg-red-50 border-2 border-red-300 rounded-lg mb-4">
+            <div className="flex items-start gap-2">
+              <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-red-700 font-semibold">
+                  선택하게 되면 제작 이후 변경은 불가능합니다.
+                </p>
+                <p className="text-red-600 text-sm mt-1">
+                  선택 후 홈페이지 제작방식은 확정되어 진행됩니다.
+                </p>
+              </div>
+            </div>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* 아임웹 옵션 */}
             <div
