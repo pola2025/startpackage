@@ -1168,7 +1168,7 @@ export async function sendPaymentRequestInfo(params: {
     );
 
     return postMessage({
-      channelId,
+      channelId: params.channelId,
       text: `🔐 결제 정보 - ${params.userName}`,
       blocks,
     });
