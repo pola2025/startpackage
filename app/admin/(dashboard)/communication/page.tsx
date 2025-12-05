@@ -325,8 +325,8 @@ export default function AdminCommunicationPage() {
         body: JSON.stringify({ threadId: thread.id }),
       });
 
-      // 읽음 처리 후 스레드 목록 새로고침 (현재 선택한 스레드 ID 유지)
-      fetchThreads(thread.id);
+      // 읽음 처리 후 스레드 목록 새로고침 (현재 선택한 스레드 ID 유지, 로딩 없이)
+      fetchThreads(thread.id, true);
     } catch (error) {
       console.error("Failed to mark messages as read:", error);
     }
