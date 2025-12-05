@@ -463,7 +463,7 @@ export default function AdminCommunicationPage() {
             </div>
           </CardHeader>
           <CardContent className="flex-1 overflow-y-auto">
-            {loading ? (
+            {loading && threads.length === 0 ? (
               <p className="text-center text-gray-500">로딩 중...</p>
             ) : threads.length === 0 ? (
               <p className="text-center text-gray-500">문의가 없습니다</p>
