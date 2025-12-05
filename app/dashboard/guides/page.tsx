@@ -384,6 +384,23 @@ export default function GuidesPage() {
               </div>
 
               <div>
+                <h3 className="text-blue-600 font-semibold mb-3">🔑 관리자 비밀번호를 잊으셨나요?</h3>
+                <div className="p-4 bg-orange-50 border-2 border-orange-200 rounded-lg">
+                  <p className="text-gray-700 mb-3">
+                    아임웹 관리자 비밀번호가 생각나지 않을 때는 아래 가이드를 참고하여 비밀번호를 변경해주세요.
+                  </p>
+                  <a
+                    href="https://imweb.me/faq?mode=view&category=30&category2=46&idx=72150"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
+                  >
+                    아임웹 비밀번호 변경 안내 →
+                  </a>
+                </div>
+              </div>
+
+              <div>
                 <h3 className="text-blue-600 font-semibold mb-3">📝 계정 이관</h3>
                 <p className="text-gray-700">
                   홈페이지 확인 후 계정 이관을 위해 imweb.me 가입 후 아이디를 전달해주세요.

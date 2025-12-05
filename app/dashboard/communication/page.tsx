@@ -509,6 +509,7 @@ export default function UserCommunicationPage() {
         <AlertDescription className="text-sm text-gray-700 space-y-1">
           <p className="font-semibold text-blue-900">문의 안내사항</p>
           <ul className="space-y-1 mt-2">
+            <li>• <span className="font-medium text-blue-800">요청은 영업일 기준 1~2일내 접수 및 처리되며, 실시간 처리는 어려울 수 있습니다.</span></li>
             <li>• 문의 사항은 영업일 기준 1일 이내 답변드립니다.</li>
             <li>• 주말은 업무 처리가 어려우며, 평일 기준으로 처리됩니다.</li>
             <li>• 긴급사항(홈페이지 사용불가, 광고계정 정지 등) 외에는 반드시 본 게시판을 이용해 주시기 바랍니다.</li>

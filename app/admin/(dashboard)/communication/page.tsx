@@ -422,6 +422,7 @@ export default function AdminCommunicationPage() {
         <AlertDescription className="text-sm text-gray-700 space-y-1">
           <p className="font-semibold text-blue-900">문의 안내사항</p>
           <ul className="space-y-1 mt-2">
+            <li>• <span className="font-medium text-blue-800">요청은 영업일 기준 1~2일내 접수 및 처리되며, 실시간 처리는 어려울 수 있습니다.</span></li>
             <li>• 문의 사항은 영업일 기준 1일 이내 답변드립니다.</li>
             <li>• 주말은 업무 처리가 어려우며, 평일 기준으로 처리됩니다.</li>
             <li>• 긴급사항(홈페이지 사용불가, 광고계정 정지 등) 외에는 반드시 본 게시판을 이용해 주시기 바랍니다.</li>
@@ -789,7 +790,16 @@ export default function AdminCommunicationPage() {
                   <Textarea
                     value={replyContent}
                     onChange={(e) => setReplyContent(e.target.value)}
-                    placeholder="답글을 입력하세요..."
+                    onKeyDown={(e) => {
+                      // Enter로 전송, Shift+Enter로 줄바꿈
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        if (replyContent.trim() && !sending) {
+                          handleSendReply();
+                        }
+                      }
+                    }}
+                    placeholder="답글을 입력하세요... (Enter: 전송, Shift+Enter: 줄바꿈)"
                     className="bg-white border-gray-200 text-gray-900 resize-none min-h-[60px] sm:min-h-[100px] text-sm sm:text-base"
                   />
                   <div className="flex flex-wrap items-center gap-2">

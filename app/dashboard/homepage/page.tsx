@@ -889,11 +889,6 @@ export default function HomepageSettingsPage() {
             <div ref={colorSectionRef} className="space-y-3 p-4 rounded-lg border-2 border-green-200 bg-green-50/50">
               <Label className="text-sm sm:text-base font-semibold">
                 선택한 스타일과 컬러 컨셉
-                {!isLogoConfirmed && (
-                  <span className="ml-2 text-xs text-amber-600">
-                    (로고 시안 확정 후 선택 가능)
-                  </span>
-                )}
               </Label>
 
               {/* 선택된 스타일 표시 */}
@@ -931,8 +926,7 @@ export default function HomepageSettingsPage() {
                     type="color"
                     value={websiteColor}
                     onChange={(e) => setWebsiteColor(e.target.value)}
-                    disabled={!isLogoConfirmed}
-                    className="w-20 h-20 rounded-lg border-2 border-gray-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-20 h-20 rounded-lg border-2 border-gray-300 cursor-pointer"
                   />
                   <div className="flex-1 space-y-2">
                     <Input
@@ -940,7 +934,6 @@ export default function HomepageSettingsPage() {
                       value={websiteColor}
                       onChange={(e) => setWebsiteColor(e.target.value)}
                       placeholder="#3B82F6"
-                      disabled={!isLogoConfirmed}
                       className="font-mono bg-white"
                     />
                     <p className="text-xs text-gray-600">
