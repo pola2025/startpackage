@@ -926,9 +926,262 @@ export async function createHomepageSlackChannel(params: {
   }
 }
 
+/**
+ * 홈페이지 결제요청 전용 슬랙 채널 생성
+ * 형식: startpackage-homepage-pay-YYYYMMDD-브랜드명
+ */
+export async function createPaymentRequestSlackChannel(params: {
+  brandName: string;
+  userName: string;
+  cohortName?: string;
+  userEmail?: string;
+  userPhone?: string;
+}): Promise<string | null> {
+  try {
+    console.log(`🔄 [Slack] 결제요청 채널 생성 시작`, params);
+
+    const client = initSlackClient();
+
+    if (!client) {
+      console.error("❌ [Slack] 클라이언트가 초기화되지 않았습니다");
+      return null;
+    }
+
+    // 날짜 생성 (YYYYMMDD 형식)
+    const now = new Date();
+    const dateStr = now.toISOString().slice(0, 10).replace(/-/g, ""); // 20251205
+
+    // 브랜드명을 슬랙 채널명 형식으로 변환
+    const brandPart = toSlackChannelName(params.brandName);
+
+    // 채널명: startpackage-homepage-pay-날짜-브랜드명
+    const channelName = `startpackage-homepage-pay-${dateStr}-${brandPart}`.substring(0, 80);
+
+    console.log(`🔄 [Slack] 생성할 결제요청 채널 이름: ${channelName}`);
+
+    // 기존 채널 확인
+    const existingChannel = await findChannelByName(channelName);
+    if (existingChannel) {
+      console.log(`✅ [Slack] 기존 결제요청 채널 사용: ${channelName} (${existingChannel})`);
+      return existingChannel;
+    }
+
+    // 새 채널 생성
+    console.log(`🔄 [Slack] 새 결제요청 채널 생성 중: ${channelName}`);
+    const result = await client.conversations.create({
+      name: channelName,
+      is_private: false,
+    });
+
+    if (!result.ok || !result.channel?.id) {
+      console.error(`❌ [Slack] 결제요청 채널 생성 실패:`, result.error || "Unknown error");
+      throw new Error(`채널 생성 실패: ${result.error || "Unknown error"}`);
+    }
+
+    const channelId = result.channel.id;
+
+    // 관리자들을 채널에 초대
+    const adminEmails = process.env.SLACK_ADMIN_EMAILS;
+    const invitedUserIds: string[] = [];
+
+    if (adminEmails) {
+      const emails = adminEmails.split(",").map((e) => e.trim());
+
+      for (const email of emails) {
+        const userId = await findUserByEmail(email);
+        if (userId) {
+          try {
+            await client.conversations.invite({
+              channel: channelId,
+              users: userId,
+            });
+            invitedUserIds.push(userId);
+            console.log(`✅ 관리자(${email})를 결제요청 채널에 초대했습니다`);
+          } catch (error) {
+            console.error(`관리자(${email}) 초대 실패:`, error);
+          }
+        }
+      }
+    }
+
+    // 초기 메시지 전송
+    const mentionText =
+      invitedUserIds.length > 0
+        ? `\n\n👋 ${invitedUserIds.map((id) => `<@${id}>`).join(" ")} 홈페이지 결제 대행 요청이 접수되었습니다!`
+        : "";
+
+    await postMessage({
+      channelId,
+      text: `💳 홈페이지 결제 대행 요청${mentionText}`,
+      blocks: [
+        {
+          type: "header",
+          text: {
+            type: "plain_text",
+            text: "💳 홈페이지 결제 대행 요청",
+          },
+        },
+        {
+          type: "section",
+          fields: [
+            {
+              type: "mrkdwn",
+              text: `*브랜드명:*\n${params.brandName}`,
+            },
+            {
+              type: "mrkdwn",
+              text: `*이름:*\n${params.userName}`,
+            },
+            ...(params.cohortName
+              ? [
+                  {
+                    type: "mrkdwn",
+                    text: `*기수:*\n${params.cohortName}`,
+                  },
+                ]
+              : []),
+            ...(params.userPhone
+              ? [
+                  {
+                    type: "mrkdwn",
+                    text: `*연락처:*\n${params.userPhone}`,
+                  },
+                ]
+              : []),
+            ...(params.userEmail
+              ? [
+                  {
+                    type: "mrkdwn",
+                    text: `*이메일:*\n${params.userEmail}`,
+                  },
+                ]
+              : []),
+          ],
+        },
+        ...(invitedUserIds.length > 0
+          ? [
+              {
+                type: "section" as const,
+                text: {
+                  type: "mrkdwn" as const,
+                  text: `👋 ${invitedUserIds.map((id) => `<@${id}>`).join(" ")} 홈페이지 결제 대행 요청이 접수되었습니다!`,
+                },
+              },
+            ]
+          : []),
+        {
+          type: "context",
+          elements: [
+            {
+              type: "mrkdwn",
+              text: `📅 ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`,
+            },
+          ],
+        },
+      ],
+    });
+
+    console.log(`✅ [Slack] 결제요청 채널 생성 성공: ${channelName} (${channelId})`);
+    return channelId;
+  } catch (error: any) {
+    console.error("❌ [Slack] 결제요청 채널 생성 실패:", error?.message || error);
+    return null;
+  }
+}
+
+/**
+ * 결제요청 정보를 슬랙 채널에 전송 (민감 정보)
+ */
+export async function sendPaymentRequestInfo(params: {
+  channelId: string;
+  imwebId: string;
+  isNaverLogin: boolean;
+  naverId?: string;
+  naverPw?: string;
+  adminPassword: string;
+  birthDate: string;
+  paymentPeriod: string;
+  userName: string;
+}): Promise<boolean> {
+  try {
+    const blocks: any[] = [
+      {
+        type: "header",
+        text: {
+          type: "plain_text",
+          text: "🔐 결제 정보 (민감 정보)",
+        },
+      },
+      {
+        type: "section",
+        fields: [
+          {
+            type: "mrkdwn",
+            text: `*아임웹 ID:*\n\`${params.imwebId}\``,
+          },
+          {
+            type: "mrkdwn",
+            text: `*관리자 비밀번호:*\n\`${params.adminPassword}\``,
+          },
+          {
+            type: "mrkdwn",
+            text: `*생년월일:*\n${params.birthDate}`,
+          },
+          {
+            type: "mrkdwn",
+            text: `*결제 기준:*\n${params.paymentPeriod}`,
+          },
+        ],
+      },
+    ];
+
+    // 네이버 로그인인 경우 추가 정보
+    if (params.isNaverLogin && params.naverId && params.naverPw) {
+      blocks.push({
+        type: "section",
+        fields: [
+          {
+            type: "mrkdwn",
+            text: `*네이버 ID:*\n\`${params.naverId}\``,
+          },
+          {
+            type: "mrkdwn",
+            text: `*네이버 PW:*\n\`${params.naverPw}\``,
+          },
+        ],
+      });
+    }
+
+    blocks.push(
+      {
+        type: "divider",
+      },
+      {
+        type: "context",
+        elements: [
+          {
+            type: "mrkdwn",
+            text: `⚠️ _이 정보는 결제 완료 후 삭제해 주세요_`,
+          },
+        ],
+      }
+    );
+
+    return postMessage({
+      channelId,
+      text: `🔐 결제 정보 - ${params.userName}`,
+      blocks,
+    });
+  } catch (error) {
+    console.error("결제 정보 전송 실패:", error);
+    return false;
+  }
+}
+
 export default {
   createSlackChannel,
   createHomepageSlackChannel,
+  createPaymentRequestSlackChannel,
   postMessage,
   logProgress,
   pushSubmissionData,
@@ -936,4 +1189,6 @@ export default {
   logDesignUpload,
   logOrder,
   logProductionComplete,
+  uploadSensitiveFileToSlack,
+  sendPaymentRequestInfo,
 };

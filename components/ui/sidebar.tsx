@@ -17,6 +17,7 @@ import {
   Menu,
   X,
   Globe,
+  CreditCard,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -64,6 +65,12 @@ export function Sidebar({
             href: "/dashboard/homepage",
             icon: Globe,
             label: "홈페이지 제작요청",
+            badge: null,
+          },
+          {
+            href: "/dashboard/homepage-payment",
+            icon: CreditCard,
+            label: "홈페이지 결제요청",
             badge: null,
           },
           {
