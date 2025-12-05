@@ -142,9 +142,9 @@ export default function AdminCommunicationPage() {
     return sameAuthor && withinFiveMinutes;
   };
 
-  const fetchThreads = async (keepSelectedThreadId?: string) => {
+  const fetchThreads = async (keepSelectedThreadId?: string, silentRefresh: boolean = false) => {
     try {
-      setLoading(true);
+      if (!silentRefresh) setLoading(true);
       const params = new URLSearchParams();
       if (statusFilter !== "all") params.append("status", statusFilter);
       if (categoryFilter !== "all") params.append("category", categoryFilter);
@@ -300,7 +300,7 @@ export default function AdminCommunicationPage() {
         setReplyContent("");
         setReplyAttachments([]);
         setExpectedDate(undefined);
-        fetchThreads(selectedThread.id);  // 선택된 스레드 유지
+        fetchThreads(selectedThread.id, true);  // 선택된 스레드 유지, 로딩 표시 없이
       } else {
         alert("답글 전송 실패");
       }
