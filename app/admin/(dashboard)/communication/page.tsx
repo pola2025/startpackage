@@ -300,7 +300,7 @@ export default function AdminCommunicationPage() {
         setReplyContent("");
         setReplyAttachments([]);
         setExpectedDate(undefined);
-        fetchThreads();
+        fetchThreads(selectedThread.id);  // 선택된 스레드 유지
       } else {
         alert("답글 전송 실패");
       }
