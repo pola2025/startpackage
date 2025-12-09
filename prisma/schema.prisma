@@ -271,6 +271,7 @@ model Workflow {
   logs WorkflowLog[]
   designHistory DesignHistory[]
   modalDismissals ModalDismissal[]
+  designThread DesignThread? // 시안 쓰레드 (시안관리 페이지용)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -280,6 +281,102 @@ model Workflow {
   @@index([type])
   @@index([status])
   @@map("workflows")
+}
+
+// ============================================
+// 4-1. 시안 쓰레드 (시안관리 페이지용)
+// ============================================
+
+model DesignThread {
+  id         String   @id @default(cuid())
+  workflowId String   @unique
+  workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  // 상태: pending(대기) | uploaded(시안업로드됨) | feedback_waiting(피드백대기) | revision_requested(수정요청) | confirmed(확정완료)
+  status String @default("pending")
+
+  // 현재 시안 버전
+  currentVersion Int @default(0)
+
+  // 최종 확정
+  confirmedAt     DateTime?
+  confirmedByName String?
+
+  // 최종 확정 파일 (R2) - 레거시, finalFiles 사용 권장
+  finalFileUrl       String?   // R2 다운로드 URL (단일 파일용, deprecated)
+  finalFileName      String?   // 파일명 (deprecated)
+  finalFileUploadedAt DateTime?
+
+  // 메시지 관계
+  messages DesignThreadMessage[]
+
+  // 최종 확정 파일들 (다중 파일 지원)
+  finalFiles DesignFinalFile[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@map("design_threads")
+}
+
+// ============================================
+// 4-1-1. 시안 최종 확정 파일 (다중 파일)
+// ============================================
+
+model DesignFinalFile {
+  id       String       @id @default(cuid())
+  threadId String
+  thread   DesignThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  // 파일 정보
+  fileName    String   // 원본 파일명 (예: "명함_최종.ai")
+  fileType    String   // 파일 타입 (ai, psd, png, jpg, pdf 등)
+  fileSize    Int?     // 파일 크기 (bytes)
+  fileUrl     String   // R2 URL
+
+  // 업로드 정보
+  uploadedBy   String?  // 업로드한 관리자 ID
+  uploadedAt   DateTime @default(now())
+
+  @@index([threadId])
+  @@map("design_final_files")
+}
+
+// ============================================
+// 4-2. 시안 쓰레드 메시지
+// ============================================
+
+model DesignThreadMessage {
+  id       String       @id @default(cuid())
+  threadId String
+  thread   DesignThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  // 작성자
+  authorId   String
+  authorType String  // "admin" | "user"
+  authorName String
+
+  // 메시지 유형: design_upload(시안업로드) | revision_request(수정요청) | message(일반메시지) | confirmation(확정)
+  messageType String
+
+  // 내용
+  content     String   @db.Text
+  attachments String[] // 첨부파일 URL 배열 (R2)
+
+  // 시안 업로드인 경우
+  designVersion Int?     // 시안 버전 (1차, 2차...)
+  designUrl     String?  // 시안 파일 URL (R2)
+
+  // 읽음 상태
+  isReadByAdmin Boolean @default(false)
+  isReadByUser  Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@index([threadId])
+  @@index([createdAt])
+  @@map("design_thread_messages")
 }
 
 // ============================================

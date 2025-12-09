@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Drive API 설정 가이드 (2025)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .copy-btn:active { transform: scale(0.95); }
+    .step-card { transition: all 0.2s; }
+    .step-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .checked { background-color: #dcfce7 !important; border-color: #22c55e !important; }
+    code { font-family: 'Consolas', 'Monaco', monospace; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <!-- Header -->
+  <header class="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-8">
+    <div class="max-w-4xl mx-auto px-6">
+      <h1 class="text-3xl font-bold mb-2">Google Drive API 설정 가이드</h1>
+      <p class="text-blue-100">Service Account 방식 - Next.js 연동용 (2025년 12월 기준)</p>
+    </div>
+  </header>
+
+  <!-- Progress Checklist -->
+  <div class="max-w-4xl mx-auto px-6 py-6">
+    <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+        <span class="text-2xl">📋</span> 진행 체크리스트
+      </h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="checklist">
+        <label class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg cursor-pointer border-2 border-transparent hover:border-blue-200" data-step="1">
+          <input type="checkbox" class="w-5 h-5 rounded" onchange="updateChecklist(this)">
+          <span class="text-sm">1. 프로젝트 생성</span>
+        </label>
+        <label class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg cursor-pointer border-2 border-transparent hover:border-blue-200" data-step="2">
+          <input type="checkbox" class="w-5 h-5 rounded" onchange="updateChecklist(this)">
+          <span class="text-sm">2. API 활성화</span>
+        </label>
+        <label class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg cursor-pointer border-2 border-transparent hover:border-blue-200" data-step="3">
+          <input type="checkbox" class="w-5 h-5 rounded" onchange="updateChecklist(this)">
+          <span class="text-sm">3. 서비스 계정</span>
+        </label>
+        <label class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg cursor-pointer border-2 border-transparent hover:border-blue-200" data-step="4">
+          <input type="checkbox" class="w-5 h-5 rounded" onchange="updateChecklist(this)">
+          <span class="text-sm">4. 폴더 공유</span>
+        </label>
+        <label class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg cursor-pointer border-2 border-transparent hover:border-blue-200" data-step="5">
+          <input type="checkbox" class="w-5 h-5 rounded" onchange="updateChecklist(this)">
+          <span class="text-sm">5. 패키지 설치</span>
+        </label>
+        <label class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg cursor-pointer border-2 border-transparent hover:border-blue-200" data-step="6">
+          <input type="checkbox" class="w-5 h-5 rounded" onchange="updateChecklist(this)">
+          <span class="text-sm">6. 환경변수 설정</span>
+        </label>
+        <label class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg cursor-pointer border-2 border-transparent hover:border-blue-200" data-step="7">
+          <input type="checkbox" class="w-5 h-5 rounded" onchange="updateChecklist(this)">
+          <span class="text-sm">7. 코드 구현</span>
+        </label>
+        <label class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg cursor-pointer border-2 border-transparent hover:border-blue-200" data-step="8">
+          <input type="checkbox" class="w-5 h-5 rounded" onchange="updateChecklist(this)">
+          <span class="text-sm">8. 테스트</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Step 1 -->
+    <div class="step-card bg-white rounded-xl shadow-sm p-6 mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">1</span>
+        <h2 class="text-xl font-semibold">Google Cloud 프로젝트 생성</h2>
+      </div>
+
+      <div class="space-y-4">
+        <div class="flex items-start gap-3">
+          <span class="text-blue-500 mt-1">▶</span>
+          <div>
+            <p class="font-medium">Google Cloud Console 접속</p>
+            <a href="https://console.cloud.google.com" target="_blank"
+               class="inline-flex items-center gap-1 text-blue-600 hover:underline mt-1">
+              console.cloud.google.com
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <span class="text-blue-500 mt-1">▶</span>
+          <div>
+            <p class="font-medium">새 프로젝트 생성</p>
+            <p class="text-gray-600 text-sm mt-1">
+              상단 <span class="bg-gray-100 px-2 py-0.5 rounded">프로젝트 선택</span> 클릭 → <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-medium">새 프로젝트</span> 클릭
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <span class="text-blue-500 mt-1">▶</span>
+          <div>
+            <p class="font-medium">프로젝트 정보 입력</p>
+            <div class="mt-2 bg-gray-50 p-4 rounded-lg">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="text-gray-500 text-sm w-24">프로젝트 이름:</span>
+                <code class="bg-gray-200 px-2 py-1 rounded text-sm">startpackage-drive</code>
+                <button onclick="copyText('startpackage-drive')" class="copy-btn text-blue-600 hover:text-blue-800 text-sm">복사</button>
+              </div>
+              <p class="text-gray-500 text-xs mt-2">→ <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded">만들기</span> 버튼 클릭</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step-card bg-white rounded-xl shadow-sm p-6 mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">2</span>
+        <h2 class="text-xl font-semibold">Google Drive API 활성화</h2>
+      </div>
+
+      <div class="space-y-4">
+        <div class="flex items-start gap-3">
+          <span class="text-blue-500 mt-1">▶</span>
+          <div>
+            <p class="font-medium">API 라이브러리 이동</p>
+            <p class="text-gray-600 text-sm mt-1">
+              좌측 메뉴 → <span class="bg-gray-100 px-2 py-0.5 rounded">API 및 서비스</span> →
+              <span class="bg-gray-100 px-2 py-0.5 rounded">라이브러리</span>
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <span class="text-blue-500 mt-1">▶</span>
+          <div>
+            <p class="font-medium">Google Drive API 검색 및 활성화</p>
+            <p class="text-gray-600 text-sm mt-1">
+              "Google Drive API" 검색 → 클릭 → <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-medium">사용</span> 버튼 클릭
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-4">
+          <p class="text-yellow-800 text-sm">
+            <span class="font-bold">⚠️ 주의:</span> "Google Drive API"를 선택하세요.
+            "Drive Activity API"나 다른 API와 혼동하지 마세요.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step-card bg-white rounded-xl shadow-sm p-6 mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">3</span>
+        <h2 class="text-xl font-semibold">서비스 계정 생성</h2>
+      </div>
+
+      <div class="space-y-4">
+        <div class="flex items-start gap-3">
+          <span class="text-blue-500 mt-1">▶</span>
+          <div>
+            <p class="font-medium">사용자 인증 정보 페이지 이동</p>
+            <p class="text-gray-600 text-sm mt-1">
+              좌측 메뉴 → <span class="bg-gray-100 px-2 py-0.5 rounded">API 및 서비스</span> →
+              <span class="bg-gray-100 px-2 py-0.5 rounded">사용자 인증 정보</span>
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <span class="text-blue-500 mt-1">▶</span>
+          <div>
+            <p class="font-medium">서비스 계정 생성</p>
+            <p class="text-gray-600 text-sm mt-1">
+              상단 <span class="bg-gray-100 px-2 py-0.5 rounded">+ 사용자 인증 정보 만들기</span> →
+              <span class="bg-gray-100 px-2 py-0.5 rounded">서비스 계정</span> 선택
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <span class="text-blue-500 mt-1">▶</span>
+          <div>
+            <p class="font-medium">서비스 계정 정보 입력</p>
+            <div class="mt-2 bg-gray-50 p-4 rounded-lg space-y-2">
+              <div class="flex items-center gap-2">
+                <span class="text-gray-500 text-sm w-32">서비스 계정 이름:</span>
+                <code class="bg-gray-200 px-2 py-1 rounded text-sm">startpackage-uploader</code>
+                <button onclick="copyText('startpackage-uploader')" class="copy-btn text-blue-600 hover:text-blue-800 text-sm">복사</button>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-gray-500 text-sm w-32">역할 (선택사항):</span>
+                <span class="text-gray-600 text-sm">건너뛰기 가능</span>
+              </div>
+              <p class="text-gray-500 text-xs mt-2">→ <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded">만들고 계속하기</span> → <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded">완료</span></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <span class="text-blue-500 mt-1">▶</span>
+          <div>
+            <p class="font-medium">JSON 키 파일 다운로드</p>
+            <div class="mt-2 space-y-2">
+              <p class="text-gray-600 text-sm">
+                1. 생성된 서비스 계정 이메일 클릭<br>
+                2. <span class="bg-gray-100 px-2 py-0.5 rounded">키</span> 탭 이동<br>
+                3. <span class="bg-gray-100 px-2 py-0.5 rounded">키 추가</span> → <span class="bg-gray-100 px-2 py-0.5 rounded">새 키 만들기</span><br>
+                4. <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-medium">JSON</span> 선택 → <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded">만들기</span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-red-50 border border-red-200 rounded-lg p-4 mt-4">
+          <p class="text-red-800 text-sm">
+            <span class="font-bold">🔒 보안 경고:</span> 다운로드된 JSON 파일을 Git에 커밋하지 마세요!
+            <br>이 파일에는 Private Key가 포함되어 있습니다.
+          </p>
+        </div>
+
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
+          <p class="text-blue-800 text-sm font-medium mb-2">📝 다운로드된 JSON 파일에서 다음 값을 기록해두세요:</p>
+          <ul class="text-blue-700 text-sm space-y-1">
+            <li>• <code class="bg-blue-100 px-1 rounded">client_email</code> - 서비스 계정 이메일</li>
+            <li>• <code class="bg-blue-100 px-1 rounded">private_key</code> - 비공개 키 (환경변수용)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step-card bg-white rounded-xl shadow-sm p-6 mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">4</span>
+        <h2 class="text-xl font-semibold">Google Drive 폴더 공유 설정</h2>
+      </div>
+
+      <div class="space-y-4">
+        <div class="flex items-start gap-3">
+          <span class="text-blue-500 mt-1">▶</span>
+          <div>
+            <p class="font-medium">Google Drive에서 루트 폴더 생성</p>
+            <a href="https://drive.google.com" target="_blank"
+               class="inline-flex items-center gap-1 text-blue-600 hover:underline mt-1">
+              drive.google.com
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+              </svg>
+            </a>
+            <div class="mt-2 bg-gray-50 p-4 rounded-lg">
+              <p class="text-sm text-gray-600">+ 새로 만들기 → 새 폴더</p>
+              <p class="text-sm text-gray-600 mt-1">폴더명 예시:</p>
+              <code class="bg-gray-200 px-2 py-1 rounded text-sm">스타트패키지_시안원본</code>
+              <button onclick="copyText('스타트패키지_시안원본')" class="copy-btn text-blue-600 hover:text-blue-800 text-sm ml-2">복사</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <span class="text-blue-500 mt-1">▶</span>
+          <div>
+            <p class="font-medium">서비스 계정과 폴더 공유</p>
+            <div class="mt-2 space-y-2">
+              <p class="text-gray-600 text-sm">
+                1. 생성한 폴더 우클릭 → <span class="bg-gray-100 px-2 py-0.5 rounded">공유</span><br>
+                2. 서비스 계정 이메일 입력 (JSON의 <code class="bg-gray-100 px-1 rounded">client_email</code> 값)<br>
+                3. 권한: <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded font-medium">편집자</span> 선택<br>
+                4. <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded">보내기</span> 클릭
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <span class="text-blue-500 mt-1">▶</span>
+          <div>
+            <p class="font-medium">폴더 ID 확인</p>
+            <p class="text-gray-600 text-sm mt-1">
+              폴더 열기 → URL에서 폴더 ID 복사
+            </p>
+            <div class="mt-2 bg-gray-50 p-4 rounded-lg">
+              <p class="text-xs text-gray-500 mb-1">URL 형식:</p>
+              <code class="text-xs text-gray-700 break-all">https://drive.google.com/drive/folders/<span class="bg-yellow-200 px-1">1AbCdEfGhIjKlMnOpQrStUvWxYz</span></code>
+              <p class="text-xs text-gray-500 mt-2">노란색 부분이 폴더 ID입니다.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-green-50 border border-green-200 rounded-lg p-4 mt-4">
+          <p class="text-green-800 text-sm">
+            <span class="font-bold">✅ 핵심:</span> 서비스 계정은 공유된 폴더에만 접근할 수 있습니다.
+            <br>다른 Drive 파일에는 접근 권한이 없으므로 안전합니다.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="step-card bg-white rounded-xl shadow-sm p-6 mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">5</span>
+        <h2 class="text-xl font-semibold">패키지 설치</h2>
+      </div>
+
+      <div class="space-y-4">
+        <div class="flex items-start gap-3">
+          <span class="text-blue-500 mt-1">▶</span>
+          <div>
+            <p class="font-medium">googleapis 패키지 설치</p>
+            <div class="mt-2 bg-gray-900 text-gray-100 p-4 rounded-lg flex justify-between items-center">
+              <code class="text-sm">npm install googleapis</code>
+              <button onclick="copyText('npm install googleapis')" class="copy-btn bg-gray-700 hover:bg-gray-600 text-white px-3 py-1 rounded text-sm">복사</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 6 -->
+    <div class="step-card bg-white rounded-xl shadow-sm p-6 mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">6</span>
+        <h2 class="text-xl font-semibold">환경 변수 설정</h2>
+      </div>
+
+      <div class="space-y-4">
+        <div class="flex items-start gap-3">
+          <span class="text-blue-500 mt-1">▶</span>
+          <div>
+            <p class="font-medium">.env.local 파일에 추가</p>
+            <div class="mt-2 bg-gray-900 text-gray-100 p-4 rounded-lg">
+              <pre class="text-sm overflow-x-auto"><code># Google Drive API (Service Account)
+GOOGLE_SERVICE_ACCOUNT_EMAIL=your-service@project.iam.gserviceaccount.com
+GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+GOOGLE_DRIVE_ROOT_FOLDER_ID=1AbCdEfGhIjKlMnOpQrStUvWxYz</code></pre>
+            </div>
+            <button onclick="copyEnvTemplate()" class="copy-btn mt-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm">템플릿 복사</button>
+          </div>
+        </div>
+
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-4">
+          <p class="text-yellow-800 text-sm">
+            <span class="font-bold">⚠️ Private Key 설정 시 주의:</span>
+            <br>• JSON 파일의 <code class="bg-yellow-100 px-1 rounded">private_key</code> 값을 그대로 복사
+            <br>• 줄바꿈(<code>\n</code>)이 포함된 상태로 따옴표 안에 넣기
+            <br>• Vercel 환경변수에 설정할 때도 동일하게 입력
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 7 -->
+    <div class="step-card bg-white rounded-xl shadow-sm p-6 mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">7</span>
+        <h2 class="text-xl font-semibold">코드 구현</h2>
+      </div>
+
+      <div class="space-y-6">
+        <!-- lib/google-drive.ts -->
+        <div>
+          <p class="font-medium mb-2 flex items-center gap-2">
+            <span class="bg-gray-100 px-2 py-0.5 rounded text-sm font-mono">lib/google-drive.ts</span>
+            <button onclick="copyCode('google-drive-lib')" class="copy-btn text-blue-600 hover:text-blue-800 text-sm">전체 복사</button>
+          </p>
+          <div class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto">
+            <pre id="google-drive-lib" class="text-sm"><code>import { google } from 'googleapis';
+
+// Google Drive 서비스 인스턴스 생성
+export function getDriveService() {
+  const auth = new google.auth.GoogleAuth({
+    credentials: {
+      client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+      private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    },
+    scopes: ['https://www.googleapis.com/auth/drive.file'],
+  });
+
+  return google.drive({ version: 'v3', auth });
+}
+
+// 폴더 찾기 또는 생성
+export async function findOrCreateFolder(
+  drive: ReturnType&lt;typeof google.drive&gt;,
+  folderName: string,
+  parentFolderId?: string
+): Promise&lt;string&gt; {
+  const parent = parentFolderId || process.env.GOOGLE_DRIVE_ROOT_FOLDER_ID!;
+
+  // 기존 폴더 검색
+  const response = await drive.files.list({
+    q: `name='${folderName}' and '${parent}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`,
+    fields: 'files(id, name)',
+  });
+
+  if (response.data.files && response.data.files.length > 0) {
+    return response.data.files[0].id!;
+  }
+
+  // 폴더 생성
+  const folder = await drive.files.create({
+    requestBody: {
+      name: folderName,
+      mimeType: 'application/vnd.google-apps.folder',
+      parents: [parent],
+    },
+    fields: 'id',
+  });
+
+  return folder.data.id!;
+}
+
+// 파일 업로드
+export async function uploadFileToDrive(
+  drive: ReturnType&lt;typeof google.drive&gt;,
+  fileName: string,
+  fileBuffer: Buffer,
+  mimeType: string,
+  folderId: string
+): Promise&lt;{ id: string; webViewLink: string; webContentLink: string }&gt; {
+  const { Readable } = await import('stream');
+
+  const file = await drive.files.create({
+    requestBody: {
+      name: fileName,
+      parents: [folderId],
+    },
+    media: {
+      mimeType,
+      body: Readable.from(fileBuffer),
+    },
+    fields: 'id, webViewLink, webContentLink',
+  });
+
+  // 링크 공유 설정 (링크가 있는 모든 사용자가 볼 수 있음)
+  await drive.permissions.create({
+    fileId: file.data.id!,
+    requestBody: {
+      role: 'reader',
+      type: 'anyone',
+    },
+  });
+
+  return {
+    id: file.data.id!,
+    webViewLink: file.data.webViewLink!,
+    webContentLink: file.data.webContentLink!,
+  };
+}</code></pre>
+          </div>
+        </div>
+
+        <!-- API Route Example -->
+        <div>
+          <p class="font-medium mb-2 flex items-center gap-2">
+            <span class="bg-gray-100 px-2 py-0.5 rounded text-sm font-mono">app/api/design-threads/[id]/upload-final/route.ts</span>
+            <button onclick="copyCode('api-route')" class="copy-btn text-blue-600 hover:text-blue-800 text-sm">전체 복사</button>
+          </p>
+          <div class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto">
+            <pre id="api-route" class="text-sm"><code>import { NextRequest, NextResponse } from 'next/server';
+import { getDriveService, findOrCreateFolder, uploadFileToDrive } from '@/lib/google-drive';
+import { prisma } from '@/lib/prisma';
+
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise&lt;{ id: string }&gt; }
+) {
+  try {
+    const { id: threadId } = await params;
+    const formData = await request.formData();
+    const file = formData.get('file') as File;
+
+    if (!file) {
+      return NextResponse.json({ error: '파일이 없습니다' }, { status: 400 });
+    }
+
+    // 쓰레드 및 관련 정보 조회
+    const thread = await prisma.designThread.findUnique({
+      where: { id: threadId },
+      include: {
+        workflow: {
+          include: {
+            user: {
+              include: {
+                cohort: true,
+                submission: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!thread) {
+      return NextResponse.json({ error: '쓰레드를 찾을 수 없습니다' }, { status: 404 });
+    }
+
+    const { user } = thread.workflow;
+    const drive = getDriveService();
+
+    // 클라이언트별 폴더 생성/찾기
+    const clientFolderName = `${user.cohort.name}_${user.이름}_${user.submission?.브랜드명 || 'Unknown'}`;
+    const clientFolderId = await findOrCreateFolder(drive, clientFolderName);
+
+    // 워크플로우 타입별 하위 폴더
+    const typeFolderId = await findOrCreateFolder(drive, thread.workflow.type, clientFolderId);
+
+    // 파일 업로드
+    const fileBuffer = Buffer.from(await file.arrayBuffer());
+    const fileName = `${thread.workflow.type}_최종_v${thread.currentVersion}.${file.name.split('.').pop()}`;
+
+    const uploadedFile = await uploadFileToDrive(
+      drive,
+      fileName,
+      fileBuffer,
+      file.type,
+      typeFolderId
+    );
+
+    // DB 업데이트
+    await prisma.designThread.update({
+      where: { id: threadId },
+      data: {
+        finalFileUrl: uploadedFile.webContentLink,
+        finalFileName: fileName,
+        finalFileUploadedAt: new Date(),
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      file: {
+        id: uploadedFile.id,
+        name: fileName,
+        downloadUrl: uploadedFile.webContentLink,
+        viewUrl: uploadedFile.webViewLink,
+      },
+    });
+  } catch (error) {
+    console.error('Google Drive 업로드 오류:', error);
+    return NextResponse.json(
+      { error: '파일 업로드 중 오류가 발생했습니다' },
+      { status: 500 }
+    );
+  }
+}</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 8 -->
+    <div class="step-card bg-white rounded-xl shadow-sm p-6 mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">8</span>
+        <h2 class="text-xl font-semibold">테스트</h2>
+      </div>
+
+      <div class="space-y-4">
+        <div class="flex items-start gap-3">
+          <span class="text-blue-500 mt-1">▶</span>
+          <div>
+            <p class="font-medium">로컬에서 테스트</p>
+            <div class="mt-2 bg-gray-900 text-gray-100 p-4 rounded-lg">
+              <code class="text-sm">npm run dev</code>
+            </div>
+            <p class="text-gray-600 text-sm mt-2">
+              시안관리 페이지에서 AI 파일 업로드 테스트
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <span class="text-blue-500 mt-1">▶</span>
+          <div>
+            <p class="font-medium">확인 사항</p>
+            <ul class="mt-2 text-gray-600 text-sm space-y-1">
+              <li>✓ Google Drive에 폴더가 자동 생성되는지</li>
+              <li>✓ 파일이 올바른 폴더에 업로드되는지</li>
+              <li>✓ 다운로드 링크가 정상 작동하는지</li>
+              <li>✓ DB에 파일 정보가 저장되는지</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Completion -->
+    <div id="completion" class="hidden bg-green-50 border-2 border-green-200 rounded-xl p-6 mb-6">
+      <div class="flex items-center gap-3">
+        <span class="text-4xl">🎉</span>
+        <div>
+          <h2 class="text-xl font-bold text-green-800">설정 완료!</h2>
+          <p class="text-green-700">모든 단계를 완료했습니다. 이제 Google Drive 연동을 사용할 수 있습니다.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resources -->
+    <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-lg font-semibold mb-4">📚 참고 자료</h2>
+      <ul class="space-y-2">
+        <li>
+          <a href="https://developers.google.com/workspace/drive/api/quickstart/nodejs" target="_blank"
+             class="text-blue-600 hover:underline flex items-center gap-1">
+            Google Drive API Node.js Quickstart (공식)
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+            </svg>
+          </a>
+        </li>
+        <li>
+          <a href="https://github.com/googleapis/google-api-nodejs-client" target="_blank"
+             class="text-blue-600 hover:underline flex items-center gap-1">
+            Google API Node.js Client (GitHub)
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+            </svg>
+          </a>
+        </li>
+        <li>
+          <a href="https://www.labnol.org/google-api-service-account-220404" target="_blank"
+             class="text-blue-600 hover:underline flex items-center gap-1">
+            Service Account 파일 업로드 가이드
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+            </svg>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center text-gray-500 text-sm pb-8">
+      <p>마지막 업데이트: 2025년 12월</p>
+    </footer>
+  </div>
+
+  <script>
+    // 복사 기능
+    function copyText(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('복사되었습니다!');
+      });
+    }
+
+    function copyCode(elementId) {
+      const code = document.getElementById(elementId).innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        showToast('코드가 복사되었습니다!');
+      });
+    }
+
+    function copyEnvTemplate() {
+      const template = `# Google Drive API (Service Account)
+GOOGLE_SERVICE_ACCOUNT_EMAIL=your-service@project.iam.gserviceaccount.com
+GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\\n...\\n-----END PRIVATE KEY-----\\n"
+GOOGLE_DRIVE_ROOT_FOLDER_ID=1AbCdEfGhIjKlMnOpQrStUvWxYz`;
+      navigator.clipboard.writeText(template).then(() => {
+        showToast('환경변수 템플릿이 복사되었습니다!');
+      });
+    }
+
+    // 체크리스트 업데이트
+    function updateChecklist(checkbox) {
+      const label = checkbox.closest('label');
+      if (checkbox.checked) {
+        label.classList.add('checked');
+      } else {
+        label.classList.remove('checked');
+      }
+
+      // 모든 체크 완료 시 완료 메시지 표시
+      const allChecked = document.querySelectorAll('#checklist input[type="checkbox"]:checked').length === 8;
+      document.getElementById('completion').classList.toggle('hidden', !allChecked);
+    }
+
+    // 토스트 메시지
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 2000);
+    }
+
+    // 저장된 체크리스트 상태 불러오기
+    document.addEventListener('DOMContentLoaded', () => {
+      const saved = localStorage.getItem('google-drive-guide-checklist');
+      if (saved) {
+        const checked = JSON.parse(saved);
+        document.querySelectorAll('#checklist input[type="checkbox"]').forEach((cb, i) => {
+          cb.checked = checked[i];
+          if (checked[i]) cb.closest('label').classList.add('checked');
+        });
+      }
+    });
+
+    // 체크리스트 상태 저장
+    document.getElementById('checklist').addEventListener('change', () => {
+      const checked = Array.from(document.querySelectorAll('#checklist input[type="checkbox"]'))
+        .map(cb => cb.checked);
+      localStorage.setItem('google-drive-guide-checklist', JSON.stringify(checked));
+    });
+  </script>
+</body>
+</html>

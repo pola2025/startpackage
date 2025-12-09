@@ -18,6 +18,7 @@ import {
   X,
   Globe,
   CreditCard,
+  Palette,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -84,6 +85,12 @@ export function Sidebar({
             href: "/dashboard/meta-ads",
             icon: Facebook,
             label: "Meta 광고",
+            badge: null,
+          },
+          {
+            href: "/dashboard/design-threads",
+            icon: Palette,
+            label: "시안 확인",
             badge: null,
           },
         ]

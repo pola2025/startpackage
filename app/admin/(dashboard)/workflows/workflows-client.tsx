@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Package, Truck, Calendar, User, Maximize2, Minimize2, ChevronDown, ChevronRight, Users } from "lucide-react";
 import WorkflowActions from "./workflow-actions";
 import SubmissionViewButton from "./submission-view-button";
+import DesignThreadButton from "./design-thread-button";
 import UserWorkflowSMSButton from "./user-workflow-sms-button";
 import UserShippingSMSButton from "./user-shipping-sms-button";
 import UserOrderCompleteButton from "./user-order-complete-button";
@@ -427,6 +428,7 @@ export default function WorkflowsClient({
                   <TableCell>
                     <WorkflowProgress
                       status={workflow.status}
+                      type={workflow.type}
                       수정횟수={workflow.수정횟수}
                       자료제출일={workflow.자료제출일}
                       createdAt={workflow.createdAt}
@@ -523,6 +525,11 @@ export default function WorkflowsClient({
               <TableCell>
                 <div className="flex gap-2">
                   <SubmissionViewButton workflow={workflow} />
+                  <DesignThreadButton
+                    workflowId={workflow.id}
+                    status={workflow.status}
+                    type={workflow.type}
+                  />
                   <WorkflowActions workflow={workflow} />
                 </div>
               </TableCell>

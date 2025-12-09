@@ -7,7 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Package, Clock, CheckCircle2, FileText, AlertTriangle, Truck, Calendar, Info } from "lucide-react";
+import { Package, Clock, CheckCircle2, FileText, AlertTriangle, Truck, Calendar, Info, Palette } from "lucide-react";
+import Link from "next/link";
 import { formatDate } from "@/lib/utils";
 import { formatArrivalDate } from "@/lib/utils/businessDays";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -373,6 +374,21 @@ export default function WorkflowsPage() {
 
                 {/* 액션 버튼 */}
                 <div className="flex gap-2">
+                  {/* 시안중 상태이고 인쇄물 타입이면 시안관리 버튼 표시 */}
+                  {workflow.status === "시안중" &&
+                    workflow.type !== "로고" &&
+                    workflow.type !== "홈페이지" && (
+                      <Link href="/dashboard/design-threads" className="flex-1">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full border-purple-400 text-purple-600 hover:bg-purple-50"
+                        >
+                          <Palette className="w-4 h-4 mr-1" />
+                          시안 확인하기
+                        </Button>
+                      </Link>
+                    )}
                   {/* 시안URL이 있으면 시안 확인 버튼 표시 */}
                   {workflow.시안URL && (
                     <>

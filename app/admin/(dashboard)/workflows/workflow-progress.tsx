@@ -1,32 +1,53 @@
 "use client";
 
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 interface WorkflowProgressProps {
   status: string;
+  type: string; // 워크플로우 타입 추가
   수정횟수: number;
   자료제출일?: Date | null;
   createdAt: Date;
 }
 
-// 상태별 진행률 계산
-const getProgressByStatus = (status: string): number => {
-  const progressMap: Record<string, number> = {
-    // 로고 워크플로우
-    "시안제작중": 30,
-    "시안컨펌요청": 60,
-    "최종확정": 100,
-    // 인쇄물 워크플로우
+// 타입별 상태 진행률 계산
+const getProgressByStatus = (status: string, type: string): number => {
+  // 로고 워크플로우 전용 상태
+  if (type === "로고") {
+    const logoProgressMap: Record<string, number> = {
+      "대기": 10,
+      "시안제작중": 40,
+      "시안컨펌요청": 70,
+      "최종확정": 100,
+    };
+    return logoProgressMap[status] ?? 0;
+  }
+
+  // 홈페이지 워크플로우 전용 상태
+  if (type === "홈페이지") {
+    const homepageProgressMap: Record<string, number> = {
+      "대기": 10,
+      "제작 진행 중": 50,
+      "제작진행중": 50, // 띄어쓰기 없는 버전 호환
+      "제작 완료": 80,
+      "제작완료": 80, // 띄어쓰기 없는 버전 호환
+      "최종확정": 100,
+    };
+    return homepageProgressMap[status] ?? 0;
+  }
+
+  // 인쇄물 워크플로우 (명함, 명찰, 대봉투, 자문계약서 등)
+  const printProgressMap: Record<string, number> = {
     "대기": 10,
-    "시안중": 30,
-    "발주대기": 50,
-    "발주요청": 60,
-    "발주완료": 75,
-    "제작완료": 90,
+    "시안중": 25,
+    "발주대기": 40,
+    "발주요청": 55,
+    "발주완료": 70,
+    "제작완료": 85,
     "발송완료": 100,
   };
-  return progressMap[status] || 0;
+  return printProgressMap[status] ?? 0;
 };
 
 // 긴급도 계산 (날짜 + 수정횟수 기반)
@@ -59,40 +80,61 @@ const getUrgencyLevel = (
   return { level: "low", label: "" };
 };
 
+// 완료 상태인지 확인
+const isCompleted = (status: string, type: string): boolean => {
+  if (type === "로고" || type === "홈페이지") {
+    return status === "최종확정";
+  }
+  return status === "발송완료";
+};
+
 export default function WorkflowProgress({
   status,
+  type,
   수정횟수,
   자료제출일,
   createdAt,
 }: WorkflowProgressProps) {
-  const progress = getProgressByStatus(status);
+  const progress = getProgressByStatus(status, type);
   const urgency = getUrgencyLevel(자료제출일, 수정횟수, status);
+  const completed = isCompleted(status, type);
 
-  const progressColor =
-    urgency.level === "high"
-      ? "bg-red-500"
-      : urgency.level === "medium"
-      ? "bg-orange-500"
-      : "bg-blue-500";
+  // 완료 상태면 녹색, 아니면 긴급도에 따라 색상 결정
+  const progressColor = completed
+    ? "bg-emerald-500"
+    : urgency.level === "high"
+    ? "bg-red-500"
+    : urgency.level === "medium"
+    ? "bg-orange-500"
+    : "bg-blue-500";
 
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-medium text-gray-700">
-            진행률 {progress}%
-          </span>
-          {urgency.label && (
-            <div
-              className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${
-                urgency.level === "high"
-                  ? "bg-red-100 text-red-700"
-                  : "bg-orange-100 text-orange-700"
-              }`}
-            >
-              <AlertTriangle className="w-3 h-3" />
-              {urgency.label}
+          {completed ? (
+            <div className="flex items-center gap-1 text-emerald-600">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span className="text-xs font-semibold">완료</span>
             </div>
+          ) : (
+            <>
+              <span className="text-xs font-medium text-gray-700">
+                진행률 {progress}%
+              </span>
+              {urgency.label && (
+                <div
+                  className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${
+                    urgency.level === "high"
+                      ? "bg-red-100 text-red-700"
+                      : "bg-orange-100 text-orange-700"
+                  }`}
+                >
+                  <AlertTriangle className="w-3 h-3" />
+                  {urgency.label}
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

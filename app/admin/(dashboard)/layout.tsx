@@ -21,6 +21,7 @@ import {
   Lightbulb,
   Zap,
   Globe,
+  Palette,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -69,6 +70,11 @@ const navigation = [
     name: "커뮤니케이션",
     href: "/admin/communication",
     icon: MessageSquare,
+  },
+  {
+    name: "시안 관리",
+    href: "/admin/design-threads",
+    icon: Palette,
   },
   {
     name: "광고 자동화",
