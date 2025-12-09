@@ -16,8 +16,8 @@ const createDesignThreadSchema = z.object({
   workflowType: z.enum(["로고", "명함", "리플렛", "현수막", "배너", "기타"], {
     errorMap: () => ({ message: "유효한 워크플로우 타입을 선택해주세요." }),
   }),
-  designUrl: z.string().url("유효한 시안 URL을 입력해주세요."),
-  message: z.string().min(1, "시안 설명을 입력해주세요."),
+  designUrl: z.string().url("유효한 시안 URL을 입력해주세요.").optional(), // 시안 파일 (선택)
+  message: z.string().min(1, "메시지를 입력해주세요."),
   communicationThreadId: z.string().cuid().optional(), // 연결할 문의하기 스레드 ID (선택)
 });
 
@@ -134,20 +134,22 @@ export async function POST(request: Request) {
       designThread = result.designThread;
     }
 
-    // 시안 메시지 생성 (디자인 업로드)
-    const newVersion = designThread.currentVersion || 1;
+    // 시안 파일이 있는 경우에만 버전 증가
+    const hasDesignFile = designUrl && designUrl.trim();
+    const newVersion = hasDesignFile ? (designThread.currentVersion || 0) + 1 : designThread.currentVersion || 0;
 
+    // 메시지 생성 (시안 업로드 또는 일반 메시지)
     const designMessage = await prisma.designThreadMessage.create({
       data: {
         threadId: designThread.id,
         authorId: adminId,
         authorType: "admin",
         authorName: adminName,
-        messageType: "design_upload",
+        messageType: hasDesignFile ? "design_upload" : "message",
         content: message,
         attachments: [],
-        designVersion: newVersion,
-        designUrl: designUrl,
+        designVersion: hasDesignFile ? newVersion : null,
+        designUrl: hasDesignFile ? designUrl : null,
         isReadByAdmin: true,
         isReadByUser: false,
       },
@@ -157,7 +159,7 @@ export async function POST(request: Request) {
     await prisma.designThread.update({
       where: { id: designThread.id },
       data: {
-        status: "uploaded",
+        status: hasDesignFile ? "uploaded" : "pending",
         currentVersion: newVersion,
         updatedAt: new Date(),
       },
@@ -168,8 +170,10 @@ export async function POST(request: Request) {
       where: { id: workflow.id },
       data: {
         status: "시안중",
-        시안URL: designUrl,
-        시안업로드일: new Date(),
+        ...(hasDesignFile && {
+          시안URL: designUrl,
+          시안업로드일: new Date(),
+        }),
       },
     });
 

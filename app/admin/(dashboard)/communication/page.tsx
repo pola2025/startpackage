@@ -1053,9 +1053,9 @@ export default function AdminCommunicationPage() {
               </Select>
             </div>
 
-            {/* 시안 파일 업로드 */}
+            {/* 시안 파일 업로드 (선택) */}
             <div className="space-y-2">
-              <Label>시안 파일 *</Label>
+              <Label>시안 파일 <span className="text-gray-400 font-normal">(선택)</span></Label>
               {designUrl ? (
                 <div className="flex items-center gap-2 p-3 bg-purple-50 border border-purple-200 rounded-lg">
                   <FileImage className="w-5 h-5 text-purple-600 flex-shrink-0" />
@@ -1136,7 +1136,7 @@ export default function AdminCommunicationPage() {
             </Button>
             <Button
               onClick={handleCreateDesignThread}
-              disabled={creatingDesign || !designWorkflowType || !designUrl.trim() || !designMessage.trim()}
+              disabled={creatingDesign || !designWorkflowType || !designMessage.trim()}
               className="bg-purple-600 hover:bg-purple-700 text-white"
             >
               {creatingDesign ? "등록 중..." : "시안 등록"}
