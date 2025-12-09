@@ -24,6 +24,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
   MessageSquare,
   Send,
   Paperclip,
@@ -35,6 +45,10 @@ import {
   Image as ImageIcon,
   Trash2,
   AlertCircle,
+  Palette,
+  Upload,
+  FileImage,
+  X,
 } from "lucide-react";
 import { ImageModal } from "@/components/ui/image-modal";
 import Image from "next/image";
@@ -95,6 +109,15 @@ export default function AdminCommunicationPage() {
   const [imageModalOpen, setImageModalOpen] = useState(false);
   const [modalImages, setModalImages] = useState<string[]>([]);
   const [modalInitialIndex, setModalInitialIndex] = useState(0);
+
+  // 시안 등록 모달 상태
+  const [designModalOpen, setDesignModalOpen] = useState(false);
+  const [designWorkflowType, setDesignWorkflowType] = useState<string>("");
+  const [designUrl, setDesignUrl] = useState("");
+  const [designMessage, setDesignMessage] = useState("");
+  const [creatingDesign, setCreatingDesign] = useState(false);
+  const [designFileUploading, setDesignFileUploading] = useState(false);
+  const [designFileName, setDesignFileName] = useState("");
 
   // 상대 시간 표시 함수
   const getRelativeTime = (date: string): string => {
@@ -352,6 +375,96 @@ export default function AdminCommunicationPage() {
     } catch (error) {
       console.error("Delete thread error:", error);
       alert("스레드 삭제 중 오류가 발생했습니다");
+    }
+  };
+
+  // 시안 등록 모달 열기
+  const openDesignModal = () => {
+    if (!selectedThread) return;
+    setDesignWorkflowType("");
+    setDesignUrl("");
+    setDesignMessage("");
+    setDesignFileName("");
+    setDesignModalOpen(true);
+  };
+
+  // 시안 파일 업로드
+  const handleDesignFileUpload = async (file: File) => {
+    setDesignFileUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/communication/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        if (response.status === 413) {
+          alert("파일이 너무 큽니다. 10MB 이하의 파일만 업로드 가능합니다.");
+          return;
+        }
+        const data = await response.json();
+        alert(data.error || "업로드 실패");
+        return;
+      }
+
+      const data = await response.json();
+      setDesignUrl(data.url);
+      setDesignFileName(file.name);
+    } catch (error) {
+      console.error("Design file upload error:", error);
+      alert("파일 업로드 중 오류가 발생했습니다.");
+    } finally {
+      setDesignFileUploading(false);
+    }
+  };
+
+  // 시안 등록 처리
+  const handleCreateDesignThread = async () => {
+    if (!selectedThread) return;
+    if (!designWorkflowType) {
+      alert("워크플로우 타입을 선택해주세요.");
+      return;
+    }
+    if (!designUrl.trim()) {
+      alert("시안 URL을 입력해주세요.");
+      return;
+    }
+    if (!designMessage.trim()) {
+      alert("시안 설명을 입력해주세요.");
+      return;
+    }
+
+    setCreatingDesign(true);
+    try {
+      const response = await fetch("/api/admin/communication/create-design-thread", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: selectedThread.user.id,
+          workflowType: designWorkflowType,
+          designUrl: designUrl.trim(),
+          message: designMessage.trim(),
+          communicationThreadId: selectedThread.id,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert(`시안이 등록되었습니다.\n\n사용자: ${selectedThread.user.이름}\n타입: ${designWorkflowType}\n\n사용자는 '시안 확인' 페이지에서 시안을 확인할 수 있습니다.`);
+        setDesignModalOpen(false);
+        fetchThreads(selectedThread.id, true);
+      } else {
+        alert(data.error || "시안 등록 실패");
+      }
+    } catch (error) {
+      console.error("Create design thread error:", error);
+      alert("시안 등록 중 오류가 발생했습니다");
+    } finally {
+      setCreatingDesign(false);
     }
   };
 
@@ -625,19 +738,30 @@ export default function AdminCommunicationPage() {
                   </div>
                   <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
                     {getStatusBadge(selectedThread.status)}
-                    <Select
-                      value={selectedThread.status}
-                      onValueChange={(value) => handleStatusChange(selectedThread.id, value)}
-                    >
-                      <SelectTrigger className="w-24 sm:w-32 bg-gray-50 border-gray-200 text-gray-900 text-xs sm:text-sm h-7 sm:h-10">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white border-gray-200">
-                        <SelectItem value="open">대기중</SelectItem>
-                        <SelectItem value="in_progress">진행중</SelectItem>
-                        <SelectItem value="resolved">완료</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={openDesignModal}
+                        className="h-7 sm:h-10 px-2 sm:px-3 text-xs sm:text-sm border-purple-300 text-purple-700 hover:bg-purple-50"
+                      >
+                        <Palette className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-1" />
+                        <span className="hidden sm:inline">시안 등록</span>
+                      </Button>
+                      <Select
+                        value={selectedThread.status}
+                        onValueChange={(value) => handleStatusChange(selectedThread.id, value)}
+                      >
+                        <SelectTrigger className="w-24 sm:w-32 bg-gray-50 border-gray-200 text-gray-900 text-xs sm:text-sm h-7 sm:h-10">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white border-gray-200">
+                          <SelectItem value="open">대기중</SelectItem>
+                          <SelectItem value="in_progress">진행중</SelectItem>
+                          <SelectItem value="resolved">완료</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
               </CardHeader>
@@ -895,6 +1019,131 @@ export default function AdminCommunicationPage() {
           onClose={() => setImageModalOpen(false)}
         />
       )}
+
+      {/* 시안 등록 모달 */}
+      <Dialog open={designModalOpen} onOpenChange={setDesignModalOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Palette className="w-5 h-5 text-purple-600" />
+              시안 등록
+            </DialogTitle>
+            <DialogDescription>
+              {selectedThread?.user.이름}님에게 시안을 등록합니다.
+              등록된 시안은 사용자의 &apos;시안 확인&apos; 페이지에서 확인할 수 있습니다.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            {/* 워크플로우 타입 선택 */}
+            <div className="space-y-2">
+              <Label htmlFor="workflow-type">워크플로우 타입 *</Label>
+              <Select value={designWorkflowType} onValueChange={setDesignWorkflowType}>
+                <SelectTrigger id="workflow-type" className="w-full">
+                  <SelectValue placeholder="타입 선택" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="로고">로고</SelectItem>
+                  <SelectItem value="명함">명함</SelectItem>
+                  <SelectItem value="리플렛">리플렛</SelectItem>
+                  <SelectItem value="현수막">현수막</SelectItem>
+                  <SelectItem value="배너">배너</SelectItem>
+                  <SelectItem value="기타">기타</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* 시안 파일 업로드 */}
+            <div className="space-y-2">
+              <Label>시안 파일 *</Label>
+              {designUrl ? (
+                <div className="flex items-center gap-2 p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                  <FileImage className="w-5 h-5 text-purple-600 flex-shrink-0" />
+                  <span className="text-sm text-gray-700 flex-1 truncate">{designFileName}</span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setDesignUrl("");
+                      setDesignFileName("");
+                    }}
+                    className="h-7 w-7 p-0 text-gray-500 hover:text-red-600"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="relative">
+                  <input
+                    type="file"
+                    id="design-file-upload"
+                    accept="image/*,.pdf,.ai,.psd,.eps,.svg"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleDesignFileUpload(file);
+                      e.target.value = "";
+                    }}
+                    disabled={designFileUploading}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full h-24 border-dashed border-2 hover:border-purple-400 hover:bg-purple-50"
+                    onClick={() => document.getElementById("design-file-upload")?.click()}
+                    disabled={designFileUploading}
+                  >
+                    <div className="flex flex-col items-center gap-2">
+                      {designFileUploading ? (
+                        <>
+                          <div className="w-6 h-6 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
+                          <span className="text-sm text-gray-500">업로드 중...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="w-6 h-6 text-gray-400" />
+                          <span className="text-sm text-gray-500">파일을 선택하세요</span>
+                          <span className="text-xs text-gray-400">이미지, PDF, AI, PSD 파일 지원</span>
+                        </>
+                      )}
+                    </div>
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {/* 시안 설명 */}
+            <div className="space-y-2">
+              <Label htmlFor="design-message">시안 설명 *</Label>
+              <Textarea
+                id="design-message"
+                placeholder="시안에 대한 설명을 입력하세요..."
+                value={designMessage}
+                onChange={(e) => setDesignMessage(e.target.value)}
+                className="min-h-[100px]"
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDesignModalOpen(false)}
+              disabled={creatingDesign}
+            >
+              취소
+            </Button>
+            <Button
+              onClick={handleCreateDesignThread}
+              disabled={creatingDesign || !designWorkflowType || !designUrl.trim() || !designMessage.trim()}
+              className="bg-purple-600 hover:bg-purple-700 text-white"
+            >
+              {creatingDesign ? "등록 중..." : "시안 등록"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
