@@ -267,51 +267,51 @@ export default function HomepageSettingsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6 px-4 md:px-0">
       {/* 헤더 */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-          <Globe className="w-7 h-7" />
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <Globe className="w-6 h-6 md:w-7 md:h-7" />
           홈페이지 설정
         </h1>
-        <p className="text-gray-600 mt-1">
+        <p className="text-sm md:text-base text-gray-600 mt-1">
           홈페이지 제작 방식을 선택하고 필요한 정보를 입력해주세요.
         </p>
       </div>
 
       {/* 제작 방식 선택 */}
       <Card>
-        <CardHeader>
-          <CardTitle>제작 방식 선택</CardTitle>
-          <CardDescription>
+        <CardHeader className="p-4 md:p-6">
+          <CardTitle className="text-base md:text-lg">제작 방식 선택</CardTitle>
+          <CardDescription className="text-xs md:text-sm">
             홈페이지 제작 방식에 따라 필요한 정보가 다릅니다.
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="p-4 bg-red-50 border-2 border-red-300 rounded-lg mb-4">
+        <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
+          <div className="p-3 md:p-4 bg-red-50 border-2 border-red-300 rounded-lg mb-4">
             <div className="flex items-start gap-2">
               <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-red-700 font-semibold">
+                <p className="text-red-700 font-semibold text-sm md:text-base">
                   선택하게 되면 제작 이후 변경은 불가능합니다.
                 </p>
-                <p className="text-red-600 text-sm mt-1">
+                <p className="text-red-600 text-xs md:text-sm mt-1">
                   선택 후 홈페이지 제작방식은 확정되어 진행됩니다.
                 </p>
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
             {/* 아임웹 옵션 */}
             <div
-              className={`relative border-2 rounded-lg p-4 cursor-pointer transition-all ${
+              className={`relative border-2 rounded-lg p-3 md:p-4 cursor-pointer transition-all ${
                 method === "아임웹"
                   ? "border-blue-500 bg-blue-50"
                   : "border-gray-200 hover:border-gray-300"
               }`}
               onClick={() => setMethod("아임웹")}
             >
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-2 md:gap-3">
                 <input
                   type="radio"
                   name="method"
@@ -321,20 +321,20 @@ export default function HomepageSettingsPage() {
                   className="mt-1 w-4 h-4 text-blue-600"
                 />
                 <div className="flex-1">
-                  <Label className="text-base font-semibold cursor-pointer">
+                  <Label className="text-sm md:text-base font-semibold cursor-pointer">
                     아임웹 제작
                   </Label>
-                  <ul className="mt-2 space-y-1 text-sm text-gray-600">
+                  <ul className="mt-2 space-y-1 text-xs md:text-sm text-gray-600">
                     <li className="flex items-center gap-1">
-                      <CheckCircle2 className="w-4 h-4 text-green-500" />
+                      <CheckCircle2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-green-500 flex-shrink-0" />
                       아임웹에서만 결제
                     </li>
                     <li className="flex items-center gap-1">
-                      <CheckCircle2 className="w-4 h-4 text-green-500" />
+                      <CheckCircle2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-green-500 flex-shrink-0" />
                       간편한 관리
                     </li>
                     <li className="flex items-center gap-1">
-                      <CheckCircle2 className="w-4 h-4 text-green-500" />
+                      <CheckCircle2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-green-500 flex-shrink-0" />
                       올인원 서비스
                     </li>
                   </ul>
@@ -347,14 +347,14 @@ export default function HomepageSettingsPage() {
 
             {/* 외부 서비스 옵션 */}
             <div
-              className={`relative border-2 rounded-lg p-4 cursor-pointer transition-all ${
+              className={`relative border-2 rounded-lg p-3 md:p-4 cursor-pointer transition-all ${
                 method === "외부서비스"
                   ? "border-purple-500 bg-purple-50"
                   : "border-gray-200 hover:border-gray-300"
               }`}
               onClick={() => setMethod("외부서비스")}
             >
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-2 md:gap-3">
                 <input
                   type="radio"
                   name="method"
@@ -364,20 +364,20 @@ export default function HomepageSettingsPage() {
                   className="mt-1 w-4 h-4 text-purple-600"
                 />
                 <div className="flex-1">
-                  <Label htmlFor="external" className="text-base font-semibold cursor-pointer">
+                  <Label htmlFor="external" className="text-sm md:text-base font-semibold cursor-pointer">
                     외부 서비스 제작
                   </Label>
-                  <ul className="mt-2 space-y-1 text-sm text-gray-600">
+                  <ul className="mt-2 space-y-1 text-xs md:text-sm text-gray-600">
                     <li className="flex items-center gap-1">
-                      <CheckCircle2 className="w-4 h-4 text-green-500" />
+                      <CheckCircle2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-green-500 flex-shrink-0" />
                       도메인 개별 구매
                     </li>
                     <li className="flex items-center gap-1">
-                      <CheckCircle2 className="w-4 h-4 text-green-500" />
+                      <CheckCircle2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-green-500 flex-shrink-0" />
                       월 1~2만원 (트래픽 기준)
                     </li>
                     <li className="flex items-center gap-1">
-                      <CheckCircle2 className="w-4 h-4 text-green-500" />
+                      <CheckCircle2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-green-500 flex-shrink-0" />
                       사용한 만큼만 과금
                     </li>
                   </ul>
@@ -465,7 +465,7 @@ export default function HomepageSettingsPage() {
             {/* 입력 폼 */}
             <div className="space-y-4">
               <div>
-                <Label htmlFor="imwebId" className="flex items-center gap-1">
+                <Label htmlFor="imwebId" className="flex items-center gap-1 text-sm">
                   아임웹 ID <span className="text-red-500">*</span>
                 </Label>
                 <Input
@@ -473,7 +473,7 @@ export default function HomepageSettingsPage() {
                   value={imwebId}
                   onChange={(e) => setImwebId(e.target.value)}
                   placeholder="이메일 또는 네이버 계정"
-                  className="mt-1"
+                  className="mt-1 h-11 md:h-10"
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   이메일 주소 또는 네이버 로그인 계정
@@ -481,7 +481,7 @@ export default function HomepageSettingsPage() {
               </div>
 
               <div>
-                <Label htmlFor="imwebPw" className="flex items-center gap-1">
+                <Label htmlFor="imwebPw" className="flex items-center gap-1 text-sm">
                   아임웹 비밀번호 <span className="text-red-500">*</span>
                 </Label>
                 <Input
@@ -490,12 +490,12 @@ export default function HomepageSettingsPage() {
                   value={imwebPw}
                   onChange={(e) => setImwebPw(e.target.value)}
                   placeholder="비밀번호"
-                  className="mt-1"
+                  className="mt-1 h-11 md:h-10"
                 />
               </div>
 
               <div>
-                <Label htmlFor="imwebAdminPw" className="flex items-center gap-1">
+                <Label htmlFor="imwebAdminPw" className="flex items-center gap-1 text-sm">
                   아임웹 관리자 비밀번호 <span className="text-red-500">*</span>
                 </Label>
                 <Input
@@ -504,7 +504,7 @@ export default function HomepageSettingsPage() {
                   value={imwebAdminPw}
                   onChange={(e) => setImwebAdminPw(e.target.value)}
                   placeholder="대문자 포함 비밀번호"
-                  className="mt-1"
+                  className="mt-1 h-11 md:h-10"
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   대문자가 반드시 포함되어야 합니다.
@@ -593,11 +593,11 @@ export default function HomepageSettingsPage() {
               {/* 입력 폼 */}
               <div className="space-y-4">
                 <div>
-                  <Label className="flex items-center gap-1">
+                  <Label className="flex items-center gap-1 text-sm">
                     도메인 관리 사이트 <span className="text-red-500">*</span>
                   </Label>
                   <Select value={domainSite} onValueChange={setDomainSite}>
-                    <SelectTrigger className="mt-1">
+                    <SelectTrigger className="mt-1 h-11 md:h-10">
                       <SelectValue placeholder="도메인 구매 사이트 선택" />
                     </SelectTrigger>
                     <SelectContent>
@@ -611,7 +611,7 @@ export default function HomepageSettingsPage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="domainId" className="flex items-center gap-1">
+                  <Label htmlFor="domainId" className="flex items-center gap-1 text-sm">
                     도메인 관리 ID <span className="text-red-500">*</span>
                   </Label>
                   <Input
@@ -619,12 +619,12 @@ export default function HomepageSettingsPage() {
                     value={domainId}
                     onChange={(e) => setDomainId(e.target.value)}
                     placeholder="도메인 관리 사이트 로그인 ID"
-                    className="mt-1"
+                    className="mt-1 h-11 md:h-10"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="domainPw" className="flex items-center gap-1">
+                  <Label htmlFor="domainPw" className="flex items-center gap-1 text-sm">
                     도메인 관리 비밀번호 <span className="text-red-500">*</span>
                   </Label>
                   <Input
@@ -633,7 +633,7 @@ export default function HomepageSettingsPage() {
                     value={domainPw}
                     onChange={(e) => setDomainPw(e.target.value)}
                     placeholder="도메인 관리 사이트 비밀번호"
-                    className="mt-1"
+                    className="mt-1 h-11 md:h-10"
                   />
                 </div>
               </div>
@@ -798,9 +798,9 @@ export default function HomepageSettingsPage() {
               원하시는 홈페이지 스타일을 선택해주세요. (썸네일 클릭 시 크게 보기)
             </CardDescription>
           </CardHeader>
-          <CardContent className="pt-6 space-y-6">
-            {/* 스타일 선택 그리드 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <CardContent className="pt-4 md:pt-6 space-y-4 md:space-y-6">
+            {/* 스타일 선택 그리드 - 모바일 2열, 태블릿 2열, 데스크탑 3열 */}
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4">
               {[
                 { url: "https://financialhealing.imweb.me/", name: "스타일 1" },
                 { url: "https://mjgood.imweb.me/", name: "스타일 2" },
@@ -966,7 +966,7 @@ export default function HomepageSettingsPage() {
           <Button
             onClick={handleSave}
             disabled={!canSave || saving}
-            className="px-8"
+            className="w-full md:w-auto px-8 h-12 md:h-10"
           >
             {saving ? (
               <>

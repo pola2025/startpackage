@@ -5,9 +5,11 @@ import { redirect } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
 import { Sidebar } from "@/components/ui/sidebar";
+import { BottomTabBar } from "@/components/ui/bottom-tab-bar";
 import { DesignConfirmationModal } from "@/components/ui/design-confirmation-modal";
 import { MessageNotificationModal } from "@/components/ui/message-notification-modal";
 import { SystemAlertModal } from "@/components/ui/system-alert-modal";
+import { MobileMoreMenu } from "@/components/ui/mobile-more-menu";
 
 export default function UserLayout({
   children,
@@ -20,6 +22,7 @@ export default function UserLayout({
   const [unreadCount, setUnreadCount] = useState(0);
   const [pendingDesignCount, setPendingDesignCount] = useState(0);
   const [showNotificationModal, setShowNotificationModal] = useState(false);
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
 
   // 미확인 메시지 가져오기
   const fetchUnreadCount = async () => {
@@ -152,7 +155,7 @@ export default function UserLayout({
       />
 
       {/* Main Content */}
-      <main className="relative lg:ml-64 pt-16 lg:pt-0 min-h-screen">
+      <main className="relative lg:ml-64 pt-16 lg:pt-0 min-h-screen pb-bottom-bar">
         <div className="container mx-auto p-3 sm:p-4 md:p-6">{children}</div>
 
         {/* Footer */}
@@ -162,6 +165,23 @@ export default function UserLayout({
           </div>
         </footer>
       </main>
+
+      {/* 모바일 하단 탭 바 - 수료생 제외 */}
+      {!isGraduated && (
+        <BottomTabBar
+          pendingDesignCount={pendingDesignCount}
+          onMoreClick={() => setShowMoreMenu(true)}
+        />
+      )}
+
+      {/* 모바일 더보기 메뉴 */}
+      <MobileMoreMenu
+        open={showMoreMenu}
+        onOpenChange={setShowMoreMenu}
+        userName={session?.user?.name || "사용자"}
+        isGraduated={isGraduated}
+        unreadCount={unreadCount}
+      />
     </div>
   );
 }

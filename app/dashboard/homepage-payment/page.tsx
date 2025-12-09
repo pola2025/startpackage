@@ -151,27 +151,27 @@ export default function HomepagePaymentPage() {
 
   if (success) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4 md:space-y-6 px-4 md:px-0">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">홈페이지 결제요청</h1>
-          <p className="text-gray-600 mt-2">아임웹 결제 대행 서비스</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">홈페이지 결제요청</h1>
+          <p className="text-sm md:text-base text-gray-600 mt-1 md:mt-2">아임웹 결제 대행 서비스</p>
         </div>
 
         <Card className="max-w-2xl">
-          <CardContent className="pt-6">
-            <div className="text-center py-8">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <ShieldCheck className="w-8 h-8 text-green-600" />
+          <CardContent className="pt-4 md:pt-6 p-4 md:p-6">
+            <div className="text-center py-6 md:py-8">
+              <div className="w-14 h-14 md:w-16 md:h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <ShieldCheck className="w-7 h-7 md:w-8 md:h-8 text-green-600" />
               </div>
-              <h2 className="text-xl font-bold text-gray-900 mb-2">
+              <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-2">
                 결제 대행 요청이 접수되었습니다
               </h2>
-              <p className="text-gray-600 mb-6">
+              <p className="text-sm md:text-base text-gray-600 mb-6">
                 카드 정보는 보안 채널로 전송되었으며, 결제 완료 후 즉시 삭제됩니다.
                 <br />
                 처리 완료 시 문의하기를 통해 안내드리겠습니다.
               </p>
-              <Button onClick={() => setSuccess(false)}>
+              <Button onClick={() => setSuccess(false)} className="h-11 md:h-10">
                 새 요청 작성
               </Button>
             </div>
@@ -182,20 +182,21 @@ export default function HomepagePaymentPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6 px-4 md:px-0">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">홈페이지 결제요청</h1>
-        <p className="text-gray-600 mt-2">아임웹 결제 대행 서비스</p>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">홈페이지 결제요청</h1>
+        <p className="text-sm md:text-base text-gray-600 mt-1 md:mt-2">아임웹 결제 대행 서비스</p>
       </div>
 
       {/* 안내 문구 */}
       <Alert className="bg-blue-50 border-blue-200">
-        <Info className="w-4 h-4 text-blue-600" />
-        <AlertDescription className="text-sm text-blue-800">
-          <p className="font-semibold mb-2">아임웹 결제 대행 안내</p>
-          <p>
+        <Info className="w-4 h-4 text-blue-600 flex-shrink-0" />
+        <AlertDescription className="text-xs md:text-sm text-blue-800">
+          <p className="font-semibold mb-1 md:mb-2">아임웹 결제 대행 안내</p>
+          <p className="leading-relaxed">
             아임웹 결제가 어려우신 분들을 위한 결제 대행 서비스입니다.
-            <br />
+            <span className="hidden md:inline"><br /></span>
+            <span className="md:hidden"> </span>
             아래 정보를 입력해 주시면 결제를 대리해 드립니다.
           </p>
           <p className="mt-2">
@@ -212,22 +213,22 @@ export default function HomepagePaymentPage() {
         </AlertDescription>
       </Alert>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         {/* 입력 폼 */}
         <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+          <CardHeader className="p-4 md:p-6">
+            <CardTitle className="flex items-center gap-2 text-base md:text-lg">
               <CreditCard className="w-5 h-5 text-blue-600" />
               결제 정보 입력
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-xs md:text-sm">
               결제 대행에 필요한 정보를 입력해 주세요
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-4 md:space-y-6 p-4 md:p-6 pt-0 md:pt-0">
             {/* 아임웹 ID */}
             <div className="space-y-2">
-              <Label htmlFor="imwebId">
+              <Label htmlFor="imwebId" className="text-sm">
                 아임웹 ID <span className="text-red-500">*</span>
               </Label>
               <Input
@@ -235,6 +236,7 @@ export default function HomepagePaymentPage() {
                 value={imwebId}
                 onChange={(e) => setImwebId(e.target.value)}
                 placeholder="아임웹 로그인 ID"
+                className="h-11 md:h-10"
               />
             </div>
 
@@ -244,6 +246,7 @@ export default function HomepagePaymentPage() {
                 id="naverLogin"
                 checked={isNaverLogin}
                 onCheckedChange={(checked) => setIsNaverLogin(checked === true)}
+                className="w-5 h-5 md:w-4 md:h-4"
               />
               <Label htmlFor="naverLogin" className="text-sm cursor-pointer">
                 네이버로 로그인하는 경우 (ID/PW 추가 입력 필요)
@@ -252,9 +255,9 @@ export default function HomepagePaymentPage() {
 
             {/* 네이버 로그인 정보 */}
             {isNaverLogin && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 p-3 md:p-4 bg-gray-50 rounded-lg">
                 <div className="space-y-2">
-                  <Label htmlFor="naverId">
+                  <Label htmlFor="naverId" className="text-sm">
                     네이버 ID <span className="text-red-500">*</span>
                   </Label>
                   <Input
@@ -262,10 +265,11 @@ export default function HomepagePaymentPage() {
                     value={naverId}
                     onChange={(e) => setNaverId(e.target.value)}
                     placeholder="네이버 ID"
+                    className="h-11 md:h-10"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="naverPw">
+                  <Label htmlFor="naverPw" className="text-sm">
                     네이버 비밀번호 <span className="text-red-500">*</span>
                   </Label>
                   <Input
@@ -274,6 +278,7 @@ export default function HomepagePaymentPage() {
                     value={naverPw}
                     onChange={(e) => setNaverPw(e.target.value)}
                     placeholder="네이버 비밀번호"
+                    className="h-11 md:h-10"
                   />
                 </div>
               </div>
@@ -281,7 +286,7 @@ export default function HomepagePaymentPage() {
 
             {/* 관리자 비밀번호 */}
             <div className="space-y-2">
-              <Label htmlFor="adminPassword">
+              <Label htmlFor="adminPassword" className="text-sm">
                 관리자 비밀번호 <span className="text-red-500">*</span>
               </Label>
               <Input
@@ -290,6 +295,7 @@ export default function HomepagePaymentPage() {
                 value={adminPassword}
                 onChange={(e) => setAdminPassword(e.target.value)}
                 placeholder="대문자 + 소문자 + 숫자 조합"
+                className="h-11 md:h-10"
               />
               <p className="text-xs text-gray-500">
                 대문자, 소문자, 숫자를 모두 포함해야 합니다 (예: Abc123)
@@ -306,7 +312,7 @@ export default function HomepagePaymentPage() {
 
             {/* 생년월일 */}
             <div className="space-y-2">
-              <Label htmlFor="birthDate">
+              <Label htmlFor="birthDate" className="text-sm">
                 생년월일 <span className="text-red-500">*</span>
               </Label>
               <Input
@@ -315,6 +321,7 @@ export default function HomepagePaymentPage() {
                 onChange={(e) => setBirthDate(e.target.value)}
                 placeholder="YYMMDD (예: 901225)"
                 maxLength={6}
+                className="h-11 md:h-10"
               />
               <p className="text-xs text-gray-500">
                 신용카드 결제 시 필요한 생년월일 6자리
@@ -323,11 +330,11 @@ export default function HomepagePaymentPage() {
 
             {/* 결제 기준 */}
             <div className="space-y-2">
-              <Label>
+              <Label className="text-sm">
                 결제 기준 <span className="text-red-500">*</span>
               </Label>
               <Select value={paymentPeriod} onValueChange={setPaymentPeriod}>
-                <SelectTrigger>
+                <SelectTrigger className="h-11 md:h-10">
                   <SelectValue placeholder="결제 기간을 선택하세요" />
                 </SelectTrigger>
                 <SelectContent>
@@ -341,19 +348,20 @@ export default function HomepagePaymentPage() {
 
             {/* 카드 이미지 업로드 */}
             <div className="space-y-2">
-              <Label>
+              <Label className="text-sm">
                 신용카드 이미지 <span className="text-red-500">*</span>
               </Label>
               <Alert className="bg-amber-50 border-amber-200 mb-2">
-                <AlertTriangle className="w-4 h-4 text-amber-600" />
+                <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0" />
                 <AlertDescription className="text-xs text-amber-800">
                   카드 번호, 유효기간, CVC가 보이도록 촬영해주세요.
-                  <br />
+                  <span className="hidden md:inline"><br /></span>
+                  <span className="md:hidden"> </span>
                   이 이미지는 서버에 저장되지 않으며, 보안 채널로만 전송됩니다.
                 </AlertDescription>
               </Alert>
 
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-3 md:p-4 text-center">
                 {cardPreview ? (
                   <div className="relative">
                     <Image
@@ -406,18 +414,19 @@ export default function HomepagePaymentPage() {
             )}
 
             {/* 제출 버튼 */}
-            <div className="flex gap-2 pt-4">
+            <div className="flex flex-col-reverse md:flex-row gap-2 pt-4">
               <Button
                 variant="outline"
                 onClick={resetForm}
                 disabled={submitting}
+                className="h-12 md:h-10"
               >
                 초기화
               </Button>
               <Button
                 onClick={handleSubmit}
                 disabled={submitting}
-                className="flex-1 bg-blue-600 hover:bg-blue-700"
+                className="flex-1 bg-blue-600 hover:bg-blue-700 h-12 md:h-10"
               >
                 {submitting ? (
                   <>
@@ -432,16 +441,16 @@ export default function HomepagePaymentPage() {
           </CardContent>
         </Card>
 
-        {/* 보안 안내 */}
-        <div className="space-y-4">
+        {/* 보안 안내 - 모바일에서 카드 정보 입력 아래에 표시 */}
+        <div className="space-y-3 md:space-y-4">
           <Card>
-            <CardHeader>
-              <CardTitle className="text-base flex items-center gap-2">
+            <CardHeader className="p-4 md:p-6">
+              <CardTitle className="text-sm md:text-base flex items-center gap-2">
                 <ShieldCheck className="w-5 h-5 text-green-600" />
                 카드 정보 보안 안내
               </CardTitle>
             </CardHeader>
-            <CardContent className="text-sm text-gray-600 space-y-3">
+            <CardContent className="text-xs md:text-sm text-gray-600 space-y-2 md:space-y-3 p-4 md:p-6 pt-0 md:pt-0">
               <p>
                 입력하신 카드 정보는 <strong>서버에 저장되지 않습니다.</strong>
               </p>
@@ -455,10 +464,10 @@ export default function HomepagePaymentPage() {
           </Card>
 
           <Card>
-            <CardHeader>
-              <CardTitle className="text-base">처리 안내</CardTitle>
+            <CardHeader className="p-4 md:p-6">
+              <CardTitle className="text-sm md:text-base">처리 안내</CardTitle>
             </CardHeader>
-            <CardContent className="text-sm text-gray-600 space-y-2">
+            <CardContent className="text-xs md:text-sm text-gray-600 space-y-1.5 md:space-y-2 p-4 md:p-6 pt-0 md:pt-0">
               <p>• 요청은 영업일 기준 1~2일 내 처리됩니다.</p>
               <p>• 결제 완료 시 문의하기를 통해 안내드립니다.</p>
               <p>• 긴급 문의: mkt@polarad.co.kr</p>

@@ -13,6 +13,7 @@ import { SLACK_ONLY_MARKER } from "@/lib/constants/sensitiveFields";
 import imageCompression from "browser-image-compression";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { calculateProgress, type ProgressResult } from "@/lib/submission-progress";
+import { MobileStepBar, MobileStepNavigation } from "@/components/ui/mobile-step-bar";
 
 export default function SubmissionPage() {
   const { data: session } = useSession();
@@ -600,8 +601,26 @@ export default function SubmissionPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6 w-full">
-        {/* 깔끔하고 직관적인 탭 네비게이션 - 모바일 2단 구조 */}
-        <TabsList className="bg-white border-2 border-gray-200 p-1.5 rounded-xl shadow-sm grid grid-cols-2 md:grid-cols-4 gap-1 h-auto">
+        {/* 모바일 스텝 진행 바 */}
+        <MobileStepBar
+          steps={[
+            { id: "basic", label: "기본 정보", shortLabel: "기본" },
+            { id: "logo", label: "로고", shortLabel: "로고" },
+            { id: "print", label: "인쇄물", shortLabel: "인쇄물" },
+            { id: "marketing", label: "마케팅", shortLabel: "마케팅" },
+          ]}
+          currentStep={activeTab}
+          completedSteps={[
+            ...(isBasicInfoComplete() ? ["basic"] : []),
+            ...(submission?.로고선호스타일 ? ["logo"] : []),
+            ...(submission?.명함시안 ? ["print"] : []),
+          ]}
+          onStepClick={handleTabChange}
+          disabledSteps={!isBasicInfoComplete() ? ["logo", "print"] : []}
+        />
+
+        {/* 깔끔하고 직관적인 탭 네비게이션 - 데스크탑 */}
+        <TabsList className="hidden md:grid bg-white border-2 border-gray-200 p-1.5 rounded-xl shadow-sm grid-cols-4 gap-1 h-auto">
           <TabsTrigger
             value="basic"
             className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-semibold text-xs sm:text-sm py-2"
@@ -2074,6 +2093,32 @@ export default function SubmissionPage() {
           </div>
         </div>
       )}
+
+      {/* 모바일 하단 네비게이션 */}
+      <MobileStepNavigation
+        onPrev={() => {
+          const tabs = ["basic", "logo", "print", "marketing"];
+          const currentIndex = tabs.indexOf(activeTab);
+          if (currentIndex > 0) {
+            handleTabChange(tabs[currentIndex - 1]);
+          }
+        }}
+        onNext={() => {
+          const tabs = ["basic", "logo", "print", "marketing"];
+          const currentIndex = tabs.indexOf(activeTab);
+          if (currentIndex < tabs.length - 1) {
+            handleTabChange(tabs[currentIndex + 1]);
+          }
+        }}
+        showPrev={activeTab !== "basic"}
+        showNext={activeTab !== "marketing"}
+        nextDisabled={activeTab === "basic" && !isBasicInfoComplete()}
+        nextLabel={activeTab === "print" ? "마케팅으로" : "다음"}
+        isLoading={loading || uploading}
+      />
+
+      {/* 모바일 하단 네비게이션 공간 확보 */}
+      <div className="md:hidden h-20" />
     </div>
   );
 }

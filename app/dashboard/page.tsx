@@ -14,6 +14,7 @@ import { formatDate, formatDday } from "@/lib/utils";
 import PrintRequestButton from "./print-request-button";
 import MarketingExtensionDialog from "./marketing-extension-dialog";
 import { ensureUserWorkflows } from "@/lib/ensureUserWorkflows";
+import { FloatingActionButton } from "@/components/ui/floating-action-button";
 
 // Temporary Progress component
 function Progress({ value, className }: { value: number; className?: string }) {
@@ -441,17 +442,20 @@ export default async function UserDashboard() {
         </div>
       </div>
 
-      {/* 알림 리스트 */}
+      {/* 알림 리스트 - 모바일/데스크탑 모두 세로 리스트 */}
       {notifications.length > 0 && (
         <Card className="bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-blue-200">
-          <CardHeader>
-            <CardTitle className="text-lg sm:text-xl text-gray-900 flex items-center gap-2">
-              <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+          <CardHeader className="p-4 md:p-6 pb-2 md:pb-4">
+            <CardTitle className="text-base md:text-xl text-gray-900 flex items-center gap-2">
+              <Bell className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
               알림
+              <span className="text-xs md:text-sm font-normal text-gray-500 ml-auto">
+                {notifications.length}건
+              </span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
+          <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
+            <div className="space-y-1.5 md:space-y-2">
               {notifications.map((notification, index) => {
                 const colors = {
                   urgent: "text-red-700 hover:bg-red-100 border-red-200",
@@ -471,18 +475,18 @@ export default async function UserDashboard() {
                   <Link
                     key={notification.id}
                     href={notification.link}
-                    className={`flex items-center gap-3 p-3 sm:p-4 rounded-lg border bg-white ${colors[notification.type]} transition-all cursor-pointer group`}
+                    className={`flex items-center gap-2 md:gap-3 p-2.5 md:p-4 rounded-lg border bg-white ${colors[notification.type]} transition-all cursor-pointer group`}
                   >
-                    <span className="text-sm sm:text-base font-semibold text-gray-600 min-w-[60px]">
+                    <span className="hidden md:inline text-sm md:text-base font-semibold text-gray-600 min-w-[60px]">
                       알림{index + 1}.
                     </span>
-                    <span className={`text-xs font-bold px-2 py-1 rounded border ${badgeColors[notification.type]}`}>
+                    <span className={`text-[10px] md:text-xs font-bold px-1.5 md:px-2 py-0.5 md:py-1 rounded border whitespace-nowrap ${badgeColors[notification.type]}`}>
                       {notification.badge}
                     </span>
-                    <span className="flex-1 text-sm sm:text-base font-medium">
+                    <span className="flex-1 text-xs md:text-base font-medium line-clamp-1">
                       {notification.message}
                     </span>
-                    <MessageSquare className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <MessageSquare className="w-3 h-3 md:w-4 md:h-4 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
                   </Link>
                 );
               })}
@@ -569,15 +573,15 @@ export default async function UserDashboard() {
         </Card>
       </div>
 
-      {/* Submission Status - 깔끔하고 직관적인 디자인 */}
+      {/* Submission Status - 모바일 3열 그리드 */}
       <Card className="bg-white border-0 shadow-lg">
-        <CardHeader className="pb-4">
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-            <div className="space-y-2">
-              <CardTitle className="text-2xl sm:text-3xl text-gray-900 font-bold tracking-tight">
+        <CardHeader className="p-4 md:p-6 pb-2 md:pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 md:gap-4">
+            <div className="space-y-1 md:space-y-2">
+              <CardTitle className="text-lg md:text-2xl lg:text-3xl text-gray-900 font-bold tracking-tight">
                 자료 제출 현황
               </CardTitle>
-              <CardDescription className="text-base text-gray-600">
+              <CardDescription className="text-xs md:text-base text-gray-600">
                 {completionPercent === 100
                   ? "모든 자료가 제출되었습니다! 🎉"
                   : "필수 자료를 제출하여 진행을 완료하세요"}
@@ -589,56 +593,59 @@ export default async function UserDashboard() {
             />
           </div>
         </CardHeader>
-        <CardContent className="pt-2">
+        <CardContent className="p-4 md:p-6 pt-2">
           {user.submission ? (
-            <div className="grid gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">
               {[
                 {
                   label: "사업자등록증",
+                  shortLabel: "사업자",
                   value: user.submission.사업자등록증URL,
                   tab: "print",
                   icon: FileText
                 },
-                { label: "프로필사진", value: user.submission.프로필사진URL, tab: "print", icon: User },
-                { label: "브랜드명", value: user.submission.브랜드명, tab: "basic", icon: Package },
-                { label: "업종", value: user.submission.업종, tab: "basic", icon: Package },
-                { label: "주소", value: user.submission.주소, tab: "basic", icon: Package },
-                { label: "명함스타일 선택", value: user.submission.명함시안, tab: "print", icon: FileText },
+                { label: "프로필사진", shortLabel: "프로필", value: user.submission.프로필사진URL, tab: "print", icon: User },
+                { label: "브랜드명", shortLabel: "브랜드", value: user.submission.브랜드명, tab: "basic", icon: Package },
+                { label: "업종", shortLabel: "업종", value: user.submission.업종, tab: "basic", icon: Package },
+                { label: "주소", shortLabel: "주소", value: user.submission.주소, tab: "basic", icon: Package },
+                { label: "명함스타일 선택", shortLabel: "명함", value: user.submission.명함시안, tab: "print", icon: FileText },
                 {
                   label: "홈페이지 컬러",
+                  shortLabel: "홈페이지",
                   value: user.submission.홈페이지컬러컨셉,
                   tab: "website",
                   icon: Globe
                 },
               ].map((item, idx) => {
                 const Icon = item.icon;
-                const sharedClassName = `group relative flex items-center gap-4 p-4 rounded-xl bg-gradient-to-br ${
+                const sharedClassName = `group relative flex flex-col items-center p-2 md:p-4 rounded-lg md:rounded-xl bg-gradient-to-br ${
                   item.value
-                    ? "from-green-50 to-emerald-50 border-2 border-green-200"
-                    : "from-gray-50 to-gray-100 border-2 border-gray-200 hover:from-blue-50 hover:to-indigo-50 hover:border-blue-300 cursor-pointer"
+                    ? "from-green-50 to-emerald-50 border border-green-200 md:border-2"
+                    : "from-gray-50 to-gray-100 border border-gray-200 md:border-2 hover:from-blue-50 hover:to-indigo-50 hover:border-blue-300 cursor-pointer"
                 } transition-all duration-200 ${!item.value ? "hover:shadow-md" : ""}`;
 
                 const content = (
                   <>
-                    <div className={`flex items-center justify-center w-12 h-12 rounded-xl ${
+                    <div className={`flex items-center justify-center w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-xl mb-1.5 md:mb-3 ${
                       item.value ? "bg-green-600" : "bg-gray-400 group-hover:bg-blue-600"
                     } transition-colors`}>
-                      <Icon className="w-6 h-6 text-white" />
+                      <Icon className="w-4 h-4 md:w-6 md:h-6 text-white" />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-gray-900 truncate mb-1">{item.label}</p>
-                      {item.value ? (
-                        <div className="flex items-center gap-1.5 text-green-700">
-                          <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
-                          <span className="text-xs font-medium">제출 완료</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-1.5 text-orange-600 group-hover:text-blue-600">
-                          <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                          <span className="text-xs font-medium">제출 필요</span>
-                        </div>
-                      )}
-                    </div>
+                    <p className="text-[10px] md:text-sm font-semibold text-gray-900 text-center mb-0.5 md:mb-1 line-clamp-1">
+                      <span className="md:hidden">{item.shortLabel}</span>
+                      <span className="hidden md:inline">{item.label}</span>
+                    </p>
+                    {item.value ? (
+                      <div className="flex items-center gap-0.5 md:gap-1.5 text-green-700">
+                        <CheckCircle2 className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
+                        <span className="text-[9px] md:text-xs font-medium">완료</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-0.5 md:gap-1.5 text-orange-600 group-hover:text-blue-600">
+                        <AlertCircle className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
+                        <span className="text-[9px] md:text-xs font-medium">필요</span>
+                      </div>
+                    )}
                   </>
                 );
 
@@ -655,12 +662,12 @@ export default async function UserDashboard() {
             </div>
           ) : (
             <Link href="/dashboard/submission?tab=basic" className="block">
-              <div className="text-center py-12 px-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border-2 border-blue-200 hover:border-blue-400 hover:shadow-lg transition-all cursor-pointer group">
-                <div className="flex items-center justify-center w-20 h-20 bg-blue-600 rounded-full mx-auto mb-4 group-hover:scale-110 transition-transform">
-                  <AlertCircle className="w-10 h-10 text-white" />
+              <div className="text-center py-8 md:py-12 px-4 md:px-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl md:rounded-2xl border-2 border-blue-200 hover:border-blue-400 hover:shadow-lg transition-all cursor-pointer group">
+                <div className="flex items-center justify-center w-14 h-14 md:w-20 md:h-20 bg-blue-600 rounded-full mx-auto mb-3 md:mb-4 group-hover:scale-110 transition-transform">
+                  <AlertCircle className="w-7 h-7 md:w-10 md:h-10 text-white" />
                 </div>
-                <p className="text-lg font-semibold text-gray-900 mb-2">자료를 아직 제출하지 않으셨어요</p>
-                <p className="text-blue-600 font-medium">클릭하여 지금 제출하기 →</p>
+                <p className="text-sm md:text-lg font-semibold text-gray-900 mb-1 md:mb-2">자료를 아직 제출하지 않으셨어요</p>
+                <p className="text-xs md:text-base text-blue-600 font-medium">클릭하여 지금 제출하기 →</p>
               </div>
             </Link>
           )}
@@ -875,6 +882,9 @@ export default async function UserDashboard() {
           </CardContent>
         </Card>
       )}
+
+      {/* 모바일 플로팅 액션 버튼 - 자료 제출 바로가기 */}
+      <FloatingActionButton href="/dashboard/submission" />
     </div>
   );
 }

@@ -32,9 +32,17 @@ import {
   RefreshCw,
   AlertCircle,
   Check,
+  ChevronLeft,
+  Camera,
+  Image as ImageIcon,
+  FolderOpen,
+  Download,
+  Eye,
 } from "lucide-react";
 import { ImageModal } from "@/components/ui/image-modal";
 import Image from "next/image";
+import { useIsMobile } from "@/hooks/use-media-query";
+import { DraggableBottomSheet } from "@/components/ui/bottom-sheet";
 
 // 워크플로우 타입 매핑
 const WORKFLOW_TYPE_LABELS: Record<string, string> = {
@@ -130,6 +138,12 @@ export default function UserDesignThreadsPage() {
   const [imageModalOpen, setImageModalOpen] = useState(false);
   const [modalImages, setModalImages] = useState<string[]>([]);
   const [modalInitialIndex, setModalInitialIndex] = useState(0);
+
+  // 이미지 첨부 바텀시트 상태
+  const [attachmentSheetOpen, setAttachmentSheetOpen] = useState(false);
+
+  // 모바일 감지
+  const isMobile = useIsMobile();
 
   // 날짜별 메시지 그룹핑 (역순 - 최신 메시지가 위로)
   const groupMessagesByDate = (messages: DesignMessage[]) => {
@@ -470,40 +484,46 @@ export default function UserDesignThreadsPage() {
     selectedThread.currentVersion > 0;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">시안 확인</h1>
-          <p className="text-gray-600 mt-2">시안 확인 및 피드백</p>
+    <div className={`${isMobile && selectedThread ? 'h-[calc(100dvh-60px)]' : ''}`}>
+      {/* 헤더 - 모바일 상세뷰에서는 숨김 */}
+      {(!isMobile || !selectedThread) && (
+        <div className="space-y-6 mb-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">시안 확인</h1>
+              <p className="text-gray-600 mt-1 md:mt-2 text-sm md:text-base">시안 확인 및 피드백</p>
+            </div>
+            <Palette className="w-6 h-6 md:w-8 md:h-8 text-purple-600" />
+          </div>
+
+          {/* 안내 - 모바일에서 축소 */}
+          <Alert className="bg-purple-50 border-purple-200">
+            <AlertDescription className="text-sm text-gray-700 space-y-1">
+              <p className="font-semibold text-purple-900">시안 확인 안내</p>
+              <ul className="space-y-1 mt-2 text-xs md:text-sm">
+                <li>
+                  •{" "}
+                  <span className="font-medium text-purple-800">
+                    시안이 업로드되면 알림을 통해 안내드립니다.
+                  </span>
+                </li>
+                <li className="hidden md:block">• 시안을 확인하신 후 수정이 필요하면 수정 요청을 보내주세요.</li>
+                <li className="hidden md:block">• 시안이 마음에 드시면 &quot;시안 확정&quot; 버튼을 눌러주세요.</li>
+                <li>
+                  • 시안 확정 후에는 변경이 어려우니 신중하게 확인해주세요.
+                </li>
+              </ul>
+            </AlertDescription>
+          </Alert>
         </div>
-        <Palette className="w-8 h-8 text-purple-600" />
-      </div>
+      )}
 
-      <Alert className="bg-purple-50 border-purple-200">
-        <AlertDescription className="text-sm text-gray-700 space-y-1">
-          <p className="font-semibold text-purple-900">시안 확인 안내</p>
-          <ul className="space-y-1 mt-2">
-            <li>
-              •{" "}
-              <span className="font-medium text-purple-800">
-                시안이 업로드되면 알림을 통해 안내드립니다.
-              </span>
-            </li>
-            <li>• 시안을 확인하신 후 수정이 필요하면 수정 요청을 보내주세요.</li>
-            <li>• 시안이 마음에 드시면 &quot;시안 확정&quot; 버튼을 눌러주세요.</li>
-            <li>
-              • 시안 확정 후에는 변경이 어려우니 신중하게 확인해주세요.
-            </li>
-          </ul>
-        </AlertDescription>
-      </Alert>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className={`grid grid-cols-1 lg:grid-cols-3 gap-6 ${isMobile && selectedThread ? 'h-full' : ''}`}>
         {/* 스레드 목록 */}
         <Card
           className={`lg:col-span-1 flex flex-col ${
             selectedThread ? "hidden lg:flex" : "flex"
-          } h-[60vh] lg:h-[calc(100vh-250px)]`}
+          } h-[calc(100dvh-300px)] md:h-[calc(100vh-250px)]`}
         >
           <CardHeader>
             <CardTitle className="text-lg">내 시안 목록</CardTitle>
@@ -578,34 +598,39 @@ export default function UserDesignThreadsPage() {
         <Card
           className={`lg:col-span-2 flex flex-col ${
             selectedThread ? "flex" : "hidden lg:flex"
-          } h-[80vh] lg:h-[calc(100vh-250px)]`}
+          } ${isMobile ? 'h-full border-0 shadow-none rounded-none' : 'h-[calc(100vh-250px)]'}`}
         >
           {selectedThread ? (
             <>
-              <CardHeader className="border-b py-2 sm:py-4">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex-1 min-w-0">
+              <CardHeader className={`border-b ${isMobile ? 'py-3 px-4 bg-white sticky top-0 z-20' : 'py-4'}`}>
+                <div className="flex items-center gap-3">
+                  {/* 모바일 뒤로가기 버튼 */}
+                  {isMobile && (
                     <Button
                       variant="ghost"
-                      size="sm"
+                      size="icon"
                       onClick={() => setSelectedThread(null)}
-                      className="lg:hidden mb-1 -ml-2 h-7 px-2 text-xs"
+                      className="h-9 w-9 shrink-0"
                     >
-                      ← 목록으로
+                      <ChevronLeft className="h-5 w-5" />
                     </Button>
-                    <CardTitle className="text-base sm:text-xl">
-                      {WORKFLOW_TYPE_LABELS[selectedThread.workflow.type] ||
-                        selectedThread.workflow.type}{" "}
-                      시안
-                      {selectedThread.currentVersion > 0 &&
-                        ` (${selectedThread.currentVersion}차)`}
-                    </CardTitle>
-                    <CardDescription className="mt-0.5 text-xs sm:text-sm">
-                      시안을 확인하고 피드백을 남겨주세요
-                    </CardDescription>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {getStatusBadge(selectedThread.status)}
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <CardTitle className={`${isMobile ? 'text-base' : 'text-xl'} truncate`}>
+                        {WORKFLOW_TYPE_LABELS[selectedThread.workflow.type] ||
+                          selectedThread.workflow.type}{" "}
+                        시안
+                        {selectedThread.currentVersion > 0 &&
+                          ` (${selectedThread.currentVersion}차)`}
+                      </CardTitle>
+                      {getStatusBadge(selectedThread.status)}
+                    </div>
+                    {!isMobile && (
+                      <CardDescription className="mt-0.5 text-sm">
+                        시안을 확인하고 피드백을 남겨주세요
+                      </CardDescription>
+                    )}
                   </div>
                 </div>
               </CardHeader>
@@ -652,7 +677,7 @@ export default function UserDesignThreadsPage() {
               )}
 
               {/* 메시지 목록 */}
-              <CardContent className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 bg-gray-50">
+              <CardContent className={`flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 bg-gray-50 ${isMobile ? 'pb-40' : ''}`}>
                 {groupMessagesByDate(selectedThread.messages).map(
                   (item, groupIndex) => {
                     if (item.type === "date") {
@@ -728,7 +753,7 @@ export default function UserDesignThreadsPage() {
                                 {message.content}
                               </p>
 
-                              {/* 시안 URL */}
+                              {/* 시안 파일 */}
                               {message.designUrl && (
                                 <div className="mt-3 p-3 bg-purple-50 rounded-lg border border-purple-200">
                                   <div className="flex items-center gap-2 mb-2">
@@ -737,15 +762,68 @@ export default function UserDesignThreadsPage() {
                                       {message.designVersion}차 시안
                                     </span>
                                   </div>
-                                  <a
-                                    href={message.designUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 break-all"
-                                  >
-                                    <ExternalLink className="w-4 h-4 flex-shrink-0" />
-                                    시안 보기
-                                  </a>
+                                  {/* 이미지 파일인 경우 미리보기 */}
+                                  {/\.(jpg|jpeg|png|gif|webp|svg)$/i.test(message.designUrl) ? (
+                                    <div className="space-y-2">
+                                      <div
+                                        className="cursor-pointer"
+                                        onClick={() => {
+                                          setModalImages([message.designUrl!]);
+                                          setModalInitialIndex(0);
+                                          setImageModalOpen(true);
+                                        }}
+                                      >
+                                        <Image
+                                          src={message.designUrl}
+                                          alt={`${message.designVersion}차 시안`}
+                                          width={400}
+                                          height={300}
+                                          className="rounded-lg max-w-full h-auto border border-purple-200 hover:opacity-90 transition-opacity"
+                                          unoptimized
+                                        />
+                                      </div>
+                                      <div className="flex gap-2">
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          className="text-purple-700 border-purple-300 hover:bg-purple-100"
+                                          onClick={() => {
+                                            setModalImages([message.designUrl!]);
+                                            setModalInitialIndex(0);
+                                            setImageModalOpen(true);
+                                          }}
+                                        >
+                                          <Eye className="w-4 h-4 mr-1" />
+                                          크게 보기
+                                        </Button>
+                                        <a
+                                          href={message.designUrl}
+                                          download
+                                          className="inline-flex items-center justify-center text-sm font-medium h-9 px-3 rounded-md border border-purple-300 text-purple-700 hover:bg-purple-100"
+                                        >
+                                          <Download className="w-4 h-4 mr-1" />
+                                          다운로드
+                                        </a>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    /* 디자인 파일 (AI, PSD, PDF 등)인 경우 다운로드만 */
+                                    <div className="flex items-center gap-2">
+                                      <div className="flex-1 p-2 bg-white rounded border border-purple-200">
+                                        <span className="text-sm text-gray-600 break-all">
+                                          {message.designUrl.split('/').pop() || '시안 파일'}
+                                        </span>
+                                      </div>
+                                      <a
+                                        href={message.designUrl}
+                                        download
+                                        className="inline-flex items-center justify-center text-sm font-medium h-10 px-4 rounded-md bg-purple-600 text-white hover:bg-purple-700"
+                                      >
+                                        <Download className="w-4 h-4 mr-1" />
+                                        다운로드
+                                      </a>
+                                    </div>
+                                  )}
                                 </div>
                               )}
 
@@ -803,18 +881,18 @@ export default function UserDesignThreadsPage() {
 
               {/* 메시지 입력 영역 */}
               {selectedThread.status !== "confirmed" && (
-                <div className="p-2 sm:p-4 border-t bg-white">
+                <div className={`p-3 sm:p-4 border-t ${isMobile ? 'fixed-input-above-tab' : 'bg-white'}`}>
                   <div className="space-y-2">
                     {attachments.length > 0 && (
                       <div className="flex flex-wrap gap-2">
                         {attachments.map((url, idx) => (
-                          <div key={idx} className="relative w-16 h-16">
+                          <div key={idx} className="relative w-14 h-14 sm:w-16 sm:h-16">
                             <Image
                               src={url}
                               alt="첨부"
                               width={64}
                               height={64}
-                              className="w-16 h-16 object-cover rounded border border-gray-200"
+                              className="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded border border-gray-200"
                               unoptimized
                             />
                             <button
@@ -832,29 +910,15 @@ export default function UserDesignThreadsPage() {
                         ))}
                       </div>
                     )}
-                    <Textarea
-                      value={messageContent}
-                      onChange={(e) => setMessageContent(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && !e.shiftKey) {
-                          e.preventDefault();
-                          if (
-                            (messageContent.trim() || attachments.length > 0) &&
-                            !sending
-                          ) {
-                            handleSendMessage();
-                          }
-                        }
-                      }}
-                      placeholder="메시지를 입력하세요... (Enter: 전송, Shift+Enter: 줄바꿈)"
-                      className="resize-none min-h-[60px] sm:min-h-[80px] text-sm sm:text-base"
-                    />
-                    <div className="flex items-center justify-between gap-2 flex-wrap">
-                      <div className="flex items-center gap-2">
+
+                    {/* 모바일 입력 UI */}
+                    {isMobile ? (
+                      <div className="flex items-end gap-2">
                         <input
                           type="file"
                           id="user-design-file"
                           accept="image/*"
+                          capture="environment"
                           className="hidden"
                           onChange={(e) => {
                             const file = e.target.files?.[0];
@@ -865,48 +929,117 @@ export default function UserDesignThreadsPage() {
                         />
                         <Button
                           type="button"
-                          variant="outline"
-                          size="sm"
+                          variant="ghost"
+                          size="icon"
                           disabled={uploading}
-                          onClick={() =>
-                            document.getElementById("user-design-file")?.click()
-                          }
-                          className="h-8 px-2 text-xs sm:h-10 sm:px-4 sm:text-sm"
+                          onClick={() => setAttachmentSheetOpen(true)}
+                          className="h-10 w-10 shrink-0"
                         >
-                          <Paperclip className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
-                          <span className="hidden sm:inline">
-                            {uploading ? "업로드 중..." : "이미지"}
-                          </span>
+                          <Paperclip className="w-5 h-5 text-gray-500" />
                         </Button>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {needsFeedback && (
+                        <Textarea
+                          value={messageContent}
+                          onChange={(e) => setMessageContent(e.target.value)}
+                          placeholder="메시지 입력..."
+                          className="resize-none min-h-[44px] max-h-[120px] text-base flex-1 py-2.5"
+                          rows={1}
+                        />
+                        {needsFeedback && messageContent.trim() ? (
                           <Button
                             onClick={handleSendRevisionRequest}
                             disabled={!messageContent.trim() || sending}
-                            variant="outline"
-                            size="sm"
-                            className="h-8 px-3 text-xs sm:h-10 sm:px-4 sm:text-sm border-orange-300 text-orange-600 hover:bg-orange-50"
+                            size="icon"
+                            className="h-10 w-10 shrink-0 bg-orange-500 hover:bg-orange-600"
                           >
-                            <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
-                            수정 요청
+                            <RefreshCw className="w-5 h-5" />
+                          </Button>
+                        ) : (
+                          <Button
+                            onClick={handleSendMessage}
+                            disabled={
+                              (!messageContent.trim() && attachments.length === 0) ||
+                              sending
+                            }
+                            size="icon"
+                            className="h-10 w-10 shrink-0"
+                          >
+                            <Send className="w-5 h-5" />
                           </Button>
                         )}
-                        <Button
-                          onClick={handleSendMessage}
-                          disabled={
-                            (!messageContent.trim() &&
-                              attachments.length === 0) ||
-                            sending
-                          }
-                          size="sm"
-                          className="h-8 px-3 text-xs sm:h-10 sm:px-4 sm:text-sm"
-                        >
-                          <Send className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
-                          {sending ? "전송 중..." : "전송"}
-                        </Button>
                       </div>
-                    </div>
+                    ) : (
+                      /* 데스크탑 입력 UI */
+                      <>
+                        <Textarea
+                          value={messageContent}
+                          onChange={(e) => setMessageContent(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey) {
+                              e.preventDefault();
+                              if (
+                                (messageContent.trim() || attachments.length > 0) &&
+                                !sending
+                              ) {
+                                handleSendMessage();
+                              }
+                            }
+                          }}
+                          placeholder="메시지를 입력하세요... (Enter: 전송, Shift+Enter: 줄바꿈)"
+                          className="resize-none min-h-[80px] text-base"
+                        />
+                        <div className="flex items-center justify-between gap-2 flex-wrap">
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="file"
+                              id="user-design-file-desktop"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) handleImageUpload(file);
+                                e.target.value = "";
+                              }}
+                              disabled={uploading}
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              disabled={uploading}
+                              onClick={() =>
+                                document.getElementById("user-design-file-desktop")?.click()
+                              }
+                            >
+                              <Paperclip className="w-4 h-4 mr-2" />
+                              {uploading ? "업로드 중..." : "이미지"}
+                            </Button>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {needsFeedback && (
+                              <Button
+                                onClick={handleSendRevisionRequest}
+                                disabled={!messageContent.trim() || sending}
+                                variant="outline"
+                                className="border-orange-300 text-orange-600 hover:bg-orange-50"
+                              >
+                                <RefreshCw className="w-4 h-4 mr-2" />
+                                수정 요청
+                              </Button>
+                            )}
+                            <Button
+                              onClick={handleSendMessage}
+                              disabled={
+                                (!messageContent.trim() &&
+                                  attachments.length === 0) ||
+                                sending
+                              }
+                            >
+                              <Send className="w-4 h-4 mr-2" />
+                              {sending ? "전송 중..." : "전송"}
+                            </Button>
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               )}
@@ -999,6 +1132,102 @@ export default function UserDesignThreadsPage() {
           onClose={() => setImageModalOpen(false)}
         />
       )}
+
+      {/* 이미지 첨부 바텀시트 (모바일) */}
+      <DraggableBottomSheet
+        open={attachmentSheetOpen}
+        onOpenChange={setAttachmentSheetOpen}
+        title="이미지 첨부"
+        description="첨부할 이미지를 선택하세요"
+      >
+        <div className="p-4 pb-8">
+          <div className="grid grid-cols-3 gap-3">
+            <input
+              type="file"
+              id="camera-input"
+              accept="image/*"
+              capture="environment"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  handleImageUpload(file);
+                  setAttachmentSheetOpen(false);
+                }
+                e.target.value = "";
+              }}
+              disabled={uploading}
+            />
+            <button
+              onClick={() => document.getElementById("camera-input")?.click()}
+              disabled={uploading}
+              className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 border-dashed border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-colors"
+            >
+              <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
+                <Camera className="w-6 h-6 text-purple-600" />
+              </div>
+              <span className="text-sm font-medium text-gray-700">카메라</span>
+            </button>
+
+            <input
+              type="file"
+              id="gallery-input"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  handleImageUpload(file);
+                  setAttachmentSheetOpen(false);
+                }
+                e.target.value = "";
+              }}
+              disabled={uploading}
+            />
+            <button
+              onClick={() => document.getElementById("gallery-input")?.click()}
+              disabled={uploading}
+              className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 border-dashed border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-colors"
+            >
+              <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                <ImageIcon className="w-6 h-6 text-blue-600" />
+              </div>
+              <span className="text-sm font-medium text-gray-700">갤러리</span>
+            </button>
+
+            <input
+              type="file"
+              id="file-input"
+              accept="image/*,.pdf,.doc,.docx"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  handleImageUpload(file);
+                  setAttachmentSheetOpen(false);
+                }
+                e.target.value = "";
+              }}
+              disabled={uploading}
+            />
+            <button
+              onClick={() => document.getElementById("file-input")?.click()}
+              disabled={uploading}
+              className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 border-dashed border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-colors"
+            >
+              <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                <FolderOpen className="w-6 h-6 text-green-600" />
+              </div>
+              <span className="text-sm font-medium text-gray-700">파일</span>
+            </button>
+          </div>
+          {uploading && (
+            <div className="mt-4 text-center text-sm text-gray-500">
+              업로드 중...
+            </div>
+          )}
+        </div>
+      </DraggableBottomSheet>
     </div>
   );
 }

@@ -13,6 +13,8 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { BottomSheet } from "@/components/ui/bottom-sheet";
+import { useIsMobile } from "@/hooks/use-media-query";
 import Image from "next/image";
 
 type Announcement = {
@@ -30,6 +32,7 @@ type Announcement = {
 
 export default function UserAnnouncementsPage() {
   const { data: session } = useSession();
+  const isMobile = useIsMobile();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [selectedAnnouncement, setSelectedAnnouncement] = useState<Announcement | null>(null);
   const [loading, setLoading] = useState(true);
@@ -220,21 +223,22 @@ export default function UserAnnouncementsPage() {
 
   // 목록 모드
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="max-w-6xl mx-auto space-y-4 md:space-y-6 px-4 md:px-0">
+      {/* 헤더 - 모바일에서 스택 레이아웃 */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-0">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <Megaphone className="w-8 h-8 text-red-600" />
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 flex items-center gap-2 md:gap-3">
+            <Megaphone className="w-6 h-6 md:w-8 md:h-8 text-red-600" />
             마케팅 소식
           </h1>
-          <p className="text-gray-600 mt-2">
+          <p className="text-sm md:text-base text-gray-600 mt-1 md:mt-2">
             스타트패키지 및 마케팅 관련 최신 소식을 확인하세요
           </p>
         </div>
         <Button
           variant="outline"
           onClick={() => setIsSettingsOpen(true)}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 self-start md:self-auto h-10 md:h-9"
         >
           <Settings className="w-4 h-4" />
           알림 설정
@@ -249,21 +253,21 @@ export default function UserAnnouncementsPage() {
             : "bg-gradient-to-r from-gray-50 to-slate-50 border-gray-200"
         }
       >
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+        <CardContent className="p-3 md:p-4">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
               {emailEnabled ? (
-                <Bell className="w-5 h-5 text-green-600" />
+                <Bell className="w-5 h-5 text-green-600 flex-shrink-0" />
               ) : (
-                <BellOff className="w-5 h-5 text-gray-600" />
+                <BellOff className="w-5 h-5 text-gray-600 flex-shrink-0" />
               )}
-              <div>
-                <p className="font-medium text-gray-900">
+              <div className="min-w-0">
+                <p className="font-medium text-gray-900 text-sm md:text-base">
                   {emailEnabled
                     ? "이메일 알림이 활성화되어 있습니다"
                     : "이메일 알림이 비활성화되어 있습니다"}
                 </p>
-                <p className="text-sm text-gray-600">
+                <p className="text-xs md:text-sm text-gray-600 hidden sm:block">
                   {emailEnabled
                     ? "새로운 마케팅 소식을 이메일로 받아보실 수 있습니다"
                     : "새로운 소식을 이메일로 받지 않습니다"}
@@ -274,6 +278,7 @@ export default function UserAnnouncementsPage() {
               variant="outline"
               size="sm"
               onClick={() => setIsSettingsOpen(true)}
+              className="flex-shrink-0"
             >
               변경
             </Button>
@@ -283,16 +288,16 @@ export default function UserAnnouncementsPage() {
 
       {/* 네이버 검색광고 충전 안내 */}
       <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300">
-        <CardContent className="p-6">
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-              <CreditCard className="w-6 h-6 text-blue-600" />
+        <CardContent className="p-4 md:p-6">
+          <div className="flex flex-col md:flex-row md:items-start gap-3 md:gap-4">
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+              <CreditCard className="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-bold text-blue-900 mb-2">
+              <h3 className="text-base md:text-lg font-bold text-blue-900 mb-2">
                 💳 네이버 검색광고 충전 안내
               </h3>
-              <p className="text-sm text-blue-800 mb-4">
+              <p className="text-sm text-blue-800 mb-3 md:mb-4">
                 네이버 검색광고를 사용하시려면 광고비를 충전해주세요
               </p>
               <div className="space-y-3">
@@ -302,12 +307,12 @@ export default function UserAnnouncementsPage() {
                   rel="noopener noreferrer"
                   className="block"
                 >
-                  <Button className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white">
+                  <Button className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white h-11 md:h-10">
                     <ExternalLink className="w-4 h-4 mr-2" />
                     네이버 검색광고 충전하기
                   </Button>
                 </a>
-                <div className="bg-blue-100 border border-blue-300 rounded-lg p-3">
+                <div className="bg-blue-100 border border-blue-300 rounded-lg p-2.5 md:p-3">
                   <p className="text-xs text-blue-900">
                     <strong>💡 충전 방법:</strong> 위 버튼을 클릭하여 네이버 검색광고 관리 페이지로 이동 → <strong>충전하기</strong> 버튼 클릭
                   </p>
@@ -318,8 +323,8 @@ export default function UserAnnouncementsPage() {
         </CardContent>
       </Card>
 
-      {/* 게시판 리스트 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* 게시판 리스트 - 모바일 1열, 태블릿 2열, 데스크탑 3열 */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {announcements.length === 0 ? (
           <div className="col-span-full">
             <Card>
@@ -386,22 +391,20 @@ export default function UserAnnouncementsPage() {
         )}
       </div>
 
-      {/* 설정 다이얼로그 */}
-      <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>이메일 알림 설정</DialogTitle>
-            <DialogDescription>
-              마케팅 소식 이메일 수신 여부를 설정할 수 있습니다
-            </DialogDescription>
-          </DialogHeader>
-
+      {/* 설정 다이얼로그/바텀시트 */}
+      {isMobile ? (
+        <BottomSheet
+          open={isSettingsOpen}
+          onOpenChange={setIsSettingsOpen}
+          title="이메일 알림 설정"
+          description="마케팅 소식 이메일 수신 여부를 설정할 수 있습니다"
+        >
           <div className="py-4">
-            <div className="flex items-start gap-4 p-4 rounded-lg border-2 border-gray-200 bg-gray-50">
+            <div className="flex items-start gap-3 p-4 rounded-lg border-2 border-gray-200 bg-gray-50">
               {emailEnabled ? (
-                <Bell className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
+                <Bell className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
               ) : (
-                <BellOff className="w-6 h-6 text-gray-600 flex-shrink-0 mt-1" />
+                <BellOff className="w-6 h-6 text-gray-600 flex-shrink-0 mt-0.5" />
               )}
               <div className="flex-1">
                 <h4 className="font-semibold text-gray-900 mb-1">
@@ -417,22 +420,15 @@ export default function UserAnnouncementsPage() {
             </div>
           </div>
 
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsSettingsOpen(false)}
-              disabled={updating}
-            >
-              취소
-            </Button>
+          <div className="flex flex-col gap-2 pt-2 pb-4">
             <Button
               onClick={handleUpdateEmailSettings}
               disabled={updating}
-              className={
+              className={`w-full h-12 ${
                 emailEnabled
                   ? "bg-gray-600 hover:bg-gray-700"
                   : "bg-green-600 hover:bg-green-700"
-              }
+              }`}
             >
               {updating
                 ? "처리 중..."
@@ -440,9 +436,74 @@ export default function UserAnnouncementsPage() {
                 ? "이메일 수신 해제"
                 : "이메일 수신 설정"}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            <Button
+              variant="outline"
+              onClick={() => setIsSettingsOpen(false)}
+              disabled={updating}
+              className="w-full h-12"
+            >
+              취소
+            </Button>
+          </div>
+        </BottomSheet>
+      ) : (
+        <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>이메일 알림 설정</DialogTitle>
+              <DialogDescription>
+                마케팅 소식 이메일 수신 여부를 설정할 수 있습니다
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="py-4">
+              <div className="flex items-start gap-4 p-4 rounded-lg border-2 border-gray-200 bg-gray-50">
+                {emailEnabled ? (
+                  <Bell className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
+                ) : (
+                  <BellOff className="w-6 h-6 text-gray-600 flex-shrink-0 mt-1" />
+                )}
+                <div className="flex-1">
+                  <h4 className="font-semibold text-gray-900 mb-1">
+                    현재 상태:{" "}
+                    {emailEnabled ? "이메일 수신 중" : "이메일 수신 안 함"}
+                  </h4>
+                  <p className="text-sm text-gray-600">
+                    {emailEnabled
+                      ? "새로운 마케팅 소식이 작성되면 이메일로 알림을 받습니다"
+                      : "새로운 마케팅 소식 알림을 받지 않습니다"}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setIsSettingsOpen(false)}
+                disabled={updating}
+              >
+                취소
+              </Button>
+              <Button
+                onClick={handleUpdateEmailSettings}
+                disabled={updating}
+                className={
+                  emailEnabled
+                    ? "bg-gray-600 hover:bg-gray-700"
+                    : "bg-green-600 hover:bg-green-700"
+                }
+              >
+                {updating
+                  ? "처리 중..."
+                  : emailEnabled
+                  ? "이메일 수신 해제"
+                  : "이메일 수신 설정"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
