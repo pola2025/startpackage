@@ -7,7 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Accordion,
@@ -33,8 +32,10 @@ import {
   Image as ImageIcon,
   Upload,
   FileImage,
-  ExternalLink,
   RefreshCw,
+  Eye,
+  Download,
+  X,
 } from "lucide-react";
 import { ImageModal } from "@/components/ui/image-modal";
 import Image from "next/image";
@@ -119,7 +120,9 @@ export default function AdminDesignThreadsPage() {
   const [messageContent, setMessageContent] = useState("");
   const [attachments, setAttachments] = useState<string[]>([]);
   const [designUrl, setDesignUrl] = useState("");
+  const [designFileName, setDesignFileName] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [designUploading, setDesignUploading] = useState(false);
   const [sending, setSending] = useState(false);
   const [isDesignUpload, setIsDesignUpload] = useState(false);
 
@@ -261,7 +264,7 @@ export default function AdminDesignThreadsPage() {
     await fetchThreadDetail(thread.id);
   };
 
-  // 이미지 업로드
+  // 이미지 업로드 (일반 메시지용)
   const handleImageUpload = async (file: File) => {
     if (!file.type.startsWith("image/")) {
       alert("이미지 파일만 업로드 가능합니다.");
@@ -303,13 +306,51 @@ export default function AdminDesignThreadsPage() {
     }
   };
 
+  // 시안 파일 업로드
+  const handleDesignFileUpload = async (file: File) => {
+    if (file.size > 10 * 1024 * 1024) {
+      alert("파일 크기는 10MB 이하여야 합니다.");
+      return;
+    }
+
+    setDesignUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/communication/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        if (response.status === 413) {
+          alert("파일이 너무 큽니다. 10MB 이하의 파일만 업로드 가능합니다.");
+          return;
+        }
+        const data = await response.json();
+        alert(data.error || "업로드 실패");
+        return;
+      }
+
+      const data = await response.json();
+      setDesignUrl(data.url);
+      setDesignFileName(file.name);
+    } catch (error) {
+      console.error("Design upload error:", error);
+      alert("시안 파일 업로드 중 오류가 발생했습니다.");
+    } finally {
+      setDesignUploading(false);
+    }
+  };
+
   // 메시지 전송 (일반 메시지 또는 시안 업로드)
   const handleSendMessage = async () => {
     if (!selectedThread) return;
 
     if (isDesignUpload) {
       if (!designUrl.trim()) {
-        alert("시안 URL을 입력해주세요.");
+        alert("시안 파일을 업로드해주세요.");
         return;
       }
     } else {
@@ -341,6 +382,7 @@ export default function AdminDesignThreadsPage() {
         setMessageContent("");
         setAttachments([]);
         setDesignUrl("");
+        setDesignFileName("");
         setIsDesignUpload(false);
         fetchThreads(selectedThread.id, true);
       } else {
@@ -777,7 +819,7 @@ export default function AdminDesignThreadsPage() {
                                 {message.content}
                               </p>
 
-                              {/* 시안 URL */}
+                              {/* 시안 파일 */}
                               {message.designUrl && (
                                 <div className="mt-3 p-3 bg-white rounded-lg border border-purple-200">
                                   <div className="flex items-center gap-2 mb-2">
@@ -786,15 +828,68 @@ export default function AdminDesignThreadsPage() {
                                       {message.designVersion}차 시안
                                     </span>
                                   </div>
-                                  <a
-                                    href={message.designUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 break-all"
-                                  >
-                                    <ExternalLink className="w-4 h-4 flex-shrink-0" />
-                                    시안 보기
-                                  </a>
+                                  {/* 이미지 파일인 경우 미리보기 */}
+                                  {/\.(jpg|jpeg|png|gif|webp|svg)$/i.test(message.designUrl) ? (
+                                    <div className="space-y-2">
+                                      <div
+                                        className="cursor-pointer"
+                                        onClick={() => {
+                                          setModalImages([message.designUrl!]);
+                                          setModalInitialIndex(0);
+                                          setImageModalOpen(true);
+                                        }}
+                                      >
+                                        <Image
+                                          src={message.designUrl}
+                                          alt={`${message.designVersion}차 시안`}
+                                          width={400}
+                                          height={300}
+                                          className="rounded-lg max-w-full h-auto border border-purple-200 hover:opacity-90 transition-opacity"
+                                          unoptimized
+                                        />
+                                      </div>
+                                      <div className="flex gap-2">
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          className="text-purple-700 border-purple-300 hover:bg-purple-100"
+                                          onClick={() => {
+                                            setModalImages([message.designUrl!]);
+                                            setModalInitialIndex(0);
+                                            setImageModalOpen(true);
+                                          }}
+                                        >
+                                          <Eye className="w-4 h-4 mr-1" />
+                                          시안 확인
+                                        </Button>
+                                        <a
+                                          href={message.designUrl}
+                                          download
+                                          className="inline-flex items-center justify-center text-sm font-medium h-9 px-3 rounded-md border border-purple-300 text-purple-700 hover:bg-purple-100"
+                                        >
+                                          <Download className="w-4 h-4 mr-1" />
+                                          다운로드
+                                        </a>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    /* 디자인 파일 (AI, PSD, PDF 등)인 경우 다운로드만 */
+                                    <div className="flex items-center gap-2">
+                                      <div className="flex-1 p-2 bg-purple-50 rounded border border-purple-200">
+                                        <span className="text-sm text-gray-600 break-all">
+                                          {message.designUrl.split('/').pop() || '시안 파일'}
+                                        </span>
+                                      </div>
+                                      <a
+                                        href={message.designUrl}
+                                        download
+                                        className="inline-flex items-center justify-center text-sm font-medium h-10 px-4 rounded-md bg-purple-600 text-white hover:bg-purple-700"
+                                      >
+                                        <Download className="w-4 h-4 mr-1" />
+                                        다운로드
+                                      </a>
+                                    </div>
+                                  )}
                                 </div>
                               )}
 
@@ -886,14 +981,63 @@ export default function AdminDesignThreadsPage() {
                       <div className="space-y-3">
                         <div>
                           <label className="text-sm font-medium text-gray-700 mb-1 block">
-                            시안 URL (Google Drive, Dropbox 등)
+                            시안 파일 업로드
                           </label>
-                          <Input
-                            value={designUrl}
-                            onChange={(e) => setDesignUrl(e.target.value)}
-                            placeholder="https://drive.google.com/..."
-                            className="bg-white border-gray-200"
-                          />
+                          {designUrl ? (
+                            <div className="flex items-center gap-2 p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                              <FileImage className="w-5 h-5 text-purple-600 flex-shrink-0" />
+                              <span className="text-sm text-gray-700 flex-1 truncate">{designFileName}</span>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setDesignUrl("");
+                                  setDesignFileName("");
+                                }}
+                                className="h-7 w-7 p-0 text-gray-500 hover:text-red-600"
+                              >
+                                <X className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <div className="relative">
+                              <input
+                                type="file"
+                                id="design-file-upload"
+                                accept="image/*,.pdf,.ai,.psd,.eps,.svg"
+                                className="hidden"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) handleDesignFileUpload(file);
+                                  e.target.value = "";
+                                }}
+                                disabled={designUploading}
+                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className="w-full h-20 border-dashed border-2 hover:border-purple-400 hover:bg-purple-50"
+                                onClick={() => document.getElementById("design-file-upload")?.click()}
+                                disabled={designUploading}
+                              >
+                                <div className="flex flex-col items-center gap-1">
+                                  {designUploading ? (
+                                    <>
+                                      <div className="w-5 h-5 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
+                                      <span className="text-xs text-gray-500">업로드 중...</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Upload className="w-5 h-5 text-gray-400" />
+                                      <span className="text-xs text-gray-500">파일 선택</span>
+                                      <span className="text-[10px] text-gray-400">이미지, PDF, AI, PSD 지원</span>
+                                    </>
+                                  )}
+                                </div>
+                              </Button>
+                            </div>
+                          )}
                         </div>
                         <p className="text-xs text-gray-500">
                           다음 시안 버전: {selectedThread.currentVersion + 1}차

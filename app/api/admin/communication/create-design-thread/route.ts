@@ -197,13 +197,13 @@ export async function POST(request: Request) {
       });
     }
 
-    // ✅ 실시간 알림 전송 (SSE)
+    // ✅ 실시간 알림 전송 (SSE) - "new_message" 타입으로 클라이언트 새로고침 트리거
     console.log("[CREATE DESIGN THREAD] SSE 알림 전송 중...", userId);
     notificationManager.notifyUser(userId, {
-      type: "design_upload",
+      type: "new_message",
       data: {
         threadId: designThread.id,
-        workflowType,
+        count: 1,
         timestamp: new Date().toISOString(),
       },
     });
