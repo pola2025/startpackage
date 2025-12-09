@@ -14,6 +14,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -129,6 +131,7 @@ export default function UserDesignThreadsPage() {
   // 확정 다이얼로그
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [confirming, setConfirming] = useState(false);
+  const [confirmChecked, setConfirmChecked] = useState(false);
 
   // 새 메시지 알림
   const [newMessageAlert, setNewMessageAlert] = useState(false);
@@ -352,23 +355,28 @@ export default function UserDesignThreadsPage() {
 
   // 시안 확정
   const handleConfirmDesign = async () => {
-    if (!selectedThread) return;
+    if (!selectedThread || !confirmChecked) return;
 
     setConfirming(true);
     try {
+      const confirmMessage = `[시안 확정 및 발주 요청]\n\n` +
+        `✅ ${selectedThread.currentVersion}차 시안을 최종 확인하였으며, 이 시안으로 발주를 요청합니다.\n` +
+        `✅ 확정 후에는 수정이 어려울 수 있음을 이해하고 동의합니다.`;
+
       const response = await fetch(
         `/api/design-threads/${selectedThread.id}/confirm`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            message: `${selectedThread.currentVersion}차 시안으로 최종 확정합니다.`,
+            message: confirmMessage,
           }),
         }
       );
 
       if (response.ok) {
         setConfirmDialogOpen(false);
+        setConfirmChecked(false);
         alert("시안이 확정되었습니다. 발주 단계로 진행됩니다.");
         fetchThreads(selectedThread.id, true);
       } else {
@@ -649,7 +657,10 @@ export default function UserDesignThreadsPage() {
                       <Button
                         size="sm"
                         className="bg-green-600 hover:bg-green-700 text-white"
-                        onClick={() => setConfirmDialogOpen(true)}
+                        onClick={() => {
+                          setConfirmChecked(false);
+                          setConfirmDialogOpen(true);
+                        }}
                       >
                         <Check className="w-4 h-4 mr-1" />
                         시안 확정
@@ -1080,20 +1091,14 @@ export default function UserDesignThreadsPage() {
       <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>시안 확정</DialogTitle>
+            <DialogTitle>시안 확정 및 발주 요청</DialogTitle>
             <DialogDescription>
-              정말 현재 시안으로 확정하시겠습니까?
+              시안을 확정하고 발주를 요청합니다.
             </DialogDescription>
           </DialogHeader>
-          <div className="py-4">
-            <Alert className="bg-yellow-50 border-yellow-200">
-              <AlertCircle className="w-4 h-4 text-yellow-600" />
-              <AlertDescription className="text-sm text-yellow-800">
-                시안 확정 후에는 변경이 어렵습니다. 신중하게 확인해주세요.
-              </AlertDescription>
-            </Alert>
+          <div className="py-4 space-y-4">
             {selectedThread && (
-              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+              <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
                 <p className="text-sm text-gray-700">
                   <span className="font-medium">워크플로우:</span>{" "}
                   {WORKFLOW_TYPE_LABELS[selectedThread.workflow.type] ||
@@ -1105,6 +1110,33 @@ export default function UserDesignThreadsPage() {
                 </p>
               </div>
             )}
+
+            <Alert className="bg-yellow-50 border-yellow-200">
+              <AlertCircle className="w-4 h-4 text-yellow-600" />
+              <AlertDescription className="text-sm text-yellow-800">
+                <strong>주의:</strong> 시안 확정 후에는 변경이 어렵습니다.
+                발주가 진행되면 취소 또는 수정이 불가능합니다.
+              </AlertDescription>
+            </Alert>
+
+            {/* 확인 체크박스 */}
+            <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="flex items-start gap-3">
+                <Checkbox
+                  id="confirm-agreement"
+                  checked={confirmChecked}
+                  onCheckedChange={(checked) => setConfirmChecked(checked === true)}
+                  className="mt-0.5"
+                />
+                <Label
+                  htmlFor="confirm-agreement"
+                  className="text-sm text-gray-700 leading-relaxed cursor-pointer"
+                >
+                  위 시안을 최종 확인하였으며, 이 시안으로 발주를 요청합니다.
+                  확정 후에는 수정이 어려울 수 있음을 이해합니다.
+                </Label>
+              </div>
+            </div>
           </div>
           <div className="flex justify-end gap-2">
             <Button
@@ -1115,10 +1147,10 @@ export default function UserDesignThreadsPage() {
             </Button>
             <Button
               onClick={handleConfirmDesign}
-              disabled={confirming}
+              disabled={confirming || !confirmChecked}
               className="bg-green-600 hover:bg-green-700 text-white"
             >
-              {confirming ? "확정 중..." : "확정하기"}
+              {confirming ? "확정 중..." : "시안 확정 및 발주 요청"}
             </Button>
           </div>
         </DialogContent>
