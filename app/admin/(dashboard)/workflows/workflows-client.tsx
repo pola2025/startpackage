@@ -33,6 +33,7 @@ import WorkflowProgress from "./workflow-progress";
 import UrgentAlertBanner from "./urgent-alert-banner";
 import BulkActions from "./bulk-actions";
 import DesignSMSModal from "./design-sms-modal";
+import UrgentAlertModal from "./urgent-alert-modal";
 import { KanbanBoard, WorkflowStatus } from "@/app/components/workflows/kanban-board";
 import { WorkflowStatusIcons } from "@/components/admin/workflow-status-icons";
 import { AdAutomationBadge } from "@/components/admin/ad-automation-badge";
@@ -72,6 +73,7 @@ export default function WorkflowsClient({
   const [compactView, setCompactView] = useState(false);
   const [selectedWorkflows, setSelectedWorkflows] = useState<Set<string>>(new Set());
   const [showDesignSMSModal, setShowDesignSMSModal] = useState(false);
+  const [urgentAlertType, setUrgentAlertType] = useState<"발주요청" | "피드백" | "지연" | null>(null);
 
   // 기수별/사용자별 접기/펼치기 상태
   const [expandedCohorts, setExpandedCohorts] = useState<Set<string>>(new Set());
@@ -255,35 +257,10 @@ export default function WorkflowsClient({
     setFilters({ ...filters, status });
   };
 
-  // 긴급 알림 클릭 핸들러
+  // 긴급 알림 클릭 핸들러 - 모달로 표시
   const handleAlertClick = (type: string) => {
-    if (type === "발주요청") {
-      setFilters({
-        search: "",
-        status: "발주요청",
-        type: "all",
-        cohort: "all",
-        hasFeedback: undefined,
-        isDelayed: undefined,
-      });
-    } else if (type === "피드백") {
-      setFilters({
-        search: "",
-        status: "all",
-        type: "all",
-        cohort: "all",
-        hasFeedback: true,
-        isDelayed: undefined,
-      });
-    } else if (type === "지연") {
-      setFilters({
-        search: "",
-        status: "all",
-        type: "all",
-        cohort: "all",
-        hasFeedback: undefined,
-        isDelayed: true,
-      });
+    if (type === "발주요청" || type === "피드백" || type === "지연") {
+      setUrgentAlertType(type as "발주요청" | "피드백" | "지연");
     }
   };
 
@@ -875,6 +852,15 @@ export default function WorkflowsClient({
         onSuccess={() => {
           window.location.reload();
         }}
+      />
+
+      {/* 긴급 알림 모달 */}
+      <UrgentAlertModal
+        open={urgentAlertType !== null}
+        onClose={() => setUrgentAlertType(null)}
+        alertType={urgentAlertType}
+        workflows={allWorkflows}
+        onRefresh={() => window.location.reload()}
       />
     </>
   );
