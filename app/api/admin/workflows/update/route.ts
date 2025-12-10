@@ -206,39 +206,8 @@ export async function POST(request: NextRequest) {
       }
 
       // 시안 완료 알림 (발주대기 상태로 변경 시)
-      if (status === "발주대기" && currentWorkflow.status !== "발주대기") {
-        // 이메일 발송
-        if (updatedWorkflow.user.email) {
-          const { sendEmail, getDesignCompleteEmailHTML } = await import("@/lib/email/resendClient");
-          const html = getDesignCompleteEmailHTML({
-            userName: updatedWorkflow.user.이름 || "고객",
-            workflowCount: 1,
-          });
-          await sendEmail({
-            to: updatedWorkflow.user.email,
-            subject: `[스타트패키지] ${updatedWorkflow.type} 시안이 완료되었습니다`,
-            html,
-          });
-        }
-
-        // SMS 발송
-        if (updatedWorkflow.user.연락처) {
-          const { sendSMS } = await import("@/lib/sms/ncpSensClient");
-          const message = `[스타트패키지] ${updatedWorkflow.type} 시안이 완료되었습니다.\n\n대시보드에서 확인 후 발주를 진행해주세요.\nhttps://polaai.co.kr/dashboard/workflows`;
-          await sendSMS(updatedWorkflow.user.연락처, message);
-
-          await prisma.notification.create({
-            data: {
-              userId: updatedWorkflow.userId,
-              type: "시안완료",
-              channel: "SMS",
-              title: `[스타트패키지] ${updatedWorkflow.type} 시안 완료`,
-              message,
-              status: "성공",
-            },
-          });
-        }
-      }
+      // 자동 발송 제거 - 관리자가 직접 SMS 발송 버튼으로 발송
+      // if (status === "발주대기" && currentWorkflow.status !== "발주대기") { ... }
 
       // 발주 완료 알림 (이메일/SMS는 수동 발송으로 변경)
       if (status === "발주완료" && currentWorkflow.status !== "발주완료") {

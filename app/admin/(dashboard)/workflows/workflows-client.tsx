@@ -32,6 +32,7 @@ import WorkflowViewToggle from "./workflow-view-toggle";
 import WorkflowProgress from "./workflow-progress";
 import UrgentAlertBanner from "./urgent-alert-banner";
 import BulkActions from "./bulk-actions";
+import DesignSMSModal from "./design-sms-modal";
 import { KanbanBoard, WorkflowStatus } from "@/app/components/workflows/kanban-board";
 import { WorkflowStatusIcons } from "@/components/admin/workflow-status-icons";
 import { AdAutomationBadge } from "@/components/admin/ad-automation-badge";
@@ -70,6 +71,7 @@ export default function WorkflowsClient({
   const [viewMode, setViewMode] = useState<"user" | "status" | "kanban">("user");
   const [compactView, setCompactView] = useState(false);
   const [selectedWorkflows, setSelectedWorkflows] = useState<Set<string>>(new Set());
+  const [showDesignSMSModal, setShowDesignSMSModal] = useState(false);
 
   // 기수별/사용자별 접기/펼치기 상태
   const [expandedCohorts, setExpandedCohorts] = useState<Set<string>>(new Set());
@@ -314,8 +316,9 @@ export default function WorkflowsClient({
       // TODO: API 호출하여 상태 변경
       console.log("상태 변경:", newStatus);
     } else if (action === "sms") {
-      // TODO: SMS 발송
-      console.log("SMS 발송");
+      // SMS 발송 모달 열기
+      setShowDesignSMSModal(true);
+      return; // 선택 해제하지 않음
     } else if (action === "export") {
       // TODO: 엑셀 다운로드
       console.log("엑셀 다운로드");
@@ -859,6 +862,19 @@ export default function WorkflowsClient({
         selectedCount={selectedWorkflows.size}
         onClearSelection={() => setSelectedWorkflows(new Set())}
         onBulkAction={handleBulkAction}
+      />
+
+      {/* 시안 SMS 발송 모달 */}
+      <DesignSMSModal
+        open={showDesignSMSModal}
+        onClose={() => {
+          setShowDesignSMSModal(false);
+          setSelectedWorkflows(new Set());
+        }}
+        workflows={allWorkflows.filter((w) => selectedWorkflows.has(w.id))}
+        onSuccess={() => {
+          window.location.reload();
+        }}
       />
     </>
   );
