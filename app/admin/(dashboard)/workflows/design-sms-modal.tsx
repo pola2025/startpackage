@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -61,7 +61,10 @@ export default function DesignSMSModal({
   }, [workflows]);
 
   // 고객별로 그룹화
-  const [groupedUsers, setGroupedUsers] = useState<Map<string, GroupedUser>>(() => {
+  const [groupedUsers, setGroupedUsers] = useState<Map<string, GroupedUser>>(new Map());
+
+  // workflows가 변경될 때마다 groupedUsers 재계산
+  useEffect(() => {
     const groups = new Map<string, GroupedUser>();
 
     workflowsWithDesign.forEach((w) => {
@@ -80,8 +83,8 @@ export default function DesignSMSModal({
       group.selectedWorkflowIds.add(w.id); // 기본적으로 모두 선택
     });
 
-    return groups;
-  });
+    setGroupedUsers(groups);
+  }, [workflowsWithDesign]);
 
   // 워크플로우 선택/해제
   const toggleWorkflow = (userId: string, workflowId: string) => {
