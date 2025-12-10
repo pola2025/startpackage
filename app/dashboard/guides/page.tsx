@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, MessageSquare, CreditCard, Globe, Mail, FileText, Instagram, UserPlus, Palette, Sparkles } from "lucide-react";
+import { BookOpen, MessageSquare, CreditCard, Globe, Mail, FileText, Instagram, UserPlus, Palette, Sparkles, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // 가이드 메뉴 데이터
@@ -46,6 +46,30 @@ export default function GuidesPage() {
           스타트패키지 이용 가이드를 확인하세요
         </p>
       </div>
+
+      {/* 개별결제 스키니배너 */}
+      <a
+        href="https://booking.naver.com/booking/5/bizes/1304508/items/6516411"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg px-4 py-3 transition-all shadow-md hover:shadow-lg"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-8 h-8 bg-white/20 rounded-full">
+              <CreditCard className="w-4 h-4" />
+            </div>
+            <div>
+              <p className="font-semibold text-sm md:text-base">개별결제 및 주문 카드결제</p>
+              <p className="text-xs text-green-100">네이버 예약으로 간편하게 결제하세요</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1 text-sm font-medium">
+            <span className="hidden sm:inline">네이버예약 바로가기</span>
+            <ExternalLink className="w-4 h-4" />
+          </div>
+        </div>
+      </a>
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-4">
         {/* 3x3 박스 그리드 메뉴 */}
