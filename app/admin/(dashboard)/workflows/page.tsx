@@ -80,12 +80,12 @@ export default async function WorkflowsPage() {
   const workflowTypes = Array.from(new Set(workflows.map((w) => w.type).filter(Boolean)));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Page Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">워크플로우 관리</h1>
-          <p className="text-gray-600">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">워크플로우 관리</h1>
+          <p className="text-sm sm:text-base text-gray-600">
             사용자별 제작 진행 상황을 추적하고 관리하세요
           </p>
         </div>

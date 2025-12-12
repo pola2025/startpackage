@@ -283,23 +283,24 @@ export default function AdminAnnouncementsPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <Megaphone className="w-8 h-8 text-red-600" />
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 flex items-center gap-2 sm:gap-3">
+            <Megaphone className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-red-600" />
             마케팅 소식 관리
           </h1>
-          <p className="text-gray-600 mt-2">
+          <p className="text-sm sm:text-base text-gray-600 mt-1 sm:mt-2">
             사용자에게 전달할 마케팅 소식 및 공지사항을 작성하고 관리합니다
           </p>
         </div>
         <Button
           onClick={() => handleOpenDialog()}
-          className="bg-red-600 hover:bg-red-700"
+          className="bg-red-600 hover:bg-red-700 self-start sm:self-auto text-xs sm:text-sm h-8 sm:h-10"
         >
-          <Plus className="w-4 h-4 mr-2" />
-          새 공지 작성
+          <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+          <span className="hidden sm:inline">새 공지 작성</span>
+          <span className="sm:hidden">새 공지</span>
         </Button>
       </div>
 

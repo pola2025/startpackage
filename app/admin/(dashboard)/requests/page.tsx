@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { UserPlus, CheckCircle, XCircle, Clock } from "lucide-react";
+import { UserPlus, CheckCircle, XCircle, Clock, Mail, Phone, Calendar } from "lucide-react";
 
 interface AdminRequest {
   id: string;
@@ -117,21 +117,21 @@ export default function AdminRequestsPage() {
     switch (status) {
       case "pending":
         return (
-          <Badge className="bg-yellow-500/20 text-yellow-500 border-yellow-500/50">
+          <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-300">
             <Clock className="w-3 h-3 mr-1" />
             대기중
           </Badge>
         );
       case "approved":
         return (
-          <Badge className="bg-green-500/20 text-green-500 border-green-500/50">
+          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300">
             <CheckCircle className="w-3 h-3 mr-1" />
             승인됨
           </Badge>
         );
       case "rejected":
         return (
-          <Badge className="bg-red-500/20 text-red-500 border-red-500/50">
+          <Badge variant="outline" className="bg-red-50 text-red-700 border-red-300">
             <XCircle className="w-3 h-3 mr-1" />
             거부됨
           </Badge>
@@ -142,53 +142,61 @@ export default function AdminRequestsPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-3xl font-bold neon-text-red">관리자 가입 신청</h1>
-          <p className="text-gray-400 mt-2">관리자 가입 신청을 관리합니다</p>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">가입 신청</h1>
+          <p className="text-sm sm:text-base text-gray-600">관리자 가입 신청을 관리합니다</p>
         </div>
-        <UserPlus className="w-8 h-8 text-neon-red" />
+        <div className="flex items-center gap-2 px-2 sm:px-4 py-1.5 sm:py-2 bg-blue-50 rounded-lg border-2 border-blue-200">
+          <UserPlus className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+          <span className="text-lg sm:text-2xl font-bold text-blue-600">{requests.length}</span>
+          <span className="text-xs sm:text-sm text-gray-600">건</span>
+        </div>
       </div>
 
       {/* Status Filter */}
-      <Card className="glass border-white/10">
-        <CardContent className="pt-6">
-          <div className="flex gap-2">
+      <Card className="bg-white border-2 border-gray-200 shadow-md">
+        <CardContent className="p-3 sm:p-4">
+          <div className="flex flex-wrap gap-2">
             <Button
               variant={statusFilter === "pending" ? "default" : "outline"}
               onClick={() => setStatusFilter("pending")}
+              size="sm"
               className={
                 statusFilter === "pending"
-                  ? "bg-neon-red text-white"
-                  : "border-white/20 text-gray-400"
+                  ? "bg-yellow-500 hover:bg-yellow-600 text-white"
+                  : "border-gray-300 text-gray-600 hover:bg-gray-50"
               }
             >
-              <Clock className="w-4 h-4 mr-2" />
+              <Clock className="w-3.5 h-3.5 mr-1.5" />
               대기중
             </Button>
             <Button
               variant={statusFilter === "approved" ? "default" : "outline"}
               onClick={() => setStatusFilter("approved")}
+              size="sm"
               className={
                 statusFilter === "approved"
-                  ? "bg-neon-red text-white"
-                  : "border-white/20 text-gray-400"
+                  ? "bg-green-500 hover:bg-green-600 text-white"
+                  : "border-gray-300 text-gray-600 hover:bg-gray-50"
               }
             >
-              <CheckCircle className="w-4 h-4 mr-2" />
+              <CheckCircle className="w-3.5 h-3.5 mr-1.5" />
               승인됨
             </Button>
             <Button
               variant={statusFilter === "rejected" ? "default" : "outline"}
               onClick={() => setStatusFilter("rejected")}
+              size="sm"
               className={
                 statusFilter === "rejected"
-                  ? "bg-neon-red text-white"
-                  : "border-white/20 text-gray-400"
+                  ? "bg-red-500 hover:bg-red-600 text-white"
+                  : "border-gray-300 text-gray-600 hover:bg-gray-50"
               }
             >
-              <XCircle className="w-4 h-4 mr-2" />
+              <XCircle className="w-3.5 h-3.5 mr-1.5" />
               거부됨
             </Button>
           </div>
@@ -197,67 +205,79 @@ export default function AdminRequestsPage() {
 
       {/* Requests List */}
       {loading ? (
-        <Card className="glass border-white/10">
-          <CardContent className="pt-6">
-            <p className="text-center text-gray-400">로딩 중...</p>
+        <Card className="bg-white border-2 border-gray-200 shadow-md">
+          <CardContent className="py-8">
+            <p className="text-center text-gray-500">로딩 중...</p>
           </CardContent>
         </Card>
       ) : requests.length === 0 ? (
-        <Card className="glass border-white/10">
-          <CardContent className="pt-6">
-            <p className="text-center text-gray-400">가입 신청이 없습니다.</p>
+        <Card className="bg-white border-2 border-gray-200 shadow-md">
+          <CardContent className="py-8">
+            <p className="text-center text-gray-500">가입 신청이 없습니다.</p>
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4">
+        <div className="grid gap-3 sm:gap-4">
           {requests.map((request) => (
-            <Card key={request.id} className="glass border-white/10">
-              <CardHeader>
-                <div className="flex items-center justify-between">
+            <Card key={request.id} className="bg-white border-2 border-gray-200 shadow-md">
+              <CardContent className="p-3 sm:p-4">
+                {/* Header: 이름 + 상태 */}
+                <div className="flex items-start justify-between gap-2 mb-3">
                   <div>
-                    <CardTitle className="text-white">{request.name}</CardTitle>
-                    <p className="text-sm text-gray-400 mt-1">{request.email}</p>
+                    <h3 className="font-semibold text-gray-900 text-base sm:text-lg">{request.name}</h3>
                   </div>
                   {getStatusBadge(request.status)}
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2 text-sm text-gray-400">
-                  <p>전화번호: {request.phone}</p>
-                  <p>
-                    신청일시:{" "}
-                    {new Date(request.createdAt).toLocaleString("ko-KR", {
-                      timeZone: "Asia/Seoul",
-                    })}
-                  </p>
+
+                {/* Info */}
+                <div className="space-y-1.5 text-sm">
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <Mail className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                    <span className="truncate">{request.email}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <Phone className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                    <span>{request.phone}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-500 text-xs">
+                    <Calendar className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                    <span>
+                      신청: {new Date(request.createdAt).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}
+                    </span>
+                  </div>
                   {request.reviewedAt && (
-                    <p>
-                      처리일시:{" "}
-                      {new Date(request.reviewedAt).toLocaleString("ko-KR", {
-                        timeZone: "Asia/Seoul",
-                      })}
-                    </p>
+                    <div className="flex items-center gap-2 text-gray-500 text-xs">
+                      <CheckCircle className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                      <span>
+                        처리: {new Date(request.reviewedAt).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}
+                      </span>
+                    </div>
                   )}
                   {request.rejectReason && (
-                    <p className="text-red-400">거부 사유: {request.rejectReason}</p>
+                    <p className="text-red-600 text-xs mt-2 p-2 bg-red-50 rounded">
+                      거부 사유: {request.rejectReason}
+                    </p>
                   )}
                 </div>
 
+                {/* Actions */}
                 {request.status === "pending" && (
-                  <div className="flex gap-2 mt-4">
+                  <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100">
                     <Button
                       onClick={() => openDialog(request, "approve")}
-                      className="bg-green-500 hover:bg-green-600 text-white"
+                      size="sm"
+                      className="flex-1 bg-green-600 hover:bg-green-700 text-white h-9"
                     >
-                      <CheckCircle className="w-4 h-4 mr-2" />
+                      <CheckCircle className="w-3.5 h-3.5 mr-1.5" />
                       승인
                     </Button>
                     <Button
                       onClick={() => openDialog(request, "reject")}
                       variant="outline"
-                      className="border-red-500/50 text-red-500 hover:bg-red-500/10"
+                      size="sm"
+                      className="flex-1 border-red-300 text-red-600 hover:bg-red-50 h-9"
                     >
-                      <XCircle className="w-4 h-4 mr-2" />
+                      <XCircle className="w-3.5 h-3.5 mr-1.5" />
                       거부
                     </Button>
                   </div>
@@ -270,29 +290,29 @@ export default function AdminRequestsPage() {
 
       {/* Action Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="bg-black/95 border-white/20">
+        <DialogContent className="bg-white border-gray-200">
           <DialogHeader>
-            <DialogTitle className="text-white">
+            <DialogTitle className="text-gray-900">
               {actionType === "approve" ? "가입 신청 승인" : "가입 신청 거부"}
             </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
-            <div>
-              <p className="text-sm text-gray-400">이름: {selectedRequest?.name}</p>
-              <p className="text-sm text-gray-400">이메일: {selectedRequest?.email}</p>
+            <div className="p-3 bg-gray-50 rounded-lg">
+              <p className="text-sm text-gray-700">이름: <strong>{selectedRequest?.name}</strong></p>
+              <p className="text-sm text-gray-700">이메일: <strong>{selectedRequest?.email}</strong></p>
             </div>
 
             {actionType === "approve" && (
               <div className="space-y-2">
-                <Label htmlFor="role" className="text-gray-300">
+                <Label htmlFor="role" className="text-gray-700">
                   권한 부여
                 </Label>
                 <Select value={assignedRole} onValueChange={(value: any) => setAssignedRole(value)}>
-                  <SelectTrigger className="bg-black/50 border-white/20 text-white">
+                  <SelectTrigger className="border-gray-300">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-black/95 border-white/20">
+                  <SelectContent>
                     <SelectItem value="operator">Operator (일반 관리자)</SelectItem>
                     <SelectItem value="designer">Designer (디자이너)</SelectItem>
                     <SelectItem value="super">Super (최고 관리자)</SelectItem>
@@ -303,7 +323,7 @@ export default function AdminRequestsPage() {
 
             {actionType === "reject" && (
               <div className="space-y-2">
-                <Label htmlFor="rejectReason" className="text-gray-300">
+                <Label htmlFor="rejectReason" className="text-gray-700">
                   거부 사유
                 </Label>
                 <Input
@@ -311,7 +331,7 @@ export default function AdminRequestsPage() {
                   value={rejectReason}
                   onChange={(e) => setRejectReason(e.target.value)}
                   placeholder="거부 사유를 입력하세요"
-                  className="bg-black/50 border-white/20 text-white"
+                  className="border-gray-300"
                 />
               </div>
             )}
@@ -322,7 +342,7 @@ export default function AdminRequestsPage() {
               variant="outline"
               onClick={() => setDialogOpen(false)}
               disabled={processing}
-              className="border-white/20 text-gray-400"
+              className="border-gray-300"
             >
               취소
             </Button>
@@ -331,8 +351,8 @@ export default function AdminRequestsPage() {
               disabled={processing || (actionType === "reject" && !rejectReason)}
               className={
                 actionType === "approve"
-                  ? "bg-green-500 hover:bg-green-600 text-white"
-                  : "bg-red-500 hover:bg-red-600 text-white"
+                  ? "bg-green-600 hover:bg-green-700 text-white"
+                  : "bg-red-600 hover:bg-red-700 text-white"
               }
             >
               {processing ? "처리 중..." : actionType === "approve" ? "승인" : "거부"}

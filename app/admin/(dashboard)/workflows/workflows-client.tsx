@@ -331,193 +331,309 @@ export default function WorkflowsClient({
     }
   };
 
-  // 워크플로우 테이블 렌더링
-  const renderWorkflowTable = (workflows: any[], showUser = false) => (
-    <Table>
-      <TableHeader>
-        <TableRow className="border-gray-200 hover:bg-gray-50">
-          <TableHead className="w-12">
-            <Checkbox
-              checked={selectedWorkflows.size === allWorkflows.length && allWorkflows.length > 0}
-              onCheckedChange={handleSelectAll}
-            />
-          </TableHead>
-          {showUser && <TableHead className="text-gray-700 font-semibold">사용자</TableHead>}
-          <TableHead className="text-gray-700 font-semibold">제작물</TableHead>
-          <TableHead className="text-gray-700 font-semibold">상태</TableHead>
-          {!compactView && <TableHead className="text-gray-700 font-semibold">진행률</TableHead>}
-          {!compactView && <TableHead className="text-gray-700 font-semibold">수정횟수</TableHead>}
-          {!compactView && <TableHead className="text-gray-700 font-semibold">피드백</TableHead>}
-          {!compactView && <TableHead className="text-gray-700 font-semibold">자료제출일</TableHead>}
-          {!compactView && <TableHead className="text-gray-700 font-semibold">시안업로드일</TableHead>}
-          {!compactView && <TableHead className="text-gray-700 font-semibold">발주요청일</TableHead>}
-          {!compactView && <TableHead className="text-gray-700 font-semibold">발주완료일</TableHead>}
-          {!compactView && <TableHead className="text-gray-700 font-semibold">배송정보</TableHead>}
-          <TableHead className="text-gray-700 font-semibold">작업</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {workflows.map((workflow) => {
-          const statusInfo = getStatusBadge(workflow.status);
+  // 워크플로우 모바일 카드 렌더링
+  const renderWorkflowMobileCards = (workflows: any[], showUser = false) => (
+    <div className="space-y-3">
+      {workflows.map((workflow) => {
+        const statusInfo = getStatusBadge(workflow.status);
+        const isSelected = selectedWorkflows.has(workflow.id);
 
-          return (
-            <TableRow
-              key={workflow.id}
-              className={getRowClassName(workflow)}
-            >
-              <TableCell>
+        return (
+          <div
+            key={workflow.id}
+            className={`p-3 rounded-lg border ${
+              workflow.status === "발주요청"
+                ? "bg-yellow-50 border-yellow-200"
+                : workflow.feedback && !workflow.feedbackRead
+                ? "bg-orange-50 border-orange-200"
+                : "bg-white border-gray-200"
+            }`}
+          >
+            {/* Header: 체크박스 + 제작물 + 상태 */}
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
                 <Checkbox
-                  checked={selectedWorkflows.has(workflow.id)}
+                  checked={isSelected}
                   onCheckedChange={(checked) =>
                     handleSelectWorkflow(workflow.id, checked as boolean)
                   }
                 />
-              </TableCell>
-              {showUser && (
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                      <User className="w-4 h-4 text-blue-600" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">{workflow.user?.이름}</div>
-                      <div className="text-xs text-gray-500">{workflow.user?.연락처}</div>
-                    </div>
-                  </div>
-                </TableCell>
-              )}
-              <TableCell>
                 <Badge
                   variant="outline"
-                  className="border-gray-300 text-gray-700 bg-gray-50"
+                  className="border-gray-300 text-gray-700 bg-gray-50 text-xs"
                 >
                   <Package className="w-3 h-3 mr-1" />
                   {workflow.type}
                 </Badge>
-              </TableCell>
-              <TableCell>
-                <Badge
-                  variant="outline"
-                  className={`${statusInfo.bg} ${statusInfo.color}`}
+              </div>
+              <Badge
+                variant="outline"
+                className={`${statusInfo.bg} ${statusInfo.color} text-xs`}
+              >
+                {statusInfo.label}
+              </Badge>
+            </div>
+
+            {/* 사용자 정보 (showUser일 때) */}
+            {showUser && workflow.user && (
+              <div className="flex items-center gap-2 mb-2 pb-2 border-b border-gray-100">
+                <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center">
+                  <User className="w-3 h-3 text-blue-600" />
+                </div>
+                <span className="text-sm font-medium text-gray-900">{workflow.user?.이름}</span>
+                <span className="text-xs text-gray-500">{workflow.user?.연락처}</span>
+              </div>
+            )}
+
+            {/* 주요 정보 */}
+            <div className="grid grid-cols-2 gap-2 text-xs mb-2">
+              <div>
+                <span className="text-gray-500">수정횟수: </span>
+                {workflow.수정횟수 > 2 ? (
+                  <span className="text-red-600 font-medium">{workflow.수정횟수}회 (유료)</span>
+                ) : workflow.수정횟수 === 2 ? (
+                  <span className="text-amber-600 font-medium">{workflow.수정횟수}회 (최종)</span>
+                ) : (
+                  <span className="text-gray-700">{workflow.수정횟수}회</span>
+                )}
+              </div>
+              {workflow.자료제출일 && (
+                <div className="flex items-center gap-1 text-gray-600">
+                  <Calendar className="w-3 h-3" />
+                  {new Date(workflow.자료제출일).toLocaleDateString("ko-KR")}
+                </div>
+              )}
+            </div>
+
+            {/* 피드백 (있을 때만) */}
+            {workflow.feedback && (
+              <div className="p-2 bg-orange-50 border border-orange-200 rounded text-xs mb-2">
+                <p className="line-clamp-2 text-orange-900">{workflow.feedback}</p>
+              </div>
+            )}
+
+            {/* 배송정보 (있을 때만) */}
+            {workflow.택배회사 && workflow.운송장번호 && (
+              <div className="flex items-center gap-2 text-xs text-blue-600 mb-2">
+                <Truck className="w-3 h-3" />
+                <span>{workflow.택배회사}</span>
+                <span className="text-gray-500">{workflow.운송장번호}</span>
+              </div>
+            )}
+
+            {/* 액션 버튼 */}
+            <div className="flex gap-2 pt-2 border-t border-gray-100">
+              <SubmissionViewButton workflow={workflow} />
+              <DesignThreadButton
+                workflowId={workflow.id}
+                status={workflow.status}
+                type={workflow.type}
+              />
+              <WorkflowActions workflow={workflow} />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  // 워크플로우 테이블 렌더링 (데스크탑)
+  const renderWorkflowTable = (workflows: any[], showUser = false) => (
+    <>
+      {/* 모바일: 카드 레이아웃 */}
+      <div className="lg:hidden">
+        {renderWorkflowMobileCards(workflows, showUser)}
+      </div>
+
+      {/* 데스크탑: 테이블 레이아웃 */}
+      <div className="hidden lg:block">
+        <Table>
+          <TableHeader>
+            <TableRow className="border-gray-200 hover:bg-gray-50">
+              <TableHead className="w-12">
+                <Checkbox
+                  checked={selectedWorkflows.size === allWorkflows.length && allWorkflows.length > 0}
+                  onCheckedChange={handleSelectAll}
+                />
+              </TableHead>
+              {showUser && <TableHead className="text-gray-700 font-semibold">사용자</TableHead>}
+              <TableHead className="text-gray-700 font-semibold">제작물</TableHead>
+              <TableHead className="text-gray-700 font-semibold">상태</TableHead>
+              {!compactView && <TableHead className="text-gray-700 font-semibold">진행률</TableHead>}
+              {!compactView && <TableHead className="text-gray-700 font-semibold">수정횟수</TableHead>}
+              {!compactView && <TableHead className="text-gray-700 font-semibold">피드백</TableHead>}
+              {!compactView && <TableHead className="text-gray-700 font-semibold">자료제출일</TableHead>}
+              {!compactView && <TableHead className="text-gray-700 font-semibold">시안업로드일</TableHead>}
+              {!compactView && <TableHead className="text-gray-700 font-semibold">발주요청일</TableHead>}
+              {!compactView && <TableHead className="text-gray-700 font-semibold">발주완료일</TableHead>}
+              {!compactView && <TableHead className="text-gray-700 font-semibold">배송정보</TableHead>}
+              <TableHead className="text-gray-700 font-semibold">작업</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {workflows.map((workflow) => {
+              const statusInfo = getStatusBadge(workflow.status);
+
+              return (
+                <TableRow
+                  key={workflow.id}
+                  className={getRowClassName(workflow)}
                 >
-                  {statusInfo.label}
-                </Badge>
-              </TableCell>
-              {!compactView && (
-                <>
                   <TableCell>
-                    <WorkflowProgress
-                      status={workflow.status}
-                      type={workflow.type}
-                      수정횟수={workflow.수정횟수}
-                      자료제출일={workflow.자료제출일}
-                      createdAt={workflow.createdAt}
+                    <Checkbox
+                      checked={selectedWorkflows.has(workflow.id)}
+                      onCheckedChange={(checked) =>
+                        handleSelectWorkflow(workflow.id, checked as boolean)
+                      }
                     />
                   </TableCell>
+                  {showUser && (
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                          <User className="w-4 h-4 text-blue-600" />
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">{workflow.user?.이름}</div>
+                          <div className="text-xs text-gray-500">{workflow.user?.연락처}</div>
+                        </div>
+                      </div>
+                    </TableCell>
+                  )}
                   <TableCell>
-                    <div className="flex items-center gap-1">
-                      {workflow.수정횟수 > 2 ? (
-                        <Badge variant="outline" className="bg-red-50 border-red-300 text-red-700">
-                          {workflow.수정횟수}회 (유료)
-                        </Badge>
-                      ) : workflow.수정횟수 === 2 ? (
-                        <Badge variant="outline" className="bg-amber-50 border-amber-300 text-amber-700">
-                          {workflow.수정횟수}회 (최종)
-                        </Badge>
-                      ) : (
-                        <span className="text-gray-600">{workflow.수정횟수}회</span>
-                      )}
+                    <Badge
+                      variant="outline"
+                      className="border-gray-300 text-gray-700 bg-gray-50"
+                    >
+                      <Package className="w-3 h-3 mr-1" />
+                      {workflow.type}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant="outline"
+                      className={`${statusInfo.bg} ${statusInfo.color}`}
+                    >
+                      {statusInfo.label}
+                    </Badge>
+                  </TableCell>
+                  {!compactView && (
+                    <>
+                      <TableCell>
+                        <WorkflowProgress
+                          status={workflow.status}
+                          type={workflow.type}
+                          수정횟수={workflow.수정횟수}
+                          자료제출일={workflow.자료제출일}
+                          createdAt={workflow.createdAt}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          {workflow.수정횟수 > 2 ? (
+                            <Badge variant="outline" className="bg-red-50 border-red-300 text-red-700">
+                              {workflow.수정횟수}회 (유료)
+                            </Badge>
+                          ) : workflow.수정횟수 === 2 ? (
+                            <Badge variant="outline" className="bg-amber-50 border-amber-300 text-amber-700">
+                              {workflow.수정횟수}회 (최종)
+                            </Badge>
+                          ) : (
+                            <span className="text-gray-600">{workflow.수정횟수}회</span>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-gray-600 text-sm max-w-xs">
+                        {workflow.feedback ? (
+                          <div className="space-y-1">
+                            <div className="p-2 bg-orange-50 border border-orange-200 rounded text-xs">
+                              <p className="line-clamp-2 text-orange-900">{workflow.feedback}</p>
+                            </div>
+                            {workflow.feedbackDate && (
+                              <p className="text-xs text-gray-500">
+                                {new Date(workflow.feedbackDate).toLocaleString("ko-KR")}
+                              </p>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-gray-600 text-sm">
+                        {workflow.자료제출일 ? (
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {new Date(workflow.자료제출일).toLocaleDateString("ko-KR")}
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-gray-600 text-sm">
+                        {workflow.시안업로드일 ? (
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {new Date(workflow.시안업로드일).toLocaleDateString("ko-KR")}
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-gray-600 text-sm">
+                        {workflow.발주요청일 ? (
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {new Date(workflow.발주요청일).toLocaleDateString("ko-KR")}
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-gray-600 text-sm">
+                        {workflow.발주승인일 ? (
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {new Date(workflow.발주승인일).toLocaleDateString("ko-KR")}
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {workflow.택배회사 && workflow.운송장번호 ? (
+                          <div className="text-sm">
+                            <div className="flex items-center gap-1 text-blue-600">
+                              <Truck className="w-3 h-3" />
+                              {workflow.택배회사}
+                            </div>
+                            <div className="text-gray-500 text-xs mt-1">
+                              {workflow.운송장번호}
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </TableCell>
+                    </>
+                  )}
+                  <TableCell>
+                    <div className="flex gap-2">
+                      <SubmissionViewButton workflow={workflow} />
+                      <DesignThreadButton
+                        workflowId={workflow.id}
+                        status={workflow.status}
+                        type={workflow.type}
+                      />
+                      <WorkflowActions workflow={workflow} />
                     </div>
                   </TableCell>
-                  <TableCell className="text-gray-600 text-sm max-w-xs">
-                    {workflow.feedback ? (
-                      <div className="space-y-1">
-                        <div className="p-2 bg-orange-50 border border-orange-200 rounded text-xs">
-                          <p className="line-clamp-2 text-orange-900">{workflow.feedback}</p>
-                        </div>
-                        {workflow.feedbackDate && (
-                          <p className="text-xs text-gray-500">
-                            {new Date(workflow.feedbackDate).toLocaleString("ko-KR")}
-                          </p>
-                        )}
-                      </div>
-                    ) : (
-                      <span className="text-gray-400">-</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-gray-600 text-sm">
-                    {workflow.자료제출일 ? (
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        {new Date(workflow.자료제출일).toLocaleDateString("ko-KR")}
-                      </div>
-                    ) : (
-                      <span className="text-gray-400">-</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-gray-600 text-sm">
-                    {workflow.시안업로드일 ? (
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        {new Date(workflow.시안업로드일).toLocaleDateString("ko-KR")}
-                      </div>
-                    ) : (
-                      <span className="text-gray-400">-</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-gray-600 text-sm">
-                    {workflow.발주요청일 ? (
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        {new Date(workflow.발주요청일).toLocaleDateString("ko-KR")}
-                      </div>
-                    ) : (
-                      <span className="text-gray-400">-</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-gray-600 text-sm">
-                    {workflow.발주승인일 ? (
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        {new Date(workflow.발주승인일).toLocaleDateString("ko-KR")}
-                      </div>
-                    ) : (
-                      <span className="text-gray-400">-</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {workflow.택배회사 && workflow.운송장번호 ? (
-                      <div className="text-sm">
-                        <div className="flex items-center gap-1 text-blue-600">
-                          <Truck className="w-3 h-3" />
-                          {workflow.택배회사}
-                        </div>
-                        <div className="text-gray-500 text-xs mt-1">
-                          {workflow.운송장번호}
-                        </div>
-                      </div>
-                    ) : (
-                      <span className="text-gray-400">-</span>
-                    )}
-                  </TableCell>
-                </>
-              )}
-              <TableCell>
-                <div className="flex gap-2">
-                  <SubmissionViewButton workflow={workflow} />
-                  <DesignThreadButton
-                    workflowId={workflow.id}
-                    status={workflow.status}
-                    type={workflow.type}
-                  />
-                  <WorkflowActions workflow={workflow} />
-                </div>
-              </TableCell>
-            </TableRow>
-          );
-        })}
-      </TableBody>
-    </Table>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
+    </>
   );
 
   return (
@@ -526,18 +642,18 @@ export default function WorkflowsClient({
       <UrgentAlertBanner workflows={allWorkflows} onAlertClick={handleAlertClick} />
 
       {/* Stats - 클릭 가능 */}
-      <div className="grid gap-4 md:grid-cols-5">
+      <div className="grid gap-2 sm:gap-3 md:gap-4 grid-cols-3 md:grid-cols-5">
         <Card
           className="bg-white border-2 border-gray-200 shadow-md cursor-pointer hover:shadow-lg transition-shadow"
           onClick={() => handleStatClick("대기")}
         >
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-gray-600">
+          <CardHeader className="p-2 sm:p-3 pb-1 sm:pb-2">
+            <CardTitle className="text-xs sm:text-sm font-medium text-gray-600">
               대기
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-gray-700">{stats.대기}</div>
+          <CardContent className="p-2 sm:p-3 pt-0">
+            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-700">{stats.대기}</div>
           </CardContent>
         </Card>
 
@@ -545,13 +661,14 @@ export default function WorkflowsClient({
           className="bg-gradient-to-br from-blue-50 to-white border-0 shadow-md cursor-pointer hover:shadow-lg transition-shadow"
           onClick={() => handleStatClick("시안중")}
         >
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              시안 작업중
+          <CardHeader className="p-2 sm:p-3 pb-1 sm:pb-2">
+            <CardTitle className="text-xs sm:text-sm font-medium text-gray-600">
+              <span className="hidden sm:inline">시안 작업중</span>
+              <span className="sm:hidden">시안중</span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-blue-600">
+          <CardContent className="p-2 sm:p-3 pt-0">
+            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-600">
               {stats.시안중}
             </div>
           </CardContent>
@@ -561,13 +678,14 @@ export default function WorkflowsClient({
           className="bg-gradient-to-br from-orange-50 to-white border-0 shadow-md cursor-pointer hover:shadow-lg transition-shadow"
           onClick={() => handleStatClick("발주대기")}
         >
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              발주 대기
+          <CardHeader className="p-2 sm:p-3 pb-1 sm:pb-2">
+            <CardTitle className="text-xs sm:text-sm font-medium text-gray-600">
+              <span className="hidden sm:inline">발주 대기</span>
+              <span className="sm:hidden">발주대기</span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-orange-600">
+          <CardContent className="p-2 sm:p-3 pt-0">
+            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-orange-600">
               {stats.발주대기}
             </div>
           </CardContent>
@@ -577,13 +695,13 @@ export default function WorkflowsClient({
           className="bg-gradient-to-br from-purple-50 to-white border-0 shadow-md cursor-pointer hover:shadow-lg transition-shadow"
           onClick={() => handleStatClick("발주완료")}
         >
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-gray-600">
+          <CardHeader className="p-2 sm:p-3 pb-1 sm:pb-2">
+            <CardTitle className="text-xs sm:text-sm font-medium text-gray-600">
               제작중
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-purple-600">
+          <CardContent className="p-2 sm:p-3 pt-0">
+            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-purple-600">
               {stats.제작중}
             </div>
           </CardContent>
@@ -593,13 +711,14 @@ export default function WorkflowsClient({
           className="bg-gradient-to-br from-green-50 to-white border-0 shadow-md cursor-pointer hover:shadow-lg transition-shadow"
           onClick={() => handleStatClick("발송완료")}
         >
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              발송 완료
+          <CardHeader className="p-2 sm:p-3 pb-1 sm:pb-2">
+            <CardTitle className="text-xs sm:text-sm font-medium text-gray-600">
+              <span className="hidden sm:inline">발송 완료</span>
+              <span className="sm:hidden">완료</span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-green-700">
+          <CardContent className="p-2 sm:p-3 pt-0">
+            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-green-700">
               {stats.발송완료}
             </div>
           </CardContent>
@@ -608,15 +727,16 @@ export default function WorkflowsClient({
 
       {/* Filters and Controls */}
       <Card className="bg-white border-2 border-gray-200 shadow">
-        <CardContent className="pt-6">
-          <div className="space-y-4">
+        <CardContent className="p-3 sm:p-6">
+          <div className="space-y-3 sm:space-y-4">
             <WorkflowFilters
               onFilterChange={setFilters}
               cohorts={cohorts}
               workflowTypes={workflowTypes}
             />
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+            {/* 모바일: 세로 스택 / 데스크탑: 가로 배치 */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
                 <WorkflowViewToggle
                   currentView={viewMode}
                   onViewChange={setViewMode}
@@ -625,16 +745,19 @@ export default function WorkflowsClient({
                   variant="outline"
                   size="sm"
                   onClick={() => setCompactView(!compactView)}
+                  className="whitespace-nowrap text-xs sm:text-sm"
                 >
                   {compactView ? (
                     <>
-                      <Maximize2 className="w-4 h-4 mr-2" />
-                      상세 보기
+                      <Maximize2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                      <span className="hidden sm:inline">상세 보기</span>
+                      <span className="sm:hidden">상세</span>
                     </>
                   ) : (
                     <>
-                      <Minimize2 className="w-4 h-4 mr-2" />
-                      간단히 보기
+                      <Minimize2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                      <span className="hidden sm:inline">간단히 보기</span>
+                      <span className="sm:hidden">간단</span>
                     </>
                   )}
                 </Button>
@@ -660,7 +783,7 @@ export default function WorkflowsClient({
               <div key={cohortId} className="space-y-3">
                 {/* 기수별 헤더 */}
                 <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 shadow-md">
-                  <CardHeader className="py-4">
+                  <CardHeader className="py-3 sm:py-4 px-3 sm:px-6">
                     <button
                       onClick={() => {
                         const newExpanded = new Set(expandedCohorts);
@@ -673,21 +796,21 @@ export default function WorkflowsClient({
                       }}
                       className="w-full flex items-center justify-between hover:opacity-80 transition-opacity"
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 sm:gap-3">
                         {isCohortExpanded ? (
-                          <ChevronDown className="w-6 h-6 text-blue-600" />
+                          <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 flex-shrink-0" />
                         ) : (
-                          <ChevronRight className="w-6 h-6 text-blue-600" />
+                          <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 flex-shrink-0" />
                         )}
-                        <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center">
-                          <Users className="w-6 h-6 text-white" />
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
+                          <Users className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                         </div>
                         <div className="text-left">
-                          <CardTitle className="text-xl text-gray-900 flex items-center gap-2">
+                          <CardTitle className="text-base sm:text-xl text-gray-900 flex items-center gap-2">
                             {cohort.name}
                           </CardTitle>
-                          <CardDescription className="text-gray-700 text-sm font-medium">
-                            수강생 {totalUsers}명 · 워크플로우 {totalWorkflows}개
+                          <CardDescription className="text-gray-700 text-xs sm:text-sm font-medium">
+                            {totalUsers}명 · {totalWorkflows}개
                           </CardDescription>
                         </div>
                       </div>
@@ -697,13 +820,13 @@ export default function WorkflowsClient({
 
                 {/* 사용자별 카드 */}
                 {isCohortExpanded && (
-                  <div className="ml-8 space-y-3">
+                  <div className="ml-2 sm:ml-8 space-y-3">
                     {Object.entries(userGroups).map(([userId, { user, workflows: userWorkflows }]) => {
                       const isUserExpanded = expandedUsers.has(userId);
 
                       return (
                         <Card key={userId} className="bg-white border-2 border-gray-200 shadow-lg">
-                          <CardHeader className="py-3">
+                          <CardHeader className="py-3 px-3 sm:px-6">
                             <button
                               onClick={() => {
                                 const newExpanded = new Set(expandedUsers);
@@ -714,58 +837,117 @@ export default function WorkflowsClient({
                                 }
                                 setExpandedUsers(newExpanded);
                               }}
-                              className="w-full grid grid-cols-[1fr_auto] gap-4 items-center hover:opacity-80 transition-opacity"
+                              className="w-full hover:opacity-80 transition-opacity"
                             >
-                              <div className="flex items-center gap-3">
-                                {isUserExpanded ? (
-                                  <ChevronDown className="w-5 h-5 text-gray-600" />
-                                ) : (
-                                  <ChevronRight className="w-5 h-5 text-gray-600" />
-                                )}
-                                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                                  <User className="w-5 h-5 text-blue-600" />
+                              {/* 모바일: 세로 레이아웃 */}
+                              <div className="lg:hidden space-y-2">
+                                <div className="flex items-center gap-2">
+                                  {isUserExpanded ? (
+                                    <ChevronDown className="w-4 h-4 text-gray-600 flex-shrink-0" />
+                                  ) : (
+                                    <ChevronRight className="w-4 h-4 text-gray-600 flex-shrink-0" />
+                                  )}
+                                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                                    <User className="w-4 h-4 text-blue-600" />
+                                  </div>
+                                  <div className="text-left min-w-0 flex-1">
+                                    <CardTitle className="text-base text-gray-900 truncate">
+                                      {user.이름}
+                                    </CardTitle>
+                                    <CardDescription className="text-gray-600 text-xs truncate">
+                                      {userWorkflows.length}개 · {user.연락처 || "미등록"}
+                                    </CardDescription>
+                                  </div>
                                 </div>
-                                <div className="text-left">
-                                  <CardTitle className="text-lg text-gray-900">
-                                    {user.이름}
-                                  </CardTitle>
-                                  <CardDescription className="text-gray-600 text-sm">
-                                    워크플로우 {userWorkflows.length}개 · 연락처: {user.연락처 || "미등록"}
-                                  </CardDescription>
+                                {/* 모바일 뱃지/버튼 그룹 */}
+                                <div className="flex flex-wrap items-center gap-1 pl-6" onClick={(e) => e.stopPropagation()}>
+                                  <WorkflowStatusIcons
+                                    workflows={userWorkflows}
+                                    homepageCompleted={user.homepageCompleted || false}
+                                  />
+                                  <AdAutomationBadge
+                                    enabled={user.adAutomationEnabled || false}
+                                    startDate={user.adAutomationStartDate}
+                                    endDate={user.adAutomationEndDate}
+                                    marketingSupportEndDate={user.marketingSupportEndDate}
+                                  />
+                                  <SmsSettingBadge enabled={user.smsSettingEnabled || false} />
+                                  <NaverAdSettingBadge enabled={user.naverAdSettingEnabled || false} />
+                                  <UserWorkflowSMSButton
+                                    userId={userId}
+                                    userName={user.이름}
+                                    userPhone={user.연락처}
+                                    workflows={userWorkflows}
+                                  />
+                                  <UserOrderCompleteButton
+                                    userId={userId}
+                                    userName={user.이름}
+                                    userPhone={user.연락처}
+                                    userEmail={user.email}
+                                    workflows={userWorkflows}
+                                  />
+                                  <UserShippingSMSButton
+                                    userId={userId}
+                                    userName={user.이름}
+                                    userPhone={user.연락처}
+                                    workflows={userWorkflows}
+                                  />
                                 </div>
                               </div>
-                              <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                                <WorkflowStatusIcons
-                                  workflows={userWorkflows}
-                                  homepageCompleted={user.homepageCompleted || false}
-                                />
-                                <AdAutomationBadge
-                                  enabled={user.adAutomationEnabled || false}
-                                  startDate={user.adAutomationStartDate}
-                                  endDate={user.adAutomationEndDate}
-                                  marketingSupportEndDate={user.marketingSupportEndDate}
-                                />
-                                <SmsSettingBadge enabled={user.smsSettingEnabled || false} />
-                                <NaverAdSettingBadge enabled={user.naverAdSettingEnabled || false} />
-                                <UserWorkflowSMSButton
-                                  userId={userId}
-                                  userName={user.이름}
-                                  userPhone={user.연락처}
-                                  workflows={userWorkflows}
-                                />
-                                <UserOrderCompleteButton
-                                  userId={userId}
-                                  userName={user.이름}
-                                  userPhone={user.연락처}
-                                  userEmail={user.email}
-                                  workflows={userWorkflows}
-                                />
-                                <UserShippingSMSButton
-                                  userId={userId}
-                                  userName={user.이름}
-                                  userPhone={user.연락처}
-                                  workflows={userWorkflows}
-                                />
+
+                              {/* 데스크탑: 가로 레이아웃 */}
+                              <div className="hidden lg:grid grid-cols-[1fr_auto] gap-4 items-center">
+                                <div className="flex items-center gap-3">
+                                  {isUserExpanded ? (
+                                    <ChevronDown className="w-5 h-5 text-gray-600" />
+                                  ) : (
+                                    <ChevronRight className="w-5 h-5 text-gray-600" />
+                                  )}
+                                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                    <User className="w-5 h-5 text-blue-600" />
+                                  </div>
+                                  <div className="text-left">
+                                    <CardTitle className="text-lg text-gray-900">
+                                      {user.이름}
+                                    </CardTitle>
+                                    <CardDescription className="text-gray-600 text-sm">
+                                      워크플로우 {userWorkflows.length}개 · 연락처: {user.연락처 || "미등록"}
+                                    </CardDescription>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                                  <WorkflowStatusIcons
+                                    workflows={userWorkflows}
+                                    homepageCompleted={user.homepageCompleted || false}
+                                  />
+                                  <AdAutomationBadge
+                                    enabled={user.adAutomationEnabled || false}
+                                    startDate={user.adAutomationStartDate}
+                                    endDate={user.adAutomationEndDate}
+                                    marketingSupportEndDate={user.marketingSupportEndDate}
+                                  />
+                                  <SmsSettingBadge enabled={user.smsSettingEnabled || false} />
+                                  <NaverAdSettingBadge enabled={user.naverAdSettingEnabled || false} />
+                                  <UserWorkflowSMSButton
+                                    userId={userId}
+                                    userName={user.이름}
+                                    userPhone={user.연락처}
+                                    workflows={userWorkflows}
+                                  />
+                                  <UserOrderCompleteButton
+                                    userId={userId}
+                                    userName={user.이름}
+                                    userPhone={user.연락처}
+                                    userEmail={user.email}
+                                    workflows={userWorkflows}
+                                  />
+                                  <UserShippingSMSButton
+                                    userId={userId}
+                                    userName={user.이름}
+                                    userPhone={user.연락처}
+                                    workflows={userWorkflows}
+                                  />
+                                </div>
                               </div>
                             </button>
                           </CardHeader>

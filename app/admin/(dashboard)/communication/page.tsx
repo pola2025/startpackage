@@ -924,7 +924,7 @@ export default function AdminCommunicationPage() {
                       }
                     }}
                     placeholder="답글을 입력하세요... (Enter: 전송, Shift+Enter: 줄바꿈)"
-                    className="bg-white border-gray-200 text-gray-900 resize-none min-h-[60px] sm:min-h-[100px] text-sm sm:text-base"
+                    className="bg-white border-gray-200 text-gray-900 resize-none min-h-[80px] sm:min-h-[120px] text-sm sm:text-base"
                   />
                   <div className="flex flex-wrap items-center gap-2">
                     <Popover>

@@ -292,14 +292,80 @@ export default function AdminLayout({
         </header>
 
         {/* Page Content */}
-        <main className="relative p-4 sm:p-6 md:p-8">{children}</main>
+        <main className="relative p-3 sm:p-4 md:p-6 lg:p-8 pb-20 lg:pb-8">{children}</main>
 
-        {/* Footer */}
-        <footer className="relative mt-12 border-t border-gray-200 bg-white py-6">
+        {/* Footer - Desktop only */}
+        <footer className="relative mt-12 border-t border-gray-200 bg-white py-6 hidden lg:block">
           <div className="container mx-auto px-4 text-center text-sm text-gray-500">
             <p>© 비즈액터스쿨 스타트패키지 관리자. All rights reserved.</p>
           </div>
         </footer>
+
+        {/* Mobile Bottom Navigation */}
+        <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40 lg:hidden shadow-lg">
+          <div className="flex items-center justify-around h-16">
+            <Link
+              href="/admin"
+              className={`flex flex-col items-center justify-center flex-1 h-full ${
+                pathname === "/admin"
+                  ? "text-red-600"
+                  : "text-gray-500"
+              }`}
+            >
+              <LayoutDashboard className="w-5 h-5" />
+              <span className="text-xs mt-1">대시보드</span>
+            </Link>
+            <Link
+              href="/admin/workflows"
+              className={`flex flex-col items-center justify-center flex-1 h-full ${
+                pathname === "/admin/workflows"
+                  ? "text-red-600"
+                  : "text-gray-500"
+              }`}
+            >
+              <Workflow className="w-5 h-5" />
+              <span className="text-xs mt-1">워크플로우</span>
+            </Link>
+            <Link
+              href="/admin/users"
+              className={`flex flex-col items-center justify-center flex-1 h-full ${
+                pathname === "/admin/users"
+                  ? "text-red-600"
+                  : "text-gray-500"
+              }`}
+            >
+              <Users className="w-5 h-5" />
+              <span className="text-xs mt-1">사용자</span>
+            </Link>
+            <Link
+              href="/admin/communication"
+              className={`flex flex-col items-center justify-center flex-1 h-full relative ${
+                pathname === "/admin/communication"
+                  ? "text-red-600"
+                  : "text-gray-500"
+              }`}
+            >
+              <div className="relative">
+                <MessageSquare className="w-5 h-5" />
+                {unreadMessageCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                    {unreadMessageCount > 9 ? "9+" : unreadMessageCount}
+                  </span>
+                )}
+              </div>
+              <span className="text-xs mt-1">문의</span>
+            </Link>
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className={`flex flex-col items-center justify-center flex-1 h-full ${
+                sidebarOpen ? "text-red-600" : "text-gray-500"
+              }`}
+            >
+              {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              <span className="text-xs mt-1">{sidebarOpen ? "닫기" : "더보기"}</span>
+            </button>
+          </div>
+        </nav>
       </div>
     </div>
   );

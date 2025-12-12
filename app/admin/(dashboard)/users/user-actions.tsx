@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
@@ -26,7 +26,72 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, Trash2, Eye, ExternalLink, GraduationCap, UserCheck, Send, MessageSquare, Paperclip, X, Loader2, Phone } from "lucide-react";
+import { MoreVertical, Trash2, Eye, ExternalLink, GraduationCap, UserCheck, Send, MessageSquare, Paperclip, X, Loader2, Phone, FileText, ChevronDown } from "lucide-react";
+
+// 이메일 템플릿 정의
+const EMAIL_TEMPLATES = [
+  {
+    id: "homepage-complete",
+    name: "홈페이지 제작 완료",
+    title: "홈페이지 제작 완료 안내",
+    content: `홈페이지 제작이 완료되었습니다.
+
+텔레그램 설정 참고
+(이 과정을 안하시면 스팸메세지 계속 수신됩니다.)
+https://www.polaai.co.kr/dashboard/guides
+
+텔레그램 채팅방
+https://t.me/+TH1D9UVrEXBhMWI1
+
+아임웹 결제 안내
+https://www.polaai.co.kr/dashboard/guides#imweb`,
+  },
+  {
+    id: "card-complete",
+    name: "명함 제작 완료",
+    title: "명함 제작 완료 안내",
+    content: `명함 제작이 완료되었습니다.
+
+첨부된 시안을 확인해 주세요.
+수정이 필요하시면 문의하기를 통해 연락 부탁드립니다.`,
+  },
+  {
+    id: "nametag-complete",
+    name: "명찰 제작 완료",
+    title: "명찰 제작 완료 안내",
+    content: `명찰 제작이 완료되었습니다.
+
+첨부된 시안을 확인해 주세요.
+수정이 필요하시면 문의하기를 통해 연락 부탁드립니다.`,
+  },
+  {
+    id: "envelope-complete",
+    name: "대봉투 제작 완료",
+    title: "대봉투 제작 완료 안내",
+    content: `대봉투 제작이 완료되었습니다.
+
+첨부된 시안을 확인해 주세요.
+수정이 필요하시면 문의하기를 통해 연락 부탁드립니다.`,
+  },
+  {
+    id: "contract-cover-complete",
+    name: "자문계약서 표지 제작 완료",
+    title: "자문계약서 표지 제작 완료 안내",
+    content: `자문계약서 표지 제작이 완료되었습니다.
+
+첨부된 시안을 확인해 주세요.
+수정이 필요하시면 문의하기를 통해 연락 부탁드립니다.`,
+  },
+  {
+    id: "contract-inner-complete",
+    name: "자문계약서 내지 제작 완료",
+    title: "자문계약서 내지 제작 완료 안내",
+    content: `자문계약서 내지 제작이 완료되었습니다.
+
+첨부된 시안을 확인해 주세요.
+수정이 필요하시면 문의하기를 통해 연락 부탁드립니다.`,
+  },
+];
 
 interface UserActionsProps {
   user: any;
@@ -45,6 +110,8 @@ export default function UserActions({ user }: UserActionsProps) {
   const [messageChannel, setMessageChannel] = useState<"SMS" | "EMAIL">("SMS");
   const [messageTitle, setMessageTitle] = useState("");
   const [messageContent, setMessageContent] = useState("");
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+  const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
 
   // 이메일 첨부파일
   const [emailAttachments, setEmailAttachments] = useState<Array<{
@@ -194,6 +261,24 @@ export default function UserActions({ user }: UserActionsProps) {
     return (bytes / (1024 * 1024)).toFixed(1) + " MB";
   };
 
+  // 템플릿 선택 핸들러
+  const handleSelectTemplate = (templateId: string | null) => {
+    setSelectedTemplateId(templateId);
+    setShowTemplateDropdown(false);
+
+    if (templateId) {
+      const template = EMAIL_TEMPLATES.find((t) => t.id === templateId);
+      if (template) {
+        setMessageTitle(template.title);
+        setMessageContent(template.content);
+      }
+    } else {
+      // "직접 작성" 선택 시 초기화
+      setMessageTitle("");
+      setMessageContent("");
+    }
+  };
+
   const handleSendMessage = async () => {
     if (!messageTitle.trim() || !messageContent.trim()) {
       alert("제목과 메시지를 모두 입력해주세요.");
@@ -227,6 +312,7 @@ export default function UserActions({ user }: UserActionsProps) {
       setMessageTitle("");
       setMessageContent("");
       setEmailAttachments([]);
+      setSelectedTemplateId(null);
       router.refresh();
     } catch (error: any) {
       alert(error.message || "메시지 발송 중 오류가 발생했습니다.");
@@ -748,6 +834,55 @@ export default function UserActions({ user }: UserActionsProps) {
                 </button>
               </div>
             </div>
+
+            {/* 템플릿 선택 (이메일 선택 시만 표시) */}
+            {messageChannel === "EMAIL" && (
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-900">템플릿 선택</label>
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setShowTemplateDropdown(!showTemplateDropdown)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-left flex items-center justify-between hover:border-purple-400 transition-colors"
+                  >
+                    <span className="flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-gray-500" />
+                      {selectedTemplateId
+                        ? EMAIL_TEMPLATES.find((t) => t.id === selectedTemplateId)?.name
+                        : "직접 작성"}
+                    </span>
+                    <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showTemplateDropdown ? "rotate-180" : ""}`} />
+                  </button>
+
+                  {showTemplateDropdown && (
+                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg">
+                      <button
+                        type="button"
+                        onClick={() => handleSelectTemplate(null)}
+                        className={`w-full px-4 py-2 text-left hover:bg-purple-50 transition-colors ${
+                          !selectedTemplateId ? "bg-purple-50 text-purple-700" : "text-gray-700"
+                        }`}
+                      >
+                        직접 작성
+                      </button>
+                      {EMAIL_TEMPLATES.map((template) => (
+                        <button
+                          key={template.id}
+                          type="button"
+                          onClick={() => handleSelectTemplate(template.id)}
+                          className={`w-full px-4 py-2 text-left hover:bg-purple-50 transition-colors border-t border-gray-100 ${
+                            selectedTemplateId === template.id ? "bg-purple-50 text-purple-700" : "text-gray-700"
+                          }`}
+                        >
+                          {template.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <p className="text-xs text-gray-500">템플릿 선택 후 내용을 수정할 수 있습니다</p>
+              </div>
+            )}
 
             {/* 제목 입력 */}
             <div className="space-y-2">

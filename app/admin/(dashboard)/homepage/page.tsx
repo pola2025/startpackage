@@ -239,14 +239,14 @@ export default function HomepageManagementPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* 헤더 */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-          <Globe className="w-7 h-7" />
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 flex items-center gap-2">
+          <Globe className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7" />
           홈페이지 관리
         </h1>
-        <p className="text-gray-600 mt-1">
+        <p className="text-sm sm:text-base text-gray-600 mt-1">
           사용자별 홈페이지 제작 방식 및 제출 정보를 관리합니다.
         </p>
       </div>

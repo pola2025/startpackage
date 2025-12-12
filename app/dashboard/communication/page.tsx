@@ -811,8 +811,8 @@ export default function UserCommunicationPage() {
                         value={replyContent}
                         onChange={(e) => setReplyContent(e.target.value)}
                         placeholder="메시지 입력..."
-                        className="resize-none min-h-[44px] max-h-[120px] text-base flex-1 py-2.5"
-                        rows={1}
+                        className="resize-none min-h-[60px] max-h-[160px] text-base flex-1 py-3"
+                        rows={2}
                       />
                       <Button
                         onClick={handleSendReply}
@@ -839,7 +839,7 @@ export default function UserCommunicationPage() {
                           }
                         }}
                         placeholder="답글을 입력하세요... (Enter: 전송, Shift+Enter: 줄바꿈)"
-                        className="resize-none min-h-[80px] text-base"
+                        className="resize-none min-h-[100px] text-base"
                       />
                       <div className="flex items-center justify-between gap-2">
                         <div>

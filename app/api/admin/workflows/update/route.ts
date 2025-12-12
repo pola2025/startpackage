@@ -214,14 +214,14 @@ export async function POST(request: NextRequest) {
         // 자동 발송 없음 - "발주완료 알림 발송" 버튼으로 일괄 발송
       }
 
-      // 제작 완료 알림
+      // 제작 완료 알림 (텔레그램/슬랙 + 이메일만, SMS는 수동 발송)
       if (status === "제작완료" && currentWorkflow.status !== "제작완료") {
         await handleProductionComplete({
           userId: updatedWorkflow.userId,
           itemName: updatedWorkflow.type,
         });
 
-        // 이메일 발송
+        // 이메일 발송 (Resend)
         if (updatedWorkflow.user.email) {
           const { sendEmail } = await import("@/lib/email/resendClient");
           await sendEmail({
@@ -236,26 +236,11 @@ export async function POST(request: NextRequest) {
           });
         }
 
-        // SMS 발송
-        if (updatedWorkflow.user.연락처) {
-          const { sendSMS } = await import("@/lib/sms/ncpSensClient");
-          const message = `[스타트패키지] ${updatedWorkflow.type} 제작이 완료되었습니다.\n\n곧 배송이 시작될 예정입니다.`;
-          await sendSMS(updatedWorkflow.user.연락처, message);
-
-          await prisma.notification.create({
-            data: {
-              userId: updatedWorkflow.userId,
-              type: "제작완료",
-              channel: "SMS",
-              title: `[스타트패키지] ${updatedWorkflow.type} 제작 완료`,
-              message,
-              status: "성공",
-            },
-          });
-        }
+        // SMS 자동 발송 비활성화 - 관리자가 수동으로 발송
+        // 필요시 사용자관리 > 메시지 발송 기능 사용
       }
 
-      // 홈페이지 "제작 완료" 알림 (주소만 전송)
+      // 홈페이지 "제작 완료" 알림 (이메일만 - SMS는 수동 발송)
       if (
         currentWorkflow.type === "홈페이지" &&
         status === "제작 완료" &&
@@ -263,7 +248,7 @@ export async function POST(request: NextRequest) {
       ) {
         const 홈페이지주소 = updatedWorkflow.시안URL || "";
 
-        // 이메일 발송 (홈페이지 주소만 포함)
+        // 이메일 발송 (Resend - 홈페이지 주소만 포함)
         if (updatedWorkflow.user.email && 홈페이지주소) {
           const { sendEmail } = await import("@/lib/email/resendClient");
           await sendEmail({
@@ -278,23 +263,8 @@ export async function POST(request: NextRequest) {
           });
         }
 
-        // SMS 발송 (홈페이지 주소만 포함)
-        if (updatedWorkflow.user.연락처 && 홈페이지주소) {
-          const { sendSMS } = await import("@/lib/sms/ncpSensClient");
-          const message = `[스타트패키지] 홈페이지 제작이 완료되었습니다.\n\n홈페이지 주소: ${홈페이지주소}`;
-          await sendSMS(updatedWorkflow.user.연락처, message);
-
-          await prisma.notification.create({
-            data: {
-              userId: updatedWorkflow.userId,
-              type: "제작완료",
-              channel: "SMS",
-              title: `[스타트패키지] 홈페이지 제작 완료`,
-              message,
-              status: "성공",
-            },
-          });
-        }
+        // SMS 자동 발송 비활성화 - 관리자가 수동으로 발송
+        // 필요시 사용자관리 > 메시지 발송 기능(템플릿: 홈페이지 제작 완료) 사용
       }
 
       // 택배 정보 입력 시 알림 (SMS는 수동 발송으로 변경)

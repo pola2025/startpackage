@@ -11,8 +11,16 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerFooter,
+} from "@/components/ui/drawer";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { Megaphone, CheckCircle, XCircle, Clock, User, Mail, Phone, Calendar } from "lucide-react";
 
 interface MarketingExtensionRequest {
@@ -48,6 +56,7 @@ export default function MarketingExtensionsPage() {
   const [actionType, setActionType] = useState<"approve" | "reject" | null>(null);
   const [adminResponse, setAdminResponse] = useState("");
   const [processing, setProcessing] = useState(false);
+  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const fetchRequests = async () => {
     try {
@@ -145,53 +154,56 @@ export default function MarketingExtensionsPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold neon-text-red">마케팅 지원 연장 신청</h1>
-          <p className="text-gray-400 mt-2">사용자의 마케팅 지원 기간 연장 신청을 관리합니다</p>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold neon-text-red">마케팅 지원 연장 신청</h1>
+          <p className="text-sm sm:text-base text-gray-400 mt-1 sm:mt-2">사용자의 마케팅 지원 기간 연장 신청을 관리합니다</p>
         </div>
-        <Megaphone className="w-8 h-8 text-neon-red" />
+        <Megaphone className="w-6 h-6 sm:w-8 sm:h-8 text-neon-red flex-shrink-0" />
       </div>
 
-      {/* Status Filter */}
+      {/* Status Filter - 모바일에서 가로 스크롤 */}
       <Card className="glass border-white/10">
-        <CardContent className="pt-6">
-          <div className="flex gap-2">
+        <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6">
+          <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
             <Button
               variant={statusFilter === "pending" ? "default" : "outline"}
               onClick={() => setStatusFilter("pending")}
-              className={
+              size="sm"
+              className={`flex-shrink-0 h-9 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm ${
                 statusFilter === "pending"
                   ? "bg-neon-red text-white"
                   : "border-white/20 text-gray-400"
-              }
+              }`}
             >
-              <Clock className="w-4 h-4 mr-2" />
+              <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
               대기중
             </Button>
             <Button
               variant={statusFilter === "approved" ? "default" : "outline"}
               onClick={() => setStatusFilter("approved")}
-              className={
+              size="sm"
+              className={`flex-shrink-0 h-9 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm ${
                 statusFilter === "approved"
                   ? "bg-neon-red text-white"
                   : "border-white/20 text-gray-400"
-              }
+              }`}
             >
-              <CheckCircle className="w-4 h-4 mr-2" />
+              <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
               승인됨
             </Button>
             <Button
               variant={statusFilter === "rejected" ? "default" : "outline"}
               onClick={() => setStatusFilter("rejected")}
-              className={
+              size="sm"
+              className={`flex-shrink-0 h-9 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm ${
                 statusFilter === "rejected"
                   ? "bg-neon-red text-white"
                   : "border-white/20 text-gray-400"
-              }
+              }`}
             >
-              <XCircle className="w-4 h-4 mr-2" />
+              <XCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
               거부됨
             </Button>
           </div>
@@ -212,67 +224,74 @@ export default function MarketingExtensionsPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4">
+        <div className="grid gap-3 sm:gap-4">
           {requests.map((request) => (
             <Card key={request.id} className="glass border-white/10">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-white flex items-center gap-2">
-                      <User className="w-4 h-4" />
-                      {request.user.이름}
+              <CardHeader className="px-3 sm:px-6 py-3 sm:py-4">
+                {/* 모바일: 세로 배치, 데스크톱: 가로 배치 */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
+                  <div className="min-w-0 flex-1">
+                    <CardTitle className="text-white flex items-center gap-2 text-base sm:text-lg">
+                      <User className="w-4 h-4 flex-shrink-0" />
+                      <span className="truncate">{request.user.이름}</span>
+                      {/* 모바일에서 배지를 이름 옆에 표시 */}
+                      <span className="sm:hidden">{getStatusBadge(request.status)}</span>
                     </CardTitle>
-                    <p className="text-sm text-gray-400 mt-1 flex items-center gap-2">
-                      <Mail className="w-3 h-3" />
-                      {request.user.email}
+                    <p className="text-xs sm:text-sm text-gray-400 mt-1 flex items-center gap-2">
+                      <Mail className="w-3 h-3 flex-shrink-0" />
+                      <span className="truncate">{request.user.email}</span>
                     </p>
                     {request.user.cohort && (
-                      <p className="text-sm text-gray-400 mt-1">
+                      <p className="text-xs sm:text-sm text-gray-400 mt-1">
                         기수: {request.user.cohort.name}
                       </p>
                     )}
                   </div>
-                  {getStatusBadge(request.status)}
+                  {/* 데스크톱에서만 배지 표시 */}
+                  <div className="hidden sm:block flex-shrink-0">
+                    {getStatusBadge(request.status)}
+                  </div>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6 pt-0">
                 <div className="space-y-3">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-black/30 p-4 rounded-lg">
+                  {/* 날짜 정보 그리드 */}
+                  <div className="grid grid-cols-2 gap-2 sm:gap-3 bg-black/30 p-3 sm:p-4 rounded-lg">
                     <div>
-                      <p className="text-xs text-gray-500 mb-1">현재 종료일</p>
-                      <p className="text-sm text-white font-medium flex items-center gap-2">
-                        <Calendar className="w-3 h-3 text-gray-400" />
+                      <p className="text-[10px] sm:text-xs text-gray-500 mb-1">현재 종료일</p>
+                      <p className="text-xs sm:text-sm text-white font-medium flex items-center gap-1.5 sm:gap-2">
+                        <Calendar className="w-3 h-3 text-gray-400 flex-shrink-0" />
                         {new Date(request.currentEndDate).toLocaleDateString("ko-KR")}
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500 mb-1">연장 후 종료일</p>
-                      <p className="text-sm text-green-400 font-medium flex items-center gap-2">
-                        <Calendar className="w-3 h-3 text-green-400" />
+                      <p className="text-[10px] sm:text-xs text-gray-500 mb-1">연장 후 종료일</p>
+                      <p className="text-xs sm:text-sm text-green-400 font-medium flex items-center gap-1.5 sm:gap-2">
+                        <Calendar className="w-3 h-3 text-green-400 flex-shrink-0" />
                         {new Date(request.newEndDate).toLocaleDateString("ko-KR")}
                       </p>
                     </div>
                   </div>
 
-                  <div className="space-y-2 text-sm text-gray-400">
+                  <div className="space-y-2 text-xs sm:text-sm text-gray-400">
                     <p className="flex items-center gap-2">
-                      <Phone className="w-3 h-3" />
-                      연락처: {request.user.연락처}
+                      <Phone className="w-3 h-3 flex-shrink-0" />
+                      <span className="truncate">연락처: {request.user.연락처}</span>
                     </p>
-                    <p>
+                    <p className="text-xs sm:text-sm">
                       신청일시:{" "}
                       {new Date(request.requestDate).toLocaleString("ko-KR", {
                         timeZone: "Asia/Seoul",
                       })}
                     </p>
                     {request.requestMessage && (
-                      <div className="bg-blue-500/10 p-3 rounded border border-blue-500/20">
-                        <p className="text-xs text-gray-500 mb-1">요청 메시지</p>
-                        <p className="text-sm text-blue-300">{request.requestMessage}</p>
+                      <div className="bg-blue-500/10 p-2.5 sm:p-3 rounded border border-blue-500/20">
+                        <p className="text-[10px] sm:text-xs text-gray-500 mb-1">요청 메시지</p>
+                        <p className="text-xs sm:text-sm text-blue-300 break-words">{request.requestMessage}</p>
                       </div>
                     )}
                     {request.reviewedAt && (
-                      <p>
+                      <p className="text-xs sm:text-sm">
                         처리일시:{" "}
                         {new Date(request.reviewedAt).toLocaleString("ko-KR", {
                           timeZone: "Asia/Seoul",
@@ -280,24 +299,25 @@ export default function MarketingExtensionsPage() {
                       </p>
                     )}
                     {request.adminResponse && (
-                      <div className={`p-3 rounded border ${
+                      <div className={`p-2.5 sm:p-3 rounded border ${
                         request.status === "approved"
                           ? "bg-green-500/10 border-green-500/20"
                           : "bg-red-500/10 border-red-500/20"
                       }`}>
-                        <p className="text-xs text-gray-500 mb-1">관리자 응답</p>
-                        <p className={`text-sm ${
+                        <p className="text-[10px] sm:text-xs text-gray-500 mb-1">관리자 응답</p>
+                        <p className={`text-xs sm:text-sm break-words ${
                           request.status === "approved" ? "text-green-300" : "text-red-300"
                         }`}>{request.adminResponse}</p>
                       </div>
                     )}
                   </div>
 
+                  {/* 승인/거부 버튼 - 모바일에서 전체 너비 */}
                   {request.status === "pending" && (
-                    <div className="flex gap-2 mt-4">
+                    <div className="flex flex-col sm:flex-row gap-2 mt-3 sm:mt-4 pt-3 border-t border-white/10">
                       <Button
                         onClick={() => openDialog(request, "approve")}
-                        className="bg-green-500 hover:bg-green-600 text-white"
+                        className="bg-green-500 hover:bg-green-600 text-white w-full sm:w-auto h-10 sm:h-9 text-sm"
                       >
                         <CheckCircle className="w-4 h-4 mr-2" />
                         승인
@@ -305,7 +325,7 @@ export default function MarketingExtensionsPage() {
                       <Button
                         onClick={() => openDialog(request, "reject")}
                         variant="outline"
-                        className="border-red-500/50 text-red-500 hover:bg-red-500/10"
+                        className="border-red-500/50 text-red-500 hover:bg-red-500/10 w-full sm:w-auto h-10 sm:h-9 text-sm"
                       >
                         <XCircle className="w-4 h-4 mr-2" />
                         거부
@@ -319,81 +339,160 @@ export default function MarketingExtensionsPage() {
         </div>
       )}
 
-      {/* Action Dialog */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="bg-black/95 border-white/20 sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle className="text-white">
-              {actionType === "approve" ? "마케팅 지원 연장 승인" : "마케팅 지원 연장 거부"}
-            </DialogTitle>
-          </DialogHeader>
+      {/* Action Dialog/Drawer - 모바일: Drawer, 데스크톱: Dialog */}
+      {isDesktop ? (
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogContent className="bg-black/95 border-white/20 sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle className="text-white">
+                {actionType === "approve" ? "마케팅 지원 연장 승인" : "마케팅 지원 연장 거부"}
+              </DialogTitle>
+            </DialogHeader>
 
-          <div className="space-y-4">
-            <div className="bg-black/50 p-4 rounded border border-white/10">
-              <p className="text-sm text-gray-400">신청자: {selectedRequest?.user.이름}</p>
-              <p className="text-sm text-gray-400">이메일: {selectedRequest?.user.email}</p>
-              <p className="text-sm text-gray-400 mt-2">
-                현재 종료일: {selectedRequest && new Date(selectedRequest.currentEndDate).toLocaleDateString("ko-KR")}
-              </p>
-              <p className="text-sm text-green-400 font-medium">
-                연장 후 종료일: {selectedRequest && new Date(selectedRequest.newEndDate).toLocaleDateString("ko-KR")}
-              </p>
-            </div>
-
-            {actionType === "approve" && (
-              <div className="bg-yellow-500/10 p-4 rounded border border-yellow-500/20">
-                <p className="text-sm font-medium text-yellow-300 mb-2">결제 정보 안내</p>
-                <div className="space-y-1 text-xs text-gray-400">
-                  <p>계좌번호: 우리은행 1005-302-954803</p>
-                  <p>예금주: 폴라애드(이재호)</p>
-                  <p>금액: 660,000원 (VAT 포함, 3개월분)</p>
-                  <p className="text-xs text-gray-500 mt-1">월 220,000원 (VAT 포함)</p>
-                </div>
+            <div className="space-y-4">
+              <div className="bg-black/50 p-4 rounded border border-white/10">
+                <p className="text-sm text-gray-400">신청자: {selectedRequest?.user.이름}</p>
+                <p className="text-sm text-gray-400">이메일: {selectedRequest?.user.email}</p>
+                <p className="text-sm text-gray-400 mt-2">
+                  현재 종료일: {selectedRequest && new Date(selectedRequest.currentEndDate).toLocaleDateString("ko-KR")}
+                </p>
+                <p className="text-sm text-green-400 font-medium">
+                  연장 후 종료일: {selectedRequest && new Date(selectedRequest.newEndDate).toLocaleDateString("ko-KR")}
+                </p>
               </div>
-            )}
 
-            <div className="space-y-2">
-              <Label htmlFor="adminResponse" className="text-gray-300">
-                {actionType === "approve" ? "관리자 메시지 (선택사항)" : "거부 사유 (필수)"}
-              </Label>
-              <Textarea
-                id="adminResponse"
-                value={adminResponse}
-                onChange={(e) => setAdminResponse(e.target.value)}
-                placeholder={
-                  actionType === "approve"
-                    ? "승인 메시지를 입력하세요..."
-                    : "거부 사유를 입력하세요..."
-                }
-                className="bg-black/50 border-white/20 text-white resize-none"
-                rows={4}
-              />
+              {actionType === "approve" && (
+                <div className="bg-yellow-500/10 p-4 rounded border border-yellow-500/20">
+                  <p className="text-sm font-medium text-yellow-300 mb-2">결제 정보 안내</p>
+                  <div className="space-y-1 text-xs text-gray-400">
+                    <p>계좌번호: 우리은행 1005-302-954803</p>
+                    <p>예금주: 폴라애드(이재호)</p>
+                    <p>금액: 660,000원 (VAT 포함, 3개월분)</p>
+                    <p className="text-xs text-gray-500 mt-1">월 220,000원 (VAT 포함)</p>
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="adminResponse" className="text-gray-300">
+                  {actionType === "approve" ? "관리자 메시지 (선택사항)" : "거부 사유 (필수)"}
+                </Label>
+                <Textarea
+                  id="adminResponse"
+                  value={adminResponse}
+                  onChange={(e) => setAdminResponse(e.target.value)}
+                  placeholder={
+                    actionType === "approve"
+                      ? "승인 메시지를 입력하세요..."
+                      : "거부 사유를 입력하세요..."
+                  }
+                  className="bg-black/50 border-white/20 text-white resize-none"
+                  rows={4}
+                />
+              </div>
             </div>
-          </div>
 
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDialogOpen(false)}
-              disabled={processing}
-              className="border-white/20 text-gray-400"
-            >
-              취소
-            </Button>
-            <Button
-              onClick={handleAction}
-              disabled={processing || (actionType === "reject" && !adminResponse)}
-              className={
-                actionType === "approve"
-                  ? "bg-green-500 hover:bg-green-600 text-white"
-                  : "bg-red-500 hover:bg-red-600 text-white"
-              }
-            >
-              {processing ? "처리 중..." : actionType === "approve" ? "승인" : "거부"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setDialogOpen(false)}
+                disabled={processing}
+                className="border-white/20 text-gray-400"
+              >
+                취소
+              </Button>
+              <Button
+                onClick={handleAction}
+                disabled={processing || (actionType === "reject" && !adminResponse)}
+                className={
+                  actionType === "approve"
+                    ? "bg-green-500 hover:bg-green-600 text-white"
+                    : "bg-red-500 hover:bg-red-600 text-white"
+                }
+              >
+                {processing ? "처리 중..." : actionType === "approve" ? "승인" : "거부"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      ) : (
+        <Drawer open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DrawerContent className="bg-black/95 border-white/20 max-h-[90vh]">
+            <DrawerHeader className="pb-2">
+              <DrawerTitle className="text-white text-lg">
+                {actionType === "approve" ? "마케팅 지원 연장 승인" : "마케팅 지원 연장 거부"}
+              </DrawerTitle>
+            </DrawerHeader>
+
+            <div className="px-4 space-y-3 overflow-y-auto flex-1">
+              <div className="bg-black/50 p-3 rounded border border-white/10">
+                <p className="text-sm text-gray-400">신청자: {selectedRequest?.user.이름}</p>
+                <p className="text-sm text-gray-400 truncate">이메일: {selectedRequest?.user.email}</p>
+                <p className="text-sm text-gray-400 mt-2">
+                  현재 종료일: {selectedRequest && new Date(selectedRequest.currentEndDate).toLocaleDateString("ko-KR")}
+                </p>
+                <p className="text-sm text-green-400 font-medium">
+                  연장 후 종료일: {selectedRequest && new Date(selectedRequest.newEndDate).toLocaleDateString("ko-KR")}
+                </p>
+              </div>
+
+              {actionType === "approve" && (
+                <div className="bg-yellow-500/10 p-3 rounded border border-yellow-500/20">
+                  <p className="text-sm font-medium text-yellow-300 mb-2">결제 정보 안내</p>
+                  <div className="space-y-1 text-xs text-gray-400">
+                    <p>계좌번호: 우리은행 1005-302-954803</p>
+                    <p>예금주: 폴라애드(이재호)</p>
+                    <p>금액: 660,000원 (VAT 포함, 3개월분)</p>
+                    <p className="text-xs text-gray-500 mt-1">월 220,000원 (VAT 포함)</p>
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="adminResponseMobile" className="text-gray-300 text-sm">
+                  {actionType === "approve" ? "관리자 메시지 (선택사항)" : "거부 사유 (필수)"}
+                </Label>
+                <Textarea
+                  id="adminResponseMobile"
+                  value={adminResponse}
+                  onChange={(e) => setAdminResponse(e.target.value)}
+                  placeholder={
+                    actionType === "approve"
+                      ? "승인 메시지를 입력하세요..."
+                      : "거부 사유를 입력하세요..."
+                  }
+                  className="bg-black/50 border-white/20 text-white resize-none text-base"
+                  rows={3}
+                />
+              </div>
+            </div>
+
+            <DrawerFooter className="pt-3">
+              <div className="flex flex-col gap-2 w-full">
+                <Button
+                  onClick={handleAction}
+                  disabled={processing || (actionType === "reject" && !adminResponse)}
+                  className={`w-full h-11 text-base ${
+                    actionType === "approve"
+                      ? "bg-green-500 hover:bg-green-600 text-white"
+                      : "bg-red-500 hover:bg-red-600 text-white"
+                  }`}
+                >
+                  {processing ? "처리 중..." : actionType === "approve" ? "승인" : "거부"}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setDialogOpen(false)}
+                  disabled={processing}
+                  className="w-full h-11 text-base border-white/20 text-gray-400"
+                >
+                  취소
+                </Button>
+              </div>
+            </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
+      )}
     </div>
   );
 }

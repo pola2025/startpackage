@@ -184,39 +184,105 @@ export default function AdminsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">관리자 관리</h1>
-          <p className="text-gray-600">시스템 관리자 계정을 관리합니다</p>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">관리자 관리</h1>
+          <p className="text-sm sm:text-base text-gray-600">시스템 관리자 계정을 관리합니다</p>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 px-4 py-2 bg-purple-50 rounded-lg border-2 border-purple-200">
-            <Shield className="w-5 h-5 text-purple-600" />
-            <span className="text-2xl font-bold text-purple-600">
+        <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 px-2 sm:px-4 py-1.5 sm:py-2 bg-purple-50 rounded-lg border-2 border-purple-200">
+            <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
+            <span className="text-lg sm:text-2xl font-bold text-purple-600">
               {admins.length}
             </span>
-            <span className="text-sm text-gray-600">명</span>
+            <span className="text-xs sm:text-sm text-gray-600">명</span>
           </div>
           <Button
             onClick={() => setShowCreateDialog(true)}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-blue-600 hover:bg-blue-700 text-xs sm:text-sm h-8 sm:h-10 px-2 sm:px-4"
           >
-            <Plus className="w-4 h-4 mr-2" />
-            관리자 추가
+            <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">관리자 추가</span>
+            <span className="sm:hidden">추가</span>
           </Button>
         </div>
       </div>
 
       <Card className="bg-white border-2 border-gray-200 shadow-lg">
-        <CardHeader>
-          <CardTitle className="text-xl text-gray-900">관리자 목록</CardTitle>
-          <CardDescription className="text-gray-600">
+        <CardHeader className="p-3 sm:p-4 md:p-6">
+          <CardTitle className="text-base sm:text-lg md:text-xl text-gray-900">관리자 목록</CardTitle>
+          <CardDescription className="text-xs sm:text-sm text-gray-600">
             등록된 관리자 계정 정보
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
+        <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
+          {/* Mobile Card View */}
+          <div className="md:hidden space-y-3">
+            {admins.map((admin) => {
+              const isCurrentUser = (session?.user as any)?.id === admin.id;
+              return (
+                <div
+                  key={admin.id}
+                  className="border border-gray-200 rounded-lg p-3 space-y-2 bg-gray-50/50"
+                >
+                  {/* Header: 이름 + 권한 */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-gray-900">{admin.name}</span>
+                      {isCurrentUser && (
+                        <Badge className="bg-green-100 text-green-700 border-green-300 border text-xs">
+                          나
+                        </Badge>
+                      )}
+                    </div>
+                    {getRoleBadge(admin.role)}
+                  </div>
+
+                  {/* Info */}
+                  <div className="space-y-1 text-sm">
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <Mail className="w-3.5 h-3.5 text-gray-400" />
+                      <span className="truncate">{admin.email}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-500 text-xs">
+                      <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                      <span>{new Date(admin.createdAt).toLocaleDateString("ko-KR")} 가입</span>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex gap-2 pt-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedAdmin(admin);
+                        setShowResetDialog(true);
+                      }}
+                      className="flex-1 h-8 text-xs hover:bg-blue-50"
+                    >
+                      <Key className="w-3.5 h-3.5 mr-1" />
+                      비밀번호
+                    </Button>
+                    {!isCurrentUser && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(admin.id)}
+                        className="h-8 text-xs text-red-600 hover:bg-red-50 hover:text-red-700"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow className="border-gray-200 hover:bg-gray-50">

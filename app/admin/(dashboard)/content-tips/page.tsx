@@ -225,17 +225,18 @@ export default function AdminContentTipsPage() {
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-7xl">
+    <div className="container mx-auto p-3 sm:p-4 md:p-6 max-w-7xl">
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-2xl font-bold flex items-center gap-2">
-              <Lightbulb className="w-6 h-6 text-yellow-600" />
+        <CardHeader className="p-3 sm:p-4 md:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+            <CardTitle className="text-lg sm:text-xl md:text-2xl font-bold flex items-center gap-2">
+              <Lightbulb className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600" />
               콘텐츠 제작 Tip 관리
             </CardTitle>
-            <Button onClick={() => handleOpenDialog()}>
-              <Plus className="w-4 h-4 mr-2" />
-              새 콘텐츠 팁 등록
+            <Button onClick={() => handleOpenDialog()} className="self-start sm:self-auto text-xs sm:text-sm h-8 sm:h-10">
+              <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">새 콘텐츠 팁 등록</span>
+              <span className="sm:hidden">등록</span>
             </Button>
           </div>
         </CardHeader>

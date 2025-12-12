@@ -59,40 +59,42 @@ export default function UrgentAlertBanner({
 
   return (
     <Alert className="bg-gradient-to-r from-red-50 via-orange-50 to-yellow-50 border-2 border-orange-300">
-      <AlertTriangle className="h-5 w-5 text-orange-600" />
-      <AlertDescription className="ml-2">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <span className="font-semibold text-gray-900">긴급 알림</span>
-            <div className="flex items-center gap-2">
-              {urgentAlerts.map((alert, index) => (
+      <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600 flex-shrink-0" />
+      <AlertDescription className="ml-2 flex-1 min-w-0">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+            <span className="font-semibold text-gray-900 text-sm sm:text-base">긴급 알림</span>
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+              {urgentAlerts.map((alert) => (
                 <Button
                   key={alert.type}
                   variant="outline"
                   size="sm"
                   onClick={() => onAlertClick(alert.type)}
-                  className={`${alert.color} hover:opacity-80 transition-all`}
+                  className={`${alert.color} hover:opacity-80 transition-all text-xs sm:text-sm px-2 sm:px-3 h-7 sm:h-8`}
                 >
                   {alert.type === "발주요청" && (
-                    <AlertTriangle className="w-4 h-4 mr-1" />
+                    <AlertTriangle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                   )}
                   {alert.type === "피드백" && (
-                    <MessageSquare className="w-4 h-4 mr-1" />
+                    <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                   )}
-                  {alert.type === "지연" && <Clock className="w-4 h-4 mr-1" />}
-                  <span className="font-medium">{alert.label}</span>
+                  {alert.type === "지연" && <Clock className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />}
+                  <span className="font-medium hidden sm:inline">{alert.label}</span>
+                  <span className="font-medium sm:hidden">
+                    {alert.type === "발주요청" ? "발주" : alert.type === "피드백" ? "피드백" : "지연"}
+                  </span>
                   <Badge
                     variant="secondary"
-                    className="ml-2 bg-white text-gray-900"
+                    className="ml-1 sm:ml-2 bg-white text-gray-900 text-xs px-1.5"
                   >
                     {alert.count}
                   </Badge>
-                  <ArrowRight className="w-3 h-3 ml-1" />
                 </Button>
               ))}
             </div>
           </div>
-          <span className="text-sm text-gray-600">
+          <span className="text-xs sm:text-sm text-gray-600 hidden sm:block">
             클릭하여 해당 항목 보기
           </span>
         </div>
