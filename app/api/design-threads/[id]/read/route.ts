@@ -15,7 +15,7 @@ export async function PATCH(
 
     const { id: threadId } = await params;
     const user = session.user as any;
-    const isAdmin = user.role === "admin";
+    const isAdmin = ["super", "designer", "operator"].includes(user.role);
 
     // 쓰레드 존재 확인
     const thread = await prisma.designThread.findUnique({

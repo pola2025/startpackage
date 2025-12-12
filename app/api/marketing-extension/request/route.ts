@@ -12,7 +12,23 @@ export async function POST(request: Request) {
 
     const userId = (session.user as any).id;
     const body = await request.json();
-    const { requestMessage } = body;
+    const { requestMessage, months = 3 } = body;
+
+    // 유효한 개월수인지 확인
+    const validMonths = [3, 6, 12];
+    if (!validMonths.includes(months)) {
+      return NextResponse.json(
+        { error: "유효하지 않은 연장 기간입니다" },
+        { status: 400 }
+      );
+    }
+
+    // 가격 정보
+    const priceInfo: Record<number, { total: number; monthly: number }> = {
+      3: { total: 660000, monthly: 220000 },
+      6: { total: 990000, monthly: 165000 },
+      12: { total: 1320000, monthly: 110000 },
+    };
 
     // 사용자 정보 조회
     const user = await prisma.user.findUnique({
@@ -36,10 +52,10 @@ export async function POST(request: Request) {
       );
     }
 
-    // 현재 종료일로부터 3개월 후 계산
+    // 현재 종료일로부터 선택한 개월수 후 계산
     const currentEndDate = new Date(user.marketingSupportEndDate);
     const newEndDate = new Date(currentEndDate);
-    newEndDate.setMonth(newEndDate.getMonth() + 3);
+    newEndDate.setMonth(newEndDate.getMonth() + months);
 
     // 이미 pending 상태의 신청이 있는지 확인
     const existingRequest = await prisma.marketingExtensionRequest.findFirst({
@@ -69,8 +85,15 @@ export async function POST(request: Request) {
     // 관리자에게 텔레그램 알림
     try {
       const { sendTelegramMessage } = await import("@/lib/notification/telegramClient");
+      const selectedPrice = priceInfo[months];
       await sendTelegramMessage(
-        `🔔 *마케팅 지원 연장 신청*\n\n*신청자:* ${user.이름} (${user.email})\n*현재 종료일:* ${currentEndDate.toLocaleDateString("ko-KR")}\n*연장 종료일:* ${newEndDate.toLocaleDateString("ko-KR")}\n*요청 메시지:* ${requestMessage || "(없음)"}`
+        `🔔 *마케팅 지원 연장 신청*\n\n` +
+        `*신청자:* ${user.이름} (${user.email})\n` +
+        `*연장 기간:* ${months}개월\n` +
+        `*결제 금액:* ${selectedPrice.total.toLocaleString()}원 (월 ${selectedPrice.monthly.toLocaleString()}원)\n` +
+        `*현재 종료일:* ${currentEndDate.toLocaleDateString("ko-KR")}\n` +
+        `*연장 종료일:* ${newEndDate.toLocaleDateString("ko-KR")}\n` +
+        `*요청 메시지:* ${requestMessage || "(없음)"}`
       );
     } catch (error) {
       console.error("텔레그램 알림 실패:", error);

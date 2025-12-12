@@ -655,6 +655,22 @@ export default function UserCommunicationPage() {
                   const nextMessage = item.index < selectedThread.messages.length - 1 ? selectedThread.messages[item.index + 1] : null;
                   const isConsecutive = isConsecutiveMessage(message, nextMessage);
 
+                  // 시스템 메시지 렌더링
+                  if (message.authorType === "system") {
+                    return (
+                      <div key={message.id} className="flex justify-center my-4">
+                        <div className="max-w-[90%] sm:max-w-[70%] bg-gray-100 border border-gray-200 rounded-lg p-4 text-center">
+                          <div className="flex items-center justify-center gap-2 mb-2">
+                            <span className="text-xs font-semibold text-gray-500">시스템 안내</span>
+                          </div>
+                          <p className="whitespace-pre-wrap text-sm text-gray-600 leading-relaxed">
+                            {message.content}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  }
+
                   return (
                     <div key={message.id}>
                       <div

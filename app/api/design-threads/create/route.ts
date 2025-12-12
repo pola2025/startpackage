@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
     }
 
     const user = session.user as any;
-    const isAdmin = user.role === "admin";
+    const isAdmin = ["super", "designer", "operator"].includes(user.role);
 
     if (!isAdmin) {
       return NextResponse.json(

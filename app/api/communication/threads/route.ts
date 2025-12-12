@@ -53,20 +53,36 @@ export async function POST(request: Request) {
       );
     }
 
-    // 스레드 생성 + 첫 메시지 생성
+    // 시스템 안내 메시지 내용
+    const systemMessage = `문의가 접수되었습니다.
+
+관리자 확인 후 답변드리겠습니다. 문자/통화 따로 하지 않아도 실시간 전달되고 있습니다.
+
+답변 및 업무 진행은 영업일 기준 1~2일 이내 처리되며, 기간이 더 소요되는 경우 개별 안내드립니다.`;
+
+    // 스레드 생성 + 첫 메시지 + 시스템 메시지 생성
     const thread = await prisma.communicationThread.create({
       data: {
         userId,
         title,
         category: category || "일반",
         messages: {
-          create: {
-            authorId: userId,
-            authorType: "user",
-            authorName: userName,
-            content,
-            attachments: attachments || [],
-          },
+          create: [
+            {
+              authorId: userId,
+              authorType: "user",
+              authorName: userName,
+              content,
+              attachments: attachments || [],
+            },
+            {
+              authorId: "system",
+              authorType: "system",
+              authorName: "시스템",
+              content: systemMessage,
+              attachments: [],
+            },
+          ],
         },
       },
       include: {

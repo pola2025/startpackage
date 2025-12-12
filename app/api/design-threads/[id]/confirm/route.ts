@@ -17,7 +17,7 @@ export async function POST(
 
     const { id: threadId } = await params;
     const user = session.user as any;
-    const isAdmin = user.role === "admin";
+    const isAdmin = ["super", "designer", "operator"].includes(user.role);
 
     // 관리자는 시안 확정 불가 (클라이언트만 가능)
     if (isAdmin) {

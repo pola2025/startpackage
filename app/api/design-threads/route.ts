@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
     }
 
     const user = session.user as any;
-    const isAdmin = user.role === "admin";
+    const isAdmin = ["super", "designer", "operator"].includes(user.role);
 
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status"); // 상태 필터

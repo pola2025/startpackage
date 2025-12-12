@@ -831,17 +831,17 @@ export default function GuidesPage() {
                   <div className="p-2.5 md:p-3 bg-gray-50 border border-gray-200 rounded-lg">
                     <h4 className="text-sm md:text-base font-medium text-gray-900 mb-0.5 md:mb-1">명함</h4>
                     <p className="text-xs md:text-sm text-gray-600">아르미 울트라화이트 310g / 기본 200매 포함</p>
-                    <p className="text-[10px] md:text-xs text-orange-600 mt-0.5 md:mt-1">추가 제작: 2만원 (VAT 별도)</p>
+                    <p className="text-[10px] md:text-xs text-orange-600 mt-0.5 md:mt-1">추가 제작: 22,000원 (VAT 포함)</p>
                   </div>
                   <div className="p-2.5 md:p-3 bg-gray-50 border border-gray-200 rounded-lg">
                     <h4 className="text-sm md:text-base font-medium text-gray-900 mb-0.5 md:mb-1">대봉투</h4>
                     <p className="text-xs md:text-sm text-gray-600">모조지 150g / 500매 포함</p>
-                    <p className="text-[10px] md:text-xs text-orange-600 mt-0.5 md:mt-1">추가 제작: 20만원 (VAT 별도)</p>
+                    <p className="text-[10px] md:text-xs text-orange-600 mt-0.5 md:mt-1">추가 제작: 220,000원 (VAT 포함)</p>
                   </div>
                   <div className="p-2.5 md:p-3 bg-gray-50 border border-gray-200 rounded-lg">
                     <h4 className="text-sm md:text-base font-medium text-gray-900 mb-0.5 md:mb-1">자문계약서</h4>
                     <p className="text-xs md:text-sm text-gray-600">A3 모조지 180g / 500매 포함</p>
-                    <p className="text-[10px] md:text-xs text-orange-600 mt-0.5 md:mt-1">추가 제작: 30만원 (VAT 별도)</p>
+                    <p className="text-[10px] md:text-xs text-orange-600 mt-0.5 md:mt-1">추가 제작: 330,000원 (VAT 포함)</p>
                   </div>
                 </div>
               </div>

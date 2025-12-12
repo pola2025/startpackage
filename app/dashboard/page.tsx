@@ -423,13 +423,10 @@ export default async function UserDashboard() {
                   {!isExpired && daysRemaining <= 30 && daysRemaining > 0 && (() => {
                     const hasPendingExtension = user.marketingExtensionRequests.some(req => req.status === "pending");
                     if (!hasPendingExtension && marketingStartDate && marketingEndDate) {
-                      const newEndDate = new Date(marketingEndDate);
-                      newEndDate.setMonth(newEndDate.getMonth() + 3);
                       return (
                         <div className="mt-3">
                           <MarketingExtensionDialog
                             currentEndDate={marketingEndDate}
-                            newEndDate={newEndDate}
                           />
                         </div>
                       );
@@ -867,12 +864,11 @@ export default async function UserDashboard() {
                         </div>
                         <MarketingExtensionDialog
                           currentEndDate={marketingEndDate}
-                          newEndDate={newEndDate}
                         />
                       </div>
                       <div className="text-xs text-gray-600 bg-gray-50 p-3 rounded-lg border border-gray-200">
                         <p className="font-medium text-gray-900 mb-1">연장 안내</p>
-                        <p>3개월 단위로 연장이 가능하며, 승인 후 결제 정보를 안내드립니다.</p>
+                        <p>3/6/12개월 단위로 연장이 가능하며, 장기 결제 시 할인 혜택이 적용됩니다.</p>
                       </div>
                     </div>
                   )}

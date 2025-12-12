@@ -15,7 +15,7 @@ export async function GET(
 
     const { id } = await params;
     const user = session.user as any;
-    const isAdmin = user.role === "admin";
+    const isAdmin = ["super", "designer", "operator"].includes(user.role);
 
     const thread = await prisma.designThread.findUnique({
       where: { id },

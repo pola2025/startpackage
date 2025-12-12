@@ -17,7 +17,7 @@ export async function POST(
 
     const { id: threadId } = await params;
     const user = session.user as any;
-    const isAdmin = user.role === "admin";
+    const isAdmin = ["super", "designer", "operator"].includes(user.role);
 
     const body = await req.json();
     const { messageType, content, attachments = [], designUrl, designVersion } = body;
