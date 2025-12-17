@@ -53,6 +53,49 @@ export async function POST(request: Request) {
       data: { lastReplyAt: new Date() },
     });
 
+    // 슬랙 채널에 답글 기록
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { slackChannelId: true },
+      });
+
+      if (user?.slackChannelId) {
+        const { postMessage } = await import("@/lib/notification/slackClient");
+        await postMessage({
+          channelId: user.slackChannelId,
+          text: `💬 문의 답글: ${thread.title}`,
+          blocks: [
+            {
+              type: "section",
+              text: {
+                type: "mrkdwn",
+                text: `💬 *문의 답글* (${thread.title})`,
+              },
+            },
+            {
+              type: "section",
+              text: {
+                type: "mrkdwn",
+                text: content,
+              },
+            },
+            {
+              type: "context",
+              elements: [
+                {
+                  type: "mrkdwn",
+                  text: `📅 ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`,
+                },
+              ],
+            },
+          ],
+        });
+      }
+    } catch (error) {
+      console.error("슬랙 답글 기록 실패:", error);
+    }
+
     return NextResponse.json({
       success: true,
       message,

@@ -90,14 +90,70 @@ export async function POST(request: Request) {
       },
     });
 
-    // 관리자에게 텔레그램 알림
+    // 관리자에게 텔레그램 알림 (전체 내용)
     try {
       const { sendTelegramMessage } = await import("@/lib/notification/telegramClient");
       await sendTelegramMessage(
-        `🔔 *새 문의*\\n\\n*사용자:* ${userName}\\n*제목:* ${title}\\n*카테고리:* ${category || "일반"}\\n*내용:* ${content.substring(0, 100)}${content.length > 100 ? "..." : ""}`
+        `🔔 *새 문의*\\n\\n*사용자:* ${userName}\\n*제목:* ${title}\\n*카테고리:* ${category || "일반"}\\n\\n*내용:*\\n${content}`
       );
     } catch (error) {
       console.error("텔레그램 알림 실패:", error);
+    }
+
+    // 슬랙 채널에 문의 내용 전체 기록
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { slackChannelId: true },
+      });
+
+      if (user?.slackChannelId) {
+        const { postMessage } = await import("@/lib/notification/slackClient");
+        await postMessage({
+          channelId: user.slackChannelId,
+          text: `💬 새 문의: ${title}`,
+          blocks: [
+            {
+              type: "header",
+              text: {
+                type: "plain_text",
+                text: "💬 새 문의",
+              },
+            },
+            {
+              type: "section",
+              fields: [
+                {
+                  type: "mrkdwn",
+                  text: `*제목:*\n${title}`,
+                },
+                {
+                  type: "mrkdwn",
+                  text: `*카테고리:*\n${category || "일반"}`,
+                },
+              ],
+            },
+            {
+              type: "section",
+              text: {
+                type: "mrkdwn",
+                text: `*내용:*\n${content}`,
+              },
+            },
+            {
+              type: "context",
+              elements: [
+                {
+                  type: "mrkdwn",
+                  text: `📅 ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`,
+                },
+              ],
+            },
+          ],
+        });
+      }
+    } catch (error) {
+      console.error("슬랙 문의 기록 실패:", error);
     }
 
     return NextResponse.json({

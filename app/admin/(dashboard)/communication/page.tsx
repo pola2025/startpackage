@@ -677,19 +677,7 @@ export default function AdminCommunicationPage() {
                                     {thread.title}
                                   </p>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                  {getStatusBadge(thread.status)}
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleDeleteThread(thread.id);
-                                    }}
-                                    className="p-1.5 hover:bg-red-100 rounded-md transition-colors text-red-600"
-                                    title="삭제"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </button>
-                                </div>
+                                {getStatusBadge(thread.status)}
                               </div>
                               <div className="flex items-center justify-between text-xs text-gray-500">
                                 <span>{thread._count.messages}개 메시지</span>

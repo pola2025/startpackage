@@ -91,6 +91,49 @@ export async function POST(request: Request) {
       },
     });
 
+    // 슬랙 채널에 관리자 답글 기록
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: thread.userId },
+        select: { slackChannelId: true },
+      });
+
+      if (user?.slackChannelId) {
+        const { postMessage } = await import("@/lib/notification/slackClient");
+        await postMessage({
+          channelId: user.slackChannelId,
+          text: `💬 관리자 답글: ${thread.title}`,
+          blocks: [
+            {
+              type: "section",
+              text: {
+                type: "mrkdwn",
+                text: `💬 *관리자 답글* (${thread.title})`,
+              },
+            },
+            {
+              type: "section",
+              text: {
+                type: "mrkdwn",
+                text: content,
+              },
+            },
+            {
+              type: "context",
+              elements: [
+                {
+                  type: "mrkdwn",
+                  text: `👤 ${adminName} · 📅 ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`,
+                },
+              ],
+            },
+          ],
+        });
+      }
+    } catch (error) {
+      console.error("슬랙 관리자 답글 기록 실패:", error);
+    }
+
     console.log("[REPLY API] 성공");
     return NextResponse.json({
       success: true,

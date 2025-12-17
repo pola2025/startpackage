@@ -301,28 +301,45 @@ export async function POST(request: NextRequest) {
         currentWorkflow.status !== "제작 완료"
       ) {
         const 홈페이지주소 = updatedWorkflow.시안URL || "";
-        await logProgress({
-          userId: updatedWorkflow.userId,
-          stage: `홈페이지 제작 완료`,
-          status: "완료",
-          details: {
-            "홈페이지 주소": 홈페이지주소,
-          },
-          emoji: "✅",
-        });
+        if (홈페이지주소) {
+          await logProgress({
+            userId: updatedWorkflow.userId,
+            stage: `홈페이지 제작 완료`,
+            status: "완료",
+            details: {
+              "홈페이지 주소": 홈페이지주소,
+            },
+            emoji: "✅",
+          });
+        }
       } else {
-        // 일반 상태 변경 로그
-        await logProgress({
-          userId: updatedWorkflow.userId,
-          stage: `${updatedWorkflow.type} 상태 변경`,
-          status,
-          details: {
-            "이전 상태": currentWorkflow.status,
-            "변경 후": status,
-            ...(택배회사 && { 택배회사 }),
-            ...(운송장번호 && { 운송장번호 }),
-          },
-        });
+        // 실제 변경된 항목만 로그
+        const changedDetails: Record<string, string> = {};
+
+        // 상태가 변경된 경우만 표시
+        if (currentWorkflow.status !== status) {
+          changedDetails["상태"] = `${currentWorkflow.status} → ${status}`;
+        }
+
+        // 택배회사가 새로 추가되거나 변경된 경우만 표시
+        if (택배회사 && 택배회사 !== currentWorkflow.택배회사) {
+          changedDetails["택배회사"] = 택배회사;
+        }
+
+        // 운송장번호가 새로 추가되거나 변경된 경우만 표시
+        if (운송장번호 && 운송장번호 !== currentWorkflow.운송장번호) {
+          changedDetails["운송장번호"] = 운송장번호;
+        }
+
+        // 변경된 내용이 있을 때만 로그
+        if (Object.keys(changedDetails).length > 0) {
+          await logProgress({
+            userId: updatedWorkflow.userId,
+            stage: `${updatedWorkflow.type} 업데이트`,
+            status,
+            details: changedDetails,
+          });
+        }
       }
     } catch (notificationError) {
       console.error("알림 발송 실패:", notificationError);

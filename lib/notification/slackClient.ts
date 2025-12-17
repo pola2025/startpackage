@@ -330,10 +330,13 @@ export async function logProgress(params: {
 
   if (details) {
     Object.entries(details).forEach(([key, value]) => {
-      fields.push({
-        type: "mrkdwn",
-        text: `*${key}:*\n${value}`,
-      });
+      // 빈 값은 제외
+      if (value && value.toString().trim()) {
+        fields.push({
+          type: "mrkdwn",
+          text: `*${key}:*\n${value}`,
+        });
+      }
     });
   }
 
@@ -538,7 +541,8 @@ export async function pushSubmissionData(params: {
 
   textFields.forEach(({ key, label }) => {
     const value = submissionData[key];
-    if (value) {
+    // 빈 값 필터링
+    if (value && value.toString().trim()) {
       fields.push({
         type: "mrkdwn",
         text: `*${label}:*\n${value}`,
@@ -630,14 +634,11 @@ export async function logStateChange(params: {
 
   const emoji = getStateEmoji(toState);
 
-  const details: Record<string, string> = {
-    "이전 상태": fromState,
-    "변경 후": toState,
-  };
-
-  if (changedBy) {
-    details["변경자"] = changedBy;
-  }
+  // 빈 값 필터링
+  const details: Record<string, string> = {};
+  if (fromState && fromState.trim()) details["이전 상태"] = fromState;
+  if (toState && toState.trim()) details["변경 후"] = toState;
+  if (changedBy && changedBy.trim()) details["변경자"] = changedBy;
 
   return logProgress({
     channelId,
@@ -719,10 +720,11 @@ export async function logOrder(params: {
 }): Promise<boolean> {
   const { channelId, printItems, expectedDate } = params;
 
-  const details: Record<string, string> = {
-    "발주 항목": printItems.join(", "),
-  };
-
+  // 빈 값 필터링
+  const details: Record<string, string> = {};
+  if (printItems && printItems.length > 0) {
+    details["발주 항목"] = printItems.join(", ");
+  }
   if (expectedDate) {
     details["예상 완료일"] = expectedDate.toLocaleDateString("ko-KR");
   }
@@ -746,13 +748,10 @@ export async function logProductionComplete(params: {
 }): Promise<boolean> {
   const { channelId, itemName, trackingNumber } = params;
 
-  const details: Record<string, string> = {
-    "완료 항목": itemName,
-  };
-
-  if (trackingNumber) {
-    details["송장번호"] = trackingNumber;
-  }
+  // 빈 값 필터링
+  const details: Record<string, string> = {};
+  if (itemName && itemName.trim()) details["완료 항목"] = itemName;
+  if (trackingNumber && trackingNumber.trim()) details["송장번호"] = trackingNumber;
 
   return logProgress({
     channelId,
