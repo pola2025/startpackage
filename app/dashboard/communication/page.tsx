@@ -227,13 +227,14 @@ export default function UserCommunicationPage() {
     };
   }, []);
 
-  const handleImageUpload = async (file: File, isNewThread: boolean = false) => {
-    if (!file.type.startsWith("image/")) {
-      alert("이미지 파일만 업로드 가능합니다.\n영상 및 기타 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.");
+  const handleFileUpload = async (file: File, isNewThread: boolean = false) => {
+    // 영상 파일만 제외
+    if (file.type.startsWith("video/")) {
+      alert("영상 파일은 업로드할 수 없습니다.\n영상은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.");
       return;
     }
 
-    // 10MB 제한 (서버에서 자동으로 WebP로 압축됨)
+    // 10MB 제한
     if (file.size > 10 * 1024 * 1024) {
       alert("파일 크기는 10MB 이하여야 합니다.\n더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.");
       return;
@@ -486,11 +487,11 @@ export default function UserCommunicationPage() {
                 <input
                   type="file"
                   id="new-thread-file"
-                  accept="image/*"
+                  accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.hwp,.txt,.zip,.rar"
                   className="hidden"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
-                    if (file) handleImageUpload(file, true);
+                    if (file) handleFileUpload(file, true);
                     e.target.value = "";
                   }}
                   disabled={uploading}
@@ -502,9 +503,9 @@ export default function UserCommunicationPage() {
                   onClick={() => document.getElementById("new-thread-file")?.click()}
                 >
                   <Paperclip className="w-4 h-4 mr-2" />
-                  {uploading ? "업로드 중..." : "이미지 첨부"}
+                  {uploading ? "업로드 중..." : "파일 첨부"}
                 </Button>
-                <p className="text-xs text-gray-500 mt-1">10MB 이하, 이미지만 가능 (자동 압축) | 영상/기타 파일: mkt@polarad.co.kr</p>
+                <p className="text-xs text-gray-500 mt-1">10MB 이하, 영상 제외 모든 파일 가능 | 영상 파일: mkt@polarad.co.kr</p>
               </div>
             </div>
             <div className="flex justify-end gap-2">
@@ -787,12 +788,12 @@ export default function UserCommunicationPage() {
                       <input
                         type="file"
                         id="reply-file"
-                        accept="image/*"
+                        accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.hwp,.txt,.zip,.rar"
                         capture="environment"
                         className="hidden"
                         onChange={(e) => {
                           const file = e.target.files?.[0];
-                          if (file) handleImageUpload(file, false);
+                          if (file) handleFileUpload(file, false);
                           e.target.value = "";
                         }}
                         disabled={uploading}
@@ -846,11 +847,11 @@ export default function UserCommunicationPage() {
                           <input
                             type="file"
                             id="reply-file-desktop"
-                            accept="image/*"
+                            accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.hwp,.txt,.zip,.rar"
                             className="hidden"
                             onChange={(e) => {
                               const file = e.target.files?.[0];
-                              if (file) handleImageUpload(file, false);
+                              if (file) handleFileUpload(file, false);
                               e.target.value = "";
                             }}
                             disabled={uploading}
@@ -862,7 +863,7 @@ export default function UserCommunicationPage() {
                             onClick={() => document.getElementById("reply-file-desktop")?.click()}
                           >
                             <Paperclip className="w-4 h-4 mr-2" />
-                            {uploading ? "업로드 중..." : "이미지"}
+                            {uploading ? "업로드 중..." : "파일"}
                           </Button>
                         </div>
                         <Button
@@ -893,8 +894,8 @@ export default function UserCommunicationPage() {
       <DraggableBottomSheet
         open={attachmentSheetOpen}
         onOpenChange={setAttachmentSheetOpen}
-        title="이미지 첨부"
-        description="첨부할 이미지를 선택하세요"
+        title="파일 첨부"
+        description="첨부할 파일을 선택하세요 (영상 제외)"
       >
         <div className="p-4 pb-8">
           <div className="grid grid-cols-3 gap-3">
@@ -907,7 +908,7 @@ export default function UserCommunicationPage() {
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) {
-                  handleImageUpload(file, false);
+                  handleFileUpload(file, false);
                   setAttachmentSheetOpen(false);
                 }
                 e.target.value = "";
@@ -933,7 +934,7 @@ export default function UserCommunicationPage() {
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) {
-                  handleImageUpload(file, false);
+                  handleFileUpload(file, false);
                   setAttachmentSheetOpen(false);
                 }
                 e.target.value = "";
@@ -954,12 +955,12 @@ export default function UserCommunicationPage() {
             <input
               type="file"
               id="file-input-comm"
-              accept="image/*,.pdf,.doc,.docx"
+              accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.hwp,.txt,.zip,.rar"
               className="hidden"
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) {
-                  handleImageUpload(file, false);
+                  handleFileUpload(file, false);
                   setAttachmentSheetOpen(false);
                 }
                 e.target.value = "";
