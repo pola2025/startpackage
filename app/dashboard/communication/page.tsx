@@ -36,6 +36,7 @@ import {
   Camera,
   Image as ImageIcon,
   FolderOpen,
+  Download,
 } from "lucide-react";
 import { ImageModal } from "@/components/ui/image-modal";
 import Image from "next/image";
@@ -726,6 +727,41 @@ export default function UserCommunicationPage() {
                                       className="rounded-lg max-w-full h-auto border"
                                       unoptimized
                                     />
+                                    <a
+                                      href={url}
+                                      download
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className={`mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                                        message.authorType === "admin"
+                                          ? "bg-blue-100 text-blue-700 hover:bg-blue-200"
+                                          : "bg-white/20 text-white hover:bg-white/30"
+                                      }`}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        // 직접 다운로드 시도
+                                        fetch(url)
+                                          .then(res => res.blob())
+                                          .then(blob => {
+                                            const blobUrl = window.URL.createObjectURL(blob);
+                                            const a = document.createElement('a');
+                                            a.href = blobUrl;
+                                            a.download = url.split('/').pop() || 'download';
+                                            document.body.appendChild(a);
+                                            a.click();
+                                            document.body.removeChild(a);
+                                            window.URL.revokeObjectURL(blobUrl);
+                                          })
+                                          .catch(() => {
+                                            // fallback: 새 탭에서 열기
+                                            window.open(url, '_blank');
+                                          });
+                                        e.preventDefault();
+                                      }}
+                                    >
+                                      <Download className="w-3.5 h-3.5" />
+                                      다운로드
+                                    </a>
                                   </div>
                                 ))}
                               </div>

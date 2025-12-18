@@ -38,12 +38,8 @@ import Image from "next/image";
 import { useRef } from "react";
 
 interface HomepageData {
-  홈페이지제작방식: string | null;
   홈페이지스타일: string | null;
   홈페이지컬러컨셉: string | null;
-  아임웹ID: string | null;
-  아임웹PW: string | null;
-  아임웹관리자PW: string | null;
   도메인관리사이트: string | null;
   도메인관리ID: string | null;
   도메인관리PW: string | null;
@@ -64,14 +60,6 @@ export default function HomepageSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [data, setData] = useState<HomepageData | null>(null);
-
-  // 폼 상태
-  const [method, setMethod] = useState<string>("");
-
-  // 아임웹 폼
-  const [imwebId, setImwebId] = useState("");
-  const [imwebPw, setImwebPw] = useState("");
-  const [imwebAdminPw, setImwebAdminPw] = useState("");
 
   // 외부 서비스 폼
   const [domainSite, setDomainSite] = useState("");
@@ -108,12 +96,6 @@ export default function HomepageSettingsPage() {
         setData(result);
 
         // 폼 초기화
-        if (result.홈페이지제작방식) {
-          setMethod(result.홈페이지제작방식);
-        }
-        if (result.아임웹ID) setImwebId(result.아임웹ID);
-        if (result.아임웹PW) setImwebPw(result.아임웹PW);
-        if (result.아임웹관리자PW) setImwebAdminPw(result.아임웹관리자PW);
         if (result.도메인관리사이트) setDomainSite(result.도메인관리사이트);
         if (result.도메인관리ID) setDomainId(result.도메인관리ID);
         if (result.도메인관리PW) setDomainPw(result.도메인관리PW);
@@ -144,11 +126,8 @@ export default function HomepageSettingsPage() {
     }
   };
 
-  // 아임웹 필수 입력 확인
-  const isImwebValid = imwebId.trim() && imwebPw.trim() && imwebAdminPw.trim();
-
-  // 외부 서비스 필수 입력 확인
-  const isExternalValid =
+  // 필수 입력 확인
+  const isFormValid =
     domainSite.trim() &&
     domainId.trim() &&
     domainPw.trim() &&
@@ -157,9 +136,7 @@ export default function HomepageSettingsPage() {
     /^\d{2}\/\d{2}$/.test(cardExpiry);
 
   // 저장 가능 여부
-  const canSave =
-    (method === "아임웹" && isImwebValid) ||
-    (method === "외부서비스" && isExternalValid);
+  const canSave = isFormValid;
 
   // 이미지 업로드 핸들러
   const handleImageUpload = async (
@@ -202,21 +179,13 @@ export default function HomepageSettingsPage() {
     setSaving(true);
     try {
       const payload: Record<string, string> = {
-        홈페이지제작방식: method,
+        도메인관리사이트: domainSite,
+        도메인관리ID: domainId,
+        도메인관리PW: domainPw,
+        해외결제카드앞면URL: cardFrontUrl,
+        해외결제카드뒷면URL: cardBackUrl,
+        해외결제카드유효기간: cardExpiry,
       };
-
-      if (method === "아임웹") {
-        payload.아임웹ID = imwebId;
-        payload.아임웹PW = imwebPw;
-        payload.아임웹관리자PW = imwebAdminPw;
-      } else {
-        payload.도메인관리사이트 = domainSite;
-        payload.도메인관리ID = domainId;
-        payload.도메인관리PW = domainPw;
-        payload.해외결제카드앞면URL = cardFrontUrl;
-        payload.해외결제카드뒷면URL = cardBackUrl;
-        payload.해외결제카드유효기간 = cardExpiry;
-      }
 
       // 스타일 정보 추가
       if (selectedWebsiteStyle) {
@@ -275,259 +244,12 @@ export default function HomepageSettingsPage() {
           홈페이지 설정
         </h1>
         <p className="text-sm md:text-base text-gray-600 mt-1">
-          홈페이지 제작 방식을 선택하고 필요한 정보를 입력해주세요.
+          홈페이지 제작에 필요한 정보를 입력해주세요.
         </p>
       </div>
 
-      {/* 제작 방식 선택 */}
-      <Card>
-        <CardHeader className="p-4 md:p-6">
-          <CardTitle className="text-base md:text-lg">제작 방식 선택</CardTitle>
-          <CardDescription className="text-xs md:text-sm">
-            홈페이지 제작 방식에 따라 필요한 정보가 다릅니다.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
-          <div className="p-3 md:p-4 bg-red-50 border-2 border-red-300 rounded-lg mb-4">
-            <div className="flex items-start gap-2">
-              <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-red-700 font-semibold text-sm md:text-base">
-                  선택하게 되면 제작 이후 변경은 불가능합니다.
-                </p>
-                <p className="text-red-600 text-xs md:text-sm mt-1">
-                  선택 후 홈페이지 제작방식은 확정되어 진행됩니다.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
-            {/* 아임웹 옵션 */}
-            <div
-              className={`relative border-2 rounded-lg p-3 md:p-4 cursor-pointer transition-all ${
-                method === "아임웹"
-                  ? "border-blue-500 bg-blue-50"
-                  : "border-gray-200 hover:border-gray-300"
-              }`}
-              onClick={() => setMethod("아임웹")}
-            >
-              <div className="flex items-start gap-2 md:gap-3">
-                <input
-                  type="radio"
-                  name="method"
-                  value="아임웹"
-                  checked={method === "아임웹"}
-                  onChange={() => setMethod("아임웹")}
-                  className="mt-1 w-4 h-4 text-blue-600"
-                />
-                <div className="flex-1">
-                  <Label className="text-sm md:text-base font-semibold cursor-pointer">
-                    아임웹 제작
-                  </Label>
-                  <ul className="mt-2 space-y-1 text-xs md:text-sm text-gray-600">
-                    <li className="flex items-center gap-1">
-                      <CheckCircle2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-green-500 flex-shrink-0" />
-                      아임웹에서만 결제
-                    </li>
-                    <li className="flex items-center gap-1">
-                      <CheckCircle2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-green-500 flex-shrink-0" />
-                      간편한 관리
-                    </li>
-                    <li className="flex items-center gap-1">
-                      <CheckCircle2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-green-500 flex-shrink-0" />
-                      올인원 서비스
-                    </li>
-                  </ul>
-                  <p className="mt-2 text-xs text-blue-600">
-                    적합: 간편 관리 선호
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* 외부 서비스 옵션 */}
-            <div
-              className={`relative border-2 rounded-lg p-3 md:p-4 cursor-pointer transition-all ${
-                method === "외부서비스"
-                  ? "border-purple-500 bg-purple-50"
-                  : "border-gray-200 hover:border-gray-300"
-              }`}
-              onClick={() => setMethod("외부서비스")}
-            >
-              <div className="flex items-start gap-2 md:gap-3">
-                <input
-                  type="radio"
-                  name="method"
-                  value="외부서비스"
-                  checked={method === "외부서비스"}
-                  onChange={() => setMethod("외부서비스")}
-                  className="mt-1 w-4 h-4 text-purple-600"
-                />
-                <div className="flex-1">
-                  <Label htmlFor="external" className="text-sm md:text-base font-semibold cursor-pointer">
-                    외부 서비스 제작
-                  </Label>
-                  <ul className="mt-2 space-y-1 text-xs md:text-sm text-gray-600">
-                    <li className="flex items-center gap-1">
-                      <CheckCircle2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-green-500 flex-shrink-0" />
-                      도메인 개별 구매
-                    </li>
-                    <li className="flex items-center gap-1">
-                      <CheckCircle2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-green-500 flex-shrink-0" />
-                      월 1~2만원 (트래픽 기준)
-                    </li>
-                    <li className="flex items-center gap-1">
-                      <CheckCircle2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-green-500 flex-shrink-0" />
-                      사용한 만큼만 과금
-                    </li>
-                  </ul>
-                  <p className="mt-2 text-xs text-purple-600">
-                    적합: 비용 최적화, 확장성
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* 아임웹 입력 폼 */}
-      {method === "아임웹" && (
-        <Card className="border-blue-200">
-          <CardHeader className="bg-blue-50 rounded-t-lg">
-            <CardTitle className="text-blue-700 flex items-center gap-2">
-              <Globe className="w-5 h-5" />
-              아임웹 계정 정보
-            </CardTitle>
-            <CardDescription>
-              아임웹 가입 후 계정 정보를 입력해주세요.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pt-6 space-y-6">
-            {/* 카카오톡 로그인 금지 안내 (빨간색 경고) */}
-            <div className="p-4 bg-red-50 border-2 border-red-300 rounded-lg">
-              <div className="flex items-center gap-2">
-                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
-                <p className="text-red-700 font-semibold">
-                  <strong>중요:</strong> 카카오톡 로그인 생성 ✕ / 이메일주소 또는 네이버 로그인으로 가입하세요
-                </p>
-              </div>
-            </div>
-
-            {/* 가입 안내 */}
-            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="flex items-start gap-3">
-                <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-medium text-blue-900">아임웹 계정이 없으신가요?</p>
-                  <p className="text-sm text-blue-700 mt-1">
-                    아래 버튼을 클릭하여 먼저 가입을 완료해주세요.
-                  </p>
-                  <a
-                    href="https://imweb.me/signup"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 mt-2 px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    아임웹 가입하기
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            {/* 진행 과정 */}
-            <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
-              <h4 className="font-medium text-gray-900 mb-2">📋 아임웹 진행 과정</h4>
-              <ol className="list-decimal list-inside space-y-1 text-sm text-gray-700">
-                <li>아임웹 가입 후 ID/PW 제출</li>
-                <li>홈페이지 제작 및 구성</li>
-                <li>소유권 이전</li>
-                <li>홈페이지 결제</li>
-              </ol>
-              {/* 자체 생성/결제 금지 경고 */}
-              <p className="text-red-700 font-bold text-sm mt-3 flex items-start gap-2">
-                <span className="text-lg">⚠️</span>
-                <span>절대 가입 후 홈페이지를 자체 생성하거나 결제하지 마세요!</span>
-              </p>
-            </div>
-
-            {/* 로고 시안 확정 후 진행 안내 (노란색) */}
-            <div className="p-4 bg-amber-50 border border-amber-300 rounded-lg">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0" />
-                <p className="text-amber-700 font-medium">
-                  로고 시안 확정 후 제작 진행이 가능합니다
-                </p>
-              </div>
-            </div>
-
-            {/* 입력 폼 */}
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="imwebId" className="flex items-center gap-1 text-sm">
-                  아임웹 ID <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="imwebId"
-                  value={imwebId}
-                  onChange={(e) => setImwebId(e.target.value)}
-                  placeholder="이메일 또는 네이버 계정"
-                  className="mt-1 h-11 md:h-10"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  이메일 주소 또는 네이버 로그인 계정
-                </p>
-              </div>
-
-              <div>
-                <Label htmlFor="imwebPw" className="flex items-center gap-1 text-sm">
-                  아임웹 비밀번호 <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="imwebPw"
-                  type="password"
-                  value={imwebPw}
-                  onChange={(e) => setImwebPw(e.target.value)}
-                  placeholder="비밀번호"
-                  className="mt-1 h-11 md:h-10"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="imwebAdminPw" className="flex items-center gap-1 text-sm">
-                  아임웹 관리자 비밀번호 <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="imwebAdminPw"
-                  type="password"
-                  value={imwebAdminPw}
-                  onChange={(e) => setImwebAdminPw(e.target.value)}
-                  placeholder="대문자 포함 비밀번호"
-                  className="mt-1 h-11 md:h-10"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  대문자가 반드시 포함되어야 합니다.
-                </p>
-              </div>
-            </div>
-
-            {/* 필수 입력 안내 */}
-            {!isImwebValid && (
-              <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-yellow-600" />
-                <span className="text-sm text-yellow-700">
-                  모든 정보를 입력해야 저장할 수 있습니다.
-                </span>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* 외부 서비스 입력 폼 */}
-      {method === "외부서비스" && (
-        <div className="space-y-6">
+      {/* 홈페이지 제작 정보 입력 */}
+      <div className="space-y-6">
           {/* 트래픽 기반 요금 안내 */}
           <Card className="border-orange-200 bg-orange-50">
             <CardContent className="pt-6">
@@ -773,7 +495,7 @@ export default function HomepageSettingsPage() {
               </div>
 
               {/* 필수 입력 안내 */}
-              {!isExternalValid && (
+              {!isFormValid && (
                 <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4 text-yellow-600" />
                   <span className="text-sm text-yellow-700">
@@ -784,11 +506,9 @@ export default function HomepageSettingsPage() {
             </CardContent>
           </Card>
         </div>
-      )}
 
-      {/* 홈페이지 스타일 선택 - 아임웹/외부서비스 선택 후 표시 */}
-      {method && (
-        <Card className="border-green-200">
+      {/* 홈페이지 스타일 선택 */}
+      <Card className="border-green-200">
           <CardHeader className="bg-green-50 rounded-t-lg">
             <CardTitle className="text-green-700 flex items-center gap-2">
               <Globe className="w-5 h-5" />
@@ -958,27 +678,24 @@ export default function HomepageSettingsPage() {
             </div>
           </CardContent>
         </Card>
-      )}
 
       {/* 저장 버튼 */}
-      {method && (
-        <div className="flex justify-end">
-          <Button
-            onClick={handleSave}
-            disabled={!canSave || saving}
-            className="w-full md:w-auto px-8 h-12 md:h-10"
-          >
-            {saving ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                저장 중...
-              </>
-            ) : (
-              "저장"
-            )}
-          </Button>
-        </div>
-      )}
+      <div className="flex justify-end">
+        <Button
+          onClick={handleSave}
+          disabled={!canSave || saving}
+          className="w-full md:w-auto px-8 h-12 md:h-10"
+        >
+          {saving ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              저장 중...
+            </>
+          ) : (
+            "저장"
+          )}
+        </Button>
+      </div>
     </div>
   );
 }

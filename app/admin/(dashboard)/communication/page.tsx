@@ -49,6 +49,7 @@ import {
   Upload,
   FileImage,
   X,
+  Download,
 } from "lucide-react";
 import { ImageModal } from "@/components/ui/image-modal";
 import Image from "next/image";
@@ -825,19 +826,51 @@ export default function AdminCommunicationPage() {
                             {message.attachments.length > 0 && (
                               <div className="space-y-2 mt-3">
                                 {message.attachments.map((url, idx) => (
-                                  <div key={idx} className="relative w-full cursor-pointer" onClick={() => {
-                                    setModalImages(message.attachments);
-                                    setModalInitialIndex(idx);
-                                    setImageModalOpen(true);
-                                  }}>
-                                    <Image
-                                      src={url}
-                                      alt="첨부 이미지"
-                                      width={800}
-                                      height={600}
-                                      className="rounded-lg max-w-full h-auto border border-gray-200 hover:opacity-90 transition-opacity"
-                                      unoptimized
-                                    />
+                                  <div key={idx} className="relative w-full">
+                                    <div
+                                      className="cursor-pointer"
+                                      onClick={() => {
+                                        setModalImages(message.attachments);
+                                        setModalInitialIndex(idx);
+                                        setImageModalOpen(true);
+                                      }}
+                                    >
+                                      <Image
+                                        src={url}
+                                        alt="첨부 이미지"
+                                        width={800}
+                                        height={600}
+                                        className="rounded-lg max-w-full h-auto border border-gray-200 hover:opacity-90 transition-opacity"
+                                        unoptimized
+                                      />
+                                    </div>
+                                    <a
+                                      href={url}
+                                      download
+                                      className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        fetch(url)
+                                          .then(res => res.blob())
+                                          .then(blob => {
+                                            const blobUrl = window.URL.createObjectURL(blob);
+                                            const a = document.createElement('a');
+                                            a.href = blobUrl;
+                                            a.download = url.split('/').pop() || 'download';
+                                            document.body.appendChild(a);
+                                            a.click();
+                                            document.body.removeChild(a);
+                                            window.URL.revokeObjectURL(blobUrl);
+                                          })
+                                          .catch(() => {
+                                            window.open(url, '_blank');
+                                          });
+                                        e.preventDefault();
+                                      }}
+                                    >
+                                      <Download className="w-3.5 h-3.5" />
+                                      다운로드
+                                    </a>
                                   </div>
                                 ))}
                               </div>
