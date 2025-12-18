@@ -736,7 +736,7 @@ export default function StartPackagePage() {
                 1
               </div>
               <h3 className="font-bold text-gray-900 mb-1 md:mb-2 text-sm md:text-base">자료 제출</h3>
-              <p className="text-xs md:text-sm text-gray-600">로고, 사진, 텍스트 등 필요 자료 전달</p>
+              <p className="text-[10px] md:text-sm text-gray-600 whitespace-nowrap">로고, 사진, 텍스트 등 필요 자료 전달</p>
               <div className="hidden md:block absolute top-1/2 -right-2 transform -translate-y-1/2 z-10">
                 <ArrowRight className="w-4 h-4 text-gray-400" />
               </div>
@@ -746,7 +746,7 @@ export default function StartPackagePage() {
                 2
               </div>
               <h3 className="font-bold text-gray-900 mb-1 md:mb-2 text-sm md:text-base">디자인 제작</h3>
-              <p className="text-xs md:text-sm text-gray-600">시안 제작 및 피드백 반영</p>
+              <p className="text-[10px] md:text-sm text-gray-600 whitespace-nowrap">시안 제작 및 피드백 반영</p>
               <div className="hidden md:block absolute top-1/2 -right-2 transform -translate-y-1/2 z-10">
                 <ArrowRight className="w-4 h-4 text-gray-400" />
               </div>
@@ -756,7 +756,7 @@ export default function StartPackagePage() {
                 3
               </div>
               <h3 className="font-bold text-gray-900 mb-1 md:mb-2 text-sm md:text-base">발주</h3>
-              <p className="text-xs md:text-sm text-gray-600">인쇄물 발주 및 홈페이지 세팅</p>
+              <p className="text-[10px] md:text-sm text-gray-600 whitespace-nowrap">인쇄물 발주 및 홈페이지 세팅</p>
               <div className="hidden md:block absolute top-1/2 -right-2 transform -translate-y-1/2 z-10">
                 <ArrowRight className="w-4 h-4 text-gray-400" />
               </div>
@@ -766,7 +766,7 @@ export default function StartPackagePage() {
                 4
               </div>
               <h3 className="font-bold text-gray-900 mb-1 md:mb-2 text-sm md:text-base">진행 완료</h3>
-              <p className="text-xs md:text-sm text-gray-600">인쇄물 배송 및 홈페이지 오픈</p>
+              <p className="text-[10px] md:text-sm text-gray-600 whitespace-nowrap">인쇄물 배송 및 홈페이지 오픈</p>
             </div>
           </div>
         </div>
