@@ -944,10 +944,10 @@ export default function AdminDesignThreadsPage() {
               </CardContent>
 
               {/* 메시지/시안 입력 영역 */}
-              {selectedThread.status !== "confirmed" && (
-                <div className="p-2 sm:p-4 border-t border-gray-200 bg-white flex-shrink-0">
-                  <div className="space-y-2">
-                    {/* 시안 업로드 / 일반 메시지 토글 */}
+              <div className="p-2 sm:p-4 border-t border-gray-200 bg-white flex-shrink-0">
+                <div className="space-y-2">
+                  {/* 시안 업로드 / 일반 메시지 토글 - 확정 상태가 아닐 때만 표시 */}
+                  {selectedThread.status !== "confirmed" && (
                     <div className="flex items-center gap-2 mb-2">
                       <Button
                         variant={!isDesignUpload ? "default" : "outline"}
@@ -975,9 +975,10 @@ export default function AdminDesignThreadsPage() {
                         시안 업로드
                       </Button>
                     </div>
+                  )}
 
-                    {isDesignUpload ? (
-                      /* 시안 업로드 모드 */
+                    {isDesignUpload && selectedThread.status !== "confirmed" ? (
+                      /* 시안 업로드 모드 - 확정 상태가 아닐 때만 */
                       <div className="space-y-3">
                         <div>
                           <label className="text-sm font-medium text-gray-700 mb-1 block">
@@ -1095,7 +1096,7 @@ export default function AdminDesignThreadsPage() {
                     )}
 
                     <div className="flex items-center justify-between gap-2">
-                      {!isDesignUpload && (
+                      {(!isDesignUpload || selectedThread.status === "confirmed") && (
                         <div className="flex items-center gap-2">
                           <input
                             type="file"
@@ -1128,12 +1129,12 @@ export default function AdminDesignThreadsPage() {
                           </Button>
                         </div>
                       )}
-                      <div className={isDesignUpload ? "ml-auto" : ""}>
+                      <div className={isDesignUpload && selectedThread.status !== "confirmed" ? "ml-auto" : ""}>
                         <Button
                           onClick={handleSendMessage}
                           disabled={
                             sending ||
-                            (isDesignUpload
+                            (isDesignUpload && selectedThread.status !== "confirmed"
                               ? !designUrl.trim()
                               : !messageContent.trim() &&
                                 attachments.length === 0)
@@ -1144,38 +1145,40 @@ export default function AdminDesignThreadsPage() {
                           <Send className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
                           {sending
                             ? "전송 중..."
-                            : isDesignUpload
+                            : isDesignUpload && selectedThread.status !== "confirmed"
                             ? "시안 업로드"
                             : "전송"}
                         </Button>
                       </div>
                     </div>
-                  </div>
-                </div>
-              )}
 
-              {/* 확정 완료 시 표시 */}
-              {selectedThread.status === "confirmed" && (
-                <div className="p-4 border-t border-gray-200 bg-green-50">
-                  <div className="flex items-center gap-2 text-green-700">
-                    <CheckCircle className="w-5 h-5" />
-                    <span className="font-medium">
-                      시안이 확정되었습니다.
-                    </span>
-                    {selectedThread.confirmedAt && (
-                      <span className="text-sm text-green-600">
-                        ({selectedThread.confirmedByName},{" "}
-                        {format(
-                          new Date(selectedThread.confirmedAt),
-                          "yyyy-MM-dd HH:mm",
-                          { locale: ko }
-                        )}
-                        )
-                      </span>
+                    {/* 확정 완료 안내 배너 */}
+                    {selectedThread.status === "confirmed" && (
+                      <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                        <div className="flex items-center gap-2 text-green-700 text-sm">
+                          <CheckCircle className="w-4 h-4 flex-shrink-0" />
+                          <span className="font-medium">
+                            시안 확정 완료
+                          </span>
+                          {selectedThread.confirmedAt && (
+                            <span className="text-green-600">
+                              ({selectedThread.confirmedByName},{" "}
+                              {format(
+                                new Date(selectedThread.confirmedAt),
+                                "yyyy-MM-dd HH:mm",
+                                { locale: ko }
+                              )}
+                              )
+                            </span>
+                          )}
+                          <span className="text-green-600 ml-auto text-xs">
+                            추가 안내사항을 전달할 수 있습니다
+                          </span>
+                        </div>
+                      </div>
                     )}
                   </div>
                 </div>
-              )}
             </>
           ) : (
             <CardContent className="flex items-center justify-center h-full">
