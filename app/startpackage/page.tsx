@@ -503,60 +503,58 @@ export default function StartPackagePage() {
                     ))}
                   </div>
                   {/* 선택된 스타일 카드 */}
-                  <a
-                    href={styles[activeStyle].url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block bg-white border-2 border-[#16255e] rounded-2xl overflow-hidden shadow-lg"
-                  >
+                  <div className="bg-white border-2 border-[#16255e] rounded-2xl overflow-hidden shadow-lg">
                     <div className="aspect-[4/3] overflow-hidden bg-gray-100 relative">
                       <iframe
                         src={styles[activeStyle].url}
-                        className="w-full h-full scale-[0.33] origin-top-left pointer-events-none"
+                        className="w-full h-full scale-[0.33] origin-top-left"
                         style={{ width: '300%', height: '300%' }}
                         title={styles[activeStyle].name}
                       />
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
-                          <ExternalLink className="w-4 h-4" />
-                          클릭하여 미리보기
-                        </div>
-                      </div>
                     </div>
-                    <div className="p-3 text-center">
+                    <div className="p-3 flex items-center justify-between">
                       <p className="font-semibold text-gray-900">{styles[activeStyle].name}</p>
+                      <a
+                        href={styles[activeStyle].url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1.5 hover:bg-blue-700 transition-colors"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        새 탭
+                      </a>
                     </div>
-                  </a>
+                  </div>
                 </div>
 
                 {/* 데스크탑 그리드 */}
                 <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {styles.map((style) => (
-                    <a
+                    <div
                       key={style.url}
-                      href={style.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
                       className="group bg-white border-2 border-gray-200 rounded-2xl overflow-hidden hover:border-blue-400 hover:shadow-xl transition-all"
                     >
                       <div className="aspect-[4/3] overflow-hidden bg-gray-100 relative">
                         <iframe
                           src={style.url}
-                          className="w-full h-full scale-[0.33] origin-top-left pointer-events-none"
+                          className="w-full h-full scale-[0.33] origin-top-left"
                           style={{ width: '300%', height: '300%' }}
                           title={style.name}
                         />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-all flex items-center justify-center">
-                          <div className="opacity-0 group-hover:opacity-100 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-opacity">
-                            <ExternalLink className="w-4 h-4" />
-                            미리보기
-                          </div>
-                        </div>
                       </div>
-                      <div className="p-4 text-center">
+                      <div className="p-4 flex items-center justify-between">
                         <p className="font-semibold text-gray-900">{style.name}</p>
+                        <a
+                          href={style.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1.5 hover:bg-blue-700 transition-colors"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                          새 탭
+                        </a>
                       </div>
-                    </a>
+                    </div>
                   ))}
                 </div>
               </>

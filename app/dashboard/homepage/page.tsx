@@ -588,6 +588,7 @@ export default function HomepageSettingsPage() {
                         title={`${style.name} 전체보기`}
                       />
                     </div>
+                    <p className="text-xs text-gray-500 text-center">미리보기 위에서 스크롤하여 페이지를 탐색할 수 있습니다</p>
                     <div className="flex flex-col sm:flex-row gap-2 pt-2">
                       <Button
                         variant="outline"
