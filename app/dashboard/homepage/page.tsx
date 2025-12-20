@@ -527,7 +527,7 @@ export default function HomepageSettingsPage() {
                 { url: "https://jmbiz.imweb.me/", name: "스타일 3" },
                 { url: "https://ksupport-center.imweb.me/", name: "스타일 4" },
                 { url: "https://dkcenter.imweb.me/", name: "스타일 5" },
-                { url: "https://k-eai.co.kr/", name: "스타일 6" },
+                { url: "https://www.k-eai.kr/index.html", name: "스타일 6" },
               ].map((style) => (
                 <Dialog key={style.url} open={dialogOpen && selectedWebsiteStyle === style.url} onOpenChange={(open) => {
                   setDialogOpen(open);
@@ -641,7 +641,7 @@ export default function HomepageSettingsPage() {
                         { url: "https://jmbiz.imweb.me/", name: "스타일 3" },
                         { url: "https://ksupport-center.imweb.me/", name: "스타일 4" },
                         { url: "https://dkcenter.imweb.me/", name: "스타일 5" },
-                        { url: "https://k-eai.co.kr/", name: "스타일 6" },
+                        { url: "https://www.k-eai.kr/index.html", name: "스타일 6" },
                       ];
                       return styles.find(s => s.url === selectedWebsiteStyle)?.name || "선택됨";
                     })()}
