@@ -477,11 +477,11 @@ export default function StartPackagePage() {
           {(() => {
             const styles = [
               { url: "https://financialhealing.imweb.me/", name: "스타일 1" },
-              { url: "https://mjgood.imweb.me/", name: "스타일 2" },
+              { url: "https://bizen.co.kr/", name: "스타일 2" },
               { url: "https://jmbiz.imweb.me/", name: "스타일 3" },
               { url: "https://ksupport-center.imweb.me/", name: "스타일 4" },
               { url: "https://dkcenter.imweb.me/", name: "스타일 5" },
-              { url: "https://fpbiz.imweb.me/", name: "스타일 6" },
+              { url: "https://k-eai.co.kr/", name: "스타일 6" },
             ];
             return (
               <>
