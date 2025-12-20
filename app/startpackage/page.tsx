@@ -36,6 +36,17 @@ export default function StartPackagePage() {
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [activeStyle, setActiveStyle] = useState(0);
 
+  // 홈페이지 스타일 스크롤 상태 (각 스타일별)
+  const [styleScrolls, setStyleScrolls] = useState<Record<string, number>>({});
+
+  // 스크롤 핸들러
+  const handleStyleScroll = (url: string, deltaY: number) => {
+    setStyleScrolls(prev => ({
+      ...prev,
+      [url]: Math.max(0, Math.min((prev[url] || 0) + deltaY * 0.5, 1500))
+    }));
+  };
+
   // 이미지 모달 상태
   const [imageModalOpen, setImageModalOpen] = useState(false);
   const [modalImages, setModalImages] = useState<string[]>([]);
@@ -504,13 +515,26 @@ export default function StartPackagePage() {
                   </div>
                   {/* 선택된 스타일 카드 */}
                   <div className="bg-white border-2 border-[#16255e] rounded-2xl overflow-hidden shadow-lg">
-                    <div className="aspect-[4/3] overflow-hidden bg-gray-100 relative">
+                    <div
+                      className="aspect-[4/3] overflow-hidden bg-gray-100 relative cursor-ns-resize"
+                      onWheel={(e) => {
+                        e.preventDefault();
+                        handleStyleScroll(styles[activeStyle].url, e.deltaY);
+                      }}
+                    >
                       <iframe
                         src={styles[activeStyle].url}
-                        className="w-full h-full scale-[0.33] origin-top-left"
-                        style={{ width: '300%', height: '300%' }}
+                        className="w-full h-full origin-top-left pointer-events-none"
+                        style={{
+                          width: '300%',
+                          height: '300%',
+                          transform: `scale(0.33) translateY(-${styleScrolls[styles[activeStyle].url] || 0}px)`
+                        }}
                         title={styles[activeStyle].name}
                       />
+                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/50 text-white text-xs px-2 py-1 rounded-full">
+                        스크롤하여 탐색
+                      </div>
                     </div>
                     <div className="p-3 flex items-center justify-between">
                       <p className="font-semibold text-gray-900">{styles[activeStyle].name}</p>
@@ -534,13 +558,26 @@ export default function StartPackagePage() {
                       key={style.url}
                       className="group bg-white border-2 border-gray-200 rounded-2xl overflow-hidden hover:border-blue-400 hover:shadow-xl transition-all"
                     >
-                      <div className="aspect-[4/3] overflow-hidden bg-gray-100 relative">
+                      <div
+                        className="aspect-[4/3] overflow-hidden bg-gray-100 relative cursor-ns-resize"
+                        onWheel={(e) => {
+                          e.preventDefault();
+                          handleStyleScroll(style.url, e.deltaY);
+                        }}
+                      >
                         <iframe
                           src={style.url}
-                          className="w-full h-full scale-[0.33] origin-top-left"
-                          style={{ width: '300%', height: '300%' }}
+                          className="w-full h-full origin-top-left pointer-events-none"
+                          style={{
+                            width: '300%',
+                            height: '300%',
+                            transform: `scale(0.33) translateY(-${styleScrolls[style.url] || 0}px)`
+                          }}
                           title={style.name}
                         />
+                        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/50 text-white text-xs px-2 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                          스크롤하여 탐색
+                        </div>
                       </div>
                       <div className="p-4 flex items-center justify-between">
                         <p className="font-semibold text-gray-900">{style.name}</p>

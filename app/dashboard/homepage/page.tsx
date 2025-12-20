@@ -79,6 +79,15 @@ export default function HomepageSettingsPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const colorSectionRef = useRef<HTMLDivElement>(null);
 
+  // 홈페이지 스타일 스크롤 상태
+  const [styleScrolls, setStyleScrolls] = useState<Record<string, number>>({});
+  const handleStyleScroll = (url: string, deltaY: number) => {
+    setStyleScrolls(prev => ({
+      ...prev,
+      [url]: Math.max(0, Math.min((prev[url] || 0) + deltaY * 0.5, 1500))
+    }));
+  };
+
   // 로고 확정 상태
   const [isLogoConfirmed, setIsLogoConfirmed] = useState(false);
 
@@ -548,11 +557,22 @@ export default function HomepageSettingsPage() {
                           setDialogOpen(true);
                         }}
                       >
-                        <div className="aspect-[4/3] overflow-hidden bg-gray-100">
+                        <div
+                          className="aspect-[4/3] overflow-hidden bg-gray-100 cursor-ns-resize"
+                          onWheel={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleStyleScroll(style.url, e.deltaY);
+                          }}
+                        >
                           <iframe
                             src={style.url}
-                            className="w-full h-full scale-[0.33] origin-top-left pointer-events-none"
-                            style={{ width: '300%', height: '300%' }}
+                            className="w-full h-full origin-top-left pointer-events-none"
+                            style={{
+                              width: '300%',
+                              height: '300%',
+                              transform: `scale(0.33) translateY(-${styleScrolls[style.url] || 0}px)`
+                            }}
                             title={style.name}
                           />
                         </div>
