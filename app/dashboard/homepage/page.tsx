@@ -188,6 +188,7 @@ export default function HomepageSettingsPage() {
     setSaving(true);
     try {
       const payload: Record<string, string> = {
+        홈페이지제작방식: "외부서비스",
         도메인관리사이트: domainSite,
         도메인관리ID: domainId,
         도메인관리PW: domainPw,
