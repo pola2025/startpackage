@@ -91,6 +91,40 @@ export async function POST(request: Request) {
       },
     });
 
+    // 사용자에게 텔레그램 알림
+    try {
+      const userForTelegram = await prisma.user.findUnique({
+        where: { id: thread.userId },
+        select: { telegramChatId: true, 이름: true },
+      });
+
+      if (userForTelegram?.telegramChatId) {
+        const { sendTelegramMessage } = await import("@/lib/notification/telegramClient");
+        const escapeHtml = (text: string) =>
+          text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+        await sendTelegramMessage(
+          `💬 <b>관리자 답변</b>\n\n<b>제목:</b> ${escapeHtml(thread.title)}\n\n<b>내용:</b>\n${escapeHtml(content)}`,
+          userForTelegram.telegramChatId
+        );
+      }
+    } catch (error) {
+      console.error("텔레그램 사용자 알림 실패:", error);
+    }
+
+    // 관리자에게도 텔레그램 알림 (기록용)
+    try {
+      const { sendTelegramMessage } = await import("@/lib/notification/telegramClient");
+      const escapeHtml = (text: string) =>
+        text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+      await sendTelegramMessage(
+        `📤 <b>관리자 답변 발송</b>\n\n<b>사용자:</b> ${escapeHtml(thread.user?.이름 || "")}\n<b>제목:</b> ${escapeHtml(thread.title)}\n\n<b>내용:</b>\n${escapeHtml(content)}`
+      );
+    } catch (error) {
+      console.error("텔레그램 관리자 알림 실패:", error);
+    }
+
     // 슬랙 채널에 관리자 답글 기록
     try {
       const user = await prisma.user.findUnique({

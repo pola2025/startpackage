@@ -53,6 +53,19 @@ export async function POST(request: Request) {
       data: { lastReplyAt: new Date() },
     });
 
+    // 관리자에게 텔레그램 알림
+    try {
+      const { sendTelegramMessage } = await import("@/lib/notification/telegramClient");
+      const escapeHtml = (text: string) =>
+        text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+      await sendTelegramMessage(
+        `💬 <b>문의 답글</b>\n\n<b>사용자:</b> ${escapeHtml(userName || "")}\n<b>제목:</b> ${escapeHtml(thread.title)}\n\n<b>내용:</b>\n${escapeHtml(content)}`
+      );
+    } catch (error) {
+      console.error("텔레그램 알림 실패:", error);
+    }
+
     // 슬랙 채널에 답글 기록
     try {
       const user = await prisma.user.findUnique({
