@@ -3,53 +3,51 @@
  * 사용자 알림 및 관리자 알림 발송
  */
 
-import TelegramBot from "node-telegram-bot-api";
-
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || "";
 
-let bot: TelegramBot | null = null;
-
 /**
- * 텔레그램 봇 초기화
- */
-function initBot() {
-  if (!bot && TELEGRAM_BOT_TOKEN) {
-    try {
-      bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: false });
-    } catch (error) {
-      console.error("텔레그램 봇 초기화 실패:", error);
-    }
-  }
-  return bot;
-}
-
-/**
- * 텔레그램 메시지 발송
+ * 텔레그램 메시지 발송 (fetch 사용)
  */
 export async function sendTelegramMessage(
   message: string,
   chatId?: string
 ): Promise<boolean> {
   try {
-    const telegramBot = initBot();
+    const targetChatId = chatId || TELEGRAM_CHAT_ID;
 
-    if (!telegramBot) {
-      console.error("텔레그램 봇이 초기화되지 않았습니다");
+    if (!TELEGRAM_BOT_TOKEN) {
+      console.error("텔레그램 BOT_TOKEN이 설정되지 않았습니다");
       return false;
     }
-
-    const targetChatId = chatId || TELEGRAM_CHAT_ID;
 
     if (!targetChatId) {
       console.error("텔레그램 CHAT_ID가 설정되지 않았습니다");
       return false;
     }
 
-    await telegramBot.sendMessage(targetChatId, message, {
-      parse_mode: "HTML",
-      disable_web_page_preview: true,
-    });
+    const response = await fetch(
+      `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          chat_id: targetChatId,
+          text: message,
+          parse_mode: "HTML",
+          disable_web_page_preview: true,
+        }),
+      }
+    );
+
+    const result = await response.json();
+
+    if (!result.ok) {
+      console.error("텔레그램 API 에러:", result.description);
+      return false;
+    }
 
     console.log(`✅ 텔레그램 메시지 발송 성공: ${targetChatId}`);
     return true;
