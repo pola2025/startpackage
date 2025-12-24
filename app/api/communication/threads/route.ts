@@ -93,8 +93,12 @@ export async function POST(request: Request) {
     // 관리자에게 텔레그램 알림 (전체 내용)
     try {
       const { sendTelegramMessage } = await import("@/lib/notification/telegramClient");
+      // HTML 특수문자 이스케이프
+      const escapeHtml = (text: string) =>
+        text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
       await sendTelegramMessage(
-        `🔔 <b>새 문의</b>\n\n<b>사용자:</b> ${userName}\n<b>제목:</b> ${title}\n<b>카테고리:</b> ${category || "일반"}\n\n<b>내용:</b>\n${content}`
+        `🔔 <b>새 문의</b>\n\n<b>사용자:</b> ${escapeHtml(userName || "")}\n<b>제목:</b> ${escapeHtml(title)}\n<b>카테고리:</b> ${escapeHtml(category || "일반")}\n\n<b>내용:</b>\n${escapeHtml(content)}`
       );
     } catch (error) {
       console.error("텔레그램 알림 실패:", error);
