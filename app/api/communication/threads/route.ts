@@ -94,7 +94,7 @@ export async function POST(request: Request) {
     try {
       const { sendTelegramMessage } = await import("@/lib/notification/telegramClient");
       await sendTelegramMessage(
-        `🔔 *새 문의*\\n\\n*사용자:* ${userName}\\n*제목:* ${title}\\n*카테고리:* ${category || "일반"}\\n\\n*내용:*\\n${content}`
+        `🔔 <b>새 문의</b>\n\n<b>사용자:</b> ${userName}\n<b>제목:</b> ${title}\n<b>카테고리:</b> ${category || "일반"}\n\n<b>내용:</b>\n${content}`
       );
     } catch (error) {
       console.error("텔레그램 알림 실패:", error);
