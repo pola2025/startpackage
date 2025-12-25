@@ -66,31 +66,34 @@ export async function POST(request: Request) {
       console.error("텔레그램 알림 실패:", error);
     }
 
-    // 슬랙 채널에 답글 기록
+    // SP_Q&A 슬랙 채널에 사용자 메시지 기록
     try {
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: { slackChannelId: true },
-      });
-
-      if (user?.slackChannelId) {
+      const SLACK_QNA_CHANNEL_ID = process.env.SLACK_QNA_CHANNEL_ID;
+      if (SLACK_QNA_CHANNEL_ID) {
         const { postMessage } = await import("@/lib/notification/slackClient");
         await postMessage({
-          channelId: user.slackChannelId,
-          text: `💬 문의 답글: ${thread.title}`,
+          channelId: SLACK_QNA_CHANNEL_ID,
+          text: `💬 [${userName}] 추가 메시지`,
           blocks: [
             {
               type: "section",
               text: {
                 type: "mrkdwn",
-                text: `💬 *문의 답글* (${thread.title})`,
+                text: `💬 *[${userName}] 추가 메시지*\n━━━━━━━━━━━━━━━━━━━━`,
               },
             },
             {
               type: "section",
               text: {
                 type: "mrkdwn",
-                text: content,
+                text: `*제목:* ${thread.title}`,
+              },
+            },
+            {
+              type: "section",
+              text: {
+                type: "mrkdwn",
+                text: `*내용:*\n${content}`,
               },
             },
             {
@@ -106,7 +109,7 @@ export async function POST(request: Request) {
         });
       }
     } catch (error) {
-      console.error("슬랙 답글 기록 실패:", error);
+      console.error("슬랙 SP_Q&A 기록 실패:", error);
     }
 
     return NextResponse.json({

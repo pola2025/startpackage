@@ -125,31 +125,40 @@ export async function POST(request: Request) {
       console.error("텔레그램 그룹 알림 실패:", error);
     }
 
-    // 슬랙 채널에 관리자 답글 기록
+    // SP_Q&A 슬랙 채널에 관리자 답변 기록
     try {
-      const user = await prisma.user.findUnique({
-        where: { id: thread.userId },
-        select: { slackChannelId: true },
-      });
-
-      if (user?.slackChannelId) {
+      const SLACK_QNA_CHANNEL_ID = process.env.SLACK_QNA_CHANNEL_ID;
+      if (SLACK_QNA_CHANNEL_ID) {
         const { postMessage } = await import("@/lib/notification/slackClient");
         await postMessage({
-          channelId: user.slackChannelId,
-          text: `💬 관리자 답글: ${thread.title}`,
+          channelId: SLACK_QNA_CHANNEL_ID,
+          text: `📤 [관리자] → [${thread.user?.이름}] 답변`,
           blocks: [
             {
               type: "section",
               text: {
                 type: "mrkdwn",
-                text: `💬 *관리자 답글* (${thread.title})`,
+                text: `📤 *[관리자] → [${thread.user?.이름 || "사용자"}] 답변*\n━━━━━━━━━━━━━━━━━━━━`,
               },
+            },
+            {
+              type: "section",
+              fields: [
+                {
+                  type: "mrkdwn",
+                  text: `*담당자:* ${adminName}`,
+                },
+                {
+                  type: "mrkdwn",
+                  text: `*제목:* ${thread.title}`,
+                },
+              ],
             },
             {
               type: "section",
               text: {
                 type: "mrkdwn",
-                text: content,
+                text: `*내용:*\n${content}`,
               },
             },
             {
@@ -157,7 +166,7 @@ export async function POST(request: Request) {
               elements: [
                 {
                   type: "mrkdwn",
-                  text: `👤 ${adminName} · 📅 ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`,
+                  text: `📅 ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`,
                 },
               ],
             },
@@ -165,7 +174,7 @@ export async function POST(request: Request) {
         });
       }
     } catch (error) {
-      console.error("슬랙 관리자 답글 기록 실패:", error);
+      console.error("슬랙 SP_Q&A 기록 실패:", error);
     }
 
     console.log("[REPLY API] 성공");

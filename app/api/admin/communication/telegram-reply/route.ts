@@ -90,26 +90,40 @@ export async function POST(request: Request) {
       }
     }
 
-    // 슬랙 채널에도 기록
-    if (thread.user?.slackChannelId) {
-      try {
+    // SP_Q&A 슬랙 채널에 텔레그램 답변 기록
+    try {
+      const SLACK_QNA_CHANNEL_ID = process.env.SLACK_QNA_CHANNEL_ID;
+      if (SLACK_QNA_CHANNEL_ID) {
         const { postMessage } = await import("@/lib/notification/slackClient");
         await postMessage({
-          channelId: thread.user.slackChannelId,
-          text: `💬 관리자 답글 (텔레그램): ${thread.title}`,
+          channelId: SLACK_QNA_CHANNEL_ID,
+          text: `📤 [관리자] → [${thread.user?.이름}] 답변 (텔레그램)`,
           blocks: [
             {
               type: "section",
               text: {
                 type: "mrkdwn",
-                text: `💬 *관리자 답글* (${thread.title})`,
+                text: `📤 *[관리자] → [${thread.user?.이름 || "사용자"}] 답변*\n━━━━━━━━━━━━━━━━━━━━`,
               },
+            },
+            {
+              type: "section",
+              fields: [
+                {
+                  type: "mrkdwn",
+                  text: `*담당자:* 텔레그램 관리자`,
+                },
+                {
+                  type: "mrkdwn",
+                  text: `*제목:* ${thread.title}`,
+                },
+              ],
             },
             {
               type: "section",
               text: {
                 type: "mrkdwn",
-                text: content,
+                text: `*내용:*\n${content}`,
               },
             },
             {
@@ -123,9 +137,9 @@ export async function POST(request: Request) {
             },
           ],
         });
-      } catch (error) {
-        console.error("슬랙 기록 실패:", error);
       }
+    } catch (error) {
+      console.error("슬랙 SP_Q&A 기록 실패:", error);
     }
 
     console.log("[TELEGRAM-REPLY] 답변 등록 완료:", threadId);

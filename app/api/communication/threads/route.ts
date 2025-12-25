@@ -104,24 +104,20 @@ export async function POST(request: Request) {
       console.error("텔레그램 알림 실패:", error);
     }
 
-    // 슬랙 채널에 문의 내용 전체 기록
+    // SP_Q&A 슬랙 채널에 문의 기록
     try {
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: { slackChannelId: true },
-      });
-
-      if (user?.slackChannelId) {
+      const SLACK_QNA_CHANNEL_ID = process.env.SLACK_QNA_CHANNEL_ID;
+      if (SLACK_QNA_CHANNEL_ID) {
         const { postMessage } = await import("@/lib/notification/slackClient");
         await postMessage({
-          channelId: user.slackChannelId,
-          text: `💬 새 문의: ${title}`,
+          channelId: SLACK_QNA_CHANNEL_ID,
+          text: `🔔 [${userName}] 새 문의`,
           blocks: [
             {
-              type: "header",
+              type: "section",
               text: {
-                type: "plain_text",
-                text: "💬 새 문의",
+                type: "mrkdwn",
+                text: `🔔 *[${userName}] 새 문의*\n━━━━━━━━━━━━━━━━━━━━`,
               },
             },
             {
@@ -129,11 +125,11 @@ export async function POST(request: Request) {
               fields: [
                 {
                   type: "mrkdwn",
-                  text: `*제목:*\n${title}`,
+                  text: `*제목:* ${title}`,
                 },
                 {
                   type: "mrkdwn",
-                  text: `*카테고리:*\n${category || "일반"}`,
+                  text: `*카테고리:* ${category || "일반"}`,
                 },
               ],
             },
@@ -157,7 +153,7 @@ export async function POST(request: Request) {
         });
       }
     } catch (error) {
-      console.error("슬랙 문의 기록 실패:", error);
+      console.error("슬랙 SP_Q&A 기록 실패:", error);
     }
 
     return NextResponse.json({
