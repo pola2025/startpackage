@@ -1,0 +1,6 @@
+name = "telegram-webhook"
+main = "telegram-webhook.js"
+compatibility_date = "2024-01-01"
+
+# Workers 무료 플랜 호환
+workers_dev = true

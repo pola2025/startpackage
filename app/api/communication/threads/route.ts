@@ -90,14 +90,14 @@ export async function POST(request: Request) {
       },
     });
 
-    // 관리자에게 텔레그램 알림 (전체 내용 + 스레드 ID)
+    // 관리자에게 텔레그램 알림 (문의하기 전용 봇 - 웹훅 답장 지원)
     try {
-      const { sendTelegramMessage } = await import("@/lib/notification/telegramClient");
+      const { sendInquiryTelegramMessage } = await import("@/lib/notification/telegramClient");
       // HTML 특수문자 이스케이프
       const escapeHtml = (text: string) =>
         text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-      await sendTelegramMessage(
+      await sendInquiryTelegramMessage(
         `🔔 <b>새 문의</b> [ID: ${thread.id}]\n\n<b>사용자:</b> ${escapeHtml(userName || "")}\n<b>제목:</b> ${escapeHtml(title)}\n<b>카테고리:</b> ${escapeHtml(category || "일반")}\n\n<b>내용:</b>\n${escapeHtml(content)}\n\n💡 이 메시지에 답장하면 자동으로 답변이 등록됩니다.`
       );
     } catch (error) {

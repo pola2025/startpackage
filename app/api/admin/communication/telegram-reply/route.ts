@@ -2,9 +2,18 @@ import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { notificationManager } from "@/lib/notifications/notification-manager";
 
+const WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET || "";
+
 // 텔레그램에서 답변 등록 (Cloudflare Worker에서 호출)
 export async function POST(request: Request) {
   try {
+    // 시크릿 키 검증 (Cloudflare Worker에서 호출 시)
+    const apiSecret = request.headers.get("X-API-Secret");
+    if (WEBHOOK_SECRET && apiSecret !== WEBHOOK_SECRET) {
+      console.log("[TELEGRAM-REPLY] 인증 실패: 잘못된 API Secret");
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
     const { threadId, content } = body;
 
@@ -57,10 +66,10 @@ export async function POST(request: Request) {
       },
     });
 
-    // 사용자에게 텔레그램 알림 (telegramChatId가 있는 경우)
+    // 사용자에게 텔레그램 알림 (telegramChatId가 있는 경우) - 문의하기 전용 봇 사용
     if (thread.user?.telegramChatId) {
       try {
-        const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
+        const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_INQUIRY_BOT_TOKEN || "";
         const escapeHtml = (text: string) =>
           text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 

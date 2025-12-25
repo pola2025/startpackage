@@ -6,6 +6,10 @@
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || "";
 
+// 문의하기 전용 봇 (웹훅 답장 지원)
+const TELEGRAM_INQUIRY_BOT_TOKEN = process.env.TELEGRAM_INQUIRY_BOT_TOKEN || "";
+const TELEGRAM_INQUIRY_CHAT_ID = process.env.TELEGRAM_INQUIRY_CHAT_ID || "";
+
 /**
  * 텔레그램 메시지 발송 (fetch 사용)
  */
@@ -53,6 +57,57 @@ export async function sendTelegramMessage(
     return true;
   } catch (error) {
     console.error("텔레그램 메시지 발송 실패:", error);
+    return false;
+  }
+}
+
+/**
+ * 문의하기 전용 텔레그램 메시지 발송 (웹훅 답장 지원)
+ */
+export async function sendInquiryTelegramMessage(
+  message: string,
+  chatId?: string
+): Promise<boolean> {
+  try {
+    const targetChatId = chatId || TELEGRAM_INQUIRY_CHAT_ID;
+
+    if (!TELEGRAM_INQUIRY_BOT_TOKEN) {
+      console.error("문의하기용 텔레그램 BOT_TOKEN이 설정되지 않았습니다");
+      return false;
+    }
+
+    if (!targetChatId) {
+      console.error("문의하기용 텔레그램 CHAT_ID가 설정되지 않았습니다");
+      return false;
+    }
+
+    const response = await fetch(
+      `https://api.telegram.org/bot${TELEGRAM_INQUIRY_BOT_TOKEN}/sendMessage`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          chat_id: targetChatId,
+          text: message,
+          parse_mode: "HTML",
+          disable_web_page_preview: true,
+        }),
+      }
+    );
+
+    const result = await response.json();
+
+    if (!result.ok) {
+      console.error("문의하기 텔레그램 API 에러:", result.description);
+      return false;
+    }
+
+    console.log(`✅ 문의하기 텔레그램 메시지 발송 성공: ${targetChatId}`);
+    return true;
+  } catch (error) {
+    console.error("문의하기 텔레그램 메시지 발송 실패:", error);
     return false;
   }
 }
@@ -176,6 +231,7 @@ export async function notifyProductionComplete(params: {
 
 export default {
   sendTelegramMessage,
+  sendInquiryTelegramMessage,
   notifyUser,
   notifyAdmin,
   notifySubmissionComplete,
