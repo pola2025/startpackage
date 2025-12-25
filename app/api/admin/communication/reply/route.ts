@@ -112,17 +112,17 @@ export async function POST(request: Request) {
       console.error("텔레그램 사용자 알림 실패:", error);
     }
 
-    // 관리자에게도 텔레그램 알림 (기록용)
+    // 문의하기 전용 그룹에 알림 (답장 가능하도록 스레드 ID 포함)
     try {
-      const { sendTelegramMessage } = await import("@/lib/notification/telegramClient");
+      const { sendInquiryTelegramMessage } = await import("@/lib/notification/telegramClient");
       const escapeHtml = (text: string) =>
         text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-      await sendTelegramMessage(
-        `📤 <b>관리자 답변 발송</b>\n\n<b>사용자:</b> ${escapeHtml(thread.user?.이름 || "")}\n<b>제목:</b> ${escapeHtml(thread.title)}\n\n<b>내용:</b>\n${escapeHtml(content)}`
+      await sendInquiryTelegramMessage(
+        `📤 <b>관리자 답변</b> [ID: ${threadId}]\n\n<b>담당자:</b> ${escapeHtml(adminName || "관리자")}\n<b>사용자:</b> ${escapeHtml(thread.user?.이름 || "")}\n<b>제목:</b> ${escapeHtml(thread.title)}\n\n<b>내용:</b>\n${escapeHtml(content)}\n\n💡 이 메시지에 답장하면 추가 답변이 등록됩니다.`
       );
     } catch (error) {
-      console.error("텔레그램 관리자 알림 실패:", error);
+      console.error("텔레그램 그룹 알림 실패:", error);
     }
 
     // 슬랙 채널에 관리자 답글 기록
