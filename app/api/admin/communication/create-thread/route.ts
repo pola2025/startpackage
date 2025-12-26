@@ -114,6 +114,8 @@ export async function POST(request: Request) {
     // ✅ 이메일 알림 발송 (새 스레드 생성 시에만, 서비스 알림이므로 수신동의 무관)
     if (user.email) {
       try {
+        console.log("[CREATE THREAD] 이메일 발송 시작:", user.email);
+
         const emailHtml = getAdminMessageEmailHTML({
           userName: user.이름,
           title,
@@ -121,15 +123,20 @@ export async function POST(request: Request) {
           category,
         });
 
-        await sendEmail({
+        const emailResult = await sendEmail({
           to: user.email,
           subject: `[스타트패키지] 새로운 메시지: ${title}`,
           html: emailHtml,
         });
-        console.log("[CREATE THREAD] 이메일 알림 발송 성공:", user.email);
+
+        if (emailResult) {
+          console.log("[CREATE THREAD] 이메일 알림 발송 성공:", user.email);
+        } else {
+          console.error("[CREATE THREAD] 이메일 알림 발송 실패 (false 반환):", user.email);
+        }
       } catch (emailError) {
         // 이메일 발송 실패해도 스레드 생성은 성공으로 처리
-        console.error("[CREATE THREAD] 이메일 알림 발송 실패:", emailError);
+        console.error("[CREATE THREAD] 이메일 알림 발송 에러:", emailError);
       }
     } else {
       console.log("[CREATE THREAD] 사용자 이메일 없음");
