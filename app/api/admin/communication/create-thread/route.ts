@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { notificationManager } from "@/lib/notifications/notification-manager";
 import { z } from "zod";
+import { sendEmail, getAdminMessageEmailHTML } from "@/lib/email/resendClient";
 
 /**
  * POST /api/admin/communication/create-thread
@@ -49,13 +50,14 @@ export async function POST(request: Request) {
     const { userId, title, category, content, attachments, expectedCompletionDate } =
       validation.data;
 
-    // 사용자 존재 확인
+    // 사용자 존재 확인 (이메일 수신 동의 여부 포함)
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
         id: true,
         이름: true,
         email: true,
+        이메일수신동의: true,
       },
     });
 
@@ -108,6 +110,30 @@ export async function POST(request: Request) {
         timestamp: new Date().toISOString(),
       },
     });
+
+    // ✅ 이메일 알림 발송 (새 스레드 생성 시에만, 서비스 알림이므로 수신동의 무관)
+    if (user.email) {
+      try {
+        const emailHtml = getAdminMessageEmailHTML({
+          userName: user.이름,
+          title,
+          message: content,
+          category,
+        });
+
+        await sendEmail({
+          to: user.email,
+          subject: `[스타트패키지] 새로운 메시지: ${title}`,
+          html: emailHtml,
+        });
+        console.log("[CREATE THREAD] 이메일 알림 발송 성공:", user.email);
+      } catch (emailError) {
+        // 이메일 발송 실패해도 스레드 생성은 성공으로 처리
+        console.error("[CREATE THREAD] 이메일 알림 발송 실패:", emailError);
+      }
+    } else {
+      console.log("[CREATE THREAD] 사용자 이메일 없음");
+    }
 
     console.log("[CREATE THREAD] 스레드 생성 성공:", result.thread.id);
 
