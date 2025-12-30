@@ -36,6 +36,7 @@ import {
 // toast 대신 alert 사용
 import Image from "next/image";
 import { useRef } from "react";
+import imageCompression from "browser-image-compression";
 
 interface HomepageData {
   홈페이지스타일: string | null;
@@ -156,8 +157,31 @@ export default function HomepageSettingsPage() {
     else setUploadingBack(true);
 
     try {
+      // 이미지 자동 압축 (GIF 제외)
+      let processedFile = file;
+      if (file.type.startsWith("image/") && file.type !== "image/gif") {
+        try {
+          console.log(`[압축] 원본 파일 크기: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+          const options = {
+            maxSizeMB: 1, // 카드 이미지는 1MB로 압축
+            maxWidthOrHeight: 1920,
+            useWebWorker: true,
+            fileType: file.type as string,
+          };
+          const compressedFile = await imageCompression(file, options);
+          console.log(`[압축] 압축 후 파일 크기: ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`);
+          processedFile = new File([compressedFile], file.name, {
+            type: compressedFile.type,
+            lastModified: Date.now(),
+          });
+        } catch (compressionError) {
+          console.error("[압축] 이미지 압축 실패:", compressionError);
+          // 압축 실패 시 원본 파일 사용
+        }
+      }
+
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", processedFile);
       // field 파라미터 추가 (민감 정보로 처리하기 위해 필요)
       const fieldName = type === "front" ? "해외결제카드앞면URL" : "해외결제카드뒷면URL";
       formData.append("field", fieldName);
