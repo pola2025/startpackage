@@ -168,10 +168,13 @@ export default function HomepageSettingsPage() {
       });
 
       if (response.ok) {
-        const { url } = await response.json();
-        if (type === "front") setCardFrontUrl(url);
-        else setCardBackUrl(url);
-        // 업로드 성공
+        const data = await response.json();
+        if (type === "front") setCardFrontUrl(data.url);
+        else setCardBackUrl(data.url);
+        // 민감 파일은 슬랙으로 전송됨
+        if (data.sensitive) {
+          alert("카드 이미지가 안전하게 전송되었습니다.\n(보안을 위해 서버에는 저장되지 않습니다)");
+        }
       } else {
         const errorData = await response.json();
         console.error("Upload failed:", errorData);
@@ -410,12 +413,20 @@ export default function HomepageSettingsPage() {
                     카드번호가 전체 보이도록 촬영해주세요
                   </p>
                   {cardFrontUrl ? (
-                    <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-2">
-                      <img
-                        src={cardFrontUrl}
-                        alt="카드 앞면"
-                        className="w-full h-32 object-contain rounded"
-                      />
+                    <div className="relative border-2 border-dashed border-green-400 rounded-lg p-2 bg-green-50">
+                      {cardFrontUrl === "SLACK_ONLY" ? (
+                        <div className="flex flex-col items-center justify-center h-32">
+                          <CheckCircle2 className="w-10 h-10 text-green-500 mb-2" />
+                          <span className="text-sm text-green-700 font-medium">슬랙으로 전송 완료</span>
+                          <span className="text-xs text-gray-500">보안을 위해 서버 저장 안 함</span>
+                        </div>
+                      ) : (
+                        <img
+                          src={cardFrontUrl}
+                          alt="카드 앞면"
+                          className="w-full h-32 object-contain rounded"
+                        />
+                      )}
                       <button
                         onClick={() => setCardFrontUrl("")}
                         className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
@@ -456,12 +467,20 @@ export default function HomepageSettingsPage() {
                     CVC 번호가 보이도록 촬영해주세요
                   </p>
                   {cardBackUrl ? (
-                    <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-2">
-                      <img
-                        src={cardBackUrl}
-                        alt="카드 뒷면"
-                        className="w-full h-32 object-contain rounded"
-                      />
+                    <div className="relative border-2 border-dashed border-green-400 rounded-lg p-2 bg-green-50">
+                      {cardBackUrl === "SLACK_ONLY" ? (
+                        <div className="flex flex-col items-center justify-center h-32">
+                          <CheckCircle2 className="w-10 h-10 text-green-500 mb-2" />
+                          <span className="text-sm text-green-700 font-medium">슬랙으로 전송 완료</span>
+                          <span className="text-xs text-gray-500">보안을 위해 서버 저장 안 함</span>
+                        </div>
+                      ) : (
+                        <img
+                          src={cardBackUrl}
+                          alt="카드 뒷면"
+                          className="w-full h-32 object-contain rounded"
+                        />
+                      )}
                       <button
                         onClick={() => setCardBackUrl("")}
                         className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
