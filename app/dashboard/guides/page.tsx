@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, MessageSquare, CreditCard, Globe, Mail, FileText, Instagram, UserPlus, Palette, Sparkles, ExternalLink } from "lucide-react";
+import { BookOpen, MessageSquare, CreditCard, Globe, Mail, FileText, Instagram, UserPlus, Palette, Sparkles, ExternalLink, Video, Clock, Target, ShieldCheck, Clapperboard, Smartphone, AlertTriangle, Award, ClipboardCheck, CheckCircle, XCircle, Check, X, Lightbulb, Info, Timer, Crosshair, Ruler } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // 가이드 메뉴 데이터
@@ -14,6 +14,7 @@ const guideMenus = [
   { value: "meta", label: "메타 결제", icon: CreditCard, color: "bg-purple-500" },
   { value: "imweb", label: "아임웹", icon: Globe, color: "bg-cyan-500" },
   { value: "design", label: "인쇄물 발주", icon: FileText, color: "bg-orange-500" },
+  { value: "video", label: "영상제작", icon: Video, color: "bg-red-500" },
   { value: "meta-admin", label: "Meta 관리자", icon: UserPlus, color: "bg-indigo-500" },
   { value: "instagram", label: "Instagram", icon: Instagram, color: "bg-pink-500" },
   { value: "logo", label: "로고 제작", icon: Palette, color: "bg-amber-500" },
@@ -958,6 +959,657 @@ export default function GuidesPage() {
                   </div>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* 영상제작 가이드 */}
+        <TabsContent value="video">
+          <Card className="bg-white border-2 border-gray-200">
+            <CardHeader className="p-4 md:p-6">
+              <CardTitle className="text-lg md:text-xl text-gray-900 flex items-center gap-2">
+                <Video className="w-4 h-4 md:w-5 md:h-5" />
+                정책자금 광고 영상 제작 가이드
+              </CardTitle>
+              <CardDescription className="text-xs md:text-sm">
+                승인율 높이고, 전환 극대화하는 영상 제작 전략
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4 md:space-y-6 p-4 md:p-6 pt-0 md:pt-0">
+
+              {/* 핵심 요약 */}
+              <div>
+                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-3 md:mb-4 flex items-center gap-2">
+                  <Lightbulb className="w-4 h-4" />
+                  핵심 요약
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-xl p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="p-1.5 bg-blue-200 rounded-lg">
+                        <Clock className="w-4 h-4 text-blue-700" />
+                      </div>
+                      <span className="text-xs font-semibold text-blue-600">필수</span>
+                    </div>
+                    <h4 className="text-sm md:text-base font-semibold text-gray-900 mb-1">영상 길이</h4>
+                    <p className="text-lg md:text-xl font-bold text-blue-800">35초~2분</p>
+                    <p className="text-xs text-gray-600 mt-1">최적: 45초 ~ 90초</p>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-orange-50 to-orange-100 border-2 border-orange-200 rounded-xl p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="p-1.5 bg-orange-200 rounded-lg">
+                        <Target className="w-4 h-4 text-orange-700" />
+                      </div>
+                      <span className="text-xs font-semibold text-orange-600">핵심</span>
+                    </div>
+                    <h4 className="text-sm md:text-base font-semibold text-gray-900 mb-1">후킹 구간</h4>
+                    <p className="text-lg md:text-xl font-bold text-orange-800">첫 6~10초</p>
+                    <p className="text-xs text-gray-600 mt-1">80%가 이 구간에서 이탈 결정</p>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 rounded-xl p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="p-1.5 bg-green-200 rounded-lg">
+                        <ShieldCheck className="w-4 h-4 text-green-700" />
+                      </div>
+                      <span className="text-xs font-semibold text-green-600">승인</span>
+                    </div>
+                    <h4 className="text-sm md:text-base font-semibold text-gray-900 mb-1">승인 핵심</h4>
+                    <p className="text-lg md:text-xl font-bold text-green-800">팩트 기반</p>
+                    <p className="text-xs text-gray-600 mt-1">허위·과장 표현 절대 금지</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* 콘텐츠 전략 */}
+              <div>
+                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-3 md:mb-4 flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  콘텐츠 전략 (승인율)
+                </h3>
+
+                {/* 승인 OK */}
+                <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4 mb-3">
+                  <div className="flex items-center gap-2 mb-3">
+                    <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
+                    <h4 className="text-sm md:text-base font-semibold text-green-800">승인 OK (팩트 기반)</h4>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="bg-white/80 rounded-lg p-3">
+                      <h5 className="text-xs font-semibold text-gray-700 mb-2">금액 안내</h5>
+                      <ul className="space-y-1.5">
+                        <li className="flex items-start gap-2 text-xs md:text-sm text-gray-700">
+                          <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                          <span>&quot;26년 정책자금 예산 <strong>60조 원</strong> 편성&quot;</span>
+                        </li>
+                        <li className="flex items-start gap-2 text-xs md:text-sm text-gray-700">
+                          <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                          <span>&quot;운전자금·시설자금 <strong>최소 1억 원</strong> 지원&quot;</span>
+                        </li>
+                        <li className="flex items-start gap-2 text-xs md:text-sm text-gray-700">
+                          <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                          <span>&quot;자영업자 대상 정책자금 <strong>최대 1억 원</strong>&quot;</span>
+                        </li>
+                      </ul>
+                    </div>
+                    <div className="bg-white/80 rounded-lg p-3">
+                      <h5 className="text-xs font-semibold text-gray-700 mb-2">상담 유도</h5>
+                      <ul className="space-y-1.5">
+                        <li className="flex items-start gap-2 text-xs md:text-sm text-gray-700">
+                          <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                          <span>&quot;내 사업에 맞는 정책자금 <strong>무료 상담</strong>&quot;</span>
+                        </li>
+                        <li className="flex items-start gap-2 text-xs md:text-sm text-gray-700">
+                          <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                          <span>&quot;26년도 바뀐 정책, <strong>지금 확인</strong>하세요&quot;</span>
+                        </li>
+                        <li className="flex items-start gap-2 text-xs md:text-sm text-gray-700">
+                          <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                          <span>&quot;자격요건 <strong>1분 진단</strong> 받아보세요&quot;</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 승인 NO */}
+                <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 mb-3">
+                  <div className="flex items-center gap-2 mb-3">
+                    <XCircle className="w-4 h-4 md:w-5 md:h-5 text-red-600" />
+                    <h4 className="text-sm md:text-base font-semibold text-red-800">승인 NO (허위·과장)</h4>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="bg-white/80 rounded-lg p-3">
+                      <h5 className="text-xs font-semibold text-red-700 mb-2">절대 사용 금지</h5>
+                      <ul className="space-y-1.5">
+                        <li className="flex items-start gap-2 text-xs md:text-sm text-red-700">
+                          <X className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+                          <span>&quot;정책자금 <strong>바로 받아야 한다</strong>&quot;</span>
+                        </li>
+                        <li className="flex items-start gap-2 text-xs md:text-sm text-red-700">
+                          <X className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+                          <span>&quot;<strong>무조건</strong> 1억 지원&quot;</span>
+                        </li>
+                        <li className="flex items-start gap-2 text-xs md:text-sm text-red-700">
+                          <X className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+                          <span>&quot;신청만 하면 <strong>100% 승인</strong>&quot;</span>
+                        </li>
+                        <li className="flex items-start gap-2 text-xs md:text-sm text-red-700">
+                          <X className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+                          <span>&quot;<strong>누구나</strong> 받을 수 있다&quot;</span>
+                        </li>
+                      </ul>
+                    </div>
+                    <div className="bg-white/80 rounded-lg p-3">
+                      <h5 className="text-xs font-semibold text-red-700 mb-2">피해야 할 패턴</h5>
+                      <ul className="space-y-1.5">
+                        <li className="flex items-start gap-2 text-xs md:text-sm text-red-700">
+                          <X className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+                          <span>확정적 수령 보장 표현</span>
+                        </li>
+                        <li className="flex items-start gap-2 text-xs md:text-sm text-red-700">
+                          <X className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+                          <span>근거 없는 금액 명시</span>
+                        </li>
+                        <li className="flex items-start gap-2 text-xs md:text-sm text-red-700">
+                          <X className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+                          <span>자격요건 무시한 일반화</span>
+                        </li>
+                        <li className="flex items-start gap-2 text-xs md:text-sm text-red-700">
+                          <X className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+                          <span>허위 마감/긴급성 조장</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 승인 공식 */}
+                <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Lightbulb className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
+                    <h4 className="text-sm md:text-base font-semibold text-blue-800">승인 통과 공식</h4>
+                  </div>
+                  <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3 mb-4">
+                    <span className="px-3 py-1.5 bg-blue-600 text-white text-xs md:text-sm font-medium rounded-full">정부 정책 팩트</span>
+                    <span className="text-gray-400">+</span>
+                    <span className="px-3 py-1.5 bg-blue-500 text-white text-xs md:text-sm font-medium rounded-full">금액 범위 안내</span>
+                    <span className="text-gray-400">+</span>
+                    <span className="px-3 py-1.5 bg-blue-400 text-white text-xs md:text-sm font-medium rounded-full">상담 유도 CTA</span>
+                  </div>
+                  <div className="bg-white rounded-lg p-3">
+                    <p className="text-xs text-gray-500 mb-1">예시 스크립트</p>
+                    <p className="text-xs md:text-sm text-gray-800 italic leading-relaxed">
+                      &quot;26년 정부 정책자금 예산 60조 원 편성! 자영업자 운전자금·시설자금 최대 1억 원까지 지원 가능합니다. 내 사업에 맞는 정책자금, 지금 무료 상담 받아보세요.&quot;
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* 영상 구조 */}
+              <div>
+                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-3 md:mb-4 flex items-center gap-2">
+                  <Clapperboard className="w-4 h-4" />
+                  영상 구조 (45초 기준)
+                </h3>
+                <div className="bg-white border-2 border-gray-200 rounded-xl overflow-hidden">
+                  {/* 타임라인 바 */}
+                  <div className="p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Timer className="w-4 h-4 text-gray-600" />
+                      <span className="text-xs md:text-sm font-medium text-gray-700">타임라인 구조</span>
+                    </div>
+                    <div className="h-4 bg-gray-100 rounded-full overflow-hidden mb-2">
+                      <div className="flex h-full">
+                        <div className="bg-blue-800 w-[22%]"></div>
+                        <div className="bg-blue-600 w-[44%]"></div>
+                        <div className="bg-blue-400 w-[34%]"></div>
+                      </div>
+                    </div>
+                    <div className="flex justify-between text-[10px] md:text-xs text-gray-500">
+                      <span>0초</span>
+                      <span>10초</span>
+                      <span>30초</span>
+                      <span>45초</span>
+                    </div>
+                  </div>
+
+                  {/* 구간 설명 */}
+                  <div className="grid grid-cols-3 gap-2 p-4 pt-0">
+                    <div className="text-center bg-blue-50 rounded-lg p-3">
+                      <div className="w-7 h-7 md:w-8 md:h-8 bg-blue-800 text-white rounded-full flex items-center justify-center mx-auto mb-2 text-xs font-bold">1</div>
+                      <p className="text-xs md:text-sm font-semibold text-gray-900">0~10초</p>
+                      <p className="text-[10px] md:text-xs text-blue-600 font-medium">후킹</p>
+                      <p className="text-[10px] text-gray-500 mt-1 hidden md:block">시선 고정 필수</p>
+                    </div>
+                    <div className="text-center bg-blue-50 rounded-lg p-3">
+                      <div className="w-7 h-7 md:w-8 md:h-8 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-2 text-xs font-bold">2</div>
+                      <p className="text-xs md:text-sm font-semibold text-gray-900">10~30초</p>
+                      <p className="text-[10px] md:text-xs text-blue-600 font-medium">본문</p>
+                      <p className="text-[10px] text-gray-500 mt-1 hidden md:block">팩트 기반 설명</p>
+                    </div>
+                    <div className="text-center bg-blue-50 rounded-lg p-3">
+                      <div className="w-7 h-7 md:w-8 md:h-8 bg-blue-400 text-white rounded-full flex items-center justify-center mx-auto mb-2 text-xs font-bold">3</div>
+                      <p className="text-xs md:text-sm font-semibold text-gray-900">30~45초</p>
+                      <p className="text-[10px] md:text-xs text-blue-600 font-medium">CTA</p>
+                      <p className="text-[10px] text-gray-500 mt-1 hidden md:block">상담 신청 안내</p>
+                    </div>
+                  </div>
+
+                  {/* 후킹 예시 */}
+                  <div className="bg-gray-50 p-4 border-t border-gray-200">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Crosshair className="w-4 h-4 text-gray-600" />
+                      <span className="text-xs md:text-sm font-medium text-gray-700">후킹 문구 예시</span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      <div className="flex items-start gap-2 bg-white rounded-lg p-2.5">
+                        <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] md:text-xs font-medium rounded">질문형</span>
+                        <p className="text-xs md:text-sm text-gray-700">&quot;사업하시는데 정책자금 아직도 안 받으셨어요?&quot;</p>
+                      </div>
+                      <div className="flex items-start gap-2 bg-white rounded-lg p-2.5">
+                        <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] md:text-xs font-medium rounded">숫자형</span>
+                        <p className="text-xs md:text-sm text-gray-700">&quot;26년 정책자금 예산 60조! 지금이 기회입니다&quot;</p>
+                      </div>
+                      <div className="flex items-start gap-2 bg-white rounded-lg p-2.5">
+                        <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] md:text-xs font-medium rounded">문제제기</span>
+                        <p className="text-xs md:text-sm text-gray-700">&quot;운전자금 부족으로 힘드셨죠?&quot;</p>
+                      </div>
+                      <div className="flex items-start gap-2 bg-white rounded-lg p-2.5">
+                        <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] md:text-xs font-medium rounded">정보형</span>
+                        <p className="text-xs md:text-sm text-gray-700">&quot;26년도 바뀐 정책자금 조건, 알고 계세요?&quot;</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 플랫폼별 스펙 */}
+              <div>
+                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-3 md:mb-4 flex items-center gap-2">
+                  <Smartphone className="w-4 h-4" />
+                  플랫폼별 영상 스펙
+                </h3>
+                <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
+                  <div className="bg-white border-2 border-gray-200 rounded-xl overflow-hidden min-w-[500px] md:min-w-0">
+                    <table className="w-full">
+                      <thead className="bg-gray-800 text-white">
+                        <tr>
+                          <th className="px-3 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold">플랫폼</th>
+                          <th className="px-3 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold">비율</th>
+                          <th className="px-3 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold">해상도</th>
+                          <th className="px-3 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold">최적 길이</th>
+                          <th className="px-3 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold">참여율</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
+                        <tr className="hover:bg-gray-50">
+                          <td className="px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm font-medium">YouTube Shorts</td>
+                          <td className="px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm">9:16</td>
+                          <td className="px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm font-mono">1080×1920</td>
+                          <td className="px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm">31~60초</td>
+                          <td className="px-3 md:px-4 py-2 md:py-3"><span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-medium rounded">5.91%</span></td>
+                        </tr>
+                        <tr className="hover:bg-gray-50">
+                          <td className="px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm font-medium">Instagram Reels</td>
+                          <td className="px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm">9:16</td>
+                          <td className="px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm font-mono">1080×1920</td>
+                          <td className="px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm">6~15초</td>
+                          <td className="px-3 md:px-4 py-2 md:py-3"><span className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs font-medium rounded">1.23%</span></td>
+                        </tr>
+                        <tr className="hover:bg-gray-50">
+                          <td className="px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm font-medium">TikTok</td>
+                          <td className="px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm">9:16</td>
+                          <td className="px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm font-mono">1080×1920</td>
+                          <td className="px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm">6~15초</td>
+                          <td className="px-3 md:px-4 py-2 md:py-3"><span className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs font-medium rounded">2.65%</span></td>
+                        </tr>
+                        <tr className="hover:bg-gray-50">
+                          <td className="px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm font-medium">Facebook Reels</td>
+                          <td className="px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm">9:16</td>
+                          <td className="px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm font-mono">1080×1920</td>
+                          <td className="px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm">15~30초</td>
+                          <td className="px-3 md:px-4 py-2 md:py-3"><span className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs font-medium rounded">0.15%</span></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-3 mt-3">
+                  <p className="text-xs md:text-sm text-gray-700">
+                    💡 <strong>팁:</strong> YouTube Shorts가 가장 높은 참여율(5.91%)을 보이며, 하루 2000억 뷰를 기록합니다.
+                  </p>
+                </div>
+              </div>
+
+              {/* 데드존 가이드 */}
+              <div>
+                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-3 md:mb-4 flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4" />
+                  데드존 가이드
+                </h3>
+                <div className="bg-red-50 border-2 border-red-200 rounded-lg p-3 mb-4">
+                  <p className="text-xs md:text-sm text-gray-700">
+                    ⚠️ <strong>중요:</strong> 데드존은 플랫폼 UI 요소(프로필, 좋아요, 설명 등)가 겹쳐지는 영역입니다. <strong>이 영역에 중요한 텍스트나 CTA를 배치하면 가려집니다!</strong>
+                  </p>
+                </div>
+
+                {/* 데드존 시각화 */}
+                <div className="bg-white border-2 border-gray-200 rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Ruler className="w-4 h-4 text-gray-600" />
+                    <span className="text-xs md:text-sm font-medium text-gray-700">플랫폼별 데드존 영역 (1080×1920 기준)</span>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-3 md:gap-6">
+                    {/* YouTube Shorts */}
+                    <div className="text-center">
+                      <p className="text-xs font-medium text-gray-700 mb-2">YouTube Shorts</p>
+                      <div className="relative mx-auto bg-gray-100 rounded-lg overflow-hidden" style={{ width: '60px', aspectRatio: '9/16' }}>
+                        <div className="absolute top-0 left-0 right-0 bg-red-500 flex items-center justify-center" style={{ height: '12%' }}>
+                          <span className="text-white text-[8px] font-bold">150px</span>
+                        </div>
+                        <div className="absolute left-0 right-0 bg-green-200 border border-green-400 border-dashed" style={{ top: '12%', bottom: '16%' }}></div>
+                        <div className="absolute bottom-0 left-0 right-0 bg-red-500 flex items-center justify-center" style={{ height: '16%' }}>
+                          <span className="text-white text-[8px] font-bold">200px</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Instagram Reels */}
+                    <div className="text-center">
+                      <p className="text-xs font-medium text-gray-700 mb-2">Instagram Reels</p>
+                      <div className="relative mx-auto bg-gray-100 rounded-lg overflow-hidden" style={{ width: '60px', aspectRatio: '9/16' }}>
+                        <div className="absolute top-0 left-0 right-0 bg-red-500 flex items-center justify-center" style={{ height: '10%' }}>
+                          <span className="text-white text-[8px] font-bold">120px</span>
+                        </div>
+                        <div className="absolute left-0 right-0 bg-green-200 border border-green-400 border-dashed" style={{ top: '10%', bottom: '22%' }}></div>
+                        <div className="absolute bottom-0 left-0 right-0 bg-red-500 flex items-center justify-center" style={{ height: '22%' }}>
+                          <span className="text-white text-[8px] font-bold">280px</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* TikTok */}
+                    <div className="text-center">
+                      <p className="text-xs font-medium text-gray-700 mb-2">TikTok</p>
+                      <div className="relative mx-auto bg-gray-100 rounded-lg overflow-hidden" style={{ width: '60px', aspectRatio: '9/16' }}>
+                        <div className="absolute top-0 left-0 right-0 bg-red-500 flex items-center justify-center" style={{ height: '12%' }}>
+                          <span className="text-white text-[8px] font-bold">150px</span>
+                        </div>
+                        <div className="absolute left-0 bg-green-200 border border-green-400 border-dashed" style={{ top: '12%', bottom: '22%', right: '15%' }}></div>
+                        <div className="absolute right-0 bg-orange-500" style={{ top: '30%', bottom: '30%', width: '15%' }}></div>
+                        <div className="absolute bottom-0 left-0 right-0 bg-red-500 flex items-center justify-center" style={{ height: '22%' }}>
+                          <span className="text-white text-[8px] font-bold">270px</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 범례 */}
+                  <div className="flex flex-wrap justify-center gap-3 mt-4 text-[10px] md:text-xs">
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-3 bg-red-500 rounded"></div>
+                      <span className="text-gray-600">위험 (UI 겹침)</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-3 bg-orange-500 rounded"></div>
+                      <span className="text-gray-600">주의 (우측)</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-3 bg-green-200 border border-green-400 rounded"></div>
+                      <span className="text-gray-600">안전 영역</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 안전 배치 팁 */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+                  <div className="bg-green-50 border-2 border-green-200 rounded-lg p-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <h4 className="text-xs md:text-sm font-semibold text-green-800">안전한 배치</h4>
+                    </div>
+                    <ul className="space-y-1 text-xs text-gray-700">
+                      <li className="flex items-start gap-1.5">
+                        <Check className="w-3 h-3 text-green-500 mt-0.5 flex-shrink-0" />
+                        <span>핵심 텍스트/자막 → 화면 중앙~중상단</span>
+                      </li>
+                      <li className="flex items-start gap-1.5">
+                        <Check className="w-3 h-3 text-green-500 mt-0.5 flex-shrink-0" />
+                        <span>CTA 버튼 → 중앙 하단 (데드존 위)</span>
+                      </li>
+                      <li className="flex items-start gap-1.5">
+                        <Check className="w-3 h-3 text-green-500 mt-0.5 flex-shrink-0" />
+                        <span>중요 정보 → 화면 높이의 20%~70%</span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="bg-red-50 border-2 border-red-200 rounded-lg p-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <XCircle className="w-4 h-4 text-red-600" />
+                      <h4 className="text-xs md:text-sm font-semibold text-red-800">피해야 할 배치</h4>
+                    </div>
+                    <ul className="space-y-1 text-xs text-gray-700">
+                      <li className="flex items-start gap-1.5">
+                        <X className="w-3 h-3 text-red-500 mt-0.5 flex-shrink-0" />
+                        <span>최상단 자막 → 플랫폼 로고에 가려짐</span>
+                      </li>
+                      <li className="flex items-start gap-1.5">
+                        <X className="w-3 h-3 text-red-500 mt-0.5 flex-shrink-0" />
+                        <span>최하단 CTA → 좋아요 버튼에 가려짐</span>
+                      </li>
+                      <li className="flex items-start gap-1.5">
+                        <X className="w-3 h-3 text-red-500 mt-0.5 flex-shrink-0" />
+                        <span>TikTok 우측 정보 → 액션 버튼에 가려짐</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-3 mt-3">
+                  <p className="text-xs md:text-sm text-gray-700">
+                    💡 <strong>크로스 플랫폼 팁:</strong> 모든 플랫폼에서 안전하게 보이려면 <strong>화면 중앙 1340×880px 영역</strong>에 핵심 콘텐츠를 배치하세요.
+                  </p>
+                </div>
+              </div>
+
+              {/* 베스트 프랙티스 */}
+              <div>
+                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-3 md:mb-4 flex items-center gap-2">
+                  <Award className="w-4 h-4" />
+                  베스트 프랙티스 (Google 권장)
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                  {/* DO */}
+                  <div className="bg-white border-2 border-gray-200 rounded-xl p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
+                      <h4 className="text-sm md:text-base font-semibold text-gray-900">DO (권장)</h4>
+                    </div>
+                    <ul className="space-y-2">
+                      <li className="flex items-start gap-2 bg-gray-50 rounded-lg p-2">
+                        <Check className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-xs md:text-sm font-medium text-gray-800">첫 3초에 강력한 후킹</p>
+                          <p className="text-[10px] md:text-xs text-gray-500">알고리즘에 가장 중요</p>
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2 bg-gray-50 rounded-lg p-2">
+                        <Check className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-xs md:text-sm font-medium text-gray-800">자막 필수 추가</p>
+                          <p className="text-[10px] md:text-xs text-gray-500">81%가 무음으로 시청</p>
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2 bg-gray-50 rounded-lg p-2">
+                        <Check className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-xs md:text-sm font-medium text-gray-800">세로 화면(9:16) 최적화</p>
+                          <p className="text-[10px] md:text-xs text-gray-500">81%가 세로로 시청</p>
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2 bg-gray-50 rounded-lg p-2">
+                        <Check className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-xs md:text-sm font-medium text-gray-800">실제 사람 등장</p>
+                          <p className="text-[10px] md:text-xs text-gray-500">53%가 더 관심</p>
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2 bg-gray-50 rounded-lg p-2">
+                        <Check className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-xs md:text-sm font-medium text-gray-800">하나의 명확한 메시지</p>
+                          <p className="text-[10px] md:text-xs text-gray-500">30초 안에 1개만</p>
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+
+                  {/* DON'T */}
+                  <div className="bg-white border-2 border-gray-200 rounded-xl p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <XCircle className="w-4 h-4 md:w-5 md:h-5 text-red-600" />
+                      <h4 className="text-sm md:text-base font-semibold text-gray-900">DON&apos;T (금지)</h4>
+                    </div>
+                    <ul className="space-y-2">
+                      <li className="flex items-start gap-2 bg-red-50/50 rounded-lg p-2">
+                        <X className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-xs md:text-sm font-medium text-gray-800">가로 영상 그대로 사용</p>
+                          <p className="text-[10px] md:text-xs text-gray-500">처음부터 세로 촬영</p>
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2 bg-red-50/50 rounded-lg p-2">
+                        <X className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-xs md:text-sm font-medium text-gray-800">느린 인트로</p>
+                          <p className="text-[10px] md:text-xs text-gray-500">6초 안에 후킹 필수</p>
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2 bg-red-50/50 rounded-lg p-2">
+                        <X className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-xs md:text-sm font-medium text-gray-800">정보 과부하</p>
+                          <p className="text-[10px] md:text-xs text-gray-500">여러 메시지 = 기억 안 남음</p>
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2 bg-red-50/50 rounded-lg p-2">
+                        <X className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-xs md:text-sm font-medium text-gray-800">플랫폼 무시 리포스팅</p>
+                          <p className="text-[10px] md:text-xs text-gray-500">각 플랫폼에 맞게 최적화</p>
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2 bg-red-50/50 rounded-lg p-2">
+                        <X className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-xs md:text-sm font-medium text-gray-800">CTA 없이 끝내기</p>
+                          <p className="text-[10px] md:text-xs text-gray-500">명확한 행동 유도 필수</p>
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              {/* 체크리스트 */}
+              <div>
+                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-3 md:mb-4 flex items-center gap-2">
+                  <ClipboardCheck className="w-4 h-4" />
+                  영상 제작 체크리스트
+                </h3>
+                <div className="bg-white border-2 border-gray-200 rounded-xl p-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                    {/* 기획 단계 */}
+                    <div>
+                      <div className="flex items-center gap-2 mb-3">
+                        <Clapperboard className="w-4 h-4 text-gray-600" />
+                        <span className="text-xs md:text-sm font-semibold text-gray-800">기획 단계</span>
+                      </div>
+                      <ul className="space-y-2">
+                        <li className="flex items-center gap-2 text-xs md:text-sm text-gray-700">
+                          <div className="w-4 h-4 border-2 border-gray-300 rounded"></div>
+                          <span>영상 길이 35초~2분 이내 설정</span>
+                        </li>
+                        <li className="flex items-center gap-2 text-xs md:text-sm text-gray-700">
+                          <div className="w-4 h-4 border-2 border-gray-300 rounded"></div>
+                          <span>후킹 문구 6~10초 내 배치</span>
+                        </li>
+                        <li className="flex items-center gap-2 text-xs md:text-sm text-gray-700">
+                          <div className="w-4 h-4 border-2 border-gray-300 rounded"></div>
+                          <span>팩트 기반 콘텐츠 (금액, 정책)</span>
+                        </li>
+                        <li className="flex items-center gap-2 text-xs md:text-sm text-gray-700">
+                          <div className="w-4 h-4 border-2 border-gray-300 rounded"></div>
+                          <span>허위/과장 표현 제거</span>
+                        </li>
+                        <li className="flex items-center gap-2 text-xs md:text-sm text-gray-700">
+                          <div className="w-4 h-4 border-2 border-gray-300 rounded"></div>
+                          <span>CTA(상담 유도) 명확히 설정</span>
+                        </li>
+                      </ul>
+                    </div>
+
+                    {/* 제작 단계 */}
+                    <div>
+                      <div className="flex items-center gap-2 mb-3">
+                        <Video className="w-4 h-4 text-gray-600" />
+                        <span className="text-xs md:text-sm font-semibold text-gray-800">제작 단계</span>
+                      </div>
+                      <ul className="space-y-2">
+                        <li className="flex items-center gap-2 text-xs md:text-sm text-gray-700">
+                          <div className="w-4 h-4 border-2 border-gray-300 rounded"></div>
+                          <span>세로 촬영 (9:16 비율)</span>
+                        </li>
+                        <li className="flex items-center gap-2 text-xs md:text-sm text-gray-700">
+                          <div className="w-4 h-4 border-2 border-gray-300 rounded"></div>
+                          <span>1080×1920 해상도</span>
+                        </li>
+                        <li className="flex items-center gap-2 text-xs md:text-sm text-gray-700">
+                          <div className="w-4 h-4 border-2 border-gray-300 rounded"></div>
+                          <span>자막 추가 (무음 시청 대응)</span>
+                        </li>
+                        <li className="flex items-center gap-2 text-xs md:text-sm text-gray-700">
+                          <div className="w-4 h-4 border-2 border-gray-300 rounded"></div>
+                          <span>핵심 요소 화면 중앙 배치</span>
+                        </li>
+                        <li className="flex items-center gap-2 text-xs md:text-sm text-gray-700">
+                          <div className="w-4 h-4 border-2 border-gray-300 rounded"></div>
+                          <span>썸네일 최적화</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 상세 가이드 링크 */}
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-200 rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <BookOpen className="w-4 h-4 text-gray-600" />
+                  <span className="text-xs md:text-sm font-semibold text-gray-800">상세 가이드</span>
+                </div>
+                <a
+                  href="/docs/policy-fund-video-guide.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-all group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-red-100 rounded-lg group-hover:bg-red-200 transition-colors">
+                      <Video className="w-4 h-4 text-red-600" />
+                    </div>
+                    <div>
+                      <p className="text-xs md:text-sm font-medium text-gray-900">정책자금 광고 영상 제작 가이드 (전체)</p>
+                      <p className="text-[10px] md:text-xs text-gray-500">더 자세한 내용과 예시 확인하기</p>
+                    </div>
+                  </div>
+                  <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-blue-600 transition-colors" />
+                </a>
+              </div>
+
             </CardContent>
           </Card>
         </TabsContent>

@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>정책자금 광고 영상 제작 가이드</title>
+    <!-- Pretendard 폰트 -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Pretendard Variable', 'Pretendard', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'Roboto', 'sans-serif'],
+                    },
+                    colors: {
+                        navy: {
+                            50: '#f0f4f8',
+                            100: '#d9e2ec',
+                            200: '#bcccdc',
+                            300: '#9fb3c8',
+                            400: '#829ab1',
+                            500: '#627d98',
+                            600: '#486581',
+                            700: '#334e68',
+                            800: '#243b53',
+                            900: '#102a43',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 기본 폰트 설정 */
+        body {
+            font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+        }
+
+        /* 타이포그래피 계층화 */
+        .text-display {
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+        }
+        .text-headline {
+            font-size: 1.75rem;
+            font-weight: 700;
+            line-height: 1.3;
+            letter-spacing: -0.01em;
+        }
+        .text-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+        .text-body {
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.6;
+        }
+        .text-caption {
+            font-size: 0.875rem;
+            font-weight: 400;
+            line-height: 1.5;
+        }
+        .text-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            line-height: 1.4;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+
+        /* 그라디언트 배경 */
+        .gradient-bg {
+            background: linear-gradient(135deg, #102a43 0%, #243b53 50%, #334e68 100%);
+        }
+
+        /* 카드 호버 효과 */
+        .card-interactive {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: default;
+        }
+        .card-interactive:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(16, 42, 67, 0.15);
+        }
+
+        /* 버튼/링크 인터랙티브 */
+        .link-interactive {
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .link-interactive::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: currentColor;
+            transition: width 0.3s ease;
+        }
+        .link-interactive:hover::after {
+            width: 100%;
+        }
+
+        /* 체크박스 커스텀 */
+        .checkbox-custom {
+            appearance: none;
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid #829ab1;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        .checkbox-custom:checked {
+            background: #243b53;
+            border-color: #243b53;
+        }
+        .checkbox-custom:checked::after {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 2px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+        .checkbox-custom:hover {
+            border-color: #243b53;
+        }
+        .checkbox-custom:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(36, 59, 83, 0.2);
+        }
+
+        /* 체크된 항목 스타일 */
+        .checkbox-label {
+            transition: all 0.2s ease;
+        }
+        .checkbox-custom:checked + .checkbox-label {
+            color: #627d98;
+            text-decoration: line-through;
+        }
+
+        /* 박스 스타일 */
+        .highlight-box {
+            background: linear-gradient(90deg, #f0f4f8 0%, #d9e2ec 100%);
+            border-left: 4px solid #243b53;
+        }
+        .danger-box {
+            background: linear-gradient(90deg, #fef2f2 0%, #fee2e2 100%);
+            border-left: 4px solid #991b1b;
+        }
+        .success-box {
+            background: linear-gradient(90deg, #f0fdf4 0%, #dcfce7 100%);
+            border-left: 4px solid #166534;
+        }
+        .info-box {
+            background: linear-gradient(90deg, #f0f4f8 0%, #d9e2ec 100%);
+            border-left: 4px solid #334e68;
+        }
+
+        /* 아이콘 크기 표준화 */
+        .icon-lg { width: 32px; height: 32px; stroke-width: 1.5; }
+        .icon-md { width: 24px; height: 24px; stroke-width: 2; }
+        .icon-sm { width: 20px; height: 20px; stroke-width: 2; }
+        .icon-xs { width: 16px; height: 16px; stroke-width: 2; }
+
+        /* 테이블 인터랙티브 */
+        .table-row-interactive {
+            transition: all 0.2s ease;
+        }
+        .table-row-interactive:hover {
+            background: #f0f4f8;
+        }
+
+        /* 프로그레스 바 애니메이션 */
+        .progress-animated {
+            position: relative;
+            overflow: hidden;
+        }
+        .progress-animated::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            100% { left: 100%; }
+        }
+
+        /* 섹션 구분선 */
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #d9e2ec, transparent);
+            margin: 3rem 0;
+        }
+
+        /* 스크롤 인디케이터 */
+        .scroll-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #243b53, #486581);
+            z-index: 1000;
+            transition: width 0.1s ease;
+        }
+
+        /* 태그/뱃지 스타일 */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .badge-navy {
+            background: #d9e2ec;
+            color: #243b53;
+        }
+        .badge-navy:hover {
+            background: #bcccdc;
+        }
+
+        /* 툴팁 */
+        .tooltip {
+            position: relative;
+        }
+        .tooltip::before {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-8px);
+            padding: 0.5rem 0.75rem;
+            background: #102a43;
+            color: white;
+            font-size: 0.75rem;
+            border-radius: 6px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+        .tooltip:hover::before {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(-4px);
+        }
+
+        /* 부드러운 스크롤 */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* 포커스 스타일 */
+        *:focus-visible {
+            outline: 2px solid #486581;
+            outline-offset: 2px;
+        }
+
+        /* 선택 스타일 */
+        ::selection {
+            background: #bcccdc;
+            color: #102a43;
+        }
+
+        /* 애니메이션 클래스 */
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 숫자 카운트 애니메이션 */
+        .stat-number {
+            font-variant-numeric: tabular-nums;
+            font-feature-settings: 'tnum';
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans antialiased">
+    <!-- 스크롤 프로그레스 인디케이터 -->
+    <div class="scroll-indicator" id="scrollIndicator"></div>
+
+    <!-- 헤더 -->
+    <header class="gradient-bg text-white py-16">
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="p-3 bg-white/10 rounded-xl backdrop-blur-sm">
+                    <i data-lucide="video" class="icon-lg"></i>
+                </div>
+                <div>
+                    <p class="text-label text-navy-200 mb-1">VIDEO PRODUCTION GUIDE</p>
+                    <h1 class="text-display text-white">정책자금 광고 영상 제작 가이드</h1>
+                </div>
+            </div>
+            <p class="text-body text-navy-200 mt-4 max-w-2xl">
+                승인율 높이고, 전환 극대화하는 영상 제작 전략. Google과 업계 공식 자료를 기반으로 작성된 실전 가이드입니다.
+            </p>
+            <div class="flex items-center gap-4 mt-6">
+                <span class="badge bg-white/20 text-white">
+                    <i data-lucide="calendar" class="icon-xs mr-1"></i>
+                    2024.12 업데이트
+                </span>
+                <span class="badge bg-white/20 text-white">
+                    <i data-lucide="clock" class="icon-xs mr-1"></i>
+                    읽는 시간 약 8분
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- 퀵 네비게이션 -->
+    <nav class="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-navy-100 py-3">
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="flex items-center gap-6 overflow-x-auto text-caption">
+                <a href="#summary" class="link-interactive text-navy-600 hover:text-navy-800 whitespace-nowrap py-1">핵심 요약</a>
+                <a href="#content" class="link-interactive text-navy-600 hover:text-navy-800 whitespace-nowrap py-1">콘텐츠 전략</a>
+                <a href="#structure" class="link-interactive text-navy-600 hover:text-navy-800 whitespace-nowrap py-1">영상 구조</a>
+                <a href="#platform" class="link-interactive text-navy-600 hover:text-navy-800 whitespace-nowrap py-1">플랫폼 스펙</a>
+                <a href="#deadzone" class="link-interactive text-navy-600 hover:text-navy-800 whitespace-nowrap py-1">데드존</a>
+                <a href="#best" class="link-interactive text-navy-600 hover:text-navy-800 whitespace-nowrap py-1">베스트 프랙티스</a>
+                <a href="#checklist" class="link-interactive text-navy-600 hover:text-navy-800 whitespace-nowrap py-1">체크리스트</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-5xl mx-auto px-6 py-12">
+
+        <!-- 섹션 1: 핵심 요약 -->
+        <section id="summary" class="mb-16 scroll-mt-20">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="p-2 bg-navy-100 rounded-lg">
+                    <i data-lucide="zap" class="icon-md text-navy-700"></i>
+                </div>
+                <div>
+                    <p class="text-label text-navy-500">QUICK SUMMARY</p>
+                    <h2 class="text-headline text-navy-900">핵심 요약</h2>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-2xl p-6 shadow-sm card-interactive border border-navy-100">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-2 bg-navy-50 rounded-lg">
+                            <i data-lucide="clock" class="icon-md text-navy-600"></i>
+                        </div>
+                        <span class="badge badge-navy">필수</span>
+                    </div>
+                    <h3 class="text-title text-navy-800 mb-2">영상 길이</h3>
+                    <p class="text-display text-navy-900 stat-number">35초~2분</p>
+                    <p class="text-caption text-navy-500 mt-2">최적 구간: 45초 ~ 90초</p>
+                    <div class="mt-4 pt-4 border-t border-navy-100">
+                        <div class="flex items-center gap-2 text-caption text-navy-600">
+                            <i data-lucide="info" class="icon-xs"></i>
+                            <span>너무 짧으면 정보 부족, 너무 길면 이탈</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 shadow-sm card-interactive border border-navy-100">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-2 bg-navy-50 rounded-lg">
+                            <i data-lucide="target" class="icon-md text-navy-600"></i>
+                        </div>
+                        <span class="badge badge-navy">핵심</span>
+                    </div>
+                    <h3 class="text-title text-navy-800 mb-2">후킹 구간</h3>
+                    <p class="text-display text-navy-900 stat-number">첫 6~10초</p>
+                    <p class="text-caption text-navy-500 mt-2">80%가 이 구간에서 이탈 결정</p>
+                    <div class="mt-4 pt-4 border-t border-navy-100">
+                        <div class="flex items-center gap-2 text-caption text-navy-600">
+                            <i data-lucide="alert-circle" class="icon-xs"></i>
+                            <span>첫 3초 체류시간이 알고리즘 핵심</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 shadow-sm card-interactive border border-navy-100">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-2 bg-navy-50 rounded-lg">
+                            <i data-lucide="shield-check" class="icon-md text-navy-600"></i>
+                        </div>
+                        <span class="badge badge-navy">승인</span>
+                    </div>
+                    <h3 class="text-title text-navy-800 mb-2">승인 핵심</h3>
+                    <p class="text-display text-navy-900">팩트 기반</p>
+                    <p class="text-caption text-navy-500 mt-2">허위·과장 표현 절대 금지</p>
+                    <div class="mt-4 pt-4 border-t border-navy-100">
+                        <div class="flex items-center gap-2 text-caption text-navy-600">
+                            <i data-lucide="check-circle" class="icon-xs"></i>
+                            <span>정부 정책 근거 + 범위 표현 사용</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- 섹션 2: 콘텐츠 전략 -->
+        <section id="content" class="mb-16 scroll-mt-20">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="p-2 bg-navy-100 rounded-lg">
+                    <i data-lucide="file-text" class="icon-md text-navy-700"></i>
+                </div>
+                <div>
+                    <p class="text-label text-navy-500">CONTENT STRATEGY</p>
+                    <h2 class="text-headline text-navy-900">콘텐츠 전략</h2>
+                </div>
+            </div>
+
+            <!-- 승인 잘 되는 표현 -->
+            <div class="success-box rounded-xl p-6 mb-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <i data-lucide="check-circle" class="icon-md text-green-700"></i>
+                    <h3 class="text-title text-green-800">승인 잘 되는 표현 (팩트 기반)</h3>
+                </div>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-white/80 rounded-xl p-5">
+                        <h4 class="text-caption font-semibold text-navy-700 mb-3 flex items-center gap-2">
+                            <i data-lucide="banknote" class="icon-xs"></i>
+                            금액 안내
+                        </h4>
+                        <ul class="space-y-3">
+                            <li class="flex items-start gap-3 text-body">
+                                <i data-lucide="check" class="icon-sm text-green-600 mt-0.5 flex-shrink-0"></i>
+                                <span>"26년 정책자금 예산 <strong class="text-navy-800">60조 원</strong> 편성"</span>
+                            </li>
+                            <li class="flex items-start gap-3 text-body">
+                                <i data-lucide="check" class="icon-sm text-green-600 mt-0.5 flex-shrink-0"></i>
+                                <span>"운전자금·시설자금 <strong class="text-navy-800">최소 1억 원</strong> 지원 가능"</span>
+                            </li>
+                            <li class="flex items-start gap-3 text-body">
+                                <i data-lucide="check" class="icon-sm text-green-600 mt-0.5 flex-shrink-0"></i>
+                                <span>"자영업자 대상 정책자금 <strong class="text-navy-800">최대 1억 원</strong>"</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="bg-white/80 rounded-xl p-5">
+                        <h4 class="text-caption font-semibold text-navy-700 mb-3 flex items-center gap-2">
+                            <i data-lucide="phone" class="icon-xs"></i>
+                            상담 유도
+                        </h4>
+                        <ul class="space-y-3">
+                            <li class="flex items-start gap-3 text-body">
+                                <i data-lucide="check" class="icon-sm text-green-600 mt-0.5 flex-shrink-0"></i>
+                                <span>"내 사업에 맞는 정책자금 <strong class="text-navy-800">무료 상담</strong>"</span>
+                            </li>
+                            <li class="flex items-start gap-3 text-body">
+                                <i data-lucide="check" class="icon-sm text-green-600 mt-0.5 flex-shrink-0"></i>
+                                <span>"26년도 바뀐 정책, <strong class="text-navy-800">지금 확인</strong>하세요"</span>
+                            </li>
+                            <li class="flex items-start gap-3 text-body">
+                                <i data-lucide="check" class="icon-sm text-green-600 mt-0.5 flex-shrink-0"></i>
+                                <span>"자격요건 <strong class="text-navy-800">1분 진단</strong> 받아보세요"</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 승인 거부되는 표현 -->
+            <div class="danger-box rounded-xl p-6 mb-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <i data-lucide="x-circle" class="icon-md text-red-700"></i>
+                    <h3 class="text-title text-red-800">승인 거부되는 표현 (허위·과장)</h3>
+                </div>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-white/80 rounded-xl p-5">
+                        <h4 class="text-caption font-semibold text-red-700 mb-3 flex items-center gap-2">
+                            <i data-lucide="ban" class="icon-xs"></i>
+                            절대 사용 금지
+                        </h4>
+                        <ul class="space-y-3">
+                            <li class="flex items-start gap-3 text-body text-red-700">
+                                <i data-lucide="x" class="icon-sm text-red-500 mt-0.5 flex-shrink-0"></i>
+                                <span>"정책자금 <strong>바로 받아야 한다</strong>"</span>
+                            </li>
+                            <li class="flex items-start gap-3 text-body text-red-700">
+                                <i data-lucide="x" class="icon-sm text-red-500 mt-0.5 flex-shrink-0"></i>
+                                <span>"<strong>무조건</strong> 1억 지원"</span>
+                            </li>
+                            <li class="flex items-start gap-3 text-body text-red-700">
+                                <i data-lucide="x" class="icon-sm text-red-500 mt-0.5 flex-shrink-0"></i>
+                                <span>"신청만 하면 <strong>100% 승인</strong>"</span>
+                            </li>
+                            <li class="flex items-start gap-3 text-body text-red-700">
+                                <i data-lucide="x" class="icon-sm text-red-500 mt-0.5 flex-shrink-0"></i>
+                                <span>"<strong>누구나</strong> 받을 수 있다"</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="bg-white/80 rounded-xl p-5">
+                        <h4 class="text-caption font-semibold text-red-700 mb-3 flex items-center gap-2">
+                            <i data-lucide="alert-triangle" class="icon-xs"></i>
+                            피해야 할 패턴
+                        </h4>
+                        <ul class="space-y-3">
+                            <li class="flex items-start gap-3 text-body text-red-700">
+                                <i data-lucide="x" class="icon-sm text-red-500 mt-0.5 flex-shrink-0"></i>
+                                <span>확정적 수령 보장 표현</span>
+                            </li>
+                            <li class="flex items-start gap-3 text-body text-red-700">
+                                <i data-lucide="x" class="icon-sm text-red-500 mt-0.5 flex-shrink-0"></i>
+                                <span>근거 없는 금액 명시</span>
+                            </li>
+                            <li class="flex items-start gap-3 text-body text-red-700">
+                                <i data-lucide="x" class="icon-sm text-red-500 mt-0.5 flex-shrink-0"></i>
+                                <span>자격요건 무시한 일반화</span>
+                            </li>
+                            <li class="flex items-start gap-3 text-body text-red-700">
+                                <i data-lucide="x" class="icon-sm text-red-500 mt-0.5 flex-shrink-0"></i>
+                                <span>허위 마감/긴급성 조장</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 핵심 공식 -->
+            <div class="highlight-box rounded-xl p-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <i data-lucide="lightbulb" class="icon-md text-navy-700"></i>
+                    <h3 class="text-title text-navy-800">승인 통과 공식</h3>
+                </div>
+                <div class="bg-white rounded-xl p-6">
+                    <div class="flex flex-wrap items-center justify-center gap-4 text-body">
+                        <span class="badge bg-navy-800 text-white px-4 py-2">정부 정책 팩트</span>
+                        <i data-lucide="plus" class="icon-sm text-navy-400"></i>
+                        <span class="badge bg-navy-600 text-white px-4 py-2">금액 범위 안내</span>
+                        <i data-lucide="plus" class="icon-sm text-navy-400"></i>
+                        <span class="badge bg-navy-500 text-white px-4 py-2">상담 유도 CTA</span>
+                    </div>
+                    <div class="mt-6 p-5 bg-navy-50 rounded-xl">
+                        <p class="text-caption text-navy-600 mb-2 flex items-center gap-2">
+                            <i data-lucide="quote" class="icon-xs"></i>
+                            예시 스크립트
+                        </p>
+                        <p class="text-body text-navy-800 italic leading-relaxed">
+                            "26년 정부 정책자금 예산 60조 원 편성! 자영업자 운전자금·시설자금 최대 1억 원까지 지원 가능합니다. 내 사업에 맞는 정책자금, 지금 무료 상담 받아보세요."
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- 섹션 3: 영상 구조 -->
+        <section id="structure" class="mb-16 scroll-mt-20">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="p-2 bg-navy-100 rounded-lg">
+                    <i data-lucide="clapperboard" class="icon-md text-navy-700"></i>
+                </div>
+                <div>
+                    <p class="text-label text-navy-500">VIDEO STRUCTURE</p>
+                    <h2 class="text-headline text-navy-900">영상 구조 설계</h2>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-navy-100">
+                <!-- 타임라인 -->
+                <div class="p-6">
+                    <div class="flex items-center gap-2 mb-6">
+                        <i data-lucide="timer" class="icon-sm text-navy-600"></i>
+                        <h3 class="text-title text-navy-800">타임라인 구조 (45초 기준)</h3>
+                    </div>
+
+                    <!-- 프로그레스 바 -->
+                    <div class="mb-6">
+                        <div class="h-3 bg-navy-100 rounded-full overflow-hidden progress-animated">
+                            <div class="flex h-full">
+                                <div class="bg-navy-800 w-[22%] tooltip" data-tooltip="후킹 구간"></div>
+                                <div class="bg-navy-600 w-[44%] tooltip" data-tooltip="본문 구간"></div>
+                                <div class="bg-navy-400 w-[34%] tooltip" data-tooltip="CTA 구간"></div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between mt-2 text-caption text-navy-500">
+                            <span>0초</span>
+                            <span>10초</span>
+                            <span>30초</span>
+                            <span>45초</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="text-center card-interactive rounded-xl p-5 bg-navy-50 border-2 border-navy-200">
+                            <div class="inline-flex items-center justify-center w-10 h-10 bg-navy-800 text-white rounded-full mb-3 text-caption font-bold">1</div>
+                            <p class="text-title text-navy-800 mb-1">0~10초</p>
+                            <p class="text-body text-navy-600 flex items-center justify-center gap-1 mb-2">
+                                <i data-lucide="target" class="icon-xs"></i> 후킹
+                            </p>
+                            <p class="text-caption text-navy-500">시선 고정 필수<br/>강렬한 질문/숫자</p>
+                        </div>
+                        <div class="text-center card-interactive rounded-xl p-5 bg-navy-50 border-2 border-navy-100">
+                            <div class="inline-flex items-center justify-center w-10 h-10 bg-navy-600 text-white rounded-full mb-3 text-caption font-bold">2</div>
+                            <p class="text-title text-navy-800 mb-1">10~30초</p>
+                            <p class="text-body text-navy-600 flex items-center justify-center gap-1 mb-2">
+                                <i data-lucide="file-text" class="icon-xs"></i> 본문
+                            </p>
+                            <p class="text-caption text-navy-500">핵심 정보 전달<br/>팩트 기반 설명</p>
+                        </div>
+                        <div class="text-center card-interactive rounded-xl p-5 bg-navy-50 border-2 border-navy-100">
+                            <div class="inline-flex items-center justify-center w-10 h-10 bg-navy-400 text-white rounded-full mb-3 text-caption font-bold">3</div>
+                            <p class="text-title text-navy-800 mb-1">30~45초</p>
+                            <p class="text-body text-navy-600 flex items-center justify-center gap-1 mb-2">
+                                <i data-lucide="phone" class="icon-xs"></i> CTA
+                            </p>
+                            <p class="text-caption text-navy-500">행동 유도<br/>상담 신청 안내</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 후킹 예시 -->
+                <div class="bg-navy-50 p-6 border-t border-navy-100">
+                    <div class="flex items-center gap-2 mb-4">
+                        <i data-lucide="crosshair" class="icon-sm text-navy-600"></i>
+                        <h3 class="text-title text-navy-800">후킹 문구 예시 (첫 6~10초)</h3>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="space-y-3">
+                            <div class="flex items-start gap-3 p-3 bg-white rounded-lg card-interactive">
+                                <span class="badge badge-navy text-xs">질문형</span>
+                                <p class="text-body text-navy-700">"사업하시는데 정책자금 아직도 안 받으셨어요?"</p>
+                            </div>
+                            <div class="flex items-start gap-3 p-3 bg-white rounded-lg card-interactive">
+                                <span class="badge badge-navy text-xs">숫자형</span>
+                                <p class="text-body text-navy-700">"26년 정책자금 예산 60조! 지금이 기회입니다"</p>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-start gap-3 p-3 bg-white rounded-lg card-interactive">
+                                <span class="badge badge-navy text-xs">문제제기</span>
+                                <p class="text-body text-navy-700">"운전자금 부족으로 힘드셨죠?"</p>
+                            </div>
+                            <div class="flex items-start gap-3 p-3 bg-white rounded-lg card-interactive">
+                                <span class="badge badge-navy text-xs">정보형</span>
+                                <p class="text-body text-navy-700">"26년도 바뀐 정책자금 조건, 알고 계세요?"</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- 섹션 4: 플랫폼별 스펙 -->
+        <section id="platform" class="mb-16 scroll-mt-20">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="p-2 bg-navy-100 rounded-lg">
+                    <i data-lucide="smartphone" class="icon-md text-navy-700"></i>
+                </div>
+                <div>
+                    <p class="text-label text-navy-500">PLATFORM SPECS</p>
+                    <h2 class="text-headline text-navy-900">플랫폼별 영상 스펙</h2>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-navy-100">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-navy-800 text-white">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-caption font-semibold">플랫폼</th>
+                                <th class="px-6 py-4 text-left text-caption font-semibold">비율</th>
+                                <th class="px-6 py-4 text-left text-caption font-semibold">해상도</th>
+                                <th class="px-6 py-4 text-left text-caption font-semibold">최적 길이</th>
+                                <th class="px-6 py-4 text-left text-caption font-semibold">참여율</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-navy-100">
+                            <tr class="table-row-interactive">
+                                <td class="px-6 py-4">
+                                    <span class="flex items-center gap-2 text-body font-medium">
+                                        <i data-lucide="youtube" class="icon-sm text-navy-600"></i> YouTube Shorts
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-body">9:16 (세로)</td>
+                                <td class="px-6 py-4 text-body font-mono">1080×1920</td>
+                                <td class="px-6 py-4 text-body">31~60초</td>
+                                <td class="px-6 py-4">
+                                    <span class="badge bg-green-100 text-green-800 stat-number">5.91%</span>
+                                </td>
+                            </tr>
+                            <tr class="table-row-interactive">
+                                <td class="px-6 py-4">
+                                    <span class="flex items-center gap-2 text-body font-medium">
+                                        <i data-lucide="instagram" class="icon-sm text-navy-600"></i> Instagram Reels
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-body">9:16 (세로)</td>
+                                <td class="px-6 py-4 text-body font-mono">1080×1920</td>
+                                <td class="px-6 py-4 text-body">6~15초</td>
+                                <td class="px-6 py-4">
+                                    <span class="badge bg-navy-100 text-navy-800 stat-number">1.23%</span>
+                                </td>
+                            </tr>
+                            <tr class="table-row-interactive">
+                                <td class="px-6 py-4">
+                                    <span class="flex items-center gap-2 text-body font-medium">
+                                        <i data-lucide="music" class="icon-sm text-navy-600"></i> TikTok
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-body">9:16 (세로)</td>
+                                <td class="px-6 py-4 text-body font-mono">1080×1920</td>
+                                <td class="px-6 py-4 text-body">6~15초</td>
+                                <td class="px-6 py-4">
+                                    <span class="badge bg-navy-100 text-navy-800 stat-number">2.65%</span>
+                                </td>
+                            </tr>
+                            <tr class="table-row-interactive">
+                                <td class="px-6 py-4">
+                                    <span class="flex items-center gap-2 text-body font-medium">
+                                        <i data-lucide="facebook" class="icon-sm text-navy-600"></i> Facebook Reels
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-body">9:16 (세로)</td>
+                                <td class="px-6 py-4 text-body font-mono">1080×1920</td>
+                                <td class="px-6 py-4 text-body">15~30초</td>
+                                <td class="px-6 py-4">
+                                    <span class="badge bg-navy-100 text-navy-800 stat-number">0.15%</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="info-box rounded-xl p-5 mt-6">
+                <div class="flex items-start gap-3">
+                    <i data-lucide="info" class="icon-md text-navy-600 flex-shrink-0 mt-0.5"></i>
+                    <p class="text-body text-navy-700">
+                        <strong>팁:</strong> YouTube Shorts가 가장 높은 참여율(5.91%)을 보이며,
+                        하루 2000억 뷰를 기록합니다. 45%의 Shorts 사용자는 TikTok을 사용하지 않으므로
+                        별도 채널로서 가치가 높습니다.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- 섹션 4.5: 데드존 가이드 -->
+        <section id="deadzone" class="mb-16 scroll-mt-20">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="p-2 bg-navy-100 rounded-lg">
+                    <i data-lucide="alert-triangle" class="icon-md text-navy-700"></i>
+                </div>
+                <div>
+                    <p class="text-label text-navy-500">DEAD ZONE GUIDE</p>
+                    <h2 class="text-headline text-navy-900">데드존 가이드</h2>
+                </div>
+            </div>
+
+            <div class="danger-box rounded-xl p-5 mb-8">
+                <div class="flex items-start gap-3">
+                    <i data-lucide="alert-circle" class="icon-md text-red-600 flex-shrink-0 mt-0.5"></i>
+                    <p class="text-body text-navy-800">
+                        <strong>중요:</strong> 데드존은 플랫폼 UI 요소(프로필, 좋아요, 설명 등)가 겹쳐지는 영역입니다.
+                        <strong>이 영역에 중요한 텍스트나 CTA를 배치하면 가려집니다!</strong>
+                    </p>
+                </div>
+            </div>
+
+            <!-- 시각적 데드존 표시 -->
+            <div class="bg-white rounded-2xl shadow-sm p-8 border border-navy-100">
+                <div class="flex items-center justify-center gap-2 mb-8">
+                    <i data-lucide="ruler" class="icon-sm text-navy-600"></i>
+                    <h3 class="text-title text-navy-800">플랫폼별 데드존 영역 (1080×1920 기준)</h3>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-8">
+                    <!-- YouTube Shorts -->
+                    <div class="text-center">
+                        <div class="flex items-center justify-center gap-2 mb-4">
+                            <i data-lucide="youtube" class="icon-sm text-navy-600"></i>
+                            <h4 class="text-body font-semibold text-navy-800">YouTube Shorts</h4>
+                        </div>
+                        <div class="relative mx-auto card-interactive" style="width: 140px; height: 250px; border: 3px solid #243b53; border-radius: 16px; overflow: hidden; background: #f0f4f8;">
+                            <div class="absolute top-0 left-0 right-0 bg-red-500 flex items-center justify-center" style="height: 32px;">
+                                <span class="text-white text-xs font-bold">150px</span>
+                            </div>
+                            <div class="absolute left-0 right-0 bg-green-500/30 flex items-center justify-center border-2 border-green-500 border-dashed" style="top: 32px; bottom: 42px;">
+                                <span class="text-green-800 text-xs font-bold text-center">안전 영역<br/>1570px</span>
+                            </div>
+                            <div class="absolute bottom-0 left-0 right-0 bg-red-500 flex items-center justify-center" style="height: 42px;">
+                                <span class="text-white text-xs font-bold">200px</span>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-caption text-navy-600 space-y-1">
+                            <p><span class="inline-block w-3 h-3 bg-red-500 rounded-sm mr-1"></span><strong>상단:</strong> 150px</p>
+                            <p><span class="inline-block w-3 h-3 bg-red-500 rounded-sm mr-1"></span><strong>하단:</strong> 200px</p>
+                        </div>
+                    </div>
+
+                    <!-- Instagram Reels -->
+                    <div class="text-center">
+                        <div class="flex items-center justify-center gap-2 mb-4">
+                            <i data-lucide="instagram" class="icon-sm text-navy-600"></i>
+                            <h4 class="text-body font-semibold text-navy-800">Instagram Reels</h4>
+                        </div>
+                        <div class="relative mx-auto card-interactive" style="width: 140px; height: 250px; border: 3px solid #243b53; border-radius: 16px; overflow: hidden; background: #f0f4f8;">
+                            <div class="absolute top-0 left-0 right-0 bg-red-500 flex items-center justify-center" style="height: 26px;">
+                                <span class="text-white text-xs font-bold">120px</span>
+                            </div>
+                            <div class="absolute left-0 right-0 bg-green-500/30 flex items-center justify-center border-2 border-green-500 border-dashed" style="top: 26px; bottom: 58px;">
+                                <span class="text-green-800 text-xs font-bold text-center">안전 영역<br/>1520px</span>
+                            </div>
+                            <div class="absolute bottom-0 left-0 right-0 bg-red-500 flex items-center justify-center" style="height: 58px;">
+                                <span class="text-white text-xs font-bold">280px</span>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-caption text-navy-600 space-y-1">
+                            <p><span class="inline-block w-3 h-3 bg-red-500 rounded-sm mr-1"></span><strong>상단:</strong> 120px</p>
+                            <p><span class="inline-block w-3 h-3 bg-red-500 rounded-sm mr-1"></span><strong>하단:</strong> 280px</p>
+                        </div>
+                    </div>
+
+                    <!-- TikTok -->
+                    <div class="text-center">
+                        <div class="flex items-center justify-center gap-2 mb-4">
+                            <i data-lucide="music" class="icon-sm text-navy-600"></i>
+                            <h4 class="text-body font-semibold text-navy-800">TikTok</h4>
+                        </div>
+                        <div class="relative mx-auto card-interactive" style="width: 140px; height: 250px; border: 3px solid #243b53; border-radius: 16px; overflow: hidden; background: #f0f4f8;">
+                            <div class="absolute top-0 left-0 right-0 bg-red-500 flex items-center justify-center" style="height: 32px;">
+                                <span class="text-white text-xs font-bold">150px</span>
+                            </div>
+                            <div class="absolute left-0 bg-green-500/30 flex items-center justify-center border-2 border-green-500 border-dashed" style="top: 32px; bottom: 56px; right: 22px;">
+                                <span class="text-green-800 text-xs font-bold text-center">안전 영역<br/>1500px</span>
+                            </div>
+                            <div class="absolute bottom-0 left-0 right-0 bg-red-500 flex items-center justify-center" style="height: 56px;">
+                                <span class="text-white text-xs font-bold">270px</span>
+                            </div>
+                            <div class="absolute right-0 top-1/3 bottom-1/4 bg-orange-500 flex items-center justify-center" style="width: 22px;">
+                                <span class="text-white text-xs font-bold" style="writing-mode: vertical-rl;">100px</span>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-caption text-navy-600 space-y-1">
+                            <p><span class="inline-block w-3 h-3 bg-red-500 rounded-sm mr-1"></span><strong>상단:</strong> 150px</p>
+                            <p><span class="inline-block w-3 h-3 bg-red-500 rounded-sm mr-1"></span><strong>하단:</strong> 270px</p>
+                            <p><span class="inline-block w-3 h-3 bg-orange-500 rounded-sm mr-1"></span><strong>우측:</strong> 100px</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 데드존 상세 표 -->
+            <div class="mt-8 bg-white rounded-2xl shadow-sm overflow-hidden border border-navy-100">
+                <table class="w-full">
+                    <thead class="bg-navy-800 text-white">
+                        <tr>
+                            <th class="px-5 py-3 text-left text-caption font-semibold">플랫폼</th>
+                            <th class="px-5 py-3 text-center text-caption font-semibold">상단</th>
+                            <th class="px-5 py-3 text-center text-caption font-semibold">하단</th>
+                            <th class="px-5 py-3 text-center text-caption font-semibold">우측</th>
+                            <th class="px-5 py-3 text-center text-caption font-semibold">안전 영역</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-navy-100 text-center">
+                        <tr class="table-row-interactive">
+                            <td class="px-5 py-3 text-left text-body font-medium">YouTube Shorts</td>
+                            <td class="px-5 py-3"><span class="badge badge-navy font-mono">150px</span></td>
+                            <td class="px-5 py-3"><span class="badge badge-navy font-mono">200px</span></td>
+                            <td class="px-5 py-3"><span class="text-navy-400">—</span></td>
+                            <td class="px-5 py-3"><span class="badge bg-green-100 text-green-800 font-mono font-bold">1570px</span></td>
+                        </tr>
+                        <tr class="table-row-interactive">
+                            <td class="px-5 py-3 text-left text-body font-medium">Instagram Reels</td>
+                            <td class="px-5 py-3"><span class="badge badge-navy font-mono">120px</span></td>
+                            <td class="px-5 py-3"><span class="badge badge-navy font-mono">280px</span></td>
+                            <td class="px-5 py-3"><span class="text-navy-400">—</span></td>
+                            <td class="px-5 py-3"><span class="badge bg-green-100 text-green-800 font-mono font-bold">1520px</span></td>
+                        </tr>
+                        <tr class="table-row-interactive">
+                            <td class="px-5 py-3 text-left text-body font-medium">TikTok</td>
+                            <td class="px-5 py-3"><span class="badge badge-navy font-mono">150px</span></td>
+                            <td class="px-5 py-3"><span class="badge badge-navy font-mono">270px</span></td>
+                            <td class="px-5 py-3"><span class="badge badge-navy font-mono">100px</span></td>
+                            <td class="px-5 py-3"><span class="badge bg-green-100 text-green-800 font-mono font-bold">1500px</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 데드존 팁 -->
+            <div class="grid md:grid-cols-2 gap-6 mt-8">
+                <div class="success-box rounded-xl p-5">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i data-lucide="check-circle" class="icon-sm text-green-700"></i>
+                        <h4 class="text-body font-semibold text-green-800">안전한 배치</h4>
+                    </div>
+                    <ul class="space-y-2">
+                        <li class="flex items-start gap-2 text-caption text-navy-700">
+                            <i data-lucide="check" class="icon-xs text-green-600 mt-0.5 flex-shrink-0"></i>
+                            <span>핵심 텍스트/자막 → 화면 중앙~중상단</span>
+                        </li>
+                        <li class="flex items-start gap-2 text-caption text-navy-700">
+                            <i data-lucide="check" class="icon-xs text-green-600 mt-0.5 flex-shrink-0"></i>
+                            <span>CTA 버튼 → 중앙 하단 (하단 데드존 위)</span>
+                        </li>
+                        <li class="flex items-start gap-2 text-caption text-navy-700">
+                            <i data-lucide="check" class="icon-xs text-green-600 mt-0.5 flex-shrink-0"></i>
+                            <span>로고/브랜드 → 좌상단 (상단 데드존 아래)</span>
+                        </li>
+                        <li class="flex items-start gap-2 text-caption text-navy-700">
+                            <i data-lucide="check" class="icon-xs text-green-600 mt-0.5 flex-shrink-0"></i>
+                            <span>중요 정보 → 화면 높이의 20%~70% 영역</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="danger-box rounded-xl p-5">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i data-lucide="x-circle" class="icon-sm text-red-700"></i>
+                        <h4 class="text-body font-semibold text-red-800">피해야 할 배치</h4>
+                    </div>
+                    <ul class="space-y-2">
+                        <li class="flex items-start gap-2 text-caption text-navy-700">
+                            <i data-lucide="x" class="icon-xs text-red-500 mt-0.5 flex-shrink-0"></i>
+                            <span>최상단 자막 → 플랫폼 로고/버튼에 가려짐</span>
+                        </li>
+                        <li class="flex items-start gap-2 text-caption text-navy-700">
+                            <i data-lucide="x" class="icon-xs text-red-500 mt-0.5 flex-shrink-0"></i>
+                            <span>최하단 CTA → 캡션/좋아요 버튼에 가려짐</span>
+                        </li>
+                        <li class="flex items-start gap-2 text-caption text-navy-700">
+                            <i data-lucide="x" class="icon-xs text-red-500 mt-0.5 flex-shrink-0"></i>
+                            <span>TikTok 우측 정보 → 액션 버튼에 가려짐</span>
+                        </li>
+                        <li class="flex items-start gap-2 text-caption text-navy-700">
+                            <i data-lucide="x" class="icon-xs text-red-500 mt-0.5 flex-shrink-0"></i>
+                            <span>화면 가장자리 중요 요소 배치</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="highlight-box rounded-xl p-5 mt-6">
+                <div class="flex items-start gap-3">
+                    <i data-lucide="lightbulb" class="icon-md text-navy-600 flex-shrink-0 mt-0.5"></i>
+                    <p class="text-body text-navy-700">
+                        <strong>크로스 플랫폼 팁:</strong> 모든 플랫폼에서 안전하게 보이려면
+                        <strong>상단 280px, 하단 300px, 우측 100px</strong>을 피하고
+                        <strong>화면 중앙 1340×880px 영역</strong>에 핵심 콘텐츠를 배치하세요.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- 섹션 5: 제작 베스트 프랙티스 -->
+        <section id="best" class="mb-16 scroll-mt-20">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="p-2 bg-navy-100 rounded-lg">
+                    <i data-lucide="award" class="icon-md text-navy-700"></i>
+                </div>
+                <div>
+                    <p class="text-label text-navy-500">BEST PRACTICES</p>
+                    <h2 class="text-headline text-navy-900">제작 베스트 프랙티스</h2>
+                </div>
+                <span class="badge badge-navy ml-auto">Google 권장</span>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-white rounded-2xl shadow-sm p-6 border border-navy-100">
+                    <div class="flex items-center gap-2 mb-5">
+                        <i data-lucide="check-circle" class="icon-md text-green-600"></i>
+                        <h3 class="text-title text-navy-800">DO (권장사항)</h3>
+                    </div>
+                    <ul class="space-y-4">
+                        <li class="flex items-start gap-3 p-3 rounded-lg card-interactive bg-navy-50">
+                            <div class="p-1 bg-green-100 rounded">
+                                <i data-lucide="check" class="icon-xs text-green-600"></i>
+                            </div>
+                            <div>
+                                <strong class="text-body text-navy-800">첫 3초에 강력한 후킹</strong>
+                                <p class="text-caption text-navy-500 mt-1">첫 3~5초 체류시간이 알고리즘에 가장 중요</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3 p-3 rounded-lg card-interactive bg-navy-50">
+                            <div class="p-1 bg-green-100 rounded">
+                                <i data-lucide="check" class="icon-xs text-green-600"></i>
+                            </div>
+                            <div>
+                                <strong class="text-body text-navy-800">자막 필수 추가</strong>
+                                <p class="text-caption text-navy-500 mt-1">81%가 무음으로 시청, 자막 없으면 이탈</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3 p-3 rounded-lg card-interactive bg-navy-50">
+                            <div class="p-1 bg-green-100 rounded">
+                                <i data-lucide="check" class="icon-xs text-green-600"></i>
+                            </div>
+                            <div>
+                                <strong class="text-body text-navy-800">세로 화면(9:16) 최적화</strong>
+                                <p class="text-caption text-navy-500 mt-1">81%가 스마트폰으로 세로 시청</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3 p-3 rounded-lg card-interactive bg-navy-50">
+                            <div class="p-1 bg-green-100 rounded">
+                                <i data-lucide="check" class="icon-xs text-green-600"></i>
+                            </div>
+                            <div>
+                                <strong class="text-body text-navy-800">실제 사람 등장</strong>
+                                <p class="text-caption text-navy-500 mt-1">53%가 실제 사람 등장 영상에 더 관심</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3 p-3 rounded-lg card-interactive bg-navy-50">
+                            <div class="p-1 bg-green-100 rounded">
+                                <i data-lucide="check" class="icon-xs text-green-600"></i>
+                            </div>
+                            <div>
+                                <strong class="text-body text-navy-800">하나의 명확한 메시지</strong>
+                                <p class="text-caption text-navy-500 mt-1">30초 안에 핵심 메시지 1개만 전달</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm p-6 border border-navy-100">
+                    <div class="flex items-center gap-2 mb-5">
+                        <i data-lucide="x-circle" class="icon-md text-red-600"></i>
+                        <h3 class="text-title text-navy-800">DON'T (금지사항)</h3>
+                    </div>
+                    <ul class="space-y-4">
+                        <li class="flex items-start gap-3 p-3 rounded-lg card-interactive bg-red-50/50">
+                            <div class="p-1 bg-red-100 rounded">
+                                <i data-lucide="x" class="icon-xs text-red-500"></i>
+                            </div>
+                            <div>
+                                <strong class="text-body text-navy-800">가로 영상 그대로 사용</strong>
+                                <p class="text-caption text-navy-500 mt-1">크롭 시 핵심 요소 잘림, 처음부터 세로 촬영</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3 p-3 rounded-lg card-interactive bg-red-50/50">
+                            <div class="p-1 bg-red-100 rounded">
+                                <i data-lucide="x" class="icon-xs text-red-500"></i>
+                            </div>
+                            <div>
+                                <strong class="text-body text-navy-800">느린 인트로</strong>
+                                <p class="text-caption text-navy-500 mt-1">6초 안에 후킹 없으면 80% 이탈</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3 p-3 rounded-lg card-interactive bg-red-50/50">
+                            <div class="p-1 bg-red-100 rounded">
+                                <i data-lucide="x" class="icon-xs text-red-500"></i>
+                            </div>
+                            <div>
+                                <strong class="text-body text-navy-800">정보 과부하</strong>
+                                <p class="text-caption text-navy-500 mt-1">여러 메시지 = 기억 안 남음</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3 p-3 rounded-lg card-interactive bg-red-50/50">
+                            <div class="p-1 bg-red-100 rounded">
+                                <i data-lucide="x" class="icon-xs text-red-500"></i>
+                            </div>
+                            <div>
+                                <strong class="text-body text-navy-800">플랫폼 무시 리포스팅</strong>
+                                <p class="text-caption text-navy-500 mt-1">각 플랫폼 특성에 맞게 최적화 필요</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3 p-3 rounded-lg card-interactive bg-red-50/50">
+                            <div class="p-1 bg-red-100 rounded">
+                                <i data-lucide="x" class="icon-xs text-red-500"></i>
+                            </div>
+                            <div>
+                                <strong class="text-body text-navy-800">CTA 없이 끝내기</strong>
+                                <p class="text-caption text-navy-500 mt-1">명확한 행동 유도 문구 필수</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- 섹션 6: 체크리스트 -->
+        <section id="checklist" class="mb-16 scroll-mt-20">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="p-2 bg-navy-100 rounded-lg">
+                    <i data-lucide="clipboard-check" class="icon-md text-navy-700"></i>
+                </div>
+                <div>
+                    <p class="text-label text-navy-500">CHECKLIST</p>
+                    <h2 class="text-headline text-navy-900">영상 제작 체크리스트</h2>
+                </div>
+                <button onclick="resetChecklist()" class="ml-auto text-caption text-navy-500 hover:text-navy-700 flex items-center gap-1 transition-colors">
+                    <i data-lucide="rotate-ccw" class="icon-xs"></i>
+                    초기화
+                </button>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm p-8 border border-navy-100">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <div class="flex items-center gap-2 mb-5">
+                            <i data-lucide="clapperboard" class="icon-sm text-navy-600"></i>
+                            <h3 class="text-title text-navy-800">기획 단계</h3>
+                            <span class="ml-auto text-caption text-navy-500" id="planningCount">0/5</span>
+                        </div>
+                        <div class="space-y-3">
+                            <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-navy-50 transition-colors">
+                                <input type="checkbox" class="checkbox-custom" data-group="planning">
+                                <span class="checkbox-label text-body text-navy-700">영상 길이 35초~2분 이내 설정</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-navy-50 transition-colors">
+                                <input type="checkbox" class="checkbox-custom" data-group="planning">
+                                <span class="checkbox-label text-body text-navy-700">후킹 문구 6~10초 내 배치</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-navy-50 transition-colors">
+                                <input type="checkbox" class="checkbox-custom" data-group="planning">
+                                <span class="checkbox-label text-body text-navy-700">팩트 기반 콘텐츠 (금액, 정책)</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-navy-50 transition-colors">
+                                <input type="checkbox" class="checkbox-custom" data-group="planning">
+                                <span class="checkbox-label text-body text-navy-700">허위/과장 표현 제거</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-navy-50 transition-colors">
+                                <input type="checkbox" class="checkbox-custom" data-group="planning">
+                                <span class="checkbox-label text-body text-navy-700">CTA(상담 유도) 명확히 설정</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex items-center gap-2 mb-5">
+                            <i data-lucide="video" class="icon-sm text-navy-600"></i>
+                            <h3 class="text-title text-navy-800">제작 단계</h3>
+                            <span class="ml-auto text-caption text-navy-500" id="productionCount">0/5</span>
+                        </div>
+                        <div class="space-y-3">
+                            <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-navy-50 transition-colors">
+                                <input type="checkbox" class="checkbox-custom" data-group="production">
+                                <span class="checkbox-label text-body text-navy-700">세로 촬영 (9:16 비율)</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-navy-50 transition-colors">
+                                <input type="checkbox" class="checkbox-custom" data-group="production">
+                                <span class="checkbox-label text-body text-navy-700">1080×1920 해상도</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-navy-50 transition-colors">
+                                <input type="checkbox" class="checkbox-custom" data-group="production">
+                                <span class="checkbox-label text-body text-navy-700">자막 추가 (무음 시청 대응)</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-navy-50 transition-colors">
+                                <input type="checkbox" class="checkbox-custom" data-group="production">
+                                <span class="checkbox-label text-body text-navy-700">핵심 요소 화면 중앙 배치</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-navy-50 transition-colors">
+                                <input type="checkbox" class="checkbox-custom" data-group="production">
+                                <span class="checkbox-label text-body text-navy-700">썸네일 최적화</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 진행률 바 -->
+                <div class="mt-8 pt-6 border-t border-navy-100">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-caption text-navy-600">전체 진행률</span>
+                        <span class="text-caption font-semibold text-navy-800" id="totalProgress">0%</span>
+                    </div>
+                    <div class="h-3 bg-navy-100 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-navy-600 to-navy-400 rounded-full transition-all duration-500" id="progressBar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- 섹션 7: 참고 자료 -->
+        <section class="mb-16 scroll-mt-20">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="p-2 bg-navy-100 rounded-lg">
+                    <i data-lucide="book-open" class="icon-md text-navy-700"></i>
+                </div>
+                <div>
+                    <p class="text-label text-navy-500">RESOURCES</p>
+                    <h2 class="text-headline text-navy-900">참고 자료</h2>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm p-8 border border-navy-100">
+                <div class="flex items-center gap-2 mb-5">
+                    <i data-lucide="link" class="icon-sm text-navy-600"></i>
+                    <h3 class="text-title text-navy-800">Google & 업계 공식 가이드</h3>
+                </div>
+                <ul class="space-y-3">
+                    <li>
+                        <a href="https://support.google.com/google-ads/answer/16041697" target="_blank"
+                           class="flex items-center gap-3 p-4 rounded-xl hover:bg-navy-50 transition-colors group">
+                            <div class="p-2 bg-navy-100 rounded-lg group-hover:bg-navy-200 transition-colors">
+                                <i data-lucide="external-link" class="icon-sm text-navy-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-body text-navy-800 group-hover:text-navy-900">YouTube Shorts 광고 스펙 및 베스트 프랙티스</p>
+                                <p class="text-caption text-navy-500">Google 공식</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.thinkwithgoogle.com/intl/en-apac/marketing-strategies/video/short-form-video-advertising-tips/" target="_blank"
+                           class="flex items-center gap-3 p-4 rounded-xl hover:bg-navy-50 transition-colors group">
+                            <div class="p-2 bg-navy-100 rounded-lg group-hover:bg-navy-200 transition-colors">
+                                <i data-lucide="external-link" class="icon-sm text-navy-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-body text-navy-800 group-hover:text-navy-900">숏폼 비디오 광고 팁</p>
+                                <p class="text-caption text-navy-500">Think with Google</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://blog.hubspot.com/marketing/short-form-video-trends" target="_blank"
+                           class="flex items-center gap-3 p-4 rounded-xl hover:bg-navy-50 transition-colors group">
+                            <div class="p-2 bg-navy-100 rounded-lg group-hover:bg-navy-200 transition-colors">
+                                <i data-lucide="external-link" class="icon-sm text-navy-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-body text-navy-800 group-hover:text-navy-900">2025 숏폼 비디오 트렌드</p>
+                                <p class="text-caption text-navy-500">HubSpot</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://adall.co.kr/blog/64004a47-0f2b-49c1-a05a-246ffe46faa7/" target="_blank"
+                           class="flex items-center gap-3 p-4 rounded-xl hover:bg-navy-50 transition-colors group">
+                            <div class="p-2 bg-navy-100 rounded-lg group-hover:bg-navy-200 transition-colors">
+                                <i data-lucide="external-link" class="icon-sm text-navy-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-body text-navy-800 group-hover:text-navy-900">2025년 숏폼 콘텐츠 마케팅 완벽 가이드</p>
+                                <p class="text-caption text-navy-500">한국어</p>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="mt-8 pt-6 border-t border-navy-100">
+                    <div class="flex items-center gap-2 mb-5">
+                        <i data-lucide="bar-chart-3" class="icon-sm text-navy-600"></i>
+                        <h3 class="text-title text-navy-800">핵심 통계</h3>
+                    </div>
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <div class="bg-navy-50 rounded-xl p-5 text-center card-interactive">
+                            <p class="text-display text-navy-800 stat-number">2000억</p>
+                            <p class="text-caption text-navy-500 mt-1">YouTube Shorts 일일 뷰</p>
+                        </div>
+                        <div class="bg-navy-50 rounded-xl p-5 text-center card-interactive">
+                            <p class="text-display text-navy-800 stat-number">73%</p>
+                            <p class="text-caption text-navy-500 mt-1">하루 여러 번 숏폼 시청</p>
+                        </div>
+                        <div class="bg-navy-50 rounded-xl p-5 text-center card-interactive">
+                            <p class="text-display text-navy-800 stat-number">81%</p>
+                            <p class="text-caption text-navy-500 mt-1">스마트폰 세로 시청</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="bg-navy-900 text-white py-10">
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-white/10 rounded-lg">
+                        <i data-lucide="video" class="icon-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-body font-semibold">정책자금 광고 영상 제작 가이드</p>
+                        <p class="text-caption text-navy-400">v1.0 | 2024.12 업데이트</p>
+                    </div>
+                </div>
+                <p class="text-caption text-navy-400 text-center md:text-right">
+                    Google, HubSpot, Think with Google 등의 공식 자료 기반
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top 버튼 -->
+    <button id="backToTop" onclick="scrollToTop()" class="fixed bottom-6 right-6 p-3 bg-navy-800 text-white rounded-full shadow-lg opacity-0 invisible transition-all duration-300 hover:bg-navy-700 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:ring-offset-2">
+        <i data-lucide="chevron-up" class="icon-md"></i>
+    </button>
+
+    <script>
+        // Lucide 아이콘 초기화
+        lucide.createIcons();
+
+        // 스크롤 프로그레스 인디케이터
+        window.addEventListener('scroll', function() {
+            const scrollTop = document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrollPercent = (scrollTop / scrollHeight) * 100;
+            document.getElementById('scrollIndicator').style.width = scrollPercent + '%';
+
+            // Back to Top 버튼 표시/숨김
+            const backToTop = document.getElementById('backToTop');
+            if (scrollTop > 500) {
+                backToTop.classList.remove('opacity-0', 'invisible');
+                backToTop.classList.add('opacity-100', 'visible');
+            } else {
+                backToTop.classList.add('opacity-0', 'invisible');
+                backToTop.classList.remove('opacity-100', 'visible');
+            }
+        });
+
+        // 맨 위로 스크롤
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 체크리스트 기능
+        function updateProgress() {
+            const planningCheckboxes = document.querySelectorAll('[data-group="planning"]');
+            const productionCheckboxes = document.querySelectorAll('[data-group="production"]');
+
+            const planningChecked = Array.from(planningCheckboxes).filter(cb => cb.checked).length;
+            const productionChecked = Array.from(productionCheckboxes).filter(cb => cb.checked).length;
+            const total = planningCheckboxes.length + productionCheckboxes.length;
+            const totalChecked = planningChecked + productionChecked;
+
+            document.getElementById('planningCount').textContent = `${planningChecked}/${planningCheckboxes.length}`;
+            document.getElementById('productionCount').textContent = `${productionChecked}/${productionCheckboxes.length}`;
+
+            const percent = Math.round((totalChecked / total) * 100);
+            document.getElementById('totalProgress').textContent = `${percent}%`;
+            document.getElementById('progressBar').style.width = `${percent}%`;
+        }
+
+        // 체크박스 이벤트 및 상태 저장
+        document.querySelectorAll('.checkbox-custom').forEach((checkbox, index) => {
+            checkbox.addEventListener('change', function() {
+                localStorage.setItem(`checkbox_${index}`, this.checked);
+                updateProgress();
+            });
+
+            // 저장된 상태 복원
+            if (localStorage.getItem(`checkbox_${index}`) === 'true') {
+                checkbox.checked = true;
+            }
+        });
+
+        // 초기 진행률 업데이트
+        updateProgress();
+
+        // 체크리스트 초기화
+        function resetChecklist() {
+            document.querySelectorAll('.checkbox-custom').forEach((checkbox, index) => {
+                checkbox.checked = false;
+                localStorage.removeItem(`checkbox_${index}`);
+            });
+            updateProgress();
+        }
+    </script>
+</body>
+</html>
