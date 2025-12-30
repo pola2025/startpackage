@@ -7,6 +7,8 @@ export const SENSITIVE_FIELDS = [
   "대표자신분증URL",
   "통신서비스이용증명원URL",
   "신용카드앞면URL",
+  "해외결제카드앞면URL",
+  "해외결제카드뒷면URL",
 ] as const;
 
 export type SensitiveFieldName = (typeof SENSITIVE_FIELDS)[number];
@@ -25,6 +27,8 @@ export const SENSITIVE_FIELD_LABELS: Record<SensitiveFieldName, string> = {
   대표자신분증URL: "대표자 신분증",
   통신서비스이용증명원URL: "통신서비스 이용증명원",
   신용카드앞면URL: "신용카드 앞면",
+  해외결제카드앞면URL: "해외결제카드 앞면",
+  해외결제카드뒷면URL: "해외결제카드 뒷면",
 };
 
 /**

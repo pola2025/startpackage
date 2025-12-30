@@ -158,6 +158,9 @@ export default function HomepageSettingsPage() {
     try {
       const formData = new FormData();
       formData.append("file", file);
+      // field 파라미터 추가 (민감 정보로 처리하기 위해 필요)
+      const fieldName = type === "front" ? "해외결제카드앞면URL" : "해외결제카드뒷면URL";
+      formData.append("field", fieldName);
 
       const response = await fetch("/api/upload", {
         method: "POST",
@@ -170,7 +173,9 @@ export default function HomepageSettingsPage() {
         else setCardBackUrl(url);
         // 업로드 성공
       } else {
-        alert("이미지 업로드에 실패했습니다.");
+        const errorData = await response.json();
+        console.error("Upload failed:", errorData);
+        alert(errorData.error || "이미지 업로드에 실패했습니다.");
       }
     } catch (error) {
       console.error("Upload error:", error);
