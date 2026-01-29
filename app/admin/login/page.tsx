@@ -1,21 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Shield, Mail, Lock } from "lucide-react";
+import { Shield, Mail, KeyRound } from "lucide-react";
 
 export default function AdminLoginPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [totpCode, setTotpCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const totpInputRef = useRef<HTMLInputElement>(null);
 
   // 로딩 중
   if (status === "loading") {
@@ -31,29 +32,41 @@ export default function AdminLoginPage() {
     return null;
   }
 
+  const handleTotpChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, "").slice(0, 6);
+    setTotpCode(value);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    if (totpCode.length !== 6) {
+      setError("6자리 인증 코드를 입력해주세요.");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // ✅ Feature Flag: 새 Provider 사용 시 "admin-credentials", 기존은 "credentials"
       const providerId = process.env.NEXT_PUBLIC_USE_NEW_PROVIDER === "true"
         ? "admin-credentials"
         : "credentials";
 
       const result = await signIn(providerId, {
         email,
-        password,
+        totpCode,
         redirect: false,
         callbackUrl: "/admin",
       });
 
       if (result?.error) {
-        setError("이메일 또는 비밀번호가 일치하지 않습니다.");
+        if (result.error.includes("2FA_NOT_SETUP")) {
+          setError("2FA 설정이 필요합니다. 관리자에게 셋업 링크를 요청하세요.");
+        } else {
+          setError("이메일 또는 인증 코드가 일치하지 않습니다.");
+        }
       } else if (result?.ok) {
-        // 로그인 성공 - 관리자 대시보드로 이동
-        // 레이아웃에서 role 체크하므로 여기서는 바로 이동
         router.push("/admin");
         router.refresh();
       }
@@ -102,20 +115,27 @@ export default function AdminLoginPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-blue-900 flex items-center gap-2 font-semibold">
-                  <Lock className="w-4 h-4" />
-                  비밀번호
+                <Label htmlFor="totpCode" className="text-blue-900 flex items-center gap-2 font-semibold">
+                  <KeyRound className="w-4 h-4" />
+                  인증 코드
                 </Label>
                 <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  ref={totpInputRef}
+                  id="totpCode"
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  placeholder="000000"
+                  value={totpCode}
+                  onChange={handleTotpChange}
+                  maxLength={6}
                   required
                   disabled={loading}
-                  className="bg-blue-50/50 border-blue-200 focus:border-blue-600 focus:ring-blue-600"
+                  className="bg-blue-50/50 border-blue-200 focus:border-blue-600 focus:ring-blue-600 text-center text-2xl tracking-[0.5em] font-mono"
                 />
+                <p className="text-xs text-blue-500">
+                  Google Authenticator 앱에서 6자리 코드를 입력하세요
+                </p>
               </div>
 
               {error && (
@@ -128,9 +148,9 @@ export default function AdminLoginPage() {
                 type="submit"
                 className="w-full bg-blue-700 text-white hover:bg-blue-800 transition-all font-semibold shadow-md"
                 size="lg"
-                disabled={loading}
+                disabled={loading || totpCode.length !== 6}
               >
-                {loading ? "로그인 중..." : "로그인"}
+                {loading ? "인증 중..." : "로그인"}
                 <Shield className="w-4 h-4 ml-2" />
               </Button>
             </form>
@@ -146,7 +166,7 @@ export default function AdminLoginPage() {
                 </button>
               </p>
               <p className="text-xs text-center text-blue-600">
-                관리자 전용 접근 시스템 • 무단 접근 금지
+                관리자 전용 접근 시스템 • Google Authenticator 필수
               </p>
             </div>
           </CardContent>

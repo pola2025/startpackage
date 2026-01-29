@@ -474,11 +474,16 @@ model Notification {
 model Admin {
   id       String @id @default(cuid())
   email    String @unique
-  password String // bcrypt 해시
+  password String // bcrypt 해시 (레거시, 2FA 전환 후 미사용)
   name     String
 
   // 권한
   role String @default("operator") // "super" | "designer" | "operator"
+
+  // 2FA (Google Authenticator TOTP)
+  twoFactorSecret    String?         // TOTP 시크릿 (Base32)
+  twoFactorEnabled   Boolean @default(false) // 2FA 활성화 여부
+  twoFactorSetupToken String? @unique // 일회용 셋업 토큰
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

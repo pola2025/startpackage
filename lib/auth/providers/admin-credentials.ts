@@ -1,5 +1,5 @@
 // 관리자 Credentials Provider
-// Phase 2: Auth Layer - Provider Separation
+// TOTP (Google Authenticator) 기반 인증
 
 import Credentials from "next-auth/providers/credentials";
 import { authenticateAdmin } from "../services/admin-auth.service";
@@ -9,18 +9,23 @@ export const adminCredentialsProvider = Credentials({
   name: "Admin Login",
   credentials: {
     email: { label: "Email", type: "email" },
-    password: { label: "Password", type: "password" },
+    totpCode: { label: "TOTP Code", type: "text" },
   },
   async authorize(credentials) {
-    if (!credentials?.email || !credentials?.password) {
+    if (!credentials?.email || !credentials?.totpCode) {
       return null;
     }
 
-    const admin = await authenticateAdmin(
+    const result = await authenticateAdmin(
       credentials.email as string,
-      credentials.password as string
+      credentials.totpCode as string
     );
 
-    return admin;
+    // 2FA 미설정 에러인 경우
+    if (result && "error" in result) {
+      throw new Error(result.error);
+    }
+
+    return result;
   },
 });

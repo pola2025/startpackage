@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { randomBytes } from "crypto";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 
@@ -117,14 +118,18 @@ export async function POST(request: Request) {
         );
       }
 
+      // 2FA 셋업 토큰 생성
+      const setupToken = randomBytes(32).toString("hex");
+
       await prisma.$transaction([
-        // Admin 생성
+        // Admin 생성 (2FA 셋업 토큰 포함)
         prisma.admin.create({
           data: {
             email: adminRequest.email,
             password: adminRequest.password,
             name: adminRequest.name,
             role,
+            twoFactorSetupToken: setupToken,
           },
         }),
         // AdminRequest 상태 업데이트
@@ -138,9 +143,14 @@ export async function POST(request: Request) {
         }),
       ]);
 
+      // 2FA 셋업 URL 생성
+      const baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_BASE_URL || "";
+      const setupUrl = `${baseUrl}/admin/setup-2fa?token=${setupToken}&email=${encodeURIComponent(adminRequest.email)}`;
+
       return NextResponse.json({
-        message: "가입 신청이 승인되었습니다.",
+        message: "가입 신청이 승인되었습니다. 2FA 셋업 URL을 관리자에게 전달하세요.",
         email: adminRequest.email,
+        setupUrl,
       });
     } else {
       // 거부

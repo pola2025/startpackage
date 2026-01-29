@@ -1,9 +1,13 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
+import { verify as otpVerify, NobleCryptoPlugin, ScureBase32Plugin } from "otplib";
 import prisma from "./lib/prisma";
 import { userCredentialsProvider } from "./lib/auth/providers/user-credentials";
 import { adminCredentialsProvider } from "./lib/auth/providers/admin-credentials";
+
+const otpCrypto = new NobleCryptoPlugin();
+const otpBase32 = new ScureBase32Plugin();
 
 // ✅ Feature Flag: 새 Provider 사용 여부
 const USE_NEW_PROVIDER = process.env.NEXT_PUBLIC_USE_NEW_PROVIDER === "true";
@@ -106,7 +110,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 }
               }
 
-              // 관리자 확인
+              // 관리자 확인 (TOTP 인증)
               const admin = await prisma.admin.findUnique({
                 where: { email: emailOrPhone },
               });
@@ -118,15 +122,27 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               });
 
               if (admin) {
-                const isPasswordValid = await compare(password, admin.password);
+                // 2FA 미설정 관리자는 로그인 거부
+                if (!admin.twoFactorEnabled || !admin.twoFactorSecret) {
+                  console.log("[AUTH DEBUG] Admin 2FA not set up:", emailOrPhone);
+                  throw new Error("2FA_NOT_SETUP");
+                }
 
-                console.log("[AUTH DEBUG] Password check:", {
-                  email: emailOrPhone,
-                  passwordValid: isPasswordValid,
+                // TOTP 코드 검증 (password 필드를 TOTP 코드로 사용)
+                const totpResult = await otpVerify({
+                  secret: admin.twoFactorSecret,
+                  token: password,
+                  crypto: otpCrypto,
+                  base32: otpBase32,
                 });
 
-                if (isPasswordValid) {
-                  console.log("[AUTH DEBUG] Admin login successful:", {
+                console.log("[AUTH DEBUG] TOTP check:", {
+                  email: emailOrPhone,
+                  valid: totpResult.valid,
+                });
+
+                if (totpResult.valid) {
+                  console.log("[AUTH DEBUG] Admin TOTP login successful:", {
                     id: admin.id,
                     email: admin.email,
                     role: admin.role,

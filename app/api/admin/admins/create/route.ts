@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { randomBytes } from "crypto";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { hash } from "bcryptjs";
@@ -51,8 +52,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 비밀번호 해시
+    // 비밀번호 해시 (레거시 호환용, 2FA 사용 시 미사용)
     const hashedPassword = await hash(password, 10);
+
+    // 2FA 셋업 토큰 생성
+    const setupToken = randomBytes(32).toString("hex");
 
     // 관리자 생성
     const admin = await prisma.admin.create({
@@ -61,6 +65,7 @@ export async function POST(request: NextRequest) {
         name,
         password: hashedPassword,
         role,
+        twoFactorSetupToken: setupToken,
       },
       select: {
         id: true,
@@ -71,10 +76,15 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // 2FA 셋업 URL 생성
+    const baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_BASE_URL || "";
+    const setupUrl = `${baseUrl}/admin/setup-2fa?token=${setupToken}&email=${encodeURIComponent(email)}`;
+
     return NextResponse.json({
       success: true,
-      message: "관리자가 생성되었습니다.",
+      message: "관리자가 생성되었습니다. 2FA 셋업 URL을 전달하세요.",
       admin,
+      setupUrl,
     });
   } catch (error: any) {
     console.error("관리자 생성 에러:", error);
