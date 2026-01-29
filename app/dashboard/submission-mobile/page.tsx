@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,9 +8,17 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { MobileFileUpload } from "@/components/ui/mobile-file-upload";
 import { SubmissionProgress } from "@/components/ui/submission-progress";
-import { CheckCircle2, AlertCircle, Loader2, Save } from "lucide-react";
+import { CheckCircle2, AlertCircle, Loader2, Save, ArrowRight, Wand2 } from "lucide-react";
 import { useAutoSave } from "@/lib/hooks/useAutoSave";
 import { cn } from "@/lib/utils";
+import { OnboardingDialog, shouldShowOnboarding } from "@/components/submission/onboarding-dialog";
+import { SubmissionSummary } from "@/components/submission/submission-summary";
+import { calculateProgress, type ProgressResult } from "@/lib/submission-progress";
+import { SecurityNotice } from "@/components/submission/security-notice";
+import { Celebration, useCelebration } from "@/components/ui/celebration";
+import { useAutoFocus, useKeyboardNavigation } from "@/lib/submission/use-auto-focus";
+import { LogoColorSelector } from "@/components/submission/logo-style-selector";
+import { WizardContainer, WizardModeSelector } from "@/components/submission/wizard";
 
 export default function MobileSubmissionPage() {
   const { data: session } = useSession();
@@ -18,11 +26,41 @@ export default function MobileSubmissionPage() {
   const [formData, setFormData] = useState<any>({});
   const [activeSection, setActiveSection] = useState<"basic" | "print" | "marketing" | "website">("basic");
   const [uploading, setUploading] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
+  const [progress, setProgress] = useState<ProgressResult | null>(null);
+  // Sprint 3: Wizard 모드 상태
+  const [isWizardMode, setIsWizardMode] = useState(false);
+  const [showModeSelector, setShowModeSelector] = useState(false);
+
+  // Sprint 2: 자동 포커스 및 키보드 네비게이션 (Tab 모드에서만)
+  useAutoFocus({
+    activeTab: activeSection,
+    submission,
+    enabled: !showOnboarding && !showSummary && !isWizardMode,
+  });
+  useKeyboardNavigation();
+
+  // Sprint 2: 축하 애니메이션
+  const { showCelebration, celebrationMessage, checkSectionCompletion, closeCelebration } = useCelebration();
 
   // 제출 데이터 로드
   useEffect(() => {
     fetchSubmission();
   }, []);
+
+  // Sprint 2: 섹션 완료 시 축하 애니메이션 트리거
+  // 무한 루프 방지: sections 배열의 isComplete 값만 직렬화하여 비교
+  const sectionsKey = useMemo(() => {
+    if (!progress?.sections) return "";
+    return progress.sections.map(s => `${s.name}:${s.isComplete}`).join(",");
+  }, [progress?.sections]);
+
+  useEffect(() => {
+    if (progress?.sections && sectionsKey) {
+      checkSectionCompletion(progress.sections);
+    }
+  }, [sectionsKey, checkSectionCompletion, progress?.sections]);
 
   const fetchSubmission = async () => {
     try {
@@ -31,6 +69,20 @@ export default function MobileSubmissionPage() {
         const data = await res.json();
         setSubmission(data);
         setFormData(data);
+
+        // 진행률 계산
+        if (session?.user) {
+          const progressData = calculateProgress(data, {
+            이름: (session.user as any).이름 || session.user.name || "",
+            연락처: (session.user as any).연락처 || "",
+          });
+          setProgress(progressData);
+        }
+
+        // 온보딩 다이얼로그 표시 여부 확인 (첫 방문 사용자)
+        if (shouldShowOnboarding(data)) {
+          setShowOnboarding(true);
+        }
       }
     } catch (error) {
       console.error("Failed to fetch submission:", error);
@@ -141,38 +193,119 @@ export default function MobileSubmissionPage() {
     { id: "website", label: "홈페이지", icon: "🌐" },
   ] as const;
 
+  // Sprint 3: 파일 업로드 핸들러 (Wizard 모드용)
+  const handleWizardFileUpload = useCallback(async (field: string, file: File) => {
+    setUploading(true);
+    const uploadFormData = new FormData();
+    uploadFormData.append("file", file);
+    uploadFormData.append("field", field);
+
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: uploadFormData,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setFormData((prev: any) => ({ ...prev, [field]: data.url }));
+        await updateSubmission(field, data.url);
+      } else {
+        throw new Error("Upload failed");
+      }
+    } finally {
+      setUploading(false);
+    }
+  }, []);
+
+  // Sprint 3: 모드 선택 핸들러
+  const handleModeSelect = (mode: "wizard" | "tab") => {
+    setIsWizardMode(mode === "wizard");
+    setShowModeSelector(false);
+  };
+
+  // Sprint 3: Wizard 모드 렌더링
+  if (isWizardMode) {
+    return (
+      <>
+        <WizardContainer
+          submission={submission}
+          formData={formData}
+          onInputChange={handleInputChange}
+          onFileUpload={handleWizardFileUpload}
+          onSubmit={handleManualSave}
+          lastSaved={autoSaveState.lastSaved ? new Date(autoSaveState.lastSaved) : null}
+          isSaving={autoSaveState.isSaving}
+          onModeChange={(wizardMode) => setIsWizardMode(wizardMode)}
+        />
+
+        {/* 업로드 중 오버레이 */}
+        {uploading && (
+          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl p-8 flex flex-col items-center gap-4 shadow-2xl max-w-sm mx-4">
+              <Loader2 className="w-12 h-12 animate-spin text-blue-600" />
+              <p className="text-lg font-bold text-gray-900">파일 업로드 중...</p>
+              <p className="text-sm text-gray-500 text-center">
+                잠시만 기다려주세요
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* 모드 선택 다이얼로그 */}
+        <WizardModeSelector
+          open={showModeSelector}
+          onSelect={handleModeSelect}
+          hasExistingData={!!submission?.브랜드명}
+        />
+      </>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white pb-20">
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
-        {/* 헤더 */}
-        <div className="space-y-3">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">
-            자료 제출
-          </h1>
-          <p className="text-base sm:text-lg text-gray-600">
-            각 항목을 작성하시면 자동으로 저장됩니다
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white pb-20 mobile-compact-form">
+      <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
+        {/* 헤더 - 모바일 컴팩트 */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+              자료 제출
+            </h1>
+            {/* Sprint 3: Wizard 모드 전환 버튼 */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsWizardMode(true)}
+              className="flex items-center gap-1 h-7 text-xs px-2"
+            >
+              <Wand2 className="w-3 h-3" />
+              <span className="hidden sm:inline">단계별 안내</span>
+            </Button>
+          </div>
+          <p className="text-xs sm:text-sm text-gray-600">
+            작성하시면 자동 저장됩니다
           </p>
         </div>
 
-        {/* 자동 저장 상태 표시 */}
-        <div className="flex items-center justify-between p-3 rounded-lg bg-white border border-gray-200">
-          <div className="flex items-center gap-2">
+        {/* 자동 저장 상태 표시 - 컴팩트 */}
+        <div className="flex items-center justify-between p-2 rounded-lg bg-white border border-gray-200">
+          <div className="flex items-center gap-1.5">
             {autoSaveState.isSaving ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
-                <span className="text-sm text-gray-700">저장 중...</span>
+                <Loader2 className="w-3 h-3 animate-spin text-blue-600" />
+                <span className="text-xs text-gray-700">저장 중...</span>
               </>
             ) : autoSaveState.lastSaved ? (
               <>
-                <CheckCircle2 className="w-4 h-4 text-green-600" />
-                <span className="text-sm text-gray-700">
-                  마지막 저장: {new Date(autoSaveState.lastSaved).toLocaleTimeString("ko-KR")}
+                <CheckCircle2 className="w-3 h-3 text-green-600" />
+                <span className="text-xs text-gray-700">
+                  저장됨: {new Date(autoSaveState.lastSaved).toLocaleTimeString("ko-KR")}
                 </span>
               </>
             ) : (
               <>
-                <Save className="w-4 h-4 text-gray-400" />
-                <span className="text-sm text-gray-500">자동 저장 대기 중</span>
+                <Save className="w-3 h-3 text-gray-400" />
+                <span className="text-xs text-gray-500">자동 저장 대기</span>
               </>
             )}
           </div>
@@ -185,24 +318,69 @@ export default function MobileSubmissionPage() {
           requiredFields={requiredFields}
         />
 
-        {/* 섹션 네비게이션 - 모바일 최적화 */}
-        <div className="sticky top-0 z-10 bg-white border-2 border-gray-200 rounded-xl p-2 shadow-sm">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        {/* 다음 단계 힌트 및 현황 확인 버튼 */}
+        {progress && progress.nextAction && progressPercentage < 100 && (
+          <div
+            onClick={() => {
+              if (progress.nextAction?.href) {
+                const [tab] = progress.nextAction.href.split('#');
+                const sectionMap: Record<string, "basic" | "print" | "marketing" | "website"> = {
+                  "basic": "basic",
+                  "logo": "print",
+                  "print": "print",
+                  "website": "website",
+                  "marketing": "marketing",
+                };
+                setActiveSection(sectionMap[tab] || "basic");
+              }
+            }}
+            className="p-3 bg-amber-50 border border-amber-300 rounded-lg cursor-pointer active:bg-amber-100"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-amber-600 font-medium text-sm">
+                  다음 단계:
+                </span>
+                <span className="text-amber-800 text-sm">
+                  {progress.nextAction.message}
+                </span>
+              </div>
+              <ArrowRight className="w-4 h-4 text-amber-600" />
+            </div>
+          </div>
+        )}
+
+        {/* 현황 확인 버튼 */}
+        {progress && progressPercentage > 0 && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowSummary(true)}
+            className="w-full text-sm"
+          >
+            <CheckCircle2 className="w-4 h-4 mr-2" />
+            제출 현황 확인
+          </Button>
+        )}
+
+        {/* 섹션 네비게이션 - 모바일 컴팩트 */}
+        <div className="sticky top-0 z-10 bg-white border border-gray-200 rounded-lg p-1.5 shadow-sm">
+          <div className="grid grid-cols-4 gap-1">
             {sections.map((section) => (
               <button
                 key={section.id}
                 onClick={() => setActiveSection(section.id)}
                 className={cn(
-                  "flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2",
-                  "p-3 rounded-lg font-semibold text-sm transition-all",
+                  "flex flex-col items-center justify-center gap-0.5",
+                  "py-1.5 px-1 rounded-md font-medium text-xs transition-all",
                   "active:scale-95",
                   activeSection === section.id
-                    ? "bg-blue-600 text-white shadow-md"
-                    : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+                    ? "bg-blue-600 text-white shadow-sm"
+                    : "bg-gray-50 text-gray-600 hover:bg-gray-100"
                 )}
               >
-                <span className="text-lg sm:text-base">{section.icon}</span>
-                <span className="text-xs sm:text-sm">{section.label}</span>
+                <span className="text-sm">{section.icon}</span>
+                <span className="text-[10px] leading-tight">{section.label}</span>
               </button>
             ))}
           </div>
@@ -210,16 +388,16 @@ export default function MobileSubmissionPage() {
 
         {/* 기본 정보 */}
         {activeSection === "basic" && (
-          <Card className="border-2 border-gray-200">
+          <Card className="border border-gray-200">
             <CardHeader>
-              <CardTitle className="text-xl text-gray-900">기본 정보</CardTitle>
+              <CardTitle className="text-base text-gray-900">기본 정보</CardTitle>
               <CardDescription>
                 인쇄물에 들어갈 기본 정보를 입력해주세요
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="브랜드명" className="text-gray-900">
+            <CardContent className="space-y-3">
+              <div className="space-y-1">
+                <Label htmlFor="브랜드명">
                   브랜드명 <span className="text-red-500">*</span>
                 </Label>
                 <Input
@@ -227,12 +405,11 @@ export default function MobileSubmissionPage() {
                   value={formData.브랜드명 || ""}
                   onChange={(e) => handleInputChange("브랜드명", e.target.value)}
                   placeholder="브랜드명을 입력하세요"
-                  className="h-12 text-base"
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="업종" className="text-gray-900">
+              <div className="space-y-1">
+                <Label htmlFor="업종">
                   업종 <span className="text-red-500">*</span>
                 </Label>
                 <Input
@@ -240,12 +417,11 @@ export default function MobileSubmissionPage() {
                   value={formData.업종 || ""}
                   onChange={(e) => handleInputChange("업종", e.target.value)}
                   placeholder="업종을 입력하세요"
-                  className="h-12 text-base"
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="주소" className="text-gray-900">
+              <div className="space-y-1">
+                <Label htmlFor="주소">
                   주소 <span className="text-red-500">*</span>
                 </Label>
                 <Input
@@ -253,61 +429,56 @@ export default function MobileSubmissionPage() {
                   value={formData.주소 || ""}
                   onChange={(e) => handleInputChange("주소", e.target.value)}
                   placeholder="주소를 입력하세요"
-                  className="h-12 text-base"
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="대표번호" className="text-gray-900">대표번호</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label htmlFor="대표번호">대표번호</Label>
                   <Input
                     id="대표번호"
                     value={formData.대표번호 || ""}
                     onChange={(e) => handleInputChange("대표번호", e.target.value)}
                     placeholder="010-1234-5678"
-                    className="h-12 text-base"
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="이메일" className="text-gray-900">이메일</Label>
+                <div className="space-y-1">
+                  <Label htmlFor="이메일">이메일</Label>
                   <Input
                     id="이메일"
                     type="email"
                     value={formData.이메일 || ""}
                     onChange={(e) => handleInputChange("이메일", e.target.value)}
                     placeholder="example@email.com"
-                    className="h-12 text-base"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="은행명" className="text-gray-900">은행명</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label htmlFor="은행명">은행명</Label>
                   <Input
                     id="은행명"
                     value={formData.은행명 || ""}
                     onChange={(e) => handleInputChange("은행명", e.target.value)}
                     placeholder="예: 국민은행"
-                    className="h-12 text-base"
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="계좌번호" className="text-gray-900">계좌번호</Label>
+                <div className="space-y-1">
+                  <Label htmlFor="계좌번호">계좌번호</Label>
                   <Input
                     id="계좌번호"
                     value={formData.계좌번호 || ""}
                     onChange={(e) => handleInputChange("계좌번호", e.target.value)}
                     placeholder="123-45-678910"
-                    className="h-12 text-base"
                   />
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="인쇄물받을주소" className="text-gray-900">
+              <div className="space-y-1">
+                <Label htmlFor="인쇄물받을주소">
                   인쇄물 받을 주소
                 </Label>
                 <Input
@@ -315,7 +486,6 @@ export default function MobileSubmissionPage() {
                   value={formData.인쇄물받을주소 || ""}
                   onChange={(e) => handleInputChange("인쇄물받을주소", e.target.value)}
                   placeholder="인쇄물 배송받을 주소"
-                  className="h-12 text-base"
                 />
               </div>
             </CardContent>
@@ -325,14 +495,14 @@ export default function MobileSubmissionPage() {
         {/* 인쇄물 */}
         {activeSection === "print" && (
           <div className="space-y-4">
-            <Card className="border-2 border-gray-200">
+            <Card className="border border-gray-200">
               <CardHeader>
-                <CardTitle className="text-xl text-gray-900">필수 서류</CardTitle>
+                <CardTitle className="text-base text-gray-900">필수 서류</CardTitle>
                 <CardDescription>
                   사업자등록증과 프로필 사진을 업로드해주세요
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-4">
                 <MobileFileUpload
                   label="사업자등록증"
                   accept="image/*,application/pdf"
@@ -357,11 +527,11 @@ export default function MobileSubmissionPage() {
               </CardContent>
             </Card>
 
-            <Card className="border-2 border-gray-200">
+            <Card className="border border-gray-200">
               <CardHeader>
-                <CardTitle className="text-xl text-gray-900">로고 정보</CardTitle>
+                <CardTitle className="text-base text-gray-900">로고 정보</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-4">
                 <MobileFileUpload
                   label="로고 파일 (있는 경우)"
                   accept="image/*"
@@ -371,8 +541,8 @@ export default function MobileSubmissionPage() {
                   allowCamera
                 />
 
-                <div className="space-y-2">
-                  <Label htmlFor="로고선호스타일" className="text-gray-900">
+                <div className="space-y-1">
+                  <Label htmlFor="로고선호스타일">
                     로고 선호 스타일
                   </Label>
                   <Input
@@ -380,25 +550,20 @@ export default function MobileSubmissionPage() {
                     value={formData.로고선호스타일 || ""}
                     onChange={(e) => handleInputChange("로고선호스타일", e.target.value)}
                     placeholder="예: 심플하고 모던한 느낌"
-                    className="h-12 text-base"
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="로고선호색상" className="text-gray-900">
-                    로고 선호 색상
-                  </Label>
-                  <Input
-                    id="로고선호색상"
+                {/* 로고 선호 색상 - PRD D-3 비주얼 선택 UI */}
+                <div className="space-y-1">
+                  <LogoColorSelector
                     value={formData.로고선호색상 || ""}
-                    onChange={(e) => handleInputChange("로고선호색상", e.target.value)}
-                    placeholder="예: 블루, 그린 계열"
-                    className="h-12 text-base"
+                    onChange={(value) => handleInputChange("로고선호색상", value)}
+                    disabled={submission?.isComplete}
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="로고선호폰트" className="text-gray-900">
+                <div className="space-y-1">
+                  <Label htmlFor="로고선호폰트">
                     로고 선호 폰트
                   </Label>
                   <Input
@@ -406,22 +571,21 @@ export default function MobileSubmissionPage() {
                     value={formData.로고선호폰트 || ""}
                     onChange={(e) => handleInputChange("로고선호폰트", e.target.value)}
                     placeholder="예: 깔끔한 고딕체"
-                    className="h-12 text-base"
                   />
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border-2 border-gray-200">
+            <Card className="border border-gray-200">
               <CardHeader>
-                <CardTitle className="text-xl text-gray-900">
+                <CardTitle className="text-base text-gray-900">
                   SMS 발신 등록 서류
                 </CardTitle>
                 <CardDescription>
                   SMS 발신번호 등록에 필요한 서류를 업로드해주세요
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-4">
                 <MobileFileUpload
                   label="대표자 신분증"
                   accept="image/*,application/pdf"
@@ -452,16 +616,19 @@ export default function MobileSubmissionPage() {
 
         {/* 마케팅 */}
         {activeSection === "marketing" && (
-          <Card className="border-2 border-gray-200">
+          <Card className="border border-gray-200">
             <CardHeader>
-              <CardTitle className="text-xl text-gray-900">마케팅 정보</CardTitle>
+              <CardTitle className="text-base text-gray-900">마케팅 정보</CardTitle>
               <CardDescription>
                 메타광고, 네이버 광고, 인스타그램 정보를 입력해주세요
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="메타광고관리자값" className="text-gray-900">
+            <CardContent className="space-y-3">
+              {/* Sprint 2: 민감정보 안심 UI (모바일 컴팩트) */}
+              <SecurityNotice type="marketing" compact />
+
+              <div className="space-y-1">
+                <Label htmlFor="메타광고관리자값">
                   메타광고 관리자 값
                 </Label>
                 <Input
@@ -469,12 +636,11 @@ export default function MobileSubmissionPage() {
                   value={formData.메타광고관리자값 || ""}
                   onChange={(e) => handleInputChange("메타광고관리자값", e.target.value)}
                   placeholder="초대 링크 또는 계정 정보"
-                  className="h-12 text-base"
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="네이버검색광고ID" className="text-gray-900">
+              <div className="space-y-1">
+                <Label htmlFor="네이버검색광고ID">
                   네이버 검색광고 ID
                 </Label>
                 <Input
@@ -482,12 +648,11 @@ export default function MobileSubmissionPage() {
                   value={formData.네이버검색광고ID || ""}
                   onChange={(e) => handleInputChange("네이버검색광고ID", e.target.value)}
                   placeholder="네이버 광고 ID"
-                  className="h-12 text-base"
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="InstagramID" className="text-gray-900">
+              <div className="space-y-1">
+                <Label htmlFor="InstagramID">
                   Instagram ID
                 </Label>
                 <Input
@@ -495,12 +660,11 @@ export default function MobileSubmissionPage() {
                   value={formData.InstagramID || ""}
                   onChange={(e) => handleInputChange("InstagramID", e.target.value)}
                   placeholder="인스타그램 아이디"
-                  className="h-12 text-base"
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="InstagramPW" className="text-gray-900">
+              <div className="space-y-1">
+                <Label htmlFor="InstagramPW">
                   Instagram 비밀번호
                 </Label>
                 <Input
@@ -509,7 +673,6 @@ export default function MobileSubmissionPage() {
                   value={formData.InstagramPW || ""}
                   onChange={(e) => handleInputChange("InstagramPW", e.target.value)}
                   placeholder="비밀번호"
-                  className="h-12 text-base"
                 />
               </div>
             </CardContent>
@@ -518,18 +681,18 @@ export default function MobileSubmissionPage() {
 
         {/* 홈페이지 */}
         {activeSection === "website" && (
-          <Card className="border-2 border-gray-200">
+          <Card className="border border-gray-200">
             <CardHeader>
-              <CardTitle className="text-xl text-gray-900">
+              <CardTitle className="text-base text-gray-900">
                 홈페이지 제작 정보
               </CardTitle>
               <CardDescription>
                 홈페이지 컬러 컨셉을 선택해주세요
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="홈페이지컬러컨셉" className="text-gray-900">
+            <CardContent className="space-y-3">
+              <div className="space-y-1">
+                <Label htmlFor="홈페이지컬러컨셉">
                   컬러 컨셉 <span className="text-red-500">*</span>
                 </Label>
                 <Input
@@ -537,7 +700,6 @@ export default function MobileSubmissionPage() {
                   value={formData.홈페이지컬러컨셉 || ""}
                   onChange={(e) => handleInputChange("홈페이지컬러컨셉", e.target.value)}
                   placeholder="예: 블루 계열, 심플하고 깔끔한 느낌"
-                  className="h-12 text-base"
                 />
               </div>
             </CardContent>
@@ -547,11 +709,10 @@ export default function MobileSubmissionPage() {
         {/* 수동 저장 버튼 */}
         <Button
           onClick={handleManualSave}
-          className="w-full h-14 text-base font-bold bg-blue-600 hover:bg-blue-700 active:scale-98"
-          size="lg"
+          className="w-full h-10 text-sm font-semibold bg-blue-600 hover:bg-blue-700 active:scale-98"
         >
-          <Save className="w-5 h-5 mr-2" />
-          지금 저장하기
+          <Save className="w-4 h-4 mr-1.5" />
+          저장하기
         </Button>
       </div>
 
@@ -567,6 +728,41 @@ export default function MobileSubmissionPage() {
           </div>
         </div>
       )}
+
+      {/* 온보딩 다이얼로그 */}
+      <OnboardingDialog
+        open={showOnboarding}
+        onOpenChange={setShowOnboarding}
+      />
+
+      {/* 제출 요약 다이얼로그 */}
+      {progress && (
+        <SubmissionSummary
+          open={showSummary}
+          onOpenChange={setShowSummary}
+          sections={progress.sections}
+          overallPercentage={progress.overallPercentage}
+          onNavigateToSection={(href) => {
+            const [tab] = href.split('#');
+            // 모바일에서는 탭이 아닌 섹션 이름으로 매핑
+            const sectionMap: Record<string, "basic" | "print" | "marketing" | "website"> = {
+              "basic": "basic",
+              "logo": "print",
+              "print": "print",
+              "website": "website",
+              "marketing": "marketing",
+            };
+            setActiveSection(sectionMap[tab] || "basic");
+          }}
+        />
+      )}
+
+      {/* Sprint 2: 섹션 완료 축하 애니메이션 */}
+      <Celebration
+        show={showCelebration}
+        message={celebrationMessage}
+        onComplete={closeCelebration}
+      />
     </div>
   );
 }

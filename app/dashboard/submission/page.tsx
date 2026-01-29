@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +14,15 @@ import imageCompression from "browser-image-compression";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { calculateProgress, type ProgressResult } from "@/lib/submission-progress";
 import { MobileStepBar, MobileStepNavigation } from "@/components/ui/mobile-step-bar";
+import { OnboardingDialog, shouldShowOnboarding } from "@/components/submission/onboarding-dialog";
+import { SubmissionSummary } from "@/components/submission/submission-summary";
+import { SecurityNotice, DataUsageNotice } from "@/components/submission/security-notice";
+import { Celebration, useCelebration } from "@/components/ui/celebration";
+import { useAutoFocus, useKeyboardNavigation } from "@/lib/submission/use-auto-focus";
+import { LogoColorSelector } from "@/components/submission/logo-style-selector";
+import { MySubmissionStatus } from "@/components/submission/my-submission-status";
+import { ChevronDown, ChevronUp } from "lucide-react";
+// ColorPaletteSelector는 홈페이지 탭 추가 시 사용 예정
 
 export default function SubmissionPage() {
   const { data: session } = useSession();
@@ -42,6 +51,7 @@ export default function SubmissionPage() {
   // 로고 선택 상태
   const [selectedStyle, setSelectedStyle] = useState<string>("");
   const [selectedFont, setSelectedFont] = useState<string>("");
+  const [logoPreferenceColor, setLogoPreferenceColor] = useState<string>("");
 
   // 명함 상태
   const [businessCardColor, setBusinessCardColor] = useState<string>("#3B82F6");
@@ -54,8 +64,26 @@ export default function SubmissionPage() {
   // 연락처 상태 (사용자 로그인 아이디)
   const [userPhone, setUserPhone] = useState<string>("");
 
+  // 다이얼로그 상태
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
+
+  // 내 접수 현황 표시 상태
+  const [showMyStatus, setShowMyStatus] = useState(false);
+
   // 탭 상태 - URL 쿼리 파라미터에서 가져오기
   const activeTab = searchParams.get("tab") || "basic";
+
+  // Sprint 2: 자동 포커스 및 키보드 네비게이션
+  useAutoFocus({
+    activeTab,
+    submission,
+    enabled: !showOnboarding && !showSummary,
+  });
+  useKeyboardNavigation();
+
+  // Sprint 2: 축하 애니메이션
+  const { showCelebration, celebrationMessage, checkSectionCompletion, closeCelebration } = useCelebration();
 
   // 탭 변경 함수 - URL 쿼리 파라미터 업데이트
   const handleTabChange = (tab: string) => {
@@ -93,6 +121,19 @@ export default function SubmissionPage() {
     fetchWorkflows();
     fetchDeadline();
   }, []);
+
+  // Sprint 2: 섹션 완료 시 축하 애니메이션 트리거
+  // 무한 루프 방지: sections 배열의 isComplete 값만 직렬화하여 비교
+  const sectionsKey = useMemo(() => {
+    if (!progress?.sections) return "";
+    return progress.sections.map(s => `${s.name}:${s.isComplete}`).join(",");
+  }, [progress?.sections]);
+
+  useEffect(() => {
+    if (progress?.sections && sectionsKey) {
+      checkSectionCompletion(progress.sections);
+    }
+  }, [sectionsKey, checkSectionCompletion, progress?.sections]);
 
   const fetchWorkflows = async () => {
     try {
@@ -149,6 +190,7 @@ export default function SubmissionPage() {
     if (submission) {
       setSelectedStyle(submission.로고선호스타일 || "");
       setSelectedFont(submission.로고선호폰트 || "");
+      setLogoPreferenceColor(submission.로고선호색상 || "");
       setBusinessCardColor(submission.명함색상 || "#3B82F6");
       setSelectedNamecard(submission.명함시안 || "");
     }
@@ -169,6 +211,11 @@ export default function SubmissionPage() {
             연락처: (session.user as any).연락처 || "",
           });
           setProgress(progressData);
+        }
+
+        // 온보딩 다이얼로그 표시 여부 확인 (첫 방문 사용자)
+        if (shouldShowOnboarding(data)) {
+          setShowOnboarding(true);
         }
 
         // 각 섹션별로 데이터 유무를 확인하여 편집 모드 설정
@@ -497,7 +544,23 @@ export default function SubmissionPage() {
           sections={progress.sections}
           overallPercentage={progress.overallPercentage}
           onTabChange={handleTabChange}
+          nextAction={progress.nextAction}
         />
+      )}
+
+      {/* 현황 확인 버튼 - 진행률 바 아래 */}
+      {progress && progress.overallPercentage > 0 && (
+        <div className="flex justify-end">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowSummary(true)}
+            className="text-xs sm:text-sm"
+          >
+            <CheckCircle2 className="w-4 h-4 mr-2" />
+            제출 현황 확인
+          </Button>
+        </div>
       )}
 
       {/* 헤더 - 깔끔하고 명확한 */}
@@ -599,6 +662,57 @@ export default function SubmissionPage() {
           </div>
         )}
       </div>
+
+      {/* 내 접수 현황 토글 */}
+      {submission && (
+        <div className="mb-6">
+          <button
+            onClick={() => setShowMyStatus(!showMyStatus)}
+            className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl hover:border-blue-300 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-lg">📋</span>
+              <div className="text-left">
+                <p className="font-semibold text-gray-900">내 접수 현황 보기</p>
+                <p className="text-sm text-gray-600">
+                  제출한 정보와 디자인 진행 상태를 한눈에 확인하세요
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-blue-600">
+                {showMyStatus ? "접기" : "펼치기"}
+              </span>
+              {showMyStatus ? (
+                <ChevronUp className="w-5 h-5 text-blue-600" />
+              ) : (
+                <ChevronDown className="w-5 h-5 text-blue-600" />
+              )}
+            </div>
+          </button>
+
+          {showMyStatus && (
+            <div className="mt-4 animate-in slide-in-from-top-2 duration-300">
+              <MySubmissionStatus
+                submission={submission}
+                workflows={workflows}
+                user={{
+                  이름: (session?.user as any)?.이름 || session?.user?.name || "",
+                  연락처: userPhone,
+                }}
+                onNavigateToSection={(tab, hash) => {
+                  setShowMyStatus(false);
+                  if (hash) {
+                    router.push(`/dashboard/submission?tab=${tab}#${hash}`);
+                  } else {
+                    handleTabChange(tab);
+                  }
+                }}
+              />
+            </div>
+          )}
+        </div>
+      )}
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6 w-full">
         {/* 모바일 스텝 진행 바 */}
@@ -1050,14 +1164,27 @@ export default function SubmissionPage() {
                   </div>
                 </div>
 
-                {/* 로고 색상 선택 */}
+                {/* 로고 선호 색상 선택 - PRD D-3 비주얼 선택 UI */}
+                <div className="space-y-3">
+                  <input type="hidden" name="로고선호색상" value={logoPreferenceColor} />
+                  <LogoColorSelector
+                    value={logoPreferenceColor}
+                    onChange={setLogoPreferenceColor}
+                    disabled={submission?.isComplete || !isEditingLogo}
+                  />
+                </div>
+
+                {/* 명함 색상 선택 (16진수) */}
                 <div className="space-y-3 p-4 rounded-lg border-2 border-orange-300 bg-orange-50/50">
                   <div className="flex items-start gap-2">
                     <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
                     <Label htmlFor="명함색상" className="text-sm sm:text-base font-semibold text-orange-900">
-                      로고/명함 색상 선택 *
+                      명함에 사용할 정확한 색상 코드 *
                     </Label>
                   </div>
+                  <p className="text-xs text-orange-700">
+                    위에서 선택한 색상 계열을 기반으로, 명함에 사용할 정확한 색상을 선택해주세요.
+                  </p>
                   <div className="flex gap-3 items-center">
                     <input
                       type="color"
@@ -1588,6 +1715,9 @@ export default function SubmissionPage() {
                 onSubmit={(e) => handleSubmit(e, "marketing")}
                 className="space-y-4"
               >
+                {/* Sprint 2: 민감정보 안심 UI */}
+                <SecurityNotice type="marketing" />
+
                 {/* 네이버 검색광고 */}
                 <div id="account-section" className="space-y-4 p-4 rounded-lg border-2 border-blue-200 bg-blue-50/50">
                   <div className="space-y-2">
@@ -2119,6 +2249,36 @@ export default function SubmissionPage() {
 
       {/* 모바일 하단 네비게이션 공간 확보 */}
       <div className="md:hidden h-20" />
+
+      {/* 온보딩 다이얼로그 */}
+      <OnboardingDialog
+        open={showOnboarding}
+        onOpenChange={setShowOnboarding}
+      />
+
+      {/* 제출 요약 다이얼로그 */}
+      {progress && (
+        <SubmissionSummary
+          open={showSummary}
+          onOpenChange={setShowSummary}
+          sections={progress.sections}
+          overallPercentage={progress.overallPercentage}
+          onNavigateToSection={(href) => {
+            const [tab, elementId] = href.split('#');
+            const url = elementId
+              ? `/dashboard/submission?tab=${tab}#${elementId}`
+              : `/dashboard/submission?tab=${tab}`;
+            window.location.href = url;
+          }}
+        />
+      )}
+
+      {/* Sprint 2: 섹션 완료 축하 애니메이션 */}
+      <Celebration
+        show={showCelebration}
+        message={celebrationMessage}
+        onComplete={closeCelebration}
+      />
     </div>
   );
 }
