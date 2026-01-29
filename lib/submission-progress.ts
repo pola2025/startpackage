@@ -51,6 +51,14 @@ export interface ProgressResult {
   totalCompleted: number;
   totalRequired: number;
   overallPercentage: number;
+  nextAction?: NextActionHint;
+}
+
+export interface NextActionHint {
+  section: string;
+  sectionLabel: string;
+  message: string;
+  href: string;
 }
 
 /**
@@ -185,11 +193,15 @@ export function calculateProgress(
   const totalRequired = sections.reduce((sum, s) => sum + s.total, 0);
   const overallPercentage = Math.round((totalCompleted / totalRequired) * 100);
 
+  // 다음 작업 힌트
+  const nextAction = getNextActionHint(sections);
+
   return {
     sections,
     totalCompleted,
     totalRequired,
     overallPercentage,
+    nextAction,
   };
 }
 
@@ -213,3 +225,35 @@ export const FIELD_LABELS: Record<string, string> = {
   네이버검색광고ID: "네이버 검색광고 ID",
   네이버검색광고PW: "네이버 검색광고 PW",
 };
+
+/**
+ * 다음 작업 힌트 메시지 매핑
+ */
+const NEXT_ACTION_MESSAGES: Record<string, string> = {
+  브랜드정보: "브랜드명을 입력해주세요",
+  사업자등록증: "사업자등록증을 업로드해주세요",
+  프로필사진: "프로필 사진을 업로드해주세요",
+  명함스타일: "명함 스타일을 선택해주세요",
+  로고: "로고 스타일을 선택해주세요",
+  홈페이지: "홈페이지 컬러 컨셉을 선택해주세요",
+  마케팅: "마케팅 계정 정보를 입력해주세요",
+};
+
+/**
+ * 다음에 작성해야 할 섹션을 찾아 힌트 메시지 반환
+ */
+export function getNextActionHint(sections: ProgressSection[]): NextActionHint | undefined {
+  // 미완료 섹션 중 첫 번째 찾기
+  const incompleteSection = sections.find((s) => !s.isComplete);
+
+  if (!incompleteSection) {
+    return undefined; // 모두 완료
+  }
+
+  return {
+    section: incompleteSection.name,
+    sectionLabel: incompleteSection.label,
+    message: NEXT_ACTION_MESSAGES[incompleteSection.name] || `${incompleteSection.label}을(를) 작성해주세요`,
+    href: incompleteSection.href || "",
+  };
+}

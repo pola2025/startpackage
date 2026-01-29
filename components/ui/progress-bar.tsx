@@ -1,4 +1,5 @@
-import { CheckCircle2, Circle } from "lucide-react";
+import { CheckCircle2, Circle, ArrowRight } from "lucide-react";
+import type { NextActionHint } from "@/lib/submission-progress";
 
 export interface ProgressBarProps {
   sections: Array<{
@@ -12,9 +13,10 @@ export interface ProgressBarProps {
   }>;
   overallPercentage: number;
   onTabChange?: (tab: string) => void; // 탭 변경 콜백
+  nextAction?: NextActionHint; // 다음 작업 힌트
 }
 
-export function ProgressBar({ sections, overallPercentage, onTabChange }: ProgressBarProps) {
+export function ProgressBar({ sections, overallPercentage, onTabChange, nextAction }: ProgressBarProps) {
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6 mb-6">
       {/* 전체 진행률 */}
@@ -105,11 +107,39 @@ export function ProgressBar({ sections, overallPercentage, onTabChange }: Progre
         })}
       </div>
 
+      {/* 다음 작업 힌트 메시지 */}
+      {nextAction && overallPercentage < 100 && (
+        <div
+          onClick={() => {
+            if (nextAction.href) {
+              const [tab, elementId] = nextAction.href.split('#');
+              const url = elementId
+                ? `/dashboard/submission?tab=${tab}#${elementId}`
+                : `/dashboard/submission?tab=${tab}`;
+              window.location.href = url;
+            }
+          }}
+          className="mt-4 p-3 bg-amber-50 border border-amber-300 rounded-lg cursor-pointer hover:bg-amber-100 transition-colors"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-amber-600 font-medium text-xs sm:text-sm">
+                다음 단계:
+              </span>
+              <span className="text-amber-800 text-xs sm:text-sm">
+                {nextAction.message}
+              </span>
+            </div>
+            <ArrowRight className="w-4 h-4 text-amber-600" />
+          </div>
+        </div>
+      )}
+
       {/* 안내 메시지 */}
-      {overallPercentage < 100 && (
+      {overallPercentage < 100 && !nextAction && (
         <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
           <p className="text-xs sm:text-sm text-blue-700">
-            ⚠️ 미작성 섹션은 노란색으로 표시됩니다. 모든 필수 정보를 입력해주세요.
+            미작성 섹션은 노란색으로 표시됩니다. 모든 필수 정보를 입력해주세요.
           </p>
         </div>
       )}

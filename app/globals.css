@@ -379,3 +379,62 @@
     box-shadow: none;
   }
 }
+
+/* Mobile Compact Form Styles */
+.mobile-compact-form {
+  /* Reduce spacing between form fields */
+}
+
+.mobile-compact-form .space-y-4 {
+  --tw-space-y-reverse: 0;
+  margin-top: calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));
+  margin-bottom: calc(0.5rem * var(--tw-space-y-reverse));
+}
+
+.mobile-compact-form .space-y-2 {
+  --tw-space-y-reverse: 0;
+  margin-top: calc(0.25rem * calc(1 - var(--tw-space-y-reverse)));
+  margin-bottom: calc(0.25rem * var(--tw-space-y-reverse));
+}
+
+/* Compact input fields */
+.mobile-compact-form input:not([type="checkbox"]):not([type="radio"]),
+.mobile-compact-form textarea,
+.mobile-compact-form select {
+  height: 2rem; /* 32px instead of 40px */
+  padding-top: 0.375rem;
+  padding-bottom: 0.375rem;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  font-size: 0.75rem; /* 12px */
+  line-height: 1rem;
+}
+
+.mobile-compact-form textarea {
+  height: auto;
+  min-height: 4rem;
+}
+
+/* Compact labels */
+.mobile-compact-form label {
+  font-size: 0.75rem; /* 12px */
+  margin-bottom: 0.25rem;
+}
+
+/* Compact card headers */
+.mobile-compact-form [class*="CardHeader"] {
+  padding: 0.75rem 1rem;
+}
+
+.mobile-compact-form [class*="CardContent"] {
+  padding: 0.75rem 1rem;
+}
+
+.mobile-compact-form [class*="CardTitle"] {
+  font-size: 1rem;
+}
+
+.mobile-compact-form [class*="CardDescription"] {
+  font-size: 0.7rem;
+  margin-top: 0.125rem;
+}

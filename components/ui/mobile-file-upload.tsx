@@ -5,6 +5,8 @@ import { Upload, Camera, CheckCircle2, X, Loader2, FileText } from "lucide-react
 import { Button } from "./button";
 import { cn } from "@/lib/utils";
 import imageCompression from "browser-image-compression";
+import { validateFile as validateFileUtil, FILE_CONFIG } from "@/lib/submission/file-validation";
+import { EmailFileGuide } from "./email-file-guide";
 
 interface MobileFileUploadProps {
   label: string;
@@ -45,15 +47,44 @@ export function MobileFileUpload({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
-  const validateFile = async (file: File): Promise<string | null> => {
+  // 이메일 안내 모달 상태
+  const [emailGuideOpen, setEmailGuideOpen] = useState(false);
+  const [emailGuideError, setEmailGuideError] = useState<{
+    type: 'SIZE_EXCEEDED' | 'UNSUPPORTED_FORMAT';
+    fileName?: string;
+    fileSize?: number;
+  } | null>(null);
+
+  const validateFile = async (file: File): Promise<{ valid: boolean; error?: string; showEmailGuide?: boolean; errorType?: 'SIZE_EXCEEDED' | 'UNSUPPORTED_FORMAT' }> => {
+    // 먼저 통합 파일 검증 유틸 사용 (이메일 안내 대상 체크)
+    const utilResult = validateFileUtil(file);
+    if (!utilResult.isValid && utilResult.error?.showEmailGuide) {
+      return {
+        valid: false,
+        error: utilResult.error.message,
+        showEmailGuide: true,
+        errorType: utilResult.error.type as 'SIZE_EXCEEDED' | 'UNSUPPORTED_FORMAT',
+      };
+    }
+
     // Check file size
     if (file.size > maxSize * 1024 * 1024) {
-      return `파일 크기는 ${maxSize}MB 이하여야 합니다`;
+      // maxSize가 10MB보다 크면 이메일 안내
+      if (file.size > FILE_CONFIG.maxSize) {
+        return {
+          valid: false,
+          error: `파일 크기가 너무 큽니다. 이메일(${FILE_CONFIG.emailContact})로 보내주세요.`,
+          showEmailGuide: true,
+          errorType: 'SIZE_EXCEEDED',
+        };
+      }
+      return { valid: false, error: `파일 크기는 ${maxSize}MB 이하여야 합니다` };
     }
 
     // Check file type
     const acceptedTypes = accept.split(",").map((type) => type.trim());
     const fileType = file.type;
+    const fileExtension = `.${file.name.split(".").pop()?.toLowerCase()}`;
     const isAccepted = acceptedTypes.some((type) => {
       if (type === "image/*") return fileType.startsWith("image/");
       if (type === "application/pdf") return fileType === "application/pdf";
@@ -61,7 +92,18 @@ export function MobileFileUpload({
     });
 
     if (!isAccepted) {
-      return "지원하지 않는 파일 형식입니다";
+      // 특수 파일 형식 (PSD, AI, ZIP 등)은 이메일 안내
+      const specialFormats = ['.psd', '.ai', '.eps', '.zip', '.rar', '.7z'];
+      const isSpecialFormat = specialFormats.includes(fileExtension);
+      if (isSpecialFormat) {
+        return {
+          valid: false,
+          error: `원본 디자인 파일은 이메일(${FILE_CONFIG.emailContact})로 보내주세요.`,
+          showEmailGuide: true,
+          errorType: 'UNSUPPORTED_FORMAT',
+        };
+      }
+      return { valid: false, error: "지원하지 않는 파일 형식입니다" };
     }
 
     // Validate image dimensions if required
@@ -72,20 +114,20 @@ export function MobileFileUpload({
         img.onload = () => {
           URL.revokeObjectURL(url);
           if (img.width > maxImageDimension || img.height > maxImageDimension) {
-            resolve(`이미지는 ${maxImageDimension}px 이하여야 합니다`);
+            resolve({ valid: false, error: `이미지는 ${maxImageDimension}px 이하여야 합니다` });
           } else {
-            resolve(null);
+            resolve({ valid: true });
           }
         };
         img.onerror = () => {
           URL.revokeObjectURL(url);
-          resolve("이미지를 불러올 수 없습니다");
+          resolve({ valid: false, error: "이미지를 불러올 수 없습니다" });
         };
         img.src = url;
       });
     }
 
-    return null;
+    return { valid: true };
   };
 
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -120,9 +162,20 @@ export function MobileFileUpload({
       }
     }
 
-    const validationError = await validateFile(file);
-    if (validationError) {
-      setError(validationError);
+    const validationResult = await validateFile(file);
+    if (!validationResult.valid) {
+      if (validationResult.showEmailGuide && validationResult.errorType) {
+        // 이메일 안내 모달 표시
+        setEmailGuideError({
+          type: validationResult.errorType,
+          fileName: file.name,
+          fileSize: file.size,
+        });
+        setEmailGuideOpen(true);
+        setError(null);
+      } else {
+        setError(validationResult.error || '파일 검증 실패');
+      }
       return;
     }
 
@@ -309,6 +362,20 @@ export function MobileFileUpload({
             업로드 중...
           </span>
         </div>
+      )}
+
+      {/* 이메일 안내 모달 */}
+      {emailGuideError && (
+        <EmailFileGuide
+          isOpen={emailGuideOpen}
+          onClose={() => {
+            setEmailGuideOpen(false);
+            setEmailGuideError(null);
+          }}
+          errorType={emailGuideError.type}
+          fileName={emailGuideError.fileName}
+          fileSize={emailGuideError.fileSize}
+        />
       )}
     </div>
   );

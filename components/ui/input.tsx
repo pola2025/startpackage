@@ -2,13 +2,21 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
-const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
-  ({ className, type, ...props }, ref) => {
+export interface InputProps extends React.ComponentProps<"input"> {
+  size?: "sm" | "default" | "lg";
+}
+
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
+  ({ className, type, size = "default", ...props }, ref) => {
     return (
       <input
         type={type}
         className={cn(
-          "flex h-10 w-full rounded-lg border-2 border-input bg-white px-4 py-2.5 text-sm font-medium text-foreground transition-all file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground/60 hover:border-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:border-primary disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-gray-50",
+          "flex w-full rounded-lg border-2 border-input bg-white font-medium text-foreground transition-all file:border-0 file:bg-transparent file:font-medium file:text-foreground placeholder:text-muted-foreground/60 hover:border-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:border-primary disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-gray-50",
+          // Size variants
+          size === "sm" && "h-8 px-3 py-1.5 text-xs file:text-xs",
+          size === "default" && "h-10 px-4 py-2.5 text-sm file:text-sm",
+          size === "lg" && "h-12 px-5 py-3 text-base file:text-base",
           className
         )}
         ref={ref}

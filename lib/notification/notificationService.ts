@@ -82,19 +82,6 @@ export async function handleSubmissionComplete(params: {
       userEmail,
     });
 
-    // 4. 사용자에게 SMS 발송
-    if (userPhone) {
-      const { sendSMS } = await import("@/lib/sms/ncpSensClient");
-      const message = `[스타트패키지]\n\n디자인 시안 제작요청이 접수되었습니다.\n\n영업일 2일 이내 제작 후 안내드리겠습니다.`;
-
-      try {
-        await sendSMS(userPhone, message);
-        console.log(`✅ 제작요청 SMS 발송 완료: ${userPhone}`);
-      } catch (error) {
-        console.error("SMS 발송 실패:", error);
-      }
-    }
-
     console.log(`✅ 자료 제출 완료 알림 발송 완료`);
   } catch (error) {
     console.error("자료 제출 완료 처리 실패:", error);

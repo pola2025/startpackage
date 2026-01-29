@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { Upload, X, CheckCircle, AlertCircle, Shield } from "lucide-react";
+import { validateFile as validateFileUtil, FILE_CONFIG, type FileValidationResult } from "@/lib/submission/file-validation";
+import { EmailFileGuide } from "./email-file-guide";
 
 interface FileUploadProps {
   // 필수
@@ -56,12 +58,44 @@ export function FileUpload({
   // 내부 에러 상태 (검증 에러)
   const [internalError, setInternalError] = useState<string | null>(null);
 
-  // 파일 검증 함수
-  const validateFile = (file: File): string | null => {
+  // 이메일 안내 모달 상태
+  const [emailGuideOpen, setEmailGuideOpen] = useState(false);
+  const [emailGuideError, setEmailGuideError] = useState<{
+    type: 'SIZE_EXCEEDED' | 'UNSUPPORTED_FORMAT';
+    fileName?: string;
+    fileSize?: number;
+  } | null>(null);
+
+  // 파일 검증 함수 (이메일 안내 포함)
+  const validateFile = (file: File): { valid: boolean; error?: string; showEmailGuide?: boolean; errorType?: 'SIZE_EXCEEDED' | 'UNSUPPORTED_FORMAT' } => {
+    // 먼저 통합 파일 검증 유틸 사용 (이메일 안내 대상 체크)
+    const utilResult = validateFileUtil(file);
+    if (!utilResult.isValid && utilResult.error?.showEmailGuide) {
+      return {
+        valid: false,
+        error: utilResult.error.message,
+        showEmailGuide: true,
+        errorType: utilResult.error.type as 'SIZE_EXCEEDED' | 'UNSUPPORTED_FORMAT',
+      };
+    }
+
+    // 컴포넌트 props 기반 추가 검증 (maxSize, accept)
     // 파일 크기 검증 (MB 단위)
     const fileSizeMB = file.size / 1024 / 1024;
     if (fileSizeMB > maxSize) {
-      return `파일 크기가 너무 큽니다. 최대 ${maxSize}MB까지 업로드 가능합니다.`;
+      // maxSize가 기본값(10MB)보다 작으면 일반 에러, 크면 이메일 안내
+      if (file.size > FILE_CONFIG.maxSize) {
+        return {
+          valid: false,
+          error: `파일 크기가 너무 큽니다. 이메일(${FILE_CONFIG.emailContact})로 보내주세요.`,
+          showEmailGuide: true,
+          errorType: 'SIZE_EXCEEDED',
+        };
+      }
+      return {
+        valid: false,
+        error: `파일 크기가 너무 큽니다. 최대 ${maxSize}MB까지 업로드 가능합니다.`,
+      };
     }
 
     // 파일 형식 검증
@@ -85,11 +119,25 @@ export function FileUpload({
       });
 
       if (!isAccepted) {
-        return `지원하지 않는 파일 형식입니다. (허용: ${accept})`;
+        // 특수 파일 형식 (PSD, AI, ZIP 등)은 이메일 안내
+        const specialFormats = ['.psd', '.ai', '.eps', '.zip', '.rar', '.7z'];
+        const isSpecialFormat = specialFormats.includes(fileExtension);
+        if (isSpecialFormat) {
+          return {
+            valid: false,
+            error: `원본 디자인 파일은 이메일(${FILE_CONFIG.emailContact})로 보내주세요.`,
+            showEmailGuide: true,
+            errorType: 'UNSUPPORTED_FORMAT',
+          };
+        }
+        return {
+          valid: false,
+          error: `지원하지 않는 파일 형식입니다. (허용: ${accept})`,
+        };
       }
     }
 
-    return null;
+    return { valid: true };
   };
 
   // 파일 선택 핸들러
@@ -109,9 +157,20 @@ export function FileUpload({
 
       // 각 파일 검증
       for (const file of fileArray) {
-        const validationError = validateFile(file);
-        if (validationError) {
-          setInternalError(validationError);
+        const result = validateFile(file);
+        if (!result.valid) {
+          if (result.showEmailGuide && result.errorType) {
+            // 이메일 안내 모달 표시
+            setEmailGuideError({
+              type: result.errorType,
+              fileName: file.name,
+              fileSize: file.size,
+            });
+            setEmailGuideOpen(true);
+            setInternalError(null);
+          } else {
+            setInternalError(result.error || '파일 검증 실패');
+          }
           return;
         }
       }
@@ -122,14 +181,28 @@ export function FileUpload({
     } else {
       // 단일 파일 업로드
       const file = files[0];
-      const validationError = validateFile(file);
-      if (validationError) {
-        setInternalError(validationError);
+      const result = validateFile(file);
+      if (!result.valid) {
+        if (result.showEmailGuide && result.errorType) {
+          // 이메일 안내 모달 표시
+          setEmailGuideError({
+            type: result.errorType,
+            fileName: file.name,
+            fileSize: file.size,
+          });
+          setEmailGuideOpen(true);
+          setInternalError(null);
+        } else {
+          setInternalError(result.error || '파일 검증 실패');
+        }
         return;
       }
       setInternalError(null);
       onChange(file);
     }
+
+    // input 초기화 (같은 파일 재선택 가능하도록)
+    e.target.value = '';
   };
 
   return (
@@ -251,6 +324,20 @@ export function FileUpload({
             {error || internalError}
           </p>
         </div>
+      )}
+
+      {/* 이메일 안내 모달 */}
+      {emailGuideError && (
+        <EmailFileGuide
+          isOpen={emailGuideOpen}
+          onClose={() => {
+            setEmailGuideOpen(false);
+            setEmailGuideError(null);
+          }}
+          errorType={emailGuideError.type}
+          fileName={emailGuideError.fileName}
+          fileSize={emailGuideError.fileSize}
+        />
       )}
     </div>
   );
