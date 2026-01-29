@@ -75,7 +75,7 @@ export function StepProfile({ formData, onFileUpload, errors = {} }: StepProfile
           <ul className="text-sm text-gray-500 space-y-1.5 pl-6">
             <li className="flex items-start gap-2">
               <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-              <span>홈페이지 "대표 인사말" 섹션</span>
+              <span>홈페이지 &ldquo;대표 인사말&rdquo; 섹션</span>
             </li>
             <li className="flex items-start gap-2">
               <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />

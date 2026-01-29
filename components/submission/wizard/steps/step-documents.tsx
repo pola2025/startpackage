@@ -86,7 +86,7 @@ export function StepDocuments({ formData, onFileUpload, errors = {} }: StepDocum
 
         {/* 아직 없는 경우 안내 */}
         <StepNotice type="warning">
-          아직 사업자등록을 안 하셨나요? "건너뛰기"로 나중에 올릴 수 있어요.
+          아직 사업자등록을 안 하셨나요? &ldquo;건너뛰기&rdquo;로 나중에 올릴 수 있어요.
         </StepNotice>
       </div>
     </StepCard>
