@@ -69,7 +69,7 @@ export function validateFile(file: File): FileValidationResult {
  */
 function isValidFileType(file: File): boolean {
   // MIME 타입으로 검증
-  if (file.type && FILE_CONFIG.allowedTypes.includes(file.type)) {
+  if (file.type && (FILE_CONFIG.allowedTypes as readonly string[]).includes(file.type)) {
     return true
   }
 
