@@ -75,7 +75,7 @@ function isValidFileType(file: File): boolean {
 
   // 확장자로 검증 (MIME 타입이 없거나 불명확한 경우)
   const extension = getFileExtension(file.name)
-  if (extension && FILE_CONFIG.allowedExtensions.includes(extension.toLowerCase())) {
+  if (extension && (FILE_CONFIG.allowedExtensions as readonly string[]).includes(extension.toLowerCase())) {
     return true
   }
 
