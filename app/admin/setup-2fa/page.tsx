@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, Smartphone, CheckCircle2, Copy, Check } from "lucide-react";
 
 export default function Setup2FAPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center">
+        <div className="text-blue-600">2FA 설정 준비 중...</div>
+      </div>
+    }>
+      <Setup2FAContent />
+    </Suspense>
+  );
+}
+
+function Setup2FAContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
