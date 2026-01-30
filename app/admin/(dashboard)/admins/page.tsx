@@ -35,7 +35,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Shield, Plus, Mail, Calendar, Trash2, Key, Edit } from "lucide-react";
+import {
+  Shield,
+  Plus,
+  Mail,
+  Calendar,
+  Trash2,
+  ShieldCheck,
+  ShieldAlert,
+  Link2,
+  Copy,
+  Check,
+  RefreshCw,
+} from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
@@ -44,6 +56,7 @@ interface Admin {
   email: string;
   name: string;
   role: string;
+  twoFactorEnabled: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -54,17 +67,17 @@ export default function AdminsPage() {
   const [admins, setAdmins] = useState<Admin[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [showResetDialog, setShowResetDialog] = useState(false);
+  const [showSetupUrlDialog, setShowSetupUrlDialog] = useState(false);
   const [selectedAdmin, setSelectedAdmin] = useState<Admin | null>(null);
+  const [setupUrl, setSetupUrl] = useState("");
+  const [copied, setCopied] = useState(false);
+  const [resetting2fa, setResetting2fa] = useState(false);
 
   const [createForm, setCreateForm] = useState({
     email: "",
     name: "",
-    password: "",
     role: "operator",
   });
-
-  const [resetPassword, setResetPassword] = useState("");
 
   useEffect(() => {
     const userRole = (session?.user as any)?.role;
@@ -97,13 +110,19 @@ export default function AdminsPage() {
         body: JSON.stringify(createForm),
       });
 
+      const data = await response.json();
+
       if (response.ok) {
-        alert("관리자가 생성되었습니다.");
         setShowCreateDialog(false);
-        setCreateForm({ email: "", name: "", password: "", role: "operator" });
+        setCreateForm({ email: "", name: "", role: "operator" });
         fetchAdmins();
+        // 생성 후 2FA 설정 URL 표시
+        if (data.setupUrl) {
+          setSetupUrl(data.setupUrl);
+          setSelectedAdmin({ ...data.admin, twoFactorEnabled: false });
+          setShowSetupUrlDialog(true);
+        }
       } else {
-        const data = await response.json();
         alert(data.error || "관리자 생성에 실패했습니다.");
       }
     } catch (error) {
@@ -133,44 +152,92 @@ export default function AdminsPage() {
     }
   };
 
-  const handleResetPassword = async () => {
-    if (!selectedAdmin || !resetPassword) return;
+  const handleReset2fa = async (admin: Admin) => {
+    const action = admin.twoFactorEnabled ? "재설정" : "설정 링크 생성";
+    if (
+      admin.twoFactorEnabled &&
+      !confirm(
+        `${admin.name}님의 2FA 인증을 재설정하시겠습니까?\n재설정 후 새로 Google Authenticator에 등록해야 합니다.`
+      )
+    )
+      return;
 
+    setResetting2fa(true);
     try {
-      const response = await fetch("/api/admin/admins/reset-password", {
+      const response = await fetch("/api/admin/admins/reset-2fa", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          adminId: selectedAdmin.id,
-          newPassword: resetPassword,
-        }),
+        body: JSON.stringify({ adminId: admin.id }),
       });
 
-      if (response.ok) {
-        alert("비밀번호가 초기화되었습니다.");
-        setShowResetDialog(false);
-        setSelectedAdmin(null);
-        setResetPassword("");
+      const data = await response.json();
+
+      if (response.ok && data.setupUrl) {
+        setSetupUrl(data.setupUrl);
+        setSelectedAdmin(admin);
+        setShowSetupUrlDialog(true);
+        fetchAdmins();
       } else {
-        const data = await response.json();
-        alert(data.error || "비밀번호 초기화에 실패했습니다.");
+        alert(data.error || `2FA ${action}에 실패했습니다.`);
       }
     } catch (error) {
-      alert("비밀번호 초기화 중 오류가 발생했습니다.");
+      alert(`2FA ${action} 중 오류가 발생했습니다.`);
+    } finally {
+      setResetting2fa(false);
+    }
+  };
+
+  const handleCopyUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(setupUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // fallback
+      const textArea = document.createElement("textarea");
+      textArea.value = setupUrl;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
   };
 
   const getRoleBadge = (role: string) => {
     const badges: { [key: string]: { label: string; color: string } } = {
-      super: { label: "최고 관리자", color: "bg-red-100 text-red-700 border-red-300" },
-      designer: { label: "디자이너", color: "bg-purple-100 text-purple-700 border-purple-300" },
-      operator: { label: "운영자", color: "bg-blue-100 text-blue-700 border-blue-300" },
+      super: {
+        label: "최고 관리자",
+        color: "bg-red-100 text-red-700 border-red-300",
+      },
+      designer: {
+        label: "디자이너",
+        color: "bg-purple-100 text-purple-700 border-purple-300",
+      },
+      operator: {
+        label: "운영자",
+        color: "bg-blue-100 text-blue-700 border-blue-300",
+      },
     };
 
     const badge = badges[role] || badges.operator;
+    return <Badge className={`${badge.color} border`}>{badge.label}</Badge>;
+  };
+
+  const get2faBadge = (enabled: boolean) => {
+    if (enabled) {
+      return (
+        <Badge className="bg-green-100 text-green-700 border-green-300 border">
+          <ShieldCheck className="w-3 h-3 mr-1" />
+          2FA 등록
+        </Badge>
+      );
+    }
     return (
-      <Badge className={`${badge.color} border`}>
-        {badge.label}
+      <Badge className="bg-amber-100 text-amber-700 border-amber-300 border">
+        <ShieldAlert className="w-3 h-3 mr-1" />
+        2FA 미등록
       </Badge>
     );
   };
@@ -187,8 +254,12 @@ export default function AdminsPage() {
     <div className="space-y-4 sm:space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">관리자 관리</h1>
-          <p className="text-sm sm:text-base text-gray-600">시스템 관리자 계정을 관리합니다</p>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">
+            관리자 관리
+          </h1>
+          <p className="text-sm sm:text-base text-gray-600">
+            시스템 관리자 계정 및 2FA 인증을 관리합니다
+          </p>
         </div>
         <div className="flex items-center gap-2 sm:gap-4">
           <div className="flex items-center gap-2 px-2 sm:px-4 py-1.5 sm:py-2 bg-purple-50 rounded-lg border-2 border-purple-200">
@@ -211,16 +282,19 @@ export default function AdminsPage() {
 
       <Card className="bg-white border-2 border-gray-200 shadow-lg">
         <CardHeader className="p-3 sm:p-4 md:p-6">
-          <CardTitle className="text-base sm:text-lg md:text-xl text-gray-900">관리자 목록</CardTitle>
+          <CardTitle className="text-base sm:text-lg md:text-xl text-gray-900">
+            관리자 목록
+          </CardTitle>
           <CardDescription className="text-xs sm:text-sm text-gray-600">
-            등록된 관리자 계정 정보
+            등록된 관리자 계정 및 2FA 인증 상태
           </CardDescription>
         </CardHeader>
         <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
           {/* Mobile Card View */}
           <div className="md:hidden space-y-3">
             {admins.map((admin) => {
-              const isCurrentUser = (session?.user as any)?.id === admin.id;
+              const isCurrentUser =
+                (session?.user as any)?.id === admin.id;
               return (
                 <div
                   key={admin.id}
@@ -229,7 +303,9 @@ export default function AdminsPage() {
                   {/* Header: 이름 + 권한 */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold text-gray-900">{admin.name}</span>
+                      <span className="font-semibold text-gray-900">
+                        {admin.name}
+                      </span>
                       {isCurrentUser && (
                         <Badge className="bg-green-100 text-green-700 border-green-300 border text-xs">
                           나
@@ -247,7 +323,13 @@ export default function AdminsPage() {
                     </div>
                     <div className="flex items-center gap-2 text-gray-500 text-xs">
                       <Calendar className="w-3.5 h-3.5 text-gray-400" />
-                      <span>{new Date(admin.createdAt).toLocaleDateString("ko-KR")} 가입</span>
+                      <span>
+                        {new Date(admin.createdAt).toLocaleDateString("ko-KR")}{" "}
+                        가입
+                      </span>
+                    </div>
+                    <div className="pt-0.5">
+                      {get2faBadge(admin.twoFactorEnabled)}
                     </div>
                   </div>
 
@@ -256,14 +338,25 @@ export default function AdminsPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => {
-                        setSelectedAdmin(admin);
-                        setShowResetDialog(true);
-                      }}
-                      className="flex-1 h-8 text-xs hover:bg-blue-50"
+                      onClick={() => handleReset2fa(admin)}
+                      disabled={resetting2fa}
+                      className={`flex-1 h-8 text-xs ${
+                        admin.twoFactorEnabled
+                          ? "hover:bg-amber-50 text-amber-700"
+                          : "hover:bg-blue-50 text-blue-700"
+                      }`}
                     >
-                      <Key className="w-3.5 h-3.5 mr-1" />
-                      비밀번호
+                      {admin.twoFactorEnabled ? (
+                        <>
+                          <RefreshCw className="w-3.5 h-3.5 mr-1" />
+                          2FA 재설정
+                        </>
+                      ) : (
+                        <>
+                          <Link2 className="w-3.5 h-3.5 mr-1" />
+                          2FA 설정 링크
+                        </>
+                      )}
                     </Button>
                     {!isCurrentUser && (
                       <Button
@@ -286,18 +379,35 @@ export default function AdminsPage() {
             <Table>
               <TableHeader>
                 <TableRow className="border-gray-200 hover:bg-gray-50">
-                  <TableHead className="font-semibold text-gray-700">이름</TableHead>
-                  <TableHead className="font-semibold text-gray-700">이메일</TableHead>
-                  <TableHead className="font-semibold text-gray-700">권한</TableHead>
-                  <TableHead className="font-semibold text-gray-700">생성일</TableHead>
-                  <TableHead className="font-semibold text-gray-700 text-right">관리</TableHead>
+                  <TableHead className="font-semibold text-gray-700">
+                    이름
+                  </TableHead>
+                  <TableHead className="font-semibold text-gray-700">
+                    이메일
+                  </TableHead>
+                  <TableHead className="font-semibold text-gray-700">
+                    권한
+                  </TableHead>
+                  <TableHead className="font-semibold text-gray-700">
+                    2FA 상태
+                  </TableHead>
+                  <TableHead className="font-semibold text-gray-700">
+                    생성일
+                  </TableHead>
+                  <TableHead className="font-semibold text-gray-700 text-right">
+                    관리
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {admins.map((admin) => {
-                  const isCurrentUser = (session?.user as any)?.id === admin.id;
+                  const isCurrentUser =
+                    (session?.user as any)?.id === admin.id;
                   return (
-                    <TableRow key={admin.id} className="border-gray-200 hover:bg-gray-50">
+                    <TableRow
+                      key={admin.id}
+                      className="border-gray-200 hover:bg-gray-50"
+                    >
                       <TableCell className="font-medium text-gray-900">
                         {admin.name}
                         {isCurrentUser && (
@@ -313,10 +423,15 @@ export default function AdminsPage() {
                         </div>
                       </TableCell>
                       <TableCell>{getRoleBadge(admin.role)}</TableCell>
+                      <TableCell>
+                        {get2faBadge(admin.twoFactorEnabled)}
+                      </TableCell>
                       <TableCell className="text-gray-600">
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4 text-gray-400" />
-                          {new Date(admin.createdAt).toLocaleDateString("ko-KR")}
+                          {new Date(admin.createdAt).toLocaleDateString(
+                            "ko-KR"
+                          )}
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
@@ -324,14 +439,25 @@ export default function AdminsPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => {
-                              setSelectedAdmin(admin);
-                              setShowResetDialog(true);
-                            }}
-                            className="hover:bg-blue-50"
+                            onClick={() => handleReset2fa(admin)}
+                            disabled={resetting2fa}
+                            className={
+                              admin.twoFactorEnabled
+                                ? "hover:bg-amber-50 text-amber-700"
+                                : "hover:bg-blue-50 text-blue-700"
+                            }
                           >
-                            <Key className="w-4 h-4 mr-1" />
-                            비밀번호
+                            {admin.twoFactorEnabled ? (
+                              <>
+                                <RefreshCw className="w-4 h-4 mr-1" />
+                                2FA 재설정
+                              </>
+                            ) : (
+                              <>
+                                <Link2 className="w-4 h-4 mr-1" />
+                                2FA 설정 링크
+                              </>
+                            )}
                           </Button>
                           {!isCurrentUser && (
                             <Button
@@ -359,7 +485,10 @@ export default function AdminsPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>관리자 추가</DialogTitle>
-            <DialogDescription>새로운 관리자 계정을 생성합니다</DialogDescription>
+            <DialogDescription>
+              새로운 관리자 계정을 생성합니다. 생성 후 2FA 설정 링크가
+              발급됩니다.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -386,18 +515,6 @@ export default function AdminsPage() {
               />
             </div>
             <div>
-              <Label htmlFor="password">비밀번호</Label>
-              <Input
-                id="password"
-                type="password"
-                value={createForm.password}
-                onChange={(e) =>
-                  setCreateForm({ ...createForm, password: e.target.value })
-                }
-                placeholder="최소 4자 이상"
-              />
-            </div>
-            <div>
               <Label htmlFor="role">권한</Label>
               <Select
                 value={createForm.role}
@@ -415,55 +532,103 @@ export default function AdminsPage() {
                 </SelectContent>
               </Select>
             </div>
+            <div className="rounded-lg bg-blue-50 border border-blue-200 p-3">
+              <p className="text-sm text-blue-700">
+                <ShieldCheck className="w-4 h-4 inline mr-1" />
+                로그인은 Google Authenticator 2FA 인증으로만 가능합니다.
+                관리자 생성 후 2FA 설정 링크를 전달해주세요.
+              </p>
+            </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowCreateDialog(false)}
+            >
               취소
             </Button>
-            <Button onClick={handleCreate} className="bg-blue-600 hover:bg-blue-700">
+            <Button
+              onClick={handleCreate}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
               생성
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* 비밀번호 초기화 다이얼로그 */}
-      <Dialog open={showResetDialog} onOpenChange={setShowResetDialog}>
-        <DialogContent>
+      {/* 2FA 설정 URL 다이얼로그 */}
+      <Dialog
+        open={showSetupUrlDialog}
+        onOpenChange={(open) => {
+          setShowSetupUrlDialog(open);
+          if (!open) {
+            setSetupUrl("");
+            setSelectedAdmin(null);
+            setCopied(false);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>비밀번호 초기화</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-blue-600" />
+              2FA 설정 링크
+            </DialogTitle>
             <DialogDescription>
-              {selectedAdmin?.name}님의 비밀번호를 초기화합니다
+              {selectedAdmin?.name}님 ({selectedAdmin?.email})에게 아래 링크를
+              전달하세요.
+              <br />
+              이 링크로 접속하면 Google Authenticator에 등록할 수 있습니다.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <div>
-              <Label htmlFor="newPassword">새 비밀번호</Label>
-              <Input
-                id="newPassword"
-                type="password"
-                value={resetPassword}
-                onChange={(e) => setResetPassword(e.target.value)}
-                placeholder="최소 4자 이상"
-              />
+            <div className="relative">
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 pr-12 break-all text-sm text-gray-700 font-mono max-h-32 overflow-y-auto">
+                {setupUrl}
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleCopyUrl}
+                className="absolute top-2 right-2 h-8 w-8 p-0"
+              >
+                {copied ? (
+                  <Check className="w-4 h-4 text-green-600" />
+                ) : (
+                  <Copy className="w-4 h-4 text-gray-500" />
+                )}
+              </Button>
+            </div>
+            {copied && (
+              <p className="text-sm text-green-600 font-medium">
+                링크가 클립보드에 복사되었습니다.
+              </p>
+            )}
+            <div className="rounded-lg bg-amber-50 border border-amber-200 p-3">
+              <p className="text-sm text-amber-700">
+                <ShieldAlert className="w-4 h-4 inline mr-1" />
+                이 링크는 1회용입니다. 2FA 등록이 완료되면 자동으로
+                만료됩니다. 링크를 안전하게 전달해주세요.
+              </p>
             </div>
           </div>
           <DialogFooter>
             <Button
-              variant="outline"
-              onClick={() => {
-                setShowResetDialog(false);
-                setSelectedAdmin(null);
-                setResetPassword("");
-              }}
-            >
-              취소
-            </Button>
-            <Button
-              onClick={handleResetPassword}
+              onClick={handleCopyUrl}
               className="bg-blue-600 hover:bg-blue-700"
             >
-              초기화
+              {copied ? (
+                <>
+                  <Check className="w-4 h-4 mr-2" />
+                  복사 완료
+                </>
+              ) : (
+                <>
+                  <Copy className="w-4 h-4 mr-2" />
+                  링크 복사
+                </>
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

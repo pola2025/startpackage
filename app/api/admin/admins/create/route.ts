@@ -8,7 +8,6 @@ import { z } from "zod";
 const createAdminSchema = z.object({
   email: z.string().email("올바른 이메일 형식이 아닙니다."),
   name: z.string().min(2, "이름은 최소 2자 이상이어야 합니다."),
-  password: z.string().min(4, "비밀번호는 최소 4자 이상이어야 합니다."),
   role: z.enum(["super", "designer", "operator"]),
 });
 
@@ -38,7 +37,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { email, name, password, role } = validationResult.data;
+    const { email, name, role } = validationResult.data;
 
     // 이메일 중복 확인
     const existingAdmin = await prisma.admin.findUnique({
@@ -52,8 +51,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 비밀번호 해시 (레거시 호환용, 2FA 사용 시 미사용)
-    const hashedPassword = await hash(password, 10);
+    // 비밀번호 자동생성 (레거시 필드, 2FA 전용 로그인이므로 미사용)
+    const hashedPassword = await hash(randomBytes(32).toString("hex"), 10);
 
     // 2FA 셋업 토큰 생성
     const setupToken = randomBytes(32).toString("hex");
