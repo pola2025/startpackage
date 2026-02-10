@@ -169,11 +169,11 @@ export async function POST(request: NextRequest) {
 
       // 스타일 이름 매핑
       const styleNames: Record<string, string> = {
-        "https://financialhealing.imweb.me/": "스타일 1",
+        "https://www.jnipartners.co.kr": "스타일 1",
         "https://mjgood.imweb.me/": "스타일 2",
         "https://jmbiz.imweb.me/": "스타일 3",
         "https://ksupport-center.imweb.me/": "스타일 4",
-        "https://dkcenter.imweb.me/": "스타일 5",
+        "https://www.wiztion.com/": "스타일 5",
         "https://fpbiz.imweb.me/": "스타일 6",
       };
 

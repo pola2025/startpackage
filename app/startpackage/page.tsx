@@ -339,15 +339,17 @@ export default function StartPackagePage() {
               명함 (기본 200매 포함)
             </h3>
             <div className="mb-6">
-              <p className="text-gray-600 mb-4 text-sm md:text-base">아르미 울트라화이트 310g<br className="md:hidden" /> / 4가지 디자인 중 선택</p>
+              <p className="text-gray-600 mb-4 text-sm md:text-base">아르미 울트라화이트 310g<br className="md:hidden" /> / 6가지 디자인 중 선택</p>
               <p className="text-sm text-orange-600">추가 제작: 22,000원 (VAT 포함)</p>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {[
                 "/guides/print/namecard_1.jpg",
                 "/guides/print/namecard_2.jpg",
                 "/guides/print/namecard_3.jpg",
                 "/guides/print/namecard_4.jpg",
+                "/guides/print/namecard_5.jpg",
+                "/guides/print/namecard_6.jpg",
               ].map((src, idx) => (
                 <div
                   key={src}
@@ -357,6 +359,8 @@ export default function StartPackagePage() {
                     "/guides/print/namecard_2.jpg",
                     "/guides/print/namecard_3.jpg",
                     "/guides/print/namecard_4.jpg",
+                    "/guides/print/namecard_5.jpg",
+                    "/guides/print/namecard_6.jpg",
                   ], idx)}
                 >
                   <Image
@@ -405,38 +409,82 @@ export default function StartPackagePage() {
               </h3>
               <p className="text-gray-600 mb-3">A3 모조지 180g</p>
               <p className="text-sm text-orange-600 mb-4">추가 제작: 330,000원 (VAT 포함)</p>
-              <div className="grid grid-cols-2 gap-3">
-                <div
-                  className="border border-gray-200 rounded-xl overflow-hidden cursor-pointer hover:border-indigo-400 hover:shadow-lg transition-all"
-                  onClick={() => handleImageClick([
-                    "/guides/print/contract_cover.jpg",
-                    "/guides/print/contract_inner.jpg"
-                  ], 0)}
-                >
-                  <p className="text-xs text-gray-500 px-2 pt-2">표지</p>
-                  <Image
-                    src="/guides/print/contract_cover.jpg"
-                    alt="자문계약서 표지"
-                    width={300}
-                    height={400}
-                    className="w-full h-auto"
-                  />
+              <div className="space-y-4">
+                {/* 스타일 1 */}
+                <div>
+                  <p className="text-sm font-medium text-gray-700 mb-2">스타일 1</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div
+                      className="border border-gray-200 rounded-xl overflow-hidden cursor-pointer hover:border-indigo-400 hover:shadow-lg transition-all"
+                      onClick={() => handleImageClick([
+                        "/guides/print/contract_cover.jpg",
+                        "/guides/print/contract_inner.jpg"
+                      ], 0)}
+                    >
+                      <p className="text-xs text-gray-500 px-2 pt-2">표지</p>
+                      <Image
+                        src="/guides/print/contract_cover.jpg"
+                        alt="자문계약서 스타일1 표지"
+                        width={300}
+                        height={400}
+                        className="w-full h-auto"
+                      />
+                    </div>
+                    <div
+                      className="border border-gray-200 rounded-xl overflow-hidden cursor-pointer hover:border-indigo-400 hover:shadow-lg transition-all"
+                      onClick={() => handleImageClick([
+                        "/guides/print/contract_cover.jpg",
+                        "/guides/print/contract_inner.jpg"
+                      ], 1)}
+                    >
+                      <p className="text-xs text-gray-500 px-2 pt-2">내지</p>
+                      <Image
+                        src="/guides/print/contract_inner.jpg"
+                        alt="자문계약서 스타일1 내지"
+                        width={300}
+                        height={400}
+                        className="w-full h-auto"
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div
-                  className="border border-gray-200 rounded-xl overflow-hidden cursor-pointer hover:border-indigo-400 hover:shadow-lg transition-all"
-                  onClick={() => handleImageClick([
-                    "/guides/print/contract_cover.jpg",
-                    "/guides/print/contract_inner.jpg"
-                  ], 1)}
-                >
-                  <p className="text-xs text-gray-500 px-2 pt-2">내지</p>
-                  <Image
-                    src="/guides/print/contract_inner.jpg"
-                    alt="자문계약서 내지"
-                    width={300}
-                    height={400}
-                    className="w-full h-auto"
-                  />
+                {/* 스타일 2 */}
+                <div>
+                  <p className="text-sm font-medium text-gray-700 mb-2">스타일 2</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div
+                      className="border border-gray-200 rounded-xl overflow-hidden cursor-pointer hover:border-indigo-400 hover:shadow-lg transition-all"
+                      onClick={() => handleImageClick([
+                        "/guides/print/contract_cover_2.jpg",
+                        "/guides/print/contract_inner_2.jpg"
+                      ], 0)}
+                    >
+                      <p className="text-xs text-gray-500 px-2 pt-2">표지</p>
+                      <Image
+                        src="/guides/print/contract_cover_2.jpg"
+                        alt="자문계약서 스타일2 표지"
+                        width={300}
+                        height={400}
+                        className="w-full h-auto"
+                      />
+                    </div>
+                    <div
+                      className="border border-gray-200 rounded-xl overflow-hidden cursor-pointer hover:border-indigo-400 hover:shadow-lg transition-all"
+                      onClick={() => handleImageClick([
+                        "/guides/print/contract_cover_2.jpg",
+                        "/guides/print/contract_inner_2.jpg"
+                      ], 1)}
+                    >
+                      <p className="text-xs text-gray-500 px-2 pt-2">내지</p>
+                      <Image
+                        src="/guides/print/contract_inner_2.jpg"
+                        alt="자문계약서 스타일2 내지"
+                        width={300}
+                        height={400}
+                        className="w-full h-auto"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -487,11 +535,11 @@ export default function StartPackagePage() {
           {/* 모바일: 네비게이션 버튼 + 단일 카드 / 데스크탑: 그리드 */}
           {(() => {
             const styles = [
-              { url: "https://financialhealing.imweb.me/", name: "스타일 1" },
+              { url: "https://www.jnipartners.co.kr", name: "스타일 1" },
               { url: "https://bizen.co.kr/", name: "스타일 2" },
               { url: "https://jmbiz.imweb.me/", name: "스타일 3" },
               { url: "https://ksupport-center.imweb.me/", name: "스타일 4" },
-              { url: "https://dkcenter.imweb.me/", name: "스타일 5" },
+              { url: "https://www.wiztion.com/", name: "스타일 5" },
               { url: "https://www.k-eai.kr/index.html", name: "스타일 6" },
             ];
             return (

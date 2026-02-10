@@ -580,11 +580,11 @@ export default function HomepageSettingsPage() {
             {/* 스타일 선택 그리드 - 모바일 2열, 태블릿 2열, 데스크탑 3열 */}
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4">
               {[
-                { url: "https://financialhealing.imweb.me/", name: "스타일 1" },
+                { url: "https://www.jnipartners.co.kr", name: "스타일 1" },
                 { url: "https://bizen.co.kr/", name: "스타일 2" },
                 { url: "https://jmbiz.imweb.me/", name: "스타일 3" },
                 { url: "https://ksupport-center.imweb.me/", name: "스타일 4" },
-                { url: "https://dkcenter.imweb.me/", name: "스타일 5" },
+                { url: "https://www.wiztion.com/", name: "스타일 5" },
                 { url: "https://www.k-eai.kr/index.html", name: "스타일 6" },
               ].map((style) => (
                 <Dialog key={style.url} open={dialogOpen && selectedWebsiteStyle === style.url} onOpenChange={(open) => {
@@ -706,11 +706,11 @@ export default function HomepageSettingsPage() {
                   >
                     {(() => {
                       const styles = [
-                        { url: "https://financialhealing.imweb.me/", name: "스타일 1" },
+                        { url: "https://www.jnipartners.co.kr", name: "스타일 1" },
                         { url: "https://bizen.co.kr/", name: "스타일 2" },
                         { url: "https://jmbiz.imweb.me/", name: "스타일 3" },
                         { url: "https://ksupport-center.imweb.me/", name: "스타일 4" },
-                        { url: "https://dkcenter.imweb.me/", name: "스타일 5" },
+                        { url: "https://www.wiztion.com/", name: "스타일 5" },
                         { url: "https://www.k-eai.kr/index.html", name: "스타일 6" },
                       ];
                       return styles.find(s => s.url === selectedWebsiteStyle)?.name || "선택됨";

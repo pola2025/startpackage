@@ -210,11 +210,11 @@ export async function POST(request: Request) {
         const { postMessage } = await import("@/lib/notification/slackClient");
 
         const styleNames: Record<string, string> = {
-          "https://financialhealing.imweb.me/": "스타일 1",
+          "https://www.jnipartners.co.kr": "스타일 1",
           "https://mjgood.imweb.me/": "스타일 2",
           "https://jmbiz.imweb.me/": "스타일 3",
           "https://ksupport-center.imweb.me/": "스타일 4",
-          "https://dkcenter.imweb.me/": "스타일 5",
+          "https://www.wiztion.com/": "스타일 5",
           "https://fpbiz.imweb.me/": "스타일 6",
         };
 
@@ -311,6 +311,7 @@ export async function POST(request: Request) {
         { key: "로고선호폰트", label: "로고 선호 폰트" },
         { key: "명함색상", label: "로고/명함 색상" },
         { key: "명함시안", label: "명함 스타일" },
+        { key: "계약서시안", label: "계약서 스타일" },
         { key: "메타광고관리자값", label: "Meta 광고 관리자 값" },
         { key: "네이버검색광고ID", label: "네이버 검색광고 ID" },
         { key: "네이버검색광고PW", label: "네이버 검색광고 비밀번호" },
@@ -493,6 +494,34 @@ export async function POST(request: Request) {
             },
           ],
         }).catch(err => console.error("명함 스타일 메시지 전송 실패", err));
+      }
+
+      // 계약서시안 변경 체크
+      if (submission.계약서시안 && submission.계약서시안 !== existingSubmission.계약서시안) {
+        console.log(`📝 계약서 스타일 선택: ${submission.계약서시안}`);
+
+        await postMessage({
+          channelId: user.slackChannelId,
+          text: `✅ 계약서 스타일 선택: ${submission.계약서시안}`,
+          blocks: [
+            {
+              type: "section",
+              text: {
+                type: "mrkdwn",
+                text: `*✅ 계약서 스타일 선택*\n선택한 스타일: *${submission.계약서시안}*`,
+              },
+            },
+            {
+              type: "context",
+              elements: [
+                {
+                  type: "mrkdwn",
+                  text: `📅 ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`,
+                },
+              ],
+            },
+          ],
+        }).catch(err => console.error("계약서 스타일 메시지 전송 실패", err));
       }
     }
 
