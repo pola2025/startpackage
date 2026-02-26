@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>자료제출 UX 와이어프레임 - Phase 2</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          screens: {
+            'xs': '360px',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { box-sizing: border-box; }
+    body { min-width: 320px; }
+    .wireframe-box {
+      border: 2px dashed #94a3b8;
+      background: #f8fafc;
+    }
+    .screen-container {
+      min-height: 400px;
+    }
+    .nav-btn.active {
+      background: #3b82f6;
+      color: white;
+    }
+    /* 모바일 네비게이션 스크롤 */
+    .nav-scroll {
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .nav-scroll::-webkit-scrollbar {
+      display: none;
+    }
+    /* 360px 이하 대응 */
+    @media (max-width: 374px) {
+      .text-responsive { font-size: 0.75rem; }
+      .p-responsive { padding: 0.75rem; }
+      .gap-responsive { gap: 0.5rem; }
+    }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+  <!-- 헤더 -->
+  <header class="bg-white border-b shadow-sm sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-3 sm:px-4 py-2 sm:py-3">
+      <div class="flex items-center justify-between">
+        <h1 class="text-sm sm:text-xl font-bold text-gray-800 truncate">자료제출 UX 와이어프레임</h1>
+        <span class="text-xs sm:text-sm text-gray-500 flex-shrink-0 ml-2">v2.5.0</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- 네비게이션 -->
+  <nav class="bg-white border-b sticky top-10 sm:top-14 z-40">
+    <div class="max-w-6xl mx-auto px-2 sm:px-4">
+      <div class="flex gap-1.5 sm:gap-2 py-2 overflow-x-auto nav-scroll">
+        <button onclick="showScreen('flow')" class="nav-btn active px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap flex-shrink-0">흐름</button>
+        <button onclick="showScreen('onboarding')" class="nav-btn px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap bg-gray-200 flex-shrink-0">온보딩</button>
+        <button onclick="showScreen('progress')" class="nav-btn px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap bg-gray-200 flex-shrink-0">진행률</button>
+        <button onclick="showScreen('summary')" class="nav-btn px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap bg-gray-200 flex-shrink-0">요약</button>
+        <button onclick="showScreen('sensitive')" class="nav-btn px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap bg-gray-200 flex-shrink-0">민감정보</button>
+        <button onclick="showScreen('error')" class="nav-btn px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap bg-gray-200 flex-shrink-0">에러</button>
+        <button onclick="showScreen('mobile')" class="nav-btn px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap bg-gray-200 flex-shrink-0">모바일</button>
+        <button onclick="showScreen('checklist')" class="nav-btn px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap bg-gray-200 flex-shrink-0">QA</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-6xl mx-auto px-2 sm:px-4 py-3 sm:py-6">
+
+    <!-- 전체 흐름 -->
+    <section id="screen-flow" class="screen-container">
+      <h2 class="text-lg sm:text-2xl font-bold mb-3 sm:mb-4">사용자 여정 흐름도</h2>
+
+      <!-- AS-IS -->
+      <div class="bg-white rounded-xl p-3 sm:p-6 shadow-sm mb-4 sm:mb-6">
+        <h3 class="font-semibold mb-3 sm:mb-4 text-gray-700 text-sm sm:text-base">AS-IS (현재) - Pain Points</h3>
+
+        <!-- 모바일: 세로 / 데스크톱: 가로 -->
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-2 sm:overflow-x-auto sm:pb-4">
+          <div class="flex items-center sm:flex-col gap-3 sm:gap-0 sm:text-center flex-shrink-0">
+            <div class="w-14 h-14 sm:w-24 sm:h-20 wireframe-box rounded-lg flex items-center justify-center text-xl sm:text-2xl">😐</div>
+            <div class="flex-1 sm:flex-none">
+              <p class="text-xs sm:text-xs font-medium text-gray-600">1. 진입</p>
+              <p class="text-xs text-gray-400">평온</p>
+            </div>
+          </div>
+          <div class="hidden sm:block text-gray-300 flex-shrink-0">→</div>
+          <div class="flex items-center sm:flex-col gap-3 sm:gap-0 sm:text-center flex-shrink-0">
+            <div class="w-14 h-14 sm:w-24 sm:h-20 wireframe-box rounded-lg flex items-center justify-center text-xl sm:text-2xl border-red-300">😰</div>
+            <div class="flex-1 sm:flex-none">
+              <p class="text-xs font-medium text-gray-600">2. 탐색</p>
+              <p class="text-xs text-red-500">"이게 다 뭐지?"</p>
+            </div>
+          </div>
+          <div class="hidden sm:block text-gray-300 flex-shrink-0">→</div>
+          <div class="flex items-center sm:flex-col gap-3 sm:gap-0 sm:text-center flex-shrink-0">
+            <div class="w-14 h-14 sm:w-24 sm:h-20 wireframe-box rounded-lg flex items-center justify-center text-xl sm:text-2xl border-orange-300">😓</div>
+            <div class="flex-1 sm:flex-none">
+              <p class="text-xs font-medium text-gray-600">3. 입력</p>
+              <p class="text-xs text-orange-500">"필수가 뭐지?"</p>
+            </div>
+          </div>
+          <div class="hidden sm:block text-gray-300 flex-shrink-0">→</div>
+          <div class="flex items-center sm:flex-col gap-3 sm:gap-0 sm:text-center flex-shrink-0">
+            <div class="w-14 h-14 sm:w-24 sm:h-20 wireframe-box rounded-lg flex items-center justify-center text-xl sm:text-2xl border-red-300">😫</div>
+            <div class="flex-1 sm:flex-none">
+              <p class="text-xs font-medium text-gray-600">4. 업로드</p>
+              <p class="text-xs text-red-500">"파일이 안 올라가"</p>
+            </div>
+          </div>
+          <div class="hidden sm:block text-gray-300 flex-shrink-0">→</div>
+          <div class="flex items-center sm:flex-col gap-3 sm:gap-0 sm:text-center flex-shrink-0">
+            <div class="w-14 h-14 sm:w-24 sm:h-20 wireframe-box rounded-lg flex items-center justify-center text-xl sm:text-2xl border-orange-300">😕</div>
+            <div class="flex-1 sm:flex-none">
+              <p class="text-xs font-medium text-gray-600">5. 탭 전환</p>
+              <p class="text-xs text-orange-500">"다음이 뭐지?"</p>
+            </div>
+          </div>
+          <div class="hidden sm:block text-gray-300 flex-shrink-0">→</div>
+          <div class="flex items-center sm:flex-col gap-3 sm:gap-0 sm:text-center flex-shrink-0">
+            <div class="w-14 h-14 sm:w-24 sm:h-20 wireframe-box rounded-lg flex items-center justify-center text-xl sm:text-2xl">😅</div>
+            <div class="flex-1 sm:flex-none">
+              <p class="text-xs font-medium text-gray-600">6. 완료</p>
+              <p class="text-xs text-gray-500">"제출된 거 맞나?"</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TO-BE -->
+      <div class="bg-white rounded-xl p-3 sm:p-6 shadow-sm mb-4 sm:mb-6">
+        <h3 class="font-semibold mb-3 sm:mb-4 text-green-700 text-sm sm:text-base">TO-BE (개선) - 해결책</h3>
+
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-2 sm:overflow-x-auto sm:pb-4">
+          <div class="flex items-center sm:flex-col gap-3 sm:gap-0 sm:text-center flex-shrink-0">
+            <div class="w-14 h-14 sm:w-28 sm:h-24 bg-blue-50 border-2 border-blue-300 rounded-lg flex flex-col items-center justify-center">
+              <span class="text-lg sm:text-2xl">📋</span>
+              <span class="text-xs font-medium text-blue-700 hidden sm:block">온보딩</span>
+            </div>
+            <div class="flex-1 sm:flex-none">
+              <p class="text-xs text-green-600 font-medium sm:mt-1">온보딩</p>
+              <p class="text-xs text-green-600">10분이면 끝!</p>
+            </div>
+          </div>
+          <div class="hidden sm:block text-green-400 flex-shrink-0">→</div>
+          <div class="flex items-center sm:flex-col gap-3 sm:gap-0 sm:text-center flex-shrink-0">
+            <div class="w-14 h-14 sm:w-28 sm:h-24 bg-blue-50 border-2 border-blue-300 rounded-lg flex flex-col items-center justify-center">
+              <span class="text-lg sm:text-2xl">📊</span>
+              <span class="text-xs font-medium text-blue-700 hidden sm:block">진행률</span>
+            </div>
+            <div class="flex-1 sm:flex-none">
+              <p class="text-xs text-green-600 font-medium sm:mt-1">진행률</p>
+              <p class="text-xs text-green-600">다음 힌트 표시</p>
+            </div>
+          </div>
+          <div class="hidden sm:block text-green-400 flex-shrink-0">→</div>
+          <div class="flex items-center sm:flex-col gap-3 sm:gap-0 sm:text-center flex-shrink-0">
+            <div class="w-14 h-14 sm:w-28 sm:h-24 bg-blue-50 border-2 border-blue-300 rounded-lg flex flex-col items-center justify-center">
+              <span class="text-lg sm:text-2xl">🎨</span>
+              <span class="text-xs font-medium text-blue-700 hidden sm:block">카드 선택</span>
+            </div>
+            <div class="flex-1 sm:flex-none">
+              <p class="text-xs text-green-600 font-medium sm:mt-1">카드 선택</p>
+              <p class="text-xs text-green-600">시각적 선택</p>
+            </div>
+          </div>
+          <div class="hidden sm:block text-green-400 flex-shrink-0">→</div>
+          <div class="flex items-center sm:flex-col gap-3 sm:gap-0 sm:text-center flex-shrink-0">
+            <div class="w-14 h-14 sm:w-28 sm:h-24 bg-blue-50 border-2 border-blue-300 rounded-lg flex flex-col items-center justify-center">
+              <span class="text-lg sm:text-2xl">🔒</span>
+              <span class="text-xs font-medium text-blue-700 hidden sm:block">민감정보</span>
+            </div>
+            <div class="flex-1 sm:flex-none">
+              <p class="text-xs text-green-600 font-medium sm:mt-1">민감정보</p>
+              <p class="text-xs text-green-600">왜 필요한지 설명</p>
+            </div>
+          </div>
+          <div class="hidden sm:block text-green-400 flex-shrink-0">→</div>
+          <div class="flex items-center sm:flex-col gap-3 sm:gap-0 sm:text-center flex-shrink-0">
+            <div class="w-14 h-14 sm:w-28 sm:h-24 bg-blue-50 border-2 border-blue-300 rounded-lg flex flex-col items-center justify-center">
+              <span class="text-lg sm:text-2xl">✅</span>
+              <span class="text-xs font-medium text-blue-700 hidden sm:block">요약 확인</span>
+            </div>
+            <div class="flex-1 sm:flex-none">
+              <p class="text-xs text-green-600 font-medium sm:mt-1">요약 확인</p>
+              <p class="text-xs text-green-600">확인 모달</p>
+            </div>
+          </div>
+          <div class="hidden sm:block text-green-400 flex-shrink-0">→</div>
+          <div class="flex items-center sm:flex-col gap-3 sm:gap-0 sm:text-center flex-shrink-0">
+            <div class="w-14 h-14 sm:w-28 sm:h-24 bg-green-50 border-2 border-green-400 rounded-lg flex flex-col items-center justify-center">
+              <span class="text-lg sm:text-2xl">🎉</span>
+              <span class="text-xs font-medium text-green-700 hidden sm:block">완료!</span>
+            </div>
+            <div class="flex-1 sm:flex-none">
+              <p class="text-xs text-green-600 font-medium sm:mt-1">완료!</p>
+              <p class="text-xs text-green-600">1~2일 내 연락</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 개선 전략 요약 -->
+      <div class="bg-white rounded-xl p-3 sm:p-6 shadow-sm">
+        <h3 class="font-semibold mb-3 sm:mb-4 text-gray-700 text-sm sm:text-base">개선 전략 요약</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+          <div class="p-3 sm:p-4 bg-blue-50 rounded-lg">
+            <div class="font-medium text-blue-800 mb-2 text-sm">A~C. 가이드 강화</div>
+            <ul class="text-xs sm:text-sm text-blue-700 space-y-1">
+              <li>• 온보딩 화면</li>
+              <li>• 진행률 시각화</li>
+              <li>• 단계별 가이드</li>
+            </ul>
+          </div>
+          <div class="p-3 sm:p-4 bg-green-50 rounded-lg">
+            <div class="font-medium text-green-800 mb-2 text-sm">D~F. 입력 개선</div>
+            <ul class="text-xs sm:text-sm text-green-700 space-y-1">
+              <li>• 카드형 선택 UI</li>
+              <li>• 제출 전 요약</li>
+              <li>• 민감정보 신뢰 UI</li>
+            </ul>
+          </div>
+          <div class="p-3 sm:p-4 bg-purple-50 rounded-lg">
+            <div class="font-medium text-purple-800 mb-2 text-sm">G~H. 안심 UX</div>
+            <ul class="text-xs sm:text-sm text-purple-700 space-y-1">
+              <li>• 친절한 에러 메시지</li>
+              <li>• 모바일 특화 설계</li>
+              <li>• 용어 순화</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1. 온보딩 화면 -->
+    <section id="screen-onboarding" class="screen-container hidden">
+      <h2 class="text-lg sm:text-2xl font-bold mb-2 sm:mb-4">A. 온보딩 화면</h2>
+      <p class="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">첫 방문 시 표시되는 준비물/시간 안내</p>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div class="bg-gray-800 text-white px-3 sm:px-4 py-2 text-xs sm:text-sm">Preview</div>
+          <div class="p-3 sm:p-6">
+            <div class="wireframe-box rounded-lg p-4 sm:p-6">
+              <h3 class="text-base sm:text-xl font-bold text-center mb-3 sm:mb-4">📋 자료제출 시작하기</h3>
+              <hr class="my-3 sm:my-4">
+
+              <p class="font-medium mb-2 sm:mb-3 text-sm">준비해 주세요 ✅</p>
+              <div class="bg-white rounded-lg p-3 sm:p-4 mb-3 sm:mb-4 space-y-2 sm:space-y-3">
+                <div class="flex items-start gap-2">
+                  <input type="checkbox" class="mt-0.5 sm:mt-1 flex-shrink-0">
+                  <div class="min-w-0">
+                    <span class="text-xs sm:text-sm">사업자등록증 (사진 또는 문서)</span>
+                    <p class="text-xs text-blue-600 mt-0.5 sm:mt-1">💡 아직 등록 전이시면 나중에 추가해도 돼요</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-2">
+                  <input type="checkbox" class="mt-0.5 sm:mt-1 flex-shrink-0">
+                  <div class="min-w-0">
+                    <span class="text-xs sm:text-sm">프로필 사진 (10MB 이하)</span>
+                    <p class="text-xs text-blue-600 mt-0.5 sm:mt-1">💡 없으시면 나중에 추가해도 돼요</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-2">
+                  <input type="checkbox" class="mt-0.5 sm:mt-1 flex-shrink-0">
+                  <div class="min-w-0">
+                    <span class="text-xs sm:text-sm">기존 로고 (있는 경우)</span>
+                    <p class="text-xs text-blue-600 mt-0.5 sm:mt-1">💡 없으시면 새로 만들어 드려요!</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-2">
+                  <input type="checkbox" class="mt-0.5 sm:mt-1 flex-shrink-0">
+                  <div class="min-w-0">
+                    <span class="text-xs sm:text-sm">인스타 계정 (마케팅 시)</span>
+                    <p class="text-xs text-blue-600 mt-0.5 sm:mt-1">💡 안 하셔도 괜찮아요</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="text-center mb-3 sm:mb-4">
+                <p class="text-sm sm:text-lg">⏱️ 준비물이 있으시면 <strong class="text-blue-600">10분이면 끝!</strong></p>
+                <p class="text-xs text-gray-500 mt-1 sm:mt-2">💡 중간에 저장하고 나중에 이어서 작성 가능</p>
+              </div>
+
+              <hr class="my-3 sm:my-4">
+
+              <label class="flex items-center gap-2 text-xs text-gray-600 mb-3 sm:mb-4">
+                <input type="checkbox" class="flex-shrink-0">
+                <span>다음부터 이 안내를 보지 않습니다</span>
+              </label>
+
+              <button class="w-full bg-blue-600 text-white py-2.5 sm:py-3 rounded-lg font-medium text-sm sm:text-base">
+                🚀 시작하기
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-3 sm:p-6">
+          <h3 class="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">핵심 개선 포인트</h3>
+          <div class="space-y-3 sm:space-y-4">
+            <div class="p-2 sm:p-3 bg-green-50 rounded-lg border-l-4 border-green-500">
+              <div class="font-medium text-green-800 text-xs sm:text-sm">R-7. 시간 안내 (긍정적 프레이밍)</div>
+              <p class="text-xs text-green-700 mt-1">"10~15분" → "10분이면 끝나요!"</p>
+            </div>
+            <div class="p-2 sm:p-3 bg-blue-50 rounded-lg border-l-4 border-blue-500">
+              <div class="font-medium text-blue-800 text-xs sm:text-sm">R-2. "없어도 돼요" 안심 안내</div>
+              <p class="text-xs text-blue-700 mt-1">각 항목마다 없어도 되는 이유 설명</p>
+            </div>
+            <div class="p-2 sm:p-3 bg-purple-50 rounded-lg border-l-4 border-purple-500">
+              <div class="font-medium text-purple-800 text-xs sm:text-sm">R-1. 용어 순화</div>
+              <p class="text-xs text-purple-700 mt-1">"PDF" → "문서 파일"<br>"1000px" → "10MB 이하"</p>
+            </div>
+          </div>
+
+          <div class="mt-4 sm:mt-6 p-3 sm:p-4 bg-yellow-50 rounded-lg">
+            <div class="font-medium text-yellow-800 mb-2 text-xs sm:text-sm">⚠️ 검토 포인트</div>
+            <ul class="text-xs text-yellow-700 space-y-1">
+              <li>□ "다시 보지 않기" localStorage</li>
+              <li>□ 첫 방문 감지 로직</li>
+              <li>□ 체크리스트 인터랙티브</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. 진행률 시각화 -->
+    <section id="screen-progress" class="screen-container hidden">
+      <h2 class="text-lg sm:text-2xl font-bold mb-2 sm:mb-4">B. 진행률 시각화</h2>
+      <p class="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">섹션별 진행 상황 + 다음 힌트 표시</p>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div class="bg-gray-800 text-white px-3 sm:px-4 py-2 text-xs sm:text-sm">Progress Panel</div>
+          <div class="p-3 sm:p-6">
+            <div class="wireframe-box rounded-lg p-3 sm:p-6">
+              <div class="flex items-center justify-between mb-2">
+                <span class="font-bold text-sm sm:text-base">📊 완료 현황</span>
+                <span class="text-blue-600 font-bold text-xs sm:text-sm">7개 중 4개</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2 sm:h-3 mb-4 sm:mb-6">
+                <div class="bg-blue-600 h-2 sm:h-3 rounded-full" style="width: 57%"></div>
+              </div>
+
+              <div class="space-y-2 sm:space-y-3">
+                <div class="flex items-center gap-2 sm:gap-3 p-2 bg-green-50 rounded text-xs sm:text-sm">
+                  <span class="text-green-600">✅</span>
+                  <span class="flex-1 truncate">브랜드 정보</span>
+                  <span class="text-xs text-green-600 flex-shrink-0">완료</span>
+                </div>
+                <div class="flex items-center gap-2 sm:gap-3 p-2 bg-green-50 rounded text-xs sm:text-sm">
+                  <span class="text-green-600">✅</span>
+                  <span class="flex-1 truncate">사업자등록증</span>
+                  <span class="text-xs text-green-600 flex-shrink-0">완료</span>
+                </div>
+                <div class="flex items-center gap-2 sm:gap-3 p-2 bg-green-50 rounded text-xs sm:text-sm">
+                  <span class="text-green-600">✅</span>
+                  <span class="flex-1 truncate">프로필 사진</span>
+                  <span class="text-xs text-green-600 flex-shrink-0">완료</span>
+                </div>
+                <div class="flex items-center gap-2 sm:gap-3 p-2 bg-blue-100 rounded border-2 border-blue-400 text-xs sm:text-sm">
+                  <span class="text-blue-600">🔵</span>
+                  <span class="flex-1 font-medium truncate">명함 스타일</span>
+                  <span class="text-xs text-blue-600 flex-shrink-0">작성 중</span>
+                </div>
+                <div class="flex items-center gap-2 sm:gap-3 p-2 bg-gray-50 rounded text-xs sm:text-sm">
+                  <span class="text-gray-400">⚪</span>
+                  <span class="flex-1 text-gray-500 truncate">로고</span>
+                  <span class="text-xs text-gray-400 flex-shrink-0">대기</span>
+                </div>
+                <div class="flex items-center gap-2 sm:gap-3 p-2 bg-gray-50 rounded text-xs sm:text-sm">
+                  <span class="text-gray-400">⚪</span>
+                  <span class="flex-1 text-gray-500 truncate">홈페이지</span>
+                  <span class="text-xs text-gray-400 flex-shrink-0">대기</span>
+                </div>
+                <div class="flex items-center gap-2 sm:gap-3 p-2 bg-gray-50 rounded text-xs sm:text-sm">
+                  <span class="text-gray-400">⚪</span>
+                  <span class="flex-1 text-gray-500 truncate">마케팅</span>
+                  <span class="text-xs text-gray-400 flex-shrink-0">대기</span>
+                </div>
+              </div>
+
+              <div class="mt-3 sm:mt-4 p-2 sm:p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                <p class="text-xs sm:text-sm">💡 <strong>다음:</strong> 명함 색상을 선택해주세요</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-3 sm:p-6">
+          <h3 class="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">핵심 개선 포인트</h3>
+          <div class="space-y-3 sm:space-y-4">
+            <div class="p-2 sm:p-3 bg-green-50 rounded-lg border-l-4 border-green-500">
+              <div class="font-medium text-green-800 text-xs sm:text-sm">R-5. 진행률 구체화</div>
+              <p class="text-xs text-green-700 mt-1">"67%" → "7개 중 4개 완료"</p>
+            </div>
+            <div class="p-2 sm:p-3 bg-blue-50 rounded-lg border-l-4 border-blue-500">
+              <div class="font-medium text-blue-800 text-xs sm:text-sm">R-5. 상태 표현 순화</div>
+              <p class="text-xs text-blue-700 mt-1">"진행 중" → "지금 작성 중이에요"</p>
+            </div>
+            <div class="p-2 sm:p-3 bg-purple-50 rounded-lg border-l-4 border-purple-500">
+              <div class="font-medium text-purple-800 text-xs sm:text-sm">R-5. 클릭 가능 표시</div>
+              <p class="text-xs text-purple-700 mt-1">hover 시 "수정할 수 있어요" 툴팁</p>
+            </div>
+          </div>
+
+          <div class="mt-4 sm:mt-6 p-3 sm:p-4 bg-gray-100 rounded-lg">
+            <div class="font-medium text-gray-800 mb-2 text-xs sm:text-sm">저장 피드백</div>
+            <div class="space-y-1 sm:space-y-2 text-xs">
+              <div class="flex items-center gap-2"><span>🔄</span> 저장 중...</div>
+              <div class="flex items-center gap-2 text-green-600"><span>✅</span> 저장됨 (방금 전)</div>
+              <div class="flex items-center gap-2 text-red-600"><span>❌</span> 저장 실패, 재시도 중...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. 제출 전 요약 -->
+    <section id="screen-summary" class="screen-container hidden">
+      <h2 class="text-lg sm:text-2xl font-bold mb-2 sm:mb-4">E. 제출 전 요약 + 확인 모달</h2>
+      <p class="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">제출 전 확인 및 실수 방지</p>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div class="bg-gray-800 text-white px-3 sm:px-4 py-2 text-xs sm:text-sm">Summary</div>
+          <div class="p-3 sm:p-6">
+            <div class="wireframe-box rounded-lg p-3 sm:p-6">
+              <h3 class="text-base sm:text-xl font-bold mb-3 sm:mb-4">📋 입력 정보 최종 확인</h3>
+              <hr class="my-3 sm:my-4">
+
+              <div class="space-y-3 sm:space-y-4">
+                <div class="p-2 sm:p-3 bg-green-50 rounded-lg">
+                  <div class="flex justify-between items-center">
+                    <span class="font-medium text-xs sm:text-sm">✅ 기본 정보</span>
+                    <button class="text-blue-600 text-xs">[수정]</button>
+                  </div>
+                  <div class="text-xs text-gray-600 mt-1 sm:mt-2 space-y-0.5">
+                    <p>├ 브랜드명: 홍길동 헬스케어</p>
+                    <p>├ 업종: 건강식품 판매</p>
+                    <p>└ 주소: 서울시 강남구...</p>
+                  </div>
+                </div>
+
+                <div class="p-2 sm:p-3 bg-green-50 rounded-lg">
+                  <div class="flex justify-between items-center">
+                    <span class="font-medium text-xs sm:text-sm">✅ 필수 서류</span>
+                    <button class="text-blue-600 text-xs">[수정]</button>
+                  </div>
+                  <div class="text-xs text-gray-600 mt-1 sm:mt-2 space-y-0.5">
+                    <p>├ 사업자등록증: ✅ 올림</p>
+                    <p>└ 프로필 사진: ✅ 올림</p>
+                  </div>
+                </div>
+
+                <div class="p-2 sm:p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                  <div class="flex justify-between items-center">
+                    <span class="font-medium text-xs sm:text-sm">⚠️ 로고 (일부 미입력)</span>
+                    <button class="text-blue-600 text-xs">[수정]</button>
+                  </div>
+                  <div class="text-xs text-gray-600 mt-1 sm:mt-2 space-y-0.5">
+                    <p>├ 선호 스타일: 깔끔한</p>
+                    <p class="text-orange-500">├ 선호 색상: (미입력)</p>
+                    <p class="text-orange-500">└ 선호 폰트: (미입력)</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-3 sm:mt-4 p-2 sm:p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                <p class="text-xs">⚠️ 2개 섹션에 선택 항목이 비어있습니다.<br>
+                지금 제출해도 나중에 추가 가능합니다.</p>
+              </div>
+
+              <div class="flex gap-2 sm:gap-3 mt-4 sm:mt-6">
+                <button class="flex-1 py-2 sm:py-3 border rounded-lg text-xs sm:text-sm">이전으로</button>
+                <button class="flex-1 py-2 sm:py-3 bg-blue-600 text-white rounded-lg text-xs sm:text-sm">✅ 제출하기</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-4 sm:space-y-6">
+          <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div class="bg-orange-500 text-white px-3 sm:px-4 py-2 text-xs sm:text-sm">Confirmation Modal</div>
+            <div class="p-3 sm:p-6">
+              <div class="wireframe-box rounded-lg p-3 sm:p-6 border-2 border-orange-300">
+                <div class="text-center mb-3 sm:mb-4">
+                  <span class="text-2xl sm:text-3xl">⚠️</span>
+                  <h4 class="font-bold mt-2 text-sm sm:text-base">제출하기 전에 확인해주세요</h4>
+                </div>
+
+                <p class="text-xs text-gray-600 mb-3 sm:mb-4">입력하신 정보로 제작이 시작돼요.</p>
+
+                <div class="bg-gray-50 rounded-lg p-2 sm:p-3 mb-3 sm:mb-4 text-xs">
+                  <p>✓ 브랜드명: 홍길동 헬스케어</p>
+                  <p>✓ 업종: 건강식품 판매</p>
+                  <p>✓ 파일 2개 첨부됨</p>
+                </div>
+
+                <p class="text-xs text-blue-600 mb-3 sm:mb-4">💡 제출 후에도 담당자 확인 전까지 수정 가능</p>
+
+                <div class="flex gap-2 sm:gap-3">
+                  <button class="flex-1 py-2 border rounded-lg text-xs">다시 확인</button>
+                  <button class="flex-1 py-2 bg-blue-600 text-white rounded-lg text-xs">네, 제출</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl shadow-sm p-3 sm:p-6">
+            <h3 class="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">수정 가능 안내</h3>
+            <div class="space-y-2 text-xs">
+              <div class="p-2 bg-green-50 rounded flex gap-2">
+                <span class="flex-shrink-0">✅</span>
+                <div class="min-w-0">
+                  <strong>제출 ~ 담당자 확인 전</strong>
+                  <p class="text-green-700">수정 가능</p>
+                </div>
+              </div>
+              <div class="p-2 bg-yellow-50 rounded flex gap-2">
+                <span class="flex-shrink-0">⚠️</span>
+                <div class="min-w-0">
+                  <strong>담당자 확인 후</strong>
+                  <p class="text-yellow-700">카톡 문의</p>
+                </div>
+              </div>
+              <div class="p-2 bg-red-50 rounded flex gap-2">
+                <span class="flex-shrink-0">❌</span>
+                <div class="min-w-0">
+                  <strong>제작 완료 후</strong>
+                  <p class="text-red-700">수정 불가</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. 민감정보 UI -->
+    <section id="screen-sensitive" class="screen-container hidden">
+      <h2 class="text-lg sm:text-2xl font-bold mb-2 sm:mb-4">F. 민감정보 신뢰도 UI</h2>
+      <p class="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">왜 필요한지 설명 + 안전 표시</p>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div class="bg-gray-800 text-white px-3 sm:px-4 py-2 text-xs sm:text-sm">Sensitive Fields</div>
+          <div class="p-3 sm:p-6 space-y-4">
+            <!-- 인스타그램 비밀번호 -->
+            <div class="wireframe-box rounded-lg p-3 sm:p-6">
+              <div class="flex items-center gap-2 mb-3 sm:mb-4">
+                <span>🔒</span>
+                <span class="font-medium text-sm">인스타그램 비밀번호</span>
+              </div>
+
+              <div class="relative mb-3 sm:mb-4">
+                <input type="password" value="••••••••••••" class="w-full p-2 sm:p-3 border rounded-lg pr-10 text-sm" readonly>
+                <button class="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 text-gray-400">👁️</button>
+              </div>
+
+              <div class="p-2 sm:p-3 bg-blue-50 rounded-lg mb-2 sm:mb-3">
+                <div class="flex items-start gap-2">
+                  <span class="flex-shrink-0">❓</span>
+                  <div class="min-w-0">
+                    <p class="font-medium text-blue-800 text-xs sm:text-sm">왜 필요한가요?</p>
+                    <p class="text-xs text-blue-700 mt-1">Meta 광고계정 통합에 필요해요. 암호화되어 저장돼요.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2 text-green-600 text-xs">
+                <span>🛡️</span>
+                <span>안전하게 보호됩니다</span>
+              </div>
+            </div>
+
+            <!-- 해외결제카드 -->
+            <div class="wireframe-box rounded-lg p-3 sm:p-6">
+              <div class="flex items-center gap-2 mb-3 sm:mb-4">
+                <span>💳</span>
+                <span class="font-medium text-sm">해외결제카드 사진</span>
+              </div>
+
+              <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 sm:p-8 text-center mb-3 sm:mb-4">
+                <p class="text-gray-500 text-xs sm:text-sm">카드 앞면 사진을 올려주세요</p>
+                <p class="text-xs text-gray-400 mt-1">카드번호 일부는 자동으로 가려져요</p>
+              </div>
+
+              <div class="p-2 sm:p-3 bg-blue-50 rounded-lg mb-2 sm:mb-3">
+                <div class="flex items-start gap-2">
+                  <span class="flex-shrink-0">❓</span>
+                  <div class="min-w-0">
+                    <p class="font-medium text-blue-800 text-xs sm:text-sm">왜 필요한가요?</p>
+                    <p class="text-xs text-blue-700 mt-1">해외결제 연동에 사용해요.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2 text-green-600 text-xs">
+                <span>🗑️</span>
+                <span>24시간 내 완전 삭제</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-3 sm:p-6">
+          <h3 class="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">민감정보 설명 (R-3)</h3>
+          <div class="space-y-2 sm:space-y-3 text-xs">
+            <div class="p-2 sm:p-3 bg-gray-50 rounded-lg">
+              <div class="font-medium">인스타그램 비밀번호</div>
+              <p class="text-gray-600 mt-1">"Meta 광고계정 통합에 필요해요"</p>
+            </div>
+            <div class="p-2 sm:p-3 bg-gray-50 rounded-lg">
+              <div class="font-medium">해외결제카드 사진</div>
+              <p class="text-gray-600 mt-1">"해외결제 연동에 사용해요"</p>
+            </div>
+            <div class="p-2 sm:p-3 bg-gray-50 rounded-lg">
+              <div class="font-medium">사업자등록증</div>
+              <p class="text-gray-600 mt-1">"사업장 정보를 확인해요"</p>
+            </div>
+          </div>
+
+          <h3 class="font-semibold mb-3 sm:mb-4 mt-4 sm:mt-6 text-sm sm:text-base">신뢰도 강화 (R-9)</h3>
+          <div class="space-y-1 sm:space-y-2 text-xs">
+            <div class="p-2 bg-blue-50 rounded flex gap-2">
+              <span class="flex-shrink-0">🏷️</span>
+              <span>"비즈액터스쿨 공식 서비스"</span>
+            </div>
+            <div class="p-2 bg-green-50 rounded flex gap-2">
+              <span class="flex-shrink-0">🛡️</span>
+              <span>"SSL 암호화 보호"</span>
+            </div>
+            <div class="p-2 bg-yellow-50 rounded flex gap-2">
+              <span class="flex-shrink-0">💬</span>
+              <span>"카카오톡 문의"</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. 에러 메시지 -->
+    <section id="screen-error" class="screen-container hidden">
+      <h2 class="text-lg sm:text-2xl font-bold mb-2 sm:mb-4">G. 에러 메시지 설계</h2>
+      <p class="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">극한의 친절 - 해결책 제시</p>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <div class="bg-white rounded-xl shadow-sm p-3 sm:p-6">
+          <h3 class="font-semibold mb-3 sm:mb-4 text-red-600 text-sm sm:text-base">❌ 딱딱한 (AS-IS)</h3>
+          <div class="space-y-2 sm:space-y-3">
+            <div class="p-2 sm:p-3 bg-red-50 border border-red-200 rounded-lg text-xs">
+              <strong>필수 항목입니다</strong>
+            </div>
+            <div class="p-2 sm:p-3 bg-red-50 border border-red-200 rounded-lg text-xs">
+              <strong>잘못된 형식</strong>
+            </div>
+            <div class="p-2 sm:p-3 bg-red-50 border border-red-200 rounded-lg text-xs">
+              <strong>지원하지 않는 형식</strong>
+            </div>
+            <div class="p-2 sm:p-3 bg-red-50 border border-red-200 rounded-lg text-xs">
+              <strong>10MB 초과</strong>
+            </div>
+            <div class="p-2 sm:p-3 bg-red-50 border border-red-200 rounded-lg text-xs">
+              <strong>저장 실패</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-3 sm:p-6">
+          <h3 class="font-semibold mb-3 sm:mb-4 text-green-600 text-sm sm:text-base">✅ 친절한 (TO-BE)</h3>
+          <div class="space-y-2 sm:space-y-3">
+            <div class="p-2 sm:p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs">
+              여기에 입력해주시면 다음으로 넘어갈 수 있어요
+            </div>
+            <div class="p-2 sm:p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs">
+              이메일 형식으로 입력해주세요<br>
+              <span class="text-gray-500">(예: name@email.com)</span>
+            </div>
+            <div class="p-2 sm:p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs">
+              이 파일은 열 수가 없어요.<br>
+              JPG, PNG, PDF로 다시 올려주세요
+            </div>
+            <div class="p-2 sm:p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs">
+              파일이 조금 커요 (15MB).<br>
+              용량을 줄이거나 이메일로 보내주세요!
+            </div>
+            <div class="p-2 sm:p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs">
+              인터넷이 잠깐 끊긴 것 같아요.<br>
+              자동으로 다시 시도할게요.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm p-3 sm:p-6 mt-4 sm:mt-6">
+        <h3 class="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">에러 표시 UI 패턴</h3>
+        <div class="wireframe-box rounded-lg p-3 sm:p-6 max-w-md">
+          <div class="flex items-center gap-2 text-red-600 mb-2 sm:mb-3">
+            <span>⚠️</span>
+            <span class="font-medium text-sm">파일이 조금 커요</span>
+          </div>
+          <div class="text-xs text-gray-600 mb-2 sm:mb-3">
+            <p>현재 파일: profile.jpg (15MB)</p>
+            <p>최대 크기: 10MB</p>
+          </div>
+          <div class="p-2 sm:p-3 bg-blue-50 rounded-lg text-xs">
+            <p class="font-medium mb-1 sm:mb-2">💡 해결 방법:</p>
+            <ul class="space-y-0.5 text-gray-700">
+              <li>• 다른 사진으로 다시 시도</li>
+              <li>• 이메일로 보내주셔도 돼요</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. 모바일 특화 -->
+    <section id="screen-mobile" class="screen-container hidden">
+      <h2 class="text-lg sm:text-2xl font-bold mb-2 sm:mb-4">H. 모바일 특화 설계</h2>
+      <p class="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">카메라 촬영, 키보드 타입, 복귀 안내</p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div class="bg-gray-800 text-white px-3 sm:px-4 py-2 text-xs sm:text-sm">파일 선택</div>
+          <div class="p-3 sm:p-4">
+            <div class="wireframe-box rounded-lg p-3 sm:p-4">
+              <p class="font-medium mb-2 sm:mb-3 text-center text-xs sm:text-sm">사업자등록증을 올려주세요</p>
+              <div class="grid grid-cols-2 gap-2 sm:gap-3">
+                <button class="p-3 sm:p-4 border-2 rounded-lg text-center hover:bg-blue-50 hover:border-blue-300">
+                  <span class="text-xl sm:text-2xl block mb-1">📷</span>
+                  <span class="text-xs">카메라로 촬영</span>
+                </button>
+                <button class="p-3 sm:p-4 border-2 rounded-lg text-center hover:bg-blue-50 hover:border-blue-300">
+                  <span class="text-xl sm:text-2xl block mb-1">🖼️</span>
+                  <span class="text-xs">갤러리에서 선택</span>
+                </button>
+              </div>
+              <p class="text-xs text-center text-blue-600 mt-2 sm:mt-3">💡 선명하게 찍어주세요</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div class="bg-gray-800 text-white px-3 sm:px-4 py-2 text-xs sm:text-sm">화면 복귀</div>
+          <div class="p-3 sm:p-4">
+            <div class="wireframe-box rounded-lg p-3 sm:p-4">
+              <div class="text-center mb-2 sm:mb-3">
+                <span class="text-xl sm:text-2xl">⏰</span>
+                <h4 class="font-bold mt-1 sm:mt-2 text-sm">다시 오셨네요!</h4>
+              </div>
+              <p class="text-xs text-gray-600 text-center mb-3 sm:mb-4">
+                "명함 스타일"까지 작성하셨어요.<br>
+                이어서 작성하시겠어요?
+              </p>
+              <div class="flex gap-2">
+                <button class="flex-1 py-2 border rounded-lg text-xs">처음부터</button>
+                <button class="flex-1 py-2 bg-blue-600 text-white rounded-lg text-xs">이어서</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-3 sm:p-4">
+          <h3 class="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">입력 키보드</h3>
+          <div class="space-y-1 sm:space-y-2 text-xs">
+            <div class="p-2 bg-gray-50 rounded flex justify-between items-center">
+              <span>전화번호</span>
+              <code class="bg-gray-200 px-1.5 rounded text-xs">tel</code>
+            </div>
+            <div class="p-2 bg-gray-50 rounded flex justify-between items-center">
+              <span>이메일</span>
+              <code class="bg-gray-200 px-1.5 rounded text-xs">email</code>
+            </div>
+            <div class="p-2 bg-gray-50 rounded flex justify-between items-center">
+              <span>숫자만</span>
+              <code class="bg-gray-200 px-1.5 rounded text-xs">numeric</code>
+            </div>
+          </div>
+
+          <h3 class="font-semibold mb-2 sm:mb-4 mt-4 sm:mt-6 text-sm sm:text-base">터치 타겟</h3>
+          <div class="space-y-1 sm:space-y-2 text-xs">
+            <div class="p-2 bg-blue-50 rounded">
+              <strong>버튼:</strong> 44×44px 이상
+            </div>
+            <div class="p-2 bg-blue-50 rounded">
+              <strong>체크박스:</strong> 44×44px 영역
+            </div>
+            <div class="p-2 bg-blue-50 rounded">
+              <strong>간격:</strong> 8px 이상
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- QA 체크리스트 -->
+    <section id="screen-checklist" class="screen-container hidden">
+      <h2 class="text-lg sm:text-2xl font-bold mb-2 sm:mb-4">R-10. QA 체크리스트</h2>
+      <p class="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">개발/QA 완료 전 점검 (23개)</p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+        <div class="bg-white rounded-xl shadow-sm p-3 sm:p-4">
+          <h3 class="font-semibold mb-2 sm:mb-3 text-purple-700 text-xs sm:text-sm">📝 용어</h3>
+          <div class="space-y-1.5 sm:space-y-2 text-xs">
+            <label class="flex items-start gap-2"><input type="checkbox" class="mt-0.5 flex-shrink-0"> <span>IT 용어 → 일상어</span></label>
+            <label class="flex items-start gap-2"><input type="checkbox" class="mt-0.5 flex-shrink-0"> <span>영어 → 한글</span></label>
+            <label class="flex items-start gap-2"><input type="checkbox" class="mt-0.5 flex-shrink-0"> <span>전문 용어 설명 추가</span></label>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-3 sm:p-4">
+          <h3 class="font-semibold mb-2 sm:mb-3 text-blue-700 text-xs sm:text-sm">💙 안심</h3>
+          <div class="space-y-1.5 sm:space-y-2 text-xs">
+            <label class="flex items-start gap-2"><input type="checkbox" class="mt-0.5 flex-shrink-0"> <span>"왜 필요한지" 설명</span></label>
+            <label class="flex items-start gap-2"><input type="checkbox" class="mt-0.5 flex-shrink-0"> <span>"없어도 돼요" 안내</span></label>
+            <label class="flex items-start gap-2"><input type="checkbox" class="mt-0.5 flex-shrink-0"> <span>"안전해요" 안내</span></label>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-3 sm:p-4">
+          <h3 class="font-semibold mb-2 sm:mb-3 text-orange-700 text-xs sm:text-sm">🛡️ 실수 방지</h3>
+          <div class="space-y-1.5 sm:space-y-2 text-xs">
+            <label class="flex items-start gap-2"><input type="checkbox" class="mt-0.5 flex-shrink-0"> <span>제출 확인 모달</span></label>
+            <label class="flex items-start gap-2"><input type="checkbox" class="mt-0.5 flex-shrink-0"> <span>파일 삭제 확인</span></label>
+            <label class="flex items-start gap-2"><input type="checkbox" class="mt-0.5 flex-shrink-0"> <span>수정 가능 여부 안내</span></label>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-3 sm:p-4">
+          <h3 class="font-semibold mb-2 sm:mb-3 text-red-700 text-xs sm:text-sm">⚠️ 에러</h3>
+          <div class="space-y-1.5 sm:space-y-2 text-xs">
+            <label class="flex items-start gap-2"><input type="checkbox" class="mt-0.5 flex-shrink-0"> <span>해결책 제시</span></label>
+            <label class="flex items-start gap-2"><input type="checkbox" class="mt-0.5 flex-shrink-0"> <span>친절한 톤</span></label>
+            <label class="flex items-start gap-2"><input type="checkbox" class="mt-0.5 flex-shrink-0"> <span>자동 재시도 로직</span></label>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-3 sm:p-4">
+          <h3 class="font-semibold mb-2 sm:mb-3 text-green-700 text-xs sm:text-sm">👁️ 시각적</h3>
+          <div class="space-y-1.5 sm:space-y-2 text-xs">
+            <label class="flex items-start gap-2"><input type="checkbox" class="mt-0.5 flex-shrink-0"> <span>클릭 위치 명확</span></label>
+            <label class="flex items-start gap-2"><input type="checkbox" class="mt-0.5 flex-shrink-0"> <span>필수(*) 설명</span></label>
+            <label class="flex items-start gap-2"><input type="checkbox" class="mt-0.5 flex-shrink-0"> <span>진행률 구체적 표시</span></label>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-3 sm:p-4">
+          <h3 class="font-semibold mb-2 sm:mb-3 text-teal-700 text-xs sm:text-sm">✅ 확인</h3>
+          <div class="space-y-1.5 sm:space-y-2 text-xs">
+            <label class="flex items-start gap-2"><input type="checkbox" class="mt-0.5 flex-shrink-0"> <span>파일 미리보기</span></label>
+            <label class="flex items-start gap-2"><input type="checkbox" class="mt-0.5 flex-shrink-0"> <span>저장 피드백 명확</span></label>
+            <label class="flex items-start gap-2"><input type="checkbox" class="mt-0.5 flex-shrink-0"> <span>제출 후 카톡/이메일</span></label>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-3 sm:p-4">
+          <h3 class="font-semibold mb-2 sm:mb-3 text-indigo-700 text-xs sm:text-sm">📱 모바일</h3>
+          <div class="space-y-1.5 sm:space-y-2 text-xs">
+            <label class="flex items-start gap-2"><input type="checkbox" class="mt-0.5 flex-shrink-0"> <span>카메라 촬영 옵션</span></label>
+            <label class="flex items-start gap-2"><input type="checkbox" class="mt-0.5 flex-shrink-0"> <span>맞는 키보드 타입</span></label>
+            <label class="flex items-start gap-2"><input type="checkbox" class="mt-0.5 flex-shrink-0"> <span>복귀 시 이어서 안내</span></label>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-3 sm:p-4">
+          <h3 class="font-semibold mb-2 sm:mb-3 text-yellow-700 text-xs sm:text-sm">🏷️ 신뢰</h3>
+          <div class="space-y-1.5 sm:space-y-2 text-xs">
+            <label class="flex items-start gap-2"><input type="checkbox" class="mt-0.5 flex-shrink-0"> <span>"공식 서비스" 표시</span></label>
+            <label class="flex items-start gap-2"><input type="checkbox" class="mt-0.5 flex-shrink-0"> <span>보안 안심 문구</span></label>
+            <label class="flex items-start gap-2"><input type="checkbox" class="mt-0.5 flex-shrink-0"> <span>문의 채널 노출</span></label>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-3 sm:p-4">
+          <h3 class="font-semibold mb-2 sm:mb-3 text-pink-700 text-xs sm:text-sm">🎯 최종</h3>
+          <div class="space-y-1.5 sm:space-y-2 text-xs">
+            <label class="flex items-start gap-2"><input type="checkbox" class="mt-0.5 flex-shrink-0"> <span>45세 혼자 완료 가능?</span></label>
+            <label class="flex items-start gap-2"><input type="checkbox" class="mt-0.5 flex-shrink-0"> <span>멈춰도 불안하지 않음?</span></label>
+            <label class="flex items-start gap-2"><input type="checkbox" class="mt-0.5 flex-shrink-0"> <span>도움 받을 경로 있음?</span></label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 푸터 -->
+  <footer class="bg-gray-800 text-white py-3 sm:py-4 mt-6 sm:mt-8">
+    <div class="max-w-6xl mx-auto px-3 sm:px-4 text-center text-xs sm:text-sm">
+      <p>자료제출 UI/UX 복합 개선 - Phase 2 (v2.5.0)</p>
+      <p class="text-gray-400 mt-1">360px ~ 1920px 반응형 지원</p>
+    </div>
+  </footer>
+
+  <script>
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen-container').forEach(el => {
+        el.classList.add('hidden');
+      });
+      document.getElementById('screen-' + screenId).classList.remove('hidden');
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+        btn.classList.add('bg-gray-200');
+      });
+      event.target.classList.add('active');
+      event.target.classList.remove('bg-gray-200');
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>

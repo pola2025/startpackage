@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>자료제출 UX 개선 - 와이어프레임</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .status-done { background: #22c55e; }
+    .status-progress { background: #3b82f6; }
+    .status-planned { background: #9ca3af; }
+    .wireframe-box {
+      border: 2px dashed #cbd5e1;
+      background: #f8fafc;
+    }
+    .annotation {
+      font-size: 11px;
+      background: #fef3c7;
+      border: 1px solid #f59e0b;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .tab-active {
+      background: white;
+      border-bottom: 3px solid #3b82f6;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 p-8">
+  <div class="max-w-6xl mx-auto space-y-8">
+
+    <!-- 헤더 -->
+    <div class="bg-white rounded-xl shadow-lg p-6">
+      <h1 class="text-2xl font-bold text-gray-800 mb-2">📋 자료제출 UX 개선 와이어프레임</h1>
+      <p class="text-gray-600">현재 구현 상태와 계획된 기능을 시각적으로 확인합니다.</p>
+
+      <!-- 범례 -->
+      <div class="flex gap-6 mt-4 text-sm">
+        <div class="flex items-center gap-2">
+          <span class="w-4 h-4 rounded status-done"></span>
+          <span>구현 완료</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-4 h-4 rounded status-progress"></span>
+          <span>진행 중</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-4 h-4 rounded status-planned"></span>
+          <span>계획됨</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- 섹션 1: 온보딩 화면 (구현 완료) -->
+    <!-- ============================================ -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+      <div class="bg-green-500 text-white px-6 py-3 flex items-center justify-between">
+        <h2 class="text-lg font-semibold">1. 온보딩 화면 (Sprint 1) ✅</h2>
+        <span class="text-sm bg-green-600 px-3 py-1 rounded">구현 완료</span>
+      </div>
+      <div class="p-6">
+        <p class="text-gray-600 mb-4">첫 방문 사용자에게 준비물과 예상 시간을 안내합니다.</p>
+
+        <!-- 와이어프레임 -->
+        <div class="wireframe-box rounded-lg p-6 max-w-md mx-auto">
+          <div class="text-center mb-4">
+            <span class="text-3xl">📋</span>
+            <h3 class="text-xl font-bold mt-2">자료제출 시작하기</h3>
+          </div>
+
+          <div class="border-t pt-4 mb-4">
+            <p class="font-semibold mb-3">준비해 주세요 ✅</p>
+            <div class="space-y-2 text-sm">
+              <div class="flex items-start gap-2 p-2 bg-white rounded border">
+                <input type="checkbox" class="mt-1">
+                <div>
+                  <span>사업자등록증</span>
+                  <p class="text-xs text-gray-500">💡 아직 등록 전이시면 나중에 추가해도 돼요</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-2 p-2 bg-white rounded border">
+                <input type="checkbox" class="mt-1">
+                <div>
+                  <span>대표자 프로필 사진</span>
+                  <p class="text-xs text-gray-500">💡 사진이 없으시면 나중에 추가해도 돼요</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-2 p-2 bg-white rounded border">
+                <input type="checkbox" class="mt-1">
+                <div>
+                  <span>기존 로고 파일 (있는 경우)</span>
+                  <p class="text-xs text-gray-500">💡 로고가 없으시면 새로 만들어 드려요!</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-center text-sm text-gray-600 mb-4">
+            <span>⏱️</span> 준비물이 있으시면 <strong>10분이면 끝나요!</strong>
+          </div>
+
+          <div class="flex items-center gap-2 text-xs text-gray-500 mb-4">
+            <input type="checkbox" id="skip">
+            <label for="skip">다음부터 이 안내를 보지 않습니다</label>
+          </div>
+
+          <button class="w-full bg-blue-500 text-white py-3 rounded-lg font-semibold">
+            🚀 시작하기
+          </button>
+        </div>
+
+        <div class="mt-4 text-center">
+          <span class="annotation">OnboardingDialog 컴포넌트</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- 섹션 2: 진행률 바 + 힌트 (구현 완료) -->
+    <!-- ============================================ -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+      <div class="bg-green-500 text-white px-6 py-3 flex items-center justify-between">
+        <h2 class="text-lg font-semibold">2. 진행률 시각화 + 힌트 (Sprint 1) ✅</h2>
+        <span class="text-sm bg-green-600 px-3 py-1 rounded">구현 완료</span>
+      </div>
+      <div class="p-6">
+        <p class="text-gray-600 mb-4">섹션별 완료 상태와 다음 작업 힌트를 표시합니다.</p>
+
+        <!-- 와이어프레임 -->
+        <div class="wireframe-box rounded-lg p-6 max-w-2xl mx-auto">
+          <div class="mb-4">
+            <div class="flex justify-between text-sm mb-2">
+              <span class="font-semibold">📊 진행 상황</span>
+              <span class="text-blue-600 font-bold">67%</span>
+            </div>
+            <div class="h-3 bg-gray-200 rounded-full overflow-hidden">
+              <div class="h-full bg-blue-500 rounded-full" style="width: 67%"></div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 text-sm mb-4">
+            <div class="flex items-center gap-2 p-2 bg-green-50 rounded border border-green-200">
+              <span class="text-green-500">✅</span> 브랜드 정보
+            </div>
+            <div class="flex items-center gap-2 p-2 bg-green-50 rounded border border-green-200">
+              <span class="text-green-500">✅</span> 사업자등록증
+            </div>
+            <div class="flex items-center gap-2 p-2 bg-blue-50 rounded border border-blue-300">
+              <span class="text-blue-500">🔵</span> 로고 정보 <span class="text-xs text-blue-500">(진행 중)</span>
+            </div>
+            <div class="flex items-center gap-2 p-2 bg-gray-50 rounded border border-gray-200">
+              <span class="text-gray-400">⚪</span> 명함 스타일
+            </div>
+          </div>
+
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-center gap-2">
+            <span>💡</span>
+            <span class="text-sm text-blue-700">다음: <strong>로고 선호 색상</strong>을 선택해주세요</span>
+          </div>
+        </div>
+
+        <div class="mt-4 text-center">
+          <span class="annotation">ProgressBar + NextActionHint</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- 섹션 3: 로고 색상 선택 UI (구현 완료) -->
+    <!-- ============================================ -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+      <div class="bg-green-500 text-white px-6 py-3 flex items-center justify-between">
+        <h2 class="text-lg font-semibold">3. 비주얼 선택 UI - 로고 색상 (Sprint 2) ✅</h2>
+        <span class="text-sm bg-green-600 px-3 py-1 rounded">구현 완료</span>
+      </div>
+      <div class="p-6">
+        <p class="text-gray-600 mb-4">텍스트 입력 대신 카드형 비주얼 선택으로 직관적인 UX를 제공합니다.</p>
+
+        <!-- Before / After -->
+        <div class="grid md:grid-cols-2 gap-6">
+          <!-- Before -->
+          <div>
+            <h4 class="text-sm font-semibold text-gray-500 mb-2">❌ 이전 (텍스트 입력)</h4>
+            <div class="wireframe-box rounded-lg p-4">
+              <label class="block text-sm font-medium mb-2">로고 선호 색상</label>
+              <input type="text" placeholder="예: 블루, 그린 계열" class="w-full border rounded p-2 text-sm">
+              <p class="text-xs text-gray-400 mt-1">무엇을 입력해야 할지 모름</p>
+            </div>
+          </div>
+
+          <!-- After -->
+          <div>
+            <h4 class="text-sm font-semibold text-green-600 mb-2">✅ 현재 (카드 선택)</h4>
+            <div class="wireframe-box rounded-lg p-4">
+              <label class="block text-sm font-medium mb-2">원하시는 로고 색상을 선택해주세요</label>
+              <div class="grid grid-cols-3 gap-2">
+                <button class="p-3 border-2 border-blue-500 bg-blue-50 rounded-lg text-center">
+                  <span class="text-2xl">🔵</span>
+                  <p class="text-xs font-medium mt-1">파란색 계열</p>
+                  <p class="text-xs text-gray-500">신뢰, 전문성</p>
+                </button>
+                <button class="p-3 border rounded-lg text-center hover:border-gray-300">
+                  <span class="text-2xl">🟢</span>
+                  <p class="text-xs font-medium mt-1">초록색 계열</p>
+                  <p class="text-xs text-gray-500">자연, 친환경</p>
+                </button>
+                <button class="p-3 border rounded-lg text-center hover:border-gray-300">
+                  <span class="text-2xl">⚫</span>
+                  <p class="text-xs font-medium mt-1">검정/흰색</p>
+                  <p class="text-xs text-gray-500">세련, 미니멀</p>
+                </button>
+              </div>
+              <div class="mt-3 bg-blue-50 p-2 rounded text-xs text-blue-600">
+                💡 선택한 스타일: <strong>파란색 계열</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 text-center">
+          <span class="annotation">LogoColorSelector 컴포넌트</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- 섹션 4: 이메일 파일 가이드 (구현 완료) -->
+    <!-- ============================================ -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+      <div class="bg-green-500 text-white px-6 py-3 flex items-center justify-between">
+        <h2 class="text-lg font-semibold">4. 파일 업로드 에러 → 이메일 안내 (Phase 1) ✅</h2>
+        <span class="text-sm bg-green-600 px-3 py-1 rounded">구현 완료</span>
+      </div>
+      <div class="p-6">
+        <p class="text-gray-600 mb-4">10MB 초과 또는 지원하지 않는 파일 형식일 때 이메일 대안을 제시합니다.</p>
+
+        <!-- 와이어프레임 -->
+        <div class="wireframe-box rounded-lg p-6 max-w-md mx-auto">
+          <div class="text-center mb-4">
+            <span class="text-4xl">📧</span>
+            <h3 class="text-lg font-bold mt-2">이메일로 파일을 보내주세요</h3>
+          </div>
+
+          <p class="text-sm text-gray-600 text-center mb-4">
+            파일이 너무 크거나 특수한 형식인 경우<br>
+            아래 이메일로 직접 보내주시면 됩니다.
+          </p>
+
+          <div class="flex items-center gap-2 bg-gray-100 p-3 rounded-lg mb-4">
+            <span class="flex-1 font-mono text-sm">mkt@polarad.co.kr</span>
+            <button class="bg-blue-500 text-white px-3 py-1 rounded text-sm">복사</button>
+          </div>
+
+          <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+            <p class="text-sm font-semibold mb-1">💡 이메일 작성 가이드</p>
+            <p class="text-xs text-gray-600">• 제목: [기수명] 성함 - 파일명</p>
+            <p class="text-xs text-gray-600">• 예시: [25기] 홍길동 - 사업자등록증</p>
+          </div>
+
+          <button class="w-full bg-blue-500 text-white py-2 rounded-lg">확인</button>
+        </div>
+
+        <div class="mt-4 text-center">
+          <span class="annotation">EmailFileGuide 컴포넌트</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- 섹션 5: 축하 애니메이션 (구현 완료) -->
+    <!-- ============================================ -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+      <div class="bg-green-500 text-white px-6 py-3 flex items-center justify-between">
+        <h2 class="text-lg font-semibold">5. 섹션 완료 축하 애니메이션 (Sprint 2) ✅</h2>
+        <span class="text-sm bg-green-600 px-3 py-1 rounded">구현 완료</span>
+      </div>
+      <div class="p-6">
+        <p class="text-gray-600 mb-4">각 섹션 완료 시 confetti 효과와 격려 메시지로 성취감을 제공합니다.</p>
+
+        <!-- 와이어프레임 -->
+        <div class="wireframe-box rounded-lg p-6 max-w-md mx-auto text-center relative overflow-hidden">
+          <!-- Confetti 시뮬레이션 -->
+          <div class="absolute inset-0 pointer-events-none">
+            <span class="absolute text-2xl" style="top: 10%; left: 20%;">🎉</span>
+            <span class="absolute text-xl" style="top: 20%; left: 70%;">✨</span>
+            <span class="absolute text-2xl" style="top: 30%; left: 40%;">🎊</span>
+            <span class="absolute text-xl" style="top: 15%; left: 85%;">⭐</span>
+          </div>
+
+          <div class="relative z-10">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span class="text-3xl text-green-500">✓</span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">잘 하고 계세요! 🎉</h3>
+            <p class="text-gray-600">기본 정보 입력을 완료했어요</p>
+          </div>
+        </div>
+
+        <div class="mt-4 text-center">
+          <span class="annotation">Celebration + useCelebration Hook</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- 섹션 6: 제출 전 요약 (구현 완료) -->
+    <!-- ============================================ -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+      <div class="bg-green-500 text-white px-6 py-3 flex items-center justify-between">
+        <h2 class="text-lg font-semibold">6. 제출 전 요약 화면 (Sprint 2) ✅</h2>
+        <span class="text-sm bg-green-600 px-3 py-1 rounded">구현 완료</span>
+      </div>
+      <div class="p-6">
+        <p class="text-gray-600 mb-4">최종 제출 전 입력한 정보를 확인하고 누락된 항목을 점검합니다.</p>
+
+        <!-- 와이어프레임 -->
+        <div class="wireframe-box rounded-lg p-6 max-w-lg mx-auto">
+          <h3 class="text-lg font-bold mb-4">📋 입력 정보 최종 확인</h3>
+
+          <div class="space-y-3">
+            <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
+              <div class="flex items-center gap-2">
+                <span class="text-green-500">✅</span>
+                <span class="font-medium">기본 정보</span>
+              </div>
+              <button class="text-xs text-blue-500">수정</button>
+            </div>
+
+            <div class="p-3 bg-green-50 rounded-lg border border-green-200">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-green-500">✅</span>
+                  <span class="font-medium">필수 서류</span>
+                </div>
+                <button class="text-xs text-blue-500">수정</button>
+              </div>
+              <div class="text-xs text-gray-600 ml-6">
+                <p>• 사업자등록증: ✅ 업로드됨</p>
+                <p>• 프로필 사진: ✅ 업로드됨</p>
+              </div>
+            </div>
+
+            <div class="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-yellow-500">⚠️</span>
+                  <span class="font-medium">로고 정보</span>
+                  <span class="text-xs text-yellow-600">(일부 미입력)</span>
+                </div>
+                <button class="text-xs text-blue-500">수정</button>
+              </div>
+              <div class="text-xs text-gray-600 ml-6">
+                <p>• 선호 스타일: 파란색 계열</p>
+                <p>• 선호 폰트: <span class="text-yellow-600">(미입력)</span></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm">
+            ⚠️ 1개 섹션에 선택 항목이 비어있습니다.<br>
+            <span class="text-gray-600">지금 제출해도 나중에 추가 입력이 가능합니다.</span>
+          </div>
+
+          <div class="flex gap-3 mt-4">
+            <button class="flex-1 border border-gray-300 py-2 rounded-lg">이전으로</button>
+            <button class="flex-1 bg-blue-500 text-white py-2 rounded-lg">✅ 제출 완료하기</button>
+          </div>
+        </div>
+
+        <div class="mt-4 text-center">
+          <span class="annotation">SubmissionSummary 컴포넌트</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- 섹션 7: 민감정보 안심 UI (구현 완료) -->
+    <!-- ============================================ -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+      <div class="bg-green-500 text-white px-6 py-3 flex items-center justify-between">
+        <h2 class="text-lg font-semibold">7. 민감정보 안심 UI (Sprint 2) ✅</h2>
+        <span class="text-sm bg-green-600 px-3 py-1 rounded">구현 완료</span>
+      </div>
+      <div class="p-6">
+        <p class="text-gray-600 mb-4">마케팅 계정 정보 입력 시 보안에 대한 불안감을 해소합니다.</p>
+
+        <!-- 와이어프레임 -->
+        <div class="wireframe-box rounded-lg p-4 max-w-lg mx-auto">
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div class="flex items-start gap-3">
+              <span class="text-2xl">🔒</span>
+              <div>
+                <h4 class="font-semibold text-blue-800">안심하세요, 정보는 안전하게 보호됩니다</h4>
+                <ul class="text-sm text-blue-700 mt-2 space-y-1">
+                  <li>• SSL 암호화로 전송됩니다</li>
+                  <li>• 마케팅 대행 목적으로만 사용됩니다</li>
+                  <li>• 서비스 종료 시 완전 삭제됩니다</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 text-center">
+          <span class="annotation">SecurityNotice 컴포넌트</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- 구분선 -->
+    <!-- ============================================ -->
+    <div class="border-t-4 border-dashed border-gray-300 my-8"></div>
+    <h2 class="text-xl font-bold text-gray-500 text-center">⬇️ 아래는 미구현 (계획된 기능) ⬇️</h2>
+
+    <!-- ============================================ -->
+    <!-- 섹션 8: A/B 테스트 (미구현) -->
+    <!-- ============================================ -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden opacity-70">
+      <div class="bg-gray-400 text-white px-6 py-3 flex items-center justify-between">
+        <h2 class="text-lg font-semibold">8. A/B 테스트 프레임워크 (Sprint 2) ⏳</h2>
+        <span class="text-sm bg-gray-500 px-3 py-1 rounded">미구현</span>
+      </div>
+      <div class="p-6">
+        <p class="text-gray-600 mb-4">새 UI의 효과를 데이터로 검증합니다.</p>
+
+        <!-- 와이어프레임 -->
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="wireframe-box rounded-lg p-4">
+            <h4 class="font-semibold mb-3 text-center">A그룹 (50%)</h4>
+            <div class="bg-gray-200 rounded p-3 text-center text-sm">
+              기존 탭 방식<br>
+              (온보딩/힌트 없음)
+            </div>
+          </div>
+          <div class="wireframe-box rounded-lg p-4">
+            <h4 class="font-semibold mb-3 text-center">B그룹 (50%)</h4>
+            <div class="bg-blue-100 rounded p-3 text-center text-sm">
+              새 UI 방식<br>
+              (온보딩 + 힌트 + 축하)
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 wireframe-box rounded-lg p-4">
+          <h4 class="font-semibold mb-2">📊 측정 지표</h4>
+          <div class="grid grid-cols-3 gap-4 text-center text-sm">
+            <div class="p-2 bg-white rounded">
+              <p class="text-gray-500">제출 완료율</p>
+              <p class="text-xl font-bold">?%</p>
+            </div>
+            <div class="p-2 bg-white rounded">
+              <p class="text-gray-500">평균 소요시간</p>
+              <p class="text-xl font-bold">?분</p>
+            </div>
+            <div class="p-2 bg-white rounded">
+              <p class="text-gray-500">이탈률</p>
+              <p class="text-xl font-bold">?%</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- 섹션 9: Wizard 모드 (미구현) -->
+    <!-- ============================================ -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden opacity-70">
+      <div class="bg-gray-400 text-white px-6 py-3 flex items-center justify-between">
+        <h2 class="text-lg font-semibold">9. Wizard 모드 - 단계별 안내 (Sprint 3) ⏳</h2>
+        <span class="text-sm bg-gray-500 px-3 py-1 rounded">미구현</span>
+      </div>
+      <div class="p-6">
+        <p class="text-gray-600 mb-4">한 번에 하나씩 집중할 수 있는 단계별 마법사 UI입니다.</p>
+
+        <!-- Before / After -->
+        <div class="grid md:grid-cols-2 gap-6">
+          <!-- 현재: 탭 모드 -->
+          <div>
+            <h4 class="text-sm font-semibold text-gray-500 mb-2">현재: 탭 모드</h4>
+            <div class="wireframe-box rounded-lg p-4">
+              <div class="flex gap-1 mb-3 text-xs">
+                <span class="px-3 py-1 bg-blue-500 text-white rounded">기본정보</span>
+                <span class="px-3 py-1 bg-gray-200 rounded">로고</span>
+                <span class="px-3 py-1 bg-gray-200 rounded">명함</span>
+                <span class="px-3 py-1 bg-gray-200 rounded">마케팅</span>
+              </div>
+              <div class="bg-gray-100 rounded p-3 text-center text-sm text-gray-500">
+                모든 필드가 한꺼번에 보임<br>
+                → 40개 이상 필드에 압도감
+              </div>
+            </div>
+          </div>
+
+          <!-- 계획: Wizard 모드 -->
+          <div>
+            <h4 class="text-sm font-semibold text-blue-500 mb-2">계획: Wizard 모드</h4>
+            <div class="wireframe-box rounded-lg p-4">
+              <!-- Step 표시 -->
+              <div class="flex items-center justify-center gap-2 mb-4">
+                <div class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center text-sm">✓</div>
+                <div class="w-8 h-1 bg-green-500"></div>
+                <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm">2</div>
+                <div class="w-8 h-1 bg-gray-300"></div>
+                <div class="w-8 h-8 bg-gray-300 text-gray-500 rounded-full flex items-center justify-center text-sm">3</div>
+                <div class="w-8 h-1 bg-gray-300"></div>
+                <div class="w-8 h-8 bg-gray-300 text-gray-500 rounded-full flex items-center justify-center text-sm">4</div>
+              </div>
+
+              <div class="text-center mb-3">
+                <p class="text-sm text-gray-500">Step 2 / 7</p>
+                <h4 class="font-semibold">사업자등록증 업로드</h4>
+              </div>
+
+              <div class="bg-gray-100 rounded p-3 text-center text-sm">
+                이 단계의 필드만 표시<br>
+                → 집중 가능
+              </div>
+
+              <div class="flex gap-2 mt-4">
+                <button class="flex-1 border py-2 rounded text-sm">← 이전</button>
+                <button class="flex-1 bg-blue-500 text-white py-2 rounded text-sm">다음 →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 wireframe-box rounded-lg p-4">
+          <h4 class="font-semibold mb-2">📋 Wizard 모드 단계 구성</h4>
+          <div class="grid grid-cols-7 gap-2 text-xs text-center">
+            <div class="p-2 bg-white rounded border">
+              <p class="font-semibold">Step 1</p>
+              <p class="text-gray-500">기본 정보</p>
+              <p class="text-blue-500">~2분</p>
+            </div>
+            <div class="p-2 bg-white rounded border">
+              <p class="font-semibold">Step 2</p>
+              <p class="text-gray-500">필수 서류</p>
+              <p class="text-blue-500">~2분</p>
+            </div>
+            <div class="p-2 bg-white rounded border">
+              <p class="font-semibold">Step 3</p>
+              <p class="text-gray-500">로고</p>
+              <p class="text-blue-500">~2분</p>
+            </div>
+            <div class="p-2 bg-white rounded border">
+              <p class="font-semibold">Step 4</p>
+              <p class="text-gray-500">명함</p>
+              <p class="text-blue-500">~1분</p>
+            </div>
+            <div class="p-2 bg-white rounded border">
+              <p class="font-semibold">Step 5</p>
+              <p class="text-gray-500">홈페이지</p>
+              <p class="text-blue-500">~1분</p>
+            </div>
+            <div class="p-2 bg-white rounded border">
+              <p class="font-semibold">Step 6</p>
+              <p class="text-gray-500">마케팅</p>
+              <p class="text-blue-500">~2분</p>
+            </div>
+            <div class="p-2 bg-white rounded border">
+              <p class="font-semibold">Step 7</p>
+              <p class="text-gray-500">최종 확인</p>
+              <p class="text-blue-500">~1분</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- 요약 -->
+    <!-- ============================================ -->
+    <div class="bg-white rounded-xl shadow-lg p-6">
+      <h2 class="text-xl font-bold mb-4">📊 구현 현황 요약</h2>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <div>
+          <h3 class="font-semibold text-green-600 mb-2">✅ 구현 완료 (7개)</h3>
+          <ul class="text-sm space-y-1">
+            <li>1. 온보딩 화면</li>
+            <li>2. 진행률 시각화 + 힌트</li>
+            <li>3. 로고 색상 비주얼 선택</li>
+            <li>4. 이메일 파일 가이드</li>
+            <li>5. 섹션 완료 축하 애니메이션</li>
+            <li>6. 제출 전 요약 화면</li>
+            <li>7. 민감정보 안심 UI</li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-semibold text-gray-500 mb-2">⏳ 미구현 (2개)</h3>
+          <ul class="text-sm space-y-1">
+            <li>8. A/B 테스트 프레임워크</li>
+            <li>9. Wizard 모드 (단계별 안내)</li>
+          </ul>
+          <p class="text-xs text-gray-400 mt-2">
+            * 현재 구현된 기능만으로도 UX가 크게 개선됨<br>
+            * 위 2개는 사용자 피드백 후 검토
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 푸터 -->
+    <div class="text-center text-gray-400 text-sm py-4">
+      자료제출 UX 개선 프로젝트 와이어프레임 | 2026-01-29
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,162 @@
+/**
+ * 김민수님 이메일 재발송
+ */
+import { config } from "dotenv";
+config({ path: ".env" });
+
+const emailHtml = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>자동화서비스 만료 안내</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f5f5f5;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <tr>
+            <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; border-radius: 8px 8px 0 0; text-align: center;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700;">📢 자동화서비스 만료 안내</h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 40px 30px;">
+              <p style="margin: 0 0 20px; font-size: 16px; color: #333333; line-height: 1.6;">
+                안녕하세요, <strong>김민수 대표님</strong>.
+              </p>
+              <p style="margin: 0 0 20px; font-size: 16px; color: #333333; line-height: 1.6;">
+                스타트패키지를 이용해 주셔서 감사합니다.
+              </p>
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin: 20px 0; background-color: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px;">
+                <tr>
+                  <td style="padding: 20px;">
+                    <p style="margin: 0; font-size: 16px; color: #856404; font-weight: 600;">
+                      ⚠️ 2025년 12월 31일부로 자동화서비스 지원이 만료됩니다.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin: 20px 0; background-color: #f8f9fa; border-radius: 4px;">
+                <tr>
+                  <td style="padding: 20px;">
+                    <p style="margin: 0 0 15px; font-size: 14px; color: #333333; font-weight: 600;">📋 종료 예정 서비스</p>
+                    <ul style="margin: 0; padding-left: 20px; font-size: 14px; color: #495057; line-height: 1.8;">
+                      <li>Meta 광고 리포트</li>
+                      <li>광고 게재</li>
+                      <li>자동 알림 서비스</li>
+                    </ul>
+                  </td>
+                </tr>
+              </table>
+              <p style="margin: 30px 0 20px; font-size: 16px; color: #333333; line-height: 1.6;">
+                종료 이후에도 <strong>유료로 서비스를 계속 이용</strong>하실 수 있습니다.
+              </p>
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin: 20px 0; border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden;">
+                <tr style="background-color: #667eea;">
+                  <th style="padding: 15px; color: #ffffff; font-size: 14px; text-align: center; border-right: 1px solid rgba(255,255,255,0.2);">결제 기간</th>
+                  <th style="padding: 15px; color: #ffffff; font-size: 14px; text-align: center; border-right: 1px solid rgba(255,255,255,0.2);">월 비용</th>
+                  <th style="padding: 15px; color: #ffffff; font-size: 14px; text-align: center; border-right: 1px solid rgba(255,255,255,0.2);">합계</th>
+                  <th style="padding: 15px; color: #ffffff; font-size: 14px; text-align: center;">할인</th>
+                </tr>
+                <tr style="background-color: #ffffff;">
+                  <td style="padding: 15px; font-size: 14px; text-align: center; border-right: 1px solid #dee2e6; border-top: 1px solid #dee2e6;">3개월</td>
+                  <td style="padding: 15px; font-size: 14px; text-align: center; border-right: 1px solid #dee2e6; border-top: 1px solid #dee2e6; font-weight: 600;">22만원</td>
+                  <td style="padding: 15px; font-size: 14px; text-align: center; border-right: 1px solid #dee2e6; border-top: 1px solid #dee2e6; font-weight: 600;">66만원</td>
+                  <td style="padding: 15px; font-size: 14px; text-align: center; border-top: 1px solid #dee2e6; color: #6c757d;">-</td>
+                </tr>
+                <tr style="background-color: #f8f9fa;">
+                  <td style="padding: 15px; font-size: 14px; text-align: center; border-right: 1px solid #dee2e6; border-top: 1px solid #dee2e6;">6개월</td>
+                  <td style="padding: 15px; font-size: 14px; text-align: center; border-right: 1px solid #dee2e6; border-top: 1px solid #dee2e6; font-weight: 600;">16.5만원</td>
+                  <td style="padding: 15px; font-size: 14px; text-align: center; border-right: 1px solid #dee2e6; border-top: 1px solid #dee2e6; font-weight: 600;">99만원</td>
+                  <td style="padding: 15px; font-size: 14px; text-align: center; border-top: 1px solid #dee2e6; color: #28a745; font-weight: 600;">25% ↓</td>
+                </tr>
+                <tr style="background-color: #e8f5e9;">
+                  <td style="padding: 15px; font-size: 14px; text-align: center; border-right: 1px solid #dee2e6; border-top: 1px solid #dee2e6; font-weight: 600;">12개월 추천</td>
+                  <td style="padding: 15px; font-size: 14px; text-align: center; border-right: 1px solid #dee2e6; border-top: 1px solid #dee2e6; font-weight: 600; color: #1565c0;">11만원</td>
+                  <td style="padding: 15px; font-size: 14px; text-align: center; border-right: 1px solid #dee2e6; border-top: 1px solid #dee2e6; font-weight: 600; color: #1565c0;">132만원</td>
+                  <td style="padding: 15px; font-size: 14px; text-align: center; border-top: 1px solid #dee2e6; color: #d32f2f; font-weight: 600;">50% ↓</td>
+                </tr>
+              </table>
+              <p style="margin: 10px 0 30px; font-size: 12px; color: #6c757d; text-align: center;">
+                ※ 모든 금액은 VAT 포함
+              </p>
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin: 20px 0; background-color: #f8f9fa; border-radius: 8px;">
+                <tr>
+                  <td style="padding: 25px;">
+                    <p style="margin: 0 0 15px; font-size: 15px; color: #333333; font-weight: 600;">💳 결제 방법</p>
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="padding: 12px 0; border-bottom: 1px solid #dee2e6;">
+                          <p style="margin: 0; font-size: 14px; color: #495057;">
+                            <strong style="color: #333;">계좌이체</strong><br>
+                            <span style="color: #667eea; font-weight: 600;">우리은행 1005-302-954803</span><br>
+                            <span style="font-size: 13px; color: #6c757d;">예금주: (주)폴라애드</span>
+                          </p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 12px 0;">
+                          <p style="margin: 0 0 10px; font-size: 14px; color: #495057;">
+                            <strong style="color: #333;">카드결제</strong><br>
+                            <span style="font-size: 13px; color: #6c757d;">네이버예약에서 간편하게 카드결제 가능</span>
+                          </p>
+                          <a href="https://booking.naver.com/booking/5/bizes/1304508/items/6516411"
+                             style="display: inline-block; padding: 10px 20px; background-color: #03c75a; color: #ffffff; text-decoration: none; border-radius: 4px; font-size: 13px; font-weight: 600;">
+                            네이버예약 결제하기 →
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin: 20px 0; background-color: #e3f2fd; border-radius: 8px;">
+                <tr>
+                  <td style="padding: 25px; text-align: center;">
+                    <p style="margin: 0 0 10px; font-size: 14px; color: #1565c0; font-weight: 600;">서비스 연장 문의</p>
+                    <p style="margin: 0; font-size: 20px; color: #0d47a1; font-weight: 700;">📞 010-9897-9834</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 30px; background-color: #f8f9fa; border-radius: 0 0 8px 8px; text-align: center;">
+              <p style="margin: 0 0 10px; font-size: 14px; color: #6c757d;">
+                스타트패키지
+              </p>
+              <p style="margin: 0; font-size: 12px; color: #adb5bd;">
+                이 메일은 발신 전용입니다.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+
+async function send() {
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+    },
+    body: JSON.stringify({
+      from: "스타트패키지 <noreply@polaai.co.kr>",
+      to: ["aksenanrkd@naver.com"],
+      subject: "자동화서비스 만료 안내",
+      html: emailHtml,
+    }),
+  });
+  const data = await res.json();
+  console.log("김민수님 이메일 발송:", res.ok ? "✅ 성공" : "❌ 실패");
+  console.log("수신자: aksenanrkd@naver.com");
+  console.log("Message ID:", data.id);
+}
+
+send();
