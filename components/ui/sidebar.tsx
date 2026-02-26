@@ -17,7 +17,6 @@ import {
   Menu,
   X,
   Globe,
-  CreditCard,
   Palette,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
@@ -69,18 +68,17 @@ export function Sidebar({
             badge: null,
           },
           {
-            href: "/dashboard/homepage-payment",
-            icon: CreditCard,
-            label: "홈페이지 결제요청",
-            badge: null,
-          },
-          {
             href: "/dashboard/workflows",
             icon: Workflow,
             label: "제작 현황",
             badge: pendingDesignCount > 0 ? pendingDesignCount : null,
           },
-          { href: "/dashboard/guides", icon: BookOpen, label: "가이드", badge: null },
+          {
+            href: "/dashboard/guides",
+            icon: BookOpen,
+            label: "가이드",
+            badge: null,
+          },
           {
             href: "/dashboard/meta-ads",
             icon: Facebook,

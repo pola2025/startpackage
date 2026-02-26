@@ -13,7 +13,6 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   Globe,
-  CreditCard,
   BookOpen,
   Facebook,
   MessageSquare,
@@ -59,12 +58,6 @@ export function MobileMoreMenu({
             badge: null,
           },
           {
-            href: "/dashboard/homepage-payment",
-            icon: CreditCard,
-            label: "홈페이지 결제요청",
-            badge: null,
-          },
-          {
             href: "/dashboard/guides",
             icon: BookOpen,
             label: "가이드",
@@ -101,7 +94,10 @@ export function MobileMoreMenu({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="rounded-t-2xl max-h-[80vh] pb-safe">
+      <SheetContent
+        side="bottom"
+        className="rounded-t-2xl max-h-[80vh] pb-safe"
+      >
         {/* 드래그 핸들 */}
         <div className="flex justify-center pb-2">
           <div className="w-12 h-1.5 rounded-full bg-gray-300" />
@@ -143,7 +139,7 @@ export function MobileMoreMenu({
                   "flex items-center gap-3 px-4 py-3 rounded-xl transition-colors touch-target",
                   isActive
                     ? "bg-blue-50 text-blue-700"
-                    : "text-gray-700 hover:bg-gray-100"
+                    : "text-gray-700 hover:bg-gray-100",
                 )}
               >
                 <Icon className="w-5 h-5" />
