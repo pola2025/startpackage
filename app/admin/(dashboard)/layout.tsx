@@ -22,6 +22,7 @@ import {
   Zap,
   Globe,
   Palette,
+  BellRing,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -45,6 +46,11 @@ const navigation = [
     name: "알림 이력",
     href: "/admin/notifications",
     icon: Bell,
+  },
+  {
+    name: "팝업 관리",
+    href: "/admin/alerts",
+    icon: BellRing,
   },
   {
     name: "기수 관리",
@@ -121,7 +127,11 @@ export default function AdminLayout({
 
     // 권한 체크: admin 권한이 없는 경우
     const userRole = session?.user?.role;
-    if (session && userRole && !["super", "designer", "operator"].includes(userRole)) {
+    if (
+      session &&
+      userRole &&
+      !["super", "designer", "operator"].includes(userRole)
+    ) {
       router.replace("/");
       return;
     }
@@ -170,7 +180,11 @@ export default function AdminLayout({
   }
 
   const userRole = session?.user?.role;
-  if (session && userRole && !["super", "designer", "operator"].includes(userRole)) {
+  if (
+    session &&
+    userRole &&
+    !["super", "designer", "operator"].includes(userRole)
+  ) {
     return null;
   }
 
@@ -221,7 +235,8 @@ export default function AdminLayout({
             {navigation.map((item) => {
               const isActive = pathname === item.href;
               const Icon = item.icon;
-              const showBadge = item.href === "/admin/communication" && unreadMessageCount > 0;
+              const showBadge =
+                item.href === "/admin/communication" && unreadMessageCount > 0;
 
               return (
                 <Link
@@ -292,7 +307,9 @@ export default function AdminLayout({
         </header>
 
         {/* Page Content */}
-        <main className="relative p-3 sm:p-4 md:p-6 lg:p-8 pb-20 lg:pb-8">{children}</main>
+        <main className="relative p-3 sm:p-4 md:p-6 lg:p-8 pb-20 lg:pb-8">
+          {children}
+        </main>
 
         {/* Footer - Desktop only */}
         <footer className="relative mt-12 border-t border-gray-200 bg-white py-6 hidden lg:block">
@@ -307,9 +324,7 @@ export default function AdminLayout({
             <Link
               href="/admin"
               className={`flex flex-col items-center justify-center flex-1 h-full ${
-                pathname === "/admin"
-                  ? "text-red-600"
-                  : "text-gray-500"
+                pathname === "/admin" ? "text-red-600" : "text-gray-500"
               }`}
             >
               <LayoutDashboard className="w-5 h-5" />
@@ -329,9 +344,7 @@ export default function AdminLayout({
             <Link
               href="/admin/users"
               className={`flex flex-col items-center justify-center flex-1 h-full ${
-                pathname === "/admin/users"
-                  ? "text-red-600"
-                  : "text-gray-500"
+                pathname === "/admin/users" ? "text-red-600" : "text-gray-500"
               }`}
             >
               <Users className="w-5 h-5" />
@@ -361,8 +374,14 @@ export default function AdminLayout({
                 sidebarOpen ? "text-red-600" : "text-gray-500"
               }`}
             >
-              {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-              <span className="text-xs mt-1">{sidebarOpen ? "닫기" : "더보기"}</span>
+              {sidebarOpen ? (
+                <X className="w-5 h-5" />
+              ) : (
+                <Menu className="w-5 h-5" />
+              )}
+              <span className="text-xs mt-1">
+                {sidebarOpen ? "닫기" : "더보기"}
+              </span>
             </button>
           </div>
         </nav>
