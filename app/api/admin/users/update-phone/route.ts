@@ -10,7 +10,7 @@ const updatePhoneSchema = z.object({
     .string()
     .regex(
       /^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$/,
-      "올바른 전화번호 형식이 아닙니다 (예: 010-1234-5678)"
+      "올바른 전화번호 형식이 아닙니다 (예: 010-1234-5678)",
     ),
 });
 
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
           error: "Invalid input",
           details: validation.error.errors[0].message,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -48,7 +48,7 @@ export async function POST(req: Request) {
     if (!isAdmin && !isSelf) {
       return NextResponse.json(
         { error: "본인의 전화번호만 수정할 수 있습니다" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -65,22 +65,22 @@ export async function POST(req: Request) {
     if (!user) {
       return NextResponse.json(
         { error: "사용자를 찾을 수 없습니다" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     // 전화번호 정규화 (하이픈 제거)
     const cleanPhone = 연락처.replace(/-/g, "");
     // 하이픈 포함 형식도 생성 (중복 확인용)
-    const formattedPhone = cleanPhone.replace(/(\d{3})(\d{3,4})(\d{4})/, "$1-$2-$3");
+    const formattedPhone = cleanPhone.replace(
+      /(\d{3})(\d{3,4})(\d{4})/,
+      "$1-$2-$3",
+    );
 
     // 전화번호 중복 확인 (자기 자신 제외, 양쪽 형식 모두 검색)
     const existingUser = await prisma.user.findFirst({
       where: {
-        OR: [
-          { 연락처: cleanPhone },
-          { 연락처: formattedPhone },
-        ],
+        OR: [{ 연락처: cleanPhone }, { 연락처: formattedPhone }],
         NOT: {
           id: userId,
         },
@@ -90,7 +90,7 @@ export async function POST(req: Request) {
     if (existingUser) {
       return NextResponse.json(
         { error: "이미 사용 중인 전화번호입니다" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -103,8 +103,36 @@ export async function POST(req: Request) {
         이름: true,
         연락처: true,
         email: true,
+        slackChannelId: true,
       },
     });
+
+    // 슬랙 채널에 수정이력 기록
+    if (updatedUser.slackChannelId) {
+      const { postMessage } = await import("@/lib/notification/slackClient");
+      const oldPhone = user.연락처 || "없음";
+      const now = new Date().toLocaleString("ko-KR", {
+        timeZone: "Asia/Seoul",
+      });
+
+      await postMessage({
+        channelId: updatedUser.slackChannelId,
+        text: `📱 연락처 변경`,
+        blocks: [
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: `*📱 연락처 변경*\n~${oldPhone}~ → *${cleanPhone}*`,
+            },
+          },
+          {
+            type: "context",
+            elements: [{ type: "mrkdwn", text: `📅 ${now}` }],
+          },
+        ],
+      }).catch((err) => console.error("연락처 변경 슬랙 알림 실패:", err));
+    }
 
     return NextResponse.json({
       success: true,
@@ -115,7 +143,7 @@ export async function POST(req: Request) {
     console.error("POST /api/admin/users/update-phone error:", error);
     return NextResponse.json(
       { error: "전화번호 수정 중 오류가 발생했습니다" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
