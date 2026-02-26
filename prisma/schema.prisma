@@ -797,6 +797,10 @@ model SystemAlert {
   // 상태
   isActive Boolean @default(true) // 활성화 여부
 
+  // 기수 타겟팅 (null = 전체, 값 있으면 해당 기수만)
+  cohortId    String?  // Cohort.id 참조 (외래키 없이 단순 필터)
+  phoneNumber String?  // 연락처 표시 (선택)
+
   // 작성자
   createdBy     String  // 작성한 관리자 ID
   createdByName String  // 작성한 관리자 이름
