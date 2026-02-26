@@ -293,11 +293,8 @@ export default function HomepageSettingsPage() {
                     <strong>사용량(트래픽)에 따라 비용이 과금</strong>됩니다.
                   </p>
                   <p className="mt-2 p-2 bg-orange-100 rounded">
-                    💡 일반적인 소규모 비즈니스 홈페이지는{" "}
-                    <strong>월 1~2만원 수준</strong>입니다.
-                    <br />
-                    사용한 만큼만 과금되며, 하루 방문자 1,000명~수만명 수준이
-                    아닌 경우 급상승 구간이 없습니다.
+                    월 <strong>100GB 기본 트래픽 제공</strong> / 100GB 초과
+                    시에만 유료 구간이 적용됩니다.
                   </p>
                 </div>
               </div>
