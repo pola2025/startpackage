@@ -18,15 +18,16 @@ const paymentSchema = z.object({
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ userId: string }> }
+  { params }: { params: Promise<{ userId: string }> },
 ) {
   try {
     // 인증 확인
     const session = await auth();
-    if (!session?.user || (session.user as any).role !== "admin") {
+    const userRole = (session?.user as any)?.role;
+    if (!session || !["super", "designer", "operator"].includes(userRole)) {
       return NextResponse.json(
         { success: false, error: "권한이 없습니다." },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -45,7 +46,7 @@ export async function POST(
     if (!user) {
       return NextResponse.json(
         { success: false, error: "사용자를 찾을 수 없습니다." },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -60,7 +61,7 @@ export async function POST(
           error: "잘못된 요청입니다.",
           details: validation.error.errors,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -132,7 +133,7 @@ export async function POST(
     console.error("결제 등록 실패:", error);
     return NextResponse.json(
       { success: false, error: "결제 등록에 실패했습니다." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -25,7 +25,8 @@ export async function PATCH(
 ) {
   try {
     const session = await auth();
-    if (!session?.user || (session.user as any).role !== "admin") {
+    const userRole = (session?.user as any)?.role;
+    if (!session || !["super", "designer", "operator"].includes(userRole)) {
       return NextResponse.json(
         { success: false, error: "권한이 없습니다." },
         { status: 403 },
@@ -83,7 +84,8 @@ export async function DELETE(
 ) {
   try {
     const session = await auth();
-    if (!session?.user || (session.user as any).role !== "admin") {
+    const userRole = (session?.user as any)?.role;
+    if (!session || !["super", "designer", "operator"].includes(userRole)) {
       return NextResponse.json(
         { success: false, error: "권한이 없습니다." },
         { status: 403 },

@@ -19,15 +19,20 @@ const createAlertSchema = z.object({
 export async function GET(request: NextRequest) {
   try {
     const session = await auth();
-    if (!session?.user || (session.user as any).role !== "admin") {
+    const userRole = (session?.user as any)?.role;
+    if (!session || !["super", "designer", "operator"].includes(userRole)) {
       return NextResponse.json(
         { success: false, error: "권한이 없습니다." },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
     const alerts = await prisma.systemAlert.findMany({
-      orderBy: [{ isActive: "desc" }, { priority: "desc" }, { createdAt: "desc" }],
+      orderBy: [
+        { isActive: "desc" },
+        { priority: "desc" },
+        { createdAt: "desc" },
+      ],
     });
 
     return NextResponse.json({ success: true, alerts });
@@ -35,7 +40,7 @@ export async function GET(request: NextRequest) {
     console.error("알림 조회 실패:", error);
     return NextResponse.json(
       { success: false, error: "알림 조회에 실패했습니다." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -47,10 +52,11 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();
-    if (!session?.user || (session.user as any).role !== "admin") {
+    const userRole = (session?.user as any)?.role;
+    if (!session || !["super", "designer", "operator"].includes(userRole)) {
       return NextResponse.json(
         { success: false, error: "권한이 없습니다." },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -60,11 +66,12 @@ export async function POST(request: NextRequest) {
     if (!validation.success) {
       return NextResponse.json(
         { success: false, error: validation.error.errors[0].message },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    const { title, content, type, priority, startDate, endDate } = validation.data;
+    const { title, content, type, priority, startDate, endDate } =
+      validation.data;
 
     const alert = await prisma.systemAlert.create({
       data: {
@@ -85,7 +92,7 @@ export async function POST(request: NextRequest) {
     console.error("알림 생성 실패:", error);
     return NextResponse.json(
       { success: false, error: "알림 생성에 실패했습니다." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

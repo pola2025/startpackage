@@ -6,7 +6,8 @@ import AlertsClient from "./alerts-client";
 
 export default async function AlertsPage() {
   const session = await auth();
-  if (!session?.user || (session.user as any).role !== "admin") {
+  const userRole = (session?.user as any)?.role;
+  if (!session || !["super", "designer", "operator"].includes(userRole)) {
     redirect("/admin/login");
   }
 

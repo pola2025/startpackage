@@ -16,7 +16,7 @@ const s3Client = new S3Client({
 // GET: 최종 확정 파일 목록 조회
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await auth();
@@ -36,7 +36,7 @@ export async function GET(
     console.error("GET final-files error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -44,7 +44,7 @@ export async function GET(
 // POST: 최종 확정 파일 업로드 (관리자 전용, 다중 파일)
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await auth();
@@ -53,8 +53,11 @@ export async function POST(
     }
 
     const user = session.user as any;
-    if (user.role !== "admin") {
-      return NextResponse.json({ error: "관리자만 접근 가능합니다" }, { status: 403 });
+    if (!["super", "designer", "operator"].includes(user.role)) {
+      return NextResponse.json(
+        { error: "관리자만 접근 가능합니다" },
+        { status: 403 },
+      );
     }
 
     const { id: threadId } = await params;
@@ -66,14 +69,17 @@ export async function POST(
     });
 
     if (!thread) {
-      return NextResponse.json({ error: "스레드를 찾을 수 없습니다" }, { status: 404 });
+      return NextResponse.json(
+        { error: "스레드를 찾을 수 없습니다" },
+        { status: 404 },
+      );
     }
 
     // 확정 상태인지 확인
     if (thread.status !== "confirmed") {
       return NextResponse.json(
         { error: "확정된 시안에만 파일을 업로드할 수 있습니다" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -82,14 +88,26 @@ export async function POST(
     const files = formData.getAll("files") as File[];
 
     if (!files || files.length === 0) {
-      return NextResponse.json({ error: "파일을 선택해주세요" }, { status: 400 });
+      return NextResponse.json(
+        { error: "파일을 선택해주세요" },
+        { status: 400 },
+      );
     }
 
     // 허용 파일 타입
     const allowedTypes = [
-      "ai", "psd", "pdf", "eps", "svg",  // 벡터/소스
-      "png", "jpg", "jpeg", "gif", "webp",  // 이미지
-      "zip", "rar"  // 압축
+      "ai",
+      "psd",
+      "pdf",
+      "eps",
+      "svg", // 벡터/소스
+      "png",
+      "jpg",
+      "jpeg",
+      "gif",
+      "webp", // 이미지
+      "zip",
+      "rar", // 압축
     ];
 
     const uploadedFiles = [];
@@ -102,7 +120,7 @@ export async function POST(
       if (!allowedTypes.includes(fileExt)) {
         return NextResponse.json(
           { error: `지원하지 않는 파일 형식입니다: ${fileExt}` },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -110,7 +128,7 @@ export async function POST(
       if (file.size > 50 * 1024 * 1024) {
         return NextResponse.json(
           { error: `파일 크기는 50MB 이하여야 합니다: ${fileName}` },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -126,7 +144,7 @@ export async function POST(
           Key: key,
           Body: buffer,
           ContentType: file.type || "application/octet-stream",
-        })
+        }),
       );
 
       const fileUrl = `${process.env.R2_PUBLIC_URL}/${key}`;
@@ -154,7 +172,7 @@ export async function POST(
     console.error("POST final-files error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -162,7 +180,7 @@ export async function POST(
 // DELETE: 최종 확정 파일 삭제 (관리자 전용)
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await auth();
@@ -171,15 +189,21 @@ export async function DELETE(
     }
 
     const user = session.user as any;
-    if (user.role !== "admin") {
-      return NextResponse.json({ error: "관리자만 접근 가능합니다" }, { status: 403 });
+    if (!["super", "designer", "operator"].includes(user.role)) {
+      return NextResponse.json(
+        { error: "관리자만 접근 가능합니다" },
+        { status: 403 },
+      );
     }
 
     const { searchParams } = new URL(req.url);
     const fileId = searchParams.get("fileId");
 
     if (!fileId) {
-      return NextResponse.json({ error: "파일 ID가 필요합니다" }, { status: 400 });
+      return NextResponse.json(
+        { error: "파일 ID가 필요합니다" },
+        { status: 400 },
+      );
     }
 
     await prisma.designFinalFile.delete({
@@ -191,7 +215,7 @@ export async function DELETE(
     console.error("DELETE final-files error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
