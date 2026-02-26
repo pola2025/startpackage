@@ -21,7 +21,9 @@ const externalSchema = z.object({
   도메인관리PW: z.string().min(1, "도메인 비밀번호를 입력해주세요"),
   해외결제카드앞면URL: z.string().min(1, "카드 앞면 사진을 업로드해주세요"),
   해외결제카드뒷면URL: z.string().min(1, "카드 뒷면 사진을 업로드해주세요"),
-  해외결제카드유효기간: z.string().regex(/^\d{2}\/\d{2}$/, "MM/YY 형식으로 입력해주세요"),
+  해외결제카드유효기간: z
+    .string()
+    .regex(/^\d{2}\/\d{2}$/, "MM/YY 형식으로 입력해주세요"),
   홈페이지스타일: z.string().optional(),
   홈페이지컬러컨셉: z.string().optional(),
 });
@@ -58,7 +60,7 @@ export async function GET() {
     console.error("Failed to fetch homepage info:", error);
     return NextResponse.json(
       { error: "Failed to fetch homepage info" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -82,7 +84,7 @@ export async function POST(request: NextRequest) {
       if (!result.success) {
         return NextResponse.json(
           { error: result.error.errors[0].message },
-          { status: 400 }
+          { status: 400 },
         );
       }
       validatedData = result.data;
@@ -91,14 +93,14 @@ export async function POST(request: NextRequest) {
       if (!result.success) {
         return NextResponse.json(
           { error: result.error.errors[0].message },
-          { status: 400 }
+          { status: 400 },
         );
       }
       validatedData = result.data;
     } else {
       return NextResponse.json(
         { error: "유효하지 않은 제작 방식입니다" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -177,18 +179,10 @@ export async function POST(request: NextRequest) {
         "https://fpbiz.imweb.me/": "스타일 6",
       };
 
-      // 슬랙 채널 생성 (startpackage-날짜-브랜드명)
-      const { createHomepageSlackChannel, postMessage } = await import(
-        "@/lib/notification/slackClient"
-      );
+      // 기존 자료제출 슬랙 채널 사용
+      const { postMessage } = await import("@/lib/notification/slackClient");
 
-      const channelId = await createHomepageSlackChannel({
-        brandName,
-        userName: user?.이름 || "알 수 없음",
-        cohortName: user?.cohort?.name,
-        userEmail: user?.email || undefined,
-        userPhone: user?.연락처 || undefined,
-      });
+      const channelId = user?.slackChannelId || null;
 
       if (channelId) {
         // 홈페이지 제작 상세 정보 메시지 발송
@@ -210,7 +204,8 @@ export async function POST(request: NextRequest) {
         }
 
         if (body.홈페이지스타일) {
-          const styleName = styleNames[body.홈페이지스타일] || body.홈페이지스타일;
+          const styleName =
+            styleNames[body.홈페이지스타일] || body.홈페이지스타일;
           message += `\n*스타일 선택*\n`;
           message += `• 선택 스타일: ${styleName}\n`;
           message += `• 참고 URL: ${body.홈페이지스타일}\n`;
@@ -224,11 +219,14 @@ export async function POST(request: NextRequest) {
           channelId,
           text: message,
         });
-        console.log(`✅ [Homepage] 슬랙 채널 생성 및 알림 발송 완료: ${user?.이름}`);
+        console.log(
+          `✅ [Homepage] 슬랙 채널 생성 및 알림 발송 완료: ${user?.이름}`,
+        );
       }
 
       // 텔레그램 알림 (HTML 형식)
-      const { sendTelegramMessage } = await import("@/lib/notification/telegramClient");
+      const { sendTelegramMessage } =
+        await import("@/lib/notification/telegramClient");
 
       let telegramMsg = `🌐 <b>홈페이지 제작 요청</b>\n`;
       telegramMsg += `━━━━━━━━━━━━━━━━━━━━\n`;
@@ -251,7 +249,6 @@ export async function POST(request: NextRequest) {
 
       await sendTelegramMessage(telegramMsg);
       console.log(`✅ [Homepage] 텔레그램 알림 발송 완료`);
-
     } catch (notifyError) {
       console.error("알림 발송 실패:", notifyError);
       // 알림 실패해도 저장은 성공으로 처리
@@ -262,7 +259,7 @@ export async function POST(request: NextRequest) {
     console.error("Failed to save homepage info:", error);
     return NextResponse.json(
       { error: "Failed to save homepage info" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
