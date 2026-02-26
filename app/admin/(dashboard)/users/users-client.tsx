@@ -29,6 +29,13 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Users,
   Mail,
   Phone,
@@ -91,6 +98,14 @@ export default function UsersClient({ users, cohorts }: UsersClientProps) {
     () => new Intl.Collator("ko-KR", { sensitivity: "base" }),
     [],
   );
+
+  // 실제 가입자가 있는 기수만 필터링
+  const activeCohorts = useMemo(() => {
+    const cohortIdsWithUsers = new Set(
+      users.map((u) => u.cohortId).filter(Boolean),
+    );
+    return cohorts.filter((c) => cohortIdsWithUsers.has(c.id));
+  }, [users, cohorts]);
 
   const filteredUsers = useMemo(() => {
     let result = selectedCohortId
@@ -254,31 +269,31 @@ export default function UsersClient({ users, cohorts }: UsersClientProps) {
         </div>
       </div>
 
-      {/* 기수 필터 탭 */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-        <button
-          onClick={() => setSelectedCohortId(null)}
-          className={`flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-            selectedCohortId === null
-              ? "bg-blue-600 text-white"
-              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-          }`}
+      {/* 기수 필터 드롭다운 */}
+      <div className="flex items-center gap-2">
+        <Select
+          value={selectedCohortId ?? "all"}
+          onValueChange={(val) =>
+            setSelectedCohortId(val === "all" ? null : val)
+          }
         >
-          전체
-        </button>
-        {cohorts.map((cohort) => (
-          <button
-            key={cohort.id}
-            onClick={() => setSelectedCohortId(cohort.id)}
-            className={`flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-              selectedCohortId === cohort.id
-                ? "bg-blue-600 text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
-          >
-            {cohort.name}
-          </button>
-        ))}
+          <SelectTrigger className="w-48 h-9">
+            <SelectValue placeholder="기수 선택" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">전체 ({users.length}명)</SelectItem>
+            {activeCohorts.map((cohort) => {
+              const count = users.filter(
+                (u) => u.cohortId === cohort.id,
+              ).length;
+              return (
+                <SelectItem key={cohort.id} value={cohort.id}>
+                  {cohort.name} ({count}명)
+                </SelectItem>
+              );
+            })}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* 모바일: 카드 레이아웃 */}
