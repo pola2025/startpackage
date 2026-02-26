@@ -23,6 +23,7 @@ import {
   Globe,
   Palette,
   BellRing,
+  ExternalLink,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -265,8 +266,18 @@ export default function AdminLayout({
           </nav>
 
           {/* Footer */}
-          <div className="p-4 border-t border-gray-200 bg-gray-50">
-            <div className="mb-3 px-2">
+          <div className="p-4 border-t border-gray-200 bg-gray-50 space-y-2">
+            {/* 사용자 화면 보기 */}
+            <a
+              href="/dashboard"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-blue-200 text-blue-600 hover:bg-blue-50 transition-colors text-sm font-medium w-full"
+            >
+              <ExternalLink className="w-4 h-4 flex-shrink-0" />
+              사용자 화면 보기
+            </a>
+            <div className="mb-1 px-2">
               <p className="text-xs text-gray-500">로그인 정보</p>
               <p className="text-sm text-gray-900 font-medium mt-1">
                 {session?.user?.name}
