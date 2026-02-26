@@ -25,6 +25,16 @@ export default function AddCohortButton() {
   const [교육시작일, set교육시작일] = useState("");
   const [자료제출마감일, set자료제출마감일] = useState("");
 
+  const handle교육시작일Change = (value: string) => {
+    set교육시작일(value);
+    if (value) {
+      // 3주(21일) 후를 자료제출마감일 기본값으로 설정
+      const start = new Date(value);
+      start.setDate(start.getDate() + 21);
+      set자료제출마감일(start.toISOString().split("T")[0]);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -70,7 +80,9 @@ export default function AddCohortButton() {
       </DialogTrigger>
       <DialogContent className="bg-white border-2 border-gray-200">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-gray-900">새 기수 추가</DialogTitle>
+          <DialogTitle className="text-xl font-bold text-gray-900">
+            새 기수 추가
+          </DialogTitle>
           <DialogDescription className="text-gray-700">
             새로운 기수를 생성하세요
           </DialogDescription>
@@ -104,14 +116,19 @@ export default function AddCohortButton() {
             <Input
               type="date"
               value={교육시작일}
-              onChange={(e) => set교육시작일(e.target.value)}
+              onChange={(e) => handle교육시작일Change(e.target.value)}
               required
               className="bg-white border-2 border-gray-300 focus:border-blue-500 text-gray-900"
             />
           </div>
 
           <div className="space-y-2">
-            <Label className="text-gray-900 font-medium">자료 제출 마감일</Label>
+            <Label className="text-gray-900 font-medium">
+              자료 제출 마감일
+              <span className="text-xs text-gray-500 font-normal ml-1">
+                (교육시작일 기준 3주 자동계산)
+              </span>
+            </Label>
             <Input
               type="date"
               value={자료제출마감일}
