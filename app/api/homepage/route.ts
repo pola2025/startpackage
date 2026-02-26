@@ -20,11 +20,12 @@ const externalSchema = z.object({
   도메인관리사이트: z.string().min(1, "도메인 관리 사이트를 선택해주세요"),
   도메인관리ID: z.string().min(1, "도메인 ID를 입력해주세요"),
   도메인관리PW: z.string().min(1, "도메인 비밀번호를 입력해주세요"),
-  해외결제카드앞면URL: z.string().min(1, "카드 앞면 사진을 업로드해주세요"),
-  해외결제카드뒷면URL: z.string().min(1, "카드 뒷면 사진을 업로드해주세요"),
+  해외결제카드앞면URL: z.string().min(1, "카드 사진을 업로드해주세요"),
+  해외결제카드뒷면URL: z.string().optional(),
   해외결제카드유효기간: z
     .string()
     .regex(/^\d{2}\/\d{2}$/, "MM/YY 형식으로 입력해주세요"),
+  해외결제카드CVC: z.string().regex(/^\d{3}$/, "CVC 번호는 3자리 숫자입니다"),
   홈페이지스타일: z.string().optional(),
   홈페이지컬러컨셉: z.string().optional(),
 });
@@ -54,6 +55,7 @@ export async function GET() {
         해외결제카드앞면URL: true,
         해외결제카드뒷면URL: true,
         해외결제카드유효기간: true,
+        해외결제카드CVC: true,
       },
     });
 
@@ -129,14 +131,16 @@ export async function POST(request: NextRequest) {
       updateData.해외결제카드앞면URL = null;
       updateData.해외결제카드뒷면URL = null;
       updateData.해외결제카드유효기간 = null;
+      updateData.해외결제카드CVC = null;
     } else {
       updateData.도메인주소 = body.도메인주소;
       updateData.도메인관리사이트 = body.도메인관리사이트;
       updateData.도메인관리ID = body.도메인관리ID;
       updateData.도메인관리PW = body.도메인관리PW;
       updateData.해외결제카드앞면URL = body.해외결제카드앞면URL;
-      updateData.해외결제카드뒷면URL = body.해외결제카드뒷면URL;
+      updateData.해외결제카드뒷면URL = body.해외결제카드뒷면URL || null;
       updateData.해외결제카드유효기간 = body.해외결제카드유효기간;
+      updateData.해외결제카드CVC = body.해외결제카드CVC;
       // 아임웹 정보 초기화
       updateData.아임웹ID = null;
       updateData.아임웹PW = null;
@@ -205,6 +209,7 @@ export async function POST(request: NextRequest) {
           message += `• ID: ${body.도메인관리ID}\n`;
           message += `• PW: ${body.도메인관리PW}\n`;
           message += `• 카드 유효기간: ${body.해외결제카드유효기간}\n`;
+          message += `• 카드 CVC: ${body.해외결제카드CVC}\n`;
         }
 
         if (body.홈페이지스타일) {

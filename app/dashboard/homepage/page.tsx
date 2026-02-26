@@ -44,8 +44,8 @@ interface HomepageData {
   도메인관리ID: string | null;
   도메인관리PW: string | null;
   해외결제카드앞면URL: string | null;
-  해외결제카드뒷면URL: string | null;
   해외결제카드유효기간: string | null;
+  해외결제카드CVC: string | null;
 }
 
 export default function HomepageSettingsPage() {
@@ -59,12 +59,11 @@ export default function HomepageSettingsPage() {
   const [domainId, setDomainId] = useState("");
   const [domainPw, setDomainPw] = useState("");
   const [cardFrontUrl, setCardFrontUrl] = useState("");
-  const [cardBackUrl, setCardBackUrl] = useState("");
   const [cardExpiry, setCardExpiry] = useState("");
+  const [cardCvc, setCardCvc] = useState("");
 
   // 이미지 업로드 상태
   const [uploadingFront, setUploadingFront] = useState(false);
-  const [uploadingBack, setUploadingBack] = useState(false);
 
   // 홈페이지 스타일 상태
   const [selectedWebsiteStyle, setSelectedWebsiteStyle] = useState("");
@@ -104,10 +103,9 @@ export default function HomepageSettingsPage() {
         if (result.도메인관리PW) setDomainPw(result.도메인관리PW);
         if (result.해외결제카드앞면URL)
           setCardFrontUrl(result.해외결제카드앞면URL);
-        if (result.해외결제카드뒷면URL)
-          setCardBackUrl(result.해외결제카드뒷면URL);
         if (result.해외결제카드유효기간)
           setCardExpiry(result.해외결제카드유효기간);
+        if (result.해외결제카드CVC) setCardCvc(result.해외결제카드CVC);
         if (result.홈페이지스타일)
           setSelectedWebsiteStyle(result.홈페이지스타일);
         if (result.홈페이지컬러컨셉) setWebsiteColor(result.홈페이지컬러컨셉);
@@ -140,51 +138,40 @@ export default function HomepageSettingsPage() {
     domainId.trim() &&
     domainPw.trim() &&
     cardFrontUrl.trim() &&
-    cardBackUrl.trim() &&
-    /^\d{2}\/\d{2}$/.test(cardExpiry);
+    /^\d{2}\/\d{2}$/.test(cardExpiry) &&
+    /^\d{3}$/.test(cardCvc);
 
   // 저장 가능 여부
   const canSave = isFormValid;
 
   // 이미지 업로드 핸들러
-  const handleImageUpload = async (file: File, type: "front" | "back") => {
-    if (type === "front") setUploadingFront(true);
-    else setUploadingBack(true);
+  const handleImageUpload = async (file: File) => {
+    setUploadingFront(true);
 
     try {
       // 이미지 자동 압축 (GIF 제외)
       let processedFile = file;
       if (file.type.startsWith("image/") && file.type !== "image/gif") {
         try {
-          console.log(
-            `[압축] 원본 파일 크기: ${(file.size / 1024 / 1024).toFixed(2)}MB`,
-          );
           const options = {
-            maxSizeMB: 1, // 카드 이미지는 1MB로 압축
+            maxSizeMB: 1,
             maxWidthOrHeight: 1920,
             useWebWorker: true,
             fileType: file.type as string,
           };
           const compressedFile = await imageCompression(file, options);
-          console.log(
-            `[압축] 압축 후 파일 크기: ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`,
-          );
           processedFile = new File([compressedFile], file.name, {
             type: compressedFile.type,
             lastModified: Date.now(),
           });
         } catch (compressionError) {
           console.error("[압축] 이미지 압축 실패:", compressionError);
-          // 압축 실패 시 원본 파일 사용
         }
       }
 
       const formData = new FormData();
       formData.append("file", processedFile);
-      // field 파라미터 추가 (민감 정보로 처리하기 위해 필요)
-      const fieldName =
-        type === "front" ? "해외결제카드앞면URL" : "해외결제카드뒷면URL";
-      formData.append("field", fieldName);
+      formData.append("field", "해외결제카드앞면URL");
 
       const response = await fetch("/api/upload", {
         method: "POST",
@@ -193,9 +180,7 @@ export default function HomepageSettingsPage() {
 
       if (response.ok) {
         const data = await response.json();
-        if (type === "front") setCardFrontUrl(data.url);
-        else setCardBackUrl(data.url);
-        // 민감 파일은 슬랙으로 전송됨
+        setCardFrontUrl(data.url);
         if (data.sensitive) {
           alert(
             "카드 이미지가 안전하게 전송되었습니다.\n(보안을 위해 서버에는 저장되지 않습니다)",
@@ -203,15 +188,13 @@ export default function HomepageSettingsPage() {
         }
       } else {
         const errorData = await response.json();
-        console.error("Upload failed:", errorData);
         alert(errorData.error || "이미지 업로드에 실패했습니다.");
       }
     } catch (error) {
       console.error("Upload error:", error);
       alert("이미지 업로드 중 오류가 발생했습니다.");
     } finally {
-      if (type === "front") setUploadingFront(false);
-      else setUploadingBack(false);
+      setUploadingFront(false);
     }
   };
 
@@ -228,8 +211,8 @@ export default function HomepageSettingsPage() {
         도메인관리ID: domainId,
         도메인관리PW: domainPw,
         해외결제카드앞면URL: cardFrontUrl,
-        해외결제카드뒷면URL: cardBackUrl,
         해외결제카드유효기간: cardExpiry,
+        해외결제카드CVC: cardCvc,
       };
 
       // 스타일 정보 추가
@@ -511,141 +494,95 @@ export default function HomepageSettingsPage() {
             </div>
 
             {/* 카드 이미지 업로드 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* 앞면 */}
-              <div>
-                <Label className="flex items-center gap-1 mb-2">
-                  카드 앞면 사진 <span className="text-red-500">*</span>
-                </Label>
-                <p className="text-xs text-gray-500 mb-2">
-                  카드번호가 전체 보이도록 촬영해주세요
-                </p>
-                {cardFrontUrl ? (
-                  <div className="relative border-2 border-dashed border-green-400 rounded-lg p-2 bg-green-50">
-                    {cardFrontUrl === "SLACK_ONLY" ? (
-                      <div className="flex flex-col items-center justify-center h-32">
-                        <CheckCircle2 className="w-10 h-10 text-green-500 mb-2" />
-                        <span className="text-sm text-green-700 font-medium">
-                          슬랙으로 전송 완료
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          보안을 위해 서버 저장 안 함
-                        </span>
-                      </div>
-                    ) : (
-                      <img
-                        src={cardFrontUrl}
-                        alt="카드 앞면"
-                        className="w-full h-32 object-contain rounded"
-                      />
-                    )}
-                    <button
-                      onClick={() => setCardFrontUrl("")}
-                      className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <label className="flex flex-col items-center justify-center h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                    {uploadingFront ? (
-                      <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
-                    ) : (
-                      <>
-                        <Upload className="w-8 h-8 text-gray-400" />
-                        <span className="text-sm text-gray-500 mt-2">
-                          클릭하여 업로드
-                        </span>
-                      </>
-                    )}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleImageUpload(file, "front");
-                      }}
-                      disabled={uploadingFront}
+            <div>
+              <Label className="flex items-center gap-1 mb-2">
+                신용카드 사진 <span className="text-red-500">*</span>
+              </Label>
+              <p className="text-xs text-gray-500 mb-2">
+                카드번호가 보이도록 촬영해주세요
+              </p>
+              {cardFrontUrl ? (
+                <div className="relative border-2 border-dashed border-green-400 rounded-lg p-2 bg-green-50">
+                  {cardFrontUrl === "SLACK_ONLY" ? (
+                    <div className="flex flex-col items-center justify-center h-32">
+                      <CheckCircle2 className="w-10 h-10 text-green-500 mb-2" />
+                      <span className="text-sm text-green-700 font-medium">
+                        슬랙으로 전송 완료
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        보안을 위해 서버 저장 안 함
+                      </span>
+                    </div>
+                  ) : (
+                    <img
+                      src={cardFrontUrl}
+                      alt="신용카드"
+                      className="w-full h-32 object-contain rounded"
                     />
-                  </label>
-                )}
-              </div>
-
-              {/* 뒷면 */}
-              <div>
-                <Label className="flex items-center gap-1 mb-2">
-                  카드 뒷면 사진 <span className="text-red-500">*</span>
-                </Label>
-                <p className="text-xs text-gray-500 mb-2">
-                  CVC 번호가 보이도록 촬영해주세요
-                </p>
-                {cardBackUrl ? (
-                  <div className="relative border-2 border-dashed border-green-400 rounded-lg p-2 bg-green-50">
-                    {cardBackUrl === "SLACK_ONLY" ? (
-                      <div className="flex flex-col items-center justify-center h-32">
-                        <CheckCircle2 className="w-10 h-10 text-green-500 mb-2" />
-                        <span className="text-sm text-green-700 font-medium">
-                          슬랙으로 전송 완료
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          보안을 위해 서버 저장 안 함
-                        </span>
-                      </div>
-                    ) : (
-                      <img
-                        src={cardBackUrl}
-                        alt="카드 뒷면"
-                        className="w-full h-32 object-contain rounded"
-                      />
-                    )}
-                    <button
-                      onClick={() => setCardBackUrl("")}
-                      className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <label className="flex flex-col items-center justify-center h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                    {uploadingBack ? (
-                      <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
-                    ) : (
-                      <>
-                        <Upload className="w-8 h-8 text-gray-400" />
-                        <span className="text-sm text-gray-500 mt-2">
-                          클릭하여 업로드
-                        </span>
-                      </>
-                    )}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleImageUpload(file, "back");
-                      }}
-                      disabled={uploadingBack}
-                    />
-                  </label>
-                )}
-              </div>
+                  )}
+                  <button
+                    onClick={() => setCardFrontUrl("")}
+                    className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <label className="flex flex-col items-center justify-center h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                  {uploadingFront ? (
+                    <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+                  ) : (
+                    <>
+                      <Upload className="w-8 h-8 text-gray-400" />
+                      <span className="text-sm text-gray-500 mt-2">
+                        클릭하여 업로드
+                      </span>
+                    </>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleImageUpload(file);
+                    }}
+                    disabled={uploadingFront}
+                  />
+                </label>
+              )}
             </div>
 
-            {/* 유효기간 */}
-            <div>
-              <Label htmlFor="cardExpiry" className="flex items-center gap-1">
-                카드 유효기간 <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="cardExpiry"
-                value={cardExpiry}
-                onChange={(e) => handleExpiryChange(e.target.value)}
-                placeholder="MM/YY (예: 12/25)"
-                maxLength={5}
-                className="mt-1 w-32"
-              />
+            {/* 유효기간 + CVC */}
+            <div className="flex gap-6">
+              <div>
+                <Label htmlFor="cardExpiry" className="flex items-center gap-1">
+                  카드 유효기간 <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="cardExpiry"
+                  value={cardExpiry}
+                  onChange={(e) => handleExpiryChange(e.target.value)}
+                  placeholder="MM/YY (예: 12/25)"
+                  maxLength={5}
+                  className="mt-1 w-32"
+                />
+              </div>
+              <div>
+                <Label htmlFor="cardCvc" className="flex items-center gap-1">
+                  CVC 번호 <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="cardCvc"
+                  value={cardCvc}
+                  onChange={(e) =>
+                    setCardCvc(e.target.value.replace(/\D/g, "").slice(0, 3))
+                  }
+                  placeholder="예: 123"
+                  maxLength={3}
+                  className="mt-1 w-24"
+                />
+              </div>
             </div>
 
             {/* 필수 입력 안내 */}

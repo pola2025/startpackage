@@ -170,9 +170,10 @@ model Submission {
   도메인관리사이트     String? // "가비아" | "후이즈" | "카페24" | "닷홈" 등
   도메인관리ID         String?
   도메인관리PW         String?
-  해외결제카드앞면URL  String? // 카드 앞면 이미지 (카드번호 보이도록)
-  해외결제카드뒷면URL  String? // 카드 뒷면 이미지 (CVC 보이도록)
+  해외결제카드앞면URL  String? // 카드 이미지 (카드번호 보이도록)
+  해외결제카드뒷면URL  String? // 카드 뒷면 이미지 (레거시, 더 이상 사용 안 함)
   해외결제카드유효기간 String? // MM/YY 형식
+  해외결제카드CVC     String? // CVC 번호 (3자리)
 
   // === 추가 정보 ===
 
