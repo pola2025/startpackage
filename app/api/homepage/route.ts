@@ -16,6 +16,7 @@ const imwebSchema = z.object({
 // 외부 서비스 제작 스키마
 const externalSchema = z.object({
   홈페이지제작방식: z.literal("외부서비스"),
+  도메인주소: z.string().min(1, "도메인 주소를 입력해주세요"),
   도메인관리사이트: z.string().min(1, "도메인 관리 사이트를 선택해주세요"),
   도메인관리ID: z.string().min(1, "도메인 ID를 입력해주세요"),
   도메인관리PW: z.string().min(1, "도메인 비밀번호를 입력해주세요"),
@@ -46,6 +47,7 @@ export async function GET() {
         아임웹ID: true,
         아임웹PW: true,
         아임웹관리자PW: true,
+        도메인주소: true,
         도메인관리사이트: true,
         도메인관리ID: true,
         도메인관리PW: true,
@@ -128,6 +130,7 @@ export async function POST(request: NextRequest) {
       updateData.해외결제카드뒷면URL = null;
       updateData.해외결제카드유효기간 = null;
     } else {
+      updateData.도메인주소 = body.도메인주소;
       updateData.도메인관리사이트 = body.도메인관리사이트;
       updateData.도메인관리ID = body.도메인관리ID;
       updateData.도메인관리PW = body.도메인관리PW;
@@ -197,6 +200,7 @@ export async function POST(request: NextRequest) {
           message += `• 관리자 PW: ${body.아임웹관리자PW}\n`;
         } else {
           message += `\n*도메인 정보*\n`;
+          message += `• 도메인 주소: ${body.도메인주소}\n`;
           message += `• 관리 사이트: ${body.도메인관리사이트}\n`;
           message += `• ID: ${body.도메인관리ID}\n`;
           message += `• PW: ${body.도메인관리PW}\n`;

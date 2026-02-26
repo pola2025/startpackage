@@ -39,6 +39,7 @@ import imageCompression from "browser-image-compression";
 interface HomepageData {
   홈페이지스타일: string | null;
   홈페이지컬러컨셉: string | null;
+  도메인주소: string | null;
   도메인관리사이트: string | null;
   도메인관리ID: string | null;
   도메인관리PW: string | null;
@@ -53,6 +54,7 @@ export default function HomepageSettingsPage() {
   const [data, setData] = useState<HomepageData | null>(null);
 
   // 외부 서비스 폼
+  const [domainAddress, setDomainAddress] = useState("");
   const [domainSite, setDomainSite] = useState("후이즈");
   const [domainId, setDomainId] = useState("");
   const [domainPw, setDomainPw] = useState("");
@@ -96,6 +98,7 @@ export default function HomepageSettingsPage() {
         setData(result);
 
         // 폼 초기화
+        if (result.도메인주소) setDomainAddress(result.도메인주소);
         if (result.도메인관리사이트) setDomainSite(result.도메인관리사이트);
         if (result.도메인관리ID) setDomainId(result.도메인관리ID);
         if (result.도메인관리PW) setDomainPw(result.도메인관리PW);
@@ -132,6 +135,7 @@ export default function HomepageSettingsPage() {
 
   // 필수 입력 확인
   const isFormValid =
+    domainAddress.trim() &&
     domainSite.trim() &&
     domainId.trim() &&
     domainPw.trim() &&
@@ -219,6 +223,7 @@ export default function HomepageSettingsPage() {
     try {
       const payload: Record<string, string> = {
         홈페이지제작방식: "외부서비스",
+        도메인주소: domainAddress,
         도메인관리사이트: domainSite,
         도메인관리ID: domainId,
         도메인관리PW: domainPw,
@@ -412,6 +417,30 @@ export default function HomepageSettingsPage() {
 
             {/* 입력 폼 */}
             <div className="space-y-4">
+              <div>
+                <Label
+                  htmlFor="domainAddress"
+                  className="flex items-center gap-1 text-sm"
+                >
+                  도메인 주소 <span className="text-red-500">*</span>
+                </Label>
+                <p className="text-xs text-gray-500 mt-0.5 mb-1">
+                  구매한 도메인 주소를 입력해주세요
+                  <br />
+                  <span className="text-gray-400">
+                    예: www.mybrand.co.kr &nbsp;|&nbsp; mybrand.com
+                    &nbsp;|&nbsp; mybrand.kr
+                  </span>
+                </p>
+                <Input
+                  id="domainAddress"
+                  value={domainAddress}
+                  onChange={(e) => setDomainAddress(e.target.value)}
+                  placeholder="예: www.mybrand.co.kr"
+                  className="mt-1 h-11 md:h-10"
+                />
+              </div>
+
               <div>
                 <Label className="flex items-center gap-1 text-sm">
                   도메인 관리 사이트

@@ -166,6 +166,7 @@ model Submission {
   아임웹관리자PW   String? // 대문자 포함 관리자 비밀번호
 
   // 외부 서비스 제작 시 필요 정보
+  도메인주소           String? // 실제 도메인 주소 (예: www.mybrand.co.kr)
   도메인관리사이트     String? // "가비아" | "후이즈" | "카페24" | "닷홈" 등
   도메인관리ID         String?
   도메인관리PW         String?
