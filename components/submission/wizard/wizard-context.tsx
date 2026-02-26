@@ -55,12 +55,12 @@ export const WIZARD_STEPS: WizardStepConfig[] = [
   },
   {
     id: "namecard",
-    title: "명함 스타일 선택",
-    shortTitle: "명함",
-    description: "명함 디자인을 선택해주세요",
+    title: "인쇄물 디자인 선택",
+    shortTitle: "디자인",
+    description: "명함과 계약서 디자인을 선택해주세요",
     estimatedTime: "약 1분",
     isRequired: false,
-    fields: ["명함시안"],
+    fields: ["명함시안", "계약서시안"],
   },
   {
     id: "profile",

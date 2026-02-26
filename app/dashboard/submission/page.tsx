@@ -56,6 +56,7 @@ export default function SubmissionPage() {
   // 명함 상태
   const [businessCardColor, setBusinessCardColor] = useState<string>("#3B82F6");
   const [selectedNamecard, setSelectedNamecard] = useState<string>("");
+  const [selectedContract, setSelectedContract] = useState<string>("");
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   // 진행률 상태
@@ -193,6 +194,7 @@ export default function SubmissionPage() {
       setLogoPreferenceColor(submission.로고선호색상 || "");
       setBusinessCardColor(submission.명함색상 || "#3B82F6");
       setSelectedNamecard(submission.명함시안 || "");
+      setSelectedContract(submission.계약서시안 || "");
     }
   }, [submission]);
 
@@ -1607,10 +1609,10 @@ export default function SubmissionPage() {
                 >
                   {/* 명함 스타일 선택 */}
                   <div className="space-y-3">
-                    <Label className="text-sm sm:text-base break-words">명함 스타일 선택 (4종 중 1개 선택)</Label>
+                    <Label className="text-sm sm:text-base break-words">명함 스타일 선택 (6종 중 1개 선택)</Label>
                     <input type="hidden" name="명함시안" value={selectedNamecard} />
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {[1, 2, 3, 4].map((num) => (
+                      {[1, 2, 3, 4, 5, 6].map((num) => (
                         <div
                           key={num}
                           onClick={() => {
@@ -1639,6 +1641,66 @@ export default function SubmissionPage() {
                             onClick={(e) => {
                               e.stopPropagation();
                               setPreviewImage(`/namecard/namecard_${num}.jpg`);
+                            }}
+                            className="absolute top-2 right-2 bg-white/90 hover:bg-white px-2 py-1 rounded text-xs font-medium shadow-md transition-all"
+                          >
+                            자세히 보기
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 계약서 스타일 선택 */}
+                  <div className="space-y-3 pt-6 border-t border-gray-200">
+                    <Label className="text-sm sm:text-base break-words">자문계약서 스타일 선택 (2종 중 1개 선택)</Label>
+                    <input type="hidden" name="계약서시안" value={selectedContract} />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {[
+                        { id: "스타일 1", label: "스타일 1", cover: "/guides/print/contract_cover.jpg", inner: "/guides/print/contract_inner.jpg" },
+                        { id: "스타일 2", label: "스타일 2", cover: "/guides/print/contract_cover_2.jpg", inner: "/guides/print/contract_inner_2.jpg" },
+                      ].map((style) => (
+                        <div
+                          key={style.id}
+                          onClick={() => {
+                            if (!submission?.isComplete && isEditingNamecard) {
+                              setSelectedContract(style.id);
+                            }
+                          }}
+                          className={`relative p-3 rounded-lg border-2 transition-all ${
+                            selectedContract === style.id
+                              ? "border-indigo-600 ring-2 ring-indigo-200 bg-indigo-50"
+                              : "border-gray-300 hover:border-indigo-400"
+                          } ${(submission?.isComplete || !isEditingNamecard) ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
+                        >
+                          <div className="flex flex-col items-center gap-2">
+                            <div className="grid grid-cols-2 gap-1 w-full">
+                              <div>
+                                <p className="text-[10px] text-gray-500 mb-0.5">표지</p>
+                                <img
+                                  src={style.cover}
+                                  alt={`계약서 ${style.label} 표지`}
+                                  className="w-full h-auto object-contain rounded"
+                                />
+                              </div>
+                              <div>
+                                <p className="text-[10px] text-gray-500 mb-0.5">내지</p>
+                                <img
+                                  src={style.inner}
+                                  alt={`계약서 ${style.label} 내지`}
+                                  className="w-full h-auto object-contain rounded"
+                                />
+                              </div>
+                            </div>
+                            <div className="text-center font-semibold text-sm">
+                              {style.label}
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setPreviewImage(style.cover);
                             }}
                             className="absolute top-2 right-2 bg-white/90 hover:bg-white px-2 py-1 rounded text-xs font-medium shadow-md transition-all"
                           >

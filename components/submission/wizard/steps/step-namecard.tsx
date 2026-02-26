@@ -23,27 +23,57 @@ interface StepNamecardProps {
 const NAMECARD_STYLES = [
   {
     id: "style1",
-    name: "클래식",
-    description: "전통적이고 신뢰감 있는 디자인",
-    preview: "/images/namecard/style1.png",
+    name: "스타일 1",
+    description: "클래식 디자인",
+    preview: "/namecard/namecard_1.jpg",
   },
   {
     id: "style2",
-    name: "모던",
-    description: "심플하고 세련된 디자인",
-    preview: "/images/namecard/style2.png",
+    name: "스타일 2",
+    description: "모던 디자인",
+    preview: "/namecard/namecard_2.jpg",
   },
   {
     id: "style3",
-    name: "크리에이티브",
-    description: "독특하고 창의적인 디자인",
-    preview: "/images/namecard/style3.png",
+    name: "스타일 3",
+    description: "크리에이티브 디자인",
+    preview: "/namecard/namecard_3.jpg",
   },
   {
     id: "style4",
-    name: "미니멀",
-    description: "최소한의 요소로 깔끔한 디자인",
-    preview: "/images/namecard/style4.png",
+    name: "스타일 4",
+    description: "미니멀 디자인",
+    preview: "/namecard/namecard_4.jpg",
+  },
+  {
+    id: "style5",
+    name: "스타일 5",
+    description: "2026 신규 디자인",
+    preview: "/namecard/namecard_5.jpg",
+  },
+  {
+    id: "style6",
+    name: "스타일 6",
+    description: "2026 신규 디자인",
+    preview: "/namecard/namecard_6.jpg",
+  },
+];
+
+// 계약서 스타일 옵션
+const CONTRACT_STYLES = [
+  {
+    id: "style1",
+    name: "스타일 1",
+    description: "기본 디자인",
+    coverPreview: "/guides/print/contract_cover.jpg",
+    innerPreview: "/guides/print/contract_inner.jpg",
+  },
+  {
+    id: "style2",
+    name: "스타일 2",
+    description: "2026 신규 디자인",
+    coverPreview: "/guides/print/contract_cover_2.jpg",
+    innerPreview: "/guides/print/contract_inner_2.jpg",
   },
 ];
 
@@ -54,17 +84,17 @@ export function StepNamecard({ formData, onChange, errors = {} }: StepNamecardPr
   useEffect(() => {
     setCanProceed(true);
 
-    if (formData.명함시안) {
+    if (formData.명함시안 || formData.계약서시안) {
       markStepComplete(currentStep.id);
     }
-  }, [formData.명함시안, setCanProceed, markStepComplete, currentStep.id]);
+  }, [formData.명함시안, formData.계약서시안, setCanProceed, markStepComplete, currentStep.id]);
 
   return (
     <StepCard>
       <StepHeader
-        title="명함 스타일 선택"
-        description="마음에 드는 명함 디자인을 선택해주세요"
-        icon="💳"
+        title="인쇄물 디자인 선택"
+        description="명함과 계약서 디자인을 선택해주세요"
+        icon="🖨️"
         badge={<OptionalBadge />}
       />
 
@@ -72,26 +102,29 @@ export function StepNamecard({ formData, onChange, errors = {} }: StepNamecardPr
         이 단계는 선택사항입니다. 나중에 선택해도 됩니다.
       </StepNotice>
 
-      <div className="space-y-4">
-        {/* 명함 스타일 그리드 */}
-        <div className="grid grid-cols-2 gap-3">
-          {NAMECARD_STYLES.map((style) => (
-            <button
-              key={style.id}
-              type="button"
-              onClick={() => onChange("명함시안", style.id)}
-              className={cn(
-                "relative rounded-xl border-2 p-3 text-left transition-all",
-                "hover:border-blue-300 hover:shadow-md",
-                "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
-                formData.명함시안 === style.id
-                  ? "border-blue-500 bg-blue-50 shadow-md"
-                  : "border-gray-200 bg-white"
-              )}
-            >
-              {/* 미리보기 이미지 영역 */}
-              <div className="aspect-[3/2] bg-gray-100 rounded-lg mb-2 flex items-center justify-center overflow-hidden">
-                {style.preview ? (
+      <div className="space-y-8">
+        {/* 명함 스타일 */}
+        <div className="space-y-4">
+          <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+            <span>💳</span> 명함 스타일 (6종 중 1개 선택)
+          </h3>
+          <div className="grid grid-cols-2 gap-3">
+            {NAMECARD_STYLES.map((style) => (
+              <button
+                key={style.id}
+                type="button"
+                onClick={() => onChange("명함시안", style.id)}
+                className={cn(
+                  "relative rounded-xl border-2 p-3 text-left transition-all",
+                  "hover:border-blue-300 hover:shadow-md",
+                  "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
+                  formData.명함시안 === style.id
+                    ? "border-blue-500 bg-blue-50 shadow-md"
+                    : "border-gray-200 bg-white"
+                )}
+              >
+                {/* 미리보기 이미지 영역 */}
+                <div className="aspect-[3/2] bg-gray-100 rounded-lg mb-2 flex items-center justify-center overflow-hidden">
                   <img
                     src={style.preview}
                     alt={style.name}
@@ -100,33 +133,98 @@ export function StepNamecard({ formData, onChange, errors = {} }: StepNamecardPr
                       (e.target as HTMLImageElement).style.display = "none";
                     }}
                   />
-                ) : (
-                  <span className="text-2xl text-gray-300">💳</span>
-                )}
-              </div>
-
-              {/* 스타일 정보 */}
-              <div className="space-y-0.5">
-                <p className="text-sm font-semibold text-gray-900">{style.name}</p>
-                <p className="text-xs text-gray-500 line-clamp-2">
-                  {style.description}
-                </p>
-              </div>
-
-              {/* 선택 표시 */}
-              {formData.명함시안 === style.id && (
-                <div className="absolute top-2 right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-xs">✓</span>
                 </div>
-              )}
-            </button>
-          ))}
+
+                {/* 스타일 정보 */}
+                <div className="space-y-0.5">
+                  <p className="text-sm font-semibold text-gray-900">{style.name}</p>
+                  <p className="text-xs text-gray-500 line-clamp-2">
+                    {style.description}
+                  </p>
+                </div>
+
+                {/* 선택 표시 */}
+                {formData.명함시안 === style.id && (
+                  <div className="absolute top-2 right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-xs">✓</span>
+                  </div>
+                )}
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-gray-400 text-center">
+            선택한 스타일에 브랜드명, 연락처가 들어갑니다
+          </p>
         </div>
 
-        {/* 안내 메시지 */}
-        <p className="text-xs text-gray-400 text-center">
-          💡 선택한 스타일에 브랜드명, 연락처가 들어갑니다
-        </p>
+        {/* 구분선 */}
+        <div className="border-t border-gray-200" />
+
+        {/* 계약서 스타일 */}
+        <div className="space-y-4">
+          <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+            <span>📄</span> 자문계약서 스타일 (2종 중 1개 선택)
+          </h3>
+          <div className="grid grid-cols-2 gap-3">
+            {CONTRACT_STYLES.map((style) => (
+              <button
+                key={style.id}
+                type="button"
+                onClick={() => onChange("계약서시안", style.id)}
+                className={cn(
+                  "relative rounded-xl border-2 p-3 text-left transition-all",
+                  "hover:border-indigo-300 hover:shadow-md",
+                  "focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2",
+                  formData.계약서시안 === style.id
+                    ? "border-indigo-500 bg-indigo-50 shadow-md"
+                    : "border-gray-200 bg-white"
+                )}
+              >
+                {/* 미리보기: 표지 + 내지 */}
+                <div className="space-y-1.5 mb-2">
+                  <div className="aspect-[3/4] bg-gray-100 rounded-lg overflow-hidden">
+                    <img
+                      src={style.coverPreview}
+                      alt={`${style.name} 표지`}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = "none";
+                      }}
+                    />
+                  </div>
+                  <div className="aspect-[3/4] bg-gray-100 rounded-lg overflow-hidden">
+                    <img
+                      src={style.innerPreview}
+                      alt={`${style.name} 내지`}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = "none";
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* 스타일 정보 */}
+                <div className="space-y-0.5">
+                  <p className="text-sm font-semibold text-gray-900">{style.name}</p>
+                  <p className="text-xs text-gray-500 line-clamp-2">
+                    {style.description}
+                  </p>
+                </div>
+
+                {/* 선택 표시 */}
+                {formData.계약서시안 === style.id && (
+                  <div className="absolute top-2 right-2 w-6 h-6 bg-indigo-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-xs">✓</span>
+                  </div>
+                )}
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-gray-400 text-center">
+            표지와 내지 디자인이 세트로 적용됩니다
+          </p>
+        </div>
       </div>
     </StepCard>
   );

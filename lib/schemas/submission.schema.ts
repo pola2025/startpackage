@@ -36,6 +36,9 @@ export const submissionSchema = z.object({
     .optional(),
   명함시안: z.string().optional(),
 
+  // 계약서
+  계약서시안: z.string().optional(),
+
   // 홈페이지 (✅ 누락 필드 추가)
   홈페이지스타일: z.string().optional(),
   홈페이지컬러컨셉: z

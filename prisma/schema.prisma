@@ -189,6 +189,9 @@ model Submission {
   명함색상 String?
   명함시안 String?
 
+  // 계약서
+  계약서시안 String?
+
   // 계좌 정보
   은행명   String?
   계좌번호 String?
