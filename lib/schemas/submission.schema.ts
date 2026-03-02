@@ -69,6 +69,8 @@ export const submissionSchema = z.object({
   네이버클라우드PW: z.string().optional(),
   InstagramID: z.string().optional(),
   InstagramPW: z.string().optional(),
+  GmailID: z.string().optional(),
+  GmailPW: z.string().optional(),
   아임웹ID: z.string().optional(),
   아임웹PW: z.string().optional(),
   아임웹관리자PW: z.string().optional(),
