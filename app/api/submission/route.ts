@@ -100,6 +100,22 @@ export async function POST(request: Request) {
     });
     const wasNotComplete = !existingSubmission?.isComplete;
 
+    // Gmail 디버깅 로그
+    if (validatedData.GmailID || validatedData.GmailPW) {
+      console.log(
+        `🔍 [Gmail Debug] validatedData.GmailID: "${validatedData.GmailID}"`,
+      );
+      console.log(
+        `🔍 [Gmail Debug] validatedData.GmailPW: "${validatedData.GmailPW}"`,
+      );
+      console.log(
+        `🔍 [Gmail Debug] existingSubmission.GmailID: "${existingSubmission?.GmailID}"`,
+      );
+      console.log(
+        `🔍 [Gmail Debug] existingSubmission.GmailPW: "${existingSubmission?.GmailPW}"`,
+      );
+    }
+
     // Submission 업데이트
     const submission = await prisma.submission.upsert({
       where: { userId },
@@ -291,6 +307,12 @@ export async function POST(request: Request) {
     }
 
     // 슬랙 채널이 있으면 변경사항 업데이트
+    console.log(
+      `🔍 [Slack Check] slackChannelId: "${user?.slackChannelId}", existingSubmission: ${!!existingSubmission}`,
+    );
+    console.log(
+      `🔍 [Slack Check] submission.GmailID: "${submission.GmailID}", existing.GmailID: "${existingSubmission?.GmailID}"`,
+    );
     if (user?.slackChannelId && existingSubmission) {
       console.log(`✅ [Submission] 슬랙 업데이트 시작`);
       const { uploadFileToSlack } =
@@ -448,6 +470,38 @@ export async function POST(request: Request) {
         }).catch((err) =>
           console.error("정보 수정 슬랙 메시지 전송 실패", err),
         );
+      }
+
+      // Gmail 명시적 제출 시 별도 슬랙 알림 (autosave로 이미 저장된 경우 변경감지 누락 방지)
+      if (
+        validatedData.GmailID &&
+        !changedTextFields.find((f) => f.label === "Gmail ID")
+      ) {
+        console.log(
+          `📧 [Gmail] 명시적 제출 감지 - 변경감지 누락, 별도 알림 발송`,
+        );
+        await postMessage({
+          channelId: user.slackChannelId,
+          text: `✅ Gmail 계정 정보 등록`,
+          blocks: [
+            {
+              type: "section",
+              text: {
+                type: "mrkdwn",
+                text: `*✅ Gmail 계정 정보 등록*\n\n*Gmail ID:* ${submission.GmailID}\n*비밀번호:* 등록됨`,
+              },
+            },
+            {
+              type: "context",
+              elements: [
+                {
+                  type: "mrkdwn",
+                  text: `📅 ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`,
+                },
+              ],
+            },
+          ],
+        }).catch((err) => console.error("Gmail 슬랙 알림 실패", err));
       }
 
       // 파일 필드 체크 (모든 업로드 파일)
