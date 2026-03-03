@@ -24,6 +24,13 @@ import {
   RefreshCcw,
   MessageSquare,
   Calendar,
+  Palette,
+  Globe,
+  CreditCard,
+  Tag,
+  Mail,
+  BookOpen,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatArrivalDate } from "@/lib/utils/businessDays";
@@ -318,44 +325,45 @@ export default function StatusDashboardPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "대기":
-        return "bg-gray-100 text-gray-800 border-gray-300";
+        return "bg-navy-50 text-navy-300 border-navy-200";
       // 로고 워크플로우 상태
       case "시안제작중":
-        return "bg-gold-100 text-gold-800 border-gold-300";
+        return "bg-navy-50 text-navy-600 border-navy-200";
       case "시안컨펌요청":
-        return "bg-orange-100 text-orange-800 border-orange-300";
+        return "bg-terra-50 text-terra-500 border-terra-100";
       case "최종확정":
-        return "bg-emerald-100 text-emerald-800 border-emerald-300";
+        return "bg-ok-50 text-ok-700 border-ok-100";
       // 인쇄물 워크플로우 상태
       case "시안중":
-        return "bg-gold-100 text-gold-800 border-gold-300";
+        return "bg-navy-50 text-navy-600 border-navy-200";
       case "발주대기":
-        return "bg-orange-100 text-orange-800 border-orange-300";
+        return "bg-terra-50 text-terra-500 border-terra-100";
       case "발주요청":
-        return "bg-yellow-100 text-yellow-800 border-yellow-300";
+        return "bg-terra-50 text-terra-500 border-terra-100";
       case "발주완료":
-        return "bg-indigo-100 text-indigo-900 border-indigo-300";
+        return "bg-ok-50 text-ok-700 border-ok-100";
       case "제작완료":
-        return "bg-green-100 text-green-800 border-green-300";
+        return "bg-ok-50 text-ok-700 border-ok-100";
       case "발송완료":
-        return "bg-teal-100 text-teal-800 border-teal-300";
+        return "bg-ok-50 text-ok-700 border-ok-100";
       default:
-        return "bg-gray-100 text-gray-800 border-gray-300";
+        return "bg-navy-50 text-navy-300 border-navy-200";
     }
   };
 
   const getWorkflowIcon = (type: string) => {
-    const icons: Record<string, string> = {
-      로고: "🎨",
-      홈페이지: "🌐",
-      명함: "💳",
-      명찰: "🏷️",
-      대봉투: "✉️",
-      자문계약서: "📄",
-      "자문계약서 표지": "📘",
-      "자문계약서 내지": "📄",
+    const iconClass = "w-7 h-7 sm:w-8 sm:h-8";
+    const icons: Record<string, React.ReactNode> = {
+      로고: <Palette className={`${iconClass} text-gold-600`} />,
+      홈페이지: <Globe className={`${iconClass} text-navy-600`} />,
+      명함: <CreditCard className={`${iconClass} text-navy-600`} />,
+      명찰: <Tag className={`${iconClass} text-navy-600`} />,
+      대봉투: <Mail className={`${iconClass} text-navy-600`} />,
+      자문계약서: <FileText className={`${iconClass} text-navy-600`} />,
+      "자문계약서 표지": <BookOpen className={`${iconClass} text-navy-600`} />,
+      "자문계약서 내지": <FileText className={`${iconClass} text-navy-600`} />,
     };
-    return icons[type] || "📦";
+    return icons[type] || <Package className={`${iconClass} text-gray-500`} />;
   };
 
   // 필수 항목 체크
@@ -449,9 +457,9 @@ export default function StatusDashboardPage() {
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <span className="text-3xl">
+                        <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100">
                           {getWorkflowIcon(workflow.type)}
-                        </span>
+                        </div>
                         <div>
                           <CardTitle className="text-xl">
                             {workflow.type}
@@ -495,7 +503,7 @@ export default function StatusDashboardPage() {
                         {workflow.type === "로고" &&
                           workflow.status === "시안컨펌요청" && (
                             <Button
-                              className="w-full h-12 bg-green-600 hover:bg-green-700 text-white font-semibold"
+                              className="w-full h-12 bg-ok-600 hover:bg-ok-700 text-white font-semibold"
                               size="lg"
                               onClick={async () => {
                                 if (
@@ -542,7 +550,7 @@ export default function StatusDashboardPage() {
                             !workflow.발주승인일)) && (
                           <Button
                             variant="outline"
-                            className="w-full h-12 border-2 border-orange-300 text-orange-700 hover:bg-orange-50 font-semibold"
+                            className="w-full h-12 border-2 border-terra-100 text-terra-500 hover:bg-terra-50 font-semibold"
                             size="lg"
                             onClick={() => {
                               setFeedbackModal({
@@ -561,15 +569,15 @@ export default function StatusDashboardPage() {
 
                         {/* 기존 피드백 표시 */}
                         {workflow.feedback && (
-                          <div className="p-4 rounded-lg bg-orange-50 border-2 border-orange-200">
-                            <p className="text-sm font-semibold text-orange-900 mb-2">
+                          <div className="p-4 rounded-lg bg-terra-50 border-2 border-terra-100">
+                            <p className="text-sm font-semibold text-terra-600 mb-2">
                               제출한 피드백:
                             </p>
-                            <p className="text-sm text-orange-800 whitespace-pre-wrap">
+                            <p className="text-sm text-terra-600 whitespace-pre-wrap">
                               {workflow.feedback}
                             </p>
                             {workflow.feedbackDate && (
-                              <p className="text-xs text-orange-600 mt-2">
+                              <p className="text-xs text-terra-500 mt-2">
                                 {new Date(workflow.feedbackDate).toLocaleString(
                                   "ko-KR",
                                 )}
@@ -618,9 +626,9 @@ export default function StatusDashboardPage() {
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <span className="text-3xl">
+                        <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100">
                           {getWorkflowIcon(workflow.type)}
-                        </span>
+                        </div>
                         <div>
                           <CardTitle className="text-xl">
                             {workflow.type}
@@ -664,7 +672,7 @@ export default function StatusDashboardPage() {
                         {!workflow.발주승인일 && (
                           <Button
                             variant="outline"
-                            className="w-full h-12 border-2 border-orange-300 text-orange-700 hover:bg-orange-50 font-semibold"
+                            className="w-full h-12 border-2 border-terra-100 text-terra-500 hover:bg-terra-50 font-semibold"
                             size="lg"
                             onClick={() => {
                               setFeedbackModal({
@@ -683,15 +691,15 @@ export default function StatusDashboardPage() {
 
                         {/* 기존 피드백 표시 */}
                         {workflow.feedback && (
-                          <div className="p-4 rounded-lg bg-orange-50 border-2 border-orange-200">
-                            <p className="text-sm font-semibold text-orange-900 mb-2">
+                          <div className="p-4 rounded-lg bg-terra-50 border-2 border-terra-100">
+                            <p className="text-sm font-semibold text-terra-600 mb-2">
                               제출한 피드백:
                             </p>
-                            <p className="text-sm text-orange-800 whitespace-pre-wrap">
+                            <p className="text-sm text-terra-600 whitespace-pre-wrap">
                               {workflow.feedback}
                             </p>
                             {workflow.feedbackDate && (
-                              <p className="text-xs text-orange-600 mt-2">
+                              <p className="text-xs text-terra-500 mt-2">
                                 {new Date(workflow.feedbackDate).toLocaleString(
                                   "ko-KR",
                                 )}
@@ -710,18 +718,18 @@ export default function StatusDashboardPage() {
 
                     {/* 택배 추적 */}
                     {workflow.운송장번호 && (
-                      <div className="p-4 rounded-xl bg-teal-50 border-2 border-teal-200">
+                      <div className="p-4 rounded-xl bg-navy-50 border-2 border-navy-200">
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex items-start gap-3">
-                            <Truck className="w-6 h-6 text-teal-600 flex-shrink-0 mt-1" />
+                            <Truck className="w-6 h-6 text-navy-600 flex-shrink-0 mt-1" />
                             <div>
-                              <p className="font-semibold text-teal-900">
+                              <p className="font-semibold text-navy-900">
                                 배송 정보
                               </p>
-                              <p className="text-sm text-teal-700 mt-1">
+                              <p className="text-sm text-navy-700 mt-1">
                                 {workflow.택배회사}
                               </p>
-                              <p className="text-sm text-teal-700 font-mono">
+                              <p className="text-sm text-navy-700 font-mono">
                                 {workflow.운송장번호}
                               </p>
                             </div>
@@ -729,7 +737,7 @@ export default function StatusDashboardPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="flex-shrink-0 border-teal-300 text-teal-700 hover:bg-teal-100"
+                            className="flex-shrink-0 border-navy-200 text-navy-700 hover:bg-navy-50"
                             onClick={() => {
                               // 택배 추적 링크로 이동 (실제로는 택배사별 링크 생성)
                               window.open(
@@ -796,7 +804,7 @@ export default function StatusDashboardPage() {
               value={feedbackText}
               onChange={(e) => setFeedbackText(e.target.value)}
               placeholder="예: 로고 색상을 파란색으로 변경해주세요"
-              className="w-full h-32 px-4 py-3 border-2 border-gray-300 rounded-lg resize-none focus:outline-none focus:border-orange-500"
+              className="w-full h-32 px-4 py-3 border-2 border-gray-300 rounded-lg resize-none focus:outline-none focus:border-terra-500"
             />
 
             <div className="flex gap-3">
@@ -812,7 +820,7 @@ export default function StatusDashboardPage() {
                 취소
               </Button>
               <Button
-                className="flex-1 bg-orange-600 hover:bg-orange-700"
+                className="flex-1 bg-terra-500 hover:bg-terra-600"
                 onClick={handleFeedbackSubmit}
                 disabled={submitting || !feedbackText.trim()}
               >

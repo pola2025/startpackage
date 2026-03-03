@@ -390,16 +390,16 @@ export default async function UserDashboard() {
         </div>
         <div className="flex flex-wrap gap-4">
           {user.cohort && dday && (
-            <div className="inline-flex items-center gap-3 bg-gradient-to-r from-gold-100 to-gold-50 rounded-2xl border-2 border-orange-200 px-6 py-4">
+            <div className="inline-flex items-center gap-3 bg-gradient-to-r from-gold-100 to-gold-50 rounded-2xl border-2 border-gold-200 px-6 py-4">
               <div className="flex items-center justify-center w-12 h-12 bg-white rounded-full shadow-sm">
-                <Calendar className="w-6 h-6 text-orange-600" />
+                <Calendar className="w-6 h-6 text-gold-600" />
               </div>
               <div>
-                <p className="text-sm font-medium text-orange-700 mb-0.5">
+                <p className="text-sm font-medium text-gold-700 mb-0.5">
                   자료 제출 마감일
                 </p>
-                <p className="text-3xl font-bold text-orange-600">{dday}</p>
-                <p className="text-xs text-orange-600 mt-1">
+                <p className="text-3xl font-bold text-gold-600">{dday}</p>
+                <p className="text-xs text-gold-600 mt-1">
                   {new Date(user.cohort.자료제출마감일).toLocaleDateString(
                     "ko-KR",
                     {
@@ -430,9 +430,9 @@ export default async function UserDashboard() {
                     isExpired
                       ? "bg-gradient-to-r from-gray-50 to-gray-100 border-gray-300"
                       : isUrgent
-                        ? "bg-gradient-to-r from-red-50 to-pink-50 border-red-200"
+                        ? "bg-gradient-to-r from-terra-50 to-terra-50 border-terra-100"
                         : isWarning
-                          ? "bg-gradient-to-r from-orange-50 to-yellow-50 border-orange-200"
+                          ? "bg-gradient-to-r from-terra-50 to-terra-50 border-terra-100"
                           : "bg-gradient-to-r from-navy-50 to-gold-50 border-navy-200"
                   }`}
                 >
@@ -444,9 +444,9 @@ export default async function UserDashboard() {
                         isExpired
                           ? "text-gray-600"
                           : isUrgent
-                            ? "text-red-600"
+                            ? "text-terra-500"
                             : isWarning
-                              ? "text-orange-600"
+                              ? "text-terra-500"
                               : "text-navy-600"
                       }`}
                     />
@@ -457,9 +457,9 @@ export default async function UserDashboard() {
                         isExpired
                           ? "text-gray-700"
                           : isUrgent
-                            ? "text-red-700"
+                            ? "text-terra-600"
                             : isWarning
-                              ? "text-orange-700"
+                              ? "text-terra-600"
                               : "text-navy-700"
                       }`}
                     >
@@ -470,9 +470,9 @@ export default async function UserDashboard() {
                         isExpired
                           ? "text-gray-600"
                           : isUrgent
-                            ? "text-red-600"
+                            ? "text-terra-500"
                             : isWarning
-                              ? "text-orange-600"
+                              ? "text-terra-500"
                               : "text-navy-600"
                       }`}
                     >
@@ -483,9 +483,9 @@ export default async function UserDashboard() {
                         isExpired
                           ? "text-gray-600"
                           : isUrgent
-                            ? "text-red-600"
+                            ? "text-terra-500"
                             : isWarning
-                              ? "text-orange-600"
+                              ? "text-terra-500"
                               : "text-navy-600"
                       }`}
                     >
@@ -542,18 +542,17 @@ export default async function UserDashboard() {
             <div className="space-y-1.5 md:space-y-2">
               {notifications.map((notification, index) => {
                 const colors = {
-                  urgent: "text-red-700 hover:bg-red-100 border-red-200",
-                  warning:
-                    "text-orange-700 hover:bg-orange-100 border-orange-200",
-                  info: "text-navy-700 hover:bg-gold-100 border-gold-200",
-                  success: "text-green-700 hover:bg-green-100 border-green-200",
+                  urgent: "text-terra-600 hover:bg-terra-50 border-terra-100",
+                  warning: "text-terra-500 hover:bg-terra-50 border-terra-100",
+                  info: "text-navy-600 hover:bg-navy-50 border-navy-200",
+                  success: "text-ok-700 hover:bg-ok-50 border-ok-100",
                 };
 
                 const badgeColors = {
-                  urgent: "bg-red-100 text-red-700 border-red-300",
-                  warning: "bg-orange-100 text-orange-700 border-orange-300",
-                  info: "bg-gold-100 text-navy-700 border-gold-300",
-                  success: "bg-green-100 text-green-700 border-green-300",
+                  urgent: "bg-terra-50 text-terra-600 border-terra-100",
+                  warning: "bg-terra-50 text-terra-500 border-terra-100",
+                  info: "bg-navy-50 text-navy-600 border-navy-200",
+                  success: "bg-ok-50 text-ok-700 border-ok-100",
                 };
 
                 return (
@@ -603,8 +602,8 @@ export default async function UserDashboard() {
               </div>
             </div>
             <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                <Package className="w-4 h-4 sm:w-5 sm:h-5 text-green-700" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-ok-100 flex items-center justify-center flex-shrink-0">
+                <Package className="w-4 h-4 sm:w-5 sm:h-5 text-ok-700" />
               </div>
               <div className="min-w-0">
                 <p className="text-xs sm:text-sm text-gray-500">기수</p>
@@ -616,8 +615,8 @@ export default async function UserDashboard() {
           </div>
           <div className="space-y-2 sm:space-y-3">
             <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
-                <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-terra-100 flex items-center justify-center flex-shrink-0">
+                <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-terra-500" />
               </div>
               <div className="min-w-0">
                 <p className="text-xs sm:text-sm text-gray-500">연락처</p>
@@ -678,7 +677,7 @@ export default async function UserDashboard() {
               </CardTitle>
               <CardDescription className="text-xs md:text-base text-gray-600">
                 {completionPercent === 100
-                  ? "모든 자료가 제출되었습니다! 🎉"
+                  ? "모든 자료가 제출되었습니다!"
                   : "필수 자료를 제출하여 진행을 완료하세요"}
               </CardDescription>
             </div>
@@ -745,17 +744,82 @@ export default async function UserDashboard() {
                 const Icon = item.icon;
                 const sharedClassName = `group relative flex flex-col items-center p-2 md:p-4 rounded-lg md:rounded-xl bg-gradient-to-br ${
                   item.value
-                    ? "from-green-50 to-emerald-50 border border-green-200 md:border-2"
-                    : "from-gray-50 to-gray-100 border border-gray-200 md:border-2 hover:from-gold-50 hover:to-gold-100 hover:border-gold-300 cursor-pointer"
+                    ? "from-white to-white border border-gray-200 md:border-2"
+                    : "from-gray-50 to-gray-100 border border-gray-200 md:border-2 hover:from-navy-50 hover:to-navy-50 hover:border-navy-200 cursor-pointer"
                 } transition-all duration-200 ${!item.value ? "hover:shadow-md" : ""}`;
+
+                const progressRing = item.value ? (
+                  <svg
+                    className="absolute top-1 right-1 md:top-2 md:right-2 w-6 h-6 md:w-8 md:h-8"
+                    viewBox="0 0 36 36"
+                  >
+                    <circle
+                      cx="18"
+                      cy="18"
+                      r="15.5"
+                      fill="none"
+                      stroke="#e5e7eb"
+                      strokeWidth="3"
+                    />
+                    <circle
+                      cx="18"
+                      cy="18"
+                      r="15.5"
+                      fill="none"
+                      stroke="#22c55e"
+                      strokeWidth="3"
+                      strokeDasharray="97.39"
+                      strokeDashoffset="0"
+                      strokeLinecap="round"
+                      transform="rotate(-90 18 18)"
+                    />
+                    <text
+                      x="18"
+                      y="20"
+                      textAnchor="middle"
+                      fontSize="10"
+                      fill="#374151"
+                      fontWeight="bold"
+                    >
+                      ✓
+                    </text>
+                  </svg>
+                ) : (
+                  <svg
+                    className="absolute top-1 right-1 md:top-2 md:right-2 w-6 h-6 md:w-8 md:h-8"
+                    viewBox="0 0 36 36"
+                  >
+                    <circle
+                      cx="18"
+                      cy="18"
+                      r="15.5"
+                      fill="none"
+                      stroke="#e5e7eb"
+                      strokeWidth="3"
+                    />
+                    <circle
+                      cx="18"
+                      cy="18"
+                      r="15.5"
+                      fill="none"
+                      stroke="#b85e52"
+                      strokeWidth="3"
+                      strokeDasharray="97.39"
+                      strokeDashoffset="73.05"
+                      strokeLinecap="round"
+                      transform="rotate(-90 18 18)"
+                    />
+                  </svg>
+                );
 
                 const content = (
                   <>
+                    {progressRing}
                     <div
                       className={`flex items-center justify-center w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-xl mb-1.5 md:mb-3 ${
                         item.value
-                          ? "bg-green-600"
-                          : "bg-gray-400 group-hover:bg-navy-900"
+                          ? "bg-navy-800"
+                          : "bg-navy-300 group-hover:bg-navy-900"
                       } transition-colors`}
                     >
                       <Icon className="w-4 h-4 md:w-6 md:h-6 text-white" />
@@ -765,14 +829,14 @@ export default async function UserDashboard() {
                       <span className="hidden md:inline">{item.label}</span>
                     </p>
                     {item.value ? (
-                      <div className="flex items-center gap-0.5 md:gap-1.5 text-green-700">
+                      <div className="flex items-center gap-0.5 md:gap-1.5 text-ok-600">
                         <CheckCircle2 className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
                         <span className="text-[9px] md:text-xs font-medium">
                           완료
                         </span>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-0.5 md:gap-1.5 text-orange-600 group-hover:text-gold-600">
+                      <div className="flex items-center gap-0.5 md:gap-1.5 text-terra-500 group-hover:text-navy-600">
                         <AlertCircle className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
                         <span className="text-[9px] md:text-xs font-medium">
                           필요
@@ -783,7 +847,11 @@ export default async function UserDashboard() {
                 );
 
                 return item.value ? (
-                  <div key={idx} className={sharedClassName}>
+                  <div
+                    key={idx}
+                    className={sharedClassName}
+                    style={{ opacity: 0.55 }}
+                  >
                     {content}
                   </div>
                 ) : (
@@ -832,17 +900,17 @@ export default async function UserDashboard() {
               {user.workflows.map((workflow) => {
                 const statusColor =
                   workflow.status === "완료"
-                    ? "green-600"
+                    ? "ok-600"
                     : workflow.status === "진행중"
-                      ? "orange-600"
-                      : "gray-400";
+                      ? "navy-600"
+                      : "navy-300";
 
                 const statusBorderColor =
                   workflow.status === "완료"
-                    ? "border-green-500"
+                    ? "border-ok-600"
                     : workflow.status === "진행중"
-                      ? "border-orange-500"
-                      : "border-gray-400";
+                      ? "border-navy-600"
+                      : "border-navy-300";
 
                 return (
                   <div
@@ -955,20 +1023,33 @@ export default async function UserDashboard() {
                   {
                     icon: BarChart3,
                     label: "Meta 광고 게재 지원",
-                    color: "gold",
+                    iconBg: "bg-gold-100",
+                    iconColor: "text-gold-600",
                   },
                   {
                     icon: Database,
                     label: "잠재고객 접수 자동화",
-                    color: "green",
+                    iconBg: "bg-ok-100",
+                    iconColor: "text-ok-600",
                   },
-                  { icon: Bell, label: "실시간 DB 접수 알림", color: "orange" },
+                  {
+                    icon: Bell,
+                    label: "실시간 DB 접수 알림",
+                    iconBg: "bg-terra-100",
+                    iconColor: "text-terra-500",
+                  },
                   {
                     icon: MessageSquare,
                     label: "고객 안내 SMS 발송",
-                    color: "purple",
+                    iconBg: "bg-navy-100",
+                    iconColor: "text-navy-600",
                   },
-                  { icon: Sheet, label: "고객 DB 시트 저장", color: "teal" },
+                  {
+                    icon: Sheet,
+                    label: "고객 DB 시트 저장",
+                    iconBg: "bg-navy-100",
+                    iconColor: "text-navy-600",
+                  },
                 ].map((item, idx) => {
                   const Icon = item.icon;
                   return (
@@ -977,9 +1058,9 @@ export default async function UserDashboard() {
                       className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-br from-gray-50 to-white border border-gray-200"
                     >
                       <div
-                        className={`flex items-center justify-center w-10 h-10 rounded-lg bg-${item.color}-100 flex-shrink-0`}
+                        className={`flex items-center justify-center w-10 h-10 rounded-lg ${item.iconBg} flex-shrink-0`}
                       >
-                        <Icon className={`w-5 h-5 text-${item.color}-600`} />
+                        <Icon className={`w-5 h-5 ${item.iconColor}`} />
                       </div>
                       <p className="text-sm font-medium text-gray-900">
                         {item.label}
@@ -1013,14 +1094,14 @@ export default async function UserDashboard() {
                   </h3>
 
                   {hasPendingRequest ? (
-                    <div className="bg-yellow-50 p-4 rounded-lg border-2 border-yellow-300">
+                    <div className="bg-gold-50 p-4 rounded-lg border-2 border-gold-200">
                       <div className="flex items-start gap-3">
-                        <Clock className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                        <Clock className="w-5 h-5 text-gold-600 flex-shrink-0 mt-0.5" />
                         <div>
-                          <p className="text-sm font-semibold text-yellow-900 mb-1">
+                          <p className="text-sm font-semibold text-navy-900 mb-1">
                             연장 신청 검토 중
                           </p>
-                          <p className="text-xs text-yellow-800">
+                          <p className="text-xs text-navy-800">
                             관리자가 검토 중입니다. 승인 시 알림을 보내드립니다.
                           </p>
                         </div>
@@ -1034,7 +1115,7 @@ export default async function UserDashboard() {
                             현재 남은 기간
                           </p>
                           <p
-                            className={`text-2xl font-bold ${daysRemaining <= 7 ? "text-red-600" : daysRemaining <= 30 ? "text-orange-600" : "text-navy-600"}`}
+                            className={`text-2xl font-bold ${daysRemaining <= 7 ? "text-terra-500" : daysRemaining <= 30 ? "text-terra-500" : "text-navy-600"}`}
                           >
                             {daysRemaining > 0
                               ? `${daysRemaining}일`

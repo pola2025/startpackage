@@ -101,11 +101,11 @@ export default function WorkflowProgress({
 
   // 완료 상태면 녹색, 아니면 긴급도에 따라 색상 결정
   const progressColor = completed
-    ? "bg-emerald-500"
+    ? "bg-ok-500"
     : urgency.level === "high"
-      ? "bg-red-500"
+      ? "bg-terra-500"
       : urgency.level === "medium"
-        ? "bg-orange-500"
+        ? "bg-terra-500"
         : "bg-gold-500";
 
   return (
@@ -113,7 +113,7 @@ export default function WorkflowProgress({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           {completed ? (
-            <div className="flex items-center gap-1 text-emerald-600">
+            <div className="flex items-center gap-1 text-ok-600">
               <CheckCircle2 className="w-3.5 h-3.5" />
               <span className="text-xs font-semibold">완료</span>
             </div>
@@ -126,8 +126,8 @@ export default function WorkflowProgress({
                 <div
                   className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${
                     urgency.level === "high"
-                      ? "bg-red-100 text-red-700"
-                      : "bg-orange-100 text-orange-700"
+                      ? "bg-terra-50 text-terra-600"
+                      : "bg-terra-50 text-terra-500"
                   }`}
                 >
                   <AlertTriangle className="w-3 h-3" />

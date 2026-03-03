@@ -70,9 +70,11 @@ export default function UrgentAlertModal({
       return w.feedback && !w.feedbackRead && !markedAsRead.has(w.id);
     }
     if (alertType === "지연") {
-      if (!w.자료제출일 || w.status === "최종확정" || w.status === "발송완료") return false;
+      if (!w.자료제출일 || w.status === "최종확정" || w.status === "발송완료")
+        return false;
       const daysSince = Math.floor(
-        (new Date().getTime() - new Date(w.자료제출일).getTime()) / (1000 * 60 * 60 * 24)
+        (new Date().getTime() - new Date(w.자료제출일).getTime()) /
+          (1000 * 60 * 60 * 24),
       );
       return daysSince > 14;
     }
@@ -128,7 +130,7 @@ export default function UrgentAlertModal({
   // 경과 일수 계산
   const getDaysSince = (date: string) => {
     return Math.floor(
-      (new Date().getTime() - new Date(date).getTime()) / (1000 * 60 * 60 * 24)
+      (new Date().getTime() - new Date(date).getTime()) / (1000 * 60 * 60 * 24),
     );
   };
 
@@ -136,27 +138,29 @@ export default function UrgentAlertModal({
   const alertConfig = {
     발주요청: {
       title: "발주 요청 대기",
-      description: "고객이 발주를 요청한 워크플로우입니다. 확인 후 승인해주세요.",
+      description:
+        "고객이 발주를 요청한 워크플로우입니다. 확인 후 승인해주세요.",
       icon: AlertTriangle,
-      color: "text-yellow-600",
-      bgColor: "bg-yellow-50",
-      borderColor: "border-yellow-300",
+      color: "text-terra-500",
+      bgColor: "bg-terra-50",
+      borderColor: "border-terra-100",
     },
     피드백: {
       title: "피드백 확인 필요",
       description: "고객이 남긴 피드백을 확인하고 처리해주세요.",
       icon: MessageSquare,
-      color: "text-orange-600",
-      bgColor: "bg-orange-50",
-      borderColor: "border-orange-300",
+      color: "text-terra-500",
+      bgColor: "bg-terra-50",
+      borderColor: "border-terra-100",
     },
     지연: {
       title: "14일 이상 경과",
-      description: "자료 제출 후 14일 이상 경과된 워크플로우입니다. 진행 상황을 확인해주세요.",
+      description:
+        "자료 제출 후 14일 이상 경과된 워크플로우입니다. 진행 상황을 확인해주세요.",
       icon: Clock,
-      color: "text-red-600",
-      bgColor: "bg-red-50",
-      borderColor: "border-red-300",
+      color: "text-terra-600",
+      bgColor: "bg-terra-50",
+      borderColor: "border-terra-100",
     },
   };
 
@@ -188,7 +192,7 @@ export default function UrgentAlertModal({
         <ScrollArea className="h-[400px] pr-4">
           {filteredWorkflows.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-gray-500">
-              <CheckCircle className="w-12 h-12 mb-3 text-green-500" />
+              <CheckCircle className="w-12 h-12 mb-3 text-ok-500" />
               <p className="text-lg font-medium">모두 처리되었습니다!</p>
             </div>
           ) : (
@@ -209,7 +213,8 @@ export default function UrgentAlertModal({
                           {workflow.user.이름}
                         </div>
                         <div className="text-xs text-gray-500">
-                          {workflow.user.cohort?.name || "미지정"} · {workflow.user.연락처 || "연락처 없음"}
+                          {workflow.user.cohort?.name || "미지정"} ·{" "}
+                          {workflow.user.연락처 || "연락처 없음"}
                         </div>
                       </div>
                     </div>
@@ -223,11 +228,15 @@ export default function UrgentAlertModal({
                   {alertType === "피드백" && workflow.feedback && (
                     <div className="mb-3 p-3 bg-white rounded-lg border">
                       <div className="flex items-center gap-2 mb-1">
-                        <MessageSquare className="w-4 h-4 text-orange-500" />
-                        <span className="text-sm font-medium text-gray-700">고객 피드백</span>
+                        <MessageSquare className="w-4 h-4 text-terra-500" />
+                        <span className="text-sm font-medium text-gray-700">
+                          고객 피드백
+                        </span>
                         {workflow.feedbackDate && (
                           <span className="text-xs text-gray-400">
-                            {new Date(workflow.feedbackDate).toLocaleDateString("ko-KR")}
+                            {new Date(workflow.feedbackDate).toLocaleDateString(
+                              "ko-KR",
+                            )}
                           </span>
                         )}
                       </div>
@@ -245,7 +254,9 @@ export default function UrgentAlertModal({
                           <Calendar className="w-4 h-4 text-gray-500" />
                           <span className="text-gray-600">자료제출일:</span>
                           <span className="font-medium">
-                            {new Date(workflow.자료제출일).toLocaleDateString("ko-KR")}
+                            {new Date(workflow.자료제출일).toLocaleDateString(
+                              "ko-KR",
+                            )}
                           </span>
                         </div>
                         <Badge variant="destructive">
@@ -253,7 +264,8 @@ export default function UrgentAlertModal({
                         </Badge>
                       </div>
                       <div className="mt-2 text-sm text-gray-600">
-                        현재 상태: <Badge variant="outline">{workflow.status}</Badge>
+                        현재 상태:{" "}
+                        <Badge variant="outline">{workflow.status}</Badge>
                       </div>
                     </div>
                   )}
@@ -265,7 +277,7 @@ export default function UrgentAlertModal({
                         size="sm"
                         onClick={() => handleApproveOrder(workflow.id)}
                         disabled={loading === workflow.id}
-                        className="bg-green-600 hover:bg-green-700"
+                        className="bg-ok-600 hover:bg-ok-700"
                       >
                         {loading === workflow.id ? (
                           <Loader2 className="w-4 h-4 mr-1 animate-spin" />
@@ -281,7 +293,7 @@ export default function UrgentAlertModal({
                         size="sm"
                         onClick={() => handleMarkFeedbackRead(workflow.id)}
                         disabled={loading === workflow.id}
-                        className="bg-orange-600 hover:bg-orange-700"
+                        className="bg-terra-500 hover:bg-terra-600"
                       >
                         {loading === workflow.id ? (
                           <Loader2 className="w-4 h-4 mr-1 animate-spin" />
@@ -297,7 +309,10 @@ export default function UrgentAlertModal({
                       variant="outline"
                       onClick={() => {
                         // 시안관리 페이지로 이동
-                        window.open(`/admin/communication?userId=${workflow.user.id}`, "_blank");
+                        window.open(
+                          `/admin/communication?userId=${workflow.user.id}`,
+                          "_blank",
+                        );
                       }}
                     >
                       <ExternalLink className="w-4 h-4 mr-1" />

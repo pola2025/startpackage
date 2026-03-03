@@ -20,9 +20,9 @@ export function SubmissionProgress({
 }: SubmissionProgressProps) {
   const statusConfig = {
     작성중: {
-      color: "text-yellow-700",
-      bgColor: "bg-yellow-50",
-      borderColor: "border-yellow-200",
+      color: "text-gold-700",
+      bgColor: "bg-gold-50",
+      borderColor: "border-gold-200",
       icon: Circle,
       label: "작성 중",
     },
@@ -34,16 +34,16 @@ export function SubmissionProgress({
       label: "검토 중",
     },
     보완필요: {
-      color: "text-orange-700",
-      bgColor: "bg-orange-50",
-      borderColor: "border-orange-200",
+      color: "text-terra-500",
+      bgColor: "bg-terra-50",
+      borderColor: "border-terra-100",
       icon: AlertCircle,
       label: "보완 필요",
     },
     완료: {
-      color: "text-green-700",
-      bgColor: "bg-green-50",
-      borderColor: "border-green-200",
+      color: "text-ok-700",
+      bgColor: "bg-ok-50",
+      borderColor: "border-ok-100",
       icon: CheckCircle2,
       label: "제출 완료",
     },
@@ -92,19 +92,19 @@ export function SubmissionProgress({
               className={cn(
                 "flex items-center gap-3 p-3 rounded-lg border-2 transition-all",
                 field.completed
-                  ? "bg-green-50 border-green-200"
+                  ? "bg-ok-50 border-ok-100"
                   : "bg-white border-gray-200 animate-pulse",
               )}
             >
               {field.completed ? (
-                <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />
+                <CheckCircle2 className="w-5 h-5 text-ok-600 flex-shrink-0" />
               ) : (
                 <Circle className="w-5 h-5 text-gray-400 flex-shrink-0" />
               )}
               <span
                 className={cn(
                   "text-sm font-medium",
-                  field.completed ? "text-green-900" : "text-gray-700",
+                  field.completed ? "text-ok-700" : "text-gray-700",
                 )}
               >
                 {field.label}

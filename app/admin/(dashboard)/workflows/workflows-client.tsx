@@ -19,7 +19,17 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { Package, Truck, Calendar, User, Maximize2, Minimize2, ChevronDown, ChevronRight, Users } from "lucide-react";
+import {
+  Package,
+  Truck,
+  Calendar,
+  User,
+  Maximize2,
+  Minimize2,
+  ChevronDown,
+  ChevronRight,
+  Users,
+} from "lucide-react";
 import WorkflowActions from "./workflow-actions";
 import SubmissionViewButton from "./submission-view-button";
 import DesignThreadButton from "./design-thread-button";
@@ -34,7 +44,10 @@ import UrgentAlertBanner from "./urgent-alert-banner";
 import BulkActions from "./bulk-actions";
 import DesignSMSModal from "./design-sms-modal";
 import UrgentAlertModal from "./urgent-alert-modal";
-import { KanbanBoard, WorkflowStatus } from "@/app/components/workflows/kanban-board";
+import {
+  KanbanBoard,
+  WorkflowStatus,
+} from "@/app/components/workflows/kanban-board";
 import { WorkflowStatusIcons } from "@/components/admin/workflow-status-icons";
 import { AdAutomationBadge } from "@/components/admin/ad-automation-badge";
 import { SmsSettingBadge } from "@/components/admin/sms-setting-badge";
@@ -58,7 +71,7 @@ export default function WorkflowsClient({
   workflowsByUser,
   stats,
   cohorts,
-  workflowTypes
+  workflowTypes,
 }: WorkflowsClientProps) {
   const [filters, setFilters] = useState<FilterState>({
     search: "",
@@ -69,32 +82,89 @@ export default function WorkflowsClient({
     isDelayed: undefined,
   });
   const [sortBy, setSortBy] = useState("newest");
-  const [viewMode, setViewMode] = useState<"user" | "status" | "kanban">("user");
+  const [viewMode, setViewMode] = useState<"user" | "status" | "kanban">(
+    "user",
+  );
   const [compactView, setCompactView] = useState(false);
-  const [selectedWorkflows, setSelectedWorkflows] = useState<Set<string>>(new Set());
+  const [selectedWorkflows, setSelectedWorkflows] = useState<Set<string>>(
+    new Set(),
+  );
   const [showDesignSMSModal, setShowDesignSMSModal] = useState(false);
-  const [urgentAlertType, setUrgentAlertType] = useState<"발주요청" | "피드백" | "지연" | null>(null);
+  const [urgentAlertType, setUrgentAlertType] = useState<
+    "발주요청" | "피드백" | "지연" | null
+  >(null);
 
   // 기수별/사용자별 접기/펼치기 상태
-  const [expandedCohorts, setExpandedCohorts] = useState<Set<string>>(new Set());
+  const [expandedCohorts, setExpandedCohorts] = useState<Set<string>>(
+    new Set(),
+  );
   const [expandedUsers, setExpandedUsers] = useState<Set<string>>(new Set());
 
   const getStatusBadge = (status: string) => {
-    const statusMap: Record<string, { color: string; bg: string; label: string }> = {
-      "대기": { color: "text-gray-800", bg: "bg-gray-50 border-gray-300", label: "대기" },
+    const statusMap: Record<
+      string,
+      { color: string; bg: string; label: string }
+    > = {
+      대기: {
+        color: "text-navy-300",
+        bg: "bg-navy-50 border-navy-200",
+        label: "대기",
+      },
       // 로고 워크플로우 상태
-      "시안제작중": { color: "text-navy-800", bg: "bg-gold-50 border-gold-300", label: "시안 제작 중" },
-      "시안컨펌요청": { color: "text-orange-800", bg: "bg-orange-50 border-orange-300", label: "시안 컨펌 요청" },
-      "최종확정": { color: "text-emerald-900", bg: "bg-emerald-50 border-emerald-300", label: "최종 확정" },
+      시안제작중: {
+        color: "text-navy-600",
+        bg: "bg-navy-50 border-navy-200",
+        label: "시안 제작 중",
+      },
+      시안컨펌요청: {
+        color: "text-terra-500",
+        bg: "bg-terra-50 border-terra-100",
+        label: "시안 컨펌 요청",
+      },
+      최종확정: {
+        color: "text-ok-700",
+        bg: "bg-ok-50 border-ok-100",
+        label: "최종 확정",
+      },
       // 인쇄물 워크플로우 상태
-      "시안중": { color: "text-navy-800", bg: "bg-gold-50 border-gold-300", label: "시안 작업중" },
-      "발주대기": { color: "text-orange-800", bg: "bg-orange-50 border-orange-300", label: "발주 대기" },
-      "발주요청": { color: "text-yellow-800", bg: "bg-yellow-50 border-yellow-300", label: "발주 요청" },
-      "발주완료": { color: "text-indigo-900", bg: "bg-indigo-50 border-indigo-300", label: "발주 완료" },
-      "제작완료": { color: "text-green-800", bg: "bg-green-50 border-green-300", label: "제작 완료" },
-      "발송완료": { color: "text-teal-800", bg: "bg-teal-50 border-teal-300", label: "발송 완료" },
+      시안중: {
+        color: "text-navy-600",
+        bg: "bg-navy-50 border-navy-200",
+        label: "시안 작업중",
+      },
+      발주대기: {
+        color: "text-terra-500",
+        bg: "bg-terra-50 border-terra-100",
+        label: "발주 대기",
+      },
+      발주요청: {
+        color: "text-terra-500",
+        bg: "bg-terra-50 border-terra-100",
+        label: "발주 요청",
+      },
+      발주완료: {
+        color: "text-ok-700",
+        bg: "bg-ok-50 border-ok-100",
+        label: "발주 완료",
+      },
+      제작완료: {
+        color: "text-ok-700",
+        bg: "bg-ok-50 border-ok-100",
+        label: "제작 완료",
+      },
+      발송완료: {
+        color: "text-ok-700",
+        bg: "bg-ok-50 border-ok-100",
+        label: "발송 완료",
+      },
     };
-    return statusMap[status] || { color: "text-gray-800", bg: "bg-gray-50 border-gray-300", label: status };
+    return (
+      statusMap[status] || {
+        color: "text-gray-800",
+        bg: "bg-gray-50 border-gray-300",
+        label: status,
+      }
+    );
   };
 
   // 긴급도 계산
@@ -104,7 +174,8 @@ export default function WorkflowsClient({
 
     if (workflow.자료제출일) {
       const daysSince = Math.floor(
-        (now.getTime() - new Date(workflow.자료제출일).getTime()) / (1000 * 60 * 60 * 24)
+        (now.getTime() - new Date(workflow.자료제출일).getTime()) /
+          (1000 * 60 * 60 * 24),
       );
       score += daysSince * 2;
     }
@@ -120,62 +191,74 @@ export default function WorkflowsClient({
   // 전체 워크플로우 배열 생성
   const allWorkflows = useMemo(() => {
     return Object.values(workflowsByUser).flatMap((data) =>
-      data.workflows.map((w: any) => ({ ...w, user: data.user }))
+      data.workflows.map((w: any) => ({ ...w, user: data.user })),
     );
   }, [workflowsByUser]);
 
   // useMemo로 필터링 및 정렬 최적화
   const filteredAndSortedData = useMemo(() => {
     // 1. 필터링
-    let filtered = Object.entries(workflowsByUser).reduce((acc, [userId, data]) => {
-      const filteredWorkflows = data.workflows.filter((w: any) => {
-        // 상태 필터
-        if (filters.status !== "all" && w.status !== filters.status) return false;
+    let filtered = Object.entries(workflowsByUser).reduce(
+      (acc, [userId, data]) => {
+        const filteredWorkflows = data.workflows.filter((w: any) => {
+          // 상태 필터
+          if (filters.status !== "all" && w.status !== filters.status)
+            return false;
 
-        // 타입 필터
-        if (filters.type !== "all" && w.type !== filters.type) return false;
+          // 타입 필터
+          if (filters.type !== "all" && w.type !== filters.type) return false;
 
-        // 코호트 필터
-        if (filters.cohort !== "all" && data.user.cohortId !== filters.cohort) return false;
+          // 코호트 필터
+          if (filters.cohort !== "all" && data.user.cohortId !== filters.cohort)
+            return false;
 
-        // 피드백 필터
-        if (filters.hasFeedback === true && !w.feedback) return false;
+          // 피드백 필터
+          if (filters.hasFeedback === true && !w.feedback) return false;
 
-        // 지연 필터 (14일 이상 경과)
-        if (filters.isDelayed === true) {
-          const daysSince = w.자료제출일
-            ? Math.floor(
-                (new Date().getTime() - new Date(w.자료제출일).getTime()) / (1000 * 60 * 60 * 24)
-              )
-            : 0;
-          if (daysSince < 14) return false;
+          // 지연 필터 (14일 이상 경과)
+          if (filters.isDelayed === true) {
+            const daysSince = w.자료제출일
+              ? Math.floor(
+                  (new Date().getTime() - new Date(w.자료제출일).getTime()) /
+                    (1000 * 60 * 60 * 24),
+                )
+              : 0;
+            if (daysSince < 14) return false;
+          }
+
+          // 검색 필터 (이름, 연락처)
+          if (filters.search) {
+            const searchLower = filters.search.toLowerCase();
+            const nameMatch = data.user.이름
+              ?.toLowerCase()
+              .includes(searchLower);
+            const phoneMatch = data.user.연락처?.includes(filters.search);
+            if (!nameMatch && !phoneMatch) return false;
+          }
+
+          return true;
+        });
+
+        if (filteredWorkflows.length > 0) {
+          acc[userId] = { ...data, workflows: filteredWorkflows };
         }
-
-        // 검색 필터 (이름, 연락처)
-        if (filters.search) {
-          const searchLower = filters.search.toLowerCase();
-          const nameMatch = data.user.이름?.toLowerCase().includes(searchLower);
-          const phoneMatch = data.user.연락처?.includes(filters.search);
-          if (!nameMatch && !phoneMatch) return false;
-        }
-
-        return true;
-      });
-
-      if (filteredWorkflows.length > 0) {
-        acc[userId] = { ...data, workflows: filteredWorkflows };
-      }
-      return acc;
-    }, {} as typeof workflowsByUser);
+        return acc;
+      },
+      {} as typeof workflowsByUser,
+    );
 
     // 2. 정렬
     Object.values(filtered).forEach((data) => {
       data.workflows.sort((a: any, b: any) => {
         switch (sortBy) {
           case "newest":
-            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+            return (
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            );
           case "oldest":
-            return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+            return (
+              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+            );
           case "urgent":
             return calculateUrgency(b) - calculateUrgency(a);
           case "status":
@@ -197,12 +280,12 @@ export default function WorkflowsClient({
 
     // 발주 요청 (최우선)
     if (workflow.status === "발주요청") {
-      return `${baseClass} bg-yellow-50 hover:bg-yellow-100`;
+      return `${baseClass} bg-terra-50 hover:bg-terra-50/80`;
     }
 
     // 피드백 있음 (확인 안된 것만)
     if (workflow.feedback && !workflow.feedbackRead) {
-      return `${baseClass} border-l-4 border-l-orange-400 hover:bg-orange-50/50`;
+      return `${baseClass} border-l-4 border-l-terra-500 hover:bg-terra-50/50`;
     }
 
     return `${baseClass} hover:bg-gold-50/50`;
@@ -210,21 +293,29 @@ export default function WorkflowsClient({
 
   // 기수별 그룹화
   const groupedByCohort = useMemo(() => {
-    const groups: Record<string, { cohort: any; userGroups: Record<string, { user: any; workflows: any[] }> }> = {};
-
-    Object.entries(filteredAndSortedData).forEach(([userId, { user, workflows }]) => {
-      const cohortId = user.cohortId || "미지정";
-      const cohortName = user.cohort?.name || "미지정";
-
-      if (!groups[cohortId]) {
-        groups[cohortId] = {
-          cohort: { id: cohortId, name: cohortName },
-          userGroups: {},
-        };
+    const groups: Record<
+      string,
+      {
+        cohort: any;
+        userGroups: Record<string, { user: any; workflows: any[] }>;
       }
+    > = {};
 
-      groups[cohortId].userGroups[userId] = { user, workflows };
-    });
+    Object.entries(filteredAndSortedData).forEach(
+      ([userId, { user, workflows }]) => {
+        const cohortId = user.cohortId || "미지정";
+        const cohortName = user.cohort?.name || "미지정";
+
+        if (!groups[cohortId]) {
+          groups[cohortId] = {
+            cohort: { id: cohortId, name: cohortName },
+            userGroups: {},
+          };
+        }
+
+        groups[cohortId].userGroups[userId] = { user, workflows };
+      },
+    );
 
     return groups;
   }, [filteredAndSortedData]);
@@ -232,13 +323,13 @@ export default function WorkflowsClient({
   // 상태별 뷰를 위한 데이터 그룹화
   const groupedByStatus = useMemo(() => {
     const groups: Record<string, any[]> = {
-      "대기": [],
-      "시안중": [],
-      "발주대기": [],
-      "발주요청": [],
-      "발주완료": [],
-      "제작완료": [],
-      "발송완료": [],
+      대기: [],
+      시안중: [],
+      발주대기: [],
+      발주요청: [],
+      발주완료: [],
+      제작완료: [],
+      발송완료: [],
     };
 
     Object.values(filteredAndSortedData).forEach((data) => {
@@ -309,7 +400,10 @@ export default function WorkflowsClient({
   };
 
   // 칸반 보드 상태 업데이트 핸들러
-  const handleUpdateStatus = async (workflowId: string, newStatus: WorkflowStatus) => {
+  const handleUpdateStatus = async (
+    workflowId: string,
+    newStatus: WorkflowStatus,
+  ) => {
     try {
       const response = await fetch(`/api/workflows/${workflowId}`, {
         method: "PATCH",
@@ -343,10 +437,10 @@ export default function WorkflowsClient({
             key={workflow.id}
             className={`p-3 rounded-lg border ${
               workflow.status === "발주요청"
-                ? "bg-yellow-50 border-yellow-200"
+                ? "bg-terra-50 border-terra-100"
                 : workflow.feedback && !workflow.feedbackRead
-                ? "bg-orange-50 border-orange-200"
-                : "bg-white border-gray-200"
+                  ? "bg-terra-50 border-terra-100"
+                  : "bg-white border-gray-200"
             }`}
           >
             {/* Header: 체크박스 + 제작물 + 상태 */}
@@ -380,8 +474,12 @@ export default function WorkflowsClient({
                 <div className="w-6 h-6 rounded-full bg-gold-100 flex items-center justify-center">
                   <User className="w-3 h-3 text-gold-600" />
                 </div>
-                <span className="text-sm font-medium text-gray-900">{workflow.user?.이름}</span>
-                <span className="text-xs text-gray-500">{workflow.user?.연락처}</span>
+                <span className="text-sm font-medium text-gray-900">
+                  {workflow.user?.이름}
+                </span>
+                <span className="text-xs text-gray-500">
+                  {workflow.user?.연락처}
+                </span>
               </div>
             )}
 
@@ -390,9 +488,13 @@ export default function WorkflowsClient({
               <div>
                 <span className="text-gray-500">수정횟수: </span>
                 {workflow.수정횟수 > 2 ? (
-                  <span className="text-red-600 font-medium">{workflow.수정횟수}회 (유료)</span>
+                  <span className="text-red-600 font-medium">
+                    {workflow.수정횟수}회 (유료)
+                  </span>
                 ) : workflow.수정횟수 === 2 ? (
-                  <span className="text-amber-600 font-medium">{workflow.수정횟수}회 (최종)</span>
+                  <span className="text-amber-600 font-medium">
+                    {workflow.수정횟수}회 (최종)
+                  </span>
                 ) : (
                   <span className="text-gray-700">{workflow.수정횟수}회</span>
                 )}
@@ -407,8 +509,10 @@ export default function WorkflowsClient({
 
             {/* 피드백 (있을 때만) */}
             {workflow.feedback && (
-              <div className="p-2 bg-orange-50 border border-orange-200 rounded text-xs mb-2">
-                <p className="line-clamp-2 text-orange-900">{workflow.feedback}</p>
+              <div className="p-2 bg-terra-50 border border-terra-100 rounded text-xs mb-2">
+                <p className="line-clamp-2 text-terra-600">
+                  {workflow.feedback}
+                </p>
               </div>
             )}
 
@@ -452,22 +556,67 @@ export default function WorkflowsClient({
             <TableRow className="border-gray-200 hover:bg-gray-50">
               <TableHead className="w-12">
                 <Checkbox
-                  checked={selectedWorkflows.size === allWorkflows.length && allWorkflows.length > 0}
+                  checked={
+                    selectedWorkflows.size === allWorkflows.length &&
+                    allWorkflows.length > 0
+                  }
                   onCheckedChange={handleSelectAll}
                 />
               </TableHead>
-              {showUser && <TableHead className="text-gray-700 font-semibold">사용자</TableHead>}
-              <TableHead className="text-gray-700 font-semibold">제작물</TableHead>
-              <TableHead className="text-gray-700 font-semibold">상태</TableHead>
-              {!compactView && <TableHead className="text-gray-700 font-semibold">진행률</TableHead>}
-              {!compactView && <TableHead className="text-gray-700 font-semibold">수정횟수</TableHead>}
-              {!compactView && <TableHead className="text-gray-700 font-semibold">피드백</TableHead>}
-              {!compactView && <TableHead className="text-gray-700 font-semibold">자료제출일</TableHead>}
-              {!compactView && <TableHead className="text-gray-700 font-semibold">시안업로드일</TableHead>}
-              {!compactView && <TableHead className="text-gray-700 font-semibold">발주요청일</TableHead>}
-              {!compactView && <TableHead className="text-gray-700 font-semibold">발주완료일</TableHead>}
-              {!compactView && <TableHead className="text-gray-700 font-semibold">배송정보</TableHead>}
-              <TableHead className="text-gray-700 font-semibold">작업</TableHead>
+              {showUser && (
+                <TableHead className="text-gray-700 font-semibold">
+                  사용자
+                </TableHead>
+              )}
+              <TableHead className="text-gray-700 font-semibold">
+                제작물
+              </TableHead>
+              <TableHead className="text-gray-700 font-semibold">
+                상태
+              </TableHead>
+              {!compactView && (
+                <TableHead className="text-gray-700 font-semibold">
+                  진행률
+                </TableHead>
+              )}
+              {!compactView && (
+                <TableHead className="text-gray-700 font-semibold">
+                  수정횟수
+                </TableHead>
+              )}
+              {!compactView && (
+                <TableHead className="text-gray-700 font-semibold">
+                  피드백
+                </TableHead>
+              )}
+              {!compactView && (
+                <TableHead className="text-gray-700 font-semibold">
+                  자료제출일
+                </TableHead>
+              )}
+              {!compactView && (
+                <TableHead className="text-gray-700 font-semibold">
+                  시안업로드일
+                </TableHead>
+              )}
+              {!compactView && (
+                <TableHead className="text-gray-700 font-semibold">
+                  발주요청일
+                </TableHead>
+              )}
+              {!compactView && (
+                <TableHead className="text-gray-700 font-semibold">
+                  발주완료일
+                </TableHead>
+              )}
+              {!compactView && (
+                <TableHead className="text-gray-700 font-semibold">
+                  배송정보
+                </TableHead>
+              )}
+              <TableHead className="text-gray-700 font-semibold">
+                작업
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -494,8 +643,12 @@ export default function WorkflowsClient({
                           <User className="w-4 h-4 text-gold-600" />
                         </div>
                         <div>
-                          <div className="text-sm font-medium text-gray-900">{workflow.user?.이름}</div>
-                          <div className="text-xs text-gray-500">{workflow.user?.연락처}</div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {workflow.user?.이름}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {workflow.user?.연락처}
+                          </div>
                         </div>
                       </div>
                     </TableCell>
@@ -531,27 +684,39 @@ export default function WorkflowsClient({
                       <TableCell>
                         <div className="flex items-center gap-1">
                           {workflow.수정횟수 > 2 ? (
-                            <Badge variant="outline" className="bg-red-50 border-red-300 text-red-700">
+                            <Badge
+                              variant="outline"
+                              className="bg-terra-50 border-terra-100 text-terra-600"
+                            >
                               {workflow.수정횟수}회 (유료)
                             </Badge>
                           ) : workflow.수정횟수 === 2 ? (
-                            <Badge variant="outline" className="bg-amber-50 border-amber-300 text-amber-700">
+                            <Badge
+                              variant="outline"
+                              className="bg-amber-50 border-amber-300 text-amber-700"
+                            >
                               {workflow.수정횟수}회 (최종)
                             </Badge>
                           ) : (
-                            <span className="text-gray-600">{workflow.수정횟수}회</span>
+                            <span className="text-gray-600">
+                              {workflow.수정횟수}회
+                            </span>
                           )}
                         </div>
                       </TableCell>
                       <TableCell className="text-gray-600 text-sm max-w-xs">
                         {workflow.feedback ? (
                           <div className="space-y-1">
-                            <div className="p-2 bg-orange-50 border border-orange-200 rounded text-xs">
-                              <p className="line-clamp-2 text-orange-900">{workflow.feedback}</p>
+                            <div className="p-2 bg-terra-50 border border-terra-100 rounded text-xs">
+                              <p className="line-clamp-2 text-terra-600">
+                                {workflow.feedback}
+                              </p>
                             </div>
                             {workflow.feedbackDate && (
                               <p className="text-xs text-gray-500">
-                                {new Date(workflow.feedbackDate).toLocaleString("ko-KR")}
+                                {new Date(workflow.feedbackDate).toLocaleString(
+                                  "ko-KR",
+                                )}
                               </p>
                             )}
                           </div>
@@ -563,7 +728,9 @@ export default function WorkflowsClient({
                         {workflow.자료제출일 ? (
                           <div className="flex items-center gap-1">
                             <Calendar className="w-3 h-3" />
-                            {new Date(workflow.자료제출일).toLocaleDateString("ko-KR")}
+                            {new Date(workflow.자료제출일).toLocaleDateString(
+                              "ko-KR",
+                            )}
                           </div>
                         ) : (
                           <span className="text-gray-400">-</span>
@@ -573,7 +740,9 @@ export default function WorkflowsClient({
                         {workflow.시안업로드일 ? (
                           <div className="flex items-center gap-1">
                             <Calendar className="w-3 h-3" />
-                            {new Date(workflow.시안업로드일).toLocaleDateString("ko-KR")}
+                            {new Date(workflow.시안업로드일).toLocaleDateString(
+                              "ko-KR",
+                            )}
                           </div>
                         ) : (
                           <span className="text-gray-400">-</span>
@@ -583,7 +752,9 @@ export default function WorkflowsClient({
                         {workflow.발주요청일 ? (
                           <div className="flex items-center gap-1">
                             <Calendar className="w-3 h-3" />
-                            {new Date(workflow.발주요청일).toLocaleDateString("ko-KR")}
+                            {new Date(workflow.발주요청일).toLocaleDateString(
+                              "ko-KR",
+                            )}
                           </div>
                         ) : (
                           <span className="text-gray-400">-</span>
@@ -593,7 +764,9 @@ export default function WorkflowsClient({
                         {workflow.발주승인일 ? (
                           <div className="flex items-center gap-1">
                             <Calendar className="w-3 h-3" />
-                            {new Date(workflow.발주승인일).toLocaleDateString("ko-KR")}
+                            {new Date(workflow.발주승인일).toLocaleDateString(
+                              "ko-KR",
+                            )}
                           </div>
                         ) : (
                           <span className="text-gray-400">-</span>
@@ -639,7 +812,10 @@ export default function WorkflowsClient({
   return (
     <>
       {/* Urgent Alert Banner */}
-      <UrgentAlertBanner workflows={allWorkflows} onAlertClick={handleAlertClick} />
+      <UrgentAlertBanner
+        workflows={allWorkflows}
+        onAlertClick={handleAlertClick}
+      />
 
       {/* Stats - 클릭 가능 */}
       <div className="grid gap-2 sm:gap-3 md:gap-4 grid-cols-3 md:grid-cols-5">
@@ -653,7 +829,9 @@ export default function WorkflowsClient({
             </CardTitle>
           </CardHeader>
           <CardContent className="p-2 sm:p-3 pt-0">
-            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-700">{stats.대기}</div>
+            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-700">
+              {stats.대기}
+            </div>
           </CardContent>
         </Card>
 
@@ -675,7 +853,7 @@ export default function WorkflowsClient({
         </Card>
 
         <Card
-          className="bg-gradient-to-br from-orange-50 to-white border-0 shadow-md cursor-pointer hover:shadow-lg transition-shadow"
+          className="bg-gradient-to-br from-terra-50 to-white border-0 shadow-md cursor-pointer hover:shadow-lg transition-shadow"
           onClick={() => handleStatClick("발주대기")}
         >
           <CardHeader className="p-2 sm:p-3 pb-1 sm:pb-2">
@@ -685,14 +863,14 @@ export default function WorkflowsClient({
             </CardTitle>
           </CardHeader>
           <CardContent className="p-2 sm:p-3 pt-0">
-            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-orange-600">
+            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-terra-500">
               {stats.발주대기}
             </div>
           </CardContent>
         </Card>
 
         <Card
-          className="bg-gradient-to-br from-purple-50 to-white border-0 shadow-md cursor-pointer hover:shadow-lg transition-shadow"
+          className="bg-gradient-to-br from-terra-50 to-white border-0 shadow-md cursor-pointer hover:shadow-lg transition-shadow"
           onClick={() => handleStatClick("발주완료")}
         >
           <CardHeader className="p-2 sm:p-3 pb-1 sm:pb-2">
@@ -701,14 +879,14 @@ export default function WorkflowsClient({
             </CardTitle>
           </CardHeader>
           <CardContent className="p-2 sm:p-3 pt-0">
-            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-purple-600">
+            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-terra-500">
               {stats.제작중}
             </div>
           </CardContent>
         </Card>
 
         <Card
-          className="bg-gradient-to-br from-green-50 to-white border-0 shadow-md cursor-pointer hover:shadow-lg transition-shadow"
+          className="bg-gradient-to-br from-ok-50 to-white border-0 shadow-md cursor-pointer hover:shadow-lg transition-shadow"
           onClick={() => handleStatClick("발송완료")}
         >
           <CardHeader className="p-2 sm:p-3 pb-1 sm:pb-2">
@@ -718,7 +896,7 @@ export default function WorkflowsClient({
             </CardTitle>
           </CardHeader>
           <CardContent className="p-2 sm:p-3 pt-0">
-            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-green-700">
+            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-ok-700">
               {stats.발송완료}
             </div>
           </CardContent>
@@ -762,10 +940,7 @@ export default function WorkflowsClient({
                   )}
                 </Button>
               </div>
-              <WorkflowSort
-                currentSort={sortBy}
-                onSortChange={setSortBy}
-              />
+              <WorkflowSort currentSort={sortBy} onSortChange={setSortBy} />
             </div>
           </div>
         </CardContent>
@@ -774,200 +949,246 @@ export default function WorkflowsClient({
       {/* User-Grouped View - 기수별 → 사용자별 */}
       {viewMode === "user" && (
         <div className="space-y-6">
-          {Object.entries(groupedByCohort).map(([cohortId, { cohort, userGroups }]) => {
-            const isCohortExpanded = expandedCohorts.has(cohortId);
-            const totalUsers = Object.keys(userGroups).length;
-            const totalWorkflows = Object.values(userGroups).reduce((sum, { workflows }) => sum + workflows.length, 0);
+          {Object.entries(groupedByCohort).map(
+            ([cohortId, { cohort, userGroups }]) => {
+              const isCohortExpanded = expandedCohorts.has(cohortId);
+              const totalUsers = Object.keys(userGroups).length;
+              const totalWorkflows = Object.values(userGroups).reduce(
+                (sum, { workflows }) => sum + workflows.length,
+                0,
+              );
 
-            return (
-              <div key={cohortId} className="space-y-3">
-                {/* 기수별 헤더 */}
-                <Card className="bg-gradient-to-r from-gold-50 to-amber-50 border-2 border-gold-200 shadow-md">
-                  <CardHeader className="py-3 sm:py-4 px-3 sm:px-6">
-                    <button
-                      onClick={() => {
-                        const newExpanded = new Set(expandedCohorts);
-                        if (isCohortExpanded) {
-                          newExpanded.delete(cohortId);
-                        } else {
-                          newExpanded.add(cohortId);
-                        }
-                        setExpandedCohorts(newExpanded);
-                      }}
-                      className="w-full flex items-center justify-between hover:opacity-80 transition-opacity"
-                    >
-                      <div className="flex items-center gap-2 sm:gap-3">
-                        {isCohortExpanded ? (
-                          <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6 text-gold-600 flex-shrink-0" />
-                        ) : (
-                          <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-gold-600 flex-shrink-0" />
-                        )}
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gold-500 flex items-center justify-center flex-shrink-0">
-                          <Users className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                        </div>
-                        <div className="text-left">
-                          <CardTitle className="text-base sm:text-xl text-gray-900 flex items-center gap-2">
-                            {cohort.name}
-                          </CardTitle>
-                          <CardDescription className="text-gray-700 text-xs sm:text-sm font-medium">
-                            {totalUsers}명 · {totalWorkflows}개
-                          </CardDescription>
-                        </div>
-                      </div>
-                    </button>
-                  </CardHeader>
-                </Card>
-
-                {/* 사용자별 카드 */}
-                {isCohortExpanded && (
-                  <div className="ml-2 sm:ml-8 space-y-3">
-                    {Object.entries(userGroups).map(([userId, { user, workflows: userWorkflows }]) => {
-                      const isUserExpanded = expandedUsers.has(userId);
-
-                      return (
-                        <Card key={userId} className="bg-white border-2 border-gray-200 shadow-lg">
-                          <CardHeader className="py-3 px-3 sm:px-6">
-                            <button
-                              onClick={() => {
-                                const newExpanded = new Set(expandedUsers);
-                                if (isUserExpanded) {
-                                  newExpanded.delete(userId);
-                                } else {
-                                  newExpanded.add(userId);
-                                }
-                                setExpandedUsers(newExpanded);
-                              }}
-                              className="w-full hover:opacity-80 transition-opacity"
-                            >
-                              {/* 모바일: 세로 레이아웃 */}
-                              <div className="lg:hidden space-y-2">
-                                <div className="flex items-center gap-2">
-                                  {isUserExpanded ? (
-                                    <ChevronDown className="w-4 h-4 text-gray-600 flex-shrink-0" />
-                                  ) : (
-                                    <ChevronRight className="w-4 h-4 text-gray-600 flex-shrink-0" />
-                                  )}
-                                  <div className="w-8 h-8 rounded-full bg-gold-100 flex items-center justify-center flex-shrink-0">
-                                    <User className="w-4 h-4 text-gold-600" />
-                                  </div>
-                                  <div className="text-left min-w-0 flex-1">
-                                    <CardTitle className="text-base text-gray-900 truncate">
-                                      {user.이름}
-                                    </CardTitle>
-                                    <CardDescription className="text-gray-600 text-xs truncate">
-                                      {userWorkflows.length}개 · {user.연락처 || "미등록"}
-                                    </CardDescription>
-                                  </div>
-                                </div>
-                                {/* 모바일 뱃지/버튼 그룹 */}
-                                <div className="flex flex-wrap items-center gap-1 pl-6" onClick={(e) => e.stopPropagation()}>
-                                  <WorkflowStatusIcons
-                                    workflows={userWorkflows}
-                                    homepageCompleted={user.homepageCompleted || false}
-                                  />
-                                  <AdAutomationBadge
-                                    enabled={user.adAutomationEnabled || false}
-                                    startDate={user.adAutomationStartDate}
-                                    endDate={user.adAutomationEndDate}
-                                    marketingSupportEndDate={user.marketingSupportEndDate}
-                                  />
-                                  <SmsSettingBadge enabled={user.smsSettingEnabled || false} />
-                                  <NaverAdSettingBadge enabled={user.naverAdSettingEnabled || false} />
-                                  <UserWorkflowSMSButton
-                                    userId={userId}
-                                    userName={user.이름}
-                                    userPhone={user.연락처}
-                                    workflows={userWorkflows}
-                                  />
-                                  <UserOrderCompleteButton
-                                    userId={userId}
-                                    userName={user.이름}
-                                    userPhone={user.연락처}
-                                    userEmail={user.email}
-                                    workflows={userWorkflows}
-                                  />
-                                  <UserShippingSMSButton
-                                    userId={userId}
-                                    userName={user.이름}
-                                    userPhone={user.연락처}
-                                    workflows={userWorkflows}
-                                  />
-                                </div>
-                              </div>
-
-                              {/* 데스크탑: 가로 레이아웃 */}
-                              <div className="hidden lg:grid grid-cols-[1fr_auto] gap-4 items-center">
-                                <div className="flex items-center gap-3">
-                                  {isUserExpanded ? (
-                                    <ChevronDown className="w-5 h-5 text-gray-600" />
-                                  ) : (
-                                    <ChevronRight className="w-5 h-5 text-gray-600" />
-                                  )}
-                                  <div className="w-10 h-10 rounded-full bg-gold-100 flex items-center justify-center">
-                                    <User className="w-5 h-5 text-gold-600" />
-                                  </div>
-                                  <div className="text-left">
-                                    <CardTitle className="text-lg text-gray-900">
-                                      {user.이름}
-                                    </CardTitle>
-                                    <CardDescription className="text-gray-600 text-sm">
-                                      워크플로우 {userWorkflows.length}개 · 연락처: {user.연락처 || "미등록"}
-                                    </CardDescription>
-                                  </div>
-                                </div>
-                                <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                                  <WorkflowStatusIcons
-                                    workflows={userWorkflows}
-                                    homepageCompleted={user.homepageCompleted || false}
-                                  />
-                                  <AdAutomationBadge
-                                    enabled={user.adAutomationEnabled || false}
-                                    startDate={user.adAutomationStartDate}
-                                    endDate={user.adAutomationEndDate}
-                                    marketingSupportEndDate={user.marketingSupportEndDate}
-                                  />
-                                  <SmsSettingBadge enabled={user.smsSettingEnabled || false} />
-                                  <NaverAdSettingBadge enabled={user.naverAdSettingEnabled || false} />
-                                  <UserWorkflowSMSButton
-                                    userId={userId}
-                                    userName={user.이름}
-                                    userPhone={user.연락처}
-                                    workflows={userWorkflows}
-                                  />
-                                  <UserOrderCompleteButton
-                                    userId={userId}
-                                    userName={user.이름}
-                                    userPhone={user.연락처}
-                                    userEmail={user.email}
-                                    workflows={userWorkflows}
-                                  />
-                                  <UserShippingSMSButton
-                                    userId={userId}
-                                    userName={user.이름}
-                                    userPhone={user.연락처}
-                                    workflows={userWorkflows}
-                                  />
-                                </div>
-                              </div>
-                            </button>
-                          </CardHeader>
-
-                          {/* 워크플로우 상세 테이블 */}
-                          {isUserExpanded && (
-                            <CardContent>
-                              <div className="overflow-x-auto">
-                                {renderWorkflowTable(userWorkflows, false)}
-                              </div>
-                            </CardContent>
+              return (
+                <div key={cohortId} className="space-y-3">
+                  {/* 기수별 헤더 */}
+                  <Card className="bg-gradient-to-r from-gold-50 to-amber-50 border-2 border-gold-200 shadow-md">
+                    <CardHeader className="py-3 sm:py-4 px-3 sm:px-6">
+                      <button
+                        onClick={() => {
+                          const newExpanded = new Set(expandedCohorts);
+                          if (isCohortExpanded) {
+                            newExpanded.delete(cohortId);
+                          } else {
+                            newExpanded.add(cohortId);
+                          }
+                          setExpandedCohorts(newExpanded);
+                        }}
+                        className="w-full flex items-center justify-between hover:opacity-80 transition-opacity"
+                      >
+                        <div className="flex items-center gap-2 sm:gap-3">
+                          {isCohortExpanded ? (
+                            <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6 text-gold-600 flex-shrink-0" />
+                          ) : (
+                            <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-gold-600 flex-shrink-0" />
                           )}
-                        </Card>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gold-500 flex items-center justify-center flex-shrink-0">
+                            <Users className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                          </div>
+                          <div className="text-left">
+                            <CardTitle className="text-base sm:text-xl text-gray-900 flex items-center gap-2">
+                              {cohort.name}
+                            </CardTitle>
+                            <CardDescription className="text-gray-700 text-xs sm:text-sm font-medium">
+                              {totalUsers}명 · {totalWorkflows}개
+                            </CardDescription>
+                          </div>
+                        </div>
+                      </button>
+                    </CardHeader>
+                  </Card>
+
+                  {/* 사용자별 카드 */}
+                  {isCohortExpanded && (
+                    <div className="ml-2 sm:ml-8 space-y-3">
+                      {Object.entries(userGroups).map(
+                        ([userId, { user, workflows: userWorkflows }]) => {
+                          const isUserExpanded = expandedUsers.has(userId);
+
+                          return (
+                            <Card
+                              key={userId}
+                              className="bg-white border-2 border-gray-200 shadow-lg"
+                            >
+                              <CardHeader className="py-3 px-3 sm:px-6">
+                                <button
+                                  onClick={() => {
+                                    const newExpanded = new Set(expandedUsers);
+                                    if (isUserExpanded) {
+                                      newExpanded.delete(userId);
+                                    } else {
+                                      newExpanded.add(userId);
+                                    }
+                                    setExpandedUsers(newExpanded);
+                                  }}
+                                  className="w-full hover:opacity-80 transition-opacity"
+                                >
+                                  {/* 모바일: 세로 레이아웃 */}
+                                  <div className="lg:hidden space-y-2">
+                                    <div className="flex items-center gap-2">
+                                      {isUserExpanded ? (
+                                        <ChevronDown className="w-4 h-4 text-gray-600 flex-shrink-0" />
+                                      ) : (
+                                        <ChevronRight className="w-4 h-4 text-gray-600 flex-shrink-0" />
+                                      )}
+                                      <div className="w-8 h-8 rounded-full bg-gold-100 flex items-center justify-center flex-shrink-0">
+                                        <User className="w-4 h-4 text-gold-600" />
+                                      </div>
+                                      <div className="text-left min-w-0 flex-1">
+                                        <CardTitle className="text-base text-gray-900 truncate">
+                                          {user.이름}
+                                        </CardTitle>
+                                        <CardDescription className="text-gray-600 text-xs truncate">
+                                          {userWorkflows.length}개 ·{" "}
+                                          {user.연락처 || "미등록"}
+                                        </CardDescription>
+                                      </div>
+                                    </div>
+                                    {/* 모바일 뱃지/버튼 그룹 */}
+                                    <div
+                                      className="flex flex-wrap items-center gap-1 pl-6"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <WorkflowStatusIcons
+                                        workflows={userWorkflows}
+                                        homepageCompleted={
+                                          user.homepageCompleted || false
+                                        }
+                                      />
+                                      <AdAutomationBadge
+                                        enabled={
+                                          user.adAutomationEnabled || false
+                                        }
+                                        startDate={user.adAutomationStartDate}
+                                        endDate={user.adAutomationEndDate}
+                                        marketingSupportEndDate={
+                                          user.marketingSupportEndDate
+                                        }
+                                      />
+                                      <SmsSettingBadge
+                                        enabled={
+                                          user.smsSettingEnabled || false
+                                        }
+                                      />
+                                      <NaverAdSettingBadge
+                                        enabled={
+                                          user.naverAdSettingEnabled || false
+                                        }
+                                      />
+                                      <UserWorkflowSMSButton
+                                        userId={userId}
+                                        userName={user.이름}
+                                        userPhone={user.연락처}
+                                        workflows={userWorkflows}
+                                      />
+                                      <UserOrderCompleteButton
+                                        userId={userId}
+                                        userName={user.이름}
+                                        userPhone={user.연락처}
+                                        userEmail={user.email}
+                                        workflows={userWorkflows}
+                                      />
+                                      <UserShippingSMSButton
+                                        userId={userId}
+                                        userName={user.이름}
+                                        userPhone={user.연락처}
+                                        workflows={userWorkflows}
+                                      />
+                                    </div>
+                                  </div>
+
+                                  {/* 데스크탑: 가로 레이아웃 */}
+                                  <div className="hidden lg:grid grid-cols-[1fr_auto] gap-4 items-center">
+                                    <div className="flex items-center gap-3">
+                                      {isUserExpanded ? (
+                                        <ChevronDown className="w-5 h-5 text-gray-600" />
+                                      ) : (
+                                        <ChevronRight className="w-5 h-5 text-gray-600" />
+                                      )}
+                                      <div className="w-10 h-10 rounded-full bg-gold-100 flex items-center justify-center">
+                                        <User className="w-5 h-5 text-gold-600" />
+                                      </div>
+                                      <div className="text-left">
+                                        <CardTitle className="text-lg text-gray-900">
+                                          {user.이름}
+                                        </CardTitle>
+                                        <CardDescription className="text-gray-600 text-sm">
+                                          워크플로우 {userWorkflows.length}개 ·
+                                          연락처: {user.연락처 || "미등록"}
+                                        </CardDescription>
+                                      </div>
+                                    </div>
+                                    <div
+                                      className="flex items-center gap-2"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <WorkflowStatusIcons
+                                        workflows={userWorkflows}
+                                        homepageCompleted={
+                                          user.homepageCompleted || false
+                                        }
+                                      />
+                                      <AdAutomationBadge
+                                        enabled={
+                                          user.adAutomationEnabled || false
+                                        }
+                                        startDate={user.adAutomationStartDate}
+                                        endDate={user.adAutomationEndDate}
+                                        marketingSupportEndDate={
+                                          user.marketingSupportEndDate
+                                        }
+                                      />
+                                      <SmsSettingBadge
+                                        enabled={
+                                          user.smsSettingEnabled || false
+                                        }
+                                      />
+                                      <NaverAdSettingBadge
+                                        enabled={
+                                          user.naverAdSettingEnabled || false
+                                        }
+                                      />
+                                      <UserWorkflowSMSButton
+                                        userId={userId}
+                                        userName={user.이름}
+                                        userPhone={user.연락처}
+                                        workflows={userWorkflows}
+                                      />
+                                      <UserOrderCompleteButton
+                                        userId={userId}
+                                        userName={user.이름}
+                                        userPhone={user.연락처}
+                                        userEmail={user.email}
+                                        workflows={userWorkflows}
+                                      />
+                                      <UserShippingSMSButton
+                                        userId={userId}
+                                        userName={user.이름}
+                                        userPhone={user.연락처}
+                                        workflows={userWorkflows}
+                                      />
+                                    </div>
+                                  </div>
+                                </button>
+                              </CardHeader>
+
+                              {/* 워크플로우 상세 테이블 */}
+                              {isUserExpanded && (
+                                <CardContent>
+                                  <div className="overflow-x-auto">
+                                    {renderWorkflowTable(userWorkflows, false)}
+                                  </div>
+                                </CardContent>
+                              )}
+                            </Card>
+                          );
+                        },
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            },
+          )}
         </div>
       )}
 
@@ -979,7 +1200,10 @@ export default function WorkflowsClient({
             const statusInfo = getStatusBadge(status);
 
             return (
-              <Card key={status} className="bg-white border-2 border-gray-200 shadow-lg">
+              <Card
+                key={status}
+                className="bg-white border-2 border-gray-200 shadow-lg"
+              >
                 <CardHeader>
                   <CardTitle className="text-lg text-gray-900 flex items-center gap-2">
                     <Badge

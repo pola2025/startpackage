@@ -60,36 +60,36 @@ export function StatusTimeline({
     switch (status) {
       case "completed":
         return {
-          iconBg: "bg-green-100",
-          iconColor: "text-green-600",
-          lineColor: "bg-green-300",
+          iconBg: "bg-ok-50",
+          iconColor: "text-ok-600",
+          lineColor: "bg-ok-100",
           textColor: "text-gray-900",
           subTextColor: "text-gray-600",
         };
       case "current":
         return {
-          iconBg: "bg-gold-100 ring-4 ring-gold-50",
-          iconColor: "text-gold-600",
+          iconBg: "bg-navy-100 ring-4 ring-navy-50",
+          iconColor: "text-navy-600",
           lineColor: "bg-gray-200",
           textColor: "text-navy-900 font-bold",
           subTextColor: "text-navy-700",
         };
       case "warning":
         return {
-          iconBg: "bg-orange-100",
-          iconColor: "text-orange-600",
+          iconBg: "bg-terra-50",
+          iconColor: "text-terra-500",
           lineColor: "bg-gray-200",
-          textColor: "text-orange-900 font-semibold",
-          subTextColor: "text-orange-700",
+          textColor: "text-terra-600 font-semibold",
+          subTextColor: "text-terra-500",
         };
       case "pending":
       default:
         return {
-          iconBg: "bg-gray-100",
-          iconColor: "text-gray-400",
+          iconBg: "bg-navy-50",
+          iconColor: "text-navy-300",
           lineColor: "bg-gray-200",
-          textColor: "text-gray-500",
-          subTextColor: "text-gray-400",
+          textColor: "text-navy-300",
+          subTextColor: "text-navy-200",
         };
     }
   };
@@ -188,7 +188,7 @@ export function StatusTimeline({
                     : event.status === "completed"
                       ? "bg-white border-gray-200"
                       : event.status === "warning"
-                        ? "bg-orange-50 border-orange-200"
+                        ? "bg-terra-50 border-terra-100"
                         : "bg-gray-50 border-gray-100",
                 )}
               >
