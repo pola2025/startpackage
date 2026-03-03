@@ -361,7 +361,7 @@ export default function UserCommunicationPage() {
         );
       case "in_progress":
         return (
-          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+          <Badge variant="outline" className="bg-gold-50 text-navy-700 border-gold-200">
             진행중
           </Badge>
         );
@@ -414,7 +414,7 @@ export default function UserCommunicationPage() {
           </div>
           <Dialog open={newThreadOpen} onOpenChange={setNewThreadOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-blue-600 hover:bg-blue-700" size={isMobile ? "sm" : "default"}>
+              <Button className="bg-navy-900 hover:bg-navy-800" size={isMobile ? "sm" : "default"}>
                 <Plus className="w-4 h-4 mr-1 md:mr-2" />
                 <span className="hidden sm:inline">새 문의 작성</span>
                 <span className="sm:hidden">문의</span>
@@ -525,15 +525,15 @@ export default function UserCommunicationPage() {
 
       {/* 안내 - 모바일에서 축소 */}
       {(!isMobile || !selectedThread) && (
-        <Alert className="bg-blue-50 border-blue-200 mt-6 mb-6">
+        <Alert className="bg-gold-50 border-gold-200 mt-6 mb-6">
           <AlertDescription className="text-sm text-gray-700 space-y-1">
-            <p className="font-semibold text-blue-900">문의 안내사항</p>
+            <p className="font-semibold text-navy-900">문의 안내사항</p>
             <ul className="space-y-1 mt-2 text-xs md:text-sm">
-              <li>• <span className="font-medium text-blue-800">요청은 영업일 기준 1~2일내 접수 및 처리됩니다.</span></li>
+              <li>• <span className="font-medium text-navy-800">요청은 영업일 기준 1~2일내 접수 및 처리됩니다.</span></li>
               <li className="hidden md:block">• 문의 사항은 영업일 기준 1일 이내 답변드립니다.</li>
               <li className="hidden md:block">• 주말은 업무 처리가 어려우며, 평일 기준으로 처리됩니다.</li>
               <li className="hidden md:block">• 긴급사항(홈페이지 사용불가, 광고계정 정지 등) 외에는 반드시 본 게시판을 이용해 주시기 바랍니다.</li>
-              <li>• 문의사항 메일: <a href="mailto:mkt@polarad.co.kr" className="text-blue-600 underline font-medium">mkt@polarad.co.kr</a></li>
+              <li>• 문의사항 메일: <a href="mailto:mkt@polarad.co.kr" className="text-gold-600 underline font-medium">mkt@polarad.co.kr</a></li>
             </ul>
           </AlertDescription>
         </Alert>
@@ -562,8 +562,8 @@ export default function UserCommunicationPage() {
                     onClick={() => handleSelectThread(thread)}
                     className={`p-4 rounded-lg cursor-pointer transition-all border-2 ${
                       selectedThread?.id === thread.id
-                        ? "bg-blue-50 border-blue-300"
-                        : "bg-gray-50 border-gray-200 hover:border-blue-200"
+                        ? "bg-gold-50 border-gold-300"
+                        : "bg-gray-50 border-gray-200 hover:border-gold-200"
                     }`}
                   >
                     <div className="flex items-start justify-between mb-2">
@@ -626,7 +626,7 @@ export default function UserCommunicationPage() {
               {/* 새 메시지 알림 */}
               {newMessageAlert && (
                 <div className="sticky top-0 z-10 mx-3 sm:mx-6 mt-3">
-                  <div className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center justify-between animate-bounce">
+                  <div className="bg-navy-900 text-white px-4 py-2 rounded-lg shadow-lg flex items-center justify-between animate-bounce">
                     <span className="text-sm font-medium">새 메시지가 도착했습니다</span>
                     <button
                       onClick={() => setNewMessageAlert(false)}
@@ -688,7 +688,7 @@ export default function UserCommunicationPage() {
                                 {message.authorName}
                               </span>
                               {message.authorType === "admin" && (
-                                <Badge className="bg-blue-100 text-blue-700 border-blue-300 text-[10px] py-0 px-2">
+                                <Badge className="bg-gold-100 text-navy-700 border-gold-300 text-[10px] py-0 px-2">
                                   관리자
                                 </Badge>
                               )}
@@ -702,15 +702,15 @@ export default function UserCommunicationPage() {
                           <div
                             className={`rounded-lg p-4 ${
                               message.authorType === "admin"
-                                ? "bg-white border-2 border-blue-200"
-                                : "bg-blue-600 text-white"
+                                ? "bg-white border-2 border-gold-200"
+                                : "bg-navy-900 text-white"
                             } ${isConsecutive ? "shadow-sm" : "shadow-md"}`}
                           >
                             <p className={`whitespace-pre-wrap text-sm ${message.authorType === "admin" ? "text-gray-800" : "text-white"}`}>
                               {message.content}
                             </p>
                             {message.authorType === "admin" && message.expectedCompletionDate && (
-                              <div className="flex items-center gap-1 text-sm text-blue-600 mt-3 bg-blue-50 px-3 py-1.5 rounded-full inline-flex w-fit">
+                              <div className="flex items-center gap-1 text-sm text-gold-600 mt-3 bg-gold-50 px-3 py-1.5 rounded-full inline-flex w-fit">
                                 <CalendarIcon className="w-4 h-4 flex-shrink-0" />
                                 <span className="whitespace-nowrap font-medium">완료 예상일: {format(new Date(message.expectedCompletionDate), "yyyy년 M월 d일", { locale: ko })}</span>
                               </div>
@@ -734,7 +734,7 @@ export default function UserCommunicationPage() {
                                       rel="noopener noreferrer"
                                       className={`mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                                         message.authorType === "admin"
-                                          ? "bg-blue-100 text-blue-700 hover:bg-blue-200"
+                                          ? "bg-gold-100 text-navy-700 hover:bg-gold-200"
                                           : "bg-white/20 text-white hover:bg-white/30"
                                       }`}
                                       onClick={(e) => {
@@ -768,7 +768,7 @@ export default function UserCommunicationPage() {
                             )}
                             {/* 연속 메시지일 때는 상대 시간 표시 */}
                             {isConsecutive && (
-                              <p className={`text-[10px] mt-2 ${message.authorType === "admin" ? "text-gray-400" : "text-blue-200"}`}>
+                              <p className={`text-[10px] mt-2 ${message.authorType === "admin" ? "text-gray-400" : "text-gold-200"}`}>
                                 {getRelativeTime(message.createdAt)}
                               </p>
                             )}
@@ -954,10 +954,10 @@ export default function UserCommunicationPage() {
             <button
               onClick={() => document.getElementById("camera-input-comm")?.click()}
               disabled={uploading}
-              className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 border-dashed border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-colors"
+              className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 border-dashed border-gray-200 hover:border-gold-300 hover:bg-gold-50 transition-colors"
             >
-              <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-                <Camera className="w-6 h-6 text-blue-600" />
+              <div className="w-12 h-12 rounded-full bg-gold-100 flex items-center justify-center">
+                <Camera className="w-6 h-6 text-gold-600" />
               </div>
               <span className="text-sm font-medium text-gray-700">카메라</span>
             </button>
@@ -980,7 +980,7 @@ export default function UserCommunicationPage() {
             <button
               onClick={() => document.getElementById("gallery-input-comm")?.click()}
               disabled={uploading}
-              className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 border-dashed border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-colors"
+              className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 border-dashed border-gray-200 hover:border-gold-300 hover:bg-gold-50 transition-colors"
             >
               <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
                 <ImageIcon className="w-6 h-6 text-green-600" />
@@ -1006,7 +1006,7 @@ export default function UserCommunicationPage() {
             <button
               onClick={() => document.getElementById("file-input-comm")?.click()}
               disabled={uploading}
-              className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 border-dashed border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-colors"
+              className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 border-dashed border-gray-200 hover:border-gold-300 hover:bg-gold-50 transition-colors"
             >
               <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
                 <FolderOpen className="w-6 h-6 text-purple-600" />

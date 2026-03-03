@@ -2,29 +2,56 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useSession } from "next-auth/react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { MobileFileUpload } from "@/components/ui/mobile-file-upload";
 import { SubmissionProgress } from "@/components/ui/submission-progress";
-import { CheckCircle2, AlertCircle, Loader2, Save, ArrowRight, Wand2 } from "lucide-react";
+import {
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+  Save,
+  ArrowRight,
+  Wand2,
+} from "lucide-react";
 import { useAutoSave } from "@/lib/hooks/useAutoSave";
 import { cn } from "@/lib/utils";
-import { OnboardingDialog, shouldShowOnboarding } from "@/components/submission/onboarding-dialog";
+import {
+  OnboardingDialog,
+  shouldShowOnboarding,
+} from "@/components/submission/onboarding-dialog";
 import { SubmissionSummary } from "@/components/submission/submission-summary";
-import { calculateProgress, type ProgressResult } from "@/lib/submission-progress";
+import {
+  calculateProgress,
+  type ProgressResult,
+} from "@/lib/submission-progress";
 import { SecurityNotice } from "@/components/submission/security-notice";
 import { Celebration, useCelebration } from "@/components/ui/celebration";
-import { useAutoFocus, useKeyboardNavigation } from "@/lib/submission/use-auto-focus";
+import {
+  useAutoFocus,
+  useKeyboardNavigation,
+} from "@/lib/submission/use-auto-focus";
 import { LogoColorSelector } from "@/components/submission/logo-style-selector";
-import { WizardContainer, WizardModeSelector } from "@/components/submission/wizard";
+import {
+  WizardContainer,
+  WizardModeSelector,
+} from "@/components/submission/wizard";
 
 export default function MobileSubmissionPage() {
   const { data: session } = useSession();
   const [submission, setSubmission] = useState<any>(null);
   const [formData, setFormData] = useState<any>({});
-  const [activeSection, setActiveSection] = useState<"basic" | "print" | "marketing" | "website">("basic");
+  const [activeSection, setActiveSection] = useState<
+    "basic" | "print" | "marketing" | "website"
+  >("basic");
   const [uploading, setUploading] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
@@ -42,7 +69,12 @@ export default function MobileSubmissionPage() {
   useKeyboardNavigation();
 
   // Sprint 2: 축하 애니메이션
-  const { showCelebration, celebrationMessage, checkSectionCompletion, closeCelebration } = useCelebration();
+  const {
+    showCelebration,
+    celebrationMessage,
+    checkSectionCompletion,
+    closeCelebration,
+  } = useCelebration();
 
   // 제출 데이터 로드
   useEffect(() => {
@@ -53,7 +85,7 @@ export default function MobileSubmissionPage() {
   // 무한 루프 방지: sections 배열의 isComplete 값만 직렬화하여 비교
   const sectionsKey = useMemo(() => {
     if (!progress?.sections) return "";
-    return progress.sections.map(s => `${s.name}:${s.isComplete}`).join(",");
+    return progress.sections.map((s) => `${s.name}:${s.isComplete}`).join(",");
   }, [progress?.sections]);
 
   useEffect(() => {
@@ -183,7 +215,9 @@ export default function MobileSubmissionPage() {
   ];
 
   const completedCount = requiredFields.filter((f) => f.completed).length;
-  const progressPercentage = Math.round((completedCount / requiredFields.length) * 100);
+  const progressPercentage = Math.round(
+    (completedCount / requiredFields.length) * 100,
+  );
 
   // 섹션 네비게이션
   const sections = [
@@ -194,29 +228,32 @@ export default function MobileSubmissionPage() {
   ] as const;
 
   // Sprint 3: 파일 업로드 핸들러 (Wizard 모드용)
-  const handleWizardFileUpload = useCallback(async (field: string, file: File) => {
-    setUploading(true);
-    const uploadFormData = new FormData();
-    uploadFormData.append("file", file);
-    uploadFormData.append("field", field);
+  const handleWizardFileUpload = useCallback(
+    async (field: string, file: File) => {
+      setUploading(true);
+      const uploadFormData = new FormData();
+      uploadFormData.append("file", file);
+      uploadFormData.append("field", field);
 
-    try {
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: uploadFormData,
-      });
+      try {
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          body: uploadFormData,
+        });
 
-      if (res.ok) {
-        const data = await res.json();
-        setFormData((prev: any) => ({ ...prev, [field]: data.url }));
-        await updateSubmission(field, data.url);
-      } else {
-        throw new Error("Upload failed");
+        if (res.ok) {
+          const data = await res.json();
+          setFormData((prev: any) => ({ ...prev, [field]: data.url }));
+          await updateSubmission(field, data.url);
+        } else {
+          throw new Error("Upload failed");
+        }
+      } finally {
+        setUploading(false);
       }
-    } finally {
-      setUploading(false);
-    }
-  }, []);
+    },
+    [],
+  );
 
   // Sprint 3: 모드 선택 핸들러
   const handleModeSelect = (mode: "wizard" | "tab") => {
@@ -234,7 +271,9 @@ export default function MobileSubmissionPage() {
           onInputChange={handleInputChange}
           onFileUpload={handleWizardFileUpload}
           onSubmit={handleManualSave}
-          lastSaved={autoSaveState.lastSaved ? new Date(autoSaveState.lastSaved) : null}
+          lastSaved={
+            autoSaveState.lastSaved ? new Date(autoSaveState.lastSaved) : null
+          }
           isSaving={autoSaveState.isSaving}
           onModeChange={(wizardMode) => setIsWizardMode(wizardMode)}
         />
@@ -243,8 +282,10 @@ export default function MobileSubmissionPage() {
         {uploading && (
           <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
             <div className="bg-white rounded-2xl p-8 flex flex-col items-center gap-4 shadow-2xl max-w-sm mx-4">
-              <Loader2 className="w-12 h-12 animate-spin text-blue-600" />
-              <p className="text-lg font-bold text-gray-900">파일 업로드 중...</p>
+              <Loader2 className="w-12 h-12 animate-spin text-gold-600" />
+              <p className="text-lg font-bold text-gray-900">
+                파일 업로드 중...
+              </p>
               <p className="text-sm text-gray-500 text-center">
                 잠시만 기다려주세요
               </p>
@@ -263,7 +304,7 @@ export default function MobileSubmissionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white pb-20 mobile-compact-form">
+    <div className="min-h-screen bg-gradient-to-b from-gold-50 to-white pb-20 mobile-compact-form">
       <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
         {/* 헤더 - 모바일 컴팩트 */}
         <div className="space-y-1">
@@ -292,14 +333,17 @@ export default function MobileSubmissionPage() {
           <div className="flex items-center gap-1.5">
             {autoSaveState.isSaving ? (
               <>
-                <Loader2 className="w-3 h-3 animate-spin text-blue-600" />
+                <Loader2 className="w-3 h-3 animate-spin text-gold-600" />
                 <span className="text-xs text-gray-700">저장 중...</span>
               </>
             ) : autoSaveState.lastSaved ? (
               <>
                 <CheckCircle2 className="w-3 h-3 text-green-600" />
                 <span className="text-xs text-gray-700">
-                  저장됨: {new Date(autoSaveState.lastSaved).toLocaleTimeString("ko-KR")}
+                  저장됨:{" "}
+                  {new Date(autoSaveState.lastSaved).toLocaleTimeString(
+                    "ko-KR",
+                  )}
                 </span>
               </>
             ) : (
@@ -323,13 +367,16 @@ export default function MobileSubmissionPage() {
           <div
             onClick={() => {
               if (progress.nextAction?.href) {
-                const [tab] = progress.nextAction.href.split('#');
-                const sectionMap: Record<string, "basic" | "print" | "marketing" | "website"> = {
-                  "basic": "basic",
-                  "logo": "print",
-                  "print": "print",
-                  "website": "website",
-                  "marketing": "marketing",
+                const [tab] = progress.nextAction.href.split("#");
+                const sectionMap: Record<
+                  string,
+                  "basic" | "print" | "marketing" | "website"
+                > = {
+                  basic: "basic",
+                  logo: "print",
+                  print: "print",
+                  website: "website",
+                  marketing: "marketing",
                 };
                 setActiveSection(sectionMap[tab] || "basic");
               }
@@ -375,12 +422,14 @@ export default function MobileSubmissionPage() {
                   "py-1.5 px-1 rounded-md font-medium text-xs transition-all",
                   "active:scale-95",
                   activeSection === section.id
-                    ? "bg-blue-600 text-white shadow-sm"
-                    : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+                    ? "bg-navy-900 text-white shadow-sm"
+                    : "bg-gray-50 text-gray-600 hover:bg-gray-100",
                 )}
               >
                 <span className="text-sm">{section.icon}</span>
-                <span className="text-[10px] leading-tight">{section.label}</span>
+                <span className="text-[10px] leading-tight">
+                  {section.label}
+                </span>
               </button>
             ))}
           </div>
@@ -390,7 +439,9 @@ export default function MobileSubmissionPage() {
         {activeSection === "basic" && (
           <Card className="border border-gray-200">
             <CardHeader>
-              <CardTitle className="text-base text-gray-900">기본 정보</CardTitle>
+              <CardTitle className="text-base text-gray-900">
+                기본 정보
+              </CardTitle>
               <CardDescription>
                 인쇄물에 들어갈 기본 정보를 입력해주세요
               </CardDescription>
@@ -403,7 +454,9 @@ export default function MobileSubmissionPage() {
                 <Input
                   id="브랜드명"
                   value={formData.브랜드명 || ""}
-                  onChange={(e) => handleInputChange("브랜드명", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("브랜드명", e.target.value)
+                  }
                   placeholder="브랜드명을 입력하세요"
                 />
               </div>
@@ -438,7 +491,9 @@ export default function MobileSubmissionPage() {
                   <Input
                     id="대표번호"
                     value={formData.대표번호 || ""}
-                    onChange={(e) => handleInputChange("대표번호", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("대표번호", e.target.value)
+                    }
                     placeholder="010-1234-5678"
                   />
                 </div>
@@ -449,7 +504,9 @@ export default function MobileSubmissionPage() {
                     id="이메일"
                     type="email"
                     value={formData.이메일 || ""}
-                    onChange={(e) => handleInputChange("이메일", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("이메일", e.target.value)
+                    }
                     placeholder="example@email.com"
                   />
                 </div>
@@ -461,7 +518,9 @@ export default function MobileSubmissionPage() {
                   <Input
                     id="은행명"
                     value={formData.은행명 || ""}
-                    onChange={(e) => handleInputChange("은행명", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("은행명", e.target.value)
+                    }
                     placeholder="예: 국민은행"
                   />
                 </div>
@@ -471,20 +530,22 @@ export default function MobileSubmissionPage() {
                   <Input
                     id="계좌번호"
                     value={formData.계좌번호 || ""}
-                    onChange={(e) => handleInputChange("계좌번호", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("계좌번호", e.target.value)
+                    }
                     placeholder="123-45-678910"
                   />
                 </div>
               </div>
 
               <div className="space-y-1">
-                <Label htmlFor="인쇄물받을주소">
-                  인쇄물 받을 주소
-                </Label>
+                <Label htmlFor="인쇄물받을주소">인쇄물 받을 주소</Label>
                 <Input
                   id="인쇄물받을주소"
                   value={formData.인쇄물받을주소 || ""}
-                  onChange={(e) => handleInputChange("인쇄물받을주소", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("인쇄물받을주소", e.target.value)
+                  }
                   placeholder="인쇄물 배송받을 주소"
                 />
               </div>
@@ -497,7 +558,9 @@ export default function MobileSubmissionPage() {
           <div className="space-y-4">
             <Card className="border border-gray-200">
               <CardHeader>
-                <CardTitle className="text-base text-gray-900">필수 서류</CardTitle>
+                <CardTitle className="text-base text-gray-900">
+                  필수 서류
+                </CardTitle>
                 <CardDescription>
                   사업자등록증과 프로필 사진을 업로드해주세요
                 </CardDescription>
@@ -529,7 +592,9 @@ export default function MobileSubmissionPage() {
 
             <Card className="border border-gray-200">
               <CardHeader>
-                <CardTitle className="text-base text-gray-900">로고 정보</CardTitle>
+                <CardTitle className="text-base text-gray-900">
+                  로고 정보
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <MobileFileUpload
@@ -542,13 +607,13 @@ export default function MobileSubmissionPage() {
                 />
 
                 <div className="space-y-1">
-                  <Label htmlFor="로고선호스타일">
-                    로고 선호 스타일
-                  </Label>
+                  <Label htmlFor="로고선호스타일">로고 선호 스타일</Label>
                   <Input
                     id="로고선호스타일"
                     value={formData.로고선호스타일 || ""}
-                    onChange={(e) => handleInputChange("로고선호스타일", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("로고선호스타일", e.target.value)
+                    }
                     placeholder="예: 심플하고 모던한 느낌"
                   />
                 </div>
@@ -557,19 +622,21 @@ export default function MobileSubmissionPage() {
                 <div className="space-y-1">
                   <LogoColorSelector
                     value={formData.로고선호색상 || ""}
-                    onChange={(value) => handleInputChange("로고선호색상", value)}
+                    onChange={(value) =>
+                      handleInputChange("로고선호색상", value)
+                    }
                     disabled={submission?.isComplete}
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <Label htmlFor="로고선호폰트">
-                    로고 선호 폰트
-                  </Label>
+                  <Label htmlFor="로고선호폰트">로고 선호 폰트</Label>
                   <Input
                     id="로고선호폰트"
                     value={formData.로고선호폰트 || ""}
-                    onChange={(e) => handleInputChange("로고선호폰트", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("로고선호폰트", e.target.value)
+                    }
                     placeholder="예: 깔끔한 고딕체"
                   />
                 </div>
@@ -598,7 +665,9 @@ export default function MobileSubmissionPage() {
                   label="통신서비스 이용증명원"
                   accept="image/*,application/pdf"
                   currentFileUrl={submission?.통신서비스이용증명원URL}
-                  onUpload={(file) => handleFileUpload("통신서비스이용증명원URL", file)}
+                  onUpload={(file) =>
+                    handleFileUpload("통신서비스이용증명원URL", file)
+                  }
                   allowCamera
                 />
 
@@ -618,7 +687,9 @@ export default function MobileSubmissionPage() {
         {activeSection === "marketing" && (
           <Card className="border border-gray-200">
             <CardHeader>
-              <CardTitle className="text-base text-gray-900">마케팅 정보</CardTitle>
+              <CardTitle className="text-base text-gray-900">
+                마케팅 정보
+              </CardTitle>
               <CardDescription>
                 메타광고, 네이버 광고, 인스타그램 정보를 입력해주세요
               </CardDescription>
@@ -628,50 +699,50 @@ export default function MobileSubmissionPage() {
               <SecurityNotice type="marketing" compact />
 
               <div className="space-y-1">
-                <Label htmlFor="메타광고관리자값">
-                  메타광고 관리자 값
-                </Label>
+                <Label htmlFor="메타광고관리자값">메타광고 관리자 값</Label>
                 <Input
                   id="메타광고관리자값"
                   value={formData.메타광고관리자값 || ""}
-                  onChange={(e) => handleInputChange("메타광고관리자값", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("메타광고관리자값", e.target.value)
+                  }
                   placeholder="초대 링크 또는 계정 정보"
                 />
               </div>
 
               <div className="space-y-1">
-                <Label htmlFor="네이버검색광고ID">
-                  네이버 검색광고 ID
-                </Label>
+                <Label htmlFor="네이버검색광고ID">네이버 검색광고 ID</Label>
                 <Input
                   id="네이버검색광고ID"
                   value={formData.네이버검색광고ID || ""}
-                  onChange={(e) => handleInputChange("네이버검색광고ID", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("네이버검색광고ID", e.target.value)
+                  }
                   placeholder="네이버 광고 ID"
                 />
               </div>
 
               <div className="space-y-1">
-                <Label htmlFor="InstagramID">
-                  Instagram ID
-                </Label>
+                <Label htmlFor="InstagramID">Instagram ID</Label>
                 <Input
                   id="InstagramID"
                   value={formData.InstagramID || ""}
-                  onChange={(e) => handleInputChange("InstagramID", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("InstagramID", e.target.value)
+                  }
                   placeholder="인스타그램 아이디"
                 />
               </div>
 
               <div className="space-y-1">
-                <Label htmlFor="InstagramPW">
-                  Instagram 비밀번호
-                </Label>
+                <Label htmlFor="InstagramPW">Instagram 비밀번호</Label>
                 <Input
                   id="InstagramPW"
                   type="password"
                   value={formData.InstagramPW || ""}
-                  onChange={(e) => handleInputChange("InstagramPW", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("InstagramPW", e.target.value)
+                  }
                   placeholder="비밀번호"
                 />
               </div>
@@ -698,7 +769,9 @@ export default function MobileSubmissionPage() {
                 <Input
                   id="홈페이지컬러컨셉"
                   value={formData.홈페이지컬러컨셉 || ""}
-                  onChange={(e) => handleInputChange("홈페이지컬러컨셉", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("홈페이지컬러컨셉", e.target.value)
+                  }
                   placeholder="예: 블루 계열, 심플하고 깔끔한 느낌"
                 />
               </div>
@@ -709,7 +782,7 @@ export default function MobileSubmissionPage() {
         {/* 수동 저장 버튼 */}
         <Button
           onClick={handleManualSave}
-          className="w-full h-10 text-sm font-semibold bg-blue-600 hover:bg-blue-700 active:scale-98"
+          className="w-full h-10 text-sm font-semibold bg-navy-900 hover:bg-navy-800 active:scale-98"
         >
           <Save className="w-4 h-4 mr-1.5" />
           저장하기
@@ -720,7 +793,7 @@ export default function MobileSubmissionPage() {
       {uploading && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-8 flex flex-col items-center gap-4 shadow-2xl max-w-sm mx-4">
-            <Loader2 className="w-12 h-12 animate-spin text-blue-600" />
+            <Loader2 className="w-12 h-12 animate-spin text-gold-600" />
             <p className="text-lg font-bold text-gray-900">파일 업로드 중...</p>
             <p className="text-sm text-gray-500 text-center">
               잠시만 기다려주세요
@@ -743,14 +816,17 @@ export default function MobileSubmissionPage() {
           sections={progress.sections}
           overallPercentage={progress.overallPercentage}
           onNavigateToSection={(href) => {
-            const [tab] = href.split('#');
+            const [tab] = href.split("#");
             // 모바일에서는 탭이 아닌 섹션 이름으로 매핑
-            const sectionMap: Record<string, "basic" | "print" | "marketing" | "website"> = {
-              "basic": "basic",
-              "logo": "print",
-              "print": "print",
-              "website": "website",
-              "marketing": "marketing",
+            const sectionMap: Record<
+              string,
+              "basic" | "print" | "marketing" | "website"
+            > = {
+              basic: "basic",
+              logo: "print",
+              print: "print",
+              website: "website",
+              marketing: "marketing",
             };
             setActiveSection(sectionMap[tab] || "basic");
           }}

@@ -13,12 +13,10 @@ type ContentTip = {
  * 새 콘텐츠 팁 등록 시 이메일 알림 발송
  */
 export async function sendContentTipNotifications(
-  tip: ContentTip
+  tip: ContentTip,
 ): Promise<void> {
   try {
-    console.log(
-      `📧 콘텐츠 팁 이메일 알림 발송 시작: ${tip.title}`
-    );
+    console.log(`📧 콘텐츠 팁 이메일 알림 발송 시작: ${tip.title}`);
 
     // 콘텐츠팁 이메일 수신 동의한 사용자 조회
     const users = await prisma.user.findMany({
@@ -61,14 +59,16 @@ export async function sendContentTipNotifications(
     const results = await Promise.allSettled(emailPromises);
 
     const successCount = results.filter(
-      (r) => r.status === "fulfilled" && r.value === true
+      (r) => r.status === "fulfilled" && r.value === true,
     ).length;
     const failCount = results.filter(
-      (r) => r.status === "rejected" || (r.status === "fulfilled" && r.value === false)
+      (r) =>
+        r.status === "rejected" ||
+        (r.status === "fulfilled" && r.value === false),
     ).length;
 
     console.log(
-      `✅ 콘텐츠 팁 이메일 발송 완료: 성공 ${successCount}건, 실패 ${failCount}건`
+      `✅ 콘텐츠 팁 이메일 발송 완료: 성공 ${successCount}건, 실패 ${failCount}건`,
     );
   } catch (error) {
     console.error("콘텐츠 팁 이메일 알림 발송 실패:", error);
@@ -154,10 +154,10 @@ function getContentTipEmailHTML(params: {
                   </table>
 
                   <!-- Info Box -->
-                  <table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 30px; background-color: #eff6ff; border-left: 4px solid #3b82f6; border-radius: 4px;">
+                  <table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 30px; background-color: #f5f0e0; border-left: 4px solid #c9a84c; border-radius: 4px;">
                     <tr>
                       <td style="padding: 20px;">
-                        <p style="margin: 0; font-size: 14px; color: #1e40af; line-height: 1.6;">
+                        <p style="margin: 0; font-size: 14px; color: #0d1b2a; line-height: 1.6;">
                           💡 더 많은 콘텐츠 제작 팁은 대시보드에서 확인하실 수 있습니다.
                         </p>
                       </td>

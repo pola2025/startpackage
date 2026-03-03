@@ -73,7 +73,7 @@ export default function AddCohortButton() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-blue-600 text-white hover:bg-blue-700 shadow-md">
+        <Button className="bg-navy-900 text-white hover:bg-navy-800 shadow-md">
           <Plus className="w-4 h-4 mr-2" />
           기수 추가
         </Button>
@@ -96,7 +96,7 @@ export default function AddCohortButton() {
               onChange={(e) => setName(e.target.value)}
               placeholder="예: 19기"
               required
-              className="bg-white border-2 border-gray-300 focus:border-blue-500 text-gray-900"
+              className="bg-white border-2 border-gray-300 focus:border-gold-500 text-gray-900"
             />
           </div>
 
@@ -107,7 +107,7 @@ export default function AddCohortButton() {
               onChange={(e) => set교육요일(e.target.value)}
               placeholder="예: 목, 금"
               required
-              className="bg-white border-2 border-gray-300 focus:border-blue-500 text-gray-900"
+              className="bg-white border-2 border-gray-300 focus:border-gold-500 text-gray-900"
             />
           </div>
 
@@ -118,7 +118,7 @@ export default function AddCohortButton() {
               value={교육시작일}
               onChange={(e) => handle교육시작일Change(e.target.value)}
               required
-              className="bg-white border-2 border-gray-300 focus:border-blue-500 text-gray-900"
+              className="bg-white border-2 border-gray-300 focus:border-gold-500 text-gray-900"
             />
           </div>
 
@@ -134,7 +134,7 @@ export default function AddCohortButton() {
               value={자료제출마감일}
               onChange={(e) => set자료제출마감일(e.target.value)}
               required
-              className="bg-white border-2 border-gray-300 focus:border-blue-500 text-gray-900"
+              className="bg-white border-2 border-gray-300 focus:border-gold-500 text-gray-900"
             />
           </div>
 
@@ -151,7 +151,7 @@ export default function AddCohortButton() {
             <Button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-blue-600 text-white hover:bg-blue-700 shadow-md"
+              className="flex-1 bg-navy-900 text-white hover:bg-navy-800 shadow-md"
             >
               {loading ? "생성 중..." : "생성"}
               <CheckCircle2 className="w-4 h-4 ml-2" />

@@ -287,17 +287,17 @@ export default function UserAnnouncementsPage() {
       </Card>
 
       {/* 네이버 검색광고 충전 안내 */}
-      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300">
+      <Card className="bg-gradient-to-r from-gold-50 to-gold-100 border-2 border-gold-300">
         <CardContent className="p-4 md:p-6">
           <div className="flex flex-col md:flex-row md:items-start gap-3 md:gap-4">
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-              <CreditCard className="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gold-100 flex items-center justify-center flex-shrink-0">
+              <CreditCard className="w-5 h-5 md:w-6 md:h-6 text-gold-600" />
             </div>
             <div className="flex-1">
-              <h3 className="text-base md:text-lg font-bold text-blue-900 mb-2">
+              <h3 className="text-base md:text-lg font-bold text-navy-900 mb-2">
                 💳 네이버 검색광고 충전 안내
               </h3>
-              <p className="text-sm text-blue-800 mb-3 md:mb-4">
+              <p className="text-sm text-navy-800 mb-3 md:mb-4">
                 네이버 검색광고를 사용하시려면 광고비를 충전해주세요
               </p>
               <div className="space-y-3">
@@ -312,8 +312,8 @@ export default function UserAnnouncementsPage() {
                     네이버 검색광고 충전하기
                   </Button>
                 </a>
-                <div className="bg-blue-100 border border-blue-300 rounded-lg p-2.5 md:p-3">
-                  <p className="text-xs text-blue-900">
+                <div className="bg-gold-100 border border-gold-300 rounded-lg p-2.5 md:p-3">
+                  <p className="text-xs text-navy-900">
                     <strong>💡 충전 방법:</strong> 위 버튼을 클릭하여 네이버 검색광고 관리 페이지로 이동 → <strong>충전하기</strong> 버튼 클릭
                   </p>
                 </div>

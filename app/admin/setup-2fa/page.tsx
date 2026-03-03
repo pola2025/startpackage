@@ -11,8 +11,8 @@ import { Shield, Smartphone, CheckCircle2, Copy, Check } from "lucide-react";
 export default function Setup2FAPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center">
-        <div className="text-blue-600">2FA 설정 준비 중...</div>
+      <div className="min-h-screen bg-gradient-to-br from-gold-50 via-white to-gold-50 flex items-center justify-center">
+        <div className="text-gold-600">2FA 설정 준비 중...</div>
       </div>
     }>
       <Setup2FAContent />
@@ -119,15 +119,15 @@ function Setup2FAContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center">
-        <div className="text-blue-600">2FA 설정 준비 중...</div>
+      <div className="min-h-screen bg-gradient-to-br from-gold-50 via-white to-gold-50 flex items-center justify-center">
+        <div className="text-gold-600">2FA 설정 준비 중...</div>
       </div>
     );
   }
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-gold-50 via-white to-gold-50 flex items-center justify-center p-4">
         <Card className="w-full max-w-md bg-white shadow-xl border-green-200">
           <CardContent className="pt-8 pb-8 text-center space-y-4">
             <div className="mx-auto w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
@@ -148,7 +148,7 @@ function Setup2FAContent() {
 
   if (error && !qrCode) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-gold-50 via-white to-gold-50 flex items-center justify-center p-4">
         <Card className="w-full max-w-md bg-white shadow-xl border-red-200">
           <CardContent className="pt-8 pb-8 text-center space-y-4">
             <div className="mx-auto w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
@@ -170,17 +170,17 @@ function Setup2FAContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md bg-white shadow-xl border-blue-200">
-        <CardHeader className="space-y-4 text-center border-b border-blue-100 bg-gradient-to-b from-blue-50/30 to-transparent">
-          <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center shadow-lg">
+    <div className="min-h-screen bg-gradient-to-br from-gold-50 via-white to-gold-50 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md bg-white shadow-xl border-gold-200">
+        <CardHeader className="space-y-4 text-center border-b border-gold-100 bg-gradient-to-b from-gold-50/30 to-transparent">
+          <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-navy-900 to-navy-800 flex items-center justify-center shadow-lg">
             <Smartphone className="w-8 h-8 text-white" />
           </div>
           <div>
-            <CardTitle className="text-2xl font-bold text-blue-900 mb-1">
+            <CardTitle className="text-2xl font-bold text-navy-900 mb-1">
               Google Authenticator 설정
             </CardTitle>
-            <p className="text-sm text-blue-700">
+            <p className="text-sm text-navy-700">
               {adminName}님, 2단계 인증을 설정해주세요
             </p>
           </div>
@@ -190,14 +190,14 @@ function Setup2FAContent() {
           {/* Step 1: QR Code */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center font-bold">1</span>
-              <span className="text-sm font-semibold text-blue-900">
+              <span className="w-6 h-6 rounded-full bg-navy-900 text-white text-xs flex items-center justify-center font-bold">1</span>
+              <span className="text-sm font-semibold text-navy-900">
                 Google Authenticator 앱에서 QR코드를 스캔하세요
               </span>
             </div>
 
             {qrCode && (
-              <div className="flex justify-center p-4 bg-white rounded-lg border border-blue-100">
+              <div className="flex justify-center p-4 bg-white rounded-lg border border-gold-100">
                 <img
                   src={qrCode}
                   alt="2FA QR Code"
@@ -236,8 +236,8 @@ function Setup2FAContent() {
           {/* Step 2: Verify */}
           <form onSubmit={handleVerify} className="space-y-4">
             <div className="flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center font-bold">2</span>
-              <span className="text-sm font-semibold text-blue-900">
+              <span className="w-6 h-6 rounded-full bg-navy-900 text-white text-xs flex items-center justify-center font-bold">2</span>
+              <span className="text-sm font-semibold text-navy-900">
                 앱에 표시된 6자리 코드를 입력하세요
               </span>
             </div>
@@ -255,7 +255,7 @@ function Setup2FAContent() {
                 value={totpCode}
                 onChange={handleTotpChange}
                 maxLength={6}
-                className="text-center text-2xl tracking-[0.5em] font-mono border-blue-200 focus:border-blue-600 focus:ring-blue-600"
+                className="text-center text-2xl tracking-[0.5em] font-mono border-gold-200 focus:border-gold-600 focus:ring-gold-600"
               />
             </div>
 
@@ -267,7 +267,7 @@ function Setup2FAContent() {
 
             <Button
               type="submit"
-              className="w-full bg-blue-700 text-white hover:bg-blue-800 font-semibold"
+              className="w-full bg-navy-900 text-white hover:bg-navy-800 font-semibold"
               size="lg"
               disabled={verifying || totpCode.length !== 6}
             >

@@ -209,7 +209,7 @@ export default function AdminsPage() {
     const badges: { [key: string]: { label: string; color: string } } = {
       super: {
         label: "최고 관리자",
-        color: "bg-red-100 text-red-700 border-red-300",
+        color: "bg-gold-100 text-gold-700 border-gold-300",
       },
       designer: {
         label: "디자이너",
@@ -217,7 +217,7 @@ export default function AdminsPage() {
       },
       operator: {
         label: "운영자",
-        color: "bg-blue-100 text-blue-700 border-blue-300",
+        color: "bg-gold-100 text-gold-700 border-gold-300",
       },
     };
 
@@ -271,7 +271,7 @@ export default function AdminsPage() {
           </div>
           <Button
             onClick={() => setShowCreateDialog(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-xs sm:text-sm h-8 sm:h-10 px-2 sm:px-4"
+            className="bg-navy-900 hover:bg-navy-800 text-xs sm:text-sm h-8 sm:h-10 px-2 sm:px-4"
           >
             <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
             <span className="hidden sm:inline">관리자 추가</span>
@@ -343,7 +343,7 @@ export default function AdminsPage() {
                       className={`flex-1 h-8 text-xs ${
                         admin.twoFactorEnabled
                           ? "hover:bg-amber-50 text-amber-700"
-                          : "hover:bg-blue-50 text-blue-700"
+                          : "hover:bg-gold-50 text-gold-700"
                       }`}
                     >
                       {admin.twoFactorEnabled ? (
@@ -444,7 +444,7 @@ export default function AdminsPage() {
                             className={
                               admin.twoFactorEnabled
                                 ? "hover:bg-amber-50 text-amber-700"
-                                : "hover:bg-blue-50 text-blue-700"
+                                : "hover:bg-gold-50 text-gold-700"
                             }
                           >
                             {admin.twoFactorEnabled ? (
@@ -532,8 +532,8 @@ export default function AdminsPage() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="rounded-lg bg-blue-50 border border-blue-200 p-3">
-              <p className="text-sm text-blue-700">
+            <div className="rounded-lg bg-gold-50 border border-gold-200 p-3">
+              <p className="text-sm text-navy-700">
                 <ShieldCheck className="w-4 h-4 inline mr-1" />
                 로그인은 Google Authenticator 2FA 인증으로만 가능합니다.
                 관리자 생성 후 2FA 설정 링크를 전달해주세요.
@@ -549,7 +549,7 @@ export default function AdminsPage() {
             </Button>
             <Button
               onClick={handleCreate}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-navy-900 hover:bg-navy-800"
             >
               생성
             </Button>
@@ -572,7 +572,7 @@ export default function AdminsPage() {
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-blue-600" />
+              <ShieldCheck className="w-5 h-5 text-gold-600" />
               2FA 설정 링크
             </DialogTitle>
             <DialogDescription>
@@ -616,7 +616,7 @@ export default function AdminsPage() {
           <DialogFooter>
             <Button
               onClick={handleCopyUrl}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-navy-900 hover:bg-navy-800"
             >
               {copied ? (
                 <>

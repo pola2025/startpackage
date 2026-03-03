@@ -27,9 +27,9 @@ export function SubmissionProgress({
       label: "작성 중",
     },
     검토중: {
-      color: "text-blue-700",
-      bgColor: "bg-blue-50",
-      borderColor: "border-blue-200",
+      color: "text-navy-700",
+      bgColor: "bg-gold-50",
+      borderColor: "border-gold-200",
       icon: Circle,
       label: "검토 중",
     },
@@ -61,7 +61,7 @@ export function SubmissionProgress({
         className={cn(
           "inline-flex items-center gap-2 px-4 py-2 rounded-full border-2",
           config.bgColor,
-          config.borderColor
+          config.borderColor,
         )}
       >
         <StatusIcon className={cn("w-5 h-5", config.color)} />
@@ -74,7 +74,7 @@ export function SubmissionProgress({
       <div className="space-y-2">
         <div className="flex items-center justify-between text-sm">
           <span className="font-semibold text-gray-900">전체 진행률</span>
-          <span className="font-bold text-blue-600">{percentage}%</span>
+          <span className="font-bold text-gold-600">{percentage}%</span>
         </div>
         <Progress value={percentage} className="h-3" />
         <p className="text-xs text-gray-500">
@@ -93,7 +93,7 @@ export function SubmissionProgress({
                 "flex items-center gap-3 p-3 rounded-lg border-2 transition-all",
                 field.completed
                   ? "bg-green-50 border-green-200"
-                  : "bg-white border-gray-200 animate-pulse"
+                  : "bg-white border-gray-200 animate-pulse",
               )}
             >
               {field.completed ? (
@@ -104,7 +104,7 @@ export function SubmissionProgress({
               <span
                 className={cn(
                   "text-sm font-medium",
-                  field.completed ? "text-green-900" : "text-gray-700"
+                  field.completed ? "text-green-900" : "text-gray-700",
                 )}
               >
                 {field.label}

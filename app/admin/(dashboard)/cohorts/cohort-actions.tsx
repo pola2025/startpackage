@@ -100,7 +100,7 @@ export default function CohortActions({ cohort }: CohortActionsProps) {
             disabled={loading}
             className="text-gray-700 hover:bg-gray-100 cursor-pointer"
           >
-            <Edit className="w-4 h-4 mr-2 text-blue-600" />
+            <Edit className="w-4 h-4 mr-2 text-gold-600" />
             수정
           </DropdownMenuItem>
           <DropdownMenuItem

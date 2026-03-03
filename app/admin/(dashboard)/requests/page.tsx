@@ -149,9 +149,9 @@ export default function AdminRequestsPage() {
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">가입 신청</h1>
           <p className="text-sm sm:text-base text-gray-600">관리자 가입 신청을 관리합니다</p>
         </div>
-        <div className="flex items-center gap-2 px-2 sm:px-4 py-1.5 sm:py-2 bg-blue-50 rounded-lg border-2 border-blue-200">
-          <UserPlus className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-          <span className="text-lg sm:text-2xl font-bold text-blue-600">{requests.length}</span>
+        <div className="flex items-center gap-2 px-2 sm:px-4 py-1.5 sm:py-2 bg-gold-50 rounded-lg border-2 border-gold-200">
+          <UserPlus className="w-4 h-4 sm:w-5 sm:h-5 text-gold-600" />
+          <span className="text-lg sm:text-2xl font-bold text-gold-600">{requests.length}</span>
           <span className="text-xs sm:text-sm text-gray-600">건</span>
         </div>
       </div>

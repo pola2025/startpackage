@@ -463,7 +463,7 @@ export default function UserActions({ user }: UserActionsProps) {
         <DropdownMenuContent className="bg-white border-gray-200" align="end">
           <DropdownMenuItem
             onClick={handleViewDetails}
-            className="text-blue-600 hover:bg-blue-50 cursor-pointer"
+            className="text-gold-600 hover:bg-gold-50 cursor-pointer"
           >
             <Eye className="w-4 h-4 mr-2" />
             제출 정보 확인
@@ -672,7 +672,7 @@ export default function UserActions({ user }: UserActionsProps) {
                         href={submission.로고URL}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline flex items-center gap-1 mt-1"
+                        className="text-gold-600 hover:underline flex items-center gap-1 mt-1"
                       >
                         파일 보기 <ExternalLink className="w-3 h-3" />
                       </a>
@@ -682,7 +682,7 @@ export default function UserActions({ user }: UserActionsProps) {
               </div>
 
               {/* 홈페이지 정보 */}
-              <div className="space-y-3 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="space-y-3 p-4 bg-gold-50 rounded-lg border border-gold-200">
                 <h3 className="font-semibold text-gray-900">홈페이지 정보</h3>
                 <div className="grid grid-cols-1 gap-3 text-sm">
                   <div>
@@ -692,7 +692,7 @@ export default function UserActions({ user }: UserActionsProps) {
                         href={submission.홈페이지스타일}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline flex items-center gap-1 mt-1"
+                        className="text-gold-600 hover:underline flex items-center gap-1 mt-1"
                       >
                         {submission.홈페이지스타일} <ExternalLink className="w-3 h-3" />
                       </a>
@@ -753,7 +753,7 @@ export default function UserActions({ user }: UserActionsProps) {
                         href={submission.사업자등록증URL}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline flex items-center gap-1 mt-1"
+                        className="text-gold-600 hover:underline flex items-center gap-1 mt-1"
                       >
                         파일 보기 <ExternalLink className="w-3 h-3" />
                       </a>
@@ -766,7 +766,7 @@ export default function UserActions({ user }: UserActionsProps) {
                         href={submission.프로필사진URL}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline flex items-center gap-1 mt-1"
+                        className="text-gold-600 hover:underline flex items-center gap-1 mt-1"
                       >
                         파일 보기 <ExternalLink className="w-3 h-3" />
                       </a>

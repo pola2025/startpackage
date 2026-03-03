@@ -141,14 +141,14 @@ export default function WorkflowsPage() {
     const statusMap: Record<string, { variant: any; color: string; label: string }> = {
       "대기": { variant: "secondary", color: "text-gray-500", label: "대기" },
       // 로고 워크플로우 상태
-      "시안제작중": { variant: "outline", color: "text-blue-700 border-blue-300 bg-blue-50", label: "시안 제작 중" },
+      "시안제작중": { variant: "outline", color: "text-navy-700 border-gold-300 bg-gold-50", label: "시안 제작 중" },
       "시안컨펌요청": { variant: "outline", color: "text-orange-700 border-orange-300 bg-orange-50", label: "시안 컨펌 요청" },
       "최종확정": { variant: "outline", color: "text-emerald-800 border-emerald-300 bg-emerald-50", label: "최종 확정" },
       // 홈페이지 워크플로우 상태
-      "제작 진행 중": { variant: "outline", color: "text-blue-700 border-blue-300 bg-blue-50", label: "제작 진행 중" },
+      "제작 진행 중": { variant: "outline", color: "text-navy-700 border-gold-300 bg-gold-50", label: "제작 진행 중" },
       "제작 완료": { variant: "outline", color: "text-green-800 border-green-300 bg-green-50", label: "제작 완료" },
       // 인쇄물 워크플로우 상태
-      "시안중": { variant: "outline", color: "text-blue-700 border-blue-300 bg-blue-50", label: "시안 작업 중" },
+      "시안중": { variant: "outline", color: "text-navy-700 border-gold-300 bg-gold-50", label: "시안 작업 중" },
       "발주대기": { variant: "outline", color: "text-orange-700 border-orange-300 bg-orange-50", label: "발주 대기 (확인 필요!)" },
       "발주요청": { variant: "outline", color: "text-yellow-700 border-yellow-300 bg-yellow-50", label: "발주 요청" },
       "발주완료": { variant: "outline", color: "text-green-800 border-green-300 bg-green-50", label: "발주 완료" },
@@ -176,19 +176,19 @@ export default function WorkflowsPage() {
         return <Clock className="w-5 h-5 text-gray-400" />;
       // 로고 워크플로우
       case "시안제작중":
-        return <FileText className="w-5 h-5 text-blue-600" />;
+        return <FileText className="w-5 h-5 text-gold-600" />;
       case "시안컨펌요청":
         return <AlertTriangle className="w-5 h-5 text-orange-600" />;
       case "최종확정":
         return <CheckCircle2 className="w-5 h-5 text-emerald-700" />;
       // 홈페이지 워크플로우
       case "제작 진행 중":
-        return <FileText className="w-5 h-5 text-blue-600" />;
+        return <FileText className="w-5 h-5 text-gold-600" />;
       case "제작 완료":
         return <CheckCircle2 className="w-5 h-5 text-green-700" />;
       // 인쇄물 워크플로우
       case "시안중":
-        return <FileText className="w-5 h-5 text-blue-600" />;
+        return <FileText className="w-5 h-5 text-gold-600" />;
       case "발주대기":
         return <AlertTriangle className="w-5 h-5 text-orange-600" />;
       case "발주완료":
@@ -227,14 +227,14 @@ export default function WorkflowsPage() {
       </Alert>
 
       {/* 제작 소요 기간 안내 */}
-      <Alert className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 shadow-lg">
-        <Info className="h-5 w-5 text-blue-700" />
+      <Alert className="bg-gradient-to-r from-gold-50 to-gold-100 border-2 border-gold-300 shadow-lg">
+        <Info className="h-5 w-5 text-navy-700" />
         <AlertDescription>
           <div className="space-y-3 md:space-y-4">
             <div className="space-y-1 md:space-y-2">
-              <p className="text-blue-900 font-bold text-sm md:text-base">
+              <p className="text-navy-900 font-bold text-sm md:text-base">
                 📦 제품별 제작 소요 기간<br className="md:hidden" />
-                <span className="text-blue-700 font-medium text-xs md:text-sm">(영업일 기준)</span>
+                <span className="text-navy-700 font-medium text-xs md:text-sm">(영업일 기준)</span>
               </p>
               <div className="inline-block bg-orange-100 border border-orange-400 md:border-2 px-2 py-1 md:px-4 md:py-2 rounded-lg">
                 <p className="text-orange-900 font-bold text-xs md:text-sm">⚠️ 발주요청 후 제작기간입니다</p>
@@ -243,15 +243,15 @@ export default function WorkflowsPage() {
             {/* 모바일: 세로 컴팩트, 데스크탑: 가로 그리드 */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4">
               {/* 명함/명찰 */}
-              <div className="flex items-center justify-between p-2.5 md:p-4 bg-white border border-blue-200 md:border-2 rounded-lg shadow-sm md:shadow-md md:flex-col md:items-start">
+              <div className="flex items-center justify-between p-2.5 md:p-4 bg-white border border-gold-200 md:border-2 rounded-lg shadow-sm md:shadow-md md:flex-col md:items-start">
                 <div className="flex items-center gap-2 md:gap-3 md:mb-2">
-                  <div className="w-7 h-7 md:w-10 md:h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                    <Package className="w-3.5 h-3.5 md:w-5 md:h-5 text-blue-600" />
+                  <div className="w-7 h-7 md:w-10 md:h-10 rounded-full bg-gold-100 flex items-center justify-center flex-shrink-0">
+                    <Package className="w-3.5 h-3.5 md:w-5 md:h-5 text-gold-600" />
                   </div>
                   <h3 className="font-bold text-gray-900 text-xs md:text-lg whitespace-nowrap">명함 / 명찰</h3>
                 </div>
                 <div className="flex items-baseline gap-1 md:gap-2">
-                  <span className="text-lg md:text-3xl font-bold text-blue-700">2~3일</span>
+                  <span className="text-lg md:text-3xl font-bold text-navy-700">2~3일</span>
                 </div>
               </div>
 
@@ -281,7 +281,7 @@ export default function WorkflowsPage() {
                 </div>
               </div>
             </div>
-            <div className="flex items-start md:items-center gap-2 text-xs text-blue-800 bg-blue-100 px-2 py-1.5 md:px-3 md:py-2 rounded-md">
+            <div className="flex items-start md:items-center gap-2 text-xs text-navy-800 bg-gold-100 px-2 py-1.5 md:px-3 md:py-2 rounded-md">
               <AlertTriangle className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0 mt-0.5 md:mt-0" />
               <span className="font-medium leading-tight">주말 및 공휴일은 제외되며, 실제 도착일은 제작 완료 후 안내됩니다.</span>
             </div>
@@ -299,7 +299,7 @@ export default function WorkflowsPage() {
       ) : (
         <div className="grid gap-3 md:gap-4 md:grid-cols-2 lg:grid-cols-3">
           {workflows.map((workflow) => (
-            <Card key={workflow.id} className="bg-white border border-gray-200 md:border-2 hover:border-blue-300 transition-all">
+            <Card key={workflow.id} className="bg-white border border-gray-200 md:border-2 hover:border-gold-300 transition-all">
               {/* 헤더 - 모바일에서 컴팩트하게 */}
               <CardHeader className="p-3 md:p-6 pb-2 md:pb-4">
                 <div className="flex items-center justify-between">
@@ -335,12 +335,12 @@ export default function WorkflowsPage() {
                     </div>
                   )}
                   {workflow.예상도착일 && (
-                    <div className="flex items-center gap-1 md:gap-2 col-span-2 md:col-span-1 bg-blue-50 md:bg-transparent rounded px-1 md:px-0 py-0.5 md:py-0">
-                      <Calendar className="w-3 h-3 md:w-4 md:h-4 text-blue-600 flex-shrink-0" />
+                    <div className="flex items-center gap-1 md:gap-2 col-span-2 md:col-span-1 bg-gold-50 md:bg-transparent rounded px-1 md:px-0 py-0.5 md:py-0">
+                      <Calendar className="w-3 h-3 md:w-4 md:h-4 text-gold-600 flex-shrink-0" />
                       <span className="text-gray-600 text-[10px] md:text-sm">
                         {workflow.type === "홈페이지" ? "완료예정:" : "도착예정:"}
                       </span>
-                      <span className="text-blue-700 font-medium truncate">{formatArrivalDate(workflow.예상도착일)}</span>
+                      <span className="text-navy-700 font-medium truncate">{formatArrivalDate(workflow.예상도착일)}</span>
                     </div>
                   )}
                   {workflow.제작완료일 && (
@@ -352,7 +352,7 @@ export default function WorkflowsPage() {
                   )}
                   {workflow.발송일 && (
                     <div className="flex items-center gap-1 md:gap-2">
-                      <Truck className="w-3 h-3 md:w-4 md:h-4 text-blue-600 flex-shrink-0" />
+                      <Truck className="w-3 h-3 md:w-4 md:h-4 text-gold-600 flex-shrink-0" />
                       <span className="text-gray-600 hidden md:inline">발송일:</span>
                       <span className="text-gray-900 truncate">{formatDate(workflow.발송일)}</span>
                     </div>
@@ -361,9 +361,9 @@ export default function WorkflowsPage() {
 
                 {/* 택배 정보 - 모바일에서 한 줄로 */}
                 {workflow.운송장번호 && (
-                  <div className="flex items-center gap-2 p-2 md:p-3 rounded-lg bg-blue-50 border border-blue-200 md:border-2">
-                    <Truck className="w-3.5 h-3.5 md:w-4 md:h-4 text-blue-600 flex-shrink-0" />
-                    <span className="text-[11px] md:text-sm text-blue-700 font-medium truncate">
+                  <div className="flex items-center gap-2 p-2 md:p-3 rounded-lg bg-gold-50 border border-gold-200 md:border-2">
+                    <Truck className="w-3.5 h-3.5 md:w-4 md:h-4 text-gold-600 flex-shrink-0" />
+                    <span className="text-[11px] md:text-sm text-navy-700 font-medium truncate">
                       {workflow.택배회사} {workflow.운송장번호}
                     </span>
                   </div>
@@ -405,7 +405,7 @@ export default function WorkflowsPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="flex-1 h-8 md:h-9 text-xs md:text-sm border-blue-500 text-blue-600 hover:bg-blue-50"
+                            className="flex-1 h-8 md:h-9 text-xs md:text-sm border-gold-500 text-gold-600 hover:bg-gold-50"
                             onClick={() => {
                               setSelectedWorkflow(workflow);
                               setDialogOpen(true);
@@ -431,7 +431,7 @@ export default function WorkflowsPage() {
                                       href={workflow.시안URL}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                      className="inline-block px-6 py-3 bg-navy-900 text-white rounded-lg hover:bg-navy-800 transition-colors"
                                     >
                                       홈페이지 방문하기
                                     </a>
@@ -535,7 +535,7 @@ export default function WorkflowsPage() {
                                     size="sm"
                                     onClick={() => handleOrderRequest(workflow.id)}
                                     disabled={loading}
-                                    className="w-full h-9 md:h-10 text-sm bg-blue-600 hover:bg-blue-700 text-white"
+                                    className="w-full h-9 md:h-10 text-sm bg-navy-900 hover:bg-navy-800 text-white"
                                   >
                                     발주 요청
                                   </Button>
@@ -586,9 +586,9 @@ export default function WorkflowsPage() {
                             {/* 피드백 섹션 */}
                             <div className="space-y-1.5 md:space-y-2">
                               {workflow.feedback && (
-                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 md:p-3">
-                                  <p className="text-[11px] md:text-xs font-semibold text-blue-900 mb-0.5 md:mb-1">제출한 피드백:</p>
-                                  <p className="text-[11px] md:text-xs text-blue-800 whitespace-pre-wrap line-clamp-2 md:line-clamp-none">{workflow.feedback}</p>
+                                <div className="bg-gold-50 border border-gold-200 rounded-lg p-2 md:p-3">
+                                  <p className="text-[11px] md:text-xs font-semibold text-navy-900 mb-0.5 md:mb-1">제출한 피드백:</p>
+                                  <p className="text-[11px] md:text-xs text-navy-800 whitespace-pre-wrap line-clamp-2 md:line-clamp-none">{workflow.feedback}</p>
                                 </div>
                               )}
 
@@ -604,7 +604,7 @@ export default function WorkflowsPage() {
                                     value={feedbackText}
                                     onChange={(e) => setFeedbackText(e.target.value)}
                                     placeholder="예: 색상 변경"
-                                    className="w-full h-14 md:h-20 px-2 md:px-3 py-1.5 md:py-2 text-xs md:text-sm border border-gray-300 md:border-2 rounded-lg resize-none focus:outline-none focus:border-blue-500"
+                                    className="w-full h-14 md:h-20 px-2 md:px-3 py-1.5 md:py-2 text-xs md:text-sm border border-gray-300 md:border-2 rounded-lg resize-none focus:outline-none focus:border-gold-500"
                                   />
                                   {feedbackText.trim() && (
                                     <Button

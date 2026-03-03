@@ -8,7 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Accordion,
@@ -91,7 +95,8 @@ interface CommunicationMessage {
 
 export default function AdminCommunicationPage() {
   const [threads, setThreads] = useState<CommunicationThread[]>([]);
-  const [selectedThread, setSelectedThread] = useState<CommunicationThread | null>(null);
+  const [selectedThread, setSelectedThread] =
+    useState<CommunicationThread | null>(null);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -124,25 +129,34 @@ export default function AdminCommunicationPage() {
   const getRelativeTime = (date: string): string => {
     const now = new Date();
     const targetDate = new Date(date);
-    const diffInSeconds = Math.floor((now.getTime() - targetDate.getTime()) / 1000);
+    const diffInSeconds = Math.floor(
+      (now.getTime() - targetDate.getTime()) / 1000,
+    );
 
     if (diffInSeconds < 60) return "방금 전";
     if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}분 전`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}시간 전`;
-    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}일 전`;
+    if (diffInSeconds < 86400)
+      return `${Math.floor(diffInSeconds / 3600)}시간 전`;
+    if (diffInSeconds < 604800)
+      return `${Math.floor(diffInSeconds / 86400)}일 전`;
 
     return format(targetDate, "M월 d일 HH:mm", { locale: ko });
   };
 
   // 날짜별 메시지 그룹핑 (역순 - 최신 메시지가 위로)
   const groupMessagesByDate = (messages: CommunicationMessage[]) => {
-    const groups: Array<{ type: "date"; date: string } | { type: "message"; data: CommunicationMessage; index: number }> = [];
+    const groups: Array<
+      | { type: "date"; date: string }
+      | { type: "message"; data: CommunicationMessage; index: number }
+    > = [];
     let currentDate: string | null = null;
 
     // 메시지를 역순으로 순회 (최신 메시지부터)
     [...messages].reverse().forEach((message, reverseIndex) => {
       const originalIndex = messages.length - 1 - reverseIndex;
-      const messageDate = format(new Date(message.createdAt), "yyyy-MM-dd", { locale: ko });
+      const messageDate = format(new Date(message.createdAt), "yyyy-MM-dd", {
+        locale: ko,
+      });
 
       if (messageDate !== currentDate) {
         groups.push({ type: "date", date: messageDate });
@@ -156,24 +170,34 @@ export default function AdminCommunicationPage() {
   };
 
   // 연속 메시지 체크 (역순에서는 다음 메시지와 비교)
-  const isConsecutiveMessage = (currentMsg: CommunicationMessage, nextMsg: CommunicationMessage | null): boolean => {
+  const isConsecutiveMessage = (
+    currentMsg: CommunicationMessage,
+    nextMsg: CommunicationMessage | null,
+  ): boolean => {
     if (!nextMsg) return false;
 
     const sameAuthor = currentMsg.authorType === nextMsg.authorType;
-    const timeDiff = new Date(nextMsg.createdAt).getTime() - new Date(currentMsg.createdAt).getTime();
+    const timeDiff =
+      new Date(nextMsg.createdAt).getTime() -
+      new Date(currentMsg.createdAt).getTime();
     const withinFiveMinutes = timeDiff < 5 * 60 * 1000;
 
     return sameAuthor && withinFiveMinutes;
   };
 
-  const fetchThreads = async (keepSelectedThreadId?: string, silentRefresh: boolean = false) => {
+  const fetchThreads = async (
+    keepSelectedThreadId?: string,
+    silentRefresh: boolean = false,
+  ) => {
     try {
       if (!silentRefresh) setLoading(true);
       const params = new URLSearchParams();
       if (statusFilter !== "all") params.append("status", statusFilter);
       if (categoryFilter !== "all") params.append("category", categoryFilter);
 
-      const response = await fetch(`/api/admin/communication/threads?${params}`);
+      const response = await fetch(
+        `/api/admin/communication/threads?${params}`,
+      );
       const data = await response.json();
 
       if (response.ok) {
@@ -181,10 +205,15 @@ export default function AdminCommunicationPage() {
         // 선택된 스레드 업데이트 (keepSelectedThreadId가 있으면 우선 사용)
         const threadIdToKeep = keepSelectedThreadId || selectedThread?.id;
         if (threadIdToKeep) {
-          const updated = data.find((t: CommunicationThread) => t.id === threadIdToKeep);
+          const updated = data.find(
+            (t: CommunicationThread) => t.id === threadIdToKeep,
+          );
           if (updated) {
             // 새 메시지 감지
-            if (lastMessageCount > 0 && updated.messages.length > lastMessageCount) {
+            if (
+              lastMessageCount > 0 &&
+              updated.messages.length > lastMessageCount
+            ) {
               setNewMessageAlert(true);
             }
 
@@ -202,25 +231,35 @@ export default function AdminCommunicationPage() {
 
   // 사용자별로 스레드 그룹핑
   const groupThreadsByUser = () => {
-    const grouped = threads.reduce((acc, thread) => {
-      const userId = thread.user.id;
-      if (!acc[userId]) {
-        acc[userId] = {
-          user: thread.user,
-          threads: [],
-          unreadCount: 0,
-        };
-      }
-      acc[userId].threads.push(thread);
+    const grouped = threads.reduce(
+      (acc, thread) => {
+        const userId = thread.user.id;
+        if (!acc[userId]) {
+          acc[userId] = {
+            user: thread.user,
+            threads: [],
+            unreadCount: 0,
+          };
+        }
+        acc[userId].threads.push(thread);
 
-      // 미확인 메시지 개수 계산
-      const unreadMessages = thread.messages.filter(
-        (msg) => msg.authorType === "user" && !msg.isReadByAdmin
-      ).length;
-      acc[userId].unreadCount += unreadMessages;
+        // 미확인 메시지 개수 계산
+        const unreadMessages = thread.messages.filter(
+          (msg) => msg.authorType === "user" && !msg.isReadByAdmin,
+        ).length;
+        acc[userId].unreadCount += unreadMessages;
 
-      return acc;
-    }, {} as Record<string, { user: CommunicationThread["user"]; threads: CommunicationThread[]; unreadCount: number }>);
+        return acc;
+      },
+      {} as Record<
+        string,
+        {
+          user: CommunicationThread["user"];
+          threads: CommunicationThread[];
+          unreadCount: number;
+        }
+      >,
+    );
 
     // 배열로 변환하고 정렬 (미확인 메시지 있는 사용자 우선)
     return Object.values(grouped).sort((a, b) => {
@@ -228,8 +267,12 @@ export default function AdminCommunicationPage() {
         return b.unreadCount - a.unreadCount; // 미확인 많은 순
       }
       // 최신 답글 순
-      const aLastReply = Math.max(...a.threads.map(t => new Date(t.lastReplyAt).getTime()));
-      const bLastReply = Math.max(...b.threads.map(t => new Date(t.lastReplyAt).getTime()));
+      const aLastReply = Math.max(
+        ...a.threads.map((t) => new Date(t.lastReplyAt).getTime()),
+      );
+      const bLastReply = Math.max(
+        ...b.threads.map((t) => new Date(t.lastReplyAt).getTime()),
+      );
       return bLastReply - aLastReply;
     });
   };
@@ -240,11 +283,14 @@ export default function AdminCommunicationPage() {
 
   const handleStatusChange = async (threadId: string, newStatus: string) => {
     try {
-      const response = await fetch(`/api/admin/communication/threads/${threadId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
-      });
+      const response = await fetch(
+        `/api/admin/communication/threads/${threadId}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: newStatus }),
+        },
+      );
 
       if (response.ok) {
         fetchThreads();
@@ -256,13 +302,17 @@ export default function AdminCommunicationPage() {
 
   const handleImageUpload = async (file: File) => {
     if (!file.type.startsWith("image/")) {
-      alert("이미지 파일만 업로드 가능합니다.\n영상 및 기타 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.");
+      alert(
+        "이미지 파일만 업로드 가능합니다.\n영상 및 기타 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.",
+      );
       return;
     }
 
     // 10MB 제한 (서버에서 자동으로 WebP로 압축됨)
     if (file.size > 10 * 1024 * 1024) {
-      alert("파일 크기는 10MB 이하여야 합니다.\n더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.");
+      alert(
+        "파일 크기는 10MB 이하여야 합니다.\n더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.",
+      );
       return;
     }
 
@@ -279,7 +329,9 @@ export default function AdminCommunicationPage() {
       // 413 에러 등 JSON이 아닌 응답 처리
       if (!response.ok) {
         if (response.status === 413) {
-          alert("파일이 너무 큽니다. 10MB 이하의 파일만 업로드 가능합니다.\n더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.");
+          alert(
+            "파일이 너무 큽니다. 10MB 이하의 파일만 업로드 가능합니다.\n더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.",
+          );
           return;
         }
 
@@ -324,7 +376,7 @@ export default function AdminCommunicationPage() {
         setReplyContent("");
         setReplyAttachments([]);
         setExpectedDate(undefined);
-        fetchThreads(selectedThread.id, true);  // 선택된 스레드 유지, 로딩 표시 없이
+        fetchThreads(selectedThread.id, true); // 선택된 스레드 유지, 로딩 표시 없이
       } else {
         alert("답글 전송 실패");
       }
@@ -360,9 +412,12 @@ export default function AdminCommunicationPage() {
     if (!confirm("정말 이 스레드를 삭제하시겠습니까?")) return;
 
     try {
-      const response = await fetch(`/api/admin/communication/threads/${threadId}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `/api/admin/communication/threads/${threadId}`,
+        {
+          method: "DELETE",
+        },
+      );
 
       if (response.ok) {
         alert("스레드가 삭제되었습니다");
@@ -440,22 +495,27 @@ export default function AdminCommunicationPage() {
 
     setCreatingDesign(true);
     try {
-      const response = await fetch("/api/admin/communication/create-design-thread", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: selectedThread.user.id,
-          workflowType: designWorkflowType,
-          designUrl: designUrl.trim(),
-          message: designMessage.trim(),
-          communicationThreadId: selectedThread.id,
-        }),
-      });
+      const response = await fetch(
+        "/api/admin/communication/create-design-thread",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: selectedThread.user.id,
+            workflowType: designWorkflowType,
+            designUrl: designUrl.trim(),
+            message: designMessage.trim(),
+            communicationThreadId: selectedThread.id,
+          }),
+        },
+      );
 
       const data = await response.json();
 
       if (response.ok) {
-        alert(`시안이 등록되었습니다.\n\n사용자: ${selectedThread.user.이름}\n타입: ${designWorkflowType}\n\n사용자는 '시안 확인' 페이지에서 시안을 확인할 수 있습니다.`);
+        alert(
+          `시안이 등록되었습니다.\n\n사용자: ${selectedThread.user.이름}\n타입: ${designWorkflowType}\n\n사용자는 '시안 확인' 페이지에서 시안을 확인할 수 있습니다.`,
+        );
         setDesignModalOpen(false);
         fetchThreads(selectedThread.id, true);
       } else {
@@ -480,7 +540,7 @@ export default function AdminCommunicationPage() {
         );
       case "in_progress":
         return (
-          <Badge className="bg-blue-100 text-blue-700 border-blue-300">
+          <Badge className="bg-gold-100 text-gold-700 border-gold-300">
             진행중
           </Badge>
         );
@@ -532,22 +592,41 @@ export default function AdminCommunicationPage() {
         <MessageSquare className="w-8 h-8 text-red-600" />
       </div>
 
-      <Alert className="bg-blue-50 border-blue-200">
+      <Alert className="bg-gold-50 border-gold-200">
         <AlertDescription className="text-sm text-gray-700 space-y-1">
-          <p className="font-semibold text-blue-900">문의 안내사항</p>
+          <p className="font-semibold text-navy-900">문의 안내사항</p>
           <ul className="space-y-1 mt-2">
-            <li>• <span className="font-medium text-blue-800">요청은 영업일 기준 1~2일내 접수 및 처리되며, 실시간 처리는 어려울 수 있습니다.</span></li>
+            <li>
+              •{" "}
+              <span className="font-medium text-navy-800">
+                요청은 영업일 기준 1~2일내 접수 및 처리되며, 실시간 처리는
+                어려울 수 있습니다.
+              </span>
+            </li>
             <li>• 문의 사항은 영업일 기준 1일 이내 답변드립니다.</li>
             <li>• 주말은 업무 처리가 어려우며, 평일 기준으로 처리됩니다.</li>
-            <li>• 긴급사항(홈페이지 사용불가, 광고계정 정지 등) 외에는 반드시 본 게시판을 이용해 주시기 바랍니다.</li>
-            <li>• 문의사항 메일 접수: <a href="mailto:mkt@polarad.co.kr" className="text-blue-600 underline font-medium">mkt@polarad.co.kr</a></li>
+            <li>
+              • 긴급사항(홈페이지 사용불가, 광고계정 정지 등) 외에는 반드시 본
+              게시판을 이용해 주시기 바랍니다.
+            </li>
+            <li>
+              • 문의사항 메일 접수:{" "}
+              <a
+                href="mailto:mkt@polarad.co.kr"
+                className="text-gold-600 underline font-medium"
+              >
+                mkt@polarad.co.kr
+              </a>
+            </li>
           </ul>
         </AlertDescription>
       </Alert>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* 스레드 목록 - 모바일: 선택된 스레드가 있으면 숨김 */}
-        <Card className={`border-gray-200 bg-white lg:col-span-1 overflow-hidden flex flex-col shadow-sm ${selectedThread ? 'hidden lg:flex' : 'flex'} h-[60vh] lg:h-[calc(100vh-200px)]`}>
+        <Card
+          className={`border-gray-200 bg-white lg:col-span-1 overflow-hidden flex flex-col shadow-sm ${selectedThread ? "hidden lg:flex" : "flex"} h-[60vh] lg:h-[calc(100vh-200px)]`}
+        >
           <CardHeader className="pb-4">
             <CardTitle className="text-gray-900 text-lg">문의 목록</CardTitle>
             <div className="flex gap-2 mt-4">
@@ -596,34 +675,45 @@ export default function AdminCommunicationPage() {
                           : "border border-gray-200 bg-white"
                       }`}
                     >
-                      <AccordionTrigger className={`px-4 py-3 hover:no-underline ${
-                        hasUnread ? "hover:bg-red-100" : "hover:bg-gray-50"
-                      }`}>
+                      <AccordionTrigger
+                        className={`px-4 py-3 hover:no-underline ${
+                          hasUnread ? "hover:bg-red-100" : "hover:bg-gray-50"
+                        }`}
+                      >
                         <div className="flex items-center justify-between w-full pr-2">
                           <div className="flex items-center gap-3">
                             <div className="flex items-center gap-2">
                               {hasUnread && (
                                 <AlertCircle className="w-5 h-5 text-red-600 animate-pulse" />
                               )}
-                              <span className={`text-sm font-semibold ${
-                                hasUnread ? "text-red-900" : "text-gray-900"
-                              }`}>
+                              <span
+                                className={`text-sm font-semibold ${
+                                  hasUnread ? "text-red-900" : "text-gray-900"
+                                }`}
+                              >
                                 {userGroup.user.이름}
                               </span>
                               {userGroup.user.cohort && (
-                                <Badge variant="outline" className={`text-xs ${
-                                  hasUnread
-                                    ? "border-red-400 text-red-700 bg-red-100"
-                                    : "border-gray-300 text-gray-600"
-                                }`}>
+                                <Badge
+                                  variant="outline"
+                                  className={`text-xs ${
+                                    hasUnread
+                                      ? "border-red-400 text-red-700 bg-red-100"
+                                      : "border-gray-300 text-gray-600"
+                                  }`}
+                                >
                                   {userGroup.user.cohort.name}
                                 </Badge>
                               )}
                             </div>
                             <div className="flex items-center gap-2">
-                              <span className={`text-xs ${
-                                hasUnread ? "text-red-700 font-medium" : "text-gray-500"
-                              }`}>
+                              <span
+                                className={`text-xs ${
+                                  hasUnread
+                                    ? "text-red-700 font-medium"
+                                    : "text-gray-500"
+                                }`}
+                              >
                                 {userGroup.threads.length}개 스레드
                               </span>
                               {hasUnread && (
@@ -636,60 +726,66 @@ export default function AdminCommunicationPage() {
                           </div>
                         </div>
                       </AccordionTrigger>
-                    <AccordionContent className="px-2 pb-2">
-                      <div className="space-y-2">
-                        {userGroup.threads.map((thread) => {
-                          const threadUnreadCount = thread.messages.filter(
-                            (msg) => msg.authorType === "user" && !msg.isReadByAdmin
-                          ).length;
+                      <AccordionContent className="px-2 pb-2">
+                        <div className="space-y-2">
+                          {userGroup.threads.map((thread) => {
+                            const threadUnreadCount = thread.messages.filter(
+                              (msg) =>
+                                msg.authorType === "user" && !msg.isReadByAdmin,
+                            ).length;
 
-                          const hasThreadUnread = threadUnreadCount > 0;
+                            const hasThreadUnread = threadUnreadCount > 0;
 
-                          return (
-                            <div
-                              key={thread.id}
-                              className={`p-3 rounded-lg transition-all border cursor-pointer ${
-                                selectedThread?.id === thread.id
-                                  ? "bg-red-50 border-red-300"
-                                  : hasThreadUnread
-                                  ? "bg-red-100 border-red-400 hover:bg-red-200 shadow-md"
-                                  : "bg-gray-50 border-gray-200 hover:bg-gray-100"
-                              }`}
-                              onClick={() => handleSelectThread(thread)}
-                            >
-                              <div className="flex items-start justify-between mb-2">
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    {hasThreadUnread && (
-                                      <div className="flex items-center gap-1 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">
-                                        <AlertCircle className="w-3 h-3" />
-                                        <span>{threadUnreadCount}개 미확인</span>
-                                      </div>
-                                    )}
-                                    <Badge variant="outline" className={`text-xs ${
-                                      hasThreadUnread
-                                        ? "border-red-600 text-red-800 bg-red-50"
-                                        : "border-gray-300 text-gray-600"
-                                    }`}>
-                                      {thread.category}
-                                    </Badge>
+                            return (
+                              <div
+                                key={thread.id}
+                                className={`p-3 rounded-lg transition-all border cursor-pointer ${
+                                  selectedThread?.id === thread.id
+                                    ? "bg-red-50 border-red-300"
+                                    : hasThreadUnread
+                                      ? "bg-red-100 border-red-400 hover:bg-red-200 shadow-md"
+                                      : "bg-gray-50 border-gray-200 hover:bg-gray-100"
+                                }`}
+                                onClick={() => handleSelectThread(thread)}
+                              >
+                                <div className="flex items-start justify-between mb-2">
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      {hasThreadUnread && (
+                                        <div className="flex items-center gap-1 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">
+                                          <AlertCircle className="w-3 h-3" />
+                                          <span>
+                                            {threadUnreadCount}개 미확인
+                                          </span>
+                                        </div>
+                                      )}
+                                      <Badge
+                                        variant="outline"
+                                        className={`text-xs ${
+                                          hasThreadUnread
+                                            ? "border-red-600 text-red-800 bg-red-50"
+                                            : "border-gray-300 text-gray-600"
+                                        }`}
+                                      >
+                                        {thread.category}
+                                      </Badge>
+                                    </div>
+                                    <p className="text-sm text-gray-900 font-medium truncate">
+                                      {thread.title}
+                                    </p>
                                   </div>
-                                  <p className="text-sm text-gray-900 font-medium truncate">
-                                    {thread.title}
-                                  </p>
+                                  {getStatusBadge(thread.status)}
                                 </div>
-                                {getStatusBadge(thread.status)}
+                                <div className="flex items-center justify-between text-xs text-gray-500">
+                                  <span>{thread._count.messages}개 메시지</span>
+                                  <span>{formatTime(thread.lastReplyAt)}</span>
+                                </div>
                               </div>
-                              <div className="flex items-center justify-between text-xs text-gray-500">
-                                <span>{thread._count.messages}개 메시지</span>
-                                <span>{formatTime(thread.lastReplyAt)}</span>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
+                            );
+                          })}
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
                   );
                 })}
               </Accordion>
@@ -698,7 +794,9 @@ export default function AdminCommunicationPage() {
         </Card>
 
         {/* 대화 내용 - 모바일: 스레드 선택 시에만 표시 */}
-        <Card className={`border-gray-200 bg-white lg:col-span-2 overflow-hidden flex flex-col shadow-sm ${selectedThread ? 'flex' : 'hidden lg:flex'} max-h-[85vh] lg:max-h-[calc(100vh-180px)]`}>
+        <Card
+          className={`border-gray-200 bg-white lg:col-span-2 overflow-hidden flex flex-col shadow-sm ${selectedThread ? "flex" : "hidden lg:flex"} max-h-[85vh] lg:max-h-[calc(100vh-180px)]`}
+        >
           {selectedThread ? (
             <>
               <CardHeader className="py-2 sm:py-4 border-b border-gray-200 flex-shrink-0">
@@ -713,16 +811,22 @@ export default function AdminCommunicationPage() {
                     >
                       ← 목록으로
                     </Button>
-                    <CardTitle className="text-gray-900 text-base sm:text-xl mb-1 truncate">{selectedThread.title}</CardTitle>
+                    <CardTitle className="text-gray-900 text-base sm:text-xl mb-1 truncate">
+                      {selectedThread.title}
+                    </CardTitle>
                     <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-gray-600">
                       <span className="flex items-center gap-1">
                         <User className="w-3 h-3 sm:w-4 sm:h-4" />
                         {selectedThread.user.이름}
                       </span>
                       {selectedThread.user.cohort && (
-                        <span className="hidden sm:inline">{selectedThread.user.cohort.name}</span>
+                        <span className="hidden sm:inline">
+                          {selectedThread.user.cohort.name}
+                        </span>
                       )}
-                      <span className="hidden sm:inline">{selectedThread.user.email}</span>
+                      <span className="hidden sm:inline">
+                        {selectedThread.user.email}
+                      </span>
                     </div>
                   </div>
                   <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
@@ -739,7 +843,9 @@ export default function AdminCommunicationPage() {
                       </Button>
                       <Select
                         value={selectedThread.status}
-                        onValueChange={(value) => handleStatusChange(selectedThread.id, value)}
+                        onValueChange={(value) =>
+                          handleStatusChange(selectedThread.id, value)
+                        }
                       >
                         <SelectTrigger className="w-24 sm:w-32 bg-gray-50 border-gray-200 text-gray-900 text-xs sm:text-sm h-7 sm:h-10">
                           <SelectValue />
@@ -759,7 +865,9 @@ export default function AdminCommunicationPage() {
               {newMessageAlert && (
                 <div className="sticky top-0 z-10 mx-3 sm:mx-6 mt-3 flex-shrink-0">
                   <div className="bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center justify-between animate-bounce">
-                    <span className="text-sm font-medium">사용자가 새 메시지를 보냈습니다</span>
+                    <span className="text-sm font-medium">
+                      사용자가 새 메시지를 보냈습니다
+                    </span>
                     <button
                       onClick={() => setNewMessageAlert(false)}
                       className="text-white hover:text-gray-200"
@@ -772,138 +880,193 @@ export default function AdminCommunicationPage() {
 
               {/* 메시지 목록 - 스크롤 가능 영역 */}
               <CardContent className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 bg-gray-50 min-h-0">
-                {groupMessagesByDate(selectedThread.messages).map((item, groupIndex) => {
-                  if (item.type === "date") {
-                    return (
-                      <div key={`date-${groupIndex}`} className="flex items-center gap-3 my-6">
-                        <div className="flex-1 h-px bg-gray-300" />
-                        <span className="text-xs text-gray-600 font-semibold px-3 py-1 bg-white rounded-full border border-gray-200 shadow-sm">
-                          {format(new Date(item.date), "yyyy년 M월 d일 EEEE", { locale: ko })}
-                        </span>
-                        <div className="flex-1 h-px bg-gray-300" />
-                      </div>
+                {groupMessagesByDate(selectedThread.messages).map(
+                  (item, groupIndex) => {
+                    if (item.type === "date") {
+                      return (
+                        <div
+                          key={`date-${groupIndex}`}
+                          className="flex items-center gap-3 my-6"
+                        >
+                          <div className="flex-1 h-px bg-gray-300" />
+                          <span className="text-xs text-gray-600 font-semibold px-3 py-1 bg-white rounded-full border border-gray-200 shadow-sm">
+                            {format(
+                              new Date(item.date),
+                              "yyyy년 M월 d일 EEEE",
+                              { locale: ko },
+                            )}
+                          </span>
+                          <div className="flex-1 h-px bg-gray-300" />
+                        </div>
+                      );
+                    }
+
+                    const message = item.data;
+                    const nextMessage =
+                      item.index < selectedThread.messages.length - 1
+                        ? selectedThread.messages[item.index + 1]
+                        : null;
+                    const isConsecutive = isConsecutiveMessage(
+                      message,
+                      nextMessage,
                     );
-                  }
 
-                  const message = item.data;
-                  const nextMessage = item.index < selectedThread.messages.length - 1 ? selectedThread.messages[item.index + 1] : null;
-                  const isConsecutive = isConsecutiveMessage(message, nextMessage);
+                    return (
+                      <div key={message.id}>
+                        <div
+                          className={`flex ${message.authorType === "admin" ? "justify-end" : "justify-start"} ${
+                            isConsecutive ? "mt-1" : "mt-4"
+                          }`}
+                        >
+                          <div className={`max-w-[85%] sm:max-w-[80%]`}>
+                            {/* 작성자 정보 (연속 메시지가 아닐 때만 표시) */}
+                            {!isConsecutive && (
+                              <div
+                                className={`flex items-center gap-2 mb-1 ${message.authorType === "admin" ? "justify-end" : ""}`}
+                              >
+                                <span className="text-xs font-semibold text-gray-700">
+                                  {message.authorName}
+                                </span>
+                                {message.authorType === "admin" && (
+                                  <Badge className="bg-red-100 text-red-700 border-red-300 text-[10px] py-0 px-2">
+                                    관리자
+                                  </Badge>
+                                )}
+                                <span className="text-xs text-gray-500">
+                                  {format(
+                                    new Date(message.createdAt),
+                                    "HH:mm",
+                                    { locale: ko },
+                                  )}
+                                </span>
+                              </div>
+                            )}
 
-                  return (
-                    <div key={message.id}>
-                      <div
-                        className={`flex ${message.authorType === "admin" ? "justify-end" : "justify-start"} ${
-                          isConsecutive ? "mt-1" : "mt-4"
-                        }`}
-                      >
-                        <div className={`max-w-[85%] sm:max-w-[80%]`}>
-                          {/* 작성자 정보 (연속 메시지가 아닐 때만 표시) */}
-                          {!isConsecutive && (
-                            <div className={`flex items-center gap-2 mb-1 ${message.authorType === "admin" ? "justify-end" : ""}`}>
-                              <span className="text-xs font-semibold text-gray-700">
-                                {message.authorName}
-                              </span>
-                              {message.authorType === "admin" && (
-                                <Badge className="bg-red-100 text-red-700 border-red-300 text-[10px] py-0 px-2">
-                                  관리자
-                                </Badge>
-                              )}
-                              <span className="text-xs text-gray-500">
-                                {format(new Date(message.createdAt), "HH:mm", { locale: ko })}
-                              </span>
-                            </div>
-                          )}
-
-                          {/* 메시지 버블 */}
-                          <div
-                            className={`rounded-lg p-4 ${
-                              message.authorType === "admin"
-                                ? "bg-red-50 border border-red-200"
-                                : "bg-white border border-gray-200"
-                            } ${isConsecutive ? "shadow-sm" : "shadow-md"}`}
-                          >
-                            <p className="text-gray-900 whitespace-pre-wrap text-sm">{message.content}</p>
-                            {message.attachments.length > 0 && (
-                              <div className="space-y-2 mt-3">
-                                {message.attachments.map((url, idx) => (
-                                  <div key={idx} className="relative w-full">
-                                    <div
-                                      className="cursor-pointer"
-                                      onClick={() => {
-                                        setModalImages(message.attachments);
-                                        setModalInitialIndex(idx);
-                                        setImageModalOpen(true);
-                                      }}
-                                    >
-                                      <Image
-                                        src={url}
-                                        alt="첨부 이미지"
-                                        width={800}
-                                        height={600}
-                                        className="rounded-lg max-w-full h-auto border border-gray-200 hover:opacity-90 transition-opacity"
-                                        unoptimized
-                                      />
+                            {/* 메시지 버블 */}
+                            <div
+                              className={`rounded-lg p-4 ${
+                                message.authorType === "admin"
+                                  ? "bg-red-50 border border-red-200"
+                                  : "bg-white border border-gray-200"
+                              } ${isConsecutive ? "shadow-sm" : "shadow-md"}`}
+                            >
+                              <p className="text-gray-900 whitespace-pre-wrap text-sm">
+                                {message.content}
+                              </p>
+                              {message.attachments.length > 0 && (
+                                <div className="space-y-2 mt-3">
+                                  {message.attachments.map((url, idx) => (
+                                    <div key={idx} className="relative w-full">
+                                      <div
+                                        className="cursor-pointer"
+                                        onClick={() => {
+                                          setModalImages(message.attachments);
+                                          setModalInitialIndex(idx);
+                                          setImageModalOpen(true);
+                                        }}
+                                      >
+                                        <Image
+                                          src={url}
+                                          alt="첨부 이미지"
+                                          width={800}
+                                          height={600}
+                                          className="rounded-lg max-w-full h-auto border border-gray-200 hover:opacity-90 transition-opacity"
+                                          unoptimized
+                                        />
+                                      </div>
+                                      <a
+                                        href={url}
+                                        download
+                                        className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-gold-100 text-gold-700 hover:bg-gold-200 transition-colors"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          fetch(url)
+                                            .then((res) => res.blob())
+                                            .then((blob) => {
+                                              const blobUrl =
+                                                window.URL.createObjectURL(
+                                                  blob,
+                                                );
+                                              const a =
+                                                document.createElement("a");
+                                              a.href = blobUrl;
+                                              a.download =
+                                                url.split("/").pop() ||
+                                                "download";
+                                              document.body.appendChild(a);
+                                              a.click();
+                                              document.body.removeChild(a);
+                                              window.URL.revokeObjectURL(
+                                                blobUrl,
+                                              );
+                                            })
+                                            .catch(() => {
+                                              window.open(url, "_blank");
+                                            });
+                                          e.preventDefault();
+                                        }}
+                                      >
+                                        <Download className="w-3.5 h-3.5" />
+                                        다운로드
+                                      </a>
                                     </div>
-                                    <a
-                                      href={url}
-                                      download
-                                      className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        fetch(url)
-                                          .then(res => res.blob())
-                                          .then(blob => {
-                                            const blobUrl = window.URL.createObjectURL(blob);
-                                            const a = document.createElement('a');
-                                            a.href = blobUrl;
-                                            a.download = url.split('/').pop() || 'download';
-                                            document.body.appendChild(a);
-                                            a.click();
-                                            document.body.removeChild(a);
-                                            window.URL.revokeObjectURL(blobUrl);
-                                          })
-                                          .catch(() => {
-                                            window.open(url, '_blank');
-                                          });
-                                        e.preventDefault();
-                                      }}
-                                    >
-                                      <Download className="w-3.5 h-3.5" />
-                                      다운로드
-                                    </a>
+                                  ))}
+                                </div>
+                              )}
+                              {message.authorType === "admin" &&
+                                message.expectedCompletionDate && (
+                                  <div className="flex items-center gap-1 text-sm text-gold-600 mt-3 bg-gold-50 px-3 py-1.5 rounded-full inline-flex w-fit">
+                                    <CalendarIcon className="w-4 h-4 flex-shrink-0" />
+                                    <span className="whitespace-nowrap font-medium">
+                                      완료 예상일:{" "}
+                                      {format(
+                                        new Date(
+                                          message.expectedCompletionDate,
+                                        ),
+                                        "yyyy년 M월 d일",
+                                        { locale: ko },
+                                      )}
+                                    </span>
                                   </div>
-                                ))}
-                              </div>
-                            )}
-                            {message.authorType === "admin" && message.expectedCompletionDate && (
-                              <div className="flex items-center gap-1 text-sm text-blue-600 mt-3 bg-blue-50 px-3 py-1.5 rounded-full inline-flex w-fit">
-                                <CalendarIcon className="w-4 h-4 flex-shrink-0" />
-                                <span className="whitespace-nowrap font-medium">완료 예상일: {format(new Date(message.expectedCompletionDate), "yyyy년 M월 d일", { locale: ko })}</span>
-                              </div>
-                            )}
-                            {/* 연속 메시지일 때는 상대 시간 표시 */}
-                            {isConsecutive && (
-                              <p className="text-[10px] mt-2 text-gray-400">
-                                {getRelativeTime(message.createdAt)}
-                              </p>
-                            )}
-                            {/* 읽음 상태 표시 */}
-                            {message.authorType === "admin" && message.isReadByUser && message.readByUserAt && (
-                              <p className="text-[10px] mt-1 text-blue-500">
-                                읽음 · {format(new Date(message.readByUserAt), "M월 d일 HH:mm", { locale: ko })}
-                              </p>
-                            )}
-                            {message.authorType === "user" && message.isReadByAdmin && message.readByAdminAt && (
-                              <p className="text-[10px] mt-1 text-green-600">
-                                읽음 · {format(new Date(message.readByAdminAt), "M월 d일 HH:mm", { locale: ko })}
-                              </p>
-                            )}
+                                )}
+                              {/* 연속 메시지일 때는 상대 시간 표시 */}
+                              {isConsecutive && (
+                                <p className="text-[10px] mt-2 text-gray-400">
+                                  {getRelativeTime(message.createdAt)}
+                                </p>
+                              )}
+                              {/* 읽음 상태 표시 */}
+                              {message.authorType === "admin" &&
+                                message.isReadByUser &&
+                                message.readByUserAt && (
+                                  <p className="text-[10px] mt-1 text-gold-600">
+                                    읽음 ·{" "}
+                                    {format(
+                                      new Date(message.readByUserAt),
+                                      "M월 d일 HH:mm",
+                                      { locale: ko },
+                                    )}
+                                  </p>
+                                )}
+                              {message.authorType === "user" &&
+                                message.isReadByAdmin &&
+                                message.readByAdminAt && (
+                                  <p className="text-[10px] mt-1 text-green-600">
+                                    읽음 ·{" "}
+                                    {format(
+                                      new Date(message.readByAdminAt),
+                                      "M월 d일 HH:mm",
+                                      { locale: ko },
+                                    )}
+                                  </p>
+                                )}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  },
+                )}
               </CardContent>
 
               {/* 답글 작성 - 모바일 최적화, 스크롤 영역에서 고정 */}
@@ -922,7 +1085,11 @@ export default function AdminCommunicationPage() {
                             unoptimized
                           />
                           <button
-                            onClick={() => setReplyAttachments(replyAttachments.filter((_, i) => i !== idx))}
+                            onClick={() =>
+                              setReplyAttachments(
+                                replyAttachments.filter((_, i) => i !== idx),
+                              )
+                            }
                             className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
                             aria-label="첨부 이미지 삭제"
                           >
@@ -957,16 +1124,29 @@ export default function AdminCommunicationPage() {
                           className={`border-gray-200 h-8 px-2 text-xs sm:h-10 sm:px-4 sm:text-sm ${expectedDate ? "text-gray-900" : "text-gray-500"}`}
                         >
                           <CalendarIcon className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
-                          <span className="hidden sm:inline">{expectedDate ? format(expectedDate, "PPP", { locale: ko }) : "완료 예상일"}</span>
-                          <span className="sm:hidden ml-1">{expectedDate ? format(expectedDate, "M.d", { locale: ko }) : "예상일"}</span>
+                          <span className="hidden sm:inline">
+                            {expectedDate
+                              ? format(expectedDate, "PPP", { locale: ko })
+                              : "완료 예상일"}
+                          </span>
+                          <span className="sm:hidden ml-1">
+                            {expectedDate
+                              ? format(expectedDate, "M.d", { locale: ko })
+                              : "예상일"}
+                          </span>
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 bg-white" align="start">
+                      <PopoverContent
+                        className="w-auto p-0 bg-white"
+                        align="start"
+                      >
                         <Calendar
                           mode="single"
                           selected={expectedDate}
                           onSelect={setExpectedDate}
-                          disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                          disabled={(date) =>
+                            date < new Date(new Date().setHours(0, 0, 0, 0))
+                          }
                         />
                       </PopoverContent>
                     </Popover>
@@ -1002,10 +1182,14 @@ export default function AdminCommunicationPage() {
                         size="sm"
                         className="border-gray-200 text-gray-600 h-8 px-2 text-xs sm:h-10 sm:px-4 sm:text-sm"
                         disabled={uploading}
-                        onClick={() => document.getElementById("admin-reply-file")?.click()}
+                        onClick={() =>
+                          document.getElementById("admin-reply-file")?.click()
+                        }
                       >
                         <Paperclip className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
-                        <span className="hidden sm:inline">{uploading ? "업로드 중..." : "이미지"}</span>
+                        <span className="hidden sm:inline">
+                          {uploading ? "업로드 중..." : "이미지"}
+                        </span>
                       </Button>
                     </div>
                     <Button
@@ -1050,8 +1234,8 @@ export default function AdminCommunicationPage() {
               시안 등록
             </DialogTitle>
             <DialogDescription>
-              {selectedThread?.user.이름}님에게 시안을 등록합니다.
-              등록된 시안은 사용자의 &apos;시안 확인&apos; 페이지에서 확인할 수 있습니다.
+              {selectedThread?.user.이름}님에게 시안을 등록합니다. 등록된 시안은
+              사용자의 &apos;시안 확인&apos; 페이지에서 확인할 수 있습니다.
             </DialogDescription>
           </DialogHeader>
 
@@ -1059,7 +1243,10 @@ export default function AdminCommunicationPage() {
             {/* 워크플로우 타입 선택 */}
             <div className="space-y-2">
               <Label htmlFor="workflow-type">워크플로우 타입 *</Label>
-              <Select value={designWorkflowType} onValueChange={setDesignWorkflowType}>
+              <Select
+                value={designWorkflowType}
+                onValueChange={setDesignWorkflowType}
+              >
                 <SelectTrigger id="workflow-type" className="w-full">
                   <SelectValue placeholder="타입 선택" />
                 </SelectTrigger>
@@ -1076,11 +1263,16 @@ export default function AdminCommunicationPage() {
 
             {/* 시안 파일 업로드 (선택) */}
             <div className="space-y-2">
-              <Label>시안 파일 <span className="text-gray-400 font-normal">(선택)</span></Label>
+              <Label>
+                시안 파일{" "}
+                <span className="text-gray-400 font-normal">(선택)</span>
+              </Label>
               {designUrl ? (
                 <div className="flex items-center gap-2 p-3 bg-purple-50 border border-purple-200 rounded-lg">
                   <FileImage className="w-5 h-5 text-purple-600 flex-shrink-0" />
-                  <span className="text-sm text-gray-700 flex-1 truncate">{designFileName}</span>
+                  <span className="text-sm text-gray-700 flex-1 truncate">
+                    {designFileName}
+                  </span>
                   <Button
                     type="button"
                     variant="ghost"
@@ -1112,20 +1304,28 @@ export default function AdminCommunicationPage() {
                     type="button"
                     variant="outline"
                     className="w-full h-24 border-dashed border-2 hover:border-purple-400 hover:bg-purple-50"
-                    onClick={() => document.getElementById("design-file-upload")?.click()}
+                    onClick={() =>
+                      document.getElementById("design-file-upload")?.click()
+                    }
                     disabled={designFileUploading}
                   >
                     <div className="flex flex-col items-center gap-2">
                       {designFileUploading ? (
                         <>
                           <div className="w-6 h-6 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
-                          <span className="text-sm text-gray-500">업로드 중...</span>
+                          <span className="text-sm text-gray-500">
+                            업로드 중...
+                          </span>
                         </>
                       ) : (
                         <>
                           <Upload className="w-6 h-6 text-gray-400" />
-                          <span className="text-sm text-gray-500">파일을 선택하세요</span>
-                          <span className="text-xs text-gray-400">이미지, PDF, AI, PSD 파일 지원</span>
+                          <span className="text-sm text-gray-500">
+                            파일을 선택하세요
+                          </span>
+                          <span className="text-xs text-gray-400">
+                            이미지, PDF, AI, PSD 파일 지원
+                          </span>
                         </>
                       )}
                     </div>
@@ -1157,7 +1357,9 @@ export default function AdminCommunicationPage() {
             </Button>
             <Button
               onClick={handleCreateDesignThread}
-              disabled={creatingDesign || !designWorkflowType || !designMessage.trim()}
+              disabled={
+                creatingDesign || !designWorkflowType || !designMessage.trim()
+              }
               className="bg-purple-600 hover:bg-purple-700 text-white"
             >
               {creatingDesign ? "등록 중..." : "시안 등록"}

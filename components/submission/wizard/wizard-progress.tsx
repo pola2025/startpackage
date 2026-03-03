@@ -43,7 +43,7 @@ export function WizardProgress() {
       {/* 진행률 바 */}
       <div className="relative h-2 bg-gray-100 rounded-full overflow-hidden">
         <div
-          className="absolute inset-y-0 left-0 bg-blue-500 rounded-full transition-all duration-500 ease-out"
+          className="absolute inset-y-0 left-0 bg-gold-500 rounded-full transition-all duration-500 ease-out"
           style={{ width: `${progressPercent}%` }}
         />
       </div>
@@ -64,17 +64,25 @@ export function WizardProgress() {
               className={cn(
                 "relative flex items-center justify-center",
                 "w-9 h-9 rounded-full transition-all duration-200",
-                "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
+                "focus:outline-none focus:ring-2 focus:ring-gold-500 focus:ring-offset-2",
                 // 상태별 스타일
-                isCurrent && "bg-blue-500 text-white shadow-md scale-110",
+                isCurrent && "bg-gold-500 text-white shadow-md scale-110",
                 isComplete && !isCurrent && "bg-green-500 text-white",
                 isSkipped && !isCurrent && "bg-gray-300 text-gray-500",
-                !isComplete && !isSkipped && !isCurrent && isPast && "bg-blue-100 text-blue-600",
-                !isComplete && !isSkipped && !isCurrent && !isPast && "bg-gray-100 text-gray-400",
+                !isComplete &&
+                  !isSkipped &&
+                  !isCurrent &&
+                  isPast &&
+                  "bg-gold-100 text-gold-600",
+                !isComplete &&
+                  !isSkipped &&
+                  !isCurrent &&
+                  !isPast &&
+                  "bg-gray-100 text-gray-400",
                 // 클릭 가능 여부
-                (isComplete || isSkipped || index <= currentStepIndex)
+                isComplete || isSkipped || index <= currentStepIndex
                   ? "cursor-pointer hover:scale-105"
-                  : "cursor-not-allowed opacity-50"
+                  : "cursor-not-allowed opacity-50",
               )}
               aria-label={`${step.title} ${isComplete ? "(완료)" : isSkipped ? "(건너뜀)" : ""}`}
               aria-current={isCurrent ? "step" : undefined}
@@ -101,7 +109,8 @@ export function WizardProgress() {
  * 간소화된 진행률 바 (공간이 좁을 때)
  */
 export function WizardProgressCompact() {
-  const { currentStepIndex, totalSteps, progressPercent, currentStep } = useWizard();
+  const { currentStepIndex, totalSteps, progressPercent, currentStep } =
+    useWizard();
 
   return (
     <div className="space-y-2">
@@ -113,7 +122,7 @@ export function WizardProgressCompact() {
       </div>
       <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
         <div
-          className="h-full bg-blue-500 rounded-full transition-all duration-300"
+          className="h-full bg-gold-500 rounded-full transition-all duration-300"
           style={{ width: `${progressPercent}%` }}
         />
       </div>

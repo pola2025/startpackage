@@ -79,15 +79,15 @@ export default async function NotificationsPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-blue-50 to-white border-0 shadow-md">
+        <Card className="bg-gradient-to-br from-gold-50 to-white border-0 shadow-md">
           <CardHeader className="p-2 sm:p-3 md:p-4 pb-1 sm:pb-2">
             <CardTitle className="text-xs sm:text-sm font-medium text-gray-600 flex items-center gap-1 sm:gap-2">
-              <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" />
+              <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4 text-gold-600" />
               SMS
             </CardTitle>
           </CardHeader>
           <CardContent className="p-2 sm:p-3 md:p-4 pt-0">
-            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-600">
+            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-gold-600">
               {stats.smsCount}
             </div>
           </CardContent>

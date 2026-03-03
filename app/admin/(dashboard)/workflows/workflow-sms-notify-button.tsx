@@ -54,7 +54,7 @@ export default function WorkflowSMSNotifyButton({ workflows }: WorkflowSMSNotify
       variant="outline"
       onClick={handleSendSMS}
       disabled={!hasAnyDesign || sending}
-      className={`border-blue-300 text-blue-700 hover:bg-blue-50 ${
+      className={`border-gold-300 text-gold-700 hover:bg-gold-50 ${
         !hasAnyDesign ? "opacity-50 cursor-not-allowed" : ""
       }`}
       title={!hasAnyDesign ? "시안 업로드된 워크플로우가 없습니다" : `${workflowsWithDesign.length}개 워크플로우에 SMS 발송`}

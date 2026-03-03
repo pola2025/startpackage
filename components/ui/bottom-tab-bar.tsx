@@ -72,9 +72,7 @@ export function BottomTabBar({
               className={cn(
                 "flex flex-col items-center justify-center flex-1 h-full relative",
                 "transition-colors duration-200",
-                active
-                  ? "text-blue-600"
-                  : "text-gray-500 hover:text-gray-900"
+                active ? "text-gold-600" : "text-gray-500 hover:text-gray-900",
               )}
             >
               <div className="relative">
@@ -95,7 +93,7 @@ export function BottomTabBar({
           onClick={onMoreClick}
           className={cn(
             "flex flex-col items-center justify-center flex-1 h-full",
-            "text-gray-500 hover:text-gray-900 transition-colors duration-200"
+            "text-gray-500 hover:text-gray-900 transition-colors duration-200",
           )}
         >
           <Menu className="w-6 h-6" />

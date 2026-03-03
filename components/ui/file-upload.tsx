@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 import { Upload, X, CheckCircle, AlertCircle, Shield } from "lucide-react";
-import { validateFile as validateFileUtil, FILE_CONFIG, type FileValidationResult } from "@/lib/submission/file-validation";
+import {
+  validateFile as validateFileUtil,
+  FILE_CONFIG,
+  type FileValidationResult,
+} from "@/lib/submission/file-validation";
 import { EmailFileGuide } from "./email-file-guide";
 
 interface FileUploadProps {
@@ -61,13 +65,20 @@ export function FileUpload({
   // 이메일 안내 모달 상태
   const [emailGuideOpen, setEmailGuideOpen] = useState(false);
   const [emailGuideError, setEmailGuideError] = useState<{
-    type: 'SIZE_EXCEEDED' | 'UNSUPPORTED_FORMAT';
+    type: "SIZE_EXCEEDED" | "UNSUPPORTED_FORMAT";
     fileName?: string;
     fileSize?: number;
   } | null>(null);
 
   // 파일 검증 함수 (이메일 안내 포함)
-  const validateFile = (file: File): { valid: boolean; error?: string; showEmailGuide?: boolean; errorType?: 'SIZE_EXCEEDED' | 'UNSUPPORTED_FORMAT' } => {
+  const validateFile = (
+    file: File,
+  ): {
+    valid: boolean;
+    error?: string;
+    showEmailGuide?: boolean;
+    errorType?: "SIZE_EXCEEDED" | "UNSUPPORTED_FORMAT";
+  } => {
     // 먼저 통합 파일 검증 유틸 사용 (이메일 안내 대상 체크)
     const utilResult = validateFileUtil(file);
     if (!utilResult.isValid && utilResult.error?.showEmailGuide) {
@@ -75,7 +86,9 @@ export function FileUpload({
         valid: false,
         error: utilResult.error.message,
         showEmailGuide: true,
-        errorType: utilResult.error.type as 'SIZE_EXCEEDED' | 'UNSUPPORTED_FORMAT',
+        errorType: utilResult.error.type as
+          | "SIZE_EXCEEDED"
+          | "UNSUPPORTED_FORMAT",
       };
     }
 
@@ -89,7 +102,7 @@ export function FileUpload({
           valid: false,
           error: `파일 크기가 너무 큽니다. 이메일(${FILE_CONFIG.emailContact})로 보내주세요.`,
           showEmailGuide: true,
-          errorType: 'SIZE_EXCEEDED',
+          errorType: "SIZE_EXCEEDED",
         };
       }
       return {
@@ -100,11 +113,13 @@ export function FileUpload({
 
     // 파일 형식 검증
     if (accept && accept !== "*") {
-      const acceptedTypes = accept.split(",").map(t => t.trim().toLowerCase());
+      const acceptedTypes = accept
+        .split(",")
+        .map((t) => t.trim().toLowerCase());
       const fileExtension = `.${file.name.split(".").pop()?.toLowerCase()}`;
       const fileMimeType = file.type.toLowerCase();
 
-      const isAccepted = acceptedTypes.some(type => {
+      const isAccepted = acceptedTypes.some((type) => {
         if (type.startsWith(".")) {
           // 확장자 검증 (예: .jpg, .png)
           return fileExtension === type;
@@ -120,14 +135,14 @@ export function FileUpload({
 
       if (!isAccepted) {
         // 특수 파일 형식 (PSD, AI, ZIP 등)은 이메일 안내
-        const specialFormats = ['.psd', '.ai', '.eps', '.zip', '.rar', '.7z'];
+        const specialFormats = [".psd", ".ai", ".eps", ".zip", ".rar", ".7z"];
         const isSpecialFormat = specialFormats.includes(fileExtension);
         if (isSpecialFormat) {
           return {
             valid: false,
             error: `원본 디자인 파일은 이메일(${FILE_CONFIG.emailContact})로 보내주세요.`,
             showEmailGuide: true,
-            errorType: 'UNSUPPORTED_FORMAT',
+            errorType: "UNSUPPORTED_FORMAT",
           };
         }
         return {
@@ -169,7 +184,7 @@ export function FileUpload({
             setEmailGuideOpen(true);
             setInternalError(null);
           } else {
-            setInternalError(result.error || '파일 검증 실패');
+            setInternalError(result.error || "파일 검증 실패");
           }
           return;
         }
@@ -193,7 +208,7 @@ export function FileUpload({
           setEmailGuideOpen(true);
           setInternalError(null);
         } else {
-          setInternalError(result.error || '파일 검증 실패');
+          setInternalError(result.error || "파일 검증 실패");
         }
         return;
       }
@@ -202,16 +217,14 @@ export function FileUpload({
     }
 
     // input 초기화 (같은 파일 재선택 가능하도록)
-    e.target.value = '';
+    e.target.value = "";
   };
 
   return (
     <div className="space-y-2">
       {/* Level 1: 타이틀 + 필수 배지 */}
       <div className="flex items-center gap-2">
-        <label className="text-sm font-semibold text-gray-900">
-          {label}
-        </label>
+        <label className="text-sm font-semibold text-gray-900">{label}</label>
         {required && (
           <span className="text-xs font-medium text-red-600 bg-red-50 px-2 py-0.5 rounded-full border border-red-200">
             필수
@@ -220,18 +233,15 @@ export function FileUpload({
       </div>
 
       {/* Level 1: 설명 */}
-      {description && (
-        <p className="text-sm text-gray-600">
-          {description}
-        </p>
-      )}
+      {description && <p className="text-sm text-gray-600">{description}</p>}
 
       {/* 민감 정보 안내 */}
       {sensitive && (
         <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
           <Shield className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
           <p className="text-sm text-amber-700">
-            이 파일은 보안을 위해 <strong>서버에 저장되지 않습니다</strong>. 담당자에게 안전하게 전달됩니다.
+            이 파일은 보안을 위해 <strong>서버에 저장되지 않습니다</strong>.
+            담당자에게 안전하게 전달됩니다.
           </p>
         </div>
       )}
@@ -244,7 +254,11 @@ export function FileUpload({
           multiple={maxFiles > 1}
           className="hidden"
           onChange={handleFileChange}
-          disabled={disabled || uploading || (maxFiles > 1 && currentFiles.length >= maxFiles)}
+          disabled={
+            disabled ||
+            uploading ||
+            (maxFiles > 1 && currentFiles.length >= maxFiles)
+          }
         />
         <div
           className={`
@@ -252,7 +266,7 @@ export function FileUpload({
             ${variant === "compact" ? "p-3" : "p-6"}
             rounded-lg border-2 border-dashed
             bg-gray-50 border-gray-300
-            hover:bg-blue-50 hover:border-blue-500
+            hover:bg-gold-50 hover:border-gold-500
             cursor-pointer transition-all
             ${disabled ? "opacity-50 cursor-not-allowed" : ""}
             ${uploading ? "opacity-75" : ""}
@@ -277,8 +291,12 @@ export function FileUpload({
             <Shield className="w-4 h-4 text-green-600" />
           </div>
           <div>
-            <p className="text-sm font-medium text-green-700">담당자에게 전송 완료</p>
-            <p className="text-xs text-green-600">보안을 위해 서버에 저장되지 않았습니다</p>
+            <p className="text-sm font-medium text-green-700">
+              담당자에게 전송 완료
+            </p>
+            <p className="text-xs text-green-600">
+              보안을 위해 서버에 저장되지 않았습니다
+            </p>
           </div>
         </div>
       )}
@@ -320,9 +338,7 @@ export function FileUpload({
       {(error || internalError) && (
         <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
           <AlertCircle className="w-4 h-4 text-red-600" />
-          <p className="text-sm text-red-600">
-            {error || internalError}
-          </p>
+          <p className="text-sm text-red-600">{error || internalError}</p>
         </div>
       )}
 

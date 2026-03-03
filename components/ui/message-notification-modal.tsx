@@ -24,7 +24,10 @@ interface MessageNotificationModalProps {
   onClose: () => void; // 모달 닫기 콜백
 }
 
-export function MessageNotificationModal({ onRead, onClose }: MessageNotificationModalProps) {
+export function MessageNotificationModal({
+  onRead,
+  onClose,
+}: MessageNotificationModalProps) {
   const router = useRouter();
   const [messages, setMessages] = useState<UnreadMessage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -66,10 +69,10 @@ export function MessageNotificationModal({ onRead, onClose }: MessageNotificatio
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="bg-white border-2 border-blue-500 shadow-2xl max-w-md">
+      <DialogContent className="bg-white border-2 border-gold-500 shadow-2xl max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-xl text-blue-900 flex items-center gap-2">
-            <MessageSquare className="w-6 h-6 text-blue-600" />
+          <DialogTitle className="text-xl text-navy-900 flex items-center gap-2">
+            <MessageSquare className="w-6 h-6 text-gold-600" />
             새로운 답변이 도착했습니다
           </DialogTitle>
           <DialogDescription className="text-gray-600">
@@ -81,7 +84,7 @@ export function MessageNotificationModal({ onRead, onClose }: MessageNotificatio
           {messages.slice(0, 3).map((message, index) => (
             <div
               key={message.threadId}
-              className="p-3 bg-blue-50 rounded-lg border border-blue-200"
+              className="p-3 bg-gold-50 rounded-lg border border-gold-200"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -112,7 +115,7 @@ export function MessageNotificationModal({ onRead, onClose }: MessageNotificatio
           </Button>
           <Button
             onClick={handleGoToCommunication}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+            className="flex-1 bg-navy-900 hover:bg-navy-800 text-white"
           >
             <MessageSquare className="w-4 h-4 mr-2" />
             지금 확인하기

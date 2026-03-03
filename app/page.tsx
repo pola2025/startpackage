@@ -3,7 +3,13 @@
 import { useState, useEffect } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -30,8 +36,8 @@ export default function LoginPage() {
   // 로딩 중이거나 이미 인증된 경우 렌더링하지 않음
   if (status === "loading" || status === "authenticated") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center">
-        <div className="text-blue-600 animate-pulse">로딩 중...</div>
+      <div className="min-h-screen bg-gradient-to-br from-gold-50 via-white to-gold-50 flex items-center justify-center">
+        <div className="text-gold-600 animate-pulse">로딩 중...</div>
       </div>
     );
   }
@@ -43,7 +49,8 @@ export default function LoginPage() {
 
     try {
       // ✅ Feature Flag: 새 Provider 사용 시 "user-credentials", 기존은 "credentials"
-      const USE_NEW_PROVIDER = process.env.NEXT_PUBLIC_USE_NEW_PROVIDER === "true";
+      const USE_NEW_PROVIDER =
+        process.env.NEXT_PUBLIC_USE_NEW_PROVIDER === "true";
       const providerId = USE_NEW_PROVIDER ? "user-credentials" : "credentials";
 
       // 새 Provider는 "emailOrPhone" 필드를 사용, 기존은 "email"
@@ -85,7 +92,9 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "비밀번호 재발급 중 오류가 발생했습니다.");
+        throw new Error(
+          data.error || "비밀번호 재발급 중 오류가 발생했습니다.",
+        );
       }
 
       setSuccess(data.message);
@@ -104,13 +113,13 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 overflow-hidden">
+    <div className="relative min-h-screen bg-gradient-to-br from-gold-50 via-white to-gold-50 overflow-hidden">
       <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.02]" />
 
       <div className="relative flex min-h-screen items-center justify-center p-4">
-        <Card className="w-full max-w-md bg-white shadow-xl border-blue-200">
-          <CardHeader className="space-y-4 text-center border-b border-blue-100 bg-gradient-to-b from-blue-50/30 to-transparent">
-            <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center shadow-lg">
+        <Card className="w-full max-w-md bg-white shadow-xl border-gold-200">
+          <CardHeader className="space-y-4 text-center border-b border-gold-100 bg-gradient-to-b from-gold-50/30 to-transparent">
+            <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-navy-900 to-navy-800 flex items-center justify-center shadow-lg">
               {mode === "login" ? (
                 <User className="w-10 h-10 text-white" />
               ) : (
@@ -118,10 +127,10 @@ export default function LoginPage() {
               )}
             </div>
             <div>
-              <CardTitle className="text-4xl font-bold text-blue-900 mb-2">
+              <CardTitle className="text-4xl font-bold text-navy-900 mb-2">
                 {mode === "login" ? "START PACKAGE" : "비밀번호 재발급"}
               </CardTitle>
-              <CardDescription className="text-base text-blue-700">
+              <CardDescription className="text-base text-navy-700">
                 {mode === "login"
                   ? "비즈액터스쿨 자료 제출 시스템"
                   : "등록된 전화번호로 임시 비밀번호를 발송합니다"}
@@ -133,7 +142,10 @@ export default function LoginPage() {
             {mode === "login" ? (
               <form onSubmit={handleLogin} className="space-y-5">
                 <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-blue-900 flex items-center gap-2 font-semibold">
+                  <Label
+                    htmlFor="phone"
+                    className="text-navy-900 flex items-center gap-2 font-semibold"
+                  >
                     <Phone className="w-4 h-4" />
                     전화번호
                   </Label>
@@ -145,13 +157,18 @@ export default function LoginPage() {
                     onChange={(e) => setPhone(e.target.value.replace(/-/g, ""))}
                     required
                     disabled={loading}
-                    className="bg-blue-50/50 border-blue-200 focus:border-blue-600 focus:ring-blue-600"
+                    className="bg-gold-50/50 border-gold-200 focus:border-gold-600 focus:ring-gold-600"
                   />
-                  <p className="text-xs text-blue-600">숫자만 입력 (하이픈 자동 제거)</p>
+                  <p className="text-xs text-gold-600">
+                    숫자만 입력 (하이픈 자동 제거)
+                  </p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-blue-900 flex items-center gap-2 font-semibold">
+                  <Label
+                    htmlFor="password"
+                    className="text-navy-900 flex items-center gap-2 font-semibold"
+                  >
                     <Lock className="w-4 h-4" />
                     비밀번호
                   </Label>
@@ -163,14 +180,14 @@ export default function LoginPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     disabled={loading}
-                    className="bg-blue-50/50 border-blue-200 focus:border-blue-600 focus:ring-blue-600"
+                    className="bg-gold-50/50 border-gold-200 focus:border-gold-600 focus:ring-gold-600"
                   />
                 </div>
 
                 <button
                   type="button"
                   onClick={() => setMode("reset")}
-                  className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors font-medium"
+                  className="text-xs text-gold-600 hover:text-navy-800 flex items-center gap-1 transition-colors font-medium"
                 >
                   <KeyRound className="w-3 h-3" />
                   비밀번호를 잊으셨나요?
@@ -184,7 +201,7 @@ export default function LoginPage() {
 
                 <Button
                   type="submit"
-                  className="w-full bg-blue-700 text-white hover:bg-blue-800 transition-all font-semibold shadow-md"
+                  className="w-full bg-navy-800 text-white hover:bg-navy-900 transition-all font-semibold shadow-md"
                   size="lg"
                   disabled={loading}
                 >
@@ -195,7 +212,10 @@ export default function LoginPage() {
             ) : (
               <form onSubmit={handleResetPassword} className="space-y-5">
                 <div className="space-y-2">
-                  <Label htmlFor="reset-phone" className="text-blue-900 flex items-center gap-2 font-semibold">
+                  <Label
+                    htmlFor="reset-phone"
+                    className="text-navy-900 flex items-center gap-2 font-semibold"
+                  >
                     <Phone className="w-4 h-4" />
                     가입 시 등록한 전화번호
                   </Label>
@@ -207,9 +227,9 @@ export default function LoginPage() {
                     onChange={(e) => setPhone(e.target.value.replace(/-/g, ""))}
                     required
                     disabled={loading}
-                    className="bg-blue-50/50 border-blue-200 focus:border-blue-600 focus:ring-blue-600"
+                    className="bg-gold-50/50 border-gold-200 focus:border-gold-600 focus:ring-gold-600"
                   />
-                  <p className="text-xs text-blue-600">
+                  <p className="text-xs text-gold-600">
                     숫자만 입력 (해당 번호로 4자리 임시 비밀번호 발송)
                   </p>
                 </div>
@@ -236,14 +256,14 @@ export default function LoginPage() {
                       setSuccess("");
                       setPhone("");
                     }}
-                    className="flex-1 border-blue-300 text-blue-700 hover:bg-blue-50"
+                    className="flex-1 border-gold-300 text-navy-700 hover:bg-gold-50"
                     disabled={loading}
                   >
                     취소
                   </Button>
                   <Button
                     type="submit"
-                    className="flex-1 bg-blue-700 text-white hover:bg-blue-800 transition-all font-semibold shadow-md"
+                    className="flex-1 bg-navy-800 text-white hover:bg-navy-900 transition-all font-semibold shadow-md"
                     disabled={loading}
                   >
                     {loading ? "발송 중..." : "재발급 신청"}
@@ -253,18 +273,18 @@ export default function LoginPage() {
             )}
 
             {mode === "login" && (
-              <div className="space-y-3 border-t border-blue-100 pt-6">
+              <div className="space-y-3 border-t border-gold-100 pt-6">
                 <Link href="/signup">
                   <Button
                     variant="outline"
-                    className="w-full border-blue-300 text-blue-700 hover:bg-blue-50 font-semibold"
+                    className="w-full border-gold-300 text-navy-700 hover:bg-gold-50 font-semibold"
                     size="lg"
                   >
                     신규 가입하기
                   </Button>
                 </Link>
 
-                <p className="text-xs text-center text-blue-600">
+                <p className="text-xs text-center text-gold-600">
                   계정이 없으신가요? 위 버튼을 클릭하여 가입해주세요
                 </p>
               </div>

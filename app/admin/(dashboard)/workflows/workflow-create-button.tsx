@@ -103,7 +103,7 @@ export default function WorkflowCreateButton() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-blue-600 text-white hover:bg-blue-700">
+        <Button className="bg-navy-900 text-white hover:bg-navy-800">
           <Plus className="w-4 h-4 mr-2" />
           추가 제작물 생성
         </Button>
@@ -190,7 +190,7 @@ export default function WorkflowCreateButton() {
             <Button
               onClick={handleSubmit}
               disabled={loading || !userId || !workflowType || (workflowType === "기타" && !customType)}
-              className="flex-1 bg-blue-600 text-white hover:bg-blue-700"
+              className="flex-1 bg-navy-900 text-white hover:bg-navy-800"
             >
               {loading ? (
                 <>

@@ -245,25 +245,25 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
 
           {/* 홈페이지 선택 정보 */}
           {workflow.type === "홈페이지" && (
-            <div className="p-4 rounded-lg border-2 border-blue-200 bg-blue-50">
+            <div className="p-4 rounded-lg border-2 border-gold-200 bg-gold-50">
               <div className="flex items-center gap-2 mb-3">
-                <Globe className="w-5 h-5 text-blue-600" />
-                <Label className="text-blue-900 font-semibold text-base">
+                <Globe className="w-5 h-5 text-gold-600" />
+                <Label className="text-navy-900 font-semibold text-base">
                   홈페이지 선택 정보
                 </Label>
               </div>
               {loadingSubmission ? (
-                <p className="text-sm text-blue-700">정보를 불러오는 중...</p>
+                <p className="text-sm text-navy-700">정보를 불러오는 중...</p>
               ) : submission ? (
                 <div className="space-y-3">
                   <div>
-                    <span className="text-sm font-medium text-blue-900">선택한 스타일:</span>
+                    <span className="text-sm font-medium text-navy-900">선택한 스타일:</span>
                     {submission.홈페이지스타일 ? (
                       <a
                         href={submission.홈페이지스타일}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 mt-1 text-blue-600 hover:underline"
+                        className="flex items-center gap-2 mt-1 text-gold-600 hover:underline"
                       >
                         <ExternalLink className="w-4 h-4" />
                         <span className="text-sm">
@@ -285,14 +285,14 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
                     )}
                   </div>
                   <div>
-                    <span className="text-sm font-medium text-blue-900">컬러 컨셉:</span>
+                    <span className="text-sm font-medium text-navy-900">컬러 컨셉:</span>
                     {submission.홈페이지컬러컨셉 ? (
                       <div className="flex items-center gap-2 mt-1">
                         <div
-                          className="w-10 h-10 rounded-lg border-2 border-blue-300 shadow-sm"
+                          className="w-10 h-10 rounded-lg border-2 border-gold-300 shadow-sm"
                           style={{ backgroundColor: submission.홈페이지컬러컨셉 }}
                         />
-                        <span className="text-sm font-mono text-blue-800">
+                        <span className="text-sm font-mono text-navy-800">
                           {submission.홈페이지컬러컨셉}
                         </span>
                       </div>
@@ -302,7 +302,7 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
                   </div>
                 </div>
               ) : (
-                <p className="text-sm text-blue-700">제출 정보 없음</p>
+                <p className="text-sm text-navy-700">제출 정보 없음</p>
               )}
             </div>
           )}
@@ -358,7 +358,7 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
                         href={history.fileUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline font-medium"
+                        className="text-gold-600 hover:underline font-medium"
                       >
                         {history.version}차시안
                       </a>
@@ -576,7 +576,7 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
             <Button
               onClick={handleSubmit}
               disabled={loading}
-              className="flex-1 bg-blue-600 text-white hover:bg-blue-700"
+              className="flex-1 bg-navy-900 text-white hover:bg-navy-800"
             >
               {loading ? "처리 중..." : "저장"}
               <CheckCircle2 className="w-4 h-4 ml-2" />

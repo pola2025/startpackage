@@ -409,7 +409,7 @@ export default function UserDesignThreadsPage() {
         return (
           <Badge
             variant="outline"
-            className="bg-blue-50 text-blue-700 border-blue-200"
+            className="bg-gold-50 text-navy-700 border-gold-200"
           >
             <FileImage className="w-3 h-3 mr-1" />
             확인 필요
@@ -646,11 +646,11 @@ export default function UserDesignThreadsPage() {
               {/* 시안 확정 필요 알림 */}
               {needsFeedback && (
                 <div className="mx-3 sm:mx-6 mt-3">
-                  <Alert className="bg-blue-50 border-blue-200">
+                  <Alert className="bg-gold-50 border-gold-200">
                     <AlertDescription className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <FileImage className="w-5 h-5 text-blue-600" />
-                        <span className="text-sm font-medium text-blue-800">
+                        <FileImage className="w-5 h-5 text-gold-600" />
+                        <span className="text-sm font-medium text-navy-800">
                           새 시안이 도착했습니다! 확인 후 피드백을 보내주세요.
                         </span>
                       </div>
@@ -1221,8 +1221,8 @@ export default function UserDesignThreadsPage() {
               disabled={uploading}
               className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 border-dashed border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-colors"
             >
-              <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-                <ImageIcon className="w-6 h-6 text-blue-600" />
+              <div className="w-12 h-12 rounded-full bg-gold-100 flex items-center justify-center">
+                <ImageIcon className="w-6 h-6 text-gold-600" />
               </div>
               <span className="text-sm font-medium text-gray-700">갤러리</span>
             </button>

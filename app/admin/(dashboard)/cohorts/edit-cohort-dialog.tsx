@@ -106,7 +106,7 @@ export default function EditCohortDialog({
               onChange={(e) => setName(e.target.value)}
               placeholder="예: 19기"
               required
-              className="bg-white border-2 border-gray-300 focus:border-blue-500 text-gray-900"
+              className="bg-white border-2 border-gray-300 focus:border-gold-500 text-gray-900"
             />
           </div>
 
@@ -117,7 +117,7 @@ export default function EditCohortDialog({
               onChange={(e) => set교육요일(e.target.value)}
               placeholder="예: 목, 금"
               required
-              className="bg-white border-2 border-gray-300 focus:border-blue-500 text-gray-900"
+              className="bg-white border-2 border-gray-300 focus:border-gold-500 text-gray-900"
             />
           </div>
 
@@ -128,7 +128,7 @@ export default function EditCohortDialog({
               value={교육시작일}
               onChange={(e) => handle교육시작일Change(e.target.value)}
               required
-              className="bg-white border-2 border-gray-300 focus:border-blue-500 text-gray-900"
+              className="bg-white border-2 border-gray-300 focus:border-gold-500 text-gray-900"
             />
           </div>
 
@@ -144,7 +144,7 @@ export default function EditCohortDialog({
               value={자료제출마감일}
               onChange={(e) => set자료제출마감일(e.target.value)}
               required
-              className="bg-white border-2 border-gray-300 focus:border-blue-500 text-gray-900"
+              className="bg-white border-2 border-gray-300 focus:border-gold-500 text-gray-900"
             />
           </div>
 
@@ -161,7 +161,7 @@ export default function EditCohortDialog({
             <Button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-blue-600 text-white hover:bg-blue-700 shadow-md"
+              className="flex-1 bg-navy-900 text-white hover:bg-navy-800 shadow-md"
             >
               {loading ? "수정 중..." : "수정"}
               <CheckCircle2 className="w-4 h-4 ml-2" />

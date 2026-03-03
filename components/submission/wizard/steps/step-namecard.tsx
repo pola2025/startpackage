@@ -2,7 +2,12 @@
 
 import { useEffect } from "react";
 import { useWizard } from "../wizard-context";
-import { StepCard, StepHeader, StepNotice, OptionalBadge } from "../wizard-step";
+import {
+  StepCard,
+  StepHeader,
+  StepNotice,
+  OptionalBadge,
+} from "../wizard-step";
 import { StyleCardSelector } from "@/components/submission/style-card-selector";
 import { cn } from "@/lib/utils";
 
@@ -77,7 +82,11 @@ const CONTRACT_STYLES = [
   },
 ];
 
-export function StepNamecard({ formData, onChange, errors = {} }: StepNamecardProps) {
+export function StepNamecard({
+  formData,
+  onChange,
+  errors = {},
+}: StepNamecardProps) {
   const { setCanProceed, markStepComplete, currentStep } = useWizard();
 
   // 선택 항목이므로 항상 진행 가능
@@ -87,7 +96,13 @@ export function StepNamecard({ formData, onChange, errors = {} }: StepNamecardPr
     if (formData.명함시안 || formData.계약서시안) {
       markStepComplete(currentStep.id);
     }
-  }, [formData.명함시안, formData.계약서시안, setCanProceed, markStepComplete, currentStep.id]);
+  }, [
+    formData.명함시안,
+    formData.계약서시안,
+    setCanProceed,
+    markStepComplete,
+    currentStep.id,
+  ]);
 
   return (
     <StepCard>
@@ -116,11 +131,11 @@ export function StepNamecard({ formData, onChange, errors = {} }: StepNamecardPr
                 onClick={() => onChange("명함시안", style.id)}
                 className={cn(
                   "relative rounded-xl border-2 p-3 text-left transition-all",
-                  "hover:border-blue-300 hover:shadow-md",
-                  "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
+                  "hover:border-gold-300 hover:shadow-md",
+                  "focus:outline-none focus:ring-2 focus:ring-gold-500 focus:ring-offset-2",
                   formData.명함시안 === style.id
-                    ? "border-blue-500 bg-blue-50 shadow-md"
-                    : "border-gray-200 bg-white"
+                    ? "border-gold-500 bg-gold-50 shadow-md"
+                    : "border-gray-200 bg-white",
                 )}
               >
                 {/* 미리보기 이미지 영역 */}
@@ -137,7 +152,9 @@ export function StepNamecard({ formData, onChange, errors = {} }: StepNamecardPr
 
                 {/* 스타일 정보 */}
                 <div className="space-y-0.5">
-                  <p className="text-sm font-semibold text-gray-900">{style.name}</p>
+                  <p className="text-sm font-semibold text-gray-900">
+                    {style.name}
+                  </p>
                   <p className="text-xs text-gray-500 line-clamp-2">
                     {style.description}
                   </p>
@@ -145,7 +162,7 @@ export function StepNamecard({ formData, onChange, errors = {} }: StepNamecardPr
 
                 {/* 선택 표시 */}
                 {formData.명함시안 === style.id && (
-                  <div className="absolute top-2 right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                  <div className="absolute top-2 right-2 w-6 h-6 bg-gold-500 rounded-full flex items-center justify-center">
                     <span className="text-white text-xs">✓</span>
                   </div>
                 )}
@@ -177,7 +194,7 @@ export function StepNamecard({ formData, onChange, errors = {} }: StepNamecardPr
                   "focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2",
                   formData.계약서시안 === style.id
                     ? "border-indigo-500 bg-indigo-50 shadow-md"
-                    : "border-gray-200 bg-white"
+                    : "border-gray-200 bg-white",
                 )}
               >
                 {/* 미리보기: 표지 + 내지 */}
@@ -206,7 +223,9 @@ export function StepNamecard({ formData, onChange, errors = {} }: StepNamecardPr
 
                 {/* 스타일 정보 */}
                 <div className="space-y-0.5">
-                  <p className="text-sm font-semibold text-gray-900">{style.name}</p>
+                  <p className="text-sm font-semibold text-gray-900">
+                    {style.name}
+                  </p>
                   <p className="text-xs text-gray-500 line-clamp-2">
                     {style.description}
                   </p>

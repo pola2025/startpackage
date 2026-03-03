@@ -59,7 +59,7 @@ export function WizardStep({ children, className }: WizardStepProps) {
         isAnimating && direction === "forward" && "opacity-0 translate-x-4",
         isAnimating && direction === "backward" && "opacity-0 -translate-x-4",
         !isAnimating && "opacity-100 translate-x-0",
-        className
+        className,
       )}
     >
       {displayContent}
@@ -84,7 +84,7 @@ export function StepCard({ children, className }: StepCardProps) {
         "bg-white rounded-2xl border-2 border-gray-100",
         "shadow-sm p-4 sm:p-6",
         "space-y-4",
-        className
+        className,
       )}
     >
       {children}
@@ -102,12 +102,17 @@ interface StepHeaderProps {
   badge?: React.ReactNode;
 }
 
-export function StepHeader({ title, description, icon, badge }: StepHeaderProps) {
+export function StepHeader({
+  title,
+  description,
+  icon,
+  badge,
+}: StepHeaderProps) {
   return (
     <div className="space-y-2">
       <div className="flex items-start gap-3">
         {icon && (
-          <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-xl">
+          <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gold-50 flex items-center justify-center text-xl">
             {icon}
           </div>
         )}
@@ -163,13 +168,16 @@ export function StepField({
 
       {helpText && !error && (
         <p className="text-xs text-gray-400 flex items-center gap-1">
-          <span className="text-blue-400">💡</span>
+          <span className="text-gold-400">💡</span>
           {helpText}
         </p>
       )}
 
       {error && (
-        <p className="text-xs text-red-500 flex items-center gap-1" role="alert">
+        <p
+          className="text-xs text-red-500 flex items-center gap-1"
+          role="alert"
+        >
           <span>⚠️</span>
           {error}
         </p>
@@ -187,20 +195,20 @@ interface StepNoticeProps {
   className?: string;
 }
 
-export function StepNotice({ type = "info", children, className }: StepNoticeProps) {
+export function StepNotice({
+  type = "info",
+  children,
+  className,
+}: StepNoticeProps) {
   const styles = {
-    info: "bg-blue-50 border-blue-200 text-blue-700",
+    info: "bg-gold-50 border-gold-200 text-navy-700",
     warning: "bg-amber-50 border-amber-200 text-amber-700",
     success: "bg-green-50 border-green-200 text-green-700",
   };
 
   return (
     <div
-      className={cn(
-        "rounded-xl border p-3 text-sm",
-        styles[type],
-        className
-      )}
+      className={cn("rounded-xl border p-3 text-sm", styles[type], className)}
     >
       {children}
     </div>
@@ -223,7 +231,7 @@ export function OptionalBadge() {
  */
 export function RequiredBadge() {
   return (
-    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-600">
+    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gold-100 text-gold-600">
       필수
     </span>
   );

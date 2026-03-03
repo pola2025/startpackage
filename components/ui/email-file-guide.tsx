@@ -1,17 +1,21 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Mail, Copy, Check, X, FileWarning } from "lucide-react"
-import { FILE_CONFIG, getEmailGuideInfo, formatFileSize } from "@/lib/submission/file-validation"
+import { useState } from "react";
+import { Mail, Copy, Check, X, FileWarning } from "lucide-react";
+import {
+  FILE_CONFIG,
+  getEmailGuideInfo,
+  formatFileSize,
+} from "@/lib/submission/file-validation";
 
 interface EmailFileGuideProps {
-  isOpen: boolean
-  onClose: () => void
-  errorType: 'SIZE_EXCEEDED' | 'UNSUPPORTED_FORMAT'
-  fileName?: string
-  fileSize?: number
-  cohortName?: string
-  userName?: string
+  isOpen: boolean;
+  onClose: () => void;
+  errorType: "SIZE_EXCEEDED" | "UNSUPPORTED_FORMAT";
+  fileName?: string;
+  fileSize?: number;
+  cohortName?: string;
+  userName?: string;
 }
 
 export function EmailFileGuide({
@@ -23,40 +27,40 @@ export function EmailFileGuide({
   cohortName,
   userName,
 }: EmailFileGuideProps) {
-  const [copied, setCopied] = useState(false)
-  const emailInfo = getEmailGuideInfo(cohortName, userName)
+  const [copied, setCopied] = useState(false);
+  const emailInfo = getEmailGuideInfo(cohortName, userName);
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   const handleCopyEmail = async () => {
     try {
-      await navigator.clipboard.writeText(emailInfo.email)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      await navigator.clipboard.writeText(emailInfo.email);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     } catch (error) {
       // 클립보드 API 미지원 시 fallback
-      const textArea = document.createElement('textarea')
-      textArea.value = emailInfo.email
-      document.body.appendChild(textArea)
-      textArea.select()
-      document.execCommand('copy')
-      document.body.removeChild(textArea)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      const textArea = document.createElement("textarea");
+      textArea.value = emailInfo.email;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
-  }
+  };
 
   const getTitle = () => {
-    if (errorType === 'SIZE_EXCEEDED') {
-      return '파일이 너무 큽니다'
+    if (errorType === "SIZE_EXCEEDED") {
+      return "파일이 너무 큽니다";
     }
-    return '지원하지 않는 파일 형식입니다'
-  }
+    return "지원하지 않는 파일 형식입니다";
+  };
 
   const getDescription = () => {
-    if (errorType === 'SIZE_EXCEEDED') {
-      const maxSizeMB = FILE_CONFIG.maxSize / (1024 * 1024)
-      const fileSizeStr = fileSize ? formatFileSize(fileSize) : ''
+    if (errorType === "SIZE_EXCEEDED") {
+      const maxSizeMB = FILE_CONFIG.maxSize / (1024 * 1024);
+      const fileSizeStr = fileSize ? formatFileSize(fileSize) : "";
       return (
         <>
           <p className="text-gray-600">
@@ -71,12 +75,12 @@ export function EmailFileGuide({
             아래 이메일로 파일을 보내주시면 담당자가 확인 후 처리해드립니다.
           </p>
         </>
-      )
+      );
     }
 
     const supportedFormats = FILE_CONFIG.allowedExtensions
-      .map((ext) => ext.replace('.', '').toUpperCase())
-      .join(', ')
+      .map((ext) => ext.replace(".", "").toUpperCase())
+      .join(", ");
 
     return (
       <>
@@ -87,24 +91,21 @@ export function EmailFileGuide({
           원본 디자인 파일(PSD, AI 등)이나 압축 파일은 이메일로 보내주세요.
         </p>
       </>
-    )
-  }
+    );
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* 오버레이 */}
-      <div
-        className="absolute inset-0 bg-black/50"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
 
       {/* 모달 */}
       <div className="relative bg-white rounded-xl shadow-xl w-full max-w-md mx-4 overflow-hidden">
         {/* 헤더 */}
         <div className="flex items-center justify-between px-6 py-4 border-b">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-full">
-              <Mail className="w-5 h-5 text-blue-600" />
+            <div className="p-2 bg-gold-100 rounded-full">
+              <Mail className="w-5 h-5 text-gold-600" />
             </div>
             <h2 className="text-lg font-semibold text-gray-900">
               이메일로 파일 보내기
@@ -134,9 +135,7 @@ export function EmailFileGuide({
           </div>
 
           {/* 설명 */}
-          <div className="text-sm">
-            {getDescription()}
-          </div>
+          <div className="text-sm">{getDescription()}</div>
 
           {/* 이메일 주소 복사 */}
           <div className="space-y-2">
@@ -151,8 +150,8 @@ export function EmailFileGuide({
                 onClick={handleCopyEmail}
                 className={`px-4 py-3 rounded-lg font-medium transition-all ${
                   copied
-                    ? 'bg-green-500 text-white'
-                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                    ? "bg-green-500 text-white"
+                    : "bg-navy-900 text-white hover:bg-navy-800"
                 }`}
               >
                 {copied ? (
@@ -177,11 +176,10 @@ export function EmailFileGuide({
             </p>
             <div className="text-sm text-gray-600 space-y-1">
               <p>
-                <span className="font-medium">제목:</span> {emailInfo.subjectTemplate}
+                <span className="font-medium">제목:</span>{" "}
+                {emailInfo.subjectTemplate}
               </p>
-              <p className="text-xs text-gray-500">
-                예시: {emailInfo.example}
-              </p>
+              <p className="text-xs text-gray-500">예시: {emailInfo.example}</p>
             </div>
           </div>
         </div>
@@ -197,7 +195,7 @@ export function EmailFileGuide({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -205,16 +203,21 @@ export function EmailFileGuide({
  */
 export function EmailFileHint({ onClose }: { onClose?: () => void }) {
   return (
-    <div className="flex items-center gap-2 px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg text-sm">
-      <Mail className="w-4 h-4 text-blue-600 flex-shrink-0" />
-      <p className="text-blue-800">
-        파일이 크면 이메일(<span className="font-medium">{FILE_CONFIG.emailContact}</span>)로도 보낼 수 있어요
+    <div className="flex items-center gap-2 px-4 py-3 bg-gold-50 border border-gold-200 rounded-lg text-sm">
+      <Mail className="w-4 h-4 text-gold-600 flex-shrink-0" />
+      <p className="text-navy-800">
+        파일이 크면 이메일(
+        <span className="font-medium">{FILE_CONFIG.emailContact}</span>)로도
+        보낼 수 있어요
       </p>
       {onClose && (
-        <button onClick={onClose} className="ml-auto p-1 hover:bg-blue-100 rounded">
-          <X className="w-4 h-4 text-blue-600" />
+        <button
+          onClick={onClose}
+          className="ml-auto p-1 hover:bg-gold-100 rounded"
+        >
+          <X className="w-4 h-4 text-gold-600" />
         </button>
       )}
     </div>
-  )
+  );
 }

@@ -41,10 +41,10 @@ export function MobileStepBar({
               className={cn(
                 "flex-1 h-1.5 rounded-full transition-colors",
                 isCompleted || isCurrent
-                  ? "bg-blue-600"
+                  ? "bg-navy-900"
                   : isDisabled
-                  ? "bg-gray-200"
-                  : "bg-gray-300"
+                    ? "bg-gray-200"
+                    : "bg-gray-300",
               )}
             />
           );
@@ -65,33 +65,29 @@ export function MobileStepBar({
               disabled={isDisabled}
               className={cn(
                 "flex flex-col items-center gap-1 transition-colors",
-                isDisabled && "opacity-50 cursor-not-allowed"
+                isDisabled && "opacity-50 cursor-not-allowed",
               )}
             >
               <div
                 className={cn(
                   "w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors",
                   isCurrent
-                    ? "bg-blue-600 text-white"
+                    ? "bg-navy-900 text-white"
                     : isCompleted
-                    ? "bg-green-600 text-white"
-                    : "bg-gray-200 text-gray-600"
+                      ? "bg-green-600 text-white"
+                      : "bg-gray-200 text-gray-600",
                 )}
               >
-                {isCompleted ? (
-                  <Check className="w-4 h-4" />
-                ) : (
-                  index + 1
-                )}
+                {isCompleted ? <Check className="w-4 h-4" /> : index + 1}
               </div>
               <span
                 className={cn(
                   "text-[10px] font-medium",
                   isCurrent
-                    ? "text-blue-600"
+                    ? "text-gold-600"
                     : isCompleted
-                    ? "text-green-600"
-                    : "text-gray-500"
+                      ? "text-green-600"
+                      : "text-gray-500",
                 )}
               >
                 {step.shortLabel}
@@ -139,7 +135,7 @@ export function MobileStepNavigation({
               "flex-1 h-12 rounded-xl font-semibold text-sm transition-colors",
               "border-2 border-gray-300 text-gray-700",
               "hover:bg-gray-100 active:bg-gray-200",
-              "disabled:opacity-50 disabled:cursor-not-allowed"
+              "disabled:opacity-50 disabled:cursor-not-allowed",
             )}
           >
             {prevLabel}
@@ -151,9 +147,9 @@ export function MobileStepNavigation({
             disabled={nextDisabled || isLoading}
             className={cn(
               "flex-1 h-12 rounded-xl font-semibold text-sm transition-colors",
-              "bg-blue-600 text-white",
-              "hover:bg-blue-700 active:bg-blue-800",
-              "disabled:opacity-50 disabled:cursor-not-allowed"
+              "bg-navy-900 text-white",
+              "hover:bg-navy-800 active:bg-navy-700",
+              "disabled:opacity-50 disabled:cursor-not-allowed",
             )}
           >
             {isLoading ? "저장 중..." : nextLabel}

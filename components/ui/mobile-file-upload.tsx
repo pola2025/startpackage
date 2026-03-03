@@ -1,11 +1,21 @@
 "use client";
 
 import { useState, useRef, ChangeEvent } from "react";
-import { Upload, Camera, CheckCircle2, X, Loader2, FileText } from "lucide-react";
+import {
+  Upload,
+  Camera,
+  CheckCircle2,
+  X,
+  Loader2,
+  FileText,
+} from "lucide-react";
 import { Button } from "./button";
 import { cn } from "@/lib/utils";
 import imageCompression from "browser-image-compression";
-import { validateFile as validateFileUtil, FILE_CONFIG } from "@/lib/submission/file-validation";
+import {
+  validateFile as validateFileUtil,
+  FILE_CONFIG,
+} from "@/lib/submission/file-validation";
 import { EmailFileGuide } from "./email-file-guide";
 
 interface MobileFileUploadProps {
@@ -50,12 +60,19 @@ export function MobileFileUpload({
   // 이메일 안내 모달 상태
   const [emailGuideOpen, setEmailGuideOpen] = useState(false);
   const [emailGuideError, setEmailGuideError] = useState<{
-    type: 'SIZE_EXCEEDED' | 'UNSUPPORTED_FORMAT';
+    type: "SIZE_EXCEEDED" | "UNSUPPORTED_FORMAT";
     fileName?: string;
     fileSize?: number;
   } | null>(null);
 
-  const validateFile = async (file: File): Promise<{ valid: boolean; error?: string; showEmailGuide?: boolean; errorType?: 'SIZE_EXCEEDED' | 'UNSUPPORTED_FORMAT' }> => {
+  const validateFile = async (
+    file: File,
+  ): Promise<{
+    valid: boolean;
+    error?: string;
+    showEmailGuide?: boolean;
+    errorType?: "SIZE_EXCEEDED" | "UNSUPPORTED_FORMAT";
+  }> => {
     // 먼저 통합 파일 검증 유틸 사용 (이메일 안내 대상 체크)
     const utilResult = validateFileUtil(file);
     if (!utilResult.isValid && utilResult.error?.showEmailGuide) {
@@ -63,7 +80,9 @@ export function MobileFileUpload({
         valid: false,
         error: utilResult.error.message,
         showEmailGuide: true,
-        errorType: utilResult.error.type as 'SIZE_EXCEEDED' | 'UNSUPPORTED_FORMAT',
+        errorType: utilResult.error.type as
+          | "SIZE_EXCEEDED"
+          | "UNSUPPORTED_FORMAT",
       };
     }
 
@@ -75,10 +94,13 @@ export function MobileFileUpload({
           valid: false,
           error: `파일 크기가 너무 큽니다. 이메일(${FILE_CONFIG.emailContact})로 보내주세요.`,
           showEmailGuide: true,
-          errorType: 'SIZE_EXCEEDED',
+          errorType: "SIZE_EXCEEDED",
         };
       }
-      return { valid: false, error: `파일 크기는 ${maxSize}MB 이하여야 합니다` };
+      return {
+        valid: false,
+        error: `파일 크기는 ${maxSize}MB 이하여야 합니다`,
+      };
     }
 
     // Check file type
@@ -93,14 +115,14 @@ export function MobileFileUpload({
 
     if (!isAccepted) {
       // 특수 파일 형식 (PSD, AI, ZIP 등)은 이메일 안내
-      const specialFormats = ['.psd', '.ai', '.eps', '.zip', '.rar', '.7z'];
+      const specialFormats = [".psd", ".ai", ".eps", ".zip", ".rar", ".7z"];
       const isSpecialFormat = specialFormats.includes(fileExtension);
       if (isSpecialFormat) {
         return {
           valid: false,
           error: `원본 디자인 파일은 이메일(${FILE_CONFIG.emailContact})로 보내주세요.`,
           showEmailGuide: true,
-          errorType: 'UNSUPPORTED_FORMAT',
+          errorType: "UNSUPPORTED_FORMAT",
         };
       }
       return { valid: false, error: "지원하지 않는 파일 형식입니다" };
@@ -114,7 +136,10 @@ export function MobileFileUpload({
         img.onload = () => {
           URL.revokeObjectURL(url);
           if (img.width > maxImageDimension || img.height > maxImageDimension) {
-            resolve({ valid: false, error: `이미지는 ${maxImageDimension}px 이하여야 합니다` });
+            resolve({
+              valid: false,
+              error: `이미지는 ${maxImageDimension}px 이하여야 합니다`,
+            });
           } else {
             resolve({ valid: true });
           }
@@ -137,9 +162,15 @@ export function MobileFileUpload({
     setError(null);
 
     // 이미지 파일이고 자동 압축이 활성화된 경우 압축 수행
-    if (autoCompress && file.type.startsWith("image/") && file.type !== "image/gif") {
+    if (
+      autoCompress &&
+      file.type.startsWith("image/") &&
+      file.type !== "image/gif"
+    ) {
       try {
-        console.log(`[압축] 원본 파일 크기: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+        console.log(
+          `[압축] 원본 파일 크기: ${(file.size / 1024 / 1024).toFixed(2)}MB`,
+        );
 
         const options = {
           maxSizeMB: 2, // 최대 2MB로 압축
@@ -149,7 +180,9 @@ export function MobileFileUpload({
         };
 
         const compressedFile = await imageCompression(file, options);
-        console.log(`[압축] 압축 후 파일 크기: ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`);
+        console.log(
+          `[압축] 압축 후 파일 크기: ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`,
+        );
 
         // 압축된 파일로 교체
         file = new File([compressedFile], file.name, {
@@ -174,7 +207,7 @@ export function MobileFileUpload({
         setEmailGuideOpen(true);
         setError(null);
       } else {
-        setError(validationResult.error || '파일 검증 실패');
+        setError(validationResult.error || "파일 검증 실패");
       }
       return;
     }
@@ -247,11 +280,11 @@ export function MobileFileUpload({
                 "min-h-[160px] sm:min-h-[180px]",
                 disabled || uploading
                   ? "border-gray-200 bg-gray-50 cursor-not-allowed"
-                  : "border-blue-300 bg-blue-50/50 hover:bg-blue-100/50 hover:border-blue-400 cursor-pointer active:scale-[0.98]"
+                  : "border-gold-300 bg-gold-50/50 hover:bg-gold-100/50 hover:border-gold-400 cursor-pointer active:scale-[0.98]",
               )}
             >
-              <div className="p-3 rounded-full bg-blue-100">
-                <Upload className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600" />
+              <div className="p-3 rounded-full bg-gold-100">
+                <Upload className="w-6 h-6 sm:w-7 sm:h-7 text-gold-600" />
               </div>
               <div className="text-center space-y-1">
                 <p className="text-sm sm:text-base font-semibold text-gray-900">
@@ -282,7 +315,7 @@ export function MobileFileUpload({
               <Button
                 type="button"
                 variant="outline"
-                className="w-full h-12 border-2 border-blue-300 hover:bg-blue-50 text-blue-700 font-semibold active:scale-[0.98]"
+                className="w-full h-12 border-2 border-gold-300 hover:bg-gold-50 text-navy-700 font-semibold active:scale-[0.98]"
                 disabled={disabled || uploading}
                 onClick={() => cameraInputRef.current?.click()}
               >
@@ -298,7 +331,8 @@ export function MobileFileUpload({
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-start gap-3 flex-1 min-w-0">
               <div className="p-2 rounded-lg bg-green-100 flex-shrink-0">
-                {preview || currentFileUrl?.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+                {preview ||
+                currentFileUrl?.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
                   <CheckCircle2 className="w-5 h-5 text-green-700" />
                 ) : (
                   <FileText className="w-5 h-5 text-green-700" />
@@ -313,7 +347,7 @@ export function MobileFileUpload({
                     href={currentFileUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-blue-600 hover:underline break-all"
+                    className="text-xs text-gold-600 hover:underline break-all"
                   >
                     파일 보기
                   </a>
@@ -356,9 +390,9 @@ export function MobileFileUpload({
 
       {/* Loading Overlay */}
       {uploading && (
-        <div className="flex items-center justify-center gap-2 p-3 rounded-lg bg-blue-50 border border-blue-200">
-          <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
-          <span className="text-sm font-medium text-blue-900">
+        <div className="flex items-center justify-center gap-2 p-3 rounded-lg bg-gold-50 border border-gold-200">
+          <Loader2 className="w-4 h-4 animate-spin text-gold-600" />
+          <span className="text-sm font-medium text-navy-900">
             업로드 중...
           </span>
         </div>

@@ -188,7 +188,7 @@ export default function HomepageManagementPage() {
       return <Badge variant="outline" className="bg-gray-50">미선택</Badge>;
     }
     if (method === "아임웹") {
-      return <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100">아임웹</Badge>;
+      return <Badge className="bg-gold-100 text-gold-700 hover:bg-gold-100">아임웹</Badge>;
     }
     return <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-100">외부서비스</Badge>;
   };
@@ -262,7 +262,7 @@ export default function HomepageManagementPage() {
         <Card>
           <CardContent className="p-4">
             <p className="text-sm text-gray-500">아임웹 선택</p>
-            <p className="text-2xl font-bold text-blue-600">{stats.imweb}</p>
+            <p className="text-2xl font-bold text-gold-600">{stats.imweb}</p>
           </CardContent>
         </Card>
         <Card>
@@ -441,25 +441,25 @@ export default function HomepageManagementPage() {
               {/* 아임웹 정보 */}
               {selectedUser.submission?.홈페이지제작방식 === "아임웹" && (
                 <div className="space-y-4">
-                  <h3 className="font-semibold text-blue-700 flex items-center gap-2">
+                  <h3 className="font-semibold text-navy-700 flex items-center gap-2">
                     <Globe className="w-4 h-4" />
                     아임웹 계정 정보
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="p-3 bg-blue-50 rounded-lg">
-                      <Label className="text-xs text-blue-600">아임웹 ID</Label>
+                    <div className="p-3 bg-gold-50 rounded-lg">
+                      <Label className="text-xs text-gold-600">아임웹 ID</Label>
                       <p className="font-medium text-gray-900 mt-1">
                         {selectedUser.submission?.아임웹ID || "-"}
                       </p>
                     </div>
-                    <div className="p-3 bg-blue-50 rounded-lg">
-                      <Label className="text-xs text-blue-600">아임웹 PW</Label>
+                    <div className="p-3 bg-gold-50 rounded-lg">
+                      <Label className="text-xs text-gold-600">아임웹 PW</Label>
                       <p className="font-medium text-gray-900 mt-1">
                         {selectedUser.submission?.아임웹PW ? "●●●●●●" : "-"}
                       </p>
                     </div>
-                    <div className="p-3 bg-blue-50 rounded-lg md:col-span-2">
-                      <Label className="text-xs text-blue-600">아임웹 관리자 PW</Label>
+                    <div className="p-3 bg-gold-50 rounded-lg md:col-span-2">
+                      <Label className="text-xs text-gold-600">아임웹 관리자 PW</Label>
                       <p className="font-medium text-gray-900 mt-1">
                         {selectedUser.submission?.아임웹관리자PW ? "●●●●●●" : "-"}
                       </p>
@@ -476,7 +476,7 @@ export default function HomepageManagementPage() {
                             href={selectedUser.submission.홈페이지스타일}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-1 text-blue-600 hover:underline mt-1"
+                            className="flex items-center gap-1 text-gold-600 hover:underline mt-1"
                           >
                             <ExternalLink className="w-3 h-3" />
                             샘플 보기

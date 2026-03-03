@@ -285,9 +285,9 @@ export default function MarketingExtensionsPage() {
                       })}
                     </p>
                     {request.requestMessage && (
-                      <div className="bg-blue-500/10 p-2.5 sm:p-3 rounded border border-blue-500/20">
+                      <div className="bg-gold-500/10 p-2.5 sm:p-3 rounded border border-gold-500/20">
                         <p className="text-[10px] sm:text-xs text-gray-500 mb-1">요청 메시지</p>
-                        <p className="text-xs sm:text-sm text-blue-300 break-words">{request.requestMessage}</p>
+                        <p className="text-xs sm:text-sm text-gold-300 break-words">{request.requestMessage}</p>
                       </div>
                     )}
                     {request.reviewedAt && (

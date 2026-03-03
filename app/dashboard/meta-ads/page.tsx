@@ -22,7 +22,7 @@ export default function MetaAdsPage() {
       {/* 헤더 */}
       <div>
         <div className="flex items-center gap-2 md:gap-3 mb-1 md:mb-2">
-          <Facebook className="w-6 h-6 md:w-8 md:h-8 text-blue-600" />
+          <Facebook className="w-6 h-6 md:w-8 md:h-8 text-gold-600" />
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Meta 광고 시작하기</h1>
         </div>
         <p className="text-sm md:text-base text-gray-600">
@@ -89,7 +89,7 @@ export default function MetaAdsPage() {
                           </li>
                           <li className="flex items-start gap-2">
                             <span className="text-green-600">▪</span>
-                            <span>담당자 이메일: <a href="mailto:mkt@polarad.co.kr" className="text-blue-600 underline font-semibold">mkt@polarad.co.kr</a></span>
+                            <span>담당자 이메일: <a href="mailto:mkt@polarad.co.kr" className="text-gold-600 underline font-semibold">mkt@polarad.co.kr</a></span>
                           </li>
                         </ul>
                       </div>
@@ -111,7 +111,7 @@ export default function MetaAdsPage() {
                                 href="https://business.facebook.com/latest/settings/business_users"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-blue-600 underline hover:text-blue-800 break-all text-[10px] md:text-xs"
+                                className="text-gold-600 underline hover:text-navy-800 break-all text-[10px] md:text-xs"
                               >
                                 business.facebook.com/.../business_users
                               </a>
@@ -119,7 +119,7 @@ export default function MetaAdsPage() {
                           </li>
                           <li><strong>사람</strong> → <strong className="bg-green-100 px-1 rounded">+초대하기</strong> 클릭</li>
                           <li>
-                            이메일: <strong className="text-blue-600">mkt@polarad.co.kr</strong>
+                            이메일: <strong className="text-gold-600">mkt@polarad.co.kr</strong>
                             <div className="ml-4 md:ml-6 mt-1 text-red-600 font-medium text-[10px] md:text-xs">
                               ⚠️ 임시 액세스 설정 X
                             </div>
@@ -146,39 +146,39 @@ export default function MetaAdsPage() {
 
             {/* Case 2: 인스타그램만 있는 경우 */}
             <TabsContent value="case2" className="space-y-4">
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 md:p-6">
+              <div className="bg-gold-50 border border-gold-200 rounded-lg p-4 md:p-6">
                 <div className="flex items-start gap-2 md:gap-3">
-                  <Instagram className="w-5 h-5 md:w-6 md:h-6 text-blue-600 flex-shrink-0 mt-0.5" />
+                  <Instagram className="w-5 h-5 md:w-6 md:h-6 text-gold-600 flex-shrink-0 mt-0.5" />
                   <div className="flex-1">
-                    <h3 className="text-base md:text-lg font-semibold text-blue-900 mb-2 md:mb-3">
+                    <h3 className="text-base md:text-lg font-semibold text-navy-900 mb-2 md:mb-3">
                       인스타그램 계정은 있지만 광고관리자가 없는 경우
                     </h3>
                     <div className="space-y-3 md:space-y-4">
                       <div>
-                        <p className="text-blue-800 font-medium mb-2 text-sm md:text-base">📋 제공해주실 정보</p>
-                        <ul className="space-y-1.5 md:space-y-2 text-blue-700 text-xs md:text-sm">
+                        <p className="text-navy-800 font-medium mb-2 text-sm md:text-base">📋 제공해주실 정보</p>
+                        <ul className="space-y-1.5 md:space-y-2 text-navy-700 text-xs md:text-sm">
                           <li className="flex items-start gap-2">
-                            <span className="text-blue-600">▪</span>
+                            <span className="text-gold-600">▪</span>
                             <span>인스타그램 로그인 ID (이메일 또는 전화번호)</span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-blue-600">▪</span>
+                            <span className="text-gold-600">▪</span>
                             <span>인스타그램 로그인 비밀번호</span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-blue-600">▪</span>
+                            <span className="text-gold-600">▪</span>
                             <span>PC에서 로그인 가능 여부 확인</span>
                           </li>
                         </ul>
                       </div>
-                      <Alert className="bg-blue-100 border-blue-200">
-                        <Info className="h-4 w-4 text-blue-600 flex-shrink-0" />
-                        <AlertDescription className="text-blue-800 text-xs md:text-sm">
+                      <Alert className="bg-gold-100 border-gold-200">
+                        <Info className="h-4 w-4 text-gold-600 flex-shrink-0" />
+                        <AlertDescription className="text-navy-800 text-xs md:text-sm">
                           <strong>중요:</strong> PC에서 로그인이 가능해야 광고 설정이 가능합니다.
                         </AlertDescription>
                       </Alert>
-                      <div className="bg-white rounded-lg p-3 md:p-4 border border-blue-200">
-                        <p className="text-xs md:text-sm text-blue-800">
+                      <div className="bg-white rounded-lg p-3 md:p-4 border border-gold-200">
+                        <p className="text-xs md:text-sm text-navy-800">
                           <strong>📌 다음 단계:</strong><br />
                           문의하기를 통해 위 정보를 전달해주시면, Facebook 비즈니스 계정과 광고 관리자를 설정해드립니다.
                         </p>
@@ -240,16 +240,16 @@ export default function MetaAdsPage() {
       <Card className="border-gray-200 shadow-sm">
         <CardHeader className="p-4 md:p-6">
           <CardTitle className="text-gray-900 flex items-center gap-2 text-base md:text-lg">
-            <Mail className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
+            <Mail className="w-4 h-4 md:w-5 md:h-5 text-gold-600" />
             광고 소재 제출 방법
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 md:space-y-4 p-4 md:p-6 pt-0 md:pt-0">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 md:p-4">
-            <h4 className="font-semibold text-blue-900 mb-2 md:mb-3 text-sm md:text-base">📧 제출 이메일</h4>
+          <div className="bg-gold-50 border border-gold-200 rounded-lg p-3 md:p-4">
+            <h4 className="font-semibold text-navy-900 mb-2 md:mb-3 text-sm md:text-base">📧 제출 이메일</h4>
             <div className="flex items-center gap-2">
-              <Mail className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
-              <a href="mailto:mkt@polarad.co.kr" className="text-base md:text-lg font-bold text-blue-600 underline">
+              <Mail className="w-4 h-4 md:w-5 md:h-5 text-gold-600" />
+              <a href="mailto:mkt@polarad.co.kr" className="text-base md:text-lg font-bold text-gold-600 underline">
                 mkt@polarad.co.kr
               </a>
             </div>
@@ -260,15 +260,15 @@ export default function MetaAdsPage() {
               <h4 className="font-semibold text-gray-900 mb-2 md:mb-3 text-sm md:text-base">📸 제출할 광고 소재</h4>
               <ul className="space-y-1.5 md:space-y-2 text-gray-700 text-xs md:text-sm">
                 <li className="flex items-start gap-2">
-                  <span className="text-blue-600">▪</span>
+                  <span className="text-gold-600">▪</span>
                   <span>광고용 이미지 또는 영상 파일</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-blue-600">▪</span>
+                  <span className="text-gold-600">▪</span>
                   <span>광고 문구 (선택사항)</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-blue-600">▪</span>
+                  <span className="text-gold-600">▪</span>
                   <span>타겟 지역/연령대 (선택사항)</span>
                 </li>
               </ul>
@@ -341,9 +341,9 @@ export default function MetaAdsPage() {
             </div>
           </div>
 
-          <Alert className="bg-blue-50 border-blue-200">
-            <Calendar className="h-4 w-4 text-blue-600 flex-shrink-0" />
-            <AlertDescription className="text-blue-800 text-xs md:text-sm">
+          <Alert className="bg-gold-50 border-gold-200">
+            <Calendar className="h-4 w-4 text-gold-600 flex-shrink-0" />
+            <AlertDescription className="text-navy-800 text-xs md:text-sm">
               <strong>광고 효율 측정 권장 일정</strong><br />
               • 최소 7~10일 집행 후 성과 측정<br />
               • 3~5일간 데이터가 전혀 없으면 즉시 교체 권장
@@ -353,9 +353,9 @@ export default function MetaAdsPage() {
       </Card>
 
       {/* 비용 안내 */}
-      <Card className="border-blue-200 bg-blue-50 shadow-sm">
+      <Card className="border-gold-200 bg-gold-50 shadow-sm">
         <CardHeader className="p-4 md:p-6">
-          <CardTitle className="text-blue-900 flex items-center gap-2 text-base md:text-lg">
+          <CardTitle className="text-navy-900 flex items-center gap-2 text-base md:text-lg">
             <DollarSign className="w-4 h-4 md:w-5 md:h-5" />
             서비스 비용 안내
           </CardTitle>
@@ -375,20 +375,20 @@ export default function MetaAdsPage() {
                 <Badge className="bg-green-600 text-xs whitespace-nowrap flex-shrink-0">지원 서비스</Badge>
               </div>
             </div>
-            <div className="bg-white border border-blue-200 rounded-lg p-3 md:p-4">
+            <div className="bg-white border border-gold-200 rounded-lg p-3 md:p-4">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-blue-900 text-sm md:text-base whitespace-nowrap">
+                    <h4 className="font-semibold text-navy-900 text-sm md:text-base whitespace-nowrap">
                       지원 기간 종료 후
                     </h4>
                   </div>
                   <div className="flex items-baseline gap-1 whitespace-nowrap">
-                    <p className="text-lg md:text-2xl font-bold text-blue-900">월 220,000원</p>
+                    <p className="text-lg md:text-2xl font-bold text-navy-900">월 220,000원</p>
                     <p className="text-[10px] md:text-sm text-gray-600">(VAT)</p>
                   </div>
                 </div>
-                <Badge className="bg-blue-600 text-xs whitespace-nowrap flex-shrink-0">유료 서비스</Badge>
+                <Badge className="bg-navy-900 text-xs whitespace-nowrap flex-shrink-0">유료 서비스</Badge>
               </div>
             </div>
           </div>
@@ -399,7 +399,7 @@ export default function MetaAdsPage() {
       <div className="flex justify-center pb-4 md:pb-0">
         <a
           href="/dashboard/communication"
-          className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 md:px-8 py-3 md:py-4 rounded-lg transition-colors shadow-lg text-sm md:text-base w-full md:w-auto justify-center"
+          className="inline-flex items-center gap-2 bg-navy-900 hover:bg-navy-800 text-white font-semibold px-6 md:px-8 py-3 md:py-4 rounded-lg transition-colors shadow-lg text-sm md:text-base w-full md:w-auto justify-center"
         >
           <Mail className="w-4 h-4 md:w-5 md:h-5" />
           Meta 광고 시작 문의하기

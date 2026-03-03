@@ -336,7 +336,7 @@ export default function UserContentTipsPage() {
                               {tips[0].linkType === "youtube" ? (
                                 <Youtube className="w-10 h-10 text-yellow-400" />
                               ) : (
-                                <Globe className="w-10 h-10 text-blue-400" />
+                                <Globe className="w-10 h-10 text-gold-400" />
                               )}
                             </div>
                           );
@@ -372,7 +372,7 @@ export default function UserContentTipsPage() {
                               ) : tip.linkType === "youtube" ? (
                                 <Youtube className="w-5 h-5 text-red-500" />
                               ) : (
-                                <Globe className="w-5 h-5 text-blue-500" />
+                                <Globe className="w-5 h-5 text-gold-500" />
                               )}
                             </div>
                             {/* 콘텐츠 정보 */}
@@ -420,7 +420,7 @@ export default function UserContentTipsPage() {
                                 </div>
                               )}
                               {tip.linkType === "blog" && (
-                                <div className="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 rounded-md text-xs font-medium flex items-center gap-1">
+                                <div className="absolute top-2 right-2 bg-navy-900 text-white px-2 py-1 rounded-md text-xs font-medium flex items-center gap-1">
                                   <Globe className="w-3 h-3" />
                                   Blog
                                 </div>
@@ -441,8 +441,8 @@ export default function UserContentTipsPage() {
                                 </>
                               ) : (
                                 <>
-                                  <Globe className="w-12 h-12 text-blue-400 mb-2" />
-                                  <span className="text-sm text-blue-700 font-medium">Blog</span>
+                                  <Globe className="w-12 h-12 text-gold-400 mb-2" />
+                                  <span className="text-sm text-navy-700 font-medium">Blog</span>
                                 </>
                               )}
                               {/* 서브카테고리 뱃지 */}
@@ -496,7 +496,7 @@ export default function UserContentTipsPage() {
                   {selectedTip.linkType === "youtube" ? (
                     <Youtube className="w-5 h-5 text-red-600 flex-shrink-0" />
                   ) : (
-                    <Globe className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                    <Globe className="w-5 h-5 text-gold-600 flex-shrink-0" />
                   )}
                   <span className="line-clamp-2">{selectedTip.title}</span>
                 </h3>
@@ -564,7 +564,7 @@ export default function UserContentTipsPage() {
                     {selectedTip.linkType === "youtube" ? (
                       <Youtube className="w-6 h-6 text-red-600" />
                     ) : (
-                      <Globe className="w-6 h-6 text-blue-600" />
+                      <Globe className="w-6 h-6 text-gold-600" />
                     )}
                     {selectedTip.title}
                   </DialogTitle>

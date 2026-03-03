@@ -43,7 +43,10 @@ const PREPARATION_ITEMS = [
   },
 ];
 
-export function OnboardingDialog({ open, onOpenChange }: OnboardingDialogProps) {
+export function OnboardingDialog({
+  open,
+  onOpenChange,
+}: OnboardingDialogProps) {
   const [dontShowAgain, setDontShowAgain] = useState(false);
 
   const handleStart = () => {
@@ -58,11 +61,12 @@ export function OnboardingDialog({ open, onOpenChange }: OnboardingDialogProps) 
       <DialogContent className="max-w-[calc(100vw-24px)] sm:max-w-md mx-auto">
         <DialogHeader className="text-center sm:text-left">
           <DialogTitle className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2 justify-center sm:justify-start">
-            <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
+            <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-gold-600" />
             자료제출 시작하기
           </DialogTitle>
           <DialogDescription className="text-sm sm:text-base text-gray-600 mt-2">
-            <span className="text-blue-600 font-semibold">약 10분</span>이면 모든 자료 제출을 완료할 수 있어요!
+            <span className="text-gold-600 font-semibold">약 10분</span>이면
+            모든 자료 제출을 완료할 수 있어요!
           </DialogDescription>
         </DialogHeader>
 
@@ -76,12 +80,16 @@ export function OnboardingDialog({ open, onOpenChange }: OnboardingDialogProps) 
                 key={index}
                 className="flex items-center gap-2 p-2 sm:p-2.5 bg-gray-50 rounded-lg"
               >
-                <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                  <item.icon className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" />
+                <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 bg-gold-100 rounded-full flex items-center justify-center">
+                  <item.icon className="w-3 h-3 sm:w-4 sm:h-4 text-gold-600" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs sm:text-sm font-medium text-gray-900">{item.title}</p>
-                  <p className="text-[10px] sm:text-xs text-gray-500 leading-tight">{item.description}</p>
+                  <p className="text-xs sm:text-sm font-medium text-gray-900">
+                    {item.title}
+                  </p>
+                  <p className="text-[10px] sm:text-xs text-gray-500 leading-tight">
+                    {item.description}
+                  </p>
                 </div>
                 <CheckCircle2 className="w-4 h-4 text-gray-300 flex-shrink-0" />
               </div>
@@ -113,7 +121,7 @@ export function OnboardingDialog({ open, onOpenChange }: OnboardingDialogProps) 
           </Button>
           <Button
             onClick={handleStart}
-            className="w-full sm:w-auto order-1 sm:order-2 bg-blue-600 hover:bg-blue-700"
+            className="w-full sm:w-auto order-1 sm:order-2 bg-navy-900 hover:bg-navy-800"
           >
             시작하기
           </Button>
@@ -126,7 +134,9 @@ export function OnboardingDialog({ open, onOpenChange }: OnboardingDialogProps) 
 /**
  * 온보딩 다이얼로그를 표시해야 하는지 확인
  */
-export function shouldShowOnboarding(submissionData: { 브랜드명: string | null } | null): boolean {
+export function shouldShowOnboarding(
+  submissionData: { 브랜드명: string | null } | null,
+): boolean {
   // 이미 "다시 보지 않기"를 선택한 경우
   if (typeof window !== "undefined") {
     const dismissed = localStorage.getItem(ONBOARDING_DISMISSED_KEY);

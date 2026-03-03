@@ -26,7 +26,7 @@ function Progress({ value, className }: { value: number; className?: string }) {
   return (
     <div className={`relative h-2 w-full overflow-hidden rounded-full bg-gray-200 ${className || ""}`}>
       <div
-        className="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all"
+        className="h-full bg-gradient-to-r from-gold-500 to-gold-600 transition-all"
         style={{ width: `${value}%` }}
       />
     </div>
@@ -146,15 +146,15 @@ export default async function AdminDashboard() {
       {/* Quick Stats */}
       <div className="grid gap-3 sm:gap-4 md:gap-6 grid-cols-2 lg:grid-cols-4">
         {/* 전체 사용자 */}
-        <Card className="bg-gradient-to-br from-blue-50 to-white border-0 shadow-lg hover:shadow-xl transition-shadow">
+        <Card className="bg-gradient-to-br from-gold-50 to-white border-0 shadow-lg hover:shadow-xl transition-shadow">
           <CardContent className="p-3 sm:p-4 md:p-6">
             <div className="flex items-start justify-between mb-2 sm:mb-4">
-              <div className="flex items-center justify-center w-9 h-9 sm:w-12 sm:h-12 bg-blue-600 rounded-lg sm:rounded-xl shadow-md">
+              <div className="flex items-center justify-center w-9 h-9 sm:w-12 sm:h-12 bg-navy-900 rounded-lg sm:rounded-xl shadow-md">
                 <Users className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
               </div>
               <div className="text-right">
                 <p className="text-xs sm:text-sm font-medium text-gray-600 mb-0.5 sm:mb-1">전체 사용자</p>
-                <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-blue-600">{stats.totalUsers}</p>
+                <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-gold-600">{stats.totalUsers}</p>
               </div>
             </div>
             <p className="text-xs sm:text-sm text-gray-600 hidden sm:block">등록된 수강생</p>
@@ -225,7 +225,7 @@ export default async function AdminDashboard() {
           <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
             <div className="mb-3 sm:mb-4">
               <div className="flex items-end gap-2 mb-2 sm:mb-3">
-                <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-blue-600">{completionRate}<span className="text-xl sm:text-2xl md:text-3xl">%</span></p>
+                <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-gold-600">{completionRate}<span className="text-xl sm:text-2xl md:text-3xl">%</span></p>
                 <p className="text-sm sm:text-base text-gray-600 mb-1 sm:mb-2">완료</p>
               </div>
               <Progress value={completionRate} className="h-2 sm:h-3" />
@@ -248,7 +248,7 @@ export default async function AdminDashboard() {
           </CardHeader>
           <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
             <div className="flex items-end gap-2 mb-2 sm:mb-3">
-              <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-blue-600">{stats.notifications}</p>
+              <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-gold-600">{stats.notifications}</p>
               <p className="text-sm sm:text-base text-gray-600 mb-1 sm:mb-2">건</p>
             </div>
             <p className="text-xs sm:text-sm text-gray-600">
@@ -279,7 +279,7 @@ export default async function AdminDashboard() {
               stats.recentWorkflows.map((workflow) => (
                 <div
                   key={workflow.id}
-                  className="flex items-center justify-between p-2.5 sm:p-3 md:p-4 rounded-lg bg-gray-50 border border-gray-200 hover:border-blue-300 hover:bg-blue-50/50 transition-all gap-2 sm:gap-4"
+                  className="flex items-center justify-between p-2.5 sm:p-3 md:p-4 rounded-lg bg-gray-50 border border-gray-200 hover:border-gold-300 hover:bg-gold-50/50 transition-all gap-2 sm:gap-4"
                 >
                   <div className="flex items-center gap-2 sm:gap-3 md:gap-4 min-w-0">
                     <div

@@ -2,7 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useWizard } from "../wizard-context";
-import { StepCard, StepHeader, StepNotice, OptionalBadge } from "../wizard-step";
+import {
+  StepCard,
+  StepHeader,
+  StepNotice,
+  OptionalBadge,
+} from "../wizard-step";
 import { MobileFileUpload } from "@/components/ui/mobile-file-upload";
 import { Camera, User, CheckCircle2 } from "lucide-react";
 
@@ -19,7 +24,11 @@ interface StepProfileProps {
   errors?: Record<string, string>;
 }
 
-export function StepProfile({ formData, onFileUpload, errors = {} }: StepProfileProps) {
+export function StepProfile({
+  formData,
+  onFileUpload,
+  errors = {},
+}: StepProfileProps) {
   const { setCanProceed, markStepComplete, currentStep } = useWizard();
   const [uploading, setUploading] = useState(false);
 
@@ -69,7 +78,7 @@ export function StepProfile({ formData, onFileUpload, errors = {} }: StepProfile
         {/* 프로필 사진 사용처 안내 */}
         <div className="bg-gray-50 rounded-xl p-4 space-y-2">
           <p className="text-sm font-medium text-gray-700 flex items-center gap-2">
-            <User className="w-4 h-4 text-blue-500" />
+            <User className="w-4 h-4 text-gold-500" />
             프로필 사진은 어디에 쓰이나요?
           </p>
           <ul className="text-sm text-gray-500 space-y-1.5 pl-6">
@@ -89,12 +98,12 @@ export function StepProfile({ formData, onFileUpload, errors = {} }: StepProfile
         </div>
 
         {/* 좋은 프로필 사진 팁 */}
-        <div className="bg-blue-50 rounded-xl p-4 space-y-2">
-          <p className="text-sm font-medium text-blue-700 flex items-center gap-2">
+        <div className="bg-gold-50 rounded-xl p-4 space-y-2">
+          <p className="text-sm font-medium text-navy-700 flex items-center gap-2">
             <Camera className="w-4 h-4" />
             좋은 프로필 사진 팁
           </p>
-          <ul className="text-sm text-blue-600 space-y-1 pl-6">
+          <ul className="text-sm text-gold-600 space-y-1 pl-6">
             <li>• 밝은 곳에서 촬영</li>
             <li>• 상반신이 잘 보이도록</li>
             <li>• 자연스러운 미소</li>

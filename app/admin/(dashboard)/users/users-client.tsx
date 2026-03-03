@@ -239,7 +239,7 @@ export default function UsersClient({ users, cohorts }: UsersClientProps) {
               onClick={() => setSortMode("name")}
               className={
                 sortMode === "name"
-                  ? "border-blue-500 bg-blue-50 text-blue-700"
+                  ? "border-gold-500 bg-gold-50 text-gold-700"
                   : "text-gray-600"
               }
             >
@@ -251,7 +251,7 @@ export default function UsersClient({ users, cohorts }: UsersClientProps) {
               onClick={() => setSortMode("cohort")}
               className={
                 sortMode === "cohort"
-                  ? "border-blue-500 bg-blue-50 text-blue-700"
+                  ? "border-gold-500 bg-gold-50 text-gold-700"
                   : "text-gray-600"
               }
             >
@@ -259,9 +259,9 @@ export default function UsersClient({ users, cohorts }: UsersClientProps) {
             </Button>
           </div>
           {/* 총 인원 뱃지 */}
-          <div className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-50 rounded-lg border-2 border-blue-200 self-start sm:self-auto">
-            <Users className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-            <span className="text-xl sm:text-2xl font-bold text-blue-600">
+          <div className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-gold-50 rounded-lg border-2 border-gold-200 self-start sm:self-auto">
+            <Users className="w-4 h-4 sm:w-5 sm:h-5 text-gold-600" />
+            <span className="text-xl sm:text-2xl font-bold text-gold-600">
               {filteredUsers.length}
             </span>
             <span className="text-xs sm:text-sm text-gray-600">명</span>
@@ -309,7 +309,7 @@ export default function UsersClient({ users, cohorts }: UsersClientProps) {
             <Card
               key={user.id}
               className={`bg-white border shadow-sm transition-colors ${
-                isChecked ? "border-blue-400" : "border-gray-200"
+                isChecked ? "border-gold-400" : "border-gray-200"
               }`}
             >
               <CardContent className="p-4">
@@ -320,7 +320,7 @@ export default function UsersClient({ users, cohorts }: UsersClientProps) {
                       type="checkbox"
                       checked={isChecked}
                       onChange={() => toggleUser(user.id)}
-                      className="mt-1 w-4 h-4 rounded border-gray-300 text-blue-600 cursor-pointer"
+                      className="mt-1 w-4 h-4 rounded border-gray-300 text-gold-600 cursor-pointer"
                     />
                     <div>
                       <h3 className="font-semibold text-gray-900 text-base">
@@ -328,7 +328,7 @@ export default function UsersClient({ users, cohorts }: UsersClientProps) {
                       </h3>
                       <Badge
                         variant="outline"
-                        className="border-blue-300 text-blue-700 bg-blue-50 text-xs mt-1"
+                        className="border-gold-300 text-gold-700 bg-gold-50 text-xs mt-1"
                       >
                         {user.cohort?.name || "미지정"}
                       </Badge>
@@ -405,7 +405,7 @@ export default function UsersClient({ users, cohorts }: UsersClientProps) {
                       if (el) el.indeterminate = isIndeterminate;
                     }}
                     onChange={toggleAll}
-                    className="w-4 h-4 rounded border-gray-300 text-blue-600 cursor-pointer"
+                    className="w-4 h-4 rounded border-gray-300 text-gold-600 cursor-pointer"
                   />
                 </TableHead>
                 <TableHead className="text-gray-700 font-semibold">
@@ -447,8 +447,8 @@ export default function UsersClient({ users, cohorts }: UsersClientProps) {
                     key={user.id}
                     className={`border-gray-200 transition-colors ${
                       isChecked
-                        ? "bg-blue-50 hover:bg-blue-100/70"
-                        : "hover:bg-blue-50/50"
+                        ? "bg-gold-50 hover:bg-gold-100/70"
+                        : "hover:bg-gold-50/50"
                     }`}
                   >
                     <TableCell>
@@ -456,7 +456,7 @@ export default function UsersClient({ users, cohorts }: UsersClientProps) {
                         type="checkbox"
                         checked={isChecked}
                         onChange={() => toggleUser(user.id)}
-                        className="w-4 h-4 rounded border-gray-300 text-blue-600 cursor-pointer"
+                        className="w-4 h-4 rounded border-gray-300 text-gold-600 cursor-pointer"
                       />
                     </TableCell>
                     <TableCell className="font-medium text-gray-900">
@@ -465,7 +465,7 @@ export default function UsersClient({ users, cohorts }: UsersClientProps) {
                     <TableCell>
                       <Badge
                         variant="outline"
-                        className="border-blue-300 text-blue-700 bg-blue-50"
+                        className="border-gold-300 text-gold-700 bg-gold-50"
                       >
                         {user.cohort?.name || "미지정"}
                       </Badge>
@@ -527,7 +527,7 @@ export default function UsersClient({ users, cohorts }: UsersClientProps) {
       {/* 다중 선택 바 (sticky bottom) */}
       {checkedCount > 0 && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
-          <div className="flex items-center gap-3 bg-blue-600 text-white px-5 py-3 rounded-xl shadow-lg">
+          <div className="flex items-center gap-3 bg-navy-900 text-white px-5 py-3 rounded-xl shadow-lg">
             <span className="text-sm font-medium">{checkedCount}명 선택됨</span>
             <Button
               variant="outline"
@@ -540,7 +540,7 @@ export default function UsersClient({ users, cohorts }: UsersClientProps) {
             <Button
               size="sm"
               onClick={openBulkSms}
-              className="bg-white text-blue-600 hover:bg-blue-50 h-7 text-xs font-semibold"
+              className="bg-white text-navy-900 hover:bg-gold-50 h-7 text-xs font-semibold"
             >
               <MessageSquare className="w-3.5 h-3.5 mr-1" />
               SMS 발송
@@ -559,7 +559,7 @@ export default function UsersClient({ users, cohorts }: UsersClientProps) {
         <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <MessageSquare className="w-5 h-5 text-blue-600" />
+              <MessageSquare className="w-5 h-5 text-gold-600" />
               일괄 SMS 발송
             </DialogTitle>
             <DialogDescription>

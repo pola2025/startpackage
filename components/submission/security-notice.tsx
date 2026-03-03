@@ -19,7 +19,10 @@ interface SecurityNoticeProps {
 /**
  * 보안 안내 메시지 매핑
  */
-const SECURITY_MESSAGES: Record<string, { title: string; description: string }> = {
+const SECURITY_MESSAGES: Record<
+  string,
+  { title: string; description: string }
+> = {
   marketing: {
     title: "계정 정보는 안전하게 보호돼요",
     description:
@@ -66,7 +69,7 @@ export function SecurityNotice({
   }
 
   return (
-    <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-xl p-4 sm:p-5">
+    <div className="bg-gradient-to-r from-green-50 to-gold-50 border border-green-200 rounded-xl p-4 sm:p-5">
       {/* 헤더 */}
       <div className="flex items-start gap-3">
         <div className="p-2 bg-green-100 rounded-lg flex-shrink-0">
@@ -107,7 +110,7 @@ export function SecurityNotice({
           href={privacyPolicyLink}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-3 inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline"
+          className="mt-3 inline-flex items-center gap-1 text-xs text-gold-600 hover:text-gold-800 hover:underline"
         >
           <Info className="w-3 h-3" />
           개인정보 처리방침 확인하기
@@ -166,7 +169,11 @@ export function PasswordSecurityHint({
         className="text-gray-400 hover:text-gray-600 p-1"
         aria-label={showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
       >
-        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+        {showPassword ? (
+          <EyeOff className="w-4 h-4" />
+        ) : (
+          <Eye className="w-4 h-4" />
+        )}
       </button>
     </div>
   );
@@ -184,9 +191,9 @@ export function DataUsageNotice({
 }) {
   return (
     <div
-      className={`flex items-start gap-2 text-xs text-gray-500 bg-blue-50 rounded-lg px-3 py-2 ${className}`}
+      className={`flex items-start gap-2 text-xs text-gray-500 bg-gold-50 rounded-lg px-3 py-2 ${className}`}
     >
-      <Info className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
+      <Info className="w-4 h-4 text-gold-500 flex-shrink-0 mt-0.5" />
       <span>{purpose}</span>
     </div>
   );
@@ -218,7 +225,7 @@ export function DeletionNotice({
 export function ServiceBadge({ className = "" }: { className?: string }) {
   return (
     <div
-      className={`inline-flex items-center gap-2 bg-blue-600 text-white text-xs font-medium px-3 py-1.5 rounded-full ${className}`}
+      className={`inline-flex items-center gap-2 bg-navy-900 text-white text-xs font-medium px-3 py-1.5 rounded-full ${className}`}
     >
       <Shield className="w-4 h-4" />
       비즈액터스쿨 공식 서비스

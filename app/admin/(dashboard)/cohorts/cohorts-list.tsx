@@ -114,7 +114,7 @@ export default function CohortsList({ cohorts }: CohortsListProps) {
                 D-{daysLeft}
               </Badge>
             ) : (
-              <Badge variant="outline" className="text-xs border-blue-300 text-blue-600 bg-blue-50">
+              <Badge variant="outline" className="text-xs border-gold-300 text-gold-600 bg-gold-50">
                 진행중
               </Badge>
             )}
@@ -129,7 +129,7 @@ export default function CohortsList({ cohorts }: CohortsListProps) {
       <TableRow
         key={cohort.id}
         className={`border-gray-200 ${
-          cohort.isActive ? "hover:bg-blue-50/50" : "bg-gray-50/50 hover:bg-gray-100/50"
+          cohort.isActive ? "hover:bg-gold-50/50" : "bg-gray-50/50 hover:bg-gray-100/50"
         }`}
       >
         <TableCell className={`font-medium ${cohort.isActive ? "text-gray-900" : "text-gray-500"}`}>
@@ -206,7 +206,7 @@ export default function CohortsList({ cohorts }: CohortsListProps) {
                       D-{daysLeft}
                     </Badge>
                   ) : (
-                    <Badge variant="outline" className="text-xs border-blue-300 text-blue-600 bg-blue-50 w-fit">
+                    <Badge variant="outline" className="text-xs border-gold-300 text-gold-600 bg-gold-50 w-fit">
                       진행중
                     </Badge>
                   )}

@@ -68,11 +68,11 @@ export function StatusTimeline({
         };
       case "current":
         return {
-          iconBg: "bg-blue-100 ring-4 ring-blue-50",
-          iconColor: "text-blue-600",
+          iconBg: "bg-gold-100 ring-4 ring-gold-50",
+          iconColor: "text-gold-600",
           lineColor: "bg-gray-200",
-          textColor: "text-blue-900 font-bold",
-          subTextColor: "text-blue-700",
+          textColor: "text-navy-900 font-bold",
+          subTextColor: "text-navy-700",
         };
       case "warning":
         return {
@@ -109,7 +109,7 @@ export function StatusTimeline({
                     className={cn(
                       "flex items-center justify-center w-12 h-12 rounded-full",
                       config.iconBg,
-                      config.iconColor
+                      config.iconColor,
                     )}
                   >
                     {getIcon(event.icon, event.status)}
@@ -136,7 +136,7 @@ export function StatusTimeline({
                   <div
                     className={cn(
                       "h-1 w-16 mx-2 rounded-full",
-                      config.lineColor
+                      config.lineColor,
                     )}
                   />
                 )}
@@ -171,7 +171,7 @@ export function StatusTimeline({
                   "flex items-center justify-center rounded-full transition-all",
                   "w-11 h-11 sm:w-14 sm:h-14",
                   config.iconBg,
-                  config.iconColor
+                  config.iconColor,
                 )}
               >
                 {getIcon(event.icon, event.status)}
@@ -184,12 +184,12 @@ export function StatusTimeline({
                 className={cn(
                   "p-4 rounded-xl border-2 transition-all",
                   event.status === "current"
-                    ? "bg-blue-50 border-blue-200 shadow-sm"
+                    ? "bg-gold-50 border-gold-200 shadow-sm"
                     : event.status === "completed"
-                    ? "bg-white border-gray-200"
-                    : event.status === "warning"
-                    ? "bg-orange-50 border-orange-200"
-                    : "bg-gray-50 border-gray-100"
+                      ? "bg-white border-gray-200"
+                      : event.status === "warning"
+                        ? "bg-orange-50 border-orange-200"
+                        : "bg-gray-50 border-gray-100",
                 )}
               >
                 <h3 className={cn("text-base font-semibold", config.textColor)}>
@@ -199,7 +199,7 @@ export function StatusTimeline({
                   <p
                     className={cn(
                       "text-sm mt-1 leading-relaxed",
-                      config.subTextColor
+                      config.subTextColor,
                     )}
                   >
                     {event.description}

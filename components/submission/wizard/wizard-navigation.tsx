@@ -2,7 +2,13 @@
 
 import { useWizard, WIZARD_STEPS } from "./wizard-context";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, SkipForward, Check, Loader2 } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  SkipForward,
+  Check,
+  Loader2,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
@@ -53,7 +59,7 @@ export function WizardNavigation({
         "fixed bottom-0 left-0 right-0 z-20",
         "bg-white border-t border-gray-200",
         "px-4 py-3 safe-area-pb",
-        className
+        className,
       )}
     >
       <div className="max-w-2xl mx-auto">
@@ -99,7 +105,7 @@ export function WizardNavigation({
               className={cn(
                 "h-12 px-6 font-semibold",
                 "bg-green-600 hover:bg-green-700",
-                "min-w-[120px]"
+                "min-w-[120px]",
               )}
             >
               {isSubmitting ? (
@@ -138,8 +144,14 @@ export function WizardNavigationCompact({
   onSubmit,
   isSubmitting = false,
 }: WizardNavigationProps) {
-  const { currentStepIndex, totalSteps, goNext, goPrev, currentStep, canProceed } =
-    useWizard();
+  const {
+    currentStepIndex,
+    totalSteps,
+    goNext,
+    goPrev,
+    currentStep,
+    canProceed,
+  } = useWizard();
 
   const isFirstStep = currentStepIndex === 0;
   const isLastStep = currentStepIndex === totalSteps - 1;
@@ -167,10 +179,10 @@ export function WizardNavigationCompact({
             className={cn(
               "w-2 h-2 rounded-full transition-colors",
               idx === currentStepIndex
-                ? "bg-blue-500"
+                ? "bg-gold-500"
                 : idx < currentStepIndex
-                ? "bg-green-500"
-                : "bg-gray-200"
+                  ? "bg-green-500"
+                  : "bg-gray-200",
             )}
           />
         ))}
@@ -231,7 +243,7 @@ export function WizardModeToggle({ onToggle }: WizardModeToggleProps) {
       className={cn(
         "text-sm text-gray-500 hover:text-gray-700",
         "underline underline-offset-2",
-        "transition-colors"
+        "transition-colors",
       )}
     >
       {isWizardMode ? "탭 모드로 전환" : "단계별 안내로 전환"}

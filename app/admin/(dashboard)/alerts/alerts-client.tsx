@@ -87,7 +87,7 @@ function statusBadge(status: ReturnType<typeof getStatus>) {
       );
     case "scheduled":
       return (
-        <Badge className="bg-blue-100 text-blue-700 border-blue-300">
+        <Badge className="bg-gold-100 text-gold-700 border-gold-300">
           게재예정
         </Badge>
       );
@@ -128,7 +128,7 @@ function typeBadge(type: string) {
       return (
         <Badge
           variant="outline"
-          className="border-blue-300 text-blue-700 bg-blue-50"
+          className="border-gold-300 text-gold-700 bg-gold-50"
         >
           안내
         </Badge>
@@ -197,7 +197,7 @@ function AlertPreviewModal({
                 <AlertTriangle className="h-5 w-5 text-yellow-600" />
               )}
               {alert.type === "info" && (
-                <Info className="h-5 w-5 text-blue-600" />
+                <Info className="h-5 w-5 text-gold-600" />
               )}
               <DialogTitle>{alert.title}</DialogTitle>
             </div>
@@ -229,7 +229,7 @@ function AlertPreviewModal({
                     ? "bg-red-50 border-red-200 text-red-900"
                     : alert.type === "warning"
                       ? "bg-yellow-50 border-yellow-200 text-yellow-900"
-                      : "bg-blue-50 border-blue-200 text-blue-900"
+                      : "bg-gold-50 border-gold-200 text-navy-900"
                 }`}
               >
                 {alert.content}
@@ -392,9 +392,9 @@ export default function AlertsClient({
           <p className="text-2xl font-bold text-green-700">{activeCount}</p>
           <p className="text-sm text-green-600 mt-1">게재중</p>
         </div>
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
-          <p className="text-2xl font-bold text-blue-700">{scheduledCount}</p>
-          <p className="text-sm text-blue-600 mt-1">게재예정</p>
+        <div className="bg-gold-50 border border-gold-200 rounded-lg p-4 text-center">
+          <p className="text-2xl font-bold text-gold-700">{scheduledCount}</p>
+          <p className="text-sm text-gold-600 mt-1">게재예정</p>
         </div>
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center">
           <p className="text-2xl font-bold text-gray-700">

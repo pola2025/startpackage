@@ -9,7 +9,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, XCircle, ChevronRight, AlertTriangle } from "lucide-react";
+import {
+  CheckCircle2,
+  XCircle,
+  ChevronRight,
+  AlertTriangle,
+} from "lucide-react";
 import type { ProgressSection } from "@/lib/submission-progress";
 
 interface SubmissionSummaryProps {
@@ -54,8 +59,10 @@ export function SubmissionSummary({
               </span>
             ) : (
               <>
-                <span className="text-blue-600 font-semibold">{overallPercentage}%</span> 완료
-                ({completedSections.length}/{sections.length} 섹션)
+                <span className="text-gold-600 font-semibold">
+                  {overallPercentage}%
+                </span>{" "}
+                완료 ({completedSections.length}/{sections.length} 섹션)
               </>
             )}
           </DialogDescription>

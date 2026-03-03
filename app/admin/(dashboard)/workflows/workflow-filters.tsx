@@ -82,7 +82,7 @@ export default function WorkflowFilters({
           <Filter className="w-5 h-5 text-gray-600" />
           <h3 className="text-lg font-semibold text-gray-900">필터</h3>
           {activeFilterCount > 0 && (
-            <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+            <Badge variant="secondary" className="bg-gold-100 text-gold-700">
               {activeFilterCount}개 적용됨
             </Badge>
           )}

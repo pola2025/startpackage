@@ -21,8 +21,8 @@ export default function AdminLoginPage() {
   // 로딩 중
   if (status === "loading") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center">
-        <div className="text-blue-600">로딩 중...</div>
+      <div className="min-h-screen bg-gradient-to-br from-gold-50 via-white to-gold-50 flex items-center justify-center">
+        <div className="text-gold-600">로딩 중...</div>
       </div>
     );
   }
@@ -49,9 +49,10 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
-      const providerId = process.env.NEXT_PUBLIC_USE_NEW_PROVIDER === "true"
-        ? "admin-credentials"
-        : "credentials";
+      const providerId =
+        process.env.NEXT_PUBLIC_USE_NEW_PROVIDER === "true"
+          ? "admin-credentials"
+          : "credentials";
 
       const result = await signIn(providerId, {
         email,
@@ -78,27 +79,32 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 overflow-hidden">
+    <div className="relative min-h-screen bg-gradient-to-br from-gold-50 via-white to-gold-50 overflow-hidden">
       <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.02]" />
 
       <div className="relative flex min-h-screen items-center justify-center p-4">
-        <Card className="w-full max-w-md bg-white shadow-xl border-blue-200">
-          <CardHeader className="space-y-4 text-center border-b border-blue-100 bg-gradient-to-b from-blue-50/30 to-transparent">
-            <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center shadow-lg">
+        <Card className="w-full max-w-md bg-white shadow-xl border-gold-200">
+          <CardHeader className="space-y-4 text-center border-b border-gold-100 bg-gradient-to-b from-gold-50/30 to-transparent">
+            <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-navy-900 to-navy-800 flex items-center justify-center shadow-lg">
               <Shield className="w-10 h-10 text-white" />
             </div>
             <div>
-              <CardTitle className="text-3xl font-bold text-blue-900 mb-2">
+              <CardTitle className="text-3xl font-bold text-navy-900 mb-2">
                 ADMIN ACCESS
               </CardTitle>
-              <p className="text-sm text-blue-700">스타트패키지 관리자 시스템</p>
+              <p className="text-sm text-navy-700">
+                스타트패키지 관리자 시스템
+              </p>
             </div>
           </CardHeader>
 
           <CardContent className="space-y-6">
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-blue-900 flex items-center gap-2 font-semibold">
+                <Label
+                  htmlFor="email"
+                  className="text-navy-900 flex items-center gap-2 font-semibold"
+                >
                   <Mail className="w-4 h-4" />
                   이메일
                 </Label>
@@ -110,12 +116,15 @@ export default function AdminLoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={loading}
-                  className="bg-blue-50/50 border-blue-200 focus:border-blue-600 focus:ring-blue-600"
+                  className="bg-gold-50/50 border-gold-200 focus:border-gold-600 focus:ring-gold-600"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="totpCode" className="text-blue-900 flex items-center gap-2 font-semibold">
+                <Label
+                  htmlFor="totpCode"
+                  className="text-navy-900 flex items-center gap-2 font-semibold"
+                >
                   <KeyRound className="w-4 h-4" />
                   인증 코드
                 </Label>
@@ -131,9 +140,9 @@ export default function AdminLoginPage() {
                   maxLength={6}
                   required
                   disabled={loading}
-                  className="bg-blue-50/50 border-blue-200 focus:border-blue-600 focus:ring-blue-600 text-center text-2xl tracking-[0.5em] font-mono"
+                  className="bg-gold-50/50 border-gold-200 focus:border-gold-600 focus:ring-gold-600 text-center text-2xl tracking-[0.5em] font-mono"
                 />
-                <p className="text-xs text-blue-500">
+                <p className="text-xs text-gold-600">
                   Google Authenticator 앱에서 6자리 코드를 입력하세요
                 </p>
               </div>
@@ -146,7 +155,7 @@ export default function AdminLoginPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-blue-700 text-white hover:bg-blue-800 transition-all font-semibold shadow-md"
+                className="w-full bg-navy-900 text-white hover:bg-navy-800 transition-all font-semibold shadow-md"
                 size="lg"
                 disabled={loading || totpCode.length !== 6}
               >
@@ -155,17 +164,17 @@ export default function AdminLoginPage() {
               </Button>
             </form>
 
-            <div className="border-t border-blue-100 pt-4 space-y-2">
-              <p className="text-xs text-center text-blue-600">
+            <div className="border-t border-gold-100 pt-4 space-y-2">
+              <p className="text-xs text-center text-gold-600">
                 계정이 없으신가요?{" "}
                 <button
                   onClick={() => router.push("/admin/register")}
-                  className="text-blue-700 hover:underline font-semibold"
+                  className="text-navy-700 hover:underline font-semibold"
                 >
                   가입 신청
                 </button>
               </p>
-              <p className="text-xs text-center text-blue-600">
+              <p className="text-xs text-center text-gold-600">
                 관리자 전용 접근 시스템 • Google Authenticator 필수
               </p>
             </div>

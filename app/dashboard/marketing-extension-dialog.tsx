@@ -83,7 +83,7 @@ export default function MarketingExtensionDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-blue-600 hover:bg-blue-700">
+        <Button className="bg-navy-900 hover:bg-navy-800">
           연장 신청
         </Button>
       </DialogTrigger>
@@ -108,7 +108,7 @@ export default function MarketingExtensionDialog({
                   className={cn(
                     "relative p-3 rounded-lg border-2 transition-all text-left",
                     selectedMonths === option.months
-                      ? "border-blue-500 bg-blue-50"
+                      ? "border-gold-500 bg-gold-50"
                       : "border-gray-200 hover:border-gray-300"
                   )}
                 >
@@ -125,7 +125,7 @@ export default function MarketingExtensionDialog({
                     월 {(option.monthlyPrice / 10000).toFixed(1)}만원
                   </div>
                   {selectedMonths === option.months && (
-                    <Check className="absolute top-2 right-2 w-4 h-4 text-blue-500" />
+                    <Check className="absolute top-2 right-2 w-4 h-4 text-gold-500" />
                   )}
                 </button>
               ))}
@@ -133,7 +133,7 @@ export default function MarketingExtensionDialog({
           </div>
 
           {/* 날짜 정보 */}
-          <div className="space-y-3 bg-blue-50 p-4 rounded-lg border border-blue-200">
+          <div className="space-y-3 bg-gold-50 p-4 rounded-lg border border-gold-200">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-gray-700">현재 종료일</span>
               <span className="text-sm font-semibold text-gray-900">
@@ -142,7 +142,7 @@ export default function MarketingExtensionDialog({
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-gray-700">연장 후 종료일</span>
-              <span className="text-sm font-semibold text-blue-600">
+              <span className="text-sm font-semibold text-gold-600">
                 {calculatedEndDate.toLocaleDateString("ko-KR")}
               </span>
             </div>
@@ -166,7 +166,7 @@ export default function MarketingExtensionDialog({
             <div className="space-y-1 text-sm text-gray-700">
               <p>계좌번호: <span className="font-semibold">우리은행 1005-302-954803</span></p>
               <p>예금주: <span className="font-semibold">폴라애드(이재호)</span></p>
-              <p>금액: <span className="font-semibold text-blue-600">
+              <p>금액: <span className="font-semibold text-gold-600">
                 {selectedOption.totalPrice.toLocaleString()}원 (VAT 포함, {selectedOption.label})
               </span></p>
               <p className="text-xs text-gray-600 mt-2">

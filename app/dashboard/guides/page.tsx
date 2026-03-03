@@ -49,7 +49,7 @@ const guideMenus = [
     value: "telegram",
     label: "텔레그램",
     icon: MessageSquare,
-    color: "bg-blue-500",
+    color: "bg-gold-500",
   },
   { value: "sms", label: "SMS 발신", icon: Mail, color: "bg-green-500" },
   {
@@ -160,7 +160,7 @@ export default function GuidesPage() {
                 className={cn(
                   "flex flex-col items-center justify-center p-3 md:p-4 rounded-xl border-2 transition-all",
                   isActive
-                    ? "bg-blue-50 border-blue-500 shadow-md"
+                    ? "bg-gold-50 border-gold-500 shadow-md"
                     : "bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50",
                 )}
               >
@@ -180,7 +180,7 @@ export default function GuidesPage() {
                 <span
                   className={cn(
                     "text-xs md:text-sm font-medium text-center",
-                    isActive ? "text-blue-700" : "text-gray-700",
+                    isActive ? "text-navy-700" : "text-gray-700",
                   )}
                 >
                   {menu.label}
@@ -213,7 +213,7 @@ export default function GuidesPage() {
             </CardHeader>
             <CardContent className="space-y-3 md:space-y-4 text-gray-700 p-4 md:p-6 pt-0 md:pt-0">
               <div>
-                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-1.5 md:mb-2">
+                <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-1.5 md:mb-2">
                   1. 텔레그램 설치
                 </h3>
                 <p className="text-xs md:text-sm text-gray-600">
@@ -222,7 +222,7 @@ export default function GuidesPage() {
               </div>
 
               <div>
-                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-1.5 md:mb-2">
+                <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-1.5 md:mb-2">
                   2. 개인정보 보호 설정
                 </h3>
                 <ol className="list-decimal list-inside space-y-1.5 md:space-y-2 text-xs md:text-sm text-gray-600">
@@ -245,7 +245,7 @@ export default function GuidesPage() {
                 </ol>
               </div>
 
-              <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-3 md:p-4">
+              <div className="bg-gold-50 border-2 border-gold-200 rounded-lg p-3 md:p-4">
                 <p className="text-xs md:text-sm text-gray-700">
                   💡 <strong>Tip:</strong> 개인정보 보호 설정을 완료해야
                   홈페이지 상담 접수 시 텔레그램으로 알림을 받을 수 있습니다.
@@ -269,7 +269,7 @@ export default function GuidesPage() {
             </CardHeader>
             <CardContent className="space-y-3 md:space-y-4 p-4 md:p-6 pt-0 md:pt-0">
               <div>
-                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-2 md:mb-3">
+                <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-2 md:mb-3">
                   📋 필요 서류
                 </h3>
                 <div className="space-y-2 md:space-y-3">
@@ -309,7 +309,7 @@ export default function GuidesPage() {
               </div>
 
               <div>
-                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-2 md:mb-3">
+                <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-2 md:mb-3">
                   📱 발신번호 선택
                 </h3>
                 <div className="grid gap-2 md:gap-3 md:grid-cols-2">
@@ -359,7 +359,7 @@ export default function GuidesPage() {
             </CardHeader>
             <CardContent className="space-y-3 md:space-y-4 p-4 md:p-6 pt-0 md:pt-0">
               <div>
-                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-2 md:mb-3">
+                <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-2 md:mb-3">
                   💳 결제 패턴
                 </h3>
                 <div className="space-y-2 text-gray-700">
@@ -390,7 +390,7 @@ export default function GuidesPage() {
                 </div>
               </div>
 
-              <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-3 md:p-4">
+              <div className="bg-gold-50 border-2 border-gold-200 rounded-lg p-3 md:p-4">
                 <p className="text-xs md:text-sm text-gray-700">
                   💡 <strong>Tip:</strong> 카드 결제 시점에 따라 전월 결제액이
                   당월로 넘어와 청구될 수 있습니다. 결제 청구일에 따라 시점이
@@ -413,7 +413,7 @@ export default function GuidesPage() {
             </CardHeader>
             <CardContent className="space-y-3 md:space-y-4 p-4 md:p-6 pt-0 md:pt-0">
               <div>
-                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-2 md:mb-3">
+                <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-2 md:mb-3">
                   ✍️ 게시글 등록 방법
                 </h3>
                 <ol className="list-decimal list-inside space-y-1.5 md:space-y-2 text-xs md:text-sm text-gray-700">
@@ -438,7 +438,7 @@ export default function GuidesPage() {
               </div>
 
               <div>
-                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-2 md:mb-3">
+                <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-2 md:mb-3">
                   💰 아임웹 요금 체계
                 </h3>
                 <div className="space-y-2 md:space-y-3">
@@ -450,10 +450,10 @@ export default function GuidesPage() {
                   </div>
                   {/* 테이블 - 모바일 가로 스크롤 */}
                   <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
-                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg overflow-hidden min-w-[400px] md:min-w-0">
+                    <div className="bg-gradient-to-br from-gold-50 to-gold-100 border-2 border-gold-200 rounded-lg overflow-hidden min-w-[400px] md:min-w-0">
                       <table className="w-full">
                         <thead>
-                          <tr className="bg-blue-100">
+                          <tr className="bg-gold-100">
                             <th className="px-3 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold text-gray-900 whitespace-nowrap">
                               결제 기간
                             </th>
@@ -469,7 +469,7 @@ export default function GuidesPage() {
                           </tr>
                         </thead>
                         <tbody className="bg-white">
-                          <tr className="border-t border-blue-100">
+                          <tr className="border-t border-gold-100">
                             <td className="px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm text-gray-900 whitespace-nowrap">
                               1개월
                             </td>
@@ -483,7 +483,7 @@ export default function GuidesPage() {
                               -
                             </td>
                           </tr>
-                          <tr className="border-t border-blue-100 bg-green-50">
+                          <tr className="border-t border-gold-100 bg-green-50">
                             <td className="px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm text-gray-900 whitespace-nowrap">
                               3개월
                             </td>
@@ -497,7 +497,7 @@ export default function GuidesPage() {
                               5% 할인
                             </td>
                           </tr>
-                          <tr className="border-t border-blue-100 bg-orange-50">
+                          <tr className="border-t border-gold-100 bg-orange-50">
                             <td className="px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm text-gray-900 whitespace-nowrap">
                               6개월
                             </td>
@@ -511,7 +511,7 @@ export default function GuidesPage() {
                               10% 할인
                             </td>
                           </tr>
-                          <tr className="border-t border-blue-100 bg-purple-50">
+                          <tr className="border-t border-gold-100 bg-purple-50">
                             <td className="px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm text-gray-900 font-medium whitespace-nowrap">
                               12개월 (추천)
                             </td>
@@ -548,12 +548,12 @@ export default function GuidesPage() {
               </div>
 
               <div>
-                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-2 md:mb-3">
+                <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-2 md:mb-3">
                   💳 아임웹 결제 방법
                 </h3>
                 <div className="space-y-2 md:space-y-3">
-                  <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-3 md:p-4">
-                    <h4 className="text-sm md:text-base font-medium text-blue-900 mb-2 md:mb-3">
+                  <div className="bg-gold-50 border-2 border-gold-200 rounded-lg p-3 md:p-4">
+                    <h4 className="text-sm md:text-base font-medium text-navy-900 mb-2 md:mb-3">
                       1단계: 결제수단 등록
                     </h4>
                     <p className="text-xs md:text-sm text-gray-600 mb-2 md:mb-3">
@@ -564,7 +564,7 @@ export default function GuidesPage() {
                         href="https://imweb.me/payment_method"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-xs md:text-sm font-medium"
+                        className="inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-navy-900 text-white rounded-lg hover:bg-navy-800 transition-colors text-xs md:text-sm font-medium"
                       >
                         결제수단 등록하기 →
                       </a>
@@ -589,14 +589,14 @@ export default function GuidesPage() {
                           href="https://imweb.me/mysite"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline font-medium"
+                          className="text-gold-600 hover:underline font-medium"
                         >
                           내 사이트 페이지
                         </a>{" "}
                         접속
                       </li>
                       <li>
-                        <span className="text-blue-600 font-medium">
+                        <span className="text-gold-600 font-medium">
                           &apos;Starter 결제&apos;
                         </span>{" "}
                         파란 글자 클릭
@@ -625,7 +625,7 @@ export default function GuidesPage() {
               </div>
 
               <div>
-                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-2 md:mb-3">
+                <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-2 md:mb-3">
                   🌐 도메인 설정
                 </h3>
                 <div className="space-y-1.5 md:space-y-2 text-gray-700">
@@ -648,7 +648,7 @@ export default function GuidesPage() {
               </div>
 
               <div>
-                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-2 md:mb-3">
+                <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-2 md:mb-3">
                   🔑 관리자 비밀번호를 잊으셨나요?
                 </h3>
                 <div className="p-3 md:p-4 bg-orange-50 border-2 border-orange-200 rounded-lg">
@@ -668,7 +668,7 @@ export default function GuidesPage() {
               </div>
 
               <div>
-                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-2 md:mb-3">
+                <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-2 md:mb-3">
                   📝 계정 이관
                 </h3>
                 <p className="text-xs md:text-sm text-gray-700">
@@ -694,7 +694,7 @@ export default function GuidesPage() {
             </CardHeader>
             <CardContent className="space-y-3 md:space-y-4 p-4 md:p-6 pt-0 md:pt-0">
               <div>
-                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-2 md:mb-3">
+                <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-2 md:mb-3">
                   👥 관리자 초대 절차
                 </h3>
                 <ol className="list-decimal list-inside space-y-1.5 md:space-y-2 text-xs md:text-sm text-gray-700">
@@ -704,7 +704,7 @@ export default function GuidesPage() {
                   <li>&apos;추가&apos; 버튼 클릭</li>
                   <li>
                     초대할 사람의 이메일 입력:{" "}
-                    <strong className="text-blue-600">mkt@polarad.co.kr</strong>
+                    <strong className="text-gold-600">mkt@polarad.co.kr</strong>
                   </li>
                   <li>권한 수준: &apos;관리자 액세스&apos; 선택</li>
                   <li>&apos;다음&apos; 클릭 후 초대 완료</li>
@@ -712,7 +712,7 @@ export default function GuidesPage() {
               </div>
 
               <div>
-                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-2 md:mb-3">
+                <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-2 md:mb-3">
                   🔑 광고 계정 액세스 권한 부여
                 </h3>
                 <ol className="list-decimal list-inside space-y-1.5 md:space-y-2 text-xs md:text-sm text-gray-700">
@@ -725,7 +725,7 @@ export default function GuidesPage() {
                 </ol>
               </div>
 
-              <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-3 md:p-4">
+              <div className="bg-gold-50 border-2 border-gold-200 rounded-lg p-3 md:p-4">
                 <p className="text-xs md:text-sm text-gray-700">
                   💡 <strong>Tip:</strong> 초대받은 사람은 이메일로 받은 초대
                   링크를 통해 수락해야 권한이 활성화됩니다.
@@ -767,7 +767,7 @@ export default function GuidesPage() {
               </div>
 
               <div>
-                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-2 md:mb-3">
+                <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-2 md:mb-3">
                   📱 비밀번호 재설정 절차
                 </h3>
                 <ol className="list-decimal list-inside space-y-1.5 md:space-y-2 text-xs md:text-sm text-gray-700">
@@ -778,7 +778,7 @@ export default function GuidesPage() {
                   <li>비밀번호 변경 선택</li>
                   <li>인스타 계정 선택</li>
                   <li>
-                    <span className="text-blue-600 font-medium">
+                    <span className="text-gold-600 font-medium">
                       파란색 글자 &quot;비밀번호를 잊으셨나요?&quot;
                     </span>{" "}
                     클릭
@@ -816,7 +816,7 @@ export default function GuidesPage() {
             </CardHeader>
             <CardContent className="space-y-3 md:space-y-4 p-4 md:p-6 pt-0 md:pt-0">
               <div>
-                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-2 md:mb-3">
+                <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-2 md:mb-3">
                   📋 로고 제작 방법
                 </h3>
                 <div className="space-y-2 md:space-y-3">
@@ -828,8 +828,8 @@ export default function GuidesPage() {
                       로고 이미지를 전달하시면 바로 제작 진행됩니다
                     </p>
                   </div>
-                  <div className="p-3 md:p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
-                    <h4 className="text-sm md:text-base font-medium text-blue-700 mb-1.5 md:mb-2">
+                  <div className="p-3 md:p-4 bg-gold-50 border-2 border-gold-200 rounded-lg">
+                    <h4 className="text-sm md:text-base font-medium text-navy-700 mb-1.5 md:mb-2">
                       방법 2: 텍스트 설명으로 요청
                     </h4>
                     <p className="text-xs md:text-sm text-gray-700 mb-2 md:mb-3">
@@ -887,7 +887,7 @@ export default function GuidesPage() {
               </div>
 
               <div>
-                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-2 md:mb-3">
+                <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-2 md:mb-3">
                   🌐 로고 생성 추천 사이트
                 </h3>
                 <div className="space-y-1.5 md:space-y-2">
@@ -895,9 +895,9 @@ export default function GuidesPage() {
                     href="https://logo.com/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block p-2.5 md:p-3 bg-gray-50 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-all"
+                    className="block p-2.5 md:p-3 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gold-50 hover:border-gold-300 transition-all"
                   >
-                    <span className="text-xs md:text-sm text-blue-600 font-medium">
+                    <span className="text-xs md:text-sm text-gold-600 font-medium">
                       logo.com
                     </span>
                     <span className="text-gray-500 ml-2">→</span>
@@ -906,9 +906,9 @@ export default function GuidesPage() {
                     href="https://www.design.com/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block p-2.5 md:p-3 bg-gray-50 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-all"
+                    className="block p-2.5 md:p-3 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gold-50 hover:border-gold-300 transition-all"
                   >
-                    <span className="text-xs md:text-sm text-blue-600 font-medium">
+                    <span className="text-xs md:text-sm text-gold-600 font-medium">
                       design.com
                     </span>
                     <span className="text-gray-500 ml-2">→</span>
@@ -917,9 +917,9 @@ export default function GuidesPage() {
                     href="https://www.logoai.com/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block p-2.5 md:p-3 bg-gray-50 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-all"
+                    className="block p-2.5 md:p-3 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gold-50 hover:border-gold-300 transition-all"
                   >
-                    <span className="text-xs md:text-sm text-blue-600 font-medium">
+                    <span className="text-xs md:text-sm text-gold-600 font-medium">
                       logoai.com
                     </span>
                     <span className="text-gray-500 ml-2">→</span>
@@ -927,7 +927,7 @@ export default function GuidesPage() {
                 </div>
               </div>
 
-              <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-3 md:p-4">
+              <div className="bg-gold-50 border-2 border-gold-200 rounded-lg p-3 md:p-4">
                 <p className="text-xs md:text-sm text-gray-700">
                   💡 <strong>Tip:</strong> AI 로고 생성 사이트를 활용하면 빠르고
                   저렴하게 다양한 로고 옵션을 확인할 수 있습니다.
@@ -962,18 +962,18 @@ export default function GuidesPage() {
               </div>
 
               <div>
-                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-2 md:mb-3">
+                <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-2 md:mb-3">
                   ✨ 주요 특징
                 </h3>
                 <div className="space-y-2 md:space-y-3">
-                  <div className="flex items-start gap-2 md:gap-3 p-3 md:p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
-                    <div className="flex items-center justify-center w-6 h-6 md:w-8 md:h-8 bg-blue-600 rounded-full flex-shrink-0 mt-0.5">
+                  <div className="flex items-start gap-2 md:gap-3 p-3 md:p-4 bg-gold-50 border-2 border-gold-200 rounded-lg">
+                    <div className="flex items-center justify-center w-6 h-6 md:w-8 md:h-8 bg-navy-900 rounded-full flex-shrink-0 mt-0.5">
                       <span className="text-white font-bold text-xs md:text-sm">
                         1
                       </span>
                     </div>
                     <div>
-                      <h4 className="text-sm md:text-base font-semibold text-blue-900 mb-0.5 md:mb-1">
+                      <h4 className="text-sm md:text-base font-semibold text-navy-900 mb-0.5 md:mb-1">
                         무료 사용량
                       </h4>
                       <p className="text-xs md:text-sm text-gray-700">
@@ -1017,18 +1017,18 @@ export default function GuidesPage() {
               </div>
 
               <div>
-                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-2 md:mb-3">
+                <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-2 md:mb-3">
                   📚 상세 가이드
                 </h3>
                 <a
                   href="https://blog.naver.com/ryurime88/223859489656?trackingCode=rss"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block p-3 md:p-4 bg-white border-2 border-gray-200 rounded-xl hover:border-blue-400 hover:shadow-lg transition-all group"
+                  className="block p-3 md:p-4 bg-white border-2 border-gray-200 rounded-xl hover:border-gold-400 hover:shadow-lg transition-all group"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 md:gap-3">
-                      <div className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl shadow-md">
+                      <div className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-navy-900 to-navy-700 rounded-xl shadow-md">
                         <BookOpen className="w-5 h-5 md:w-6 md:h-6 text-white" />
                       </div>
                       <div>
@@ -1040,14 +1040,14 @@ export default function GuidesPage() {
                         </p>
                       </div>
                     </div>
-                    <span className="text-blue-600 group-hover:translate-x-1 transition-transform">
+                    <span className="text-gold-600 group-hover:translate-x-1 transition-transform">
                       →
                     </span>
                   </div>
                 </a>
               </div>
 
-              <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-3 md:p-4">
+              <div className="bg-gold-50 border-2 border-gold-200 rounded-lg p-3 md:p-4">
                 <p className="text-xs md:text-sm text-gray-700">
                   💡 <strong>Tip:</strong> 마케팅 콘텐츠 작성, 광고 문구 생성,
                   고객 응대 등 다양한 업무에 AI를 활용하여 효율을 높일 수
@@ -1072,20 +1072,20 @@ export default function GuidesPage() {
             </CardHeader>
             <CardContent className="space-y-3 md:space-y-4 p-4 md:p-6 pt-0 md:pt-0">
               {/* 인쇄물 디자인 제한 안내 */}
-              <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-3 md:p-4">
-                <h3 className="text-sm md:text-base text-blue-900 font-bold mb-2 md:mb-3 flex items-center gap-2">
+              <div className="bg-gold-50 border-2 border-gold-200 rounded-lg p-3 md:p-4">
+                <h3 className="text-sm md:text-base text-navy-900 font-bold mb-2 md:mb-3 flex items-center gap-2">
                   📋 인쇄물 디자인 안내
                 </h3>
                 <div className="space-y-1.5 md:space-y-2 text-gray-700 text-xs md:text-sm">
-                  <p className="text-blue-800 font-medium">
+                  <p className="text-navy-800 font-medium">
                     인쇄물 디자인은{" "}
                     <strong>기본 디자인에서 일부 변경만 가능</strong>합니다.
                   </p>
-                  <ul className="space-y-1 md:space-y-1.5 text-blue-700">
+                  <ul className="space-y-1 md:space-y-1.5 text-navy-700">
                     <li>• 신규 디자인 제작 불가</li>
                     <li>• 지정된 레이아웃 변형 불가</li>
                   </ul>
-                  <p className="text-blue-600 text-[10px] md:text-xs pl-2 pt-0.5 md:pt-1">
+                  <p className="text-gold-600 text-[10px] md:text-xs pl-2 pt-0.5 md:pt-1">
                     예) 대봉투 디자인 다른 도안으로 변경, 자문계약서 표지 문양
                     교체 또는 이미지 삽입 등
                   </p>
@@ -1120,7 +1120,7 @@ export default function GuidesPage() {
               </div>
 
               <div>
-                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-2 md:mb-3">
+                <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-2 md:mb-3">
                   ⏱️ 제작 기간 (발주 확정 후)
                 </h3>
                 <div className="grid gap-2 md:gap-3 grid-cols-2">
@@ -1152,7 +1152,7 @@ export default function GuidesPage() {
               </div>
 
               <div>
-                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-2 md:mb-3">
+                <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-2 md:mb-3">
                   📦 제작 사양
                 </h3>
                 <div className="space-y-2 md:space-y-3">
@@ -1194,7 +1194,7 @@ export default function GuidesPage() {
 
               {/* 인쇄물 예시 이미지 */}
               <div>
-                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-2 md:mb-3">
+                <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-2 md:mb-3">
                   🖼️ 인쇄물 예시
                 </h3>
 
@@ -1357,24 +1357,24 @@ export default function GuidesPage() {
             <CardContent className="space-y-4 md:space-y-6 p-4 md:p-6 pt-0 md:pt-0">
               {/* 핵심 요약 */}
               <div>
-                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-3 md:mb-4 flex items-center gap-2">
+                <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-3 md:mb-4 flex items-center gap-2">
                   <Lightbulb className="w-4 h-4" />
                   핵심 요약
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
-                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-xl p-4">
+                  <div className="bg-gradient-to-br from-gold-50 to-gold-100 border-2 border-gold-200 rounded-xl p-4">
                     <div className="flex items-center gap-2 mb-2">
-                      <div className="p-1.5 bg-blue-200 rounded-lg">
-                        <Clock className="w-4 h-4 text-blue-700" />
+                      <div className="p-1.5 bg-gold-200 rounded-lg">
+                        <Clock className="w-4 h-4 text-navy-700" />
                       </div>
-                      <span className="text-xs font-semibold text-blue-600">
+                      <span className="text-xs font-semibold text-gold-600">
                         필수
                       </span>
                     </div>
                     <h4 className="text-sm md:text-base font-semibold text-gray-900 mb-1">
                       영상 길이
                     </h4>
-                    <p className="text-lg md:text-xl font-bold text-blue-800">
+                    <p className="text-lg md:text-xl font-bold text-navy-800">
                       35초~2분
                     </p>
                     <p className="text-xs text-gray-600 mt-1">
@@ -1426,7 +1426,7 @@ export default function GuidesPage() {
 
               {/* 콘텐츠 전략 */}
               <div>
-                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-3 md:mb-4 flex items-center gap-2">
+                <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-3 md:mb-4 flex items-center gap-2">
                   <FileText className="w-4 h-4" />
                   콘텐츠 전략 (승인율)
                 </h3>
@@ -1567,23 +1567,23 @@ export default function GuidesPage() {
                 </div>
 
                 {/* 승인 공식 */}
-                <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
+                <div className="bg-gold-50 border-2 border-gold-200 rounded-xl p-4">
                   <div className="flex items-center gap-2 mb-3">
-                    <Lightbulb className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
-                    <h4 className="text-sm md:text-base font-semibold text-blue-800">
+                    <Lightbulb className="w-4 h-4 md:w-5 md:h-5 text-gold-600" />
+                    <h4 className="text-sm md:text-base font-semibold text-navy-800">
                       승인 통과 공식
                     </h4>
                   </div>
                   <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3 mb-4">
-                    <span className="px-3 py-1.5 bg-blue-600 text-white text-xs md:text-sm font-medium rounded-full">
+                    <span className="px-3 py-1.5 bg-navy-900 text-white text-xs md:text-sm font-medium rounded-full">
                       정부 정책 팩트
                     </span>
                     <span className="text-gray-400">+</span>
-                    <span className="px-3 py-1.5 bg-blue-500 text-white text-xs md:text-sm font-medium rounded-full">
+                    <span className="px-3 py-1.5 bg-gold-500 text-white text-xs md:text-sm font-medium rounded-full">
                       금액 범위 안내
                     </span>
                     <span className="text-gray-400">+</span>
-                    <span className="px-3 py-1.5 bg-blue-400 text-white text-xs md:text-sm font-medium rounded-full">
+                    <span className="px-3 py-1.5 bg-gold-400 text-white text-xs md:text-sm font-medium rounded-full">
                       상담 유도 CTA
                     </span>
                   </div>
@@ -1600,7 +1600,7 @@ export default function GuidesPage() {
 
               {/* 영상 구조 */}
               <div>
-                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-3 md:mb-4 flex items-center gap-2">
+                <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-3 md:mb-4 flex items-center gap-2">
                   <Clapperboard className="w-4 h-4" />
                   영상 구조 (45초 기준)
                 </h3>
@@ -1615,9 +1615,9 @@ export default function GuidesPage() {
                     </div>
                     <div className="h-4 bg-gray-100 rounded-full overflow-hidden mb-2">
                       <div className="flex h-full">
-                        <div className="bg-blue-800 w-[22%]"></div>
-                        <div className="bg-blue-600 w-[44%]"></div>
-                        <div className="bg-blue-400 w-[34%]"></div>
+                        <div className="bg-navy-800 w-[22%]"></div>
+                        <div className="bg-navy-900 w-[44%]"></div>
+                        <div className="bg-gold-400 w-[34%]"></div>
                       </div>
                     </div>
                     <div className="flex justify-between text-[10px] md:text-xs text-gray-500">
@@ -1630,42 +1630,42 @@ export default function GuidesPage() {
 
                   {/* 구간 설명 */}
                   <div className="grid grid-cols-3 gap-2 p-4 pt-0">
-                    <div className="text-center bg-blue-50 rounded-lg p-3">
-                      <div className="w-7 h-7 md:w-8 md:h-8 bg-blue-800 text-white rounded-full flex items-center justify-center mx-auto mb-2 text-xs font-bold">
+                    <div className="text-center bg-gold-50 rounded-lg p-3">
+                      <div className="w-7 h-7 md:w-8 md:h-8 bg-navy-800 text-white rounded-full flex items-center justify-center mx-auto mb-2 text-xs font-bold">
                         1
                       </div>
                       <p className="text-xs md:text-sm font-semibold text-gray-900">
                         0~10초
                       </p>
-                      <p className="text-[10px] md:text-xs text-blue-600 font-medium">
+                      <p className="text-[10px] md:text-xs text-gold-600 font-medium">
                         후킹
                       </p>
                       <p className="text-[10px] text-gray-500 mt-1 hidden md:block">
                         시선 고정 필수
                       </p>
                     </div>
-                    <div className="text-center bg-blue-50 rounded-lg p-3">
-                      <div className="w-7 h-7 md:w-8 md:h-8 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-2 text-xs font-bold">
+                    <div className="text-center bg-gold-50 rounded-lg p-3">
+                      <div className="w-7 h-7 md:w-8 md:h-8 bg-navy-900 text-white rounded-full flex items-center justify-center mx-auto mb-2 text-xs font-bold">
                         2
                       </div>
                       <p className="text-xs md:text-sm font-semibold text-gray-900">
                         10~30초
                       </p>
-                      <p className="text-[10px] md:text-xs text-blue-600 font-medium">
+                      <p className="text-[10px] md:text-xs text-gold-600 font-medium">
                         본문
                       </p>
                       <p className="text-[10px] text-gray-500 mt-1 hidden md:block">
                         팩트 기반 설명
                       </p>
                     </div>
-                    <div className="text-center bg-blue-50 rounded-lg p-3">
-                      <div className="w-7 h-7 md:w-8 md:h-8 bg-blue-400 text-white rounded-full flex items-center justify-center mx-auto mb-2 text-xs font-bold">
+                    <div className="text-center bg-gold-50 rounded-lg p-3">
+                      <div className="w-7 h-7 md:w-8 md:h-8 bg-gold-400 text-white rounded-full flex items-center justify-center mx-auto mb-2 text-xs font-bold">
                         3
                       </div>
                       <p className="text-xs md:text-sm font-semibold text-gray-900">
                         30~45초
                       </p>
-                      <p className="text-[10px] md:text-xs text-blue-600 font-medium">
+                      <p className="text-[10px] md:text-xs text-gold-600 font-medium">
                         CTA
                       </p>
                       <p className="text-[10px] text-gray-500 mt-1 hidden md:block">
@@ -1684,7 +1684,7 @@ export default function GuidesPage() {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                       <div className="flex items-start gap-2 bg-white rounded-lg p-2.5">
-                        <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] md:text-xs font-medium rounded">
+                        <span className="px-2 py-0.5 bg-gold-100 text-navy-700 text-[10px] md:text-xs font-medium rounded">
                           질문형
                         </span>
                         <p className="text-xs md:text-sm text-gray-700">
@@ -1693,7 +1693,7 @@ export default function GuidesPage() {
                         </p>
                       </div>
                       <div className="flex items-start gap-2 bg-white rounded-lg p-2.5">
-                        <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] md:text-xs font-medium rounded">
+                        <span className="px-2 py-0.5 bg-gold-100 text-navy-700 text-[10px] md:text-xs font-medium rounded">
                           숫자형
                         </span>
                         <p className="text-xs md:text-sm text-gray-700">
@@ -1701,7 +1701,7 @@ export default function GuidesPage() {
                         </p>
                       </div>
                       <div className="flex items-start gap-2 bg-white rounded-lg p-2.5">
-                        <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] md:text-xs font-medium rounded">
+                        <span className="px-2 py-0.5 bg-gold-100 text-navy-700 text-[10px] md:text-xs font-medium rounded">
                           문제제기
                         </span>
                         <p className="text-xs md:text-sm text-gray-700">
@@ -1709,7 +1709,7 @@ export default function GuidesPage() {
                         </p>
                       </div>
                       <div className="flex items-start gap-2 bg-white rounded-lg p-2.5">
-                        <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] md:text-xs font-medium rounded">
+                        <span className="px-2 py-0.5 bg-gold-100 text-navy-700 text-[10px] md:text-xs font-medium rounded">
                           정보형
                         </span>
                         <p className="text-xs md:text-sm text-gray-700">
@@ -1723,7 +1723,7 @@ export default function GuidesPage() {
 
               {/* 플랫폼별 스펙 */}
               <div>
-                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-3 md:mb-4 flex items-center gap-2">
+                <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-3 md:mb-4 flex items-center gap-2">
                   <Smartphone className="w-4 h-4" />
                   플랫폼별 영상 스펙
                 </h3>
@@ -1830,7 +1830,7 @@ export default function GuidesPage() {
                     </table>
                   </div>
                 </div>
-                <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-3 mt-3">
+                <div className="bg-gold-50 border-2 border-gold-200 rounded-lg p-3 mt-3">
                   <p className="text-xs md:text-sm text-gray-700">
                     💡 <strong>팁:</strong> YouTube Shorts가 가장 높은
                     참여율(5.91%)을 보이며, 하루 2000억 뷰를 기록합니다.
@@ -1840,7 +1840,7 @@ export default function GuidesPage() {
 
               {/* 데드존 가이드 */}
               <div>
-                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-3 md:mb-4 flex items-center gap-2">
+                <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-3 md:mb-4 flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4" />
                   데드존 가이드
                 </h3>
@@ -2030,7 +2030,7 @@ export default function GuidesPage() {
                   </div>
                 </div>
 
-                <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-3 mt-3">
+                <div className="bg-gold-50 border-2 border-gold-200 rounded-lg p-3 mt-3">
                   <p className="text-xs md:text-sm text-gray-700">
                     💡 <strong>크로스 플랫폼 팁:</strong> 모든 플랫폼에서
                     안전하게 보이려면 <strong>화면 중앙 1340×880px 영역</strong>
@@ -2041,7 +2041,7 @@ export default function GuidesPage() {
 
               {/* 베스트 프랙티스 */}
               <div>
-                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-3 md:mb-4 flex items-center gap-2">
+                <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-3 md:mb-4 flex items-center gap-2">
                   <Award className="w-4 h-4" />
                   베스트 프랙티스 (Google 권장)
                 </h3>
@@ -2184,7 +2184,7 @@ export default function GuidesPage() {
 
               {/* 체크리스트 */}
               <div>
-                <h3 className="text-sm md:text-base text-blue-600 font-semibold mb-3 md:mb-4 flex items-center gap-2">
+                <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-3 md:mb-4 flex items-center gap-2">
                   <ClipboardCheck className="w-4 h-4" />
                   영상 제작 체크리스트
                 </h3>
@@ -2269,7 +2269,7 @@ export default function GuidesPage() {
                   href="/docs/policy-fund-video-guide.html"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-all group"
+                  className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:bg-gold-50 hover:border-gold-300 transition-all group"
                 >
                   <div className="flex items-center gap-3">
                     <div className="p-2 bg-red-100 rounded-lg group-hover:bg-red-200 transition-colors">
@@ -2284,7 +2284,7 @@ export default function GuidesPage() {
                       </p>
                     </div>
                   </div>
-                  <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-blue-600 transition-colors" />
+                  <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-gold-600 transition-colors" />
                 </a>
               </div>
             </CardContent>

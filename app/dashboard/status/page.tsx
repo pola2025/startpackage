@@ -2,7 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { StatusTimeline, TimelineEvent } from "@/components/ui/status-timeline";
 import { SubmissionProgress } from "@/components/ui/submission-progress";
 import { Badge } from "@/components/ui/badge";
@@ -45,7 +51,10 @@ export default function StatusDashboardPage() {
   const [submission, setSubmission] = useState<any>(null);
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [feedbackModal, setFeedbackModal] = useState<{ open: boolean; workflowId: string | null }>({
+  const [feedbackModal, setFeedbackModal] = useState<{
+    open: boolean;
+    workflowId: string | null;
+  }>({
     open: false,
     workflowId: null,
   });
@@ -88,11 +97,14 @@ export default function StatusDashboardPage() {
 
     setSubmitting(true);
     try {
-      const res = await fetch(`/api/workflows/${feedbackModal.workflowId}/feedback`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ feedback: feedbackText }),
-      });
+      const res = await fetch(
+        `/api/workflows/${feedbackModal.workflowId}/feedback`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ feedback: feedbackText }),
+        },
+      );
 
       if (res.ok) {
         alert("피드백이 전송되었습니다!");
@@ -146,7 +158,9 @@ export default function StatusDashboardPage() {
           title: "시안 컨펌 요청",
           description: "로고 시안을 확인하고 승인해주세요",
           status: "current",
-          timestamp: workflow.시안업로드일 ? new Date(workflow.시안업로드일) : undefined,
+          timestamp: workflow.시안업로드일
+            ? new Date(workflow.시안업로드일)
+            : undefined,
           icon: "alert",
         });
       } else if (workflow.시안URL && workflow.status === "최종확정") {
@@ -155,7 +169,9 @@ export default function StatusDashboardPage() {
           title: "시안 확인 완료",
           description: "로고 시안이 승인되었습니다",
           status: "completed",
-          timestamp: workflow.시안업로드일 ? new Date(workflow.시안업로드일) : undefined,
+          timestamp: workflow.시안업로드일
+            ? new Date(workflow.시안업로드일)
+            : undefined,
           icon: "check",
         });
       }
@@ -305,14 +321,14 @@ export default function StatusDashboardPage() {
         return "bg-gray-100 text-gray-800 border-gray-300";
       // 로고 워크플로우 상태
       case "시안제작중":
-        return "bg-blue-100 text-blue-800 border-blue-300";
+        return "bg-gold-100 text-gold-800 border-gold-300";
       case "시안컨펌요청":
         return "bg-orange-100 text-orange-800 border-orange-300";
       case "최종확정":
         return "bg-emerald-100 text-emerald-800 border-emerald-300";
       // 인쇄물 워크플로우 상태
       case "시안중":
-        return "bg-blue-100 text-blue-800 border-blue-300";
+        return "bg-gold-100 text-gold-800 border-gold-300";
       case "발주대기":
         return "bg-orange-100 text-orange-800 border-orange-300";
       case "발주요청":
@@ -353,13 +369,15 @@ export default function StatusDashboardPage() {
   ];
 
   const completedCount = requiredFields.filter((f) => f.completed).length;
-  const progressPercentage = Math.round((completedCount / requiredFields.length) * 100);
+  const progressPercentage = Math.round(
+    (completedCount / requiredFields.length) * 100,
+  );
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center space-y-3">
-          <RefreshCcw className="w-8 h-8 animate-spin text-blue-600 mx-auto" />
+          <RefreshCcw className="w-8 h-8 animate-spin text-gold-600 mx-auto" />
           <p className="text-gray-600">로딩 중...</p>
         </div>
       </div>
@@ -367,7 +385,7 @@ export default function StatusDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white pb-20">
+    <div className="min-h-screen bg-gradient-to-b from-gold-50 to-white pb-20">
       <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
         {/* 헤더 */}
         <div className="flex items-center justify-between">
@@ -408,7 +426,8 @@ export default function StatusDashboardPage() {
         <div className="space-y-4">
           <h2 className="text-2xl font-bold text-gray-900">디자인 제작 현황</h2>
 
-          {workflows.filter(w => w.type === "로고" || w.type === "홈페이지").length === 0 ? (
+          {workflows.filter((w) => w.type === "로고" || w.type === "홈페이지")
+            .length === 0 ? (
             <Card className="border-2 border-gray-200">
               <CardContent className="py-12">
                 <div className="text-center space-y-3">
@@ -424,7 +443,7 @@ export default function StatusDashboardPage() {
             </Card>
           ) : (
             workflows
-              .filter(w => w.type === "로고" || w.type === "홈페이지")
+              .filter((w) => w.type === "로고" || w.type === "홈페이지")
               .map((workflow) => (
                 <Card key={workflow.id} className="border-2 border-gray-200">
                   <CardHeader>
@@ -445,7 +464,7 @@ export default function StatusDashboardPage() {
                       <Badge
                         className={cn(
                           "px-3 py-1 text-sm font-bold border-2",
-                          getStatusColor(workflow.status)
+                          getStatusColor(workflow.status),
                         )}
                       >
                         {workflow.status}
@@ -463,7 +482,7 @@ export default function StatusDashboardPage() {
                           className="block"
                         >
                           <Button
-                            className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+                            className="w-full h-12 bg-navy-900 hover:bg-navy-800 text-white font-semibold"
                             size="lg"
                           >
                             <FileCheck className="w-5 h-5 mr-2" />
@@ -473,66 +492,87 @@ export default function StatusDashboardPage() {
                         </a>
 
                         {/* 로고 승인 버튼 (시안컨펌요청 상태일 때만) */}
-                        {workflow.type === "로고" && workflow.status === "시안컨펌요청" && (
-                          <Button
-                            className="w-full h-12 bg-green-600 hover:bg-green-700 text-white font-semibold"
-                            size="lg"
-                            onClick={async () => {
-                              if (!confirm("로고 시안을 최종 승인하시겠습니까?\n승인 후에는 수정이 어려울 수 있습니다.")) {
-                                return;
-                              }
-
-                              try {
-                                setLoading(true);
-                                const res = await fetch(`/api/workflows/${workflow.id}/approve`, {
-                                  method: "POST",
-                                });
-
-                                if (res.ok) {
-                                  alert("로고 시안이 최종 승인되었습니다!");
-                                  fetchData();
-                                } else {
-                                  const error = await res.json();
-                                  alert(error.error || "승인에 실패했습니다");
+                        {workflow.type === "로고" &&
+                          workflow.status === "시안컨펌요청" && (
+                            <Button
+                              className="w-full h-12 bg-green-600 hover:bg-green-700 text-white font-semibold"
+                              size="lg"
+                              onClick={async () => {
+                                if (
+                                  !confirm(
+                                    "로고 시안을 최종 승인하시겠습니까?\n승인 후에는 수정이 어려울 수 있습니다.",
+                                  )
+                                ) {
+                                  return;
                                 }
-                              } catch (error) {
-                                console.error("Failed to approve:", error);
-                                alert("승인 중 오류가 발생했습니다");
-                              } finally {
-                                setLoading(false);
-                              }
-                            }}
-                          >
-                            <CheckCircle2 className="w-5 h-5 mr-2" />
-                            로고 시안 승인하기
-                          </Button>
-                        )}
+
+                                try {
+                                  setLoading(true);
+                                  const res = await fetch(
+                                    `/api/workflows/${workflow.id}/approve`,
+                                    {
+                                      method: "POST",
+                                    },
+                                  );
+
+                                  if (res.ok) {
+                                    alert("로고 시안이 최종 승인되었습니다!");
+                                    fetchData();
+                                  } else {
+                                    const error = await res.json();
+                                    alert(error.error || "승인에 실패했습니다");
+                                  }
+                                } catch (error) {
+                                  console.error("Failed to approve:", error);
+                                  alert("승인 중 오류가 발생했습니다");
+                                } finally {
+                                  setLoading(false);
+                                }
+                              }}
+                            >
+                              <CheckCircle2 className="w-5 h-5 mr-2" />
+                              로고 시안 승인하기
+                            </Button>
+                          )}
 
                         {/* 피드백 버튼 (로고 최종확정 전, 홈페이지는 발주 전) */}
-                        {((workflow.type === "로고" && workflow.status !== "최종확정") ||
-                          (workflow.type === "홈페이지" && !workflow.발주승인일)) && (
+                        {((workflow.type === "로고" &&
+                          workflow.status !== "최종확정") ||
+                          (workflow.type === "홈페이지" &&
+                            !workflow.발주승인일)) && (
                           <Button
                             variant="outline"
                             className="w-full h-12 border-2 border-orange-300 text-orange-700 hover:bg-orange-50 font-semibold"
                             size="lg"
                             onClick={() => {
-                              setFeedbackModal({ open: true, workflowId: workflow.id });
+                              setFeedbackModal({
+                                open: true,
+                                workflowId: workflow.id,
+                              });
                               setFeedbackText(workflow.feedback || "");
                             }}
                           >
                             <MessageSquare className="w-5 h-5 mr-2" />
-                            {workflow.feedback ? "피드백 수정하기" : "수정 요청하기"}
+                            {workflow.feedback
+                              ? "피드백 수정하기"
+                              : "수정 요청하기"}
                           </Button>
                         )}
 
                         {/* 기존 피드백 표시 */}
                         {workflow.feedback && (
                           <div className="p-4 rounded-lg bg-orange-50 border-2 border-orange-200">
-                            <p className="text-sm font-semibold text-orange-900 mb-2">제출한 피드백:</p>
-                            <p className="text-sm text-orange-800 whitespace-pre-wrap">{workflow.feedback}</p>
+                            <p className="text-sm font-semibold text-orange-900 mb-2">
+                              제출한 피드백:
+                            </p>
+                            <p className="text-sm text-orange-800 whitespace-pre-wrap">
+                              {workflow.feedback}
+                            </p>
                             {workflow.feedbackDate && (
                               <p className="text-xs text-orange-600 mt-2">
-                                {new Date(workflow.feedbackDate).toLocaleString("ko-KR")}
+                                {new Date(workflow.feedbackDate).toLocaleString(
+                                  "ko-KR",
+                                )}
                               </p>
                             )}
                           </div>
@@ -555,7 +595,8 @@ export default function StatusDashboardPage() {
         <div className="space-y-4">
           <h2 className="text-2xl font-bold text-gray-900">인쇄물 제작 현황</h2>
 
-          {workflows.filter(w => w.type !== "로고" && w.type !== "홈페이지").length === 0 ? (
+          {workflows.filter((w) => w.type !== "로고" && w.type !== "홈페이지")
+            .length === 0 ? (
             <Card className="border-2 border-gray-200">
               <CardContent className="py-12">
                 <div className="text-center space-y-3">
@@ -571,7 +612,7 @@ export default function StatusDashboardPage() {
             </Card>
           ) : (
             workflows
-              .filter(w => w.type !== "로고" && w.type !== "홈페이지")
+              .filter((w) => w.type !== "로고" && w.type !== "홈페이지")
               .map((workflow) => (
                 <Card key={workflow.id} className="border-2 border-gray-200">
                   <CardHeader>
@@ -592,7 +633,7 @@ export default function StatusDashboardPage() {
                       <Badge
                         className={cn(
                           "px-3 py-1 text-sm font-bold border-2",
-                          getStatusColor(workflow.status)
+                          getStatusColor(workflow.status),
                         )}
                       >
                         {workflow.status}
@@ -610,7 +651,7 @@ export default function StatusDashboardPage() {
                           className="block"
                         >
                           <Button
-                            className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+                            className="w-full h-12 bg-navy-900 hover:bg-navy-800 text-white font-semibold"
                             size="lg"
                           >
                             <FileCheck className="w-5 h-5 mr-2" />
@@ -626,23 +667,34 @@ export default function StatusDashboardPage() {
                             className="w-full h-12 border-2 border-orange-300 text-orange-700 hover:bg-orange-50 font-semibold"
                             size="lg"
                             onClick={() => {
-                              setFeedbackModal({ open: true, workflowId: workflow.id });
+                              setFeedbackModal({
+                                open: true,
+                                workflowId: workflow.id,
+                              });
                               setFeedbackText(workflow.feedback || "");
                             }}
                           >
                             <MessageSquare className="w-5 h-5 mr-2" />
-                            {workflow.feedback ? "피드백 수정하기" : "수정 요청하기"}
+                            {workflow.feedback
+                              ? "피드백 수정하기"
+                              : "수정 요청하기"}
                           </Button>
                         )}
 
                         {/* 기존 피드백 표시 */}
                         {workflow.feedback && (
                           <div className="p-4 rounded-lg bg-orange-50 border-2 border-orange-200">
-                            <p className="text-sm font-semibold text-orange-900 mb-2">제출한 피드백:</p>
-                            <p className="text-sm text-orange-800 whitespace-pre-wrap">{workflow.feedback}</p>
+                            <p className="text-sm font-semibold text-orange-900 mb-2">
+                              제출한 피드백:
+                            </p>
+                            <p className="text-sm text-orange-800 whitespace-pre-wrap">
+                              {workflow.feedback}
+                            </p>
                             {workflow.feedbackDate && (
                               <p className="text-xs text-orange-600 mt-2">
-                                {new Date(workflow.feedbackDate).toLocaleString("ko-KR")}
+                                {new Date(workflow.feedbackDate).toLocaleString(
+                                  "ko-KR",
+                                )}
                               </p>
                             )}
                           </div>
@@ -682,7 +734,7 @@ export default function StatusDashboardPage() {
                               // 택배 추적 링크로 이동 (실제로는 택배사별 링크 생성)
                               window.open(
                                 `https://www.doortodoor.co.kr/parcel/doortodoor.do?fsp_action=PARC_ACT_002&fsp_cmd=retrieveInvNoACT&invc_no=${workflow.운송장번호}`,
-                                "_blank"
+                                "_blank",
                               );
                             }}
                           >
@@ -699,19 +751,19 @@ export default function StatusDashboardPage() {
         </div>
 
         {/* 도움말 */}
-        <Card className="border-2 border-blue-200 bg-blue-50">
+        <Card className="border-2 border-gold-200 bg-gold-50">
           <CardHeader>
-            <CardTitle className="text-lg text-blue-900 flex items-center gap-2">
+            <CardTitle className="text-lg text-navy-900 flex items-center gap-2">
               <AlertCircle className="w-5 h-5" />
               안내사항
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2 text-sm text-blue-800">
+          <CardContent className="space-y-2 text-sm text-navy-800">
             <p>• 시안은 영업일 기준 1-2일 내에 완료됩니다</p>
             <p>• 시안 확인 후 발주를 진행해주세요</p>
             <p>• 발주 후에는 정보 변경이 불가능합니다</p>
             <p>• 제작 기간은 인쇄물 종류에 따라 다릅니다</p>
-            <p className="pt-2 border-t border-blue-200 font-semibold">
+            <p className="pt-2 border-t border-gold-200 font-semibold">
               문의사항이 있으시면 관리자에게 연락해주세요
             </p>
           </CardContent>
@@ -736,8 +788,8 @@ export default function StatusDashboardPage() {
             </div>
 
             <p className="text-sm text-gray-600">
-              수정이 필요한 부분을 상세하게 작성해주세요.
-              피드백은 관리자에게 즉시 전달됩니다.
+              수정이 필요한 부분을 상세하게 작성해주세요. 피드백은 관리자에게
+              즉시 전달됩니다.
             </p>
 
             <textarea

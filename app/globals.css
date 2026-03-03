@@ -4,8 +4,8 @@
 
 @layer base {
   :root {
-    /* Professional Government Office Design System */
-    --background: 210 20% 98%; /* #f7f9fc - 매우 연한 블루그레이 */
+    /* Deep Navy & Warm Gold Design System */
+    --background: 210 25% 95%; /* #f0f4f8 - 웜 그레이 배경 */
     --foreground: 215 25% 27%; /* #344054 - 진한 블루그레이 텍스트 (가독성 최고) */
 
     --card: 0 0% 100%; /* #ffffff - 순백 카드 */
@@ -14,17 +14,17 @@
     --popover: 0 0% 100%;
     --popover-foreground: 215 25% 27%;
 
-    --primary: 217 91% 50%; /* #1570EF - 신뢰감 있는 블루 (정부 표준) */
+    --primary: 43 61% 55%; /* Gold 500 #c9a84c */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 20% 96%; /* #f2f4f7 - 아주 연한 블루그레이 */
+    --secondary: 46 43% 91%; /* Gold 100 #f0e8cc */
     --secondary-foreground: 215 25% 27%;
 
-    --muted: 210 20% 96%;
+    --muted: 46 43% 91%; /* Gold 100 */
     --muted-foreground: 215 15% 52%; /* #667085 - 보조 텍스트 */
 
-    --accent: 210 100% 97%; /* #EFF8FF - 아주 연한 액센트 블루 */
-    --accent-foreground: 217 91% 50%;
+    --accent: 47 58% 95%; /* Gold 50 #faf6eb */
+    --accent-foreground: 43 61% 55%; /* Gold 500 */
 
     --destructive: 0 72% 51%; /* #dc2626 - 명확한 빨간색 */
     --destructive-foreground: 0 0% 100%;
@@ -35,9 +35,9 @@
     --warning: 38 92% 50%; /* #f59e0b - 명확한 주황색 */
     --warning-foreground: 0 0% 100%;
 
-    --border: 214 20% 88%; /* #d0d5dd - 명확한 경계선 */
-    --input: 214 20% 88%;
-    --ring: 217 91% 50%;
+    --border: 42 33% 79%; /* Gold 200 #e5d9ad - 골드 틴트 테두리 */
+    --input: 42 33% 79%; /* Gold 200 */
+    --ring: 43 61% 55%; /* Gold 500 */
 
     --radius: 0.5rem;
 
@@ -56,21 +56,40 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   /* Professional Typography System */
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-semibold tracking-tight;
     color: hsl(var(--foreground));
   }
 
-  h1 { @apply text-3xl sm:text-4xl; line-height: 1.2; }
-  h2 { @apply text-2xl sm:text-3xl; line-height: 1.3; }
-  h3 { @apply text-xl sm:text-2xl; line-height: 1.4; }
-  h4 { @apply text-lg sm:text-xl; line-height: 1.5; }
+  h1 {
+    @apply text-3xl sm:text-4xl;
+    line-height: 1.2;
+  }
+  h2 {
+    @apply text-2xl sm:text-3xl;
+    line-height: 1.3;
+  }
+  h3 {
+    @apply text-xl sm:text-2xl;
+    line-height: 1.4;
+  }
+  h4 {
+    @apply text-lg sm:text-xl;
+    line-height: 1.5;
+  }
 
   p {
     @apply text-sm sm:text-base leading-relaxed;
@@ -108,43 +127,49 @@
   }
 
   .bg-info-subtle {
-    @apply bg-blue-50 border-blue-200;
+    @apply bg-gold-50 border-gold-200;
   }
 
   /* Subtle Grid Pattern */
   .pattern-background {
     background-image:
-      linear-gradient(rgba(21, 112, 239, 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(21, 112, 239, 0.03) 1px, transparent 1px);
+      linear-gradient(rgba(13, 27, 42, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(13, 27, 42, 0.03) 1px, transparent 1px);
     background-size: 24px 24px;
   }
 
   /* Professional Card Styles */
   .card-elevated {
     @apply bg-white rounded-lg border border-gray-200 shadow-sm;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+    box-shadow:
+      0 1px 3px 0 rgba(0, 0, 0, 0.1),
+      0 1px 2px -1px rgba(0, 0, 0, 0.1);
   }
 
   .card-elevated:hover {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -2px rgba(0, 0, 0, 0.1);
   }
 
   /* Hide scrollbar */
   .scrollbar-hide {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
   }
 
   .scrollbar-hide::-webkit-scrollbar {
-    display: none;  /* Chrome, Safari and Opera */
+    display: none; /* Chrome, Safari and Opera */
   }
 
   /* Professional button styles */
-  button, .button {
+  button,
+  .button {
     position: relative;
   }
 
-  button:not(:disabled):hover, .button:not(:disabled):hover {
+  button:not(:disabled):hover,
+  .button:not(:disabled):hover {
     z-index: 10;
   }
 
@@ -171,16 +196,21 @@
   }
 
   .status-info {
-    @apply bg-blue-50 border border-blue-200 text-blue-800;
+    @apply bg-gold-50 border border-gold-200 text-navy-800;
   }
 
   /* Subtle shadow pulse animation for attention-grabbing buttons */
   @keyframes shadow-pulse {
-    0%, 100% {
-      box-shadow: 0 10px 15px -3px rgba(22, 163, 74, 0.3), 0 4px 6px -4px rgba(22, 163, 74, 0.3);
+    0%,
+    100% {
+      box-shadow:
+        0 10px 15px -3px rgba(22, 163, 74, 0.3),
+        0 4px 6px -4px rgba(22, 163, 74, 0.3);
     }
     50% {
-      box-shadow: 0 20px 25px -5px rgba(22, 163, 74, 0.5), 0 8px 10px -6px rgba(22, 163, 74, 0.5);
+      box-shadow:
+        0 20px 25px -5px rgba(22, 163, 74, 0.5),
+        0 8px 10px -6px rgba(22, 163, 74, 0.5);
     }
   }
 
@@ -190,7 +220,8 @@
 
   /* Sequential arrow animation - wave effect */
   @keyframes arrow-wave {
-    0%, 100% {
+    0%,
+    100% {
       opacity: 0.3;
     }
     50% {
@@ -302,7 +333,7 @@
 
 .react-calendar__tile.weekend-saturday,
 .react-calendar__tile.weekend-saturday abbr {
-  color: #1e40af !important;
+  color: #1b2838 !important;
   opacity: 0.5 !important;
   cursor: not-allowed !important;
 }

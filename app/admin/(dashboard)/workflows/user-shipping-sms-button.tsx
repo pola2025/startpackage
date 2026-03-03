@@ -79,7 +79,7 @@ export default function UserShippingSMSButton({
         variant="outline"
         size="sm"
         onClick={() => setIsOpen(true)}
-        className="h-[28px] px-1.5 text-[10px] border-blue-300 text-blue-700 hover:bg-blue-50 leading-none"
+        className="h-[28px] px-1.5 text-[10px] border-gold-300 text-gold-700 hover:bg-gold-50 leading-none"
       >
         <Truck className="w-3 h-3 mr-0.5" />
         배송정보
@@ -101,7 +101,7 @@ export default function UserShippingSMSButton({
                 {shippingWorkflows.map((workflow, index) => (
                   <div
                     key={workflow.id}
-                    className="text-sm text-gray-600 border-l-2 border-blue-400 pl-3"
+                    className="text-sm text-gray-600 border-l-2 border-gold-400 pl-3"
                   >
                     <p className="font-medium">[{workflow.type}]</p>
                     <p>택배: {workflow.택배회사}</p>
@@ -123,7 +123,7 @@ export default function UserShippingSMSButton({
                 handleSendSMS();
               }}
               disabled={isSending}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-navy-900 hover:bg-navy-800"
             >
               {isSending ? (
                 <>

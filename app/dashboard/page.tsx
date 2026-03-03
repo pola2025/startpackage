@@ -19,9 +19,11 @@ import { FloatingActionButton } from "@/components/ui/floating-action-button";
 // Temporary Progress component
 function Progress({ value, className }: { value: number; className?: string }) {
   return (
-    <div className={`relative h-2 w-full overflow-hidden rounded-full bg-gray-200 ${className || ""}`}>
+    <div
+      className={`relative h-2 w-full overflow-hidden rounded-full bg-gray-200 ${className || ""}`}
+    >
       <div
-        className="h-full bg-blue-600 transition-all"
+        className="h-full bg-gold-500 transition-all"
         style={{ width: `${value}%` }}
       />
     </div>
@@ -119,12 +121,15 @@ export default async function UserDashboard() {
   const totalFields = submissionFields.length;
   const completionPercent = Math.round((completedFields / totalFields) * 100);
 
-
   // 마케팅 지원 기간 계산 (교육시작일 기준)
   let marketingStartDate: Date | null = null;
   let marketingEndDate: Date | null = null;
 
-  if (user.marketingSupportEnabled && user.marketingSupportStartDate && user.marketingSupportEndDate) {
+  if (
+    user.marketingSupportEnabled &&
+    user.marketingSupportStartDate &&
+    user.marketingSupportEndDate
+  ) {
     // DB에 설정된 값이 있으면 사용 (연장된 경우)
     marketingStartDate = new Date(user.marketingSupportStartDate);
     marketingEndDate = new Date(user.marketingSupportEndDate);
@@ -148,7 +153,11 @@ export default async function UserDashboard() {
   const notifications: Notification[] = [];
 
   // 1. 기본 정보 미입력 (최우선)
-  if (!user.submission?.브랜드명 || !user.submission?.사업자등록증URL || !user.submission?.프로필사진URL) {
+  if (
+    !user.submission?.브랜드명 ||
+    !user.submission?.사업자등록증URL ||
+    !user.submission?.프로필사진URL
+  ) {
     notifications.push({
       id: "basic-info",
       priority: 1,
@@ -160,8 +169,10 @@ export default async function UserDashboard() {
   }
 
   // 2. 로고 정보 미입력
-  const hasBasicInfo = user.submission?.브랜드명 && user.submission?.사업자등록증URL;
-  const hasLogoInfo = user.submission?.로고선호스타일 || user.submission?.로고선호폰트;
+  const hasBasicInfo =
+    user.submission?.브랜드명 && user.submission?.사업자등록증URL;
+  const hasLogoInfo =
+    user.submission?.로고선호스타일 || user.submission?.로고선호폰트;
   if (hasBasicInfo && !hasLogoInfo) {
     notifications.push({
       id: "logo-info",
@@ -175,8 +186,8 @@ export default async function UserDashboard() {
 
   // 3. 시안 확인 요청
   // 로고: 시안컨펌요청, 인쇄물: 발주대기 (시안완료) 상태
-  const designConfirmWorkflows = user.workflows.filter(w =>
-    w.status === "시안컨펌요청" || w.status === "발주대기"
+  const designConfirmWorkflows = user.workflows.filter(
+    (w) => w.status === "시안컨펌요청" || w.status === "발주대기",
   );
   designConfirmWorkflows.forEach((workflow) => {
     notifications.push({
@@ -190,8 +201,12 @@ export default async function UserDashboard() {
   });
 
   // 4. 로고 확정 후 인쇄물 자료 제출 요청
-  const logoConfirmed = user.workflows.some(w => w.type === "로고" && w.status === "시안확정");
-  const hasPrintWorkflows = user.workflows.some(w => w.type !== "로고" && w.type !== "홈페이지");
+  const logoConfirmed = user.workflows.some(
+    (w) => w.type === "로고" && w.status === "시안확정",
+  );
+  const hasPrintWorkflows = user.workflows.some(
+    (w) => w.type !== "로고" && w.type !== "홈페이지",
+  );
   if (logoConfirmed && !hasPrintWorkflows && hasBasicInfo) {
     notifications.push({
       id: "print-submit",
@@ -204,7 +219,8 @@ export default async function UserDashboard() {
   }
 
   // 5. 로고 확정 후 홈페이지 정보 입력
-  const hasWebsiteInfo = user.submission?.홈페이지스타일 || user.submission?.홈페이지컬러컨셉;
+  const hasWebsiteInfo =
+    user.submission?.홈페이지스타일 || user.submission?.홈페이지컬러컨셉;
   if (logoConfirmed && !hasWebsiteInfo) {
     notifications.push({
       id: "website-info",
@@ -217,7 +233,8 @@ export default async function UserDashboard() {
   }
 
   // 6. 마케팅 정보 입력 필요
-  const hasMarketingInfo = user.submission?.네이버검색광고ID || user.submission?.InstagramID;
+  const hasMarketingInfo =
+    user.submission?.네이버검색광고ID || user.submission?.InstagramID;
   if (hasBasicInfo && !hasMarketingInfo) {
     notifications.push({
       id: "marketing-info",
@@ -230,7 +247,7 @@ export default async function UserDashboard() {
   }
 
   // 7. 배송 정보 확인
-  const shippingWorkflows = user.workflows.filter(w => w.status === "배송중");
+  const shippingWorkflows = user.workflows.filter((w) => w.status === "배송중");
   shippingWorkflows.forEach((workflow) => {
     notifications.push({
       id: `shipping-${workflow.id}`,
@@ -243,9 +260,13 @@ export default async function UserDashboard() {
   });
 
   // 8. 관리자 답변 확인
-  const unreadThreads = user.communicationThreads.filter(thread => {
+  const unreadThreads = user.communicationThreads.filter((thread) => {
     const lastMessage = thread.messages[0];
-    return lastMessage && lastMessage.authorId !== userId && lastMessage.authorType === "admin";
+    return (
+      lastMessage &&
+      lastMessage.authorId !== userId &&
+      lastMessage.authorType === "admin"
+    );
   });
   if (unreadThreads.length > 0) {
     notifications.push({
@@ -261,8 +282,12 @@ export default async function UserDashboard() {
   // 9. 마케팅 지원 연장 신청
   if (marketingEndDate) {
     const now = new Date();
-    const daysRemaining = Math.ceil((marketingEndDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    const hasPendingExtension = user.marketingExtensionRequests.some(req => req.status === "pending");
+    const daysRemaining = Math.ceil(
+      (marketingEndDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
+    );
+    const hasPendingExtension = user.marketingExtensionRequests.some(
+      (req) => req.status === "pending",
+    );
     if (daysRemaining <= 7 && daysRemaining > 0 && !hasPendingExtension) {
       notifications.push({
         id: "marketing-extension",
@@ -276,7 +301,9 @@ export default async function UserDashboard() {
   }
 
   // 10. 제작 완료 확인
-  const completedWorkflows = user.workflows.filter(w => w.status === "제작완료" || w.status === "발송완료");
+  const completedWorkflows = user.workflows.filter(
+    (w) => w.status === "제작완료" || w.status === "발송완료",
+  );
   completedWorkflows.forEach((workflow) => {
     notifications.push({
       id: `completed-${workflow.id}`,
@@ -289,7 +316,9 @@ export default async function UserDashboard() {
   });
 
   // 11. 마케팅 연장 승인됨
-  const approvedExtension = user.marketingExtensionRequests.find(req => req.status === "approved");
+  const approvedExtension = user.marketingExtensionRequests.find(
+    (req) => req.status === "approved",
+  );
   if (approvedExtension) {
     notifications.push({
       id: "extension-approved",
@@ -302,7 +331,9 @@ export default async function UserDashboard() {
   }
 
   // 12. 마케팅 연장 거절됨
-  const rejectedExtension = user.marketingExtensionRequests.find(req => req.status === "rejected");
+  const rejectedExtension = user.marketingExtensionRequests.find(
+    (req) => req.status === "rejected",
+  );
   if (rejectedExtension) {
     notifications.push({
       id: "extension-rejected",
@@ -328,7 +359,8 @@ export default async function UserDashboard() {
 
   // 14. 인쇄물 주문 가능
   const orderableWorkflows = user.workflows.filter(
-    w => w.status === "시안확정" && w.type !== "로고" && w.type !== "홈페이지"
+    (w) =>
+      w.status === "시안확정" && w.type !== "로고" && w.type !== "홈페이지",
   );
   orderableWorkflows.forEach((workflow) => {
     notifications.push({
@@ -358,93 +390,148 @@ export default async function UserDashboard() {
         </div>
         <div className="flex flex-wrap gap-4">
           {user.cohort && dday && (
-            <div className="inline-flex items-center gap-3 bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl border-2 border-orange-200 px-6 py-4">
+            <div className="inline-flex items-center gap-3 bg-gradient-to-r from-gold-100 to-gold-50 rounded-2xl border-2 border-orange-200 px-6 py-4">
               <div className="flex items-center justify-center w-12 h-12 bg-white rounded-full shadow-sm">
                 <Calendar className="w-6 h-6 text-orange-600" />
               </div>
               <div>
-                <p className="text-sm font-medium text-orange-700 mb-0.5">자료 제출 마감일</p>
+                <p className="text-sm font-medium text-orange-700 mb-0.5">
+                  자료 제출 마감일
+                </p>
                 <p className="text-3xl font-bold text-orange-600">{dday}</p>
                 <p className="text-xs text-orange-600 mt-1">
-                  {new Date(user.cohort.자료제출마감일).toLocaleDateString("ko-KR", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                    weekday: "short",
-                  })}
-                </p>
-              </div>
-            </div>
-          )}
-          {marketingEndDate && (() => {
-            const now = new Date();
-            const daysRemaining = Math.ceil((marketingEndDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-            const isExpired = daysRemaining <= 0;
-            const isUrgent = daysRemaining <= 7;
-            const isWarning = daysRemaining <= 30;
-
-            return (
-              <div className={`inline-flex items-center gap-3 rounded-2xl border-2 px-6 py-4 ${
-                isExpired
-                  ? "bg-gradient-to-r from-gray-50 to-gray-100 border-gray-300"
-                  : isUrgent
-                  ? "bg-gradient-to-r from-red-50 to-pink-50 border-red-200"
-                  : isWarning
-                  ? "bg-gradient-to-r from-orange-50 to-yellow-50 border-orange-200"
-                  : "bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200"
-              }`}>
-                <div className={`flex items-center justify-center w-12 h-12 bg-white rounded-full shadow-sm`}>
-                  <Megaphone className={`w-6 h-6 ${
-                    isExpired ? "text-gray-600" : isUrgent ? "text-red-600" : isWarning ? "text-orange-600" : "text-purple-600"
-                  }`} />
-                </div>
-                <div>
-                  <p className={`text-sm font-medium mb-0.5 ${
-                    isExpired ? "text-gray-700" : isUrgent ? "text-red-700" : isWarning ? "text-orange-700" : "text-purple-700"
-                  }`}>
-                    마케팅 지원 종료일
-                  </p>
-                  <p className={`text-3xl font-bold ${
-                    isExpired ? "text-gray-600" : isUrgent ? "text-red-600" : isWarning ? "text-orange-600" : "text-purple-600"
-                  }`}>
-                    {isExpired ? "종료됨" : `D-${daysRemaining}`}
-                  </p>
-                  <p className={`text-xs mt-1 ${
-                    isExpired ? "text-gray-600" : isUrgent ? "text-red-600" : isWarning ? "text-orange-600" : "text-purple-600"
-                  }`}>
-                    {marketingEndDate.toLocaleDateString("ko-KR", {
+                  {new Date(user.cohort.자료제출마감일).toLocaleDateString(
+                    "ko-KR",
+                    {
                       year: "numeric",
                       month: "long",
                       day: "numeric",
                       weekday: "short",
-                    })}
-                  </p>
-                  {/* 연장 신청 버튼 */}
-                  {!isExpired && daysRemaining <= 30 && daysRemaining > 0 && (() => {
-                    const hasPendingExtension = user.marketingExtensionRequests.some(req => req.status === "pending");
-                    if (!hasPendingExtension && marketingStartDate && marketingEndDate) {
-                      return (
-                        <div className="mt-3">
-                          <MarketingExtensionDialog
-                            currentEndDate={marketingEndDate}
-                          />
-                        </div>
-                      );
-                    }
-                  })()}
-                </div>
+                    },
+                  )}
+                </p>
               </div>
-            );
-          })()}
+            </div>
+          )}
+          {marketingEndDate &&
+            (() => {
+              const now = new Date();
+              const daysRemaining = Math.ceil(
+                (marketingEndDate.getTime() - now.getTime()) /
+                  (1000 * 60 * 60 * 24),
+              );
+              const isExpired = daysRemaining <= 0;
+              const isUrgent = daysRemaining <= 7;
+              const isWarning = daysRemaining <= 30;
+
+              return (
+                <div
+                  className={`inline-flex items-center gap-3 rounded-2xl border-2 px-6 py-4 ${
+                    isExpired
+                      ? "bg-gradient-to-r from-gray-50 to-gray-100 border-gray-300"
+                      : isUrgent
+                        ? "bg-gradient-to-r from-red-50 to-pink-50 border-red-200"
+                        : isWarning
+                          ? "bg-gradient-to-r from-orange-50 to-yellow-50 border-orange-200"
+                          : "bg-gradient-to-r from-navy-50 to-gold-50 border-navy-200"
+                  }`}
+                >
+                  <div
+                    className={`flex items-center justify-center w-12 h-12 bg-white rounded-full shadow-sm`}
+                  >
+                    <Megaphone
+                      className={`w-6 h-6 ${
+                        isExpired
+                          ? "text-gray-600"
+                          : isUrgent
+                            ? "text-red-600"
+                            : isWarning
+                              ? "text-orange-600"
+                              : "text-navy-600"
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <p
+                      className={`text-sm font-medium mb-0.5 ${
+                        isExpired
+                          ? "text-gray-700"
+                          : isUrgent
+                            ? "text-red-700"
+                            : isWarning
+                              ? "text-orange-700"
+                              : "text-navy-700"
+                      }`}
+                    >
+                      마케팅 지원 종료일
+                    </p>
+                    <p
+                      className={`text-3xl font-bold ${
+                        isExpired
+                          ? "text-gray-600"
+                          : isUrgent
+                            ? "text-red-600"
+                            : isWarning
+                              ? "text-orange-600"
+                              : "text-navy-600"
+                      }`}
+                    >
+                      {isExpired ? "종료됨" : `D-${daysRemaining}`}
+                    </p>
+                    <p
+                      className={`text-xs mt-1 ${
+                        isExpired
+                          ? "text-gray-600"
+                          : isUrgent
+                            ? "text-red-600"
+                            : isWarning
+                              ? "text-orange-600"
+                              : "text-navy-600"
+                      }`}
+                    >
+                      {marketingEndDate.toLocaleDateString("ko-KR", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                        weekday: "short",
+                      })}
+                    </p>
+                    {/* 연장 신청 버튼 */}
+                    {!isExpired &&
+                      daysRemaining <= 30 &&
+                      daysRemaining > 0 &&
+                      (() => {
+                        const hasPendingExtension =
+                          user.marketingExtensionRequests.some(
+                            (req) => req.status === "pending",
+                          );
+                        if (
+                          !hasPendingExtension &&
+                          marketingStartDate &&
+                          marketingEndDate
+                        ) {
+                          return (
+                            <div className="mt-3">
+                              <MarketingExtensionDialog
+                                currentEndDate={marketingEndDate}
+                              />
+                            </div>
+                          );
+                        }
+                      })()}
+                  </div>
+                </div>
+              );
+            })()}
         </div>
       </div>
 
       {/* 알림 리스트 - 모바일/데스크탑 모두 세로 리스트 */}
       {notifications.length > 0 && (
-        <Card className="bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-blue-200">
+        <Card className="bg-gradient-to-r from-gold-50 to-gold-100 border-2 border-gold-200">
           <CardHeader className="p-4 md:p-6 pb-2 md:pb-4">
             <CardTitle className="text-base md:text-xl text-gray-900 flex items-center gap-2">
-              <Bell className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
+              <Bell className="w-4 h-4 md:w-5 md:h-5 text-gold-600" />
               알림
               <span className="text-xs md:text-sm font-normal text-gray-500 ml-auto">
                 {notifications.length}건
@@ -456,15 +543,16 @@ export default async function UserDashboard() {
               {notifications.map((notification, index) => {
                 const colors = {
                   urgent: "text-red-700 hover:bg-red-100 border-red-200",
-                  warning: "text-orange-700 hover:bg-orange-100 border-orange-200",
-                  info: "text-blue-700 hover:bg-blue-100 border-blue-200",
+                  warning:
+                    "text-orange-700 hover:bg-orange-100 border-orange-200",
+                  info: "text-navy-700 hover:bg-gold-100 border-gold-200",
                   success: "text-green-700 hover:bg-green-100 border-green-200",
                 };
 
                 const badgeColors = {
                   urgent: "bg-red-100 text-red-700 border-red-300",
                   warning: "bg-orange-100 text-orange-700 border-orange-300",
-                  info: "bg-blue-100 text-blue-700 border-blue-300",
+                  info: "bg-gold-100 text-navy-700 border-gold-300",
                   success: "bg-green-100 text-green-700 border-green-300",
                 };
 
@@ -477,7 +565,9 @@ export default async function UserDashboard() {
                     <span className="hidden md:inline text-sm md:text-base font-semibold text-gray-600 min-w-[60px]">
                       알림{index + 1}.
                     </span>
-                    <span className={`text-[10px] md:text-xs font-bold px-1.5 md:px-2 py-0.5 md:py-1 rounded border whitespace-nowrap ${badgeColors[notification.type]}`}>
+                    <span
+                      className={`text-[10px] md:text-xs font-bold px-1.5 md:px-2 py-0.5 md:py-1 rounded border whitespace-nowrap ${badgeColors[notification.type]}`}
+                    >
                       {notification.badge}
                     </span>
                     <span className="flex-1 text-xs md:text-base font-medium line-clamp-1">
@@ -496,19 +586,20 @@ export default async function UserDashboard() {
       <Card className="bg-white border-2 border-gray-200">
         <CardHeader>
           <CardTitle className="text-lg sm:text-xl text-gray-900 flex items-center gap-2">
-            <User className="w-4 h-4 sm:w-5 sm:h-5" />
-            내 정보
+            <User className="w-4 h-4 sm:w-5 sm:h-5" />내 정보
           </CardTitle>
         </CardHeader>
         <CardContent className="grid gap-3 sm:gap-4 md:grid-cols-2">
           <div className="space-y-2 sm:space-y-3">
             <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                <User className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gold-100 flex items-center justify-center flex-shrink-0">
+                <User className="w-4 h-4 sm:w-5 sm:h-5 text-gold-600" />
               </div>
               <div className="min-w-0">
                 <p className="text-xs sm:text-sm text-gray-500">이름</p>
-                <p className="text-sm sm:text-base text-gray-900 font-medium truncate">{user.이름}</p>
+                <p className="text-sm sm:text-base text-gray-900 font-medium truncate">
+                  {user.이름}
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-2 sm:gap-3">
@@ -530,7 +621,9 @@ export default async function UserDashboard() {
               </div>
               <div className="min-w-0">
                 <p className="text-xs sm:text-sm text-gray-500">연락처</p>
-                <p className="text-sm sm:text-base text-gray-900 font-medium truncate">{user.연락처}</p>
+                <p className="text-sm sm:text-base text-gray-900 font-medium truncate">
+                  {user.연락처}
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-2 sm:gap-3">
@@ -539,7 +632,9 @@ export default async function UserDashboard() {
               </div>
               <div className="min-w-0">
                 <p className="text-xs sm:text-sm text-gray-500">이메일</p>
-                <p className="text-sm sm:text-base text-gray-900 font-medium truncate">{user.email}</p>
+                <p className="text-sm sm:text-base text-gray-900 font-medium truncate">
+                  {user.email}
+                </p>
               </div>
             </div>
           </div>
@@ -549,16 +644,19 @@ export default async function UserDashboard() {
       {/* Quick Stats - 주요 지표 */}
       <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2">
         {/* 자료 제출 완료율 */}
-        <Card className="bg-gradient-to-br from-blue-50 to-white border-0 shadow-lg hover:shadow-xl transition-shadow">
+        <Card className="bg-gradient-to-br from-gold-50 to-white border-0 shadow-lg hover:shadow-xl transition-shadow">
           <CardContent className="p-6 sm:p-8">
             <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center justify-center w-14 h-14 bg-blue-600 rounded-2xl shadow-md">
+              <div className="flex items-center justify-center w-14 h-14 bg-navy-900 rounded-2xl shadow-md">
                 <FileText className="w-7 h-7 text-white" />
               </div>
               <div className="text-right">
-                <p className="text-sm font-medium text-gray-600 mb-1">자료 제출</p>
-                <p className="text-4xl sm:text-5xl font-bold text-blue-600">
-                  {completionPercent}<span className="text-2xl">%</span>
+                <p className="text-sm font-medium text-gray-600 mb-1">
+                  자료 제출
+                </p>
+                <p className="text-4xl sm:text-5xl font-bold text-gold-600">
+                  {completionPercent}
+                  <span className="text-2xl">%</span>
                 </p>
               </div>
             </div>
@@ -599,33 +697,67 @@ export default async function UserDashboard() {
                   shortLabel: "사업자",
                   value: user.submission.사업자등록증URL,
                   tab: "print",
-                  icon: FileText
+                  icon: FileText,
                 },
-                { label: "프로필사진", shortLabel: "프로필", value: user.submission.프로필사진URL, tab: "print", icon: User },
-                { label: "브랜드명", shortLabel: "브랜드", value: user.submission.브랜드명, tab: "basic", icon: Package },
-                { label: "업종", shortLabel: "업종", value: user.submission.업종, tab: "basic", icon: Package },
-                { label: "주소", shortLabel: "주소", value: user.submission.주소, tab: "basic", icon: Package },
-                { label: "명함스타일 선택", shortLabel: "명함", value: user.submission.명함시안, tab: "print", icon: FileText },
+                {
+                  label: "프로필사진",
+                  shortLabel: "프로필",
+                  value: user.submission.프로필사진URL,
+                  tab: "print",
+                  icon: User,
+                },
+                {
+                  label: "브랜드명",
+                  shortLabel: "브랜드",
+                  value: user.submission.브랜드명,
+                  tab: "basic",
+                  icon: Package,
+                },
+                {
+                  label: "업종",
+                  shortLabel: "업종",
+                  value: user.submission.업종,
+                  tab: "basic",
+                  icon: Package,
+                },
+                {
+                  label: "주소",
+                  shortLabel: "주소",
+                  value: user.submission.주소,
+                  tab: "basic",
+                  icon: Package,
+                },
+                {
+                  label: "명함스타일 선택",
+                  shortLabel: "명함",
+                  value: user.submission.명함시안,
+                  tab: "print",
+                  icon: FileText,
+                },
                 {
                   label: "홈페이지 컬러",
                   shortLabel: "홈페이지",
                   value: user.submission.홈페이지컬러컨셉,
                   tab: "website",
-                  icon: Globe
+                  icon: Globe,
                 },
               ].map((item, idx) => {
                 const Icon = item.icon;
                 const sharedClassName = `group relative flex flex-col items-center p-2 md:p-4 rounded-lg md:rounded-xl bg-gradient-to-br ${
                   item.value
                     ? "from-green-50 to-emerald-50 border border-green-200 md:border-2"
-                    : "from-gray-50 to-gray-100 border border-gray-200 md:border-2 hover:from-blue-50 hover:to-indigo-50 hover:border-blue-300 cursor-pointer"
+                    : "from-gray-50 to-gray-100 border border-gray-200 md:border-2 hover:from-gold-50 hover:to-gold-100 hover:border-gold-300 cursor-pointer"
                 } transition-all duration-200 ${!item.value ? "hover:shadow-md" : ""}`;
 
                 const content = (
                   <>
-                    <div className={`flex items-center justify-center w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-xl mb-1.5 md:mb-3 ${
-                      item.value ? "bg-green-600" : "bg-gray-400 group-hover:bg-blue-600"
-                    } transition-colors`}>
+                    <div
+                      className={`flex items-center justify-center w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-xl mb-1.5 md:mb-3 ${
+                        item.value
+                          ? "bg-green-600"
+                          : "bg-gray-400 group-hover:bg-navy-900"
+                      } transition-colors`}
+                    >
                       <Icon className="w-4 h-4 md:w-6 md:h-6 text-white" />
                     </div>
                     <p className="text-[10px] md:text-sm font-semibold text-gray-900 text-center mb-0.5 md:mb-1 line-clamp-1">
@@ -635,12 +767,16 @@ export default async function UserDashboard() {
                     {item.value ? (
                       <div className="flex items-center gap-0.5 md:gap-1.5 text-green-700">
                         <CheckCircle2 className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
-                        <span className="text-[9px] md:text-xs font-medium">완료</span>
+                        <span className="text-[9px] md:text-xs font-medium">
+                          완료
+                        </span>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-0.5 md:gap-1.5 text-orange-600 group-hover:text-blue-600">
+                      <div className="flex items-center gap-0.5 md:gap-1.5 text-orange-600 group-hover:text-gold-600">
                         <AlertCircle className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
-                        <span className="text-[9px] md:text-xs font-medium">필요</span>
+                        <span className="text-[9px] md:text-xs font-medium">
+                          필요
+                        </span>
                       </div>
                     )}
                   </>
@@ -651,7 +787,11 @@ export default async function UserDashboard() {
                     {content}
                   </div>
                 ) : (
-                  <Link key={idx} href={`/dashboard/submission?tab=${item.tab}`} className={sharedClassName}>
+                  <Link
+                    key={idx}
+                    href={`/dashboard/submission?tab=${item.tab}`}
+                    className={sharedClassName}
+                  >
                     {content}
                   </Link>
                 );
@@ -659,12 +799,16 @@ export default async function UserDashboard() {
             </div>
           ) : (
             <Link href="/dashboard/submission?tab=basic" className="block">
-              <div className="text-center py-8 md:py-12 px-4 md:px-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl md:rounded-2xl border-2 border-blue-200 hover:border-blue-400 hover:shadow-lg transition-all cursor-pointer group">
-                <div className="flex items-center justify-center w-14 h-14 md:w-20 md:h-20 bg-blue-600 rounded-full mx-auto mb-3 md:mb-4 group-hover:scale-110 transition-transform">
+              <div className="text-center py-8 md:py-12 px-4 md:px-6 bg-gradient-to-br from-gold-50 to-indigo-50 rounded-xl md:rounded-2xl border-2 border-gold-200 hover:border-gold-400 hover:shadow-lg transition-all cursor-pointer group">
+                <div className="flex items-center justify-center w-14 h-14 md:w-20 md:h-20 bg-navy-900 rounded-full mx-auto mb-3 md:mb-4 group-hover:scale-110 transition-transform">
                   <AlertCircle className="w-7 h-7 md:w-10 md:h-10 text-white" />
                 </div>
-                <p className="text-sm md:text-lg font-semibold text-gray-900 mb-1 md:mb-2">자료를 아직 제출하지 않으셨어요</p>
-                <p className="text-xs md:text-base text-blue-600 font-medium">클릭하여 지금 제출하기 →</p>
+                <p className="text-sm md:text-lg font-semibold text-gray-900 mb-1 md:mb-2">
+                  자료를 아직 제출하지 않으셨어요
+                </p>
+                <p className="text-xs md:text-base text-gold-600 font-medium">
+                  클릭하여 지금 제출하기 →
+                </p>
               </div>
             </Link>
           )}
@@ -703,7 +847,7 @@ export default async function UserDashboard() {
                 return (
                   <div
                     key={workflow.id}
-                    className="p-3 sm:p-4 rounded-lg bg-gray-50 border border-gray-200 hover:border-blue-300 transition-all"
+                    className="p-3 sm:p-4 rounded-lg bg-gray-50 border border-gray-200 hover:border-gold-300 transition-all"
                   >
                     <div className="flex items-center justify-between mb-2 sm:mb-3">
                       <div className="flex items-center gap-2 sm:gap-3">
@@ -726,19 +870,25 @@ export default async function UserDashboard() {
                       {workflow.시안업로드일 && (
                         <div className="flex items-center gap-2 text-gray-600">
                           <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                          <span className="truncate">시안 업로드: {formatDate(workflow.시안업로드일)}</span>
+                          <span className="truncate">
+                            시안 업로드: {formatDate(workflow.시안업로드일)}
+                          </span>
                         </div>
                       )}
                       {workflow.발주승인일 && (
                         <div className="flex items-center gap-2 text-gray-600">
                           <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                          <span className="truncate">발주 승인: {formatDate(workflow.발주승인일)}</span>
+                          <span className="truncate">
+                            발주 승인: {formatDate(workflow.발주승인일)}
+                          </span>
                         </div>
                       )}
                       {workflow.택배회사 && workflow.운송장번호 && (
-                        <div className="flex items-center gap-2 text-blue-600">
+                        <div className="flex items-center gap-2 text-gold-600">
                           <Truck className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                          <span className="truncate">배송: {workflow.택배회사} ({workflow.운송장번호})</span>
+                          <span className="truncate">
+                            배송: {workflow.택배회사} ({workflow.운송장번호})
+                          </span>
                         </div>
                       )}
                     </div>
@@ -759,10 +909,10 @@ export default async function UserDashboard() {
 
       {/* Marketing Support Detail Card */}
       {marketingStartDate && marketingEndDate && (
-        <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-0 shadow-lg">
+        <Card className="bg-gradient-to-br from-navy-50 to-gold-50 border-0 shadow-lg">
           <CardHeader>
             <CardTitle className="text-xl sm:text-2xl text-gray-900 flex items-center gap-2">
-              <Megaphone className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
+              <Megaphone className="w-5 h-5 sm:w-6 sm:h-6 text-navy-600" />
               마케팅 지원 서비스
             </CardTitle>
             <CardDescription className="text-sm text-gray-600">
@@ -771,21 +921,23 @@ export default async function UserDashboard() {
           </CardHeader>
           <CardContent className="space-y-6">
             {/* 지원 기간 */}
-            <div className="bg-white p-5 rounded-xl border-2 border-purple-200">
+            <div className="bg-white p-5 rounded-xl border-2 border-navy-200">
               <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-purple-600" />
+                <Calendar className="w-4 h-4 text-navy-600" />
                 지원 기간
               </h3>
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
-                  <p className="text-xs text-gray-600 mb-1">시작일 (교육시작일)</p>
+                  <p className="text-xs text-gray-600 mb-1">
+                    시작일 (교육시작일)
+                  </p>
                   <p className="text-base font-bold text-gray-900">
                     {marketingStartDate.toLocaleDateString("ko-KR")}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-600 mb-1">종료일</p>
-                  <p className="text-base font-bold text-purple-700">
+                  <p className="text-base font-bold text-navy-700">
                     {marketingEndDate.toLocaleDateString("ko-KR")}
                   </p>
                 </div>
@@ -793,17 +945,29 @@ export default async function UserDashboard() {
             </div>
 
             {/* 지원 항목 */}
-            <div className="bg-white p-5 rounded-xl border-2 border-purple-200">
+            <div className="bg-white p-5 rounded-xl border-2 border-navy-200">
               <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Package className="w-4 h-4 text-purple-600" />
+                <Package className="w-4 h-4 text-navy-600" />
                 지원 항목
               </h3>
               <div className="grid gap-3 sm:grid-cols-2">
                 {[
-                  { icon: BarChart3, label: "Meta 광고 게재 지원", color: "blue" },
-                  { icon: Database, label: "잠재고객 접수 자동화", color: "green" },
+                  {
+                    icon: BarChart3,
+                    label: "Meta 광고 게재 지원",
+                    color: "gold",
+                  },
+                  {
+                    icon: Database,
+                    label: "잠재고객 접수 자동화",
+                    color: "green",
+                  },
                   { icon: Bell, label: "실시간 DB 접수 알림", color: "orange" },
-                  { icon: MessageSquare, label: "고객 안내 SMS 발송", color: "purple" },
+                  {
+                    icon: MessageSquare,
+                    label: "고객 안내 SMS 발송",
+                    color: "purple",
+                  },
                   { icon: Sheet, label: "고객 DB 시트 저장", color: "teal" },
                 ].map((item, idx) => {
                   const Icon = item.icon;
@@ -812,10 +976,14 @@ export default async function UserDashboard() {
                       key={idx}
                       className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-br from-gray-50 to-white border border-gray-200"
                     >
-                      <div className={`flex items-center justify-center w-10 h-10 rounded-lg bg-${item.color}-100 flex-shrink-0`}>
+                      <div
+                        className={`flex items-center justify-center w-10 h-10 rounded-lg bg-${item.color}-100 flex-shrink-0`}
+                      >
                         <Icon className={`w-5 h-5 text-${item.color}-600`} />
                       </div>
-                      <p className="text-sm font-medium text-gray-900">{item.label}</p>
+                      <p className="text-sm font-medium text-gray-900">
+                        {item.label}
+                      </p>
                     </div>
                   );
                 })}
@@ -825,17 +993,22 @@ export default async function UserDashboard() {
             {/* 연장 신청 */}
             {(() => {
               const now = new Date();
-              const daysRemaining = Math.ceil((marketingEndDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-              const hasPendingRequest = user.marketingExtensionRequests.some(req => req.status === "pending");
+              const daysRemaining = Math.ceil(
+                (marketingEndDate.getTime() - now.getTime()) /
+                  (1000 * 60 * 60 * 24),
+              );
+              const hasPendingRequest = user.marketingExtensionRequests.some(
+                (req) => req.status === "pending",
+              );
 
               // Calculate new end date (current + 3 months)
               const newEndDate = new Date(marketingEndDate);
               newEndDate.setMonth(newEndDate.getMonth() + 3);
 
               return (
-                <div className="bg-white p-5 rounded-xl border-2 border-purple-200">
+                <div className="bg-white p-5 rounded-xl border-2 border-navy-200">
                   <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-purple-600" />
+                    <Clock className="w-4 h-4 text-navy-600" />
                     기간 연장
                   </h3>
 
@@ -855,11 +1028,17 @@ export default async function UserDashboard() {
                     </div>
                   ) : (
                     <div className="flex flex-col gap-4">
-                      <div className="flex items-center justify-between p-4 bg-purple-50 rounded-lg border border-purple-200">
+                      <div className="flex items-center justify-between p-4 bg-navy-50 rounded-lg border border-navy-200">
                         <div>
-                          <p className="text-xs text-gray-600 mb-1">현재 남은 기간</p>
-                          <p className={`text-2xl font-bold ${daysRemaining <= 7 ? "text-red-600" : daysRemaining <= 30 ? "text-orange-600" : "text-purple-600"}`}>
-                            {daysRemaining > 0 ? `${daysRemaining}일` : "종료됨"}
+                          <p className="text-xs text-gray-600 mb-1">
+                            현재 남은 기간
+                          </p>
+                          <p
+                            className={`text-2xl font-bold ${daysRemaining <= 7 ? "text-red-600" : daysRemaining <= 30 ? "text-orange-600" : "text-navy-600"}`}
+                          >
+                            {daysRemaining > 0
+                              ? `${daysRemaining}일`
+                              : "종료됨"}
                           </p>
                         </div>
                         <MarketingExtensionDialog
@@ -867,8 +1046,13 @@ export default async function UserDashboard() {
                         />
                       </div>
                       <div className="text-xs text-gray-600 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <p className="font-medium text-gray-900 mb-1">연장 안내</p>
-                        <p>3/6/12개월 단위로 연장이 가능하며, 장기 결제 시 할인 혜택이 적용됩니다.</p>
+                        <p className="font-medium text-gray-900 mb-1">
+                          연장 안내
+                        </p>
+                        <p>
+                          3/6/12개월 단위로 연장이 가능하며, 장기 결제 시 할인
+                          혜택이 적용됩니다.
+                        </p>
                       </div>
                     </div>
                   )}

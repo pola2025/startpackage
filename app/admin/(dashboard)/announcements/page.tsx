@@ -287,7 +287,7 @@ export default function AdminAnnouncementsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 flex items-center gap-2 sm:gap-3">
-            <Megaphone className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-red-600" />
+            <Megaphone className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-navy-900" />
             마케팅 소식 관리
           </h1>
           <p className="text-sm sm:text-base text-gray-600 mt-1 sm:mt-2">
@@ -296,7 +296,7 @@ export default function AdminAnnouncementsPage() {
         </div>
         <Button
           onClick={() => handleOpenDialog()}
-          className="bg-red-600 hover:bg-red-700 self-start sm:self-auto text-xs sm:text-sm h-8 sm:h-10"
+          className="bg-navy-900 hover:bg-navy-800 self-start sm:self-auto text-xs sm:text-sm h-8 sm:h-10"
         >
           <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
           <span className="hidden sm:inline">새 공지 작성</span>
@@ -548,7 +548,7 @@ export default function AdminAnnouncementsPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, published: e.target.checked })
                 }
-                className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
+                className="w-4 h-4 text-navy-900 border-gray-300 rounded focus:ring-gold-500"
               />
               <label htmlFor="published" className="text-sm text-gray-700">
                 즉시 발행 (체크하면 사용자에게 이메일 발송)
@@ -568,7 +568,7 @@ export default function AdminAnnouncementsPage() {
             <Button
               onClick={handleSubmit}
               disabled={submitting || uploading}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-navy-900 hover:bg-navy-800"
             >
               <Save className="w-4 h-4 mr-2" />
               {submitting

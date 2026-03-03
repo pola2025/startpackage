@@ -76,10 +76,10 @@ export function ColorPaletteSelector({
 
   // value가 미리 정의된 옵션인지 확인
   const selectedOption = COLOR_PALETTE_OPTIONS.find(
-    (opt) => opt.id === value || opt.hex === value || opt.name === value
+    (opt) => opt.id === value || opt.hex === value || opt.name === value,
   );
 
-  const handleSelect = (option: typeof COLOR_PALETTE_OPTIONS[0]) => {
+  const handleSelect = (option: (typeof COLOR_PALETTE_OPTIONS)[0]) => {
     if (disabled) return;
     onChange(option.hex);
     setCustomColor("");
@@ -101,7 +101,8 @@ export function ColorPaletteSelector({
       {/* 색상 팔레트 그리드 */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {COLOR_PALETTE_OPTIONS.map((option) => {
-          const isSelected = selectedOption?.id === option.id || value === option.hex;
+          const isSelected =
+            selectedOption?.id === option.id || value === option.hex;
 
           return (
             <button
@@ -111,16 +112,16 @@ export function ColorPaletteSelector({
               disabled={disabled}
               className={cn(
                 "relative flex flex-col p-4 rounded-xl border-2 transition-all duration-200",
-                "hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
+                "hover:shadow-md focus:outline-none focus:ring-2 focus:ring-gold-500 focus:ring-offset-2",
                 isSelected
-                  ? "border-blue-500 bg-blue-50 shadow-md"
+                  ? "border-gold-500 bg-gold-50 shadow-md"
                   : "border-gray-200 bg-white hover:border-gray-300",
-                disabled && "opacity-50 cursor-not-allowed hover:shadow-none"
+                disabled && "opacity-50 cursor-not-allowed hover:shadow-none",
               )}
             >
               {/* 선택 체크마크 */}
               {isSelected && (
-                <div className="absolute top-2 right-2 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                <div className="absolute top-2 right-2 w-5 h-5 bg-gold-500 rounded-full flex items-center justify-center">
                   <Check className="w-3 h-3 text-white" />
                 </div>
               )}
@@ -140,7 +141,7 @@ export function ColorPaletteSelector({
               <span
                 className={cn(
                   "font-medium text-sm text-center",
-                  isSelected ? "text-blue-700" : "text-gray-700"
+                  isSelected ? "text-navy-700" : "text-gray-700",
                 )}
               >
                 {option.name}
@@ -174,7 +175,9 @@ export function ColorPaletteSelector({
               <div
                 className="w-10 h-10 rounded-lg border-2 border-gray-200"
                 style={{
-                  backgroundColor: customColor.startsWith("#") ? customColor : undefined,
+                  backgroundColor: customColor.startsWith("#")
+                    ? customColor
+                    : undefined,
                 }}
               />
             )}
@@ -184,16 +187,17 @@ export function ColorPaletteSelector({
 
       {/* 선택 결과 표시 */}
       {value && (
-        <div className="flex items-center gap-2 text-sm text-blue-600 bg-blue-50 p-3 rounded-lg">
+        <div className="flex items-center gap-2 text-sm text-gold-600 bg-gold-50 p-3 rounded-lg">
           <div
             className="w-6 h-6 rounded-full border-2 border-white shadow"
             style={{
-              backgroundColor: selectedOption?.hex || (value.startsWith("#") ? value : "#3B82F6"),
+              backgroundColor:
+                selectedOption?.hex ||
+                (value.startsWith("#") ? value : "#3B82F6"),
             }}
           />
           <span>
-            선택한 색상:{" "}
-            <strong>{selectedOption?.name || value}</strong>
+            선택한 색상: <strong>{selectedOption?.name || value}</strong>
           </span>
         </div>
       )}

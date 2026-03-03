@@ -612,7 +612,7 @@ export default function AdAutomationManagementPage() {
               {/* 광고 자동화 */}
               <div className="border rounded-lg p-4 space-y-3">
                 <div className="flex items-center gap-2 mb-2">
-                  <Zap className="w-5 h-5 text-blue-600" />
+                  <Zap className="w-5 h-5 text-gold-600" />
                   <h3 className="font-semibold text-lg">광고 자동화</h3>
                 </div>
                 <div className="flex items-center justify-between">
@@ -637,9 +637,9 @@ export default function AdAutomationManagementPage() {
 
                 {adEnabled && (
                   <div className="space-y-3 mt-3">
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <div className="bg-gold-50 border border-gold-200 rounded-lg p-3">
                       <div className="flex items-start gap-2">
-                        <CalendarIcon className="w-4 h-4 text-blue-600 mt-0.5" />
+                        <CalendarIcon className="w-4 h-4 text-gold-600 mt-0.5" />
                         <div className="flex-1 text-sm">
                           <p className="text-gray-700 mb-1">
                             <span className="font-medium">시작일:</span> {adStartDate ? format(adStartDate, "yyyy년 M월 d일", { locale: ko }) : "미설정"}
@@ -648,7 +648,7 @@ export default function AdAutomationManagementPage() {
                             <span className="font-medium">종료일:</span> {adEndDate ? format(adEndDate, "yyyy년 M월 d일", { locale: ko }) : "미설정"}
                             {selectedUser?.marketingSupportEndDate && adEndDate &&
                              new Date(adEndDate).getTime() === new Date(selectedUser.marketingSupportEndDate).getTime() && (
-                              <span className="ml-2 text-xs text-blue-600">(기수 마케팅 종료일)</span>
+                              <span className="ml-2 text-xs text-gold-600">(기수 마케팅 종료일)</span>
                             )}
                           </p>
                         </div>
@@ -806,7 +806,7 @@ export default function AdAutomationManagementPage() {
               {/* 광고 자동화 */}
               <div className="border rounded-lg p-3 space-y-2">
                 <div className="flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-blue-600" />
+                  <Zap className="w-4 h-4 text-gold-600" />
                   <h3 className="font-semibold text-sm">광고 자동화</h3>
                 </div>
                 <div className="flex items-center justify-between">
@@ -831,7 +831,7 @@ export default function AdAutomationManagementPage() {
 
                 {adEnabled && (
                   <div className="space-y-2 mt-2">
-                    <div className="bg-blue-50 border border-blue-200 rounded p-2 text-xs">
+                    <div className="bg-gold-50 border border-gold-200 rounded p-2 text-xs">
                       <p className="text-gray-700">시작: {adStartDate ? format(adStartDate, "yy.M.d", { locale: ko }) : "-"}</p>
                       <p className="text-gray-700">종료: {adEndDate ? format(adEndDate, "yy.M.d", { locale: ko }) : "-"}</p>
                     </div>

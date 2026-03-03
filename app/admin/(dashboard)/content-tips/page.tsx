@@ -272,7 +272,7 @@ export default function AdminContentTipsPage() {
                           {tip.linkType === "youtube" ? (
                             <Youtube className="w-4 h-4 text-red-600" />
                           ) : (
-                            <Globe className="w-4 h-4 text-blue-600" />
+                            <Globe className="w-4 h-4 text-gold-600" />
                           )}
                           <span className="text-sm font-medium">
                             {tip.linkType === "youtube" ? "유튜브" : "블로그"}
@@ -307,7 +307,7 @@ export default function AdminContentTipsPage() {
                           href={tip.linkUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline flex items-center gap-1"
+                          className="text-gold-600 hover:underline flex items-center gap-1"
                         >
                           <ExternalLink className="w-3 h-3" />
                           <span className="text-sm">링크</span>
@@ -339,7 +339,7 @@ export default function AdminContentTipsPage() {
                             size="sm"
                             onClick={() => handleOpenDialog(tip)}
                           >
-                            <Edit className="w-4 h-4 text-blue-600" />
+                            <Edit className="w-4 h-4 text-gold-600" />
                           </Button>
                           <Button
                             variant="ghost"
@@ -392,7 +392,7 @@ export default function AdminContentTipsPage() {
                   </SelectItem>
                   <SelectItem value="blog">
                     <div className="flex items-center gap-2">
-                      <Globe className="w-4 h-4 text-blue-600" />
+                      <Globe className="w-4 h-4 text-gold-600" />
                       <span>블로그</span>
                     </div>
                   </SelectItem>

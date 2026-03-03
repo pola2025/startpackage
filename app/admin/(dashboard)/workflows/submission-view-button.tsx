@@ -66,7 +66,7 @@ export default function SubmissionViewButton({ workflow }: SubmissionViewButtonP
         <Button
           size="sm"
           variant="outline"
-          className="border-blue-300 text-blue-700 hover:bg-blue-50"
+          className="border-gold-300 text-gold-700 hover:bg-gold-50"
         >
           <FileText className="w-3 h-3 mr-1" />
           제출정보
@@ -86,7 +86,7 @@ export default function SubmissionViewButton({ workflow }: SubmissionViewButtonP
         <div className="flex-1 overflow-y-auto min-h-0">
           {loading ? (
             <div className="py-12 text-center">
-              <Loader2 className="w-8 h-8 mx-auto animate-spin text-blue-600 mb-3" />
+              <Loader2 className="w-8 h-8 mx-auto animate-spin text-gold-600 mb-3" />
               <p className="text-gray-500">정보를 불러오는 중...</p>
             </div>
           ) : submission ? (
@@ -169,7 +169,7 @@ export default function SubmissionViewButton({ workflow }: SubmissionViewButtonP
                         href={submission.사업자등록증URL}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline flex items-center gap-1 mt-1"
+                        className="text-gold-600 hover:underline flex items-center gap-1 mt-1"
                       >
                         파일 보기 <ExternalLink className="w-3 h-3" />
                       </a>
@@ -182,7 +182,7 @@ export default function SubmissionViewButton({ workflow }: SubmissionViewButtonP
                         href={submission.프로필사진URL}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline flex items-center gap-1 mt-1"
+                        className="text-gold-600 hover:underline flex items-center gap-1 mt-1"
                       >
                         파일 보기 <ExternalLink className="w-3 h-3" />
                       </a>
@@ -240,7 +240,7 @@ export default function SubmissionViewButton({ workflow }: SubmissionViewButtonP
                           href={submission.로고URL}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline flex items-center gap-1 mt-1"
+                          className="text-gold-600 hover:underline flex items-center gap-1 mt-1"
                         >
                           파일 보기 <ExternalLink className="w-3 h-3" />
                         </a>
@@ -253,7 +253,7 @@ export default function SubmissionViewButton({ workflow }: SubmissionViewButtonP
                           href={submission.로고예시디자인URL}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline flex items-center gap-1 mt-1"
+                          className="text-gold-600 hover:underline flex items-center gap-1 mt-1"
                         >
                           파일 보기 <ExternalLink className="w-3 h-3" />
                         </a>
@@ -316,7 +316,7 @@ export default function SubmissionViewButton({ workflow }: SubmissionViewButtonP
 
             {/* 홈페이지 정보 탭 */}
             <TabsContent value="website" className="space-y-4">
-              <div className="space-y-3 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="space-y-3 p-4 bg-gold-50 rounded-lg border border-gold-200">
                 <h3 className="font-semibold text-gray-900">홈페이지 정보</h3>
                 <div className="grid grid-cols-1 gap-3 text-sm">
                   <div>
@@ -326,7 +326,7 @@ export default function SubmissionViewButton({ workflow }: SubmissionViewButtonP
                         href={submission.홈페이지스타일}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline flex items-center gap-1 mt-1"
+                        className="text-gold-600 hover:underline flex items-center gap-1 mt-1"
                       >
                         {(() => {
                           const styles: Record<string, string> = {
@@ -363,7 +363,7 @@ export default function SubmissionViewButton({ workflow }: SubmissionViewButtonP
               </div>
 
               {/* 아임웹 계정 정보 */}
-              <div className="space-y-3 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="space-y-3 p-4 bg-gold-50 rounded-lg border border-gold-200">
                 <h3 className="font-semibold text-gray-900">아임웹 계정 정보</h3>
                 <div className="grid grid-cols-1 gap-3 text-sm">
                   <div>
@@ -400,7 +400,7 @@ export default function SubmissionViewButton({ workflow }: SubmissionViewButtonP
               </div>
 
               {/* 네이버 클라우드 */}
-              <div className="space-y-3 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="space-y-3 p-4 bg-gold-50 rounded-lg border border-gold-200">
                 <h3 className="font-semibold text-gray-900">네이버 클라우드</h3>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>

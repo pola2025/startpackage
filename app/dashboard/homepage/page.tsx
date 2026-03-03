@@ -258,7 +258,7 @@ export default function HomepageSettingsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-gold-600" />
       </div>
     );
   }
@@ -377,7 +377,7 @@ export default function HomepageSettingsPage() {
                         href="https://www.whois.co.kr"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 underline"
+                        className="text-gold-600 underline"
                       >
                         후이즈 사이트
                       </a>

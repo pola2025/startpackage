@@ -44,10 +44,10 @@ export function InlineError({
 
   const severityConfig = {
     info: {
-      bg: "bg-blue-50",
-      border: "border-blue-200",
-      icon: <Info className="w-4 h-4 text-blue-500" />,
-      textColor: "text-blue-800",
+      bg: "bg-gold-50",
+      border: "border-gold-200",
+      icon: <Info className="w-4 h-4 text-gold-500" />,
+      textColor: "text-navy-800",
     },
     warning: {
       bg: "bg-amber-50",

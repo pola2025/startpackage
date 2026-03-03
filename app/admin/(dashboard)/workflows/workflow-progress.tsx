@@ -16,10 +16,10 @@ const getProgressByStatus = (status: string, type: string): number => {
   // 로고 워크플로우 전용 상태
   if (type === "로고") {
     const logoProgressMap: Record<string, number> = {
-      "대기": 10,
-      "시안제작중": 40,
-      "시안컨펌요청": 70,
-      "최종확정": 100,
+      대기: 10,
+      시안제작중: 40,
+      시안컨펌요청: 70,
+      최종확정: 100,
     };
     return logoProgressMap[status] ?? 0;
   }
@@ -27,25 +27,25 @@ const getProgressByStatus = (status: string, type: string): number => {
   // 홈페이지 워크플로우 전용 상태
   if (type === "홈페이지") {
     const homepageProgressMap: Record<string, number> = {
-      "대기": 10,
+      대기: 10,
       "제작 진행 중": 50,
-      "제작진행중": 50, // 띄어쓰기 없는 버전 호환
+      제작진행중: 50, // 띄어쓰기 없는 버전 호환
       "제작 완료": 80,
-      "제작완료": 80, // 띄어쓰기 없는 버전 호환
-      "최종확정": 100,
+      제작완료: 80, // 띄어쓰기 없는 버전 호환
+      최종확정: 100,
     };
     return homepageProgressMap[status] ?? 0;
   }
 
   // 인쇄물 워크플로우 (명함, 명찰, 대봉투, 자문계약서 등)
   const printProgressMap: Record<string, number> = {
-    "대기": 10,
-    "시안중": 25,
-    "발주대기": 40,
-    "발주요청": 55,
-    "발주완료": 70,
-    "제작완료": 85,
-    "발송완료": 100,
+    대기: 10,
+    시안중: 25,
+    발주대기: 40,
+    발주요청: 55,
+    발주완료: 70,
+    제작완료: 85,
+    발송완료: 100,
   };
   return printProgressMap[status] ?? 0;
 };
@@ -54,7 +54,7 @@ const getProgressByStatus = (status: string, type: string): number => {
 const getUrgencyLevel = (
   자료제출일: Date | null | undefined,
   수정횟수: number,
-  status: string
+  status: string,
 ): { level: "low" | "medium" | "high"; label: string } => {
   // 완료 상태 (최종확정 또는 발송완료)는 긴급도 없음
   if (status === "최종확정" || status === "발송완료") {
@@ -66,7 +66,7 @@ const getUrgencyLevel = (
 
   if (자료제출일) {
     daysSinceSubmission = Math.floor(
-      (now.getTime() - new Date(자료제출일).getTime()) / (1000 * 60 * 60 * 24)
+      (now.getTime() - new Date(자료제출일).getTime()) / (1000 * 60 * 60 * 24),
     );
   }
 
@@ -103,10 +103,10 @@ export default function WorkflowProgress({
   const progressColor = completed
     ? "bg-emerald-500"
     : urgency.level === "high"
-    ? "bg-red-500"
-    : urgency.level === "medium"
-    ? "bg-orange-500"
-    : "bg-blue-500";
+      ? "bg-red-500"
+      : urgency.level === "medium"
+        ? "bg-orange-500"
+        : "bg-gold-500";
 
   return (
     <div className="space-y-2">
@@ -138,7 +138,11 @@ export default function WorkflowProgress({
           )}
         </div>
       </div>
-      <Progress value={progress} className="h-2" indicatorClassName={progressColor} />
+      <Progress
+        value={progress}
+        className="h-2"
+        indicatorClassName={progressColor}
+      />
     </div>
   );
 }

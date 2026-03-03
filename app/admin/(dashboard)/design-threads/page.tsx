@@ -111,7 +111,9 @@ interface ThreadDetail {
 
 export default function AdminDesignThreadsPage() {
   const [threads, setThreads] = useState<DesignThread[]>([]);
-  const [selectedThread, setSelectedThread] = useState<ThreadDetail | null>(null);
+  const [selectedThread, setSelectedThread] = useState<ThreadDetail | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
@@ -162,34 +164,40 @@ export default function AdminDesignThreadsPage() {
   };
 
   // 스레드 목록 조회
-  const fetchThreads = useCallback(async (keepSelectedThreadId?: string, silentRefresh: boolean = false) => {
-    try {
-      if (!silentRefresh) setLoading(true);
-      const params = new URLSearchParams();
-      if (statusFilter !== "all") params.append("status", statusFilter);
-      if (typeFilter !== "all") params.append("type", typeFilter);
+  const fetchThreads = useCallback(
+    async (keepSelectedThreadId?: string, silentRefresh: boolean = false) => {
+      try {
+        if (!silentRefresh) setLoading(true);
+        const params = new URLSearchParams();
+        if (statusFilter !== "all") params.append("status", statusFilter);
+        if (typeFilter !== "all") params.append("type", typeFilter);
 
-      const response = await fetch(`/api/design-threads?${params}`);
-      const data = await response.json();
+        const response = await fetch(`/api/design-threads?${params}`);
+        const data = await response.json();
 
-      if (response.ok) {
-        setThreads(data.threads || []);
+        if (response.ok) {
+          setThreads(data.threads || []);
 
-        // 선택된 쓰레드가 있으면 상세 정보 다시 조회
-        const threadIdToKeep = keepSelectedThreadId || selectedThread?.id;
-        if (threadIdToKeep) {
-          fetchThreadDetail(threadIdToKeep, silentRefresh);
+          // 선택된 쓰레드가 있으면 상세 정보 다시 조회
+          const threadIdToKeep = keepSelectedThreadId || selectedThread?.id;
+          if (threadIdToKeep) {
+            fetchThreadDetail(threadIdToKeep, silentRefresh);
+          }
         }
+      } catch (error) {
+        console.error("Failed to fetch threads:", error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Failed to fetch threads:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [statusFilter, typeFilter, selectedThread?.id]);
+    },
+    [statusFilter, typeFilter, selectedThread?.id],
+  );
 
   // 스레드 상세 조회
-  const fetchThreadDetail = async (threadId: string, silentRefresh: boolean = false) => {
+  const fetchThreadDetail = async (
+    threadId: string,
+    silentRefresh: boolean = false,
+  ) => {
     try {
       const response = await fetch(`/api/design-threads/${threadId}`);
       const data = await response.json();
@@ -235,7 +243,7 @@ export default function AdminDesignThreadsPage() {
           threads: DesignThread[];
           unreadCount: number;
         }
-      >
+      >,
     );
 
     // 배열로 변환하고 정렬 (미확인 메시지 있는 사용자 우선)
@@ -245,10 +253,10 @@ export default function AdminDesignThreadsPage() {
       }
       // 최신 업데이트 순
       const aLastUpdate = Math.max(
-        ...a.threads.map((t) => new Date(t.updatedAt).getTime())
+        ...a.threads.map((t) => new Date(t.updatedAt).getTime()),
       );
       const bLastUpdate = Math.max(
-        ...b.threads.map((t) => new Date(t.updatedAt).getTime())
+        ...b.threads.map((t) => new Date(t.updatedAt).getTime()),
       );
       return bLastUpdate - aLastUpdate;
     });
@@ -375,7 +383,7 @@ export default function AdminDesignThreadsPage() {
             attachments: isDesignUpload ? [] : attachments,
             designUrl: isDesignUpload ? designUrl : undefined,
           }),
-        }
+        },
       );
 
       if (response.ok) {
@@ -410,7 +418,7 @@ export default function AdminDesignThreadsPage() {
       case "uploaded":
       case "feedback_waiting":
         return (
-          <Badge className="bg-blue-100 text-blue-700 border-blue-300">
+          <Badge className="bg-gold-100 text-gold-700 border-gold-300">
             <FileImage className="w-3 h-3 mr-1" />
             피드백 대기
           </Badge>
@@ -498,7 +506,9 @@ export default function AdminDesignThreadsPage() {
                 시안 업로드 시 클라이언트에게 자동 알림이 전송됩니다.
               </span>
             </li>
-            <li>• 클라이언트가 시안을 확정하면 자동으로 발주 단계로 넘어갑니다.</li>
+            <li>
+              • 클라이언트가 시안을 확정하면 자동으로 발주 단계로 넘어갑니다.
+            </li>
             <li>• 수정 요청이 오면 &quot;수정 요청&quot; 상태로 변경됩니다.</li>
           </ul>
         </AlertDescription>
@@ -574,7 +584,9 @@ export default function AdminDesignThreadsPage() {
                               )}
                               <span
                                 className={`text-sm font-semibold ${
-                                  hasUnread ? "text-purple-900" : "text-gray-900"
+                                  hasUnread
+                                    ? "text-purple-900"
+                                    : "text-gray-900"
                                 }`}
                               >
                                 {userGroup.user.이름}
@@ -624,8 +636,8 @@ export default function AdminDesignThreadsPage() {
                                   selectedThread?.id === thread.id
                                     ? "bg-purple-50 border-purple-300"
                                     : hasThreadUnread
-                                    ? "bg-purple-100 border-purple-400 hover:bg-purple-200 shadow-md"
-                                    : "bg-gray-50 border-gray-200 hover:bg-gray-100"
+                                      ? "bg-purple-100 border-purple-400 hover:bg-purple-200 shadow-md"
+                                      : "bg-gray-50 border-gray-200 hover:bg-gray-100"
                                 }`}
                                 onClick={() => handleSelectThread(thread)}
                               >
@@ -648,8 +660,9 @@ export default function AdminDesignThreadsPage() {
                                             : "border-gray-300 text-gray-600"
                                         }`}
                                       >
-                                        {WORKFLOW_TYPE_LABELS[thread.workflow.type] ||
-                                          thread.workflow.type}
+                                        {WORKFLOW_TYPE_LABELS[
+                                          thread.workflow.type
+                                        ] || thread.workflow.type}
                                       </Badge>
                                     </div>
                                     <p className="text-sm text-gray-900 font-medium">
@@ -763,7 +776,7 @@ export default function AdminDesignThreadsPage() {
                             {format(
                               new Date(item.date),
                               "yyyy년 M월 d일 EEEE",
-                              { locale: ko }
+                              { locale: ko },
                             )}
                           </span>
                           <div className="flex-1 h-px bg-gray-300" />
@@ -829,7 +842,9 @@ export default function AdminDesignThreadsPage() {
                                     </span>
                                   </div>
                                   {/* 이미지 파일인 경우 미리보기 */}
-                                  {/\.(jpg|jpeg|png|gif|webp|svg)$/i.test(message.designUrl) ? (
+                                  {/\.(jpg|jpeg|png|gif|webp|svg)$/i.test(
+                                    message.designUrl,
+                                  ) ? (
                                     <div className="space-y-2">
                                       <div
                                         className="cursor-pointer"
@@ -854,7 +869,9 @@ export default function AdminDesignThreadsPage() {
                                           size="sm"
                                           className="text-purple-700 border-purple-300 hover:bg-purple-100"
                                           onClick={() => {
-                                            setModalImages([message.designUrl!]);
+                                            setModalImages([
+                                              message.designUrl!,
+                                            ]);
                                             setModalInitialIndex(0);
                                             setImageModalOpen(true);
                                           }}
@@ -877,7 +894,8 @@ export default function AdminDesignThreadsPage() {
                                     <div className="flex items-center gap-2">
                                       <div className="flex-1 p-2 bg-purple-50 rounded border border-purple-200">
                                         <span className="text-sm text-gray-600 break-all">
-                                          {message.designUrl.split('/').pop() || '시안 파일'}
+                                          {message.designUrl.split("/").pop() ||
+                                            "시안 파일"}
                                         </span>
                                       </div>
                                       <a
@@ -922,7 +940,7 @@ export default function AdminDesignThreadsPage() {
                               {/* 읽음 상태 */}
                               {message.authorType === "admin" &&
                                 message.isReadByUser && (
-                                  <p className="text-[10px] mt-1 text-blue-500">
+                                  <p className="text-[10px] mt-1 text-gold-600">
                                     읽음
                                   </p>
                                 )}
@@ -931,7 +949,7 @@ export default function AdminDesignThreadsPage() {
                         </div>
                       </div>
                     );
-                  }
+                  },
                 )}
 
                 {selectedThread.messages.length === 0 && (
@@ -977,208 +995,227 @@ export default function AdminDesignThreadsPage() {
                     </div>
                   )}
 
-                    {isDesignUpload && selectedThread.status !== "confirmed" ? (
-                      /* 시안 업로드 모드 - 확정 상태가 아닐 때만 */
-                      <div className="space-y-3">
-                        <div>
-                          <label className="text-sm font-medium text-gray-700 mb-1 block">
-                            시안 파일 업로드
-                          </label>
-                          {designUrl ? (
-                            <div className="flex items-center gap-2 p-3 bg-purple-50 border border-purple-200 rounded-lg">
-                              <FileImage className="w-5 h-5 text-purple-600 flex-shrink-0" />
-                              <span className="text-sm text-gray-700 flex-1 truncate">{designFileName}</span>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  setDesignUrl("");
-                                  setDesignFileName("");
-                                }}
-                                className="h-7 w-7 p-0 text-gray-500 hover:text-red-600"
-                              >
-                                <X className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          ) : (
-                            <div className="relative">
-                              <input
-                                type="file"
-                                id="design-file-upload"
-                                accept="image/*,.pdf,.ai,.psd,.eps,.svg"
-                                className="hidden"
-                                onChange={(e) => {
-                                  const file = e.target.files?.[0];
-                                  if (file) handleDesignFileUpload(file);
-                                  e.target.value = "";
-                                }}
-                                disabled={designUploading}
-                              />
-                              <Button
-                                type="button"
-                                variant="outline"
-                                className="w-full h-20 border-dashed border-2 hover:border-purple-400 hover:bg-purple-50"
-                                onClick={() => document.getElementById("design-file-upload")?.click()}
-                                disabled={designUploading}
-                              >
-                                <div className="flex flex-col items-center gap-1">
-                                  {designUploading ? (
-                                    <>
-                                      <div className="w-5 h-5 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
-                                      <span className="text-xs text-gray-500">업로드 중...</span>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Upload className="w-5 h-5 text-gray-400" />
-                                      <span className="text-xs text-gray-500">파일 선택</span>
-                                      <span className="text-[10px] text-gray-400">이미지, PDF, AI, PSD 지원</span>
-                                    </>
-                                  )}
-                                </div>
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-                        <p className="text-xs text-gray-500">
-                          다음 시안 버전: {selectedThread.currentVersion + 1}차
-                        </p>
-                      </div>
-                    ) : (
-                      /* 일반 메시지 모드 */
-                      <div className="space-y-2">
-                        {attachments.length > 0 && (
-                          <div className="flex flex-wrap gap-2">
-                            {attachments.map((url, idx) => (
-                              <div key={idx} className="relative w-16 h-16">
-                                <Image
-                                  src={url}
-                                  alt="첨부"
-                                  width={64}
-                                  height={64}
-                                  className="w-16 h-16 object-cover rounded border border-gray-200"
-                                  unoptimized
-                                />
-                                <button
-                                  onClick={() =>
-                                    setAttachments(
-                                      attachments.filter((_, i) => i !== idx)
-                                    )
-                                  }
-                                  className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
-                                  aria-label="첨부 이미지 삭제"
-                                >
-                                  ×
-                                </button>
+                  {isDesignUpload && selectedThread.status !== "confirmed" ? (
+                    /* 시안 업로드 모드 - 확정 상태가 아닐 때만 */
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-sm font-medium text-gray-700 mb-1 block">
+                          시안 파일 업로드
+                        </label>
+                        {designUrl ? (
+                          <div className="flex items-center gap-2 p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                            <FileImage className="w-5 h-5 text-purple-600 flex-shrink-0" />
+                            <span className="text-sm text-gray-700 flex-1 truncate">
+                              {designFileName}
+                            </span>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setDesignUrl("");
+                                setDesignFileName("");
+                              }}
+                              className="h-7 w-7 p-0 text-gray-500 hover:text-red-600"
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="relative">
+                            <input
+                              type="file"
+                              id="design-file-upload"
+                              accept="image/*,.pdf,.ai,.psd,.eps,.svg"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) handleDesignFileUpload(file);
+                                e.target.value = "";
+                              }}
+                              disabled={designUploading}
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="w-full h-20 border-dashed border-2 hover:border-purple-400 hover:bg-purple-50"
+                              onClick={() =>
+                                document
+                                  .getElementById("design-file-upload")
+                                  ?.click()
+                              }
+                              disabled={designUploading}
+                            >
+                              <div className="flex flex-col items-center gap-1">
+                                {designUploading ? (
+                                  <>
+                                    <div className="w-5 h-5 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
+                                    <span className="text-xs text-gray-500">
+                                      업로드 중...
+                                    </span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Upload className="w-5 h-5 text-gray-400" />
+                                    <span className="text-xs text-gray-500">
+                                      파일 선택
+                                    </span>
+                                    <span className="text-[10px] text-gray-400">
+                                      이미지, PDF, AI, PSD 지원
+                                    </span>
+                                  </>
+                                )}
                               </div>
-                            ))}
+                            </Button>
                           </div>
                         )}
-                        <Textarea
-                          value={messageContent}
-                          onChange={(e) => setMessageContent(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter" && !e.shiftKey) {
-                              e.preventDefault();
-                              if (
-                                (messageContent.trim() ||
-                                  attachments.length > 0) &&
-                                !sending
-                              ) {
-                                handleSendMessage();
-                              }
-                            }
-                          }}
-                          placeholder="메시지를 입력하세요... (Enter: 전송, Shift+Enter: 줄바꿈)"
-                          className="bg-white border-gray-200 text-gray-900 resize-none min-h-[60px] sm:min-h-[100px] text-sm sm:text-base"
-                        />
                       </div>
-                    )}
-
-                    <div className="flex items-center justify-between gap-2">
-                      {(!isDesignUpload || selectedThread.status === "confirmed") && (
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="file"
-                            id="admin-design-file"
-                            accept="image/*"
-                            className="hidden"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) handleImageUpload(file);
-                              e.target.value = "";
-                            }}
-                            disabled={uploading}
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            className="border-gray-200 text-gray-600 h-8 px-2 text-xs sm:h-10 sm:px-4 sm:text-sm"
-                            disabled={uploading}
-                            onClick={() =>
-                              document
-                                .getElementById("admin-design-file")
-                                ?.click()
-                            }
-                          >
-                            <Paperclip className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
-                            <span className="hidden sm:inline">
-                              {uploading ? "업로드 중..." : "이미지"}
-                            </span>
-                          </Button>
+                      <p className="text-xs text-gray-500">
+                        다음 시안 버전: {selectedThread.currentVersion + 1}차
+                      </p>
+                    </div>
+                  ) : (
+                    /* 일반 메시지 모드 */
+                    <div className="space-y-2">
+                      {attachments.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {attachments.map((url, idx) => (
+                            <div key={idx} className="relative w-16 h-16">
+                              <Image
+                                src={url}
+                                alt="첨부"
+                                width={64}
+                                height={64}
+                                className="w-16 h-16 object-cover rounded border border-gray-200"
+                                unoptimized
+                              />
+                              <button
+                                onClick={() =>
+                                  setAttachments(
+                                    attachments.filter((_, i) => i !== idx),
+                                  )
+                                }
+                                className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                                aria-label="첨부 이미지 삭제"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))}
                         </div>
                       )}
-                      <div className={isDesignUpload && selectedThread.status !== "confirmed" ? "ml-auto" : ""}>
-                        <Button
-                          onClick={handleSendMessage}
-                          disabled={
-                            sending ||
-                            (isDesignUpload && selectedThread.status !== "confirmed"
-                              ? !designUrl.trim()
-                              : !messageContent.trim() &&
-                                attachments.length === 0)
+                      <Textarea
+                        value={messageContent}
+                        onChange={(e) => setMessageContent(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            if (
+                              (messageContent.trim() ||
+                                attachments.length > 0) &&
+                              !sending
+                            ) {
+                              handleSendMessage();
+                            }
                           }
+                        }}
+                        placeholder="메시지를 입력하세요... (Enter: 전송, Shift+Enter: 줄바꿈)"
+                        className="bg-white border-gray-200 text-gray-900 resize-none min-h-[60px] sm:min-h-[100px] text-sm sm:text-base"
+                      />
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between gap-2">
+                    {(!isDesignUpload ||
+                      selectedThread.status === "confirmed") && (
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="file"
+                          id="admin-design-file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleImageUpload(file);
+                            e.target.value = "";
+                          }}
+                          disabled={uploading}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
                           size="sm"
-                          className="bg-purple-600 hover:bg-purple-700 text-white h-8 px-3 text-xs sm:h-10 sm:px-4 sm:text-sm"
+                          className="border-gray-200 text-gray-600 h-8 px-2 text-xs sm:h-10 sm:px-4 sm:text-sm"
+                          disabled={uploading}
+                          onClick={() =>
+                            document
+                              .getElementById("admin-design-file")
+                              ?.click()
+                          }
                         >
-                          <Send className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
-                          {sending
-                            ? "전송 중..."
-                            : isDesignUpload && selectedThread.status !== "confirmed"
-                            ? "시안 업로드"
-                            : "전송"}
+                          <Paperclip className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+                          <span className="hidden sm:inline">
+                            {uploading ? "업로드 중..." : "이미지"}
+                          </span>
                         </Button>
                       </div>
-                    </div>
-
-                    {/* 확정 완료 안내 배너 */}
-                    {selectedThread.status === "confirmed" && (
-                      <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                        <div className="flex items-center gap-2 text-green-700 text-sm">
-                          <CheckCircle className="w-4 h-4 flex-shrink-0" />
-                          <span className="font-medium">
-                            시안 확정 완료
-                          </span>
-                          {selectedThread.confirmedAt && (
-                            <span className="text-green-600">
-                              ({selectedThread.confirmedByName},{" "}
-                              {format(
-                                new Date(selectedThread.confirmedAt),
-                                "yyyy-MM-dd HH:mm",
-                                { locale: ko }
-                              )}
-                              )
-                            </span>
-                          )}
-                          <span className="text-green-600 ml-auto text-xs">
-                            추가 안내사항을 전달할 수 있습니다
-                          </span>
-                        </div>
-                      </div>
                     )}
+                    <div
+                      className={
+                        isDesignUpload && selectedThread.status !== "confirmed"
+                          ? "ml-auto"
+                          : ""
+                      }
+                    >
+                      <Button
+                        onClick={handleSendMessage}
+                        disabled={
+                          sending ||
+                          (isDesignUpload &&
+                          selectedThread.status !== "confirmed"
+                            ? !designUrl.trim()
+                            : !messageContent.trim() &&
+                              attachments.length === 0)
+                        }
+                        size="sm"
+                        className="bg-purple-600 hover:bg-purple-700 text-white h-8 px-3 text-xs sm:h-10 sm:px-4 sm:text-sm"
+                      >
+                        <Send className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+                        {sending
+                          ? "전송 중..."
+                          : isDesignUpload &&
+                              selectedThread.status !== "confirmed"
+                            ? "시안 업로드"
+                            : "전송"}
+                      </Button>
+                    </div>
                   </div>
+
+                  {/* 확정 완료 안내 배너 */}
+                  {selectedThread.status === "confirmed" && (
+                    <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <div className="flex items-center gap-2 text-green-700 text-sm">
+                        <CheckCircle className="w-4 h-4 flex-shrink-0" />
+                        <span className="font-medium">시안 확정 완료</span>
+                        {selectedThread.confirmedAt && (
+                          <span className="text-green-600">
+                            ({selectedThread.confirmedByName},{" "}
+                            {format(
+                              new Date(selectedThread.confirmedAt),
+                              "yyyy-MM-dd HH:mm",
+                              { locale: ko },
+                            )}
+                            )
+                          </span>
+                        )}
+                        <span className="text-green-600 ml-auto text-xs">
+                          추가 안내사항을 전달할 수 있습니다
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
+              </div>
             </>
           ) : (
             <CardContent className="flex items-center justify-center h-full">

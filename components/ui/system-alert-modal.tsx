@@ -179,7 +179,7 @@ export function SystemAlertModal({
                 <AlertTriangle className="h-5 w-5 text-yellow-600" />
               )}
               {currentAlert.type === "info" && (
-                <Info className="h-5 w-5 text-blue-600" />
+                <Info className="h-5 w-5 text-gold-600" />
               )}
               <DialogTitle>{currentAlert.title}</DialogTitle>
             </div>
@@ -213,7 +213,7 @@ export function SystemAlertModal({
                     ? "bg-red-50 border-red-200 text-red-900"
                     : currentAlert.type === "warning"
                       ? "bg-yellow-50 border-yellow-200 text-yellow-900"
-                      : "bg-blue-50 border-blue-200 text-blue-900"
+                      : "bg-gold-50 border-gold-200 text-navy-900"
                 }`}
               >
                 {currentAlert.content}

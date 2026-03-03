@@ -200,7 +200,7 @@ export default function DesignSMSModal({
       <DialogContent className="max-w-2xl max-h-[80vh]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <MessageSquare className="w-5 h-5 text-blue-600" />
+            <MessageSquare className="w-5 h-5 text-gold-600" />
             시안 완료 SMS 발송
           </DialogTitle>
           <DialogDescription>
@@ -285,8 +285,8 @@ export default function DesignSMSModal({
                             disabled={!hasPhone}
                           />
                           <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                              <User className="w-4 h-4 text-blue-600" />
+                            <div className="w-8 h-8 rounded-full bg-gold-100 flex items-center justify-center">
+                              <User className="w-4 h-4 text-gold-600" />
                             </div>
                             <div>
                               <div className="font-medium text-gray-900">{user.userName}</div>
@@ -364,7 +364,7 @@ export default function DesignSMSModal({
                 <Button
                   onClick={handleSend}
                   disabled={sending || usersToSend === 0}
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="bg-navy-900 hover:bg-navy-800"
                 >
                   {sending ? (
                     <>

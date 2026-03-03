@@ -103,7 +103,7 @@ export default function UserLayout({
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-navy-900 flex items-center justify-center">
         <div className="text-white animate-pulse">로딩 중...</div>
       </div>
     );
@@ -118,7 +118,6 @@ export default function UserLayout({
 
   // 수료생이면 리다이렉트 중이므로 로딩 화면 표시
   const cohortName = (session?.user as any)?.cohortName;
-
 
   // 수료생 여부 확인
   const isGraduated = (session?.user as any)?.isGraduated === true;

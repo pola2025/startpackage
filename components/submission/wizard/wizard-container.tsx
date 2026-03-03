@@ -169,7 +169,7 @@ function WizardInner({
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-blue-50 to-white">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-gold-50 to-white">
       {/* 헤더 영역 */}
       <div className="sticky top-0 z-10 bg-white/95 backdrop-blur border-b border-gray-100">
         <div className="max-w-2xl mx-auto px-4 py-3 space-y-3">
@@ -195,10 +195,7 @@ function WizardInner({
       </div>
 
       {/* 네비게이션 (하단 고정) */}
-      <WizardNavigation
-        onSubmit={handleSubmit}
-        isSubmitting={isSubmitting}
-      />
+      <WizardNavigation onSubmit={handleSubmit} isSubmitting={isSubmitting} />
     </div>
   );
 }
@@ -266,9 +263,7 @@ export function WizardModeSelector({
               ? "이전에 입력하던 내용이 있어요!"
               : "자료 제출을 시작합니다"}
           </h2>
-          <p className="text-sm text-gray-500">
-            어떤 방식으로 진행하시겠어요?
-          </p>
+          <p className="text-sm text-gray-500">어떤 방식으로 진행하시겠어요?</p>
         </div>
 
         <div className="space-y-3">
@@ -277,8 +272,8 @@ export function WizardModeSelector({
               onClick={() => onSelect("tab")}
               className={cn(
                 "w-full p-4 rounded-xl border-2 text-left transition-all",
-                "hover:border-blue-300 hover:bg-blue-50",
-                "border-gray-200"
+                "hover:border-gold-300 hover:bg-gold-50",
+                "border-gray-200",
               )}
             >
               <p className="font-semibold text-gray-900">이어서 작성하기</p>
@@ -292,14 +287,14 @@ export function WizardModeSelector({
             onClick={() => onSelect("wizard")}
             className={cn(
               "w-full p-4 rounded-xl border-2 text-left transition-all",
-              "hover:border-blue-500 hover:bg-blue-50",
-              "border-blue-500 bg-blue-50"
+              "hover:border-gold-500 hover:bg-gold-50",
+              "border-gold-500 bg-gold-50",
             )}
           >
-            <p className="font-semibold text-blue-700">
+            <p className="font-semibold text-navy-700">
               {hasExistingData ? "처음부터 안내받기" : "단계별로 안내받기"}
             </p>
-            <p className="text-sm text-blue-600 mt-1">
+            <p className="text-sm text-gold-600 mt-1">
               Wizard 모드로 차근차근 진행
             </p>
           </button>

@@ -113,7 +113,9 @@ export function Celebration({
         {/* 메시지 */}
         <h3
           className={`text-xl sm:text-2xl font-bold text-gray-900 mb-2 transition-all duration-500 delay-200 ${
-            isAnimating ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+            isAnimating
+              ? "opacity-100 translate-y-0"
+              : "opacity-0 translate-y-4"
           }`}
         >
           {message}
@@ -138,7 +140,7 @@ function ConfettiParticles({ isAnimating }: { isAnimating: boolean }) {
   const colors = [
     "bg-yellow-400",
     "bg-pink-400",
-    "bg-blue-400",
+    "bg-gold-400",
     "bg-green-400",
     "bg-purple-400",
     "bg-orange-400",
@@ -202,11 +204,9 @@ export function useCelebration() {
    * 섹션 완료 상태 업데이트 및 새로 완료된 섹션 감지
    */
   const checkSectionCompletion = useCallback(
-    (
-      sections: Array<{ name: string; label: string; isComplete: boolean }>
-    ) => {
+    (sections: Array<{ name: string; label: string; isComplete: boolean }>) => {
       const currentCompletedSections = new Set(
-        sections.filter((s) => s.isComplete).map((s) => s.name)
+        sections.filter((s) => s.isComplete).map((s) => s.name),
       );
 
       // 새로 완료된 섹션 찾기
@@ -224,7 +224,7 @@ export function useCelebration() {
 
       previousCompletedSectionsRef.current = currentCompletedSections;
     },
-    [] // 의존성 배열에서 previousCompletedSections 제거
+    [], // 의존성 배열에서 previousCompletedSections 제거
   );
 
   const closeCelebration = useCallback(() => {

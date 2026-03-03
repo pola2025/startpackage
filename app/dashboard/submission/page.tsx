@@ -574,7 +574,7 @@ export default function SubmissionPage() {
           {!submission?.isComplete && submission && (
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
               <div className="text-xs sm:text-sm text-gray-500">
-                완성도: <span className="font-bold text-blue-600">{completionRate}%</span>
+                완성도: <span className="font-bold text-gold-600">{completionRate}%</span>
               </div>
               <div className="text-xs sm:text-sm text-gray-500 hidden sm:block">
                 각 섹션별로 수정이 가능합니다
@@ -621,9 +621,9 @@ export default function SubmissionPage() {
 
               {/* 시안 전달 예정 - 아직 시안업로드일이 없는 워크플로우가 있고 시안예정일이 있을 때만 표시 */}
               {workflows.some((w: any) => !w.시안업로드일 && w.type !== "로고") && submission.시안예정일 && (
-                <div className="flex items-center gap-2 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-                  <p className="text-blue-700 font-medium">
+                <div className="flex items-center gap-2 p-4 bg-gold-50 border border-gold-200 rounded-lg">
+                  <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-gold-600" />
+                  <p className="text-navy-700 font-medium">
                     {new Date(submission.시안예정일).toLocaleDateString('ko-KR', {
                       month: 'long',
                       day: 'numeric',
@@ -636,9 +636,9 @@ export default function SubmissionPage() {
           </div>
         ) : (
           <div className="space-y-3">
-            <div className="flex items-center gap-2 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-              <p className="text-blue-700">
+            <div className="flex items-center gap-2 p-4 bg-gold-50 border border-gold-200 rounded-lg">
+              <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-gold-600" />
+              <p className="text-navy-700">
                 각 카테고리별 필요한 자료를 제출해주세요. 디자인 제작요청 전까지 언제든 수정 가능합니다.
               </p>
             </div>
@@ -670,7 +670,7 @@ export default function SubmissionPage() {
         <div className="mb-6">
           <button
             onClick={() => setShowMyStatus(!showMyStatus)}
-            className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl hover:border-blue-300 transition-colors"
+            className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-gold-50 to-gold-100 border-2 border-gold-200 rounded-xl hover:border-gold-300 transition-colors"
           >
             <div className="flex items-center gap-3">
               <span className="text-lg">📋</span>
@@ -682,13 +682,13 @@ export default function SubmissionPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-blue-600">
+              <span className="text-sm font-medium text-gold-600">
                 {showMyStatus ? "접기" : "펼치기"}
               </span>
               {showMyStatus ? (
-                <ChevronUp className="w-5 h-5 text-blue-600" />
+                <ChevronUp className="w-5 h-5 text-gold-600" />
               ) : (
-                <ChevronDown className="w-5 h-5 text-blue-600" />
+                <ChevronDown className="w-5 h-5 text-gold-600" />
               )}
             </div>
           </button>
@@ -739,14 +739,14 @@ export default function SubmissionPage() {
         <TabsList className="hidden md:grid bg-white border-2 border-gray-200 p-1.5 rounded-xl shadow-sm grid-cols-4 gap-1 h-auto">
           <TabsTrigger
             value="basic"
-            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-semibold text-xs sm:text-sm py-2"
+            className="data-[state=active]:bg-navy-900 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-semibold text-xs sm:text-sm py-2"
           >
             📄 기본 정보
           </TabsTrigger>
           <TabsTrigger
             value="logo"
             disabled={!isBasicInfoComplete()}
-            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm py-2"
+            className="data-[state=active]:bg-navy-900 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm py-2"
             title={!isBasicInfoComplete() ? "기본 정보를 먼저 완성해주세요" : ""}
           >
             🎨 로고
@@ -754,14 +754,14 @@ export default function SubmissionPage() {
           <TabsTrigger
             value="print"
             disabled={!isBasicInfoComplete()}
-            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm py-2"
+            className="data-[state=active]:bg-navy-900 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm py-2"
             title={!isBasicInfoComplete() ? "기본 정보를 먼저 완성해주세요" : ""}
           >
             🖨️ 인쇄물
           </TabsTrigger>
           <TabsTrigger
             value="marketing"
-            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-semibold text-xs sm:text-sm py-2"
+            className="data-[state=active]:bg-navy-900 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-semibold text-xs sm:text-sm py-2"
           >
             📱 마케팅
           </TabsTrigger>
@@ -905,7 +905,7 @@ export default function SubmissionPage() {
                         id="sameAddress"
                         checked={sameAddress}
                         onChange={(e) => setSameAddress(e.target.checked)}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        className="w-4 h-4 text-gold-600 border-gray-300 rounded focus:ring-gold-500"
                       />
                       <Label
                         htmlFor="sameAddress"
@@ -941,7 +941,7 @@ export default function SubmissionPage() {
                       <Button
                         type="submit"
                         disabled={loading}
-                        className="bg-blue-600 text-white hover:bg-blue-700 text-sm sm:text-base"
+                        className="bg-navy-900 text-white hover:bg-navy-800 text-sm sm:text-base"
                       >
                         {loading ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />}
                         저장하기
@@ -997,7 +997,7 @@ export default function SubmissionPage() {
                           href={submission.로고URL}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline"
+                          className="text-gold-600 hover:underline"
                         >
                           파일 보기
                         </a>
@@ -1014,7 +1014,7 @@ export default function SubmissionPage() {
                           }}
                           disabled={uploading}
                         />
-                        <div className="flex items-center justify-center gap-2 p-2 rounded-lg border border-gray-300 hover:border-blue-500 hover:bg-blue-50 cursor-pointer transition-all">
+                        <div className="flex items-center justify-center gap-2 p-2 rounded-lg border border-gray-300 hover:border-gold-500 hover:bg-gold-50 cursor-pointer transition-all">
                           <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
                           <span className="text-sm sm:text-base">파일 변경</span>
                         </div>
@@ -1033,7 +1033,7 @@ export default function SubmissionPage() {
                         }}
                         disabled={uploading}
                       />
-                      <div className="flex items-center justify-center gap-2 p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-blue-500 cursor-pointer transition-all">
+                      <div className="flex items-center justify-center gap-2 p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-gold-500 cursor-pointer transition-all">
                         <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
                         <span className="text-sm sm:text-base">로고 파일 업로드</span>
                       </div>
@@ -1071,8 +1071,8 @@ export default function SubmissionPage() {
                         disabled={submission?.isComplete || !isEditingLogo}
                         className={`p-4 rounded-lg border-2 transition-all ${
                           selectedStyle === style.name
-                            ? "border-blue-600 bg-blue-50"
-                            : "border-gray-300 hover:border-blue-400 hover:bg-blue-50/50"
+                            ? "border-gold-600 bg-gold-50"
+                            : "border-gray-300 hover:border-gold-400 hover:bg-gold-50/50"
                         } ${(submission?.isComplete || !isEditingLogo) ? "opacity-60 cursor-not-allowed" : ""}`}
                       >
                         <div className="flex flex-col items-center gap-3">
@@ -1114,7 +1114,7 @@ export default function SubmissionPage() {
                       href="https://noonnu.cc/"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs sm:text-sm text-blue-600 hover:text-blue-700 hover:underline font-medium flex items-center gap-1"
+                      className="text-xs sm:text-sm text-gold-600 hover:text-navy-700 hover:underline font-medium flex items-center gap-1"
                     >
                       <span>폰트 찾기 (눈누)</span>
                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1124,10 +1124,10 @@ export default function SubmissionPage() {
                   </div>
 
                   {/* 폰트 안내 */}
-                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="p-3 bg-gold-50 border border-gold-200 rounded-lg">
                     <div className="flex items-start gap-2">
-                      <AlertCircle className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
-                      <div className="flex-1 text-xs text-blue-700 space-y-1">
+                      <AlertCircle className="w-4 h-4 text-gold-600 flex-shrink-0 mt-0.5" />
+                      <div className="flex-1 text-xs text-navy-700 space-y-1">
                         <p className="font-semibold">📌 폰트 선택 안내</p>
                         <ul className="list-disc ml-4 space-y-0.5">
                           <li><span className="font-semibold">무료 폰트만 사용 가능</span>합니다 (눈누 사이트에서 무료 폰트 검색)</li>
@@ -1153,8 +1153,8 @@ export default function SubmissionPage() {
                         disabled={submission?.isComplete || !isEditingLogo}
                         className={`p-4 rounded-lg border-2 transition-all ${
                           selectedFont === fontOption.name
-                            ? "border-blue-600 bg-blue-50"
-                            : "border-gray-300 hover:border-blue-400 hover:bg-blue-50/50"
+                            ? "border-gold-600 bg-gold-50"
+                            : "border-gray-300 hover:border-gold-400 hover:bg-gold-50/50"
                         } ${(submission?.isComplete || !isEditingLogo) ? "opacity-60 cursor-not-allowed" : ""}`}
                       >
                         <div className={`font-semibold ${fontOption.style}`}>
@@ -1265,7 +1265,7 @@ export default function SubmissionPage() {
                   </div>
 
                   {/* 작성 가이드 - 항상 보이도록 상단에 배치 */}
-                  <div className="space-y-3 p-4 bg-white rounded-lg border-2 border-blue-200 shadow-sm">
+                  <div className="space-y-3 p-4 bg-white rounded-lg border-2 border-gold-200 shadow-sm">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {/* 좋은 예시 */}
                       <div className="space-y-2">
@@ -1382,9 +1382,9 @@ export default function SubmissionPage() {
                       </div>
                     </div>
 
-                    <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
-                      <p className="text-xs text-blue-900 font-semibold mb-2">💡 작성 Tip</p>
-                      <ul className="text-xs text-blue-800 space-y-1 ml-4 list-disc">
+                    <div className="bg-gold-50 p-3 rounded-lg border border-gold-200">
+                      <p className="text-xs text-navy-900 font-semibold mb-2">💡 작성 Tip</p>
+                      <ul className="text-xs text-navy-800 space-y-1 ml-4 list-disc">
                         <li><span className="font-semibold">브랜드 컨셉:</span> 어떤 이미지를 주고 싶으신가요? (예: 신뢰감, 역동성, 전문성)</li>
                         <li><span className="font-semibold">원하는 느낌:</span> 어떤 분위기를 원하시나요? (예: 모던한, 클래식한, 친근한)</li>
                         <li><span className="font-semibold">포함 요소:</span> 로고에 꼭 들어가야 할 것은? (예: 브랜드명, 특정 심볼)</li>
@@ -1418,7 +1418,7 @@ export default function SubmissionPage() {
                       <Button
                         type="submit"
                         disabled={loading}
-                        className="bg-blue-600 text-white hover:bg-blue-700 text-sm sm:text-base"
+                        className="bg-navy-900 text-white hover:bg-navy-800 text-sm sm:text-base"
                       >
                         {loading ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />}
                         저장하기
@@ -1435,18 +1435,18 @@ export default function SubmissionPage() {
         <TabsContent value="print">
           <div className="space-y-6">
             {/* 인쇄물 디자인 제한 안내 */}
-            <div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
+            <div className="p-4 bg-gold-50 border-2 border-gold-200 rounded-lg">
               <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <AlertCircle className="w-5 h-5 text-gold-600 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-blue-900 font-semibold text-sm mb-2">📋 인쇄물 디자인 안내</p>
-                  <p className="text-blue-800 text-xs leading-relaxed mb-2">
+                  <p className="text-navy-900 font-semibold text-sm mb-2">📋 인쇄물 디자인 안내</p>
+                  <p className="text-navy-800 text-xs leading-relaxed mb-2">
                     인쇄물 디자인은 <strong>기본 디자인에서 일부 변경만 가능</strong>합니다.
                   </p>
-                  <div className="text-blue-700 text-xs space-y-1">
+                  <div className="text-navy-700 text-xs space-y-1">
                     <p>• 신규 디자인 제작 불가</p>
                     <p>• 지정된 레이아웃 변형 불가</p>
-                    <p className="text-blue-600 text-[11px] mt-2 pl-2">
+                    <p className="text-gold-600 text-[11px] mt-2 pl-2">
                       예) 대봉투 디자인 다른 도안으로 변경, 자문계약서 표지 문양 교체 또는 이미지 삽입 등
                     </p>
                   </div>
@@ -1487,7 +1487,7 @@ export default function SubmissionPage() {
                           href={submission.사업자등록증URL}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline"
+                          className="text-gold-600 hover:underline"
                         >
                           파일 보기
                         </a>
@@ -1504,7 +1504,7 @@ export default function SubmissionPage() {
                           }}
                           disabled={uploading}
                         />
-                        <div className="flex items-center justify-center gap-2 p-2 rounded-lg border border-gray-300 hover:border-blue-500 hover:bg-blue-50 cursor-pointer transition-all">
+                        <div className="flex items-center justify-center gap-2 p-2 rounded-lg border border-gray-300 hover:border-gold-500 hover:bg-gold-50 cursor-pointer transition-all">
                           <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
                           <span className="text-sm sm:text-base">파일 변경</span>
                         </div>
@@ -1523,7 +1523,7 @@ export default function SubmissionPage() {
                         }}
                         disabled={uploading}
                       />
-                      <div className="flex items-center justify-center gap-2 p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-blue-500 cursor-pointer transition-all">
+                      <div className="flex items-center justify-center gap-2 p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-gold-500 cursor-pointer transition-all">
                         <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
                         <span className="text-sm sm:text-base">클릭하여 파일 업로드</span>
                       </div>
@@ -1545,7 +1545,7 @@ export default function SubmissionPage() {
                           href={submission.프로필사진URL}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline text-sm sm:text-base"
+                          className="text-gold-600 hover:underline text-sm sm:text-base"
                         >
                           파일 보기
                         </a>
@@ -1562,7 +1562,7 @@ export default function SubmissionPage() {
                           }}
                           disabled={uploading}
                         />
-                        <div className="flex items-center justify-center gap-2 p-2 rounded-lg border border-gray-300 hover:border-blue-500 hover:bg-blue-50 cursor-pointer transition-all">
+                        <div className="flex items-center justify-center gap-2 p-2 rounded-lg border border-gray-300 hover:border-gold-500 hover:bg-gold-50 cursor-pointer transition-all">
                           <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
                           <span className="text-sm sm:text-base">파일 변경</span>
                         </div>
@@ -1581,7 +1581,7 @@ export default function SubmissionPage() {
                         }}
                         disabled={uploading}
                       />
-                      <div className="flex items-center justify-center gap-2 p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-blue-500 cursor-pointer transition-all">
+                      <div className="flex items-center justify-center gap-2 p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-gold-500 cursor-pointer transition-all">
                         <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
                         <span className="text-sm sm:text-base">클릭하여 파일 업로드</span>
                       </div>
@@ -1622,8 +1622,8 @@ export default function SubmissionPage() {
                           }}
                           className={`relative p-3 rounded-lg border-2 transition-all ${
                             selectedNamecard === `스타일 ${num}`
-                              ? "border-blue-600 ring-2 ring-blue-200 bg-blue-50"
-                              : "border-gray-300 hover:border-blue-400"
+                              ? "border-gold-600 ring-2 ring-gold-200 bg-gold-50"
+                              : "border-gray-300 hover:border-gold-400"
                           } ${(submission?.isComplete || !isEditingNamecard) ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
                         >
                           <div className="flex flex-col items-center gap-2">
@@ -1725,7 +1725,7 @@ export default function SubmissionPage() {
                         <Button
                           type="submit"
                           disabled={loading}
-                          className="bg-blue-600 text-white hover:bg-blue-700 text-sm sm:text-base"
+                          className="bg-navy-900 text-white hover:bg-navy-800 text-sm sm:text-base"
                         >
                           {loading ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />}
                           저장하기
@@ -1781,23 +1781,23 @@ export default function SubmissionPage() {
                 <SecurityNotice type="marketing" />
 
                 {/* 네이버 검색광고 */}
-                <div id="account-section" className="space-y-4 p-4 rounded-lg border-2 border-blue-200 bg-blue-50/50">
+                <div id="account-section" className="space-y-4 p-4 rounded-lg border-2 border-gold-200 bg-gold-50/50">
                   <div className="space-y-2">
                     <Label className="text-sm sm:text-base font-semibold">네이버 검색광고</Label>
-                    <div className="text-xs sm:text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded-md p-3">
+                    <div className="text-xs sm:text-sm text-navy-700 bg-gold-50 border border-gold-200 rounded-md p-3">
                       <p className="font-medium mb-1.5">📋 가입 안내</p>
-                      <p className="text-blue-600 mb-2">
+                      <p className="text-gold-600 mb-2">
                         <a
                           href="https://ads.naver.com/"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="underline hover:text-blue-800 font-medium"
+                          className="underline hover:text-navy-800 font-medium"
                         >
                           네이버 검색광고 가입하기 →
                         </a>
                       </p>
-                      <p className="text-blue-600 mb-1">• 가입만하면 안되고 사업자 정보 정확히 입력 및 본인인증 필수</p>
-                      <p className="text-blue-600">• 사업자 대표 명의 계정으로 진행 필수</p>
+                      <p className="text-gold-600 mb-1">• 가입만하면 안되고 사업자 정보 정확히 입력 및 본인인증 필수</p>
+                      <p className="text-gold-600">• 사업자 대표 명의 계정으로 진행 필수</p>
                     </div>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1860,23 +1860,23 @@ export default function SubmissionPage() {
                 </div>
 
                 {/* 네이버 클라우드 */}
-                <div className="space-y-4 p-4 rounded-lg border-2 border-blue-200 bg-blue-50/50">
+                <div className="space-y-4 p-4 rounded-lg border-2 border-gold-200 bg-gold-50/50">
                   <div className="space-y-2">
                     <Label className="text-sm sm:text-base font-semibold">네이버 클라우드</Label>
-                    <div className="text-xs sm:text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded-md p-3">
+                    <div className="text-xs sm:text-sm text-navy-700 bg-gold-50 border border-gold-200 rounded-md p-3">
                       <p className="font-medium mb-1.5">📋 가입 안내</p>
-                      <p className="text-blue-600 mb-2">
+                      <p className="text-gold-600 mb-2">
                         <a
                           href="https://www.ncloud.com/"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="underline hover:text-blue-800 font-medium"
+                          className="underline hover:text-navy-800 font-medium"
                         >
                           네이버 클라우드 가입하기 →
                         </a>
                       </p>
-                      <p className="text-blue-600 mb-1">• 가입하고 로그아웃 창 옆에 결제수단 등록 해야함</p>
-                      <p className="text-blue-600">• 사업자 대표 명의 계정으로 진행 필수</p>
+                      <p className="text-gold-600 mb-1">• 가입하고 로그아웃 창 옆에 결제수단 등록 해야함</p>
+                      <p className="text-gold-600">• 사업자 대표 명의 계정으로 진행 필수</p>
                     </div>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1903,7 +1903,7 @@ export default function SubmissionPage() {
                 </div>
 
                 {/* 인스타그램 */}
-                <div className="space-y-4 p-4 rounded-lg border-2 border-blue-200 bg-blue-50/50">
+                <div className="space-y-4 p-4 rounded-lg border-2 border-gold-200 bg-gold-50/50">
                   <Label className="text-sm sm:text-base font-semibold">Instagram</Label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
@@ -1973,7 +1973,7 @@ export default function SubmissionPage() {
                     <Button
                       type="submit"
                       disabled={loading}
-                      className="bg-blue-600 text-white hover:bg-blue-700 text-sm sm:text-base"
+                      className="bg-navy-900 text-white hover:bg-navy-800 text-sm sm:text-base"
                     >
                       {loading ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />}
                       저장하기
@@ -1990,9 +1990,9 @@ export default function SubmissionPage() {
               <CardDescription className="text-gray-600 text-xs sm:text-sm">
                 SMS 발신번호 등록에 필요한 서류를 업로드해주세요
               </CardDescription>
-              <div className="text-xs sm:text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded-md p-3 mt-3">
+              <div className="text-xs sm:text-sm text-navy-700 bg-gold-50 border border-gold-200 rounded-md p-3 mt-3">
                 <p className="font-medium mb-1.5">📋 SMS 발신 이용 안내</p>
-                <p className="text-blue-600">DB 자동화 적용 시 고객 접수 시 자동 안내 문자가 발송됩니다</p>
+                <p className="text-gold-600">DB 자동화 적용 시 고객 접수 시 자동 안내 문자가 발송됩니다</p>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -2027,7 +2027,7 @@ export default function SubmissionPage() {
                         }}
                         disabled={uploading}
                       />
-                      <span className="text-sm text-blue-600 hover:underline">재전송</span>
+                      <span className="text-sm text-gold-600 hover:underline">재전송</span>
                     </label>
                   </div>
                 ) : submission?.대표자신분증URL ? (
@@ -2041,7 +2041,7 @@ export default function SubmissionPage() {
                         href={submission.대표자신분증URL}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline text-sm sm:text-base"
+                        className="text-gold-600 hover:underline text-sm sm:text-base"
                       >
                         파일 보기
                       </a>
@@ -2058,7 +2058,7 @@ export default function SubmissionPage() {
                         }}
                         disabled={uploading}
                       />
-                      <div className="flex items-center justify-center gap-2 p-2 rounded-lg border border-gray-300 hover:border-blue-500 hover:bg-blue-50 cursor-pointer transition-all">
+                      <div className="flex items-center justify-center gap-2 p-2 rounded-lg border border-gray-300 hover:border-gold-500 hover:bg-gold-50 cursor-pointer transition-all">
                         <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
                         <span className="text-sm sm:text-base">파일 변경</span>
                       </div>
@@ -2077,7 +2077,7 @@ export default function SubmissionPage() {
                       }}
                       disabled={uploading}
                     />
-                    <div className="flex items-center justify-center gap-2 p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-blue-500 cursor-pointer transition-all">
+                    <div className="flex items-center justify-center gap-2 p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-gold-500 cursor-pointer transition-all">
                       <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
                       <span className="text-sm sm:text-base">클릭하여 파일 업로드</span>
                     </div>
@@ -2090,7 +2090,7 @@ export default function SubmissionPage() {
                 <Label className="text-sm sm:text-base break-words">통신서비스 이용증명원 (통신사 모바일앱 또는 고객센터에서 발급가능)</Label>
                 <div className="text-xs sm:text-sm text-gray-600 space-y-1 pl-1">
                   <p className="flex items-start gap-1.5">
-                    <span className="text-blue-600 font-medium mt-0.5">•</span>
+                    <span className="text-gold-600 font-medium mt-0.5">•</span>
                     <span><span className="font-medium">대표번호 등록 시:</span> 1차 안내 문자 발송 후 고객 문자 수신 불가</span>
                   </p>
                   <p className="flex items-start gap-1.5">
@@ -2126,7 +2126,7 @@ export default function SubmissionPage() {
                         }}
                         disabled={uploading}
                       />
-                      <span className="text-sm text-blue-600 hover:underline">재전송</span>
+                      <span className="text-sm text-gold-600 hover:underline">재전송</span>
                     </label>
                   </div>
                 ) : submission?.통신서비스이용증명원URL ? (
@@ -2140,7 +2140,7 @@ export default function SubmissionPage() {
                         href={submission.통신서비스이용증명원URL}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline text-sm sm:text-base"
+                        className="text-gold-600 hover:underline text-sm sm:text-base"
                       >
                         파일 보기
                       </a>
@@ -2157,7 +2157,7 @@ export default function SubmissionPage() {
                         }}
                         disabled={uploading}
                       />
-                      <div className="flex items-center justify-center gap-2 p-2 rounded-lg border border-gray-300 hover:border-blue-500 hover:bg-blue-50 cursor-pointer transition-all">
+                      <div className="flex items-center justify-center gap-2 p-2 rounded-lg border border-gray-300 hover:border-gold-500 hover:bg-gold-50 cursor-pointer transition-all">
                         <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
                         <span className="text-sm sm:text-base">파일 변경</span>
                       </div>
@@ -2176,7 +2176,7 @@ export default function SubmissionPage() {
                       }}
                       disabled={uploading}
                     />
-                    <div className="flex items-center justify-center gap-2 p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-blue-500 cursor-pointer transition-all">
+                    <div className="flex items-center justify-center gap-2 p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-gold-500 cursor-pointer transition-all">
                       <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
                       <span className="text-sm sm:text-base">클릭하여 파일 업로드</span>
                     </div>
@@ -2215,7 +2215,7 @@ export default function SubmissionPage() {
                         }}
                         disabled={uploading}
                       />
-                      <span className="text-sm text-blue-600 hover:underline">재전송</span>
+                      <span className="text-sm text-gold-600 hover:underline">재전송</span>
                     </label>
                   </div>
                 ) : submission?.신용카드앞면URL ? (
@@ -2229,7 +2229,7 @@ export default function SubmissionPage() {
                         href={submission.신용카드앞면URL}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline text-sm sm:text-base"
+                        className="text-gold-600 hover:underline text-sm sm:text-base"
                       >
                         파일 보기
                       </a>
@@ -2246,7 +2246,7 @@ export default function SubmissionPage() {
                         }}
                         disabled={uploading}
                       />
-                      <div className="flex items-center justify-center gap-2 p-2 rounded-lg border border-gray-300 hover:border-blue-500 hover:bg-blue-50 cursor-pointer transition-all">
+                      <div className="flex items-center justify-center gap-2 p-2 rounded-lg border border-gray-300 hover:border-gold-500 hover:bg-gold-50 cursor-pointer transition-all">
                         <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
                         <span className="text-sm sm:text-base">파일 변경</span>
                       </div>
@@ -2265,7 +2265,7 @@ export default function SubmissionPage() {
                       }}
                       disabled={uploading}
                     />
-                    <div className="flex items-center justify-center gap-2 p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-blue-500 cursor-pointer transition-all">
+                    <div className="flex items-center justify-center gap-2 p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-gold-500 cursor-pointer transition-all">
                       <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
                       <span className="text-sm sm:text-base">클릭하여 파일 업로드</span>
                     </div>
@@ -2280,7 +2280,7 @@ export default function SubmissionPage() {
       {uploading && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 flex items-center gap-3 shadow-xl border-2 border-gray-200">
-            <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin text-blue-600" />
+            <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin text-gold-600" />
             <span className="text-gray-900 font-medium">파일 업로드 중...</span>
           </div>
         </div>

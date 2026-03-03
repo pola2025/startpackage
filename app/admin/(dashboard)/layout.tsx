@@ -214,7 +214,7 @@ export default function AdminLayout({
           <div className="p-6 border-b border-gray-200">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-10 h-10 rounded-lg bg-red-600 flex items-center justify-center shadow-md">
+                <div className="w-10 h-10 rounded-lg bg-navy-900 flex items-center justify-center shadow-md">
                   <Package className="w-6 h-6 text-white" />
                 </div>
                 <div>
@@ -248,7 +248,7 @@ export default function AdminLayout({
                     flex items-center gap-3 px-4 py-3 rounded-lg transition-all relative
                     ${
                       isActive
-                        ? "bg-red-50 text-red-700 font-medium border border-red-200"
+                        ? "bg-gold-50 text-navy-700 font-medium border border-gold-200"
                         : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 border border-transparent"
                     }
                   `}
@@ -256,7 +256,7 @@ export default function AdminLayout({
                   <Icon className="w-5 h-5 flex-shrink-0" />
                   <span className="font-medium">{item.name}</span>
                   {showBadge && (
-                    <span className="ml-auto bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                    <span className="ml-auto bg-navy-900 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                       {unreadMessageCount > 99 ? "99+" : unreadMessageCount}
                     </span>
                   )}
@@ -272,7 +272,7 @@ export default function AdminLayout({
               href="/dashboard"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-blue-200 text-blue-600 hover:bg-blue-50 transition-colors text-sm font-medium w-full"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-gold-200 text-gold-600 hover:bg-gold-50 transition-colors text-sm font-medium w-full"
             >
               <ExternalLink className="w-4 h-4 flex-shrink-0" />
               사용자 화면 보기
@@ -287,7 +287,7 @@ export default function AdminLayout({
             <Button
               onClick={handleLogout}
               variant="outline"
-              className="w-full border-red-200 text-red-600 hover:bg-red-50"
+              className="w-full border-gold-200 text-gold-600 hover:bg-gold-50"
             >
               <LogOut className="w-4 h-4 mr-2" />
               로그아웃
@@ -308,7 +308,7 @@ export default function AdminLayout({
               <Menu className="w-6 h-6" />
             </button>
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-red-600 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-navy-900 flex items-center justify-center">
                 <Package className="w-5 h-5 text-white" />
               </div>
               <span className="text-lg font-bold text-gray-900">ADMIN</span>
@@ -335,7 +335,7 @@ export default function AdminLayout({
             <Link
               href="/admin"
               className={`flex flex-col items-center justify-center flex-1 h-full ${
-                pathname === "/admin" ? "text-red-600" : "text-gray-500"
+                pathname === "/admin" ? "text-gold-600" : "text-gray-500"
               }`}
             >
               <LayoutDashboard className="w-5 h-5" />
@@ -345,7 +345,7 @@ export default function AdminLayout({
               href="/admin/workflows"
               className={`flex flex-col items-center justify-center flex-1 h-full ${
                 pathname === "/admin/workflows"
-                  ? "text-red-600"
+                  ? "text-gold-600"
                   : "text-gray-500"
               }`}
             >
@@ -355,7 +355,7 @@ export default function AdminLayout({
             <Link
               href="/admin/users"
               className={`flex flex-col items-center justify-center flex-1 h-full ${
-                pathname === "/admin/users" ? "text-red-600" : "text-gray-500"
+                pathname === "/admin/users" ? "text-gold-600" : "text-gray-500"
               }`}
             >
               <Users className="w-5 h-5" />
@@ -365,14 +365,14 @@ export default function AdminLayout({
               href="/admin/communication"
               className={`flex flex-col items-center justify-center flex-1 h-full relative ${
                 pathname === "/admin/communication"
-                  ? "text-red-600"
+                  ? "text-gold-600"
                   : "text-gray-500"
               }`}
             >
               <div className="relative">
                 <MessageSquare className="w-5 h-5" />
                 {unreadMessageCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 bg-navy-900 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
                     {unreadMessageCount > 9 ? "9+" : unreadMessageCount}
                   </span>
                 )}
@@ -382,7 +382,7 @@ export default function AdminLayout({
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className={`flex flex-col items-center justify-center flex-1 h-full ${
-                sidebarOpen ? "text-red-600" : "text-gray-500"
+                sidebarOpen ? "text-gold-600" : "text-gray-500"
               }`}
             >
               {sidebarOpen ? (

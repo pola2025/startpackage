@@ -96,7 +96,7 @@ export default function NotificationsClient({ notifications }: NotificationsClie
         </h2>
         <button
           onClick={toggleAll}
-          className="text-xs sm:text-sm text-blue-600 hover:text-blue-800"
+          className="text-xs sm:text-sm text-gold-600 hover:text-gold-800"
         >
           {expandedDates.size === Object.keys(groupedByDate).length ? "전체 접기" : "전체 펼치기"}
         </button>
@@ -158,7 +158,7 @@ export default function NotificationsClient({ notifications }: NotificationsClie
                                 variant="outline"
                                 className={`text-xs ${
                                   notification.channel === "SMS"
-                                    ? "border-blue-300 text-blue-700 bg-blue-50"
+                                    ? "border-gold-300 text-gold-700 bg-gold-50"
                                     : "border-orange-300 text-orange-700 bg-orange-50"
                                 }`}
                               >
@@ -232,7 +232,7 @@ export default function NotificationsClient({ notifications }: NotificationsClie
                         {dateNotifications.map((notification) => (
                           <TableRow
                             key={notification.id}
-                            className="border-gray-200 hover:bg-blue-50/50"
+                            className="border-gray-200 hover:bg-gold-50/50"
                           >
                             <TableCell className="text-gray-600 text-sm">
                               {new Date(notification.createdAt).toLocaleTimeString("ko-KR", {
@@ -251,7 +251,7 @@ export default function NotificationsClient({ notifications }: NotificationsClie
                                 variant="outline"
                                 className={
                                   notification.channel === "SMS"
-                                    ? "border-blue-300 text-blue-700 bg-blue-50"
+                                    ? "border-gold-300 text-gold-700 bg-gold-50"
                                     : "border-orange-300 text-orange-700 bg-orange-50"
                                 }
                               >

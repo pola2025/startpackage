@@ -76,7 +76,7 @@ export default function UserWorkflowSMSButton({
       variant="outline"
       onClick={handleSendSMS}
       disabled={!hasAnyDesign || sending}
-      className={`h-[28px] px-1.5 text-[10px] border-blue-300 text-blue-700 hover:bg-blue-50 leading-none ${
+      className={`h-[28px] px-1.5 text-[10px] border-gold-300 text-gold-700 hover:bg-gold-50 leading-none ${
         !hasAnyDesign ? "opacity-50 cursor-not-allowed" : ""
       }`}
       title={!hasAnyDesign ? "시안 업로드된 워크플로우가 없습니다" : `${workflowsWithDesign.length}개 시안 SMS 발송`}

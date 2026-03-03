@@ -34,9 +34,9 @@ export default function BulkActions({
 
   return (
     <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50">
-      <div className="bg-white border-2 border-blue-500 rounded-lg shadow-2xl px-6 py-4 flex items-center gap-4">
+      <div className="bg-white border-2 border-gold-500 rounded-lg shadow-2xl px-6 py-4 flex items-center gap-4">
         <div className="flex items-center gap-2">
-          <CheckSquare className="w-5 h-5 text-blue-600" />
+          <CheckSquare className="w-5 h-5 text-gold-600" />
           <span className="font-semibold text-gray-900">
             {selectedCount}개 선택됨
           </span>

@@ -68,23 +68,27 @@ export function StyleCardSelector({
             disabled={disabled}
             className={cn(
               "relative flex flex-col items-center p-4 rounded-xl border-2 transition-all duration-200",
-              "hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
+              "hover:shadow-md focus:outline-none focus:ring-2 focus:ring-gold-500 focus:ring-offset-2",
               isSelected(option.id)
-                ? "border-blue-500 bg-blue-50 shadow-md"
+                ? "border-gold-500 bg-gold-50 shadow-md"
                 : "border-gray-200 bg-white hover:border-gray-300",
-              disabled && "opacity-50 cursor-not-allowed hover:shadow-none"
+              disabled && "opacity-50 cursor-not-allowed hover:shadow-none",
             )}
           >
             {/* 선택 체크마크 */}
             {isSelected(option.id) && (
-              <div className="absolute top-2 right-2 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+              <div className="absolute top-2 right-2 w-5 h-5 bg-gold-500 rounded-full flex items-center justify-center">
                 <Check className="w-3 h-3 text-white" />
               </div>
             )}
 
             {/* 아이콘 또는 미리보기 */}
             {option.icon && (
-              <span className="text-3xl mb-2" role="img" aria-label={option.name}>
+              <span
+                className="text-3xl mb-2"
+                role="img"
+                aria-label={option.name}
+              >
                 {option.icon}
               </span>
             )}
@@ -94,7 +98,7 @@ export function StyleCardSelector({
             <span
               className={cn(
                 "font-medium text-sm text-center",
-                isSelected(option.id) ? "text-blue-700" : "text-gray-700"
+                isSelected(option.id) ? "text-navy-700" : "text-gray-700",
               )}
             >
               {option.name}
@@ -110,7 +114,7 @@ export function StyleCardSelector({
 
       {/* 선택 결과 표시 */}
       {selectedValues.length > 0 && (
-        <div className="flex items-center gap-2 text-sm text-blue-600 bg-blue-50 p-2 rounded-lg">
+        <div className="flex items-center gap-2 text-sm text-gold-600 bg-gold-50 p-2 rounded-lg">
           <span>💡</span>
           <span>
             선택한 스타일:{" "}

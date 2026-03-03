@@ -83,11 +83,11 @@ export default function WorkflowsClient({
     const statusMap: Record<string, { color: string; bg: string; label: string }> = {
       "대기": { color: "text-gray-800", bg: "bg-gray-50 border-gray-300", label: "대기" },
       // 로고 워크플로우 상태
-      "시안제작중": { color: "text-blue-800", bg: "bg-blue-50 border-blue-300", label: "시안 제작 중" },
+      "시안제작중": { color: "text-navy-800", bg: "bg-gold-50 border-gold-300", label: "시안 제작 중" },
       "시안컨펌요청": { color: "text-orange-800", bg: "bg-orange-50 border-orange-300", label: "시안 컨펌 요청" },
       "최종확정": { color: "text-emerald-900", bg: "bg-emerald-50 border-emerald-300", label: "최종 확정" },
       // 인쇄물 워크플로우 상태
-      "시안중": { color: "text-blue-800", bg: "bg-blue-50 border-blue-300", label: "시안 작업중" },
+      "시안중": { color: "text-navy-800", bg: "bg-gold-50 border-gold-300", label: "시안 작업중" },
       "발주대기": { color: "text-orange-800", bg: "bg-orange-50 border-orange-300", label: "발주 대기" },
       "발주요청": { color: "text-yellow-800", bg: "bg-yellow-50 border-yellow-300", label: "발주 요청" },
       "발주완료": { color: "text-indigo-900", bg: "bg-indigo-50 border-indigo-300", label: "발주 완료" },
@@ -205,7 +205,7 @@ export default function WorkflowsClient({
       return `${baseClass} border-l-4 border-l-orange-400 hover:bg-orange-50/50`;
     }
 
-    return `${baseClass} hover:bg-blue-50/50`;
+    return `${baseClass} hover:bg-gold-50/50`;
   };
 
   // 기수별 그룹화
@@ -377,8 +377,8 @@ export default function WorkflowsClient({
             {/* 사용자 정보 (showUser일 때) */}
             {showUser && workflow.user && (
               <div className="flex items-center gap-2 mb-2 pb-2 border-b border-gray-100">
-                <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center">
-                  <User className="w-3 h-3 text-blue-600" />
+                <div className="w-6 h-6 rounded-full bg-gold-100 flex items-center justify-center">
+                  <User className="w-3 h-3 text-gold-600" />
                 </div>
                 <span className="text-sm font-medium text-gray-900">{workflow.user?.이름}</span>
                 <span className="text-xs text-gray-500">{workflow.user?.연락처}</span>
@@ -414,7 +414,7 @@ export default function WorkflowsClient({
 
             {/* 배송정보 (있을 때만) */}
             {workflow.택배회사 && workflow.운송장번호 && (
-              <div className="flex items-center gap-2 text-xs text-blue-600 mb-2">
+              <div className="flex items-center gap-2 text-xs text-gold-600 mb-2">
                 <Truck className="w-3 h-3" />
                 <span>{workflow.택배회사}</span>
                 <span className="text-gray-500">{workflow.운송장번호}</span>
@@ -490,8 +490,8 @@ export default function WorkflowsClient({
                   {showUser && (
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                          <User className="w-4 h-4 text-blue-600" />
+                        <div className="w-8 h-8 rounded-full bg-gold-100 flex items-center justify-center">
+                          <User className="w-4 h-4 text-gold-600" />
                         </div>
                         <div>
                           <div className="text-sm font-medium text-gray-900">{workflow.user?.이름}</div>
@@ -602,7 +602,7 @@ export default function WorkflowsClient({
                       <TableCell>
                         {workflow.택배회사 && workflow.운송장번호 ? (
                           <div className="text-sm">
-                            <div className="flex items-center gap-1 text-blue-600">
+                            <div className="flex items-center gap-1 text-gold-600">
                               <Truck className="w-3 h-3" />
                               {workflow.택배회사}
                             </div>
@@ -658,7 +658,7 @@ export default function WorkflowsClient({
         </Card>
 
         <Card
-          className="bg-gradient-to-br from-blue-50 to-white border-0 shadow-md cursor-pointer hover:shadow-lg transition-shadow"
+          className="bg-gradient-to-br from-gold-50 to-white border-0 shadow-md cursor-pointer hover:shadow-lg transition-shadow"
           onClick={() => handleStatClick("시안중")}
         >
           <CardHeader className="p-2 sm:p-3 pb-1 sm:pb-2">
@@ -668,7 +668,7 @@ export default function WorkflowsClient({
             </CardTitle>
           </CardHeader>
           <CardContent className="p-2 sm:p-3 pt-0">
-            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-600">
+            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-gold-600">
               {stats.시안중}
             </div>
           </CardContent>
@@ -782,7 +782,7 @@ export default function WorkflowsClient({
             return (
               <div key={cohortId} className="space-y-3">
                 {/* 기수별 헤더 */}
-                <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 shadow-md">
+                <Card className="bg-gradient-to-r from-gold-50 to-amber-50 border-2 border-gold-200 shadow-md">
                   <CardHeader className="py-3 sm:py-4 px-3 sm:px-6">
                     <button
                       onClick={() => {
@@ -798,11 +798,11 @@ export default function WorkflowsClient({
                     >
                       <div className="flex items-center gap-2 sm:gap-3">
                         {isCohortExpanded ? (
-                          <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 flex-shrink-0" />
+                          <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6 text-gold-600 flex-shrink-0" />
                         ) : (
-                          <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 flex-shrink-0" />
+                          <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-gold-600 flex-shrink-0" />
                         )}
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gold-500 flex items-center justify-center flex-shrink-0">
                           <Users className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                         </div>
                         <div className="text-left">
@@ -847,8 +847,8 @@ export default function WorkflowsClient({
                                   ) : (
                                     <ChevronRight className="w-4 h-4 text-gray-600 flex-shrink-0" />
                                   )}
-                                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                                    <User className="w-4 h-4 text-blue-600" />
+                                  <div className="w-8 h-8 rounded-full bg-gold-100 flex items-center justify-center flex-shrink-0">
+                                    <User className="w-4 h-4 text-gold-600" />
                                   </div>
                                   <div className="text-left min-w-0 flex-1">
                                     <CardTitle className="text-base text-gray-900 truncate">
@@ -903,8 +903,8 @@ export default function WorkflowsClient({
                                   ) : (
                                     <ChevronRight className="w-5 h-5 text-gray-600" />
                                   )}
-                                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                                    <User className="w-5 h-5 text-blue-600" />
+                                  <div className="w-10 h-10 rounded-full bg-gold-100 flex items-center justify-center">
+                                    <User className="w-5 h-5 text-gold-600" />
                                   </div>
                                   <div className="text-left">
                                     <CardTitle className="text-lg text-gray-900">

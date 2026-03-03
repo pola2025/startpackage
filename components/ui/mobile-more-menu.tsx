@@ -110,8 +110,8 @@ export function MobileMoreMenu({
         {/* 사용자 정보 */}
         <div className="mb-4 p-4 bg-gray-50 rounded-xl">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-              <User className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 rounded-full bg-gold-100 flex items-center justify-center">
+              <User className="w-5 h-5 text-gold-600" />
             </div>
             <div>
               <p className="font-semibold text-gray-900">{userName}</p>
@@ -138,7 +138,7 @@ export function MobileMoreMenu({
                 className={cn(
                   "flex items-center gap-3 px-4 py-3 rounded-xl transition-colors touch-target",
                   isActive
-                    ? "bg-blue-50 text-blue-700"
+                    ? "bg-gold-50 text-gold-600"
                     : "text-gray-700 hover:bg-gray-100",
                 )}
               >

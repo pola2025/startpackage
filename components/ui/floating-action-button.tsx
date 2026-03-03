@@ -21,7 +21,7 @@ export function FloatingActionButton({
     >
       <Button
         size="lg"
-        className="rounded-full w-14 h-14 shadow-lg hover:shadow-xl transition-shadow bg-blue-600 hover:bg-blue-700"
+        className="rounded-full w-14 h-14 shadow-lg hover:shadow-xl transition-shadow bg-gold-600 hover:bg-gold-700"
       >
         <Plus className="w-6 h-6" />
       </Button>

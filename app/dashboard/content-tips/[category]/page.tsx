@@ -220,7 +220,7 @@ export default function CategoryDetailPage() {
                       </div>
                     )}
                     {tip.linkType === "blog" && (
-                      <div className="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 rounded-md text-xs font-medium flex items-center gap-1">
+                      <div className="absolute top-2 right-2 bg-navy-900 text-white px-2 py-1 rounded-md text-xs font-medium flex items-center gap-1">
                         <Globe className="w-3 h-3" />
                         Blog
                       </div>
@@ -240,8 +240,8 @@ export default function CategoryDetailPage() {
                       </>
                     ) : (
                       <>
-                        <Globe className="w-16 h-16 text-blue-400 mb-2" />
-                        <span className="text-sm text-blue-700 font-medium">Blog</span>
+                        <Globe className="w-16 h-16 text-gold-400 mb-2" />
+                        <span className="text-sm text-navy-700 font-medium">Blog</span>
                       </>
                     )}
                     {tip.subCategory && (
@@ -282,7 +282,7 @@ export default function CategoryDetailPage() {
                   {selectedTip.linkType === "youtube" ? (
                     <Youtube className="w-6 h-6 text-red-600" />
                   ) : (
-                    <Globe className="w-6 h-6 text-blue-600" />
+                    <Globe className="w-6 h-6 text-gold-600" />
                   )}
                   {selectedTip.title}
                 </DialogTitle>
