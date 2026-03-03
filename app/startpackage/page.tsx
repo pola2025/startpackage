@@ -605,7 +605,7 @@ export default function StartPackagePage() {
             <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-2 md:mb-4">
               홈페이지 스타일
             </h2>
-            <p className="text-xs md:text-lg text-gray-600 whitespace-nowrap">
+            <p className="text-xs md:text-lg text-gray-600">
               6가지 스타일 중 선호하는 디자인을 선택하세요
             </p>
           </div>
@@ -932,7 +932,7 @@ export default function StartPackagePage() {
               <h3 className="font-bold text-gray-900 mb-1 md:mb-2 text-sm md:text-base">
                 자료 제출
               </h3>
-              <p className="text-[10px] md:text-sm text-gray-600 whitespace-nowrap">
+              <p className="text-[10px] md:text-sm text-gray-600">
                 로고, 사진, 텍스트 등 필요 자료 전달
               </p>
               <div className="hidden md:block absolute top-1/2 -right-2 transform -translate-y-1/2 z-10">
@@ -946,7 +946,7 @@ export default function StartPackagePage() {
               <h3 className="font-bold text-gray-900 mb-1 md:mb-2 text-sm md:text-base">
                 디자인 제작
               </h3>
-              <p className="text-[10px] md:text-sm text-gray-600 whitespace-nowrap">
+              <p className="text-[10px] md:text-sm text-gray-600">
                 시안 제작 및 피드백 반영
               </p>
               <div className="hidden md:block absolute top-1/2 -right-2 transform -translate-y-1/2 z-10">
@@ -960,7 +960,7 @@ export default function StartPackagePage() {
               <h3 className="font-bold text-gray-900 mb-1 md:mb-2 text-sm md:text-base">
                 발주
               </h3>
-              <p className="text-[10px] md:text-sm text-gray-600 whitespace-nowrap">
+              <p className="text-[10px] md:text-sm text-gray-600">
                 인쇄물 발주 및 홈페이지 세팅
               </p>
               <div className="hidden md:block absolute top-1/2 -right-2 transform -translate-y-1/2 z-10">
@@ -974,7 +974,7 @@ export default function StartPackagePage() {
               <h3 className="font-bold text-gray-900 mb-1 md:mb-2 text-sm md:text-base">
                 진행 완료
               </h3>
-              <p className="text-[10px] md:text-sm text-gray-600 whitespace-nowrap">
+              <p className="text-[10px] md:text-sm text-gray-600">
                 인쇄물 배송 및 홈페이지 오픈
               </p>
             </div>

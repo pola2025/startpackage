@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
@@ -76,7 +82,8 @@ interface CommunicationMessage {
 
 export default function UserCommunicationPage() {
   const [threads, setThreads] = useState<CommunicationThread[]>([]);
-  const [selectedThread, setSelectedThread] = useState<CommunicationThread | null>(null);
+  const [selectedThread, setSelectedThread] =
+    useState<CommunicationThread | null>(null);
   const [loading, setLoading] = useState(true);
   const [newThreadOpen, setNewThreadOpen] = useState(false);
 
@@ -107,25 +114,34 @@ export default function UserCommunicationPage() {
   const getRelativeTime = (date: string): string => {
     const now = new Date();
     const targetDate = new Date(date);
-    const diffInSeconds = Math.floor((now.getTime() - targetDate.getTime()) / 1000);
+    const diffInSeconds = Math.floor(
+      (now.getTime() - targetDate.getTime()) / 1000,
+    );
 
     if (diffInSeconds < 60) return "방금 전";
     if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}분 전`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}시간 전`;
-    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}일 전`;
+    if (diffInSeconds < 86400)
+      return `${Math.floor(diffInSeconds / 3600)}시간 전`;
+    if (diffInSeconds < 604800)
+      return `${Math.floor(diffInSeconds / 86400)}일 전`;
 
     return format(targetDate, "M월 d일 HH:mm", { locale: ko });
   };
 
   // 날짜별 메시지 그룹핑 (역순 - 최신 메시지가 위로)
   const groupMessagesByDate = (messages: CommunicationMessage[]) => {
-    const groups: Array<{ type: "date"; date: string } | { type: "message"; data: CommunicationMessage; index: number }> = [];
+    const groups: Array<
+      | { type: "date"; date: string }
+      | { type: "message"; data: CommunicationMessage; index: number }
+    > = [];
     let currentDate: string | null = null;
 
     // 메시지를 역순으로 순회 (최신 메시지부터)
     [...messages].reverse().forEach((message, reverseIndex) => {
       const originalIndex = messages.length - 1 - reverseIndex;
-      const messageDate = format(new Date(message.createdAt), "yyyy-MM-dd", { locale: ko });
+      const messageDate = format(new Date(message.createdAt), "yyyy-MM-dd", {
+        locale: ko,
+      });
 
       if (messageDate !== currentDate) {
         groups.push({ type: "date", date: messageDate });
@@ -139,11 +155,16 @@ export default function UserCommunicationPage() {
   };
 
   // 연속 메시지 체크 (역순에서는 다음 메시지와 비교)
-  const isConsecutiveMessage = (currentMsg: CommunicationMessage, nextMsg: CommunicationMessage | null): boolean => {
+  const isConsecutiveMessage = (
+    currentMsg: CommunicationMessage,
+    nextMsg: CommunicationMessage | null,
+  ): boolean => {
     if (!nextMsg) return false;
 
     const sameAuthor = currentMsg.authorType === nextMsg.authorType;
-    const timeDiff = new Date(nextMsg.createdAt).getTime() - new Date(currentMsg.createdAt).getTime();
+    const timeDiff =
+      new Date(nextMsg.createdAt).getTime() -
+      new Date(currentMsg.createdAt).getTime();
     const withinFiveMinutes = timeDiff < 5 * 60 * 1000;
 
     return sameAuthor && withinFiveMinutes;
@@ -159,12 +180,17 @@ export default function UserCommunicationPage() {
         setThreads(data);
         // 선택된 스레드 업데이트
         if (selectedThread) {
-          const response = await fetch(`/api/communication/threads/${selectedThread.id}`);
+          const response = await fetch(
+            `/api/communication/threads/${selectedThread.id}`,
+          );
           if (response.ok) {
             const updated = await response.json();
 
             // 새 메시지 감지
-            if (lastMessageCount > 0 && updated.messages.length > lastMessageCount) {
+            if (
+              lastMessageCount > 0 &&
+              updated.messages.length > lastMessageCount
+            ) {
               setNewMessageAlert(true);
             }
 
@@ -231,13 +257,17 @@ export default function UserCommunicationPage() {
   const handleFileUpload = async (file: File, isNewThread: boolean = false) => {
     // 영상 파일만 제외
     if (file.type.startsWith("video/")) {
-      alert("영상 파일은 업로드할 수 없습니다.\n영상은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.");
+      alert(
+        "영상 파일은 업로드할 수 없습니다.\n영상은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.",
+      );
       return;
     }
 
     // 10MB 제한
     if (file.size > 10 * 1024 * 1024) {
-      alert("파일 크기는 10MB 이하여야 합니다.\n더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.");
+      alert(
+        "파일 크기는 10MB 이하여야 합니다.\n더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.",
+      );
       return;
     }
 
@@ -254,7 +284,9 @@ export default function UserCommunicationPage() {
       // 413 에러 등 JSON이 아닌 응답 처리
       if (!response.ok) {
         if (response.status === 413) {
-          alert("파일이 너무 큽니다. 10MB 이하의 파일만 업로드 가능합니다.\n더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.");
+          alert(
+            "파일이 너무 큽니다. 10MB 이하의 파일만 업로드 가능합니다.\n더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.",
+          );
           return;
         }
 
@@ -354,20 +386,29 @@ export default function UserCommunicationPage() {
     switch (status) {
       case "open":
         return (
-          <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+          <Badge
+            variant="outline"
+            className="bg-yellow-50 text-yellow-700 border-yellow-200"
+          >
             <Clock className="w-3 h-3 mr-1" />
             대기중
           </Badge>
         );
       case "in_progress":
         return (
-          <Badge variant="outline" className="bg-gold-50 text-navy-700 border-gold-200">
+          <Badge
+            variant="outline"
+            className="bg-gold-50 text-navy-700 border-gold-200"
+          >
             진행중
           </Badge>
         );
       case "resolved":
         return (
-          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+          <Badge
+            variant="outline"
+            className="bg-green-50 text-green-700 border-green-200"
+          >
             <CheckCircle className="w-3 h-3 mr-1" />
             완료
           </Badge>
@@ -404,122 +445,148 @@ export default function UserCommunicationPage() {
   };
 
   return (
-    <div className={`${isMobile && selectedThread ? 'h-[calc(100dvh-60px)]' : ''}`}>
+    <div
+      className={`${isMobile && selectedThread ? "h-[calc(100dvh-60px)]" : ""}`}
+    >
       {/* 헤더 - 모바일 상세뷰에서는 숨김 */}
       {(!isMobile || !selectedThread) && (
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">커뮤니케이션</h1>
-            <p className="text-gray-600 mt-1 md:mt-2 text-sm md:text-base">관리자와 1:1 문의 및 답변</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+              커뮤니케이션
+            </h1>
+            <p className="text-gray-600 mt-1 md:mt-2 text-sm md:text-base">
+              관리자와 1:1 문의 및 답변
+            </p>
           </div>
           <Dialog open={newThreadOpen} onOpenChange={setNewThreadOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-navy-900 hover:bg-navy-800" size={isMobile ? "sm" : "default"}>
+              <Button
+                className="bg-navy-900 hover:bg-navy-800"
+                size={isMobile ? "sm" : "default"}
+              >
                 <Plus className="w-4 h-4 mr-1 md:mr-2" />
                 <span className="hidden sm:inline">새 문의 작성</span>
                 <span className="sm:hidden">문의</span>
               </Button>
             </DialogTrigger>
-          <DialogContent className="sm:max-w-[600px]">
-            <DialogHeader>
-              <DialogTitle>새 문의 작성</DialogTitle>
-              <DialogDescription>
-                문의 내용을 작성하시면 관리자가 확인 후 답변드립니다
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="title">제목</Label>
-                <Input
-                  id="title"
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  placeholder="문의 제목을 입력하세요"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="category">카테고리</Label>
-                <Select value={newCategory} onValueChange={setNewCategory}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="홈페이지">홈페이지</SelectItem>
-                    <SelectItem value="로고">로고</SelectItem>
-                    <SelectItem value="인쇄물">인쇄물</SelectItem>
-                    <SelectItem value="일반">일반</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="content">내용</Label>
-                <Textarea
-                  id="content"
-                  value={newContent}
-                  onChange={(e) => setNewContent(e.target.value)}
-                  placeholder="문의 내용을 입력하세요"
-                  rows={6}
-                  className="resize-none"
-                />
-              </div>
-              {newAttachments.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {newAttachments.map((url, idx) => (
-                    <div key={idx} className="relative w-20 h-20">
-                      <Image
-                        src={url}
-                        alt="첨부"
-                        width={80}
-                        height={80}
-                        className="w-20 h-20 object-cover rounded border"
-                        unoptimized
-                      />
-                      <button
-                        onClick={() => setNewAttachments(newAttachments.filter((_, i) => i !== idx))}
-                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
+            <DialogContent className="sm:max-w-[600px]">
+              <DialogHeader>
+                <DialogTitle>새 문의 작성</DialogTitle>
+                <DialogDescription>
+                  문의 내용을 작성하시면 관리자가 확인 후 답변드립니다
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="title">제목</Label>
+                  <Input
+                    id="title"
+                    value={newTitle}
+                    onChange={(e) => setNewTitle(e.target.value)}
+                    placeholder="문의 제목을 입력하세요"
+                  />
                 </div>
-              )}
-              <div>
-                <input
-                  type="file"
-                  id="new-thread-file"
-                  accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.hwp,.txt,.zip,.rar"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) handleFileUpload(file, true);
-                    e.target.value = "";
-                  }}
-                  disabled={uploading}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={uploading}
-                  onClick={() => document.getElementById("new-thread-file")?.click()}
-                >
-                  <Paperclip className="w-4 h-4 mr-2" />
-                  {uploading ? "업로드 중..." : "파일 첨부"}
-                </Button>
-                <p className="text-xs text-gray-500 mt-1">10MB 이하, 영상 제외 모든 파일 가능 | 영상 파일: mkt@polarad.co.kr</p>
+                <div className="space-y-2">
+                  <Label htmlFor="category">카테고리</Label>
+                  <Select value={newCategory} onValueChange={setNewCategory}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="홈페이지">홈페이지</SelectItem>
+                      <SelectItem value="로고">로고</SelectItem>
+                      <SelectItem value="인쇄물">인쇄물</SelectItem>
+                      <SelectItem value="일반">일반</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="content">내용</Label>
+                  <Textarea
+                    id="content"
+                    value={newContent}
+                    onChange={(e) => setNewContent(e.target.value)}
+                    placeholder="문의 내용을 입력하세요"
+                    rows={6}
+                    className="resize-none"
+                  />
+                </div>
+                {newAttachments.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {newAttachments.map((url, idx) => (
+                      <div key={idx} className="relative w-20 h-20">
+                        <Image
+                          src={url}
+                          alt="첨부"
+                          width={80}
+                          height={80}
+                          className="w-20 h-20 object-cover rounded border"
+                          unoptimized
+                        />
+                        <button
+                          onClick={() =>
+                            setNewAttachments(
+                              newAttachments.filter((_, i) => i !== idx),
+                            )
+                          }
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div>
+                  <input
+                    type="file"
+                    id="new-thread-file"
+                    accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.hwp,.txt,.zip,.rar"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleFileUpload(file, true);
+                      e.target.value = "";
+                    }}
+                    disabled={uploading}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={uploading}
+                    onClick={() =>
+                      document.getElementById("new-thread-file")?.click()
+                    }
+                  >
+                    <Paperclip className="w-4 h-4 mr-2" />
+                    {uploading ? "업로드 중..." : "파일 첨부"}
+                  </Button>
+                  <p className="text-xs text-gray-500 mt-1">
+                    10MB 이하, 영상 제외 모든 파일 가능 | 영상 파일:
+                    mkt@polarad.co.kr
+                  </p>
+                </div>
               </div>
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setNewThreadOpen(false)}>
-                취소
-              </Button>
-              <Button onClick={handleCreateThread} disabled={creating || !newTitle.trim() || !newContent.trim()}>
-                {creating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-                {creating ? "등록 중..." : "등록"}
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setNewThreadOpen(false)}
+                >
+                  취소
+                </Button>
+                <Button
+                  onClick={handleCreateThread}
+                  disabled={creating || !newTitle.trim() || !newContent.trim()}
+                >
+                  {creating ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : null}
+                  {creating ? "등록 중..." : "등록"}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       )}
 
@@ -529,19 +596,43 @@ export default function UserCommunicationPage() {
           <AlertDescription className="text-sm text-gray-700 space-y-1">
             <p className="font-semibold text-navy-900">문의 안내사항</p>
             <ul className="space-y-1 mt-2 text-xs md:text-sm">
-              <li>• <span className="font-medium text-navy-800">요청은 영업일 기준 1~2일내 접수 및 처리됩니다.</span></li>
-              <li className="hidden md:block">• 문의 사항은 영업일 기준 1일 이내 답변드립니다.</li>
-              <li className="hidden md:block">• 주말은 업무 처리가 어려우며, 평일 기준으로 처리됩니다.</li>
-              <li className="hidden md:block">• 긴급사항(홈페이지 사용불가, 광고계정 정지 등) 외에는 반드시 본 게시판을 이용해 주시기 바랍니다.</li>
-              <li>• 문의사항 메일: <a href="mailto:mkt@polarad.co.kr" className="text-gold-600 underline font-medium">mkt@polarad.co.kr</a></li>
+              <li>
+                •{" "}
+                <span className="font-medium text-navy-800">
+                  요청은 영업일 기준 1~2일내 접수 및 처리됩니다.
+                </span>
+              </li>
+              <li className="hidden md:block">
+                • 문의 사항은 영업일 기준 1일 이내 답변드립니다.
+              </li>
+              <li className="hidden md:block">
+                • 주말은 업무 처리가 어려우며, 평일 기준으로 처리됩니다.
+              </li>
+              <li className="hidden md:block">
+                • 긴급사항(홈페이지 사용불가, 광고계정 정지 등) 외에는 반드시 본
+                게시판을 이용해 주시기 바랍니다.
+              </li>
+              <li>
+                • 문의사항 메일:{" "}
+                <a
+                  href="mailto:mkt@polarad.co.kr"
+                  className="text-gold-600 underline font-medium"
+                >
+                  mkt@polarad.co.kr
+                </a>
+              </li>
             </ul>
           </AlertDescription>
         </Alert>
       )}
 
-      <div className={`grid grid-cols-1 lg:grid-cols-3 gap-6 ${isMobile && selectedThread ? 'h-full' : ''}`}>
+      <div
+        className={`grid grid-cols-1 lg:grid-cols-3 gap-6 ${isMobile && selectedThread ? "h-full" : ""}`}
+      >
         {/* 스레드 목록 - 모바일: 선택된 스레드가 있으면 숨김 */}
-        <Card className={`lg:col-span-1 flex flex-col ${selectedThread ? 'hidden lg:flex' : 'flex'} h-[calc(100dvh-300px)] md:h-[calc(100vh-250px)]`}>
+        <Card
+          className={`lg:col-span-1 flex flex-col ${selectedThread ? "hidden lg:flex" : "flex"} h-[calc(100dvh-300px)] md:h-[calc(100vh-250px)]`}
+        >
           <CardHeader>
             <CardTitle className="text-lg">내 문의 목록</CardTitle>
           </CardHeader>
@@ -591,10 +682,14 @@ export default function UserCommunicationPage() {
         </Card>
 
         {/* 대화 내용 - 모바일: 스레드 선택 시에만 표시 */}
-        <Card className={`lg:col-span-2 flex flex-col ${selectedThread ? 'flex' : 'hidden lg:flex'} ${isMobile ? 'h-full border-0 shadow-none rounded-none' : 'h-[calc(100vh-250px)]'}`}>
+        <Card
+          className={`lg:col-span-2 flex flex-col ${selectedThread ? "flex" : "hidden lg:flex"} ${isMobile ? "h-full border-0 shadow-none rounded-none" : "h-[calc(100vh-250px)]"}`}
+        >
           {selectedThread ? (
             <>
-              <CardHeader className={`border-b ${isMobile ? 'py-3 px-4 bg-white sticky top-0 z-20' : 'py-4'}`}>
+              <CardHeader
+                className={`border-b ${isMobile ? "py-3 px-4 bg-white sticky top-0 z-20" : "py-4"}`}
+              >
                 <div className="flex items-center gap-3">
                   {/* 모바일 뒤로가기 버튼 */}
                   {isMobile && (
@@ -609,7 +704,9 @@ export default function UserCommunicationPage() {
                   )}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <CardTitle className={`${isMobile ? 'text-base' : 'text-xl'} truncate`}>
+                      <CardTitle
+                        className={`${isMobile ? "text-base" : "text-xl"} truncate`}
+                      >
                         {selectedThread.title}
                       </CardTitle>
                       {getStatusBadge(selectedThread.status)}
@@ -627,7 +724,9 @@ export default function UserCommunicationPage() {
               {newMessageAlert && (
                 <div className="sticky top-0 z-10 mx-3 sm:mx-6 mt-3">
                   <div className="bg-navy-900 text-white px-4 py-2 rounded-lg shadow-lg flex items-center justify-between animate-bounce">
-                    <span className="text-sm font-medium">새 메시지가 도착했습니다</span>
+                    <span className="text-sm font-medium">
+                      새 메시지가 도착했습니다
+                    </span>
                     <button
                       onClick={() => setNewMessageAlert(false)}
                       className="text-white hover:text-gray-200"
@@ -639,165 +738,236 @@ export default function UserCommunicationPage() {
               )}
 
               {/* 메시지 목록 - 모바일 패딩 최적화 */}
-              <CardContent className={`flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 bg-gray-50 ${isMobile ? 'pb-36' : ''}`}>
-                {groupMessagesByDate(selectedThread.messages).map((item, groupIndex) => {
-                  if (item.type === "date") {
-                    return (
-                      <div key={`date-${groupIndex}`} className="flex items-center gap-3 my-6">
-                        <div className="flex-1 h-px bg-gray-300" />
-                        <span className="text-xs text-gray-600 font-semibold px-3 py-1 bg-white rounded-full border border-gray-200 shadow-sm">
-                          {format(new Date(item.date), "yyyy년 M월 d일 EEEE", { locale: ko })}
-                        </span>
-                        <div className="flex-1 h-px bg-gray-300" />
-                      </div>
-                    );
-                  }
-
-                  const message = item.data;
-                  const nextMessage = item.index < selectedThread.messages.length - 1 ? selectedThread.messages[item.index + 1] : null;
-                  const isConsecutive = isConsecutiveMessage(message, nextMessage);
-
-                  // 시스템 메시지 렌더링
-                  if (message.authorType === "system") {
-                    return (
-                      <div key={message.id} className="flex justify-center my-4">
-                        <div className="max-w-[90%] sm:max-w-[70%] bg-gray-100 border border-gray-200 rounded-lg p-4 text-center">
-                          <div className="flex items-center justify-center gap-2 mb-2">
-                            <span className="text-xs font-semibold text-gray-500">시스템 안내</span>
-                          </div>
-                          <p className="whitespace-pre-wrap text-sm text-gray-600 leading-relaxed">
-                            {message.content}
-                          </p>
+              <CardContent
+                className={`flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 bg-gray-50 ${isMobile ? "pb-36" : ""}`}
+              >
+                {groupMessagesByDate(selectedThread.messages).map(
+                  (item, groupIndex) => {
+                    if (item.type === "date") {
+                      return (
+                        <div
+                          key={`date-${groupIndex}`}
+                          className="flex items-center gap-3 my-6"
+                        >
+                          <div className="flex-1 h-px bg-gray-300" />
+                          <span className="text-xs text-gray-600 font-semibold px-3 py-1 bg-white rounded-full border border-gray-200 shadow-sm">
+                            {format(
+                              new Date(item.date),
+                              "yyyy년 M월 d일 EEEE",
+                              { locale: ko },
+                            )}
+                          </span>
+                          <div className="flex-1 h-px bg-gray-300" />
                         </div>
-                      </div>
-                    );
-                  }
+                      );
+                    }
 
-                  return (
-                    <div key={message.id}>
-                      <div
-                        className={`flex ${message.authorType === "admin" ? "justify-start" : "justify-end"} ${
-                          isConsecutive ? "mt-1" : "mt-4"
-                        }`}
-                      >
-                        <div className={`max-w-[85%] sm:max-w-[80%] ${message.authorType === "admin" ? "" : ""}`}>
-                          {/* 작성자 정보 (연속 메시지가 아닐 때만 표시) */}
-                          {!isConsecutive && (
-                            <div className={`flex items-center gap-2 mb-1 ${message.authorType === "admin" ? "" : "justify-end"}`}>
-                              <span className="text-xs font-semibold text-gray-700">
-                                {message.authorName}
-                              </span>
-                              {message.authorType === "admin" && (
-                                <Badge className="bg-gold-100 text-navy-700 border-gold-300 text-[10px] py-0 px-2">
-                                  관리자
-                                </Badge>
-                              )}
-                              <span className="text-xs text-gray-500">
-                                {format(new Date(message.createdAt), "HH:mm", { locale: ko })}
+                    const message = item.data;
+                    const nextMessage =
+                      item.index < selectedThread.messages.length - 1
+                        ? selectedThread.messages[item.index + 1]
+                        : null;
+                    const isConsecutive = isConsecutiveMessage(
+                      message,
+                      nextMessage,
+                    );
+
+                    // 시스템 메시지 렌더링
+                    if (message.authorType === "system") {
+                      return (
+                        <div
+                          key={message.id}
+                          className="flex justify-center my-4"
+                        >
+                          <div className="max-w-[90%] sm:max-w-[70%] bg-gray-100 border border-gray-200 rounded-lg p-4 text-center">
+                            <div className="flex items-center justify-center gap-2 mb-2">
+                              <span className="text-xs font-semibold text-gray-500">
+                                시스템 안내
                               </span>
                             </div>
-                          )}
-
-                          {/* 메시지 버블 */}
-                          <div
-                            className={`rounded-lg p-4 ${
-                              message.authorType === "admin"
-                                ? "bg-white border-2 border-gold-200"
-                                : "bg-navy-900 text-white"
-                            } ${isConsecutive ? "shadow-sm" : "shadow-md"}`}
-                          >
-                            <p className={`whitespace-pre-wrap text-sm ${message.authorType === "admin" ? "text-gray-800" : "text-white"}`}>
+                            <p className="whitespace-pre-wrap text-sm text-gray-600 leading-relaxed">
                               {message.content}
                             </p>
-                            {message.authorType === "admin" && message.expectedCompletionDate && (
-                              <div className="flex items-center gap-1 text-sm text-gold-600 mt-3 bg-gold-50 px-3 py-1.5 rounded-full inline-flex w-fit">
-                                <CalendarIcon className="w-4 h-4 flex-shrink-0" />
-                                <span className="whitespace-nowrap font-medium">완료 예상일: {format(new Date(message.expectedCompletionDate), "yyyy년 M월 d일", { locale: ko })}</span>
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div key={message.id}>
+                        <div
+                          className={`flex ${message.authorType === "admin" ? "justify-start" : "justify-end"} ${
+                            isConsecutive ? "mt-1" : "mt-4"
+                          }`}
+                        >
+                          <div
+                            className={`max-w-[85%] sm:max-w-[80%] ${message.authorType === "admin" ? "" : ""}`}
+                          >
+                            {/* 작성자 정보 (연속 메시지가 아닐 때만 표시) */}
+                            {!isConsecutive && (
+                              <div
+                                className={`flex items-center gap-2 mb-1 ${message.authorType === "admin" ? "" : "justify-end"}`}
+                              >
+                                <span className="text-xs font-semibold text-gray-700">
+                                  {message.authorName}
+                                </span>
+                                {message.authorType === "admin" && (
+                                  <Badge className="bg-gold-100 text-navy-700 border-gold-300 text-[10px] py-0 px-2">
+                                    관리자
+                                  </Badge>
+                                )}
+                                <span className="text-xs text-gray-500">
+                                  {format(
+                                    new Date(message.createdAt),
+                                    "HH:mm",
+                                    { locale: ko },
+                                  )}
+                                </span>
                               </div>
                             )}
-                            {message.attachments.length > 0 && (
-                              <div className="space-y-2 mt-3">
-                                {message.attachments.map((url, idx) => (
-                                  <div key={idx} className="relative w-full">
-                                    <Image
-                                      src={url}
-                                      alt="첨부 이미지"
-                                      width={800}
-                                      height={600}
-                                      className="rounded-lg max-w-full h-auto border"
-                                      unoptimized
-                                    />
-                                    <a
-                                      href={url}
-                                      download
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className={`mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                                        message.authorType === "admin"
-                                          ? "bg-gold-100 text-navy-700 hover:bg-gold-200"
-                                          : "bg-white/20 text-white hover:bg-white/30"
-                                      }`}
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        // 직접 다운로드 시도
-                                        fetch(url)
-                                          .then(res => res.blob())
-                                          .then(blob => {
-                                            const blobUrl = window.URL.createObjectURL(blob);
-                                            const a = document.createElement('a');
-                                            a.href = blobUrl;
-                                            a.download = url.split('/').pop() || 'download';
-                                            document.body.appendChild(a);
-                                            a.click();
-                                            document.body.removeChild(a);
-                                            window.URL.revokeObjectURL(blobUrl);
-                                          })
-                                          .catch(() => {
-                                            // fallback: 새 탭에서 열기
-                                            window.open(url, '_blank');
-                                          });
-                                        e.preventDefault();
-                                      }}
-                                    >
-                                      <Download className="w-3.5 h-3.5" />
-                                      다운로드
-                                    </a>
+
+                            {/* 메시지 버블 */}
+                            <div
+                              className={`rounded-lg p-4 ${
+                                message.authorType === "admin"
+                                  ? "bg-white border-2 border-gold-200"
+                                  : "bg-navy-900 text-white"
+                              } ${isConsecutive ? "shadow-sm" : "shadow-md"}`}
+                            >
+                              <p
+                                className={`whitespace-pre-wrap text-sm ${message.authorType === "admin" ? "text-gray-800" : "text-white"}`}
+                              >
+                                {message.content}
+                              </p>
+                              {message.authorType === "admin" &&
+                                message.expectedCompletionDate && (
+                                  <div className="flex items-center gap-1 text-sm text-gold-600 mt-3 bg-gold-50 px-3 py-1.5 rounded-full inline-flex w-fit">
+                                    <CalendarIcon className="w-4 h-4 flex-shrink-0" />
+                                    <span className="font-medium text-xs sm:text-sm">
+                                      완료 예상일:{" "}
+                                      {format(
+                                        new Date(
+                                          message.expectedCompletionDate,
+                                        ),
+                                        "yyyy년 M월 d일",
+                                        { locale: ko },
+                                      )}
+                                    </span>
                                   </div>
-                                ))}
-                              </div>
-                            )}
-                            {/* 연속 메시지일 때는 상대 시간 표시 */}
-                            {isConsecutive && (
-                              <p className={`text-[10px] mt-2 ${message.authorType === "admin" ? "text-gray-400" : "text-gold-200"}`}>
-                                {getRelativeTime(message.createdAt)}
-                              </p>
-                            )}
-                            {/* 읽음 상태 표시 */}
-                            {message.authorType === "user" && message.isReadByAdmin && message.readByAdminAt && (
-                              <p className="text-[10px] mt-1 text-green-500">
-                                읽음 · {format(new Date(message.readByAdminAt), "M월 d일 HH:mm", { locale: ko })}
-                              </p>
-                            )}
-                            {message.authorType === "admin" && message.isReadByUser && message.readByUserAt && (
-                              <p className="text-[10px] mt-1 text-gray-400">
-                                읽음 · {format(new Date(message.readByUserAt), "M월 d일 HH:mm", { locale: ko })}
-                              </p>
-                            )}
+                                )}
+                              {message.attachments.length > 0 && (
+                                <div className="space-y-2 mt-3">
+                                  {message.attachments.map((url, idx) => (
+                                    <div key={idx} className="relative w-full">
+                                      <Image
+                                        src={url}
+                                        alt="첨부 이미지"
+                                        width={800}
+                                        height={600}
+                                        className="rounded-lg max-w-full h-auto border"
+                                        unoptimized
+                                      />
+                                      <a
+                                        href={url}
+                                        download
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className={`mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                                          message.authorType === "admin"
+                                            ? "bg-gold-100 text-navy-700 hover:bg-gold-200"
+                                            : "bg-white/20 text-white hover:bg-white/30"
+                                        }`}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          // 직접 다운로드 시도
+                                          fetch(url)
+                                            .then((res) => res.blob())
+                                            .then((blob) => {
+                                              const blobUrl =
+                                                window.URL.createObjectURL(
+                                                  blob,
+                                                );
+                                              const a =
+                                                document.createElement("a");
+                                              a.href = blobUrl;
+                                              a.download =
+                                                url.split("/").pop() ||
+                                                "download";
+                                              document.body.appendChild(a);
+                                              a.click();
+                                              document.body.removeChild(a);
+                                              window.URL.revokeObjectURL(
+                                                blobUrl,
+                                              );
+                                            })
+                                            .catch(() => {
+                                              // fallback: 새 탭에서 열기
+                                              window.open(url, "_blank");
+                                            });
+                                          e.preventDefault();
+                                        }}
+                                      >
+                                        <Download className="w-3.5 h-3.5" />
+                                        다운로드
+                                      </a>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                              {/* 연속 메시지일 때는 상대 시간 표시 */}
+                              {isConsecutive && (
+                                <p
+                                  className={`text-[10px] mt-2 ${message.authorType === "admin" ? "text-gray-400" : "text-gold-200"}`}
+                                >
+                                  {getRelativeTime(message.createdAt)}
+                                </p>
+                              )}
+                              {/* 읽음 상태 표시 */}
+                              {message.authorType === "user" &&
+                                message.isReadByAdmin &&
+                                message.readByAdminAt && (
+                                  <p className="text-[10px] mt-1 text-green-500">
+                                    읽음 ·{" "}
+                                    {format(
+                                      new Date(message.readByAdminAt),
+                                      "M월 d일 HH:mm",
+                                      { locale: ko },
+                                    )}
+                                  </p>
+                                )}
+                              {message.authorType === "admin" &&
+                                message.isReadByUser &&
+                                message.readByUserAt && (
+                                  <p className="text-[10px] mt-1 text-gray-400">
+                                    읽음 ·{" "}
+                                    {format(
+                                      new Date(message.readByUserAt),
+                                      "M월 d일 HH:mm",
+                                      { locale: ko },
+                                    )}
+                                  </p>
+                                )}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  },
+                )}
               </CardContent>
 
               {/* 답글 작성 - 모바일 최적화 */}
-              <div className={`p-3 sm:p-4 border-t ${isMobile ? 'fixed-input-above-tab' : 'bg-white'}`}>
+              <div
+                className={`p-3 sm:p-4 border-t ${isMobile ? "fixed-input-above-tab" : "bg-white"}`}
+              >
                 <div className="space-y-2">
                   {replyAttachments.length > 0 && (
                     <div className="flex flex-wrap gap-2">
                       {replyAttachments.map((url, idx) => (
-                        <div key={idx} className="relative w-14 h-14 sm:w-16 sm:h-16">
+                        <div
+                          key={idx}
+                          className="relative w-14 h-14 sm:w-16 sm:h-16"
+                        >
                           <Image
                             src={url}
                             alt="첨부"
@@ -807,7 +977,11 @@ export default function UserCommunicationPage() {
                             unoptimized
                           />
                           <button
-                            onClick={() => setReplyAttachments(replyAttachments.filter((_, i) => i !== idx))}
+                            onClick={() =>
+                              setReplyAttachments(
+                                replyAttachments.filter((_, i) => i !== idx),
+                              )
+                            }
                             className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
                             aria-label="첨부 이미지 삭제"
                           >
@@ -896,7 +1070,11 @@ export default function UserCommunicationPage() {
                             type="button"
                             variant="outline"
                             disabled={uploading}
-                            onClick={() => document.getElementById("reply-file-desktop")?.click()}
+                            onClick={() =>
+                              document
+                                .getElementById("reply-file-desktop")
+                                ?.click()
+                            }
                           >
                             <Paperclip className="w-4 h-4 mr-2" />
                             {uploading ? "업로드 중..." : "파일"}
@@ -952,7 +1130,9 @@ export default function UserCommunicationPage() {
               disabled={uploading}
             />
             <button
-              onClick={() => document.getElementById("camera-input-comm")?.click()}
+              onClick={() =>
+                document.getElementById("camera-input-comm")?.click()
+              }
               disabled={uploading}
               className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 border-dashed border-gray-200 hover:border-gold-300 hover:bg-gold-50 transition-colors"
             >
@@ -978,7 +1158,9 @@ export default function UserCommunicationPage() {
               disabled={uploading}
             />
             <button
-              onClick={() => document.getElementById("gallery-input-comm")?.click()}
+              onClick={() =>
+                document.getElementById("gallery-input-comm")?.click()
+              }
               disabled={uploading}
               className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 border-dashed border-gray-200 hover:border-gold-300 hover:bg-gold-50 transition-colors"
             >
@@ -1004,7 +1186,9 @@ export default function UserCommunicationPage() {
               disabled={uploading}
             />
             <button
-              onClick={() => document.getElementById("file-input-comm")?.click()}
+              onClick={() =>
+                document.getElementById("file-input-comm")?.click()
+              }
               disabled={uploading}
               className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 border-dashed border-gray-200 hover:border-gold-300 hover:bg-gold-50 transition-colors"
             >

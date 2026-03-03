@@ -9,7 +9,8 @@ export const CATEGORIES = {
       bg: "bg-pink-50",
       text: "text-pink-700",
       border: "border-pink-200",
-      badge: "bg-white text-pink-700 border border-pink-300 shadow-sm font-semibold",
+      badge:
+        "bg-white text-pink-700 border border-pink-300 shadow-sm font-semibold",
     },
     order: 1,
   },
@@ -18,10 +19,10 @@ export const CATEGORIES = {
     name: "Meta 광고관리자",
     icon: "📊",
     color: {
-      bg: "bg-blue-50",
-      text: "text-blue-700",
-      border: "border-blue-200",
-      badge: "bg-blue-100 text-blue-800",
+      bg: "bg-navy-50",
+      text: "text-navy-700",
+      border: "border-navy-200",
+      badge: "bg-navy-100 text-navy-800",
     },
     order: 2,
   },
@@ -45,7 +46,8 @@ export const CATEGORIES = {
       bg: "bg-purple-50",
       text: "text-purple-700",
       border: "border-purple-200",
-      badge: "bg-white text-purple-700 border border-purple-300 shadow-sm font-semibold",
+      badge:
+        "bg-white text-purple-700 border border-purple-300 shadow-sm font-semibold",
     },
     order: 4,
   },
@@ -55,7 +57,7 @@ export type CategoryId = keyof typeof CATEGORIES;
 
 // 카테고리 배열 (순서대로 정렬됨)
 export const CATEGORY_LIST = Object.values(CATEGORIES).sort(
-  (a, b) => a.order - b.order
+  (a, b) => a.order - b.order,
 );
 
 // 카테고리 ID 검증

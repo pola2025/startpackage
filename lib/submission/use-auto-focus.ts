@@ -9,7 +9,12 @@ const TAB_FIELDS: Record<string, string[]> = {
   basic: ["브랜드명", "업종", "주소", "상세주소"],
   logo: ["logoStyle", "로고선호색상", "로고제작요청사항"],
   print: ["사업자등록증", "프로필사진", "명함시안"],
-  marketing: ["네이버검색광고ID", "네이버검색광고PW", "InstagramID", "InstagramPW"],
+  marketing: [
+    "네이버검색광고ID",
+    "네이버검색광고PW",
+    "InstagramID",
+    "InstagramPW",
+  ],
 };
 
 /**
@@ -73,9 +78,11 @@ export function useAutoFocus({
       const submissionKey = FIELD_TO_SUBMISSION_KEY[fieldId];
       if (!submissionKey) return true;
       const value = submission[submissionKey];
-      return value === null || value === undefined || String(value).trim() === "";
+      return (
+        value === null || value === undefined || String(value).trim() === ""
+      );
     },
-    [submission]
+    [submission],
   );
 
   /**
@@ -93,7 +100,7 @@ export function useAutoFocus({
       }
       return null;
     },
-    [isFieldEmpty]
+    [isFieldEmpty],
   );
 
   /**
@@ -104,7 +111,7 @@ export function useAutoFocus({
     if (!element) {
       // input, select, textarea 등으로 재시도
       const inputElement = document.querySelector(
-        `input[name="${elementId}"], select[name="${elementId}"], textarea[name="${elementId}"]`
+        `input[name="${elementId}"], select[name="${elementId}"], textarea[name="${elementId}"]`,
       ) as HTMLElement;
 
       if (inputElement) {
@@ -112,9 +119,17 @@ export function useAutoFocus({
         setTimeout(() => {
           inputElement.focus();
           // 입력 필드 하이라이트 효과
-          inputElement.classList.add("ring-2", "ring-blue-400", "ring-offset-2");
+          inputElement.classList.add(
+            "ring-2",
+            "ring-gold-400",
+            "ring-offset-2",
+          );
           setTimeout(() => {
-            inputElement.classList.remove("ring-2", "ring-blue-400", "ring-offset-2");
+            inputElement.classList.remove(
+              "ring-2",
+              "ring-gold-400",
+              "ring-offset-2",
+            );
           }, 2000);
         }, 300);
       }
@@ -123,12 +138,16 @@ export function useAutoFocus({
 
     element.scrollIntoView({ behavior: "smooth", block: "center" });
     setTimeout(() => {
-      if (element.tagName === "INPUT" || element.tagName === "TEXTAREA" || element.tagName === "SELECT") {
+      if (
+        element.tagName === "INPUT" ||
+        element.tagName === "TEXTAREA" ||
+        element.tagName === "SELECT"
+      ) {
         element.focus();
         // 입력 필드 하이라이트 효과
-        element.classList.add("ring-2", "ring-blue-400", "ring-offset-2");
+        element.classList.add("ring-2", "ring-gold-400", "ring-offset-2");
         setTimeout(() => {
-          element.classList.remove("ring-2", "ring-blue-400", "ring-offset-2");
+          element.classList.remove("ring-2", "ring-gold-400", "ring-offset-2");
         }, 2000);
       }
     }, 300);
@@ -154,7 +173,14 @@ export function useAutoFocus({
     }, delay);
 
     return () => clearTimeout(timeoutId);
-  }, [activeTab, submission, enabled, delay, findFirstEmptyField, focusElement]);
+  }, [
+    activeTab,
+    submission,
+    enabled,
+    delay,
+    findFirstEmptyField,
+    focusElement,
+  ]);
 
   /**
    * 수동으로 특정 필드에 포커스
@@ -163,7 +189,7 @@ export function useAutoFocus({
     (fieldId: string) => {
       focusElement(fieldId);
     },
-    [focusElement]
+    [focusElement],
   );
 
   /**
@@ -192,9 +218,11 @@ export function useKeyboardNavigation() {
         if (!form) return;
 
         const inputs = Array.from(
-          form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(
-            'input:not([type="hidden"]):not([disabled]), textarea:not([disabled]), select:not([disabled])'
-          )
+          form.querySelectorAll<
+            HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+          >(
+            'input:not([type="hidden"]):not([disabled]), textarea:not([disabled]), select:not([disabled])',
+          ),
         );
 
         const currentIndex = inputs.indexOf(e.target as HTMLInputElement);
@@ -202,7 +230,10 @@ export function useKeyboardNavigation() {
 
         if (nextInput) {
           nextInput.focus();
-          if (nextInput.tagName === "INPUT" || nextInput.tagName === "TEXTAREA") {
+          if (
+            nextInput.tagName === "INPUT" ||
+            nextInput.tagName === "TEXTAREA"
+          ) {
             (nextInput as HTMLInputElement | HTMLTextAreaElement).select();
           }
         }
