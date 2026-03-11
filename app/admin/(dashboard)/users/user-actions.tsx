@@ -26,7 +26,22 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, Trash2, Eye, ExternalLink, GraduationCap, UserCheck, Send, MessageSquare, Paperclip, X, Loader2, Phone, FileText, ChevronDown } from "lucide-react";
+import {
+  MoreVertical,
+  Trash2,
+  Eye,
+  ExternalLink,
+  GraduationCap,
+  UserCheck,
+  Send,
+  MessageSquare,
+  Paperclip,
+  X,
+  Loader2,
+  Phone,
+  FileText,
+  ChevronDown,
+} from "lucide-react";
 
 // 이메일 템플릿 정의
 const EMAIL_TEMPLATES = [
@@ -110,23 +125,30 @@ export default function UserActions({ user }: UserActionsProps) {
   const [messageChannel, setMessageChannel] = useState<"SMS" | "EMAIL">("SMS");
   const [messageTitle, setMessageTitle] = useState("");
   const [messageContent, setMessageContent] = useState("");
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(
+    null,
+  );
   const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
 
   // 이메일 첨부파일
-  const [emailAttachments, setEmailAttachments] = useState<Array<{
-    url: string;
-    filename: string;
-    size: number;
-    type: string;
-  }>>([]);
-  const [uploadingEmailAttachment, setUploadingEmailAttachment] = useState(false);
+  const [emailAttachments, setEmailAttachments] = useState<
+    Array<{
+      url: string;
+      filename: string;
+      size: number;
+      type: string;
+    }>
+  >([]);
+  const [uploadingEmailAttachment, setUploadingEmailAttachment] =
+    useState(false);
 
   // 문의하기 메시지 (Communication Thread)
   const [showCommunicationDialog, setShowCommunicationDialog] = useState(false);
   const [sendingCommunication, setSendingCommunication] = useState(false);
   const [commThreadTitle, setCommThreadTitle] = useState("");
-  const [commCategory, setCommCategory] = useState<"일반" | "제작" | "배송" | "기타">("일반");
+  const [commCategory, setCommCategory] = useState<
+    "일반" | "제작" | "배송" | "기타"
+  >("일반");
   const [commContent, setCommContent] = useState("");
   const [commAttachments, setCommAttachments] = useState<string[]>([]);
   const [uploadingCommAttachment, setUploadingCommAttachment] = useState(false);
@@ -188,7 +210,10 @@ export default function UserActions({ user }: UserActionsProps) {
       const response = await fetch("/api/admin/users/toggle-graduate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id, isGraduated: !user.isGraduated }),
+        body: JSON.stringify({
+          userId: user.id,
+          isGraduated: !user.isGraduated,
+        }),
       });
 
       if (!response.ok) {
@@ -205,7 +230,9 @@ export default function UserActions({ user }: UserActionsProps) {
   };
 
   // 이메일 첨부파일 업로드
-  const handleEmailAttachmentUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEmailAttachmentUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
@@ -236,12 +263,15 @@ export default function UserActions({ user }: UserActionsProps) {
         }
 
         const data = await response.json();
-        setEmailAttachments(prev => [...prev, {
-          url: data.url,
-          filename: data.filename,
-          size: data.size,
-          type: data.type,
-        }]);
+        setEmailAttachments((prev) => [
+          ...prev,
+          {
+            url: data.url,
+            filename: data.filename,
+            size: data.size,
+            type: data.type,
+          },
+        ]);
       }
     } catch (error) {
       alert("파일 업로드 중 오류가 발생했습니다.");
@@ -252,7 +282,7 @@ export default function UserActions({ user }: UserActionsProps) {
   };
 
   const handleRemoveEmailAttachment = (index: number) => {
-    setEmailAttachments(prev => prev.filter((_, i) => i !== index));
+    setEmailAttachments((prev) => prev.filter((_, i) => i !== index));
   };
 
   const formatFileSize = (bytes: number) => {
@@ -297,7 +327,8 @@ export default function UserActions({ user }: UserActionsProps) {
           channel: messageChannel,
           title: messageTitle,
           message: messageContent,
-          attachments: messageChannel === "EMAIL" ? emailAttachments : undefined,
+          attachments:
+            messageChannel === "EMAIL" ? emailAttachments : undefined,
         }),
       });
 
@@ -307,7 +338,9 @@ export default function UserActions({ user }: UserActionsProps) {
         throw new Error(data.error || "메시지 발송 실패");
       }
 
-      alert(`${messageChannel === "SMS" ? "문자" : "이메일"}를 성공적으로 발송했습니다.`);
+      alert(
+        `${messageChannel === "SMS" ? "문자" : "이메일"}를 성공적으로 발송했습니다.`,
+      );
       setShowMessageDialog(false);
       setMessageTitle("");
       setMessageContent("");
@@ -321,7 +354,9 @@ export default function UserActions({ user }: UserActionsProps) {
     }
   };
 
-  const handleCommAttachmentUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCommAttachmentUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -391,7 +426,9 @@ export default function UserActions({ user }: UserActionsProps) {
         throw new Error(data.error || "문의하기 메시지 전송 실패");
       }
 
-      alert("문의하기 메시지를 성공적으로 전송했습니다.\n사용자에게 실시간 알림이 전송되었습니다.");
+      alert(
+        "문의하기 메시지를 성공적으로 전송했습니다.\n사용자에게 실시간 알림이 전송되었습니다.",
+      );
       setShowCommunicationDialog(false);
       setCommThreadTitle("");
       setCommCategory("일반");
@@ -414,7 +451,9 @@ export default function UserActions({ user }: UserActionsProps) {
     // 전화번호 형식 검증 (프론트엔드)
     const phoneRegex = /^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$/;
     if (!phoneRegex.test(newPhone)) {
-      alert("올바른 전화번호 형식이 아닙니다.\n예: 010-1234-5678 또는 01012345678");
+      alert(
+        "올바른 전화번호 형식이 아닙니다.\n예: 010-1234-5678 또는 01012345678",
+      );
       return;
     }
 
@@ -523,7 +562,10 @@ export default function UserActions({ user }: UserActionsProps) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <AlertDialog open={showGraduateDialog} onOpenChange={setShowGraduateDialog}>
+      <AlertDialog
+        open={showGraduateDialog}
+        onOpenChange={setShowGraduateDialog}
+      >
         <AlertDialogContent className="bg-white">
           <AlertDialogHeader>
             <AlertDialogTitle>
@@ -541,7 +583,9 @@ export default function UserActions({ user }: UserActionsProps) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-gray-300">취소</AlertDialogCancel>
+            <AlertDialogCancel className="border-gray-300">
+              취소
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleToggleGraduate}
               disabled={loading}
@@ -563,7 +607,9 @@ export default function UserActions({ user }: UserActionsProps) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-gray-300">취소</AlertDialogCancel>
+            <AlertDialogCancel className="border-gray-300">
+              취소
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               disabled={loading}
@@ -598,38 +644,54 @@ export default function UserActions({ user }: UserActionsProps) {
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
                     <span className="text-gray-600">브랜드명:</span>
-                    <p className="font-medium text-gray-900">{submission.브랜드명 || "-"}</p>
+                    <p className="font-medium text-gray-900">
+                      {submission.브랜드명 || "-"}
+                    </p>
                   </div>
                   <div>
                     <span className="text-gray-600">업종:</span>
-                    <p className="font-medium text-gray-900">{submission.업종 || "-"}</p>
+                    <p className="font-medium text-gray-900">
+                      {submission.업종 || "-"}
+                    </p>
                   </div>
                   <div className="col-span-2">
                     <span className="text-gray-600">주소:</span>
-                    <p className="font-medium text-gray-900">{submission.주소 || "-"}</p>
+                    <p className="font-medium text-gray-900">
+                      {submission.주소 || "-"}
+                    </p>
                   </div>
                   <div>
                     <span className="text-gray-600">대표번호:</span>
-                    <p className="font-medium text-gray-900">{submission.대표번호 || "-"}</p>
+                    <p className="font-medium text-gray-900">
+                      {submission.대표번호 || "-"}
+                    </p>
                   </div>
                   <div>
                     <span className="text-gray-600">이메일:</span>
-                    <p className="font-medium text-gray-900">{submission.이메일 || "-"}</p>
+                    <p className="font-medium text-gray-900">
+                      {submission.이메일 || "-"}
+                    </p>
                   </div>
                 </div>
               </div>
 
               {/* 로고 정보 */}
               <div className="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <h3 className="font-semibold text-gray-900">로고 & 명함 정보</h3>
+                <h3 className="font-semibold text-gray-900">
+                  로고 & 명함 정보
+                </h3>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
                     <span className="text-gray-600">로고 선호 스타일:</span>
-                    <p className="font-medium text-gray-900">{submission.로고선호스타일 || "-"}</p>
+                    <p className="font-medium text-gray-900">
+                      {submission.로고선호스타일 || "-"}
+                    </p>
                   </div>
                   <div>
                     <span className="text-gray-600">로고 선호 폰트:</span>
-                    <p className="font-medium text-gray-900">{submission.로고선호폰트 || "-"}</p>
+                    <p className="font-medium text-gray-900">
+                      {submission.로고선호폰트 || "-"}
+                    </p>
                   </div>
                   <div>
                     <span className="text-gray-600">로고 선호 색상:</span>
@@ -640,7 +702,9 @@ export default function UserActions({ user }: UserActionsProps) {
                           style={{ backgroundColor: submission.로고선호색상 }}
                         />
                       )}
-                      <p className="font-medium text-gray-900">{submission.로고선호색상 || "-"}</p>
+                      <p className="font-medium text-gray-900">
+                        {submission.로고선호색상 || "-"}
+                      </p>
                     </div>
                   </div>
                   <div className="col-span-2">
@@ -658,12 +722,16 @@ export default function UserActions({ user }: UserActionsProps) {
                           style={{ backgroundColor: submission.명함색상 }}
                         />
                       )}
-                      <p className="font-medium text-gray-900">{submission.명함색상 || "-"}</p>
+                      <p className="font-medium text-gray-900">
+                        {submission.명함색상 || "-"}
+                      </p>
                     </div>
                   </div>
                   <div>
                     <span className="text-gray-600">명함 시안:</span>
-                    <p className="font-medium text-gray-900">{submission.명함시안 || "-"}</p>
+                    <p className="font-medium text-gray-900">
+                      {submission.명함시안 || "-"}
+                    </p>
                   </div>
                   {submission.로고URL && (
                     <div className="col-span-2">
@@ -694,7 +762,8 @@ export default function UserActions({ user }: UserActionsProps) {
                         rel="noopener noreferrer"
                         className="text-gold-600 hover:underline flex items-center gap-1 mt-1"
                       >
-                        {submission.홈페이지스타일} <ExternalLink className="w-3 h-3" />
+                        {submission.홈페이지스타일}{" "}
+                        <ExternalLink className="w-3 h-3" />
                       </a>
                     ) : (
                       <p className="font-medium text-gray-900">-</p>
@@ -706,23 +775,51 @@ export default function UserActions({ user }: UserActionsProps) {
                       {submission.홈페이지컬러컨셉 && (
                         <div
                           className="w-8 h-8 rounded border border-gray-300"
-                          style={{ backgroundColor: submission.홈페이지컬러컨셉 }}
+                          style={{
+                            backgroundColor: submission.홈페이지컬러컨셉,
+                          }}
                         />
                       )}
-                      <p className="font-medium text-gray-900">{submission.홈페이지컬러컨셉 || "-"}</p>
+                      <p className="font-medium text-gray-900">
+                        {submission.홈페이지컬러컨셉 || "-"}
+                      </p>
                     </div>
                   </div>
                   <div>
-                    <span className="text-gray-600">아임웹 ID:</span>
-                    <p className="font-medium text-gray-900">{submission.아임웹ID || "-"}</p>
+                    <span className="text-gray-600">도메인 주소:</span>
+                    <p className="font-medium text-gray-900">
+                      {submission.도메인주소 || "-"}
+                    </p>
                   </div>
                   <div>
-                    <span className="text-gray-600">아임웹 비밀번호:</span>
-                    <p className="font-medium text-gray-900">{submission.아임웹PW ? "●●●●●●" : "-"}</p>
+                    <span className="text-gray-600">도메인 관리 사이트:</span>
+                    <p className="font-medium text-gray-900">
+                      {submission.도메인관리사이트 || "-"}
+                    </p>
                   </div>
                   <div>
-                    <span className="text-gray-600">아임웹 관리자 비밀번호:</span>
-                    <p className="font-medium text-gray-900">{submission.아임웹관리자PW ? "●●●●●●" : "-"}</p>
+                    <span className="text-gray-600">도메인 관리 ID:</span>
+                    <p className="font-medium text-gray-900 font-mono">
+                      {submission.도메인관리ID || "-"}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">도메인 관리 PW:</span>
+                    <p className="font-medium text-gray-900 font-mono">
+                      {submission.도메인관리PW || "-"}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Gmail ID:</span>
+                    <p className="font-medium text-gray-900 font-mono">
+                      {submission.GmailID || "-"}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Gmail PW:</span>
+                    <p className="font-medium text-gray-900 font-mono">
+                      {submission.GmailPW || "-"}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -733,11 +830,15 @@ export default function UserActions({ user }: UserActionsProps) {
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
                     <span className="text-gray-600">네이버 검색광고 ID:</span>
-                    <p className="font-medium text-gray-900">{submission.네이버검색광고ID || "-"}</p>
+                    <p className="font-medium text-gray-900">
+                      {submission.네이버검색광고ID || "-"}
+                    </p>
                   </div>
                   <div>
                     <span className="text-gray-600">Instagram ID:</span>
-                    <p className="font-medium text-gray-900">{submission.InstagramID || "-"}</p>
+                    <p className="font-medium text-gray-900">
+                      {submission.InstagramID || "-"}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -798,7 +899,9 @@ export default function UserActions({ user }: UserActionsProps) {
           <div className="space-y-4 mt-4 overflow-y-auto flex-1 pr-2">
             {/* 채널 선택 */}
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-gray-900">발송 방법 *</label>
+              <label className="text-sm font-semibold text-gray-900">
+                발송 방법 *
+              </label>
               <div className="flex gap-3">
                 <button
                   type="button"
@@ -813,7 +916,9 @@ export default function UserActions({ user }: UserActionsProps) {
                   <div className="font-semibold">SMS (문자)</div>
                   <div className="text-xs mt-1">{user.연락처}</div>
                   {!user.SMS수신동의 && (
-                    <div className="text-xs text-red-600 mt-1">수신 동의 안 함</div>
+                    <div className="text-xs text-red-600 mt-1">
+                      수신 동의 안 함
+                    </div>
                   )}
                 </button>
                 <button
@@ -829,7 +934,9 @@ export default function UserActions({ user }: UserActionsProps) {
                   <div className="font-semibold">이메일</div>
                   <div className="text-xs mt-1">{user.email}</div>
                   {!user.이메일수신동의 && (
-                    <div className="text-xs text-red-600 mt-1">수신 동의 안 함</div>
+                    <div className="text-xs text-red-600 mt-1">
+                      수신 동의 안 함
+                    </div>
                   )}
                 </button>
               </div>
@@ -838,20 +945,28 @@ export default function UserActions({ user }: UserActionsProps) {
             {/* 템플릿 선택 (이메일 선택 시만 표시) */}
             {messageChannel === "EMAIL" && (
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-gray-900">템플릿 선택</label>
+                <label className="text-sm font-semibold text-gray-900">
+                  템플릿 선택
+                </label>
                 <div className="relative">
                   <button
                     type="button"
-                    onClick={() => setShowTemplateDropdown(!showTemplateDropdown)}
+                    onClick={() =>
+                      setShowTemplateDropdown(!showTemplateDropdown)
+                    }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-left flex items-center justify-between hover:border-purple-400 transition-colors"
                   >
                     <span className="flex items-center gap-2">
                       <FileText className="w-4 h-4 text-gray-500" />
                       {selectedTemplateId
-                        ? EMAIL_TEMPLATES.find((t) => t.id === selectedTemplateId)?.name
+                        ? EMAIL_TEMPLATES.find(
+                            (t) => t.id === selectedTemplateId,
+                          )?.name
                         : "직접 작성"}
                     </span>
-                    <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showTemplateDropdown ? "rotate-180" : ""}`} />
+                    <ChevronDown
+                      className={`w-4 h-4 text-gray-500 transition-transform ${showTemplateDropdown ? "rotate-180" : ""}`}
+                    />
                   </button>
 
                   {showTemplateDropdown && (
@@ -860,7 +975,9 @@ export default function UserActions({ user }: UserActionsProps) {
                         type="button"
                         onClick={() => handleSelectTemplate(null)}
                         className={`w-full px-4 py-2 text-left hover:bg-purple-50 transition-colors ${
-                          !selectedTemplateId ? "bg-purple-50 text-purple-700" : "text-gray-700"
+                          !selectedTemplateId
+                            ? "bg-purple-50 text-purple-700"
+                            : "text-gray-700"
                         }`}
                       >
                         직접 작성
@@ -871,7 +988,9 @@ export default function UserActions({ user }: UserActionsProps) {
                           type="button"
                           onClick={() => handleSelectTemplate(template.id)}
                           className={`w-full px-4 py-2 text-left hover:bg-purple-50 transition-colors border-t border-gray-100 ${
-                            selectedTemplateId === template.id ? "bg-purple-50 text-purple-700" : "text-gray-700"
+                            selectedTemplateId === template.id
+                              ? "bg-purple-50 text-purple-700"
+                              : "text-gray-700"
                           }`}
                         >
                           {template.name}
@@ -880,13 +999,18 @@ export default function UserActions({ user }: UserActionsProps) {
                     </div>
                   )}
                 </div>
-                <p className="text-xs text-gray-500">템플릿 선택 후 내용을 수정할 수 있습니다</p>
+                <p className="text-xs text-gray-500">
+                  템플릿 선택 후 내용을 수정할 수 있습니다
+                </p>
               </div>
             )}
 
             {/* 제목 입력 */}
             <div className="space-y-2">
-              <label htmlFor="message-title" className="text-sm font-semibold text-gray-900">
+              <label
+                htmlFor="message-title"
+                className="text-sm font-semibold text-gray-900"
+              >
                 제목 *
               </label>
               <input
@@ -898,12 +1022,17 @@ export default function UserActions({ user }: UserActionsProps) {
                 maxLength={100}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               />
-              <p className="text-xs text-gray-500">{messageTitle.length}/100자</p>
+              <p className="text-xs text-gray-500">
+                {messageTitle.length}/100자
+              </p>
             </div>
 
             {/* 메시지 내용 */}
             <div className="space-y-2">
-              <label htmlFor="message-content" className="text-sm font-semibold text-gray-900">
+              <label
+                htmlFor="message-content"
+                className="text-sm font-semibold text-gray-900"
+              >
                 메시지 내용 *
               </label>
               <textarea
@@ -915,7 +1044,9 @@ export default function UserActions({ user }: UserActionsProps) {
                 maxLength={1000}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-y min-h-[120px] max-h-[300px]"
               />
-              <p className="text-xs text-gray-500">{messageContent.length}/1000자</p>
+              <p className="text-xs text-gray-500">
+                {messageContent.length}/1000자
+              </p>
             </div>
 
             {/* 이메일 첨부파일 (이메일 선택 시만 표시) */}
@@ -939,7 +1070,9 @@ export default function UserActions({ user }: UserActionsProps) {
                     <label
                       htmlFor="email-attachment-upload"
                       className={`inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors ${
-                        uploadingEmailAttachment ? "opacity-50 cursor-not-allowed" : ""
+                        uploadingEmailAttachment
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
                       }`}
                     >
                       {uploadingEmailAttachment ? (
@@ -955,7 +1088,8 @@ export default function UserActions({ user }: UserActionsProps) {
                       )}
                     </label>
                     <p className="text-xs text-gray-500 mt-1">
-                      이미지, PDF, 문서, 엑셀, PPT, 텍스트, ZIP (파일당 최대 10MB, 여러 파일 선택 가능)
+                      이미지, PDF, 문서, 엑셀, PPT, 텍스트, ZIP (파일당 최대
+                      10MB, 여러 파일 선택 가능)
                     </p>
                   </div>
 
@@ -997,10 +1131,14 @@ export default function UserActions({ user }: UserActionsProps) {
             {/* 미리보기 */}
             {(messageTitle || messageContent) && (
               <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <p className="text-sm font-semibold text-gray-900 mb-2">미리보기</p>
+                <p className="text-sm font-semibold text-gray-900 mb-2">
+                  미리보기
+                </p>
                 <div className="space-y-2">
                   {messageTitle && (
-                    <div className="font-semibold text-gray-900">[{messageTitle}]</div>
+                    <div className="font-semibold text-gray-900">
+                      [{messageTitle}]
+                    </div>
                   )}
                   {messageContent && (
                     <div className="text-gray-700 whitespace-pre-wrap text-sm">
@@ -1010,7 +1148,6 @@ export default function UserActions({ user }: UserActionsProps) {
                 </div>
               </div>
             )}
-
           </div>
 
           {/* 버튼 - 하단 고정 */}
@@ -1027,7 +1164,9 @@ export default function UserActions({ user }: UserActionsProps) {
             <Button
               type="button"
               onClick={handleSendMessage}
-              disabled={sendingMessage || !messageTitle.trim() || !messageContent.trim()}
+              disabled={
+                sendingMessage || !messageTitle.trim() || !messageContent.trim()
+              }
               className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
             >
               {sendingMessage ? (
@@ -1057,7 +1196,10 @@ export default function UserActions({ user }: UserActionsProps) {
 
           <div className="space-y-4 mt-4">
             <div className="space-y-2">
-              <label htmlFor="new-phone" className="text-sm font-semibold text-gray-900">
+              <label
+                htmlFor="new-phone"
+                className="text-sm font-semibold text-gray-900"
+              >
                 새 전화번호 *
               </label>
               <input
@@ -1110,7 +1252,10 @@ export default function UserActions({ user }: UserActionsProps) {
       </Dialog>
 
       {/* 문의하기 메시지 다이얼로그 */}
-      <Dialog open={showCommunicationDialog} onOpenChange={setShowCommunicationDialog}>
+      <Dialog
+        open={showCommunicationDialog}
+        onOpenChange={setShowCommunicationDialog}
+      >
         <DialogContent className="bg-white max-w-2xl max-h-[90vh] flex flex-col">
           <DialogHeader className="flex-shrink-0">
             <DialogTitle className="text-xl font-bold text-indigo-900">
@@ -1118,7 +1263,8 @@ export default function UserActions({ user }: UserActionsProps) {
               문의하기 메시지 보내기
             </DialogTitle>
             <DialogDescription className="text-gray-600">
-              <strong>{user.이름}</strong>님에게 문의하기 스레드를 생성하고 메시지를 보냅니다.
+              <strong>{user.이름}</strong>님에게 문의하기 스레드를 생성하고
+              메시지를 보냅니다.
               <br />
               사용자에게 실시간 알림이 전송됩니다.
             </DialogDescription>
@@ -1199,7 +1345,9 @@ export default function UserActions({ user }: UserActionsProps) {
                   <label
                     htmlFor="comm-attachment-upload"
                     className={`inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors ${
-                      uploadingCommAttachment ? "opacity-50 cursor-not-allowed" : ""
+                      uploadingCommAttachment
+                        ? "opacity-50 cursor-not-allowed"
+                        : ""
                     }`}
                   >
                     {uploadingCommAttachment ? (
@@ -1270,7 +1418,11 @@ export default function UserActions({ user }: UserActionsProps) {
             <Button
               type="button"
               onClick={handleSendCommunication}
-              disabled={sendingCommunication || !commThreadTitle.trim() || !commContent.trim()}
+              disabled={
+                sendingCommunication ||
+                !commThreadTitle.trim() ||
+                !commContent.trim()
+              }
               className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white"
             >
               {sendingCommunication ? (
