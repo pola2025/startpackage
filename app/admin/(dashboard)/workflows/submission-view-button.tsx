@@ -426,30 +426,53 @@ export default function SubmissionViewButton({
                   </div>
                 </div>
 
-                {/* 아임웹 계정 정보 */}
+                {/* 도메인 정보 */}
                 <div className="space-y-3 p-4 bg-gold-50 rounded-lg border border-gold-200">
+                  <h3 className="font-semibold text-gray-900">도메인 정보</h3>
+                  <div className="grid grid-cols-1 gap-3 text-sm">
+                    <div>
+                      <span className="text-gray-600">도메인 주소:</span>
+                      <p className="font-medium text-gray-900">
+                        {submission.도메인주소 || "-"}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">도메인 관리 사이트:</span>
+                      <p className="font-medium text-gray-900">
+                        {submission.도메인관리사이트 || "-"}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">도메인 관리 ID:</span>
+                      <p className="font-medium text-gray-900 font-mono">
+                        {submission.도메인관리ID || "-"}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">도메인 관리 PW:</span>
+                      <p className="font-medium text-gray-900 font-mono">
+                        {submission.도메인관리PW || "-"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Gmail 계정 정보 */}
+                <div className="space-y-3 p-4 bg-green-50 rounded-lg border border-green-200">
                   <h3 className="font-semibold text-gray-900">
-                    아임웹 계정 정보
+                    Gmail 계정 정보
                   </h3>
                   <div className="grid grid-cols-1 gap-3 text-sm">
                     <div>
-                      <span className="text-gray-600">아임웹 ID:</span>
-                      <p className="font-medium text-gray-900">
-                        {submission.아임웹ID || "-"}
+                      <span className="text-gray-600">Gmail ID:</span>
+                      <p className="font-medium text-gray-900 font-mono">
+                        {submission.GmailID || "-"}
                       </p>
                     </div>
                     <div>
-                      <span className="text-gray-600">아임웹 비밀번호:</span>
-                      <p className="font-medium text-gray-900">
-                        {submission.아임웹PW || "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">
-                        아임웹 관리자 비밀번호:
-                      </span>
-                      <p className="font-medium text-gray-900">
-                        {submission.아임웹관리자PW || "-"}
+                      <span className="text-gray-600">Gmail PW:</span>
+                      <p className="font-medium text-gray-900 font-mono">
+                        {submission.GmailPW || "-"}
                       </p>
                     </div>
                   </div>
