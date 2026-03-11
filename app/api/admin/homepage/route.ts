@@ -7,7 +7,10 @@ export async function GET(request: NextRequest) {
   try {
     const session = await auth();
 
-    if (!session || !["super", "designer", "operator"].includes(session.user.role)) {
+    if (
+      !session ||
+      !["super", "designer", "operator"].includes(session.user.role)
+    ) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -29,33 +32,49 @@ export async function GET(request: NextRequest) {
         },
         submission: {
           select: {
+            브랜드명: true,
             홈페이지제작방식: true,
             홈페이지스타일: true,
             홈페이지컬러컨셉: true,
-            아임웹ID: true,
-            아임웹PW: true,
-            아임웹관리자PW: true,
+            도메인주소: true,
             도메인관리사이트: true,
             도메인관리ID: true,
             도메인관리PW: true,
-            해외결제카드앞면URL: true,
-            해외결제카드뒷면URL: true,
-            해외결제카드유효기간: true,
+            GmailID: true,
+            GmailPW: true,
           },
         },
+        workflows: {
+          where: {
+            type: "홈페이지",
+          },
+          select: {
+            id: true,
+            status: true,
+            시안URL: true,
+            자료제출일: true,
+            예상도착일: true,
+            createdAt: true,
+          },
+          take: 1,
+        },
       },
-      orderBy: [
-        { cohort: { name: "desc" } },
-        { 이름: "asc" },
-      ],
+      orderBy: [{ cohort: { name: "desc" } }, { 이름: "asc" }],
     });
 
-    return NextResponse.json(users);
+    // workflows 배열을 단일 객체로 변환
+    const usersWithWorkflow = users.map((user) => ({
+      ...user,
+      homepageWorkflow: user.workflows[0] || null,
+      workflows: undefined,
+    }));
+
+    return NextResponse.json(usersWithWorkflow);
   } catch (error) {
     console.error("Failed to fetch homepage users:", error);
     return NextResponse.json(
       { error: "Failed to fetch users" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
