@@ -27,7 +27,7 @@ import {
 } from "lucide-react";
 import { SLACK_ONLY_MARKER } from "@/lib/constants/sensitiveFields";
 import imageCompression from "browser-image-compression";
-import { ProgressBar } from "@/components/ui/progress-bar";
+// ProgressBar removed - progress integrated into tab triggers
 import {
   calculateProgress,
   type ProgressResult,
@@ -597,205 +597,137 @@ export default function SubmissionPage() {
   };
 
   return (
-    <div className="space-y-8 overflow-x-hidden w-full max-w-full">
-      {/* 마감일 경고 메시지 */}
-      {isDeadlinePassed && (
-        <div className="flex items-center gap-3 p-4 bg-yellow-50 border border-gray-200 rounded-lg">
-          <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0" />
-          <div className="flex-1">
-            <p className="text-yellow-800 font-bold text-base sm:text-lg">
-              자료 제출 마감일이 지났습니다
-            </p>
-            <p className="text-yellow-700 text-sm mt-1">
-              마감일이 경과했으나 자료 제출은 가능합니다. 빠른 시일 내에
-              제출해주세요.
-            </p>
-            {deadlineDate && (
-              <p className="text-yellow-600 text-xs mt-2">
-                마감일:{" "}
-                {deadlineDate.toLocaleDateString("ko-KR", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                  weekday: "short",
-                })}
-              </p>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* 진행률 바 */}
-      {progress && (
-        <ProgressBar
-          sections={progress.sections}
-          overallPercentage={progress.overallPercentage}
-          onTabChange={handleTabChange}
-          nextAction={progress.nextAction}
-        />
-      )}
-
-      {/* 현황 확인 버튼 - 진행률 바 아래 */}
-      {progress && progress.overallPercentage > 0 && (
-        <div className="flex justify-end">
-          <Button
-            variant="outline"
-            size="sm"
+    <div className="space-y-4 overflow-x-hidden w-full max-w-full">
+      {/* 헤더 + 진행률 한 줄 */}
+      <div className="flex items-center gap-3 flex-wrap">
+        <h1 className="text-xl font-bold text-gray-900 tracking-tight">
+          자료 제출
+        </h1>
+        {isDeadlinePassed && deadlineDate && (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-yellow-100 border border-yellow-300 rounded-full text-xs text-yellow-800 font-medium">
+            <AlertCircle className="w-3 h-3" />
+            마감일 경과 (
+            {deadlineDate.toLocaleDateString("ko-KR", {
+              month: "long",
+              day: "numeric",
+            })}
+            )
+          </span>
+        )}
+        {!submission?.isComplete && submission && (
+          <span className="text-xs text-gray-500 ml-auto">
+            완성도{" "}
+            <span className="font-bold text-gold-600">{completionRate}%</span>
+          </span>
+        )}
+        {progress && progress.overallPercentage > 0 && (
+          <button
             onClick={() => setShowSummary(true)}
-            className="text-xs sm:text-sm"
+            className="text-xs text-gold-600 hover:underline flex items-center gap-1"
           >
-            <CheckCircle2 className="w-4 h-4 mr-2" />
-            제출 현황 확인
-          </Button>
-        </div>
-      )}
-
-      {/* 헤더 - 깔끔하고 명확한 */}
-      <div className="space-y-3">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <h1 className="text-2xl sm:text-2xl md:text-2xl font-bold text-gray-900 tracking-tight">
-            자료 제출
-          </h1>
-          {!submission?.isComplete && submission && (
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-              <div className="text-xs sm:text-sm text-gray-500">
-                완성도:{" "}
-                <span className="font-bold text-gold-600">
-                  {completionRate}%
-                </span>
-              </div>
-              <div className="text-xs sm:text-sm text-gray-500 hidden sm:block">
-                각 섹션별로 수정이 가능합니다
-              </div>
-            </div>
-          )}
-        </div>
-        {submission?.isComplete ? (
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 p-4 bg-green-50 border border-green-200 rounded-lg">
-              <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
-              <p className="text-green-700 font-medium text-sm sm:text-base">
-                이미 제작요청이 접수되었습니다.
-              </p>
-            </div>
-            {/* 시안 전달 정보 */}
-            <div className="space-y-2">
-              {/* 시안 전달 완료된 워크플로우 표시 */}
-              {workflows
-                .filter((w: any) => w.시안업로드일)
-                .map((w: any, index: number) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-2 p-4 bg-green-50 border border-green-200 rounded-lg"
-                  >
-                    <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
-                    <div className="flex-1">
-                      <p className="text-green-700 font-medium">
-                        {w.type} 시안 전달 완료:{" "}
-                        {new Date(w.시안업로드일).toLocaleDateString("ko-KR", {
-                          month: "long",
-                          day: "numeric",
-                          weekday: "short",
-                        })}
-                      </p>
-                      {w.발주승인일 && (
-                        <p className="text-green-600 text-sm mt-1">
-                          발주 완료:{" "}
-                          {new Date(w.발주승인일).toLocaleDateString("ko-KR", {
-                            month: "long",
-                            day: "numeric",
-                            weekday: "short",
-                          })}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                ))}
-
-              {/* 시안 전달 예정 - 아직 시안업로드일이 없는 워크플로우가 있고 시안예정일이 있을 때만 표시 */}
-              {workflows.some(
-                (w: any) => !w.시안업로드일 && w.type !== "로고",
-              ) &&
-                submission.시안예정일 && (
-                  <div className="flex items-center gap-2 p-4 bg-gold-50 border border-gold-200 rounded-lg">
-                    <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-gold-600" />
-                    <p className="text-navy-700 font-medium">
-                      {new Date(submission.시안예정일).toLocaleDateString(
-                        "ko-KR",
-                        {
-                          month: "long",
-                          day: "numeric",
-                          weekday: "short",
-                        },
-                      )}{" "}
-                      시안 전달 예정
-                    </p>
-                  </div>
-                )}
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 p-4 bg-gold-50 border border-gold-200 rounded-lg">
-              <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-gold-600" />
-              <p className="text-navy-700">
-                각 카테고리별 필요한 자료를 제출해주세요. 디자인 제작요청 전까지
-                언제든 수정 가능합니다.
-              </p>
-            </div>
-            {completionRate === 100 && !hasWorkflows && (
-              <Button
-                onClick={handlePrintRequest}
-                disabled={requestingPrint || hasWorkflows}
-                className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 sm:py-4 text-sm sm:text-lg"
-              >
-                {requestingPrint ? (
-                  <>
-                    <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" />
-                    제작요청 중...
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                    디자인 시안 제작요청
-                  </>
-                )}
-              </Button>
+            <CheckCircle2 className="w-3 h-3" />
+            현황 확인
+          </button>
+        )}
+        {submission && (
+          <button
+            onClick={() => setShowMyStatus(!showMyStatus)}
+            className="text-xs text-gray-500 hover:text-gold-600 flex items-center gap-1"
+          >
+            📋 내 접수 현황
+            {showMyStatus ? (
+              <ChevronUp className="w-3 h-3" />
+            ) : (
+              <ChevronDown className="w-3 h-3" />
             )}
-          </div>
+          </button>
         )}
       </div>
 
-      {/* 내 접수 현황 토글 */}
-      {submission && (
-        <div className="mb-6">
-          <button
-            onClick={() => setShowMyStatus(!showMyStatus)}
-            className="w-full flex items-center justify-between p-4 bg-white border border-gray-200 rounded-xl hover:border-gold-300 transition-colors"
-          >
-            <div className="flex items-center gap-3">
-              <span className="text-lg">📋</span>
-              <div className="text-left">
-                <p className="font-semibold text-gray-900">내 접수 현황 보기</p>
-                <p className="text-sm text-gray-600">
-                  제출한 정보와 디자인 진행 상태를 한눈에 확인하세요
+      {/* 진행률: 헤더 완성도%에 통합, 탭 트리거에 미니 바 표시 */}
+
+      {/* 상태 배너 */}
+      {submission?.isComplete ? (
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 p-2.5 bg-green-50 border border-green-200 rounded-lg">
+            <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
+            <p className="text-green-700 font-medium text-sm flex-1">
+              이미 제작요청이 접수되었습니다.
+            </p>
+          </div>
+          {workflows
+            .filter((w: any) => w.시안업로드일)
+            .map((w: any, index: number) => (
+              <div
+                key={index}
+                className="flex items-center gap-2 p-2.5 bg-green-50 border border-green-200 rounded-lg"
+              >
+                <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
+                <p className="text-green-700 text-sm">
+                  {w.type} 시안 전달 완료:{" "}
+                  {new Date(w.시안업로드일).toLocaleDateString("ko-KR", {
+                    month: "long",
+                    day: "numeric",
+                    weekday: "short",
+                  })}
+                  {w.발주승인일 && (
+                    <span className="ml-2 text-green-600">
+                      · 발주 완료:{" "}
+                      {new Date(w.발주승인일).toLocaleDateString("ko-KR", {
+                        month: "long",
+                        day: "numeric",
+                        weekday: "short",
+                      })}
+                    </span>
+                  )}
                 </p>
               </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gold-600">
-                {showMyStatus ? "접기" : "펼치기"}
-              </span>
-              {showMyStatus ? (
-                <ChevronUp className="w-5 h-5 text-gold-600" />
+            ))}
+          {workflows.some((w: any) => !w.시안업로드일 && w.type !== "로고") &&
+            submission.시안예정일 && (
+              <div className="flex items-center gap-2 p-2.5 bg-gold-50 border border-gold-200 rounded-lg">
+                <AlertCircle className="w-4 h-4 text-gold-600 flex-shrink-0" />
+                <p className="text-navy-700 text-sm font-medium">
+                  {new Date(submission.시안예정일).toLocaleDateString("ko-KR", {
+                    month: "long",
+                    day: "numeric",
+                    weekday: "short",
+                  })}{" "}
+                  시안 전달 예정
+                </p>
+              </div>
+            )}
+        </div>
+      ) : submission ? (
+        <div className="flex items-center gap-3 p-2.5 bg-gold-50 border border-gold-200 rounded-lg">
+          <AlertCircle className="w-4 h-4 text-gold-600 flex-shrink-0" />
+          <p className="text-navy-700 text-sm flex-1">
+            각 카테고리별 필요한 자료를 제출해주세요. 디자인 제작요청 전까지
+            언제든 수정 가능합니다.
+          </p>
+          {completionRate === 100 && !hasWorkflows && (
+            <Button
+              onClick={handlePrintRequest}
+              disabled={requestingPrint || hasWorkflows}
+              size="sm"
+              className="bg-green-600 hover:bg-green-700 text-white font-bold text-xs flex-shrink-0"
+            >
+              {requestingPrint ? (
+                <Loader2 className="w-3 h-3 mr-1 animate-spin" />
               ) : (
-                <ChevronDown className="w-5 h-5 text-gold-600" />
+                <CheckCircle2 className="w-3 h-3 mr-1" />
               )}
-            </div>
-          </button>
+              제작요청
+            </Button>
+          )}
+        </div>
+      ) : null}
 
+      {/* 내 접수 현황 토글 */}
+      {submission && (
+        <div className="mb-2">
           {showMyStatus && (
-            <div className="mt-4 animate-in slide-in-from-top-2 duration-300">
+            <div className="mt-2 animate-in slide-in-from-top-2 duration-300">
               <MySubmissionStatus
                 submission={submission}
                 workflows={workflows}
@@ -841,76 +773,94 @@ export default function SubmissionPage() {
           disabledSteps={!isBasicInfoComplete() ? ["logo", "print"] : []}
         />
 
-        {/* 깔끔하고 직관적인 탭 네비게이션 - 데스크탑 */}
+        {/* 탭 네비게이션 + 섹션별 미니 진행률 - 데스크탑 */}
         <TabsList className="hidden md:grid bg-white border border-gray-200 p-1.5 rounded-xl shadow-sm grid-cols-4 gap-1 h-auto">
-          <TabsTrigger
-            value="basic"
-            className="data-[state=active]:bg-navy-900 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-semibold text-xs sm:text-sm py-2"
-          >
-            📄 기본 정보
-          </TabsTrigger>
-          <TabsTrigger
-            value="logo"
-            disabled={!isBasicInfoComplete()}
-            className="data-[state=active]:bg-navy-900 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm py-2"
-            title={
-              !isBasicInfoComplete() ? "기본 정보를 먼저 완성해주세요" : ""
-            }
-          >
-            🎨 로고
-          </TabsTrigger>
-          <TabsTrigger
-            value="print"
-            disabled={!isBasicInfoComplete()}
-            className="data-[state=active]:bg-navy-900 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm py-2"
-            title={
-              !isBasicInfoComplete() ? "기본 정보를 먼저 완성해주세요" : ""
-            }
-          >
-            🖨️ 인쇄물
-          </TabsTrigger>
-          <TabsTrigger
-            value="marketing"
-            className="data-[state=active]:bg-navy-900 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-semibold text-xs sm:text-sm py-2"
-          >
-            📱 마케팅
-          </TabsTrigger>
+          {[
+            {
+              value: "basic",
+              icon: "📄",
+              label: "기본 정보",
+              disabled: false,
+              sections: progress?.sections.filter(
+                (s) => s.name === "브랜드정보",
+              ),
+            },
+            {
+              value: "logo",
+              icon: "🎨",
+              label: "로고",
+              disabled: !isBasicInfoComplete(),
+              sections: progress?.sections.filter((s) => s.name === "로고"),
+            },
+            {
+              value: "print",
+              icon: "🖨️",
+              label: "인쇄물",
+              disabled: !isBasicInfoComplete(),
+              sections: progress?.sections.filter((s) =>
+                ["사업자등록증", "프로필사진", "명함스타일"].includes(s.name),
+              ),
+            },
+            {
+              value: "marketing",
+              icon: "📱",
+              label: "마케팅",
+              disabled: false,
+              sections: progress?.sections.filter((s) => s.name === "마케팅"),
+            },
+          ].map((tab) => {
+            const completed =
+              tab.sections?.reduce((sum, s) => sum + s.completed, 0) || 0;
+            const total =
+              tab.sections?.reduce((sum, s) => sum + s.total, 0) || 1;
+            const pct = Math.round((completed / total) * 100);
+            const allDone = tab.sections?.every((s) => s.isComplete) ?? false;
+            return (
+              <TabsTrigger
+                key={tab.value}
+                value={tab.value}
+                disabled={tab.disabled}
+                className="data-[state=active]:bg-navy-900 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm py-1.5 flex flex-col gap-1"
+                title={tab.disabled ? "기본 정보를 먼저 완성해주세요" : ""}
+              >
+                <span>
+                  {tab.icon} {tab.label}
+                </span>
+                <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-300 ${allDone ? "bg-green-500" : pct > 0 ? "bg-amber-400" : "bg-gray-200"}`}
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+              </TabsTrigger>
+            );
+          })}
         </TabsList>
 
         {/* 기본 정보 */}
         <TabsContent value="basic" id="basic">
           <Card className="glass border-white/10">
-            <CardHeader>
-              <div>
-                <CardTitle className="text-gray-900 text-lg sm:text-xl">
+            <CardHeader className="p-4">
+              <div className="flex items-center gap-3 flex-wrap">
+                <CardTitle className="text-gray-900 text-base">
                   기본 정보
                 </CardTitle>
-                <CardDescription className="text-gray-400 text-xs sm:text-sm">
+                <CardDescription className="text-gray-400 text-xs">
                   인쇄물에 들어갈 기본 정보를 입력해주세요
                 </CardDescription>
+                {!submission?.isComplete && !isBasicInfoComplete() && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 border border-amber-300 rounded-full text-xs text-amber-800">
+                    <AlertCircle className="w-3 h-3" />
+                    필수 항목 미완성 (브랜드명, 업종, 주소)
+                  </span>
+                )}
+                {!submission?.isComplete && isBasicInfoComplete() && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 border border-green-300 rounded-full text-xs text-green-800">
+                    <CheckCircle2 className="w-3 h-3" />
+                    완성
+                  </span>
+                )}
               </div>
-              {!submission?.isComplete && !isBasicInfoComplete() && (
-                <div className="flex items-center gap-2 p-4 bg-amber-50 border border-amber-200 rounded-lg mt-3">
-                  <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-amber-700 font-semibold text-sm">
-                      기본 정보를 완성해야 다음 단계로 진행할 수 있습니다
-                    </p>
-                    <p className="text-amber-600 text-xs mt-1">
-                      필수 항목: 브랜드명, 업종, 사업장 주소
-                    </p>
-                  </div>
-                </div>
-              )}
-              {!submission?.isComplete && isBasicInfoComplete() && (
-                <div className="flex items-center gap-2 p-4 bg-green-50 border border-green-200 rounded-lg mt-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />
-                  <p className="text-green-700 font-medium text-sm">
-                    기본 정보가 완성되었습니다! 이제 로고 및 인쇄물 탭에서 계속
-                    진행하세요.
-                  </p>
-                </div>
-              )}
             </CardHeader>
             <CardContent>
               <form
@@ -1102,36 +1052,28 @@ export default function SubmissionPage() {
         {/* 로고 */}
         <TabsContent value="logo" id="logo">
           <Card className="glass border-white/10">
-            <CardHeader>
-              <div>
-                <CardTitle className="text-gray-900 text-lg sm:text-xl">
+            <CardHeader className="p-4">
+              <div className="flex items-center gap-3 flex-wrap">
+                <CardTitle className="text-gray-900 text-base">
                   로고 디자인 정보
                 </CardTitle>
-                <CardDescription className="text-gray-400 text-xs sm:text-sm">
+                <CardDescription className="text-gray-400 text-xs">
                   로고 파일이 있으면 업로드하거나, 선호하는 스타일과 색상을
                   선택해주세요
                 </CardDescription>
+                {!isBasicInfoComplete() && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 border border-amber-300 rounded-full text-xs text-amber-800">
+                    <AlertCircle className="w-3 h-3" />
+                    기본 정보 먼저 완성해주세요
+                  </span>
+                )}
               </div>
-              {!isBasicInfoComplete() && (
-                <div className="flex items-center gap-2 p-4 bg-amber-50 border border-amber-200 rounded-lg mt-3">
-                  <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-amber-700 font-semibold text-sm">
-                      기본 정보를 먼저 완성해주세요
-                    </p>
-                    <p className="text-amber-600 text-xs mt-1">
-                      기본 정보 탭에서 브랜드명, 업종, 사업장 주소를 입력하면
-                      로고 탭이 활성화됩니다.
-                    </p>
-                  </div>
-                </div>
-              )}
             </CardHeader>
             <CardContent>
               <form
                 key={`logo-${submission?.로고선호스타일}-${isEditingLogo}`}
                 onSubmit={(e) => handleSubmit(e, "logo")}
-                className="space-y-6"
+                className="space-y-4"
               >
                 {/* 로고 파일 업로드 */}
                 <div id="logo-section" className="space-y-2">
@@ -1310,37 +1252,19 @@ export default function SubmissionPage() {
                     </a>
                   </div>
 
-                  {/* 폰트 안내 */}
-                  <div className="p-3 bg-gold-50 border border-gold-200 rounded-lg">
-                    <div className="flex items-start gap-2">
-                      <AlertCircle className="w-4 h-4 text-gold-600 flex-shrink-0 mt-0.5" />
-                      <div className="flex-1 text-xs text-navy-700 space-y-1">
-                        <p className="font-semibold">📌 폰트 선택 안내</p>
-                        <ul className="list-disc ml-4 space-y-0.5">
-                          <li>
-                            <span className="font-semibold">
-                              무료 폰트만 사용 가능
-                            </span>
-                            합니다 (눈누 사이트에서 무료 폰트 검색)
-                          </li>
-                          <li>
-                            <span className="font-semibold">
-                              유료 폰트는 직접 구매 후 파일 전달
-                            </span>
-                            이 필요합니다
-                          </li>
-                          <li>원하는 폰트명을 아래 요청사항에 작성해주세요</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
+                  <p className="text-xs text-gray-500">
+                    <span className="font-medium text-amber-700">
+                      무료 폰트만 사용 가능
+                    </span>
+                    합니다. 유료 폰트는 직접 구매 후 파일 전달 필요.
+                  </p>
 
                   <input
                     type="hidden"
                     name="로고선호폰트"
                     value={selectedFont}
                   />
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {[
                       { name: "고딕체 (깔끔한)", style: "font-sans" },
                       { name: "명조체 (전통적인)", style: "font-serif" },
@@ -1352,16 +1276,18 @@ export default function SubmissionPage() {
                         type="button"
                         onClick={() => setSelectedFont(fontOption.name)}
                         disabled={submission?.isComplete || !isEditingLogo}
-                        className={`p-4 rounded-lg border transition-all ${
+                        className={`p-2 rounded-lg border transition-all text-center ${
                           selectedFont === fontOption.name
                             ? "border-gold-600 bg-gold-50"
                             : "border-gray-300 hover:border-gold-400 hover:bg-white"
                         } ${submission?.isComplete || !isEditingLogo ? "opacity-60 cursor-not-allowed" : ""}`}
                       >
-                        <div className={`font-semibold ${fontOption.style}`}>
+                        <div
+                          className={`font-semibold text-xs ${fontOption.style}`}
+                        >
                           {fontOption.name}
                         </div>
-                        <div className={`text-2xl mt-2 ${fontOption.style}`}>
+                        <div className={`text-xl mt-1 ${fontOption.style}`}>
                           Aa
                         </div>
                       </button>
@@ -1450,302 +1376,280 @@ export default function SubmissionPage() {
                     </div>
                   </div>
 
-                  {/* 최우선 강조사항 */}
-                  <div className="p-4 bg-red-50 rounded-lg border border-red-400 shadow-lg">
-                    <div className="flex items-start gap-3">
-                      <div className="bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 font-bold text-lg">
-                        !
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="text-base font-bold text-red-900 mb-2">
-                          ⚠️ 필수 확인 사항
-                        </h3>
-                        <div className="bg-white p-3 rounded-lg border border-red-300">
-                          <p className="text-sm font-bold text-red-800 mb-2">
-                            로고 제작은{" "}
-                            <span className="underline decoration-2 decoration-red-500">
-                              심볼형 OR 워드마크형 중 한 가지만
-                            </span>{" "}
-                            선택 가능합니다.
+                  {/* 최우선 강조사항 - 한 줄 압축 */}
+                  <div className="flex items-center gap-2 p-2.5 bg-red-50 rounded-lg border border-red-400">
+                    <span className="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0 font-bold text-xs">
+                      !
+                    </span>
+                    <p className="text-xs font-bold text-red-900">
+                      ⚠️ 필수: 로고 제작은{" "}
+                      <span className="underline decoration-red-500">
+                        심볼형 OR 워드마크형 중 한 가지만
+                      </span>{" "}
+                      선택 가능합니다. (심볼형 선택 시 워드마크형 불가)
+                    </p>
+                  </div>
+
+                  {/* 작성 가이드 - details 접기 */}
+                  <details className="rounded-lg border border-gray-200">
+                    <summary className="cursor-pointer px-4 py-2.5 bg-white rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 select-none list-none flex items-center gap-2">
+                      <span>📝</span>
+                      <span>작성 가이드 &amp; 예시 보기</span>
+                    </summary>
+                    <div className="space-y-3 p-4 bg-white rounded-lg border-t border-gray-200">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* 좋은 예시 */}
+                        <div className="space-y-2">
+                          <p className="text-sm font-bold text-green-700 flex items-center gap-1">
+                            ✅ 좋은 예시 (구체적이고 명확한 표현)
                           </p>
-                          <ul className="text-xs text-gray-800 space-y-1.5 ml-4">
+                          <ul className="text-xs text-gray-800 space-y-1.5 bg-green-50 p-3 rounded-lg border border-green-200 max-h-[400px] overflow-y-auto">
                             <li className="flex items-start gap-2">
-                              <span className="text-red-600 font-bold">✓</span>
-                              <span>
-                                <span className="font-semibold">심볼형:</span>{" "}
-                                아이콘/도형 (예: 나이키, 애플)
+                              <span className="text-green-600 font-bold mt-0.5">
+                                1.
                               </span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-red-600 font-bold">✓</span>
                               <span>
-                                <span className="font-semibold">
-                                  워드마크형:
+                                <span className="font-bold text-red-700">
+                                  로고 형태:
                                 </span>{" "}
-                                브랜드명만 디자인 (예: Google, Coca-Cola)
+                                심볼형 선택 - 원형 프레임 안에 클라우드 아이콘
+                                배치
                               </span>
                             </li>
                             <li className="flex items-start gap-2">
-                              <span className="text-red-600 font-bold">✗</span>
+                              <span className="text-green-600 font-bold mt-0.5">
+                                2.
+                              </span>
+                              <span>
+                                메인 컬러는 파란색 계열(#2563EB), 흰색 배경에서
+                                명확히 보이게
+                              </span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-green-600 font-bold mt-0.5">
+                                3.
+                              </span>
+                              <span>
+                                폰트는 산세리프체(고딕체) 사용, 가독성 우선
+                              </span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-green-600 font-bold mt-0.5">
+                                4.
+                              </span>
+                              <span>
+                                심볼은 업종과 연관된 아이콘 (예: IT 기업 -
+                                클라우드/데이터 모티브)
+                              </span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-green-600 font-bold mt-0.5">
+                                5.
+                              </span>
+                              <span>
+                                장식 요소 최소화, 선의 굵기는 균일하게 2-3px
+                                유지
+                              </span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-green-600 font-bold mt-0.5">
+                                6.
+                              </span>
+                              <span>
+                                그라데이션 지양, 단색으로 인쇄 가능한 디자인
+                              </span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-green-600 font-bold mt-0.5">
+                                7.
+                              </span>
+                              <span>
+                                참고 브랜드: 삼성 (블루 계열), 네이버
+                                (심볼+텍스트 조합)
+                              </span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-green-600 font-bold mt-0.5">
+                                8.
+                              </span>
+                              <span>
+                                제외 요소: 빨강/노랑 색상, 세리프체, 손글씨체,
+                                3D 효과
+                              </span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-green-600 font-bold mt-0.5">
+                                9.
+                              </span>
+                              <span>
+                                타겟: 30-40대 전문직, B2B 고객 대상, 신뢰감 중시
+                              </span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-green-600 font-bold mt-0.5">
+                                10.
+                              </span>
+                              <span>
+                                로고 변형: 가로형/세로형/아이콘형 3가지 버전
+                                필요
+                              </span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-green-600 font-bold mt-0.5">
+                                11.
+                              </span>
+                              <span>
+                                사용처: 웹사이트 헤더(150x50px), 명함(3x3cm),
+                                SNS 프로필(500x500px)
+                              </span>
+                            </li>
+                          </ul>
+                        </div>
+
+                        {/* 나쁜 예시 */}
+                        <div className="space-y-2">
+                          <p className="text-sm font-bold text-red-700 flex items-center gap-1">
+                            ❌ 나쁜 예시 (모호한 표현)
+                          </p>
+                          <ul className="text-xs text-gray-800 space-y-1.5 bg-red-50 p-3 rounded-lg border border-red-200">
+                            <li className="flex items-start gap-2">
+                              <span className="text-red-600 font-bold mt-0.5">
+                                ✗
+                              </span>
                               <span className="line-through">
-                                심볼 + 워드마크 동시 제작 불가
+                                &apos;예쁘게 해주세요&apos;
+                              </span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-red-600 font-bold mt-0.5">
+                                ✗
+                              </span>
+                              <span className="line-through">
+                                &apos;멋진 로고 부탁드립니다&apos;
+                              </span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-red-600 font-bold mt-0.5">
+                                ✗
+                              </span>
+                              <span className="line-through">
+                                &apos;고급스럽게 해주세요&apos;
+                              </span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-red-600 font-bold mt-0.5">
+                                ✗
+                              </span>
+                              <span className="line-through">
+                                &apos;깔끔하게 만들어주세요&apos;
+                              </span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-red-600 font-bold mt-0.5">
+                                ✗
+                              </span>
+                              <span className="line-through">
+                                &apos;심플하게 해주세요&apos;
+                              </span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-red-600 font-bold mt-0.5">
+                                ✗
+                              </span>
+                              <span className="line-through">
+                                &apos;디자인 요소 추가해주세요&apos;
+                              </span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-red-600 font-bold mt-0.5">
+                                ✗
+                              </span>
+                              <span className="line-through">
+                                &apos;디자인해주세요&apos;
+                              </span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-red-600 font-bold mt-0.5">
+                                ✗
+                              </span>
+                              <span className="line-through">
+                                &apos;세련되게 만들어주세요&apos;
+                              </span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-red-600 font-bold mt-0.5">
+                                ✗
+                              </span>
+                              <span className="line-through">
+                                &apos;트렌디하게 해주세요&apos;
+                              </span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-red-600 font-bold mt-0.5">
+                                ✗
+                              </span>
+                              <span className="line-through">
+                                &apos;감각적으로 부탁드립니다&apos;
+                              </span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-red-600 font-bold mt-0.5">
+                                ✗
+                              </span>
+                              <span className="line-through">
+                                &apos;센스있게 해주세요&apos;
+                              </span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-red-600 font-bold mt-0.5">
+                                ✗
+                              </span>
+                              <span className="line-through">
+                                &apos;잘 부탁드립니다&apos;
+                              </span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-red-600 font-bold mt-0.5">
+                                ✗
+                              </span>
+                              <span className="line-through">
+                                &apos;아무거나 괜찮아요&apos;
                               </span>
                             </li>
                           </ul>
                         </div>
                       </div>
-                    </div>
-                  </div>
 
-                  {/* 작성 가이드 - 항상 보이도록 상단에 배치 */}
-                  <div className="space-y-3 p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* 좋은 예시 */}
-                      <div className="space-y-2">
-                        <p className="text-sm font-bold text-green-700 flex items-center gap-1">
-                          ✅ 좋은 예시 (구체적이고 명확한 표현)
+                      <div className="bg-gold-50 p-3 rounded-lg border border-gold-200">
+                        <p className="text-xs text-navy-900 font-semibold mb-2">
+                          💡 작성 Tip
                         </p>
-                        <ul className="text-xs text-gray-800 space-y-1.5 bg-green-50 p-3 rounded-lg border border-green-200 max-h-[400px] overflow-y-auto">
-                          <li className="flex items-start gap-2">
-                            <span className="text-green-600 font-bold mt-0.5">
-                              1.
-                            </span>
-                            <span>
-                              <span className="font-bold text-red-700">
-                                로고 형태:
-                              </span>{" "}
-                              심볼형 선택 - 원형 프레임 안에 클라우드 아이콘
-                              배치
-                            </span>
+                        <ul className="text-xs text-navy-800 space-y-1 ml-4 list-disc">
+                          <li>
+                            <span className="font-semibold">브랜드 컨셉:</span>{" "}
+                            어떤 이미지를 주고 싶으신가요? (예: 신뢰감, 역동성,
+                            전문성)
                           </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-green-600 font-bold mt-0.5">
-                              2.
-                            </span>
-                            <span>
-                              메인 컬러는 파란색 계열(#2563EB), 흰색 배경에서
-                              명확히 보이게
-                            </span>
+                          <li>
+                            <span className="font-semibold">원하는 느낌:</span>{" "}
+                            어떤 분위기를 원하시나요? (예: 모던한, 클래식한,
+                            친근한)
                           </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-green-600 font-bold mt-0.5">
-                              3.
-                            </span>
-                            <span>
-                              폰트는 산세리프체(고딕체) 사용, 가독성 우선
-                            </span>
+                          <li>
+                            <span className="font-semibold">포함 요소:</span>{" "}
+                            로고에 꼭 들어가야 할 것은? (예: 브랜드명, 특정
+                            심볼)
                           </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-green-600 font-bold mt-0.5">
-                              4.
-                            </span>
-                            <span>
-                              심볼은 업종과 연관된 아이콘 (예: IT 기업 -
-                              클라우드/데이터 모티브)
-                            </span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-green-600 font-bold mt-0.5">
-                              5.
-                            </span>
-                            <span>
-                              장식 요소 최소화, 선의 굵기는 균일하게 2-3px 유지
-                            </span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-green-600 font-bold mt-0.5">
-                              6.
-                            </span>
-                            <span>
-                              그라데이션 지양, 단색으로 인쇄 가능한 디자인
-                            </span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-green-600 font-bold mt-0.5">
-                              7.
-                            </span>
-                            <span>
-                              참고 브랜드: 삼성 (블루 계열), 네이버 (심볼+텍스트
-                              조합)
-                            </span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-green-600 font-bold mt-0.5">
-                              8.
-                            </span>
-                            <span>
-                              제외 요소: 빨강/노랑 색상, 세리프체, 손글씨체, 3D
-                              효과
-                            </span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-green-600 font-bold mt-0.5">
-                              9.
-                            </span>
-                            <span>
-                              타겟: 30-40대 전문직, B2B 고객 대상, 신뢰감 중시
-                            </span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-green-600 font-bold mt-0.5">
-                              10.
-                            </span>
-                            <span>
-                              로고 변형: 가로형/세로형/아이콘형 3가지 버전 필요
-                            </span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-green-600 font-bold mt-0.5">
-                              11.
-                            </span>
-                            <span>
-                              사용처: 웹사이트 헤더(150x50px), 명함(3x3cm), SNS
-                              프로필(500x500px)
-                            </span>
-                          </li>
-                        </ul>
-                      </div>
-
-                      {/* 나쁜 예시 */}
-                      <div className="space-y-2">
-                        <p className="text-sm font-bold text-red-700 flex items-center gap-1">
-                          ❌ 나쁜 예시 (모호한 표현)
-                        </p>
-                        <ul className="text-xs text-gray-800 space-y-1.5 bg-red-50 p-3 rounded-lg border border-red-200">
-                          <li className="flex items-start gap-2">
-                            <span className="text-red-600 font-bold mt-0.5">
-                              ✗
-                            </span>
-                            <span className="line-through">
-                              &apos;예쁘게 해주세요&apos;
-                            </span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-red-600 font-bold mt-0.5">
-                              ✗
-                            </span>
-                            <span className="line-through">
-                              &apos;멋진 로고 부탁드립니다&apos;
-                            </span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-red-600 font-bold mt-0.5">
-                              ✗
-                            </span>
-                            <span className="line-through">
-                              &apos;고급스럽게 해주세요&apos;
-                            </span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-red-600 font-bold mt-0.5">
-                              ✗
-                            </span>
-                            <span className="line-through">
-                              &apos;깔끔하게 만들어주세요&apos;
-                            </span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-red-600 font-bold mt-0.5">
-                              ✗
-                            </span>
-                            <span className="line-through">
-                              &apos;심플하게 해주세요&apos;
-                            </span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-red-600 font-bold mt-0.5">
-                              ✗
-                            </span>
-                            <span className="line-through">
-                              &apos;디자인 요소 추가해주세요&apos;
-                            </span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-red-600 font-bold mt-0.5">
-                              ✗
-                            </span>
-                            <span className="line-through">
-                              &apos;디자인해주세요&apos;
-                            </span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-red-600 font-bold mt-0.5">
-                              ✗
-                            </span>
-                            <span className="line-through">
-                              &apos;세련되게 만들어주세요&apos;
-                            </span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-red-600 font-bold mt-0.5">
-                              ✗
-                            </span>
-                            <span className="line-through">
-                              &apos;트렌디하게 해주세요&apos;
-                            </span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-red-600 font-bold mt-0.5">
-                              ✗
-                            </span>
-                            <span className="line-through">
-                              &apos;감각적으로 부탁드립니다&apos;
-                            </span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-red-600 font-bold mt-0.5">
-                              ✗
-                            </span>
-                            <span className="line-through">
-                              &apos;센스있게 해주세요&apos;
-                            </span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-red-600 font-bold mt-0.5">
-                              ✗
-                            </span>
-                            <span className="line-through">
-                              &apos;잘 부탁드립니다&apos;
-                            </span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-red-600 font-bold mt-0.5">
-                              ✗
-                            </span>
-                            <span className="line-through">
-                              &apos;아무거나 괜찮아요&apos;
-                            </span>
+                          <li>
+                            <span className="font-semibold">
+                              피하고 싶은 것:
+                            </span>{" "}
+                            구체적으로 어떤 스타일을 피하고 싶으신가요?
                           </li>
                         </ul>
                       </div>
                     </div>
-
-                    <div className="bg-gold-50 p-3 rounded-lg border border-gold-200">
-                      <p className="text-xs text-navy-900 font-semibold mb-2">
-                        💡 작성 Tip
-                      </p>
-                      <ul className="text-xs text-navy-800 space-y-1 ml-4 list-disc">
-                        <li>
-                          <span className="font-semibold">브랜드 컨셉:</span>{" "}
-                          어떤 이미지를 주고 싶으신가요? (예: 신뢰감, 역동성,
-                          전문성)
-                        </li>
-                        <li>
-                          <span className="font-semibold">원하는 느낌:</span>{" "}
-                          어떤 분위기를 원하시나요? (예: 모던한, 클래식한,
-                          친근한)
-                        </li>
-                        <li>
-                          <span className="font-semibold">포함 요소:</span>{" "}
-                          로고에 꼭 들어가야 할 것은? (예: 브랜드명, 특정 심볼)
-                        </li>
-                        <li>
-                          <span className="font-semibold">피하고 싶은 것:</span>{" "}
-                          구체적으로 어떤 스타일을 피하고 싶으신가요?
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
+                  </details>
 
                   <textarea
                     id="로고제작요청사항"
@@ -1791,51 +1695,34 @@ export default function SubmissionPage() {
 
         {/* 인쇄물 */}
         <TabsContent value="print">
-          <div className="space-y-6">
-            {/* 인쇄물 디자인 제한 안내 */}
-            <div className="p-4 bg-gold-50 border border-gray-200 rounded-lg">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-gold-600 flex-shrink-0 mt-0.5" />
-                <div className="flex-1">
-                  <p className="text-navy-900 font-semibold text-sm mb-2">
-                    📋 인쇄물 디자인 안내
-                  </p>
-                  <p className="text-navy-800 text-xs leading-relaxed mb-2">
-                    인쇄물 디자인은{" "}
-                    <strong>기본 디자인에서 일부 변경만 가능</strong>합니다.
-                  </p>
-                  <div className="text-navy-700 text-xs space-y-1">
-                    <p>• 신규 디자인 제작 불가</p>
-                    <p>• 지정된 레이아웃 변형 불가</p>
-                    <p className="text-gold-600 text-[11px] mt-2 pl-2">
-                      예) 대봉투 디자인 다른 도안으로 변경, 자문계약서 표지 문양
-                      교체 또는 이미지 삽입 등
-                    </p>
-                  </div>
-                </div>
-              </div>
+          <div className="space-y-4">
+            {/* 인쇄물 디자인 제한 안내 - 한 줄 압축 */}
+            <div className="flex items-center gap-2 p-2.5 bg-gold-50 border border-gray-200 rounded-lg">
+              <AlertCircle className="w-4 h-4 text-gold-600 flex-shrink-0" />
+              <p className="text-navy-800 text-xs">
+                <span className="font-semibold">📋 인쇄물 디자인 안내:</span>{" "}
+                기본 디자인에서 일부 변경만 가능합니다. 신규 디자인 제작 및
+                레이아웃 변형 불가.
+              </p>
             </div>
 
             {!isBasicInfoComplete() && (
-              <div className="flex items-center gap-2 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0" />
-                <div className="flex-1">
-                  <p className="text-amber-700 font-semibold text-sm">
+              <div className="flex items-center gap-2 p-2.5 bg-amber-50 border border-amber-200 rounded-lg">
+                <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                <p className="text-amber-700 text-xs">
+                  <span className="font-semibold">
                     기본 정보를 먼저 완성해주세요
-                  </p>
-                  <p className="text-amber-600 text-xs mt-1">
-                    기본 정보 탭에서 브랜드명, 업종, 사업장 주소를 입력하면
-                    인쇄물 탭이 활성화됩니다.
-                  </p>
-                </div>
+                  </span>{" "}
+                  — 브랜드명, 업종, 사업장 주소 입력 후 이 탭이 활성화됩니다.
+                </p>
               </div>
             )}
             <Card className="glass border-white/10">
-              <CardHeader>
-                <CardTitle className="text-gray-900 text-lg sm:text-xl">
+              <CardHeader className="p-4">
+                <CardTitle className="text-gray-900 text-base">
                   필수 서류
                 </CardTitle>
-                <CardDescription className="text-gray-400 text-xs sm:text-sm">
+                <CardDescription className="text-gray-400 text-xs">
                   사업자등록증과 프로필 사진을 업로드해주세요
                 </CardDescription>
               </CardHeader>
@@ -1986,21 +1873,19 @@ export default function SubmissionPage() {
 
             {/* 명함 정보 */}
             <Card id="namecard-section" className="glass border-white/10">
-              <CardHeader>
-                <div>
-                  <CardTitle className="text-gray-900 text-lg sm:text-xl">
-                    명함 스타일
-                  </CardTitle>
-                  <CardDescription className="text-gray-400 text-xs sm:text-sm">
-                    명함 스타일을 선택해주세요
-                  </CardDescription>
-                </div>
+              <CardHeader className="p-4">
+                <CardTitle className="text-gray-900 text-base">
+                  명함 스타일
+                </CardTitle>
+                <CardDescription className="text-gray-400 text-xs">
+                  명함 스타일을 선택해주세요
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <form
                   key={`namecard-${submission?.명함시안}-${isEditingNamecard}`}
                   onSubmit={(e) => handleSubmit(e, "namecard")}
-                  className="space-y-6"
+                  className="space-y-4"
                 >
                   {/* 명함 스타일 선택 */}
                   <div className="space-y-3">
@@ -2190,261 +2075,266 @@ export default function SubmissionPage() {
         {/* 마케팅 */}
         <TabsContent value="marketing" id="marketing">
           <Card className="bg-white border border-gray-200">
-            <CardHeader>
-              <CardTitle className="text-gray-900 text-lg sm:text-xl">
-                마케팅 정보
-              </CardTitle>
-              <CardDescription className="text-gray-600 text-xs sm:text-sm">
-                메타광고, 네이버 광고, 인스타그램 정보를 입력해주세요
+            <CardHeader className="p-4">
+              <div className="flex items-center gap-3 flex-wrap">
+                <CardTitle className="text-gray-900 text-base">
+                  마케팅 계정 정보
+                </CardTitle>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 border border-green-300 rounded-full text-xs text-green-800">
+                  <Shield className="w-3 h-3" />
+                  암호화 저장
+                </span>
+              </div>
+              <CardDescription className="text-gray-600 text-xs mt-1">
+                메타광고, 네이버 광고, 인스타그램 정보를 입력해주세요 · 보안을
+                위해 암호화 저장됩니다
               </CardDescription>
             </CardHeader>
             <CardContent>
               <form
                 key={`marketing-${submission?.InstagramID}-${isEditingMarketing}`}
                 onSubmit={(e) => handleSubmit(e, "marketing")}
-                className="space-y-4"
+                className="space-y-2"
               >
-                {/* Sprint 2: 민감정보 안심 UI */}
-                <SecurityNotice type="marketing" />
-
                 {/* 네이버 검색광고 */}
-                <div
+                <details
                   id="account-section"
-                  className="space-y-4 p-4 rounded-lg border border-gray-200 bg-white"
+                  className="rounded-lg border border-gray-200"
+                  open={
+                    !!(
+                      submission?.네이버검색광고ID ||
+                      submission?.네이버검색광고PW
+                    )
+                  }
                 >
-                  <div className="space-y-2">
-                    <Label className="text-sm sm:text-base font-semibold">
-                      네이버 검색광고
-                    </Label>
-                    <div className="text-xs sm:text-sm text-navy-700 bg-gold-50 border border-gold-200 rounded-md p-3">
-                      <p className="font-medium mb-1.5">📋 가입 안내</p>
-                      <p className="text-gold-600 mb-2">
-                        <a
-                          href="https://ads.naver.com/"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="underline hover:text-navy-800 font-medium"
-                        >
-                          네이버 검색광고 가입하기 →
-                        </a>
-                      </p>
-                      <p className="text-gold-600 mb-1">
-                        • 가입만하면 안되고 사업자 정보 정확히 입력 및 본인인증
-                        필수
-                      </p>
-                      <p className="text-gold-600">
-                        • 사업자 대표 명의 계정으로 진행 필수
-                      </p>
+                  <summary className="cursor-pointer px-4 py-2.5 flex items-center justify-between select-none list-none hover:bg-gray-50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-gray-800">
+                        네이버 검색광고
+                      </span>
                     </div>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="네이버검색광고ID"
-                        className="text-sm sm:text-base"
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full ${submission?.네이버검색광고ID ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}
+                    >
+                      {submission?.네이버검색광고ID ? "입력됨" : "미입력"}
+                    </span>
+                  </summary>
+                  <div className="px-4 pb-4 pt-2 space-y-3 border-t border-gray-100">
+                    <p className="text-xs text-gold-700">
+                      <a
+                        href="https://ads.naver.com/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline font-medium"
                       >
-                        ID
-                      </Label>
-                      <Input
-                        id="네이버검색광고ID"
-                        name="네이버검색광고ID"
-                        defaultValue={submission?.네이버검색광고ID}
-                        disabled={!isEditingMarketing}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="네이버검색광고PW"
-                        className="text-sm sm:text-base"
-                      >
-                        비밀번호
-                      </Label>
-                      <Input
-                        id="네이버검색광고PW"
-                        name="네이버검색광고PW"
-                        type="password"
-                        defaultValue={submission?.네이버검색광고PW}
-                        disabled={!isEditingMarketing}
-                      />
-                    </div>
-                  </div>
-
-                  {/* 광고비 충전 안내 */}
-                  <div className="mt-4 bg-white border border-gray-200 rounded-lg p-4">
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                        <CreditCard className="w-5 h-5 text-green-600" />
+                        네이버 검색광고 가입하기 →
+                      </a>{" "}
+                      사업자 정보 정확히 입력 및 본인인증 필수. 사업자 대표 명의
+                      계정으로 진행.
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <Label htmlFor="네이버검색광고ID" className="text-xs">
+                          ID
+                        </Label>
+                        <Input
+                          id="네이버검색광고ID"
+                          name="네이버검색광고ID"
+                          defaultValue={submission?.네이버검색광고ID}
+                          disabled={!isEditingMarketing}
+                          className="h-8 text-sm"
+                        />
                       </div>
-                      <div className="flex-1">
-                        <h4 className="text-sm sm:text-base font-bold text-green-900 mb-2">
-                          💳 광고비 충전 안내
-                        </h4>
-                        <p className="text-xs sm:text-sm text-green-800 mb-3">
-                          네이버 검색광고를 사용하시려면 광고비를 충전해주세요
-                        </p>
-                        <a
-                          href="https://manage.searchad.naver.com/"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-block"
-                        >
-                          <Button
-                            type="button"
-                            className="bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm h-8 sm:h-9"
-                          >
-                            <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5" />
-                            네이버 검색광고 충전하기
-                          </Button>
-                        </a>
-                        <div className="mt-3 bg-green-100 border border-green-300 rounded-md p-2">
-                          <p className="text-xs text-green-900">
-                            <strong>💡 충전 방법:</strong> 위 버튼 클릭 → 네이버
-                            검색광고 관리 페이지 → <strong>충전하기</strong>{" "}
-                            버튼 클릭
-                          </p>
-                        </div>
+                      <div className="space-y-1">
+                        <Label htmlFor="네이버검색광고PW" className="text-xs">
+                          비밀번호
+                        </Label>
+                        <Input
+                          id="네이버검색광고PW"
+                          name="네이버검색광고PW"
+                          type="password"
+                          defaultValue={submission?.네이버검색광고PW}
+                          disabled={!isEditingMarketing}
+                          className="h-8 text-sm"
+                        />
                       </div>
                     </div>
+                    <div className="flex items-center gap-2 text-xs text-green-700">
+                      <CreditCard className="w-3 h-3 flex-shrink-0" />
+                      <span>광고비 충전 필요: </span>
+                      <a
+                        href="https://manage.searchad.naver.com/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline font-medium"
+                      >
+                        네이버 검색광고 관리 페이지에서 충전하기 →
+                      </a>
+                    </div>
                   </div>
-                </div>
+                </details>
 
                 {/* 네이버 클라우드 */}
-                <div className="space-y-4 p-4 rounded-lg border border-gray-200 bg-white">
-                  <div className="space-y-2">
-                    <Label className="text-sm sm:text-base font-semibold">
+                <details
+                  className="rounded-lg border border-gray-200"
+                  open={
+                    !!(
+                      submission?.네이버클라우드ID ||
+                      submission?.네이버클라우드PW
+                    )
+                  }
+                >
+                  <summary className="cursor-pointer px-4 py-2.5 flex items-center justify-between select-none list-none hover:bg-gray-50 rounded-lg">
+                    <span className="text-sm font-semibold text-gray-800">
                       네이버 클라우드
-                    </Label>
-                    <div className="text-xs sm:text-sm text-navy-700 bg-gold-50 border border-gold-200 rounded-md p-3">
-                      <p className="font-medium mb-1.5">📋 가입 안내</p>
-                      <p className="text-gold-600 mb-2">
-                        <a
-                          href="https://www.ncloud.com/"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="underline hover:text-navy-800 font-medium"
-                        >
-                          네이버 클라우드 가입하기 →
-                        </a>
-                      </p>
-                      <p className="text-gold-600 mb-1">
-                        • 가입하고 로그아웃 창 옆에 결제수단 등록 해야함
-                      </p>
-                      <p className="text-gold-600">
-                        • 사업자 대표 명의 계정으로 진행 필수
-                      </p>
+                    </span>
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full ${submission?.네이버클라우드ID ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}
+                    >
+                      {submission?.네이버클라우드ID ? "입력됨" : "미입력"}
+                    </span>
+                  </summary>
+                  <div className="px-4 pb-4 pt-2 space-y-3 border-t border-gray-100">
+                    <p className="text-xs text-gold-700">
+                      <a
+                        href="https://www.ncloud.com/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline font-medium"
+                      >
+                        네이버 클라우드 가입하기 →
+                      </a>{" "}
+                      가입 후 결제수단 등록 필요. 사업자 대표 명의 계정으로
+                      진행.
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <Label htmlFor="네이버클라우드ID" className="text-xs">
+                          ID
+                        </Label>
+                        <Input
+                          id="네이버클라우드ID"
+                          name="네이버클라우드ID"
+                          defaultValue={submission?.네이버클라우드ID}
+                          disabled={!isEditingMarketing}
+                          className="h-8 text-sm"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label htmlFor="네이버클라우드PW" className="text-xs">
+                          비밀번호
+                        </Label>
+                        <Input
+                          id="네이버클라우드PW"
+                          name="네이버클라우드PW"
+                          type="password"
+                          defaultValue={submission?.네이버클라우드PW}
+                          disabled={!isEditingMarketing}
+                          className="h-8 text-sm"
+                        />
+                      </div>
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="네이버클라우드ID"
-                        className="text-sm sm:text-base"
-                      >
-                        ID
-                      </Label>
-                      <Input
-                        id="네이버클라우드ID"
-                        name="네이버클라우드ID"
-                        defaultValue={submission?.네이버클라우드ID}
-                        disabled={!isEditingMarketing}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="네이버클라우드PW"
-                        className="text-sm sm:text-base"
-                      >
-                        비밀번호
-                      </Label>
-                      <Input
-                        id="네이버클라우드PW"
-                        name="네이버클라우드PW"
-                        type="password"
-                        defaultValue={submission?.네이버클라우드PW}
-                        disabled={!isEditingMarketing}
-                      />
-                    </div>
-                  </div>
-                </div>
+                </details>
 
                 {/* 인스타그램 */}
-                <div className="space-y-4 p-4 rounded-lg border border-gray-200 bg-white">
-                  <Label className="text-sm sm:text-base font-semibold">
-                    Instagram
-                  </Label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="InstagramID"
-                        className="text-sm sm:text-base"
-                      >
-                        ID
-                      </Label>
-                      <Input
-                        id="InstagramID"
-                        name="InstagramID"
-                        defaultValue={submission?.InstagramID}
-                        placeholder="인스타그램 아이디"
-                        disabled={!isEditingMarketing}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="InstagramPW"
-                        className="text-sm sm:text-base"
-                      >
-                        비밀번호
-                      </Label>
-                      <Input
-                        id="InstagramPW"
-                        name="InstagramPW"
-                        type="password"
-                        defaultValue={submission?.InstagramPW}
-                        placeholder="비밀번호"
-                        disabled={!isEditingMarketing}
-                      />
+                <details
+                  className="rounded-lg border border-gray-200"
+                  open={!!(submission?.InstagramID || submission?.InstagramPW)}
+                >
+                  <summary className="cursor-pointer px-4 py-2.5 flex items-center justify-between select-none list-none hover:bg-gray-50 rounded-lg">
+                    <span className="text-sm font-semibold text-gray-800">
+                      Instagram
+                    </span>
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full ${submission?.InstagramID ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}
+                    >
+                      {submission?.InstagramID ? "입력됨" : "미입력"}
+                    </span>
+                  </summary>
+                  <div className="px-4 pb-4 pt-2 space-y-3 border-t border-gray-100">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <Label htmlFor="InstagramID" className="text-xs">
+                          ID
+                        </Label>
+                        <Input
+                          id="InstagramID"
+                          name="InstagramID"
+                          defaultValue={submission?.InstagramID}
+                          placeholder="인스타그램 아이디"
+                          disabled={!isEditingMarketing}
+                          className="h-8 text-sm"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label htmlFor="InstagramPW" className="text-xs">
+                          비밀번호
+                        </Label>
+                        <Input
+                          id="InstagramPW"
+                          name="InstagramPW"
+                          type="password"
+                          defaultValue={submission?.InstagramPW}
+                          placeholder="비밀번호"
+                          disabled={!isEditingMarketing}
+                          className="h-8 text-sm"
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
+                </details>
 
                 {/* Gmail (메일발신용) */}
-                <div className="space-y-4 p-4 rounded-lg border border-purple-200 bg-purple-50/50">
-                  <div className="space-y-2">
-                    <Label className="text-sm sm:text-base font-semibold">
+                <details
+                  className="rounded-lg border border-purple-200"
+                  open={!!(submission?.GmailID || submission?.GmailPW)}
+                >
+                  <summary className="cursor-pointer px-4 py-2.5 flex items-center justify-between select-none list-none hover:bg-purple-50 rounded-lg">
+                    <span className="text-sm font-semibold text-gray-800">
                       Gmail (메일발신용)
-                    </Label>
-                    <p className="text-xs sm:text-sm text-gray-600">
+                    </span>
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full ${submission?.GmailID ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}
+                    >
+                      {submission?.GmailID ? "입력됨" : "미입력"}
+                    </span>
+                  </summary>
+                  <div className="px-4 pb-4 pt-2 space-y-3 border-t border-purple-100">
+                    <p className="text-xs text-gray-600">
                       신규 개설한 Gmail 계정 ID/PW를 입력해주세요
                     </p>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="GmailID" className="text-sm sm:text-base">
-                        ID
-                      </Label>
-                      <Input
-                        id="GmailID"
-                        name="GmailID"
-                        defaultValue={submission?.GmailID}
-                        placeholder="example@gmail.com"
-                        disabled={!isEditingMarketing}
-                      />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <Label htmlFor="GmailID" className="text-xs">
+                          ID
+                        </Label>
+                        <Input
+                          id="GmailID"
+                          name="GmailID"
+                          defaultValue={submission?.GmailID}
+                          placeholder="example@gmail.com"
+                          disabled={!isEditingMarketing}
+                          className="h-8 text-sm"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label htmlFor="GmailPW" className="text-xs">
+                          비밀번호
+                        </Label>
+                        <Input
+                          id="GmailPW"
+                          name="GmailPW"
+                          type="password"
+                          defaultValue={submission?.GmailPW}
+                          placeholder="비밀번호"
+                          disabled={!isEditingMarketing}
+                          className="h-8 text-sm"
+                        />
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="GmailPW" className="text-sm sm:text-base">
-                        비밀번호
-                      </Label>
-                      <Input
-                        id="GmailPW"
-                        name="GmailPW"
-                        type="password"
-                        defaultValue={submission?.GmailPW}
-                        placeholder="비밀번호"
-                        disabled={!isEditingMarketing}
-                      />
-                    </div>
                   </div>
-                </div>
+                </details>
                 <div className="flex gap-2">
                   {hasMarketingInfo() && !isEditingMarketing ? (
                     <Button
@@ -2473,49 +2363,40 @@ export default function SubmissionPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-white border border-gray-200 mt-6">
-            <CardHeader>
-              <CardTitle className="text-gray-900 text-lg sm:text-xl">
-                SMS 발신 등록 서류
-              </CardTitle>
-              <CardDescription className="text-gray-600 text-xs sm:text-sm">
-                SMS 발신번호 등록에 필요한 서류를 업로드해주세요
-              </CardDescription>
-              <div className="text-xs sm:text-sm text-navy-700 bg-gold-50 border border-gold-200 rounded-md p-3 mt-3">
-                <p className="font-medium mb-1.5">📋 SMS 발신 이용 안내</p>
-                <p className="text-gold-600">
-                  DB 자동화 적용 시 고객 접수 시 자동 안내 문자가 발송됩니다
+          <Card className="bg-white border border-gray-200 mt-4">
+            <CardHeader className="p-4">
+              <div className="flex items-center gap-3 flex-wrap">
+                <CardTitle className="text-gray-900 text-base">
+                  SMS 발신 등록 서류
+                </CardTitle>
+                <span className="text-xs text-gold-700">
+                  DB 자동화 적용 시 고객 자동 안내 문자 발송
+                </span>
+              </div>
+              <div className="flex items-center gap-2 mt-2 p-2.5 bg-amber-50 border border-amber-200 rounded-lg">
+                <Shield className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                <p className="text-xs text-amber-700">
+                  아래 파일들은 보안을 위해{" "}
+                  <strong>서버에 저장되지 않습니다</strong>. 담당자에게 안전하게
+                  전달됩니다.
                 </p>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
-              {/* 대표자신분증 */}
-              <div className="space-y-2">
-                <Label className="text-sm sm:text-base break-words">
-                  대표자 신분증 - 마스킹 없어야 됩니다. (번호안가리고)
+            <CardContent className="space-y-2 pb-4">
+              {/* 대표자신분증 - compact row */}
+              <div className="space-y-1">
+                <Label className="text-xs font-semibold text-gray-700">
+                  대표자 신분증{" "}
+                  <span className="text-gray-400 font-normal">
+                    (마스킹 없이, 번호 안 가리고)
+                  </span>
                 </Label>
-                {/* 민감 정보 안내 */}
-                <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                  <Shield className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
-                  <p className="text-sm text-amber-700">
-                    이 파일은 보안을 위해{" "}
-                    <strong>서버에 저장되지 않습니다</strong>. 담당자에게
-                    안전하게 전달됩니다.
-                  </p>
-                </div>
                 {submission?.대표자신분증URL === SLACK_ONLY_MARKER ? (
-                  <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-                    <div className="flex items-center justify-center w-8 h-8 bg-green-100 rounded-full">
-                      <Shield className="w-4 h-4 text-green-600" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-green-700">
-                        담당자에게 전송 완료
-                      </p>
-                      <p className="text-xs text-green-600">
-                        보안을 위해 서버에 저장되지 않았습니다
-                      </p>
-                    </div>
+                  <div className="flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-200 rounded-lg">
+                    <Shield className="w-3.5 h-3.5 text-green-600 flex-shrink-0" />
+                    <span className="text-xs font-medium text-green-700 flex-1">
+                      전송완료
+                    </span>
                     <label className="cursor-pointer">
                       <input
                         type="file"
@@ -2531,30 +2412,18 @@ export default function SubmissionPage() {
                         }}
                         disabled={uploading}
                       />
-                      <span className="text-sm text-gold-600 hover:underline">
+                      <span className="text-xs text-gold-600 hover:underline">
                         재전송
                       </span>
                     </label>
                   </div>
                 ) : submission?.대표자신분증URL ? (
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 border border-green-200">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-700" />
-                        <span className="text-green-700 text-sm sm:text-base">
-                          업로드 완료
-                        </span>
-                      </div>
-                      <a
-                        href={submission.대표자신분증URL}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-gold-600 hover:underline text-sm sm:text-base"
-                      >
-                        파일 보기
-                      </a>
-                    </div>
-                    <label className="block">
+                  <div className="flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-200 rounded-lg">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-green-700 flex-shrink-0" />
+                    <span className="text-xs text-green-700 flex-1">
+                      전송완료
+                    </span>
+                    <label className="cursor-pointer">
                       <input
                         type="file"
                         accept="image/*,application/pdf"
@@ -2569,14 +2438,13 @@ export default function SubmissionPage() {
                         }}
                         disabled={uploading}
                       />
-                      <div className="flex items-center justify-center gap-2 p-2 rounded-lg border border-gray-300 hover:border-gold-500 hover:bg-gold-50 cursor-pointer transition-all">
-                        <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
-                        <span className="text-sm sm:text-base">파일 변경</span>
-                      </div>
+                      <span className="text-xs text-gold-600 hover:underline">
+                        재전송
+                      </span>
                     </label>
                   </div>
                 ) : (
-                  <label className="block">
+                  <label className="block cursor-pointer">
                     <input
                       type="file"
                       accept="image/*,application/pdf"
@@ -2591,60 +2459,47 @@ export default function SubmissionPage() {
                       }}
                       disabled={uploading}
                     />
-                    <div className="flex items-center justify-center gap-2 p-4 rounded-lg border border-dashed border-gray-300 hover:border-gold-500 cursor-pointer transition-all">
-                      <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
-                      <span className="text-sm sm:text-base">
-                        클릭하여 파일 업로드
-                      </span>
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-gray-300 hover:border-gold-500 transition-all">
+                      <Upload className="w-3.5 h-3.5 text-gray-400" />
+                      <span className="text-xs text-gray-500">업로드</span>
                     </div>
                   </label>
                 )}
               </div>
 
               {/* 통신서비스이용증명원 */}
-              <div className="space-y-2">
-                <Label className="text-sm sm:text-base break-words">
-                  통신서비스 이용증명원 (통신사 모바일앱 또는 고객센터에서
-                  발급가능)
+              <div className="space-y-1">
+                <Label className="text-xs font-semibold text-gray-700">
+                  통신서비스 이용증명원{" "}
+                  <span className="text-gray-400 font-normal">
+                    (통신사 모바일앱 또는 고객센터에서 발급)
+                  </span>
                 </Label>
-                <div className="text-xs sm:text-sm text-gray-600 space-y-1 pl-1">
-                  <p className="flex items-start gap-1.5">
-                    <span className="text-gold-600 font-medium mt-0.5">•</span>
-                    <span>
-                      <span className="font-medium">대표번호 등록 시:</span> 1차
-                      안내 문자 발송 후 고객 문자 수신 불가
-                    </span>
-                  </p>
-                  <p className="flex items-start gap-1.5">
-                    <span className="text-green-600 font-medium mt-0.5">•</span>
-                    <span>
-                      <span className="font-medium">핸드폰 번호 등록 시:</span>{" "}
+                <details className="text-xs text-gray-500 border border-gray-100 rounded-lg">
+                  <summary className="cursor-pointer px-2 py-1 hover:bg-gray-50 select-none list-none">
+                    대표번호 vs 핸드폰 번호 차이 보기 ▾
+                  </summary>
+                  <div className="px-3 py-2 space-y-0.5 border-t border-gray-100">
+                    <p>
+                      <span className="font-medium text-amber-700">
+                        대표번호 등록 시:
+                      </span>{" "}
+                      1차 안내 문자 발송 후 고객 문자 수신 불가
+                    </p>
+                    <p>
+                      <span className="font-medium text-green-700">
+                        핸드폰 번호 등록 시:
+                      </span>{" "}
                       1차 안내 문자 발송 후 고객 문자 수신 가능
-                    </span>
-                  </p>
-                </div>
-                {/* 민감 정보 안내 */}
-                <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                  <Shield className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
-                  <p className="text-sm text-amber-700">
-                    이 파일은 보안을 위해{" "}
-                    <strong>서버에 저장되지 않습니다</strong>. 담당자에게
-                    안전하게 전달됩니다.
-                  </p>
-                </div>
+                    </p>
+                  </div>
+                </details>
                 {submission?.통신서비스이용증명원URL === SLACK_ONLY_MARKER ? (
-                  <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-                    <div className="flex items-center justify-center w-8 h-8 bg-green-100 rounded-full">
-                      <Shield className="w-4 h-4 text-green-600" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-green-700">
-                        담당자에게 전송 완료
-                      </p>
-                      <p className="text-xs text-green-600">
-                        보안을 위해 서버에 저장되지 않았습니다
-                      </p>
-                    </div>
+                  <div className="flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-200 rounded-lg">
+                    <Shield className="w-3.5 h-3.5 text-green-600 flex-shrink-0" />
+                    <span className="text-xs font-medium text-green-700 flex-1">
+                      전송완료
+                    </span>
                     <label className="cursor-pointer">
                       <input
                         type="file"
@@ -2660,30 +2515,18 @@ export default function SubmissionPage() {
                         }}
                         disabled={uploading}
                       />
-                      <span className="text-sm text-gold-600 hover:underline">
+                      <span className="text-xs text-gold-600 hover:underline">
                         재전송
                       </span>
                     </label>
                   </div>
                 ) : submission?.통신서비스이용증명원URL ? (
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 border border-green-200">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-700" />
-                        <span className="text-green-700 text-sm sm:text-base">
-                          업로드 완료
-                        </span>
-                      </div>
-                      <a
-                        href={submission.통신서비스이용증명원URL}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-gold-600 hover:underline text-sm sm:text-base"
-                      >
-                        파일 보기
-                      </a>
-                    </div>
-                    <label className="block">
+                  <div className="flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-200 rounded-lg">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-green-700 flex-shrink-0" />
+                    <span className="text-xs text-green-700 flex-1">
+                      전송완료
+                    </span>
+                    <label className="cursor-pointer">
                       <input
                         type="file"
                         accept="image/*,application/pdf"
@@ -2698,14 +2541,13 @@ export default function SubmissionPage() {
                         }}
                         disabled={uploading}
                       />
-                      <div className="flex items-center justify-center gap-2 p-2 rounded-lg border border-gray-300 hover:border-gold-500 hover:bg-gold-50 cursor-pointer transition-all">
-                        <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
-                        <span className="text-sm sm:text-base">파일 변경</span>
-                      </div>
+                      <span className="text-xs text-gold-600 hover:underline">
+                        재전송
+                      </span>
                     </label>
                   </div>
                 ) : (
-                  <label className="block">
+                  <label className="block cursor-pointer">
                     <input
                       type="file"
                       accept="image/*,application/pdf"
@@ -2720,43 +2562,28 @@ export default function SubmissionPage() {
                       }}
                       disabled={uploading}
                     />
-                    <div className="flex items-center justify-center gap-2 p-4 rounded-lg border border-dashed border-gray-300 hover:border-gold-500 cursor-pointer transition-all">
-                      <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
-                      <span className="text-sm sm:text-base">
-                        클릭하여 파일 업로드
-                      </span>
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-gray-300 hover:border-gold-500 transition-all">
+                      <Upload className="w-3.5 h-3.5 text-gray-400" />
+                      <span className="text-xs text-gray-500">업로드</span>
                     </div>
                   </label>
                 )}
               </div>
 
               {/* 신용카드앞면 */}
-              <div className="space-y-2">
-                <Label className="text-sm sm:text-base break-words">
-                  신용카드 번호 보이는면 CVC 번호 필수
+              <div className="space-y-1">
+                <Label className="text-xs font-semibold text-gray-700">
+                  신용카드 번호 보이는면{" "}
+                  <span className="text-gray-400 font-normal">
+                    (CVC 번호 필수)
+                  </span>
                 </Label>
-                {/* 민감 정보 안내 */}
-                <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                  <Shield className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
-                  <p className="text-sm text-amber-700">
-                    이 파일은 보안을 위해{" "}
-                    <strong>서버에 저장되지 않습니다</strong>. 담당자에게
-                    안전하게 전달됩니다.
-                  </p>
-                </div>
                 {submission?.신용카드앞면URL === SLACK_ONLY_MARKER ? (
-                  <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-                    <div className="flex items-center justify-center w-8 h-8 bg-green-100 rounded-full">
-                      <Shield className="w-4 h-4 text-green-600" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-green-700">
-                        담당자에게 전송 완료
-                      </p>
-                      <p className="text-xs text-green-600">
-                        보안을 위해 서버에 저장되지 않았습니다
-                      </p>
-                    </div>
+                  <div className="flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-200 rounded-lg">
+                    <Shield className="w-3.5 h-3.5 text-green-600 flex-shrink-0" />
+                    <span className="text-xs font-medium text-green-700 flex-1">
+                      전송완료
+                    </span>
                     <label className="cursor-pointer">
                       <input
                         type="file"
@@ -2772,30 +2599,18 @@ export default function SubmissionPage() {
                         }}
                         disabled={uploading}
                       />
-                      <span className="text-sm text-gold-600 hover:underline">
+                      <span className="text-xs text-gold-600 hover:underline">
                         재전송
                       </span>
                     </label>
                   </div>
                 ) : submission?.신용카드앞면URL ? (
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 border border-green-200">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-700" />
-                        <span className="text-green-700 text-sm sm:text-base">
-                          업로드 완료
-                        </span>
-                      </div>
-                      <a
-                        href={submission.신용카드앞면URL}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-gold-600 hover:underline text-sm sm:text-base"
-                      >
-                        파일 보기
-                      </a>
-                    </div>
-                    <label className="block">
+                  <div className="flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-200 rounded-lg">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-green-700 flex-shrink-0" />
+                    <span className="text-xs text-green-700 flex-1">
+                      전송완료
+                    </span>
+                    <label className="cursor-pointer">
                       <input
                         type="file"
                         accept="image/*"
@@ -2810,14 +2625,13 @@ export default function SubmissionPage() {
                         }}
                         disabled={uploading}
                       />
-                      <div className="flex items-center justify-center gap-2 p-2 rounded-lg border border-gray-300 hover:border-gold-500 hover:bg-gold-50 cursor-pointer transition-all">
-                        <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
-                        <span className="text-sm sm:text-base">파일 변경</span>
-                      </div>
+                      <span className="text-xs text-gold-600 hover:underline">
+                        재전송
+                      </span>
                     </label>
                   </div>
                 ) : (
-                  <label className="block">
+                  <label className="block cursor-pointer">
                     <input
                       type="file"
                       accept="image/*"
@@ -2832,11 +2646,9 @@ export default function SubmissionPage() {
                       }}
                       disabled={uploading}
                     />
-                    <div className="flex items-center justify-center gap-2 p-4 rounded-lg border border-dashed border-gray-300 hover:border-gold-500 cursor-pointer transition-all">
-                      <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
-                      <span className="text-sm sm:text-base">
-                        클릭하여 파일 업로드
-                      </span>
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-gray-300 hover:border-gold-500 transition-all">
+                      <Upload className="w-3.5 h-3.5 text-gray-400" />
+                      <span className="text-xs text-gray-500">업로드</span>
                     </div>
                   </label>
                 )}

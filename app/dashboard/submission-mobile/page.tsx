@@ -307,9 +307,9 @@ export default function MobileSubmissionPage() {
     <div className="min-h-screen bg-white pb-20 mobile-compact-form">
       <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
         {/* 헤더 - 모바일 컴팩트 */}
-        <div className="space-y-1">
+        <div className="space-y-0.5">
           <div className="flex items-center justify-between">
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+            <h1 className="text-lg sm:text-xl font-bold text-gray-900">
               자료 제출
             </h1>
             {/* Sprint 3: Wizard 모드 전환 버튼 */}
@@ -323,23 +323,17 @@ export default function MobileSubmissionPage() {
               <span className="hidden sm:inline">단계별 안내</span>
             </Button>
           </div>
-          <p className="text-xs sm:text-sm text-gray-600">
-            작성하시면 자동 저장됩니다
-          </p>
-        </div>
-
-        {/* 자동 저장 상태 표시 - 컴팩트 */}
-        <div className="flex items-center justify-between p-2 rounded-lg bg-white border border-gray-200">
+          {/* 자동 저장 상태 - 인라인 */}
           <div className="flex items-center gap-1.5">
             {autoSaveState.isSaving ? (
               <>
                 <Loader2 className="w-3 h-3 animate-spin text-gold-600" />
-                <span className="text-xs text-gray-700">저장 중...</span>
+                <span className="text-xs text-gray-500">저장 중...</span>
               </>
             ) : autoSaveState.lastSaved ? (
               <>
-                <CheckCircle2 className="w-3 h-3 text-green-600" />
-                <span className="text-xs text-gray-700">
+                <CheckCircle2 className="w-3 h-3 text-green-500" />
+                <span className="text-xs text-gray-500">
                   저장됨:{" "}
                   {new Date(autoSaveState.lastSaved).toLocaleTimeString(
                     "ko-KR",
@@ -349,7 +343,7 @@ export default function MobileSubmissionPage() {
             ) : (
               <>
                 <Save className="w-3 h-3 text-gray-400" />
-                <span className="text-xs text-gray-500">자동 저장 대기</span>
+                <span className="text-xs text-gray-400">자동 저장 대기</span>
               </>
             )}
           </div>
@@ -381,33 +375,31 @@ export default function MobileSubmissionPage() {
                 setActiveSection(sectionMap[tab] || "basic");
               }
             }}
-            className="p-3 bg-amber-50 border border-amber-300 rounded-lg cursor-pointer active:bg-amber-100"
+            className="p-2 bg-amber-50 border border-amber-300 rounded-lg cursor-pointer active:bg-amber-100"
           >
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-amber-600 font-medium text-sm">
+              <div className="flex items-center gap-1.5">
+                <span className="text-amber-600 font-medium text-xs">
                   다음 단계:
                 </span>
-                <span className="text-amber-800 text-sm">
+                <span className="text-amber-800 text-xs">
                   {progress.nextAction.message}
                 </span>
               </div>
-              <ArrowRight className="w-4 h-4 text-amber-600" />
+              <ArrowRight className="w-3 h-3 text-amber-600" />
             </div>
           </div>
         )}
 
-        {/* 현황 확인 버튼 */}
+        {/* 현황 확인 - 인라인 링크 */}
         {progress && progressPercentage > 0 && (
-          <Button
-            variant="outline"
-            size="sm"
+          <button
             onClick={() => setShowSummary(true)}
-            className="w-full text-sm"
+            className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700 underline underline-offset-2"
           >
-            <CheckCircle2 className="w-4 h-4 mr-2" />
+            <CheckCircle2 className="w-3 h-3" />
             제출 현황 확인
-          </Button>
+          </button>
         )}
 
         {/* 섹션 네비게이션 - 모바일 컴팩트 */}
@@ -438,7 +430,7 @@ export default function MobileSubmissionPage() {
         {/* 기본 정보 */}
         {activeSection === "basic" && (
           <Card className="border border-gray-200">
-            <CardHeader>
+            <CardHeader className="p-3 pb-2">
               <CardTitle className="text-base text-gray-900">
                 기본 정보
               </CardTitle>
@@ -446,7 +438,7 @@ export default function MobileSubmissionPage() {
                 인쇄물에 들어갈 기본 정보를 입력해주세요
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="p-3 pt-0 space-y-2">
               <div className="space-y-1">
                 <Label htmlFor="브랜드명">
                   브랜드명 <span className="text-red-500">*</span>
@@ -485,7 +477,7 @@ export default function MobileSubmissionPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div className="space-y-1">
                   <Label htmlFor="대표번호">대표번호</Label>
                   <Input
@@ -512,7 +504,7 @@ export default function MobileSubmissionPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div className="space-y-1">
                   <Label htmlFor="은행명">은행명</Label>
                   <Input
@@ -555,9 +547,9 @@ export default function MobileSubmissionPage() {
 
         {/* 인쇄물 */}
         {activeSection === "print" && (
-          <div className="space-y-4">
+          <div className="space-y-3">
             <Card className="border border-gray-200">
-              <CardHeader>
+              <CardHeader className="p-3 pb-2">
                 <CardTitle className="text-base text-gray-900">
                   필수 서류
                 </CardTitle>
@@ -565,7 +557,7 @@ export default function MobileSubmissionPage() {
                   사업자등록증과 프로필 사진을 업로드해주세요
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="p-3 pt-0 space-y-3">
                 <MobileFileUpload
                   label="사업자등록증"
                   accept="image/*,application/pdf"
@@ -591,12 +583,12 @@ export default function MobileSubmissionPage() {
             </Card>
 
             <Card className="border border-gray-200">
-              <CardHeader>
+              <CardHeader className="p-3 pb-2">
                 <CardTitle className="text-base text-gray-900">
                   로고 정보
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="p-3 pt-0 space-y-3">
                 <MobileFileUpload
                   label="로고 파일 (있는 경우)"
                   accept="image/*"
@@ -644,7 +636,7 @@ export default function MobileSubmissionPage() {
             </Card>
 
             <Card className="border border-gray-200">
-              <CardHeader>
+              <CardHeader className="p-3 pb-2">
                 <CardTitle className="text-base text-gray-900">
                   SMS 발신 등록 서류
                 </CardTitle>
@@ -652,7 +644,7 @@ export default function MobileSubmissionPage() {
                   SMS 발신번호 등록에 필요한 서류를 업로드해주세요
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="p-3 pt-0 space-y-3">
                 <MobileFileUpload
                   label="대표자 신분증"
                   accept="image/*,application/pdf"
@@ -686,7 +678,7 @@ export default function MobileSubmissionPage() {
         {/* 마케팅 */}
         {activeSection === "marketing" && (
           <Card className="border border-gray-200">
-            <CardHeader>
+            <CardHeader className="p-3 pb-2">
               <CardTitle className="text-base text-gray-900">
                 마케팅 정보
               </CardTitle>
@@ -694,7 +686,7 @@ export default function MobileSubmissionPage() {
                 메타광고, 네이버 광고, 인스타그램 정보를 입력해주세요
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="p-3 pt-0 space-y-2">
               {/* Sprint 2: 민감정보 안심 UI (모바일 컴팩트) */}
               <SecurityNotice type="marketing" compact />
 
@@ -753,7 +745,7 @@ export default function MobileSubmissionPage() {
         {/* 홈페이지 */}
         {activeSection === "website" && (
           <Card className="border border-gray-200">
-            <CardHeader>
+            <CardHeader className="p-3 pb-2">
               <CardTitle className="text-base text-gray-900">
                 홈페이지 제작 정보
               </CardTitle>
@@ -761,7 +753,7 @@ export default function MobileSubmissionPage() {
                 홈페이지 컬러 컨셉을 선택해주세요
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="p-3 pt-0 space-y-2">
               <div className="space-y-1">
                 <Label htmlFor="홈페이지컬러컨셉">
                   컬러 컨셉 <span className="text-red-500">*</span>
