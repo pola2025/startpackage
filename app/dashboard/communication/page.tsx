@@ -450,180 +450,209 @@ export default function UserCommunicationPage() {
     >
       {/* 헤더 - 모바일 상세뷰에서는 숨김 */}
       {(!isMobile || !selectedThread) && (
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-              커뮤니케이션
-            </h1>
-            <p className="text-gray-600 mt-1 md:mt-2 text-sm md:text-base">
-              관리자와 1:1 문의 및 답변
-            </p>
-          </div>
-          <Dialog open={newThreadOpen} onOpenChange={setNewThreadOpen}>
-            <DialogTrigger asChild>
-              <Button
-                className="bg-navy-900 hover:bg-navy-800"
-                size={isMobile ? "sm" : "default"}
-              >
-                <Plus className="w-4 h-4 mr-1 md:mr-2" />
-                <span className="hidden sm:inline">새 문의 작성</span>
-                <span className="sm:hidden">문의</span>
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px]">
-              <DialogHeader>
-                <DialogTitle>새 문의 작성</DialogTitle>
-                <DialogDescription>
-                  문의 내용을 작성하시면 관리자가 확인 후 답변드립니다
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="title">제목</Label>
-                  <Input
-                    id="title"
-                    value={newTitle}
-                    onChange={(e) => setNewTitle(e.target.value)}
-                    placeholder="문의 제목을 입력하세요"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="category">카테고리</Label>
-                  <Select value={newCategory} onValueChange={setNewCategory}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="홈페이지">홈페이지</SelectItem>
-                      <SelectItem value="로고">로고</SelectItem>
-                      <SelectItem value="인쇄물">인쇄물</SelectItem>
-                      <SelectItem value="일반">일반</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="content">내용</Label>
-                  <Textarea
-                    id="content"
-                    value={newContent}
-                    onChange={(e) => setNewContent(e.target.value)}
-                    placeholder="문의 내용을 입력하세요"
-                    rows={6}
-                    className="resize-none"
-                  />
-                </div>
-                {newAttachments.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {newAttachments.map((url, idx) => (
-                      <div key={idx} className="relative w-20 h-20">
-                        <Image
-                          src={url}
-                          alt="첨부"
-                          width={80}
-                          height={80}
-                          className="w-20 h-20 object-cover rounded border"
-                          unoptimized
-                        />
-                        <button
-                          onClick={() =>
-                            setNewAttachments(
-                              newAttachments.filter((_, i) => i !== idx),
-                            )
-                          }
-                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                <div>
-                  <input
-                    type="file"
-                    id="new-thread-file"
-                    accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.hwp,.txt,.zip,.rar"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) handleFileUpload(file, true);
-                      e.target.value = "";
-                    }}
-                    disabled={uploading}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    disabled={uploading}
-                    onClick={() =>
-                      document.getElementById("new-thread-file")?.click()
-                    }
-                  >
-                    <Paperclip className="w-4 h-4 mr-2" />
-                    {uploading ? "업로드 중..." : "파일 첨부"}
-                  </Button>
-                  <p className="text-xs text-gray-500 mt-1">
-                    10MB 이하, 영상 제외 모든 파일 가능 | 영상 파일:
-                    mkt@polarad.co.kr
-                  </p>
-                </div>
-              </div>
-              <div className="flex justify-end gap-2">
+        <>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+                커뮤니케이션
+              </h1>
+              <p className="text-gray-600 mt-1 md:mt-2 text-sm md:text-base">
+                관리자와 1:1 문의 및 답변
+              </p>
+            </div>
+            <Dialog open={newThreadOpen} onOpenChange={setNewThreadOpen}>
+              <DialogTrigger asChild>
                 <Button
-                  variant="outline"
-                  onClick={() => setNewThreadOpen(false)}
+                  className="bg-navy-900 hover:bg-navy-800"
+                  size={isMobile ? "sm" : "default"}
                 >
-                  취소
+                  <Plus className="w-4 h-4 mr-1 md:mr-2" />
+                  <span className="hidden sm:inline">새 문의 작성</span>
+                  <span className="sm:hidden">문의</span>
                 </Button>
-                <Button
-                  onClick={handleCreateThread}
-                  disabled={creating || !newTitle.trim() || !newContent.trim()}
-                >
-                  {creating ? (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  ) : null}
-                  {creating ? "등록 중..." : "등록"}
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </div>
-      )}
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[600px]">
+                <DialogHeader>
+                  <DialogTitle>새 문의 작성</DialogTitle>
+                  <DialogDescription>
+                    문의 내용을 작성하시면 관리자가 확인 후 답변드립니다
+                  </DialogDescription>
+                </DialogHeader>
 
-      {/* 안내 - 모바일에서 축소 */}
-      {(!isMobile || !selectedThread) && (
-        <Alert className="bg-gold-50 border-gold-200 mt-6 mb-6">
-          <AlertDescription className="text-sm text-gray-700 space-y-1">
-            <p className="font-semibold text-navy-900">문의 안내사항</p>
-            <ul className="space-y-1 mt-2 text-xs md:text-sm">
-              <li>
-                •{" "}
-                <span className="font-medium text-navy-800">
-                  요청은 영업일 기준 1~2일내 접수 및 처리됩니다.
-                </span>
-              </li>
-              <li className="hidden md:block">
-                • 문의 사항은 영업일 기준 1일 이내 답변드립니다.
-              </li>
-              <li className="hidden md:block">
-                • 주말은 업무 처리가 어려우며, 평일 기준으로 처리됩니다.
-              </li>
-              <li className="hidden md:block">
-                • 긴급사항(홈페이지 사용불가, 광고계정 정지 등) 외에는 반드시 본
-                게시판을 이용해 주시기 바랍니다.
-              </li>
-              <li>
-                • 문의사항 메일:{" "}
-                <a
-                  href="mailto:mkt@polarad.co.kr"
-                  className="text-gold-600 underline font-medium"
-                >
-                  mkt@polarad.co.kr
-                </a>
-              </li>
-            </ul>
-          </AlertDescription>
-        </Alert>
+                {/* 입력 영역 */}
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="title">제목</Label>
+                    <Input
+                      id="title"
+                      value={newTitle}
+                      onChange={(e) => setNewTitle(e.target.value)}
+                      placeholder="문의 제목을 입력하세요"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="category">카테고리</Label>
+                    <Select value={newCategory} onValueChange={setNewCategory}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="홈페이지">홈페이지</SelectItem>
+                        <SelectItem value="로고">로고</SelectItem>
+                        <SelectItem value="인쇄물">인쇄물</SelectItem>
+                        <SelectItem value="일반">일반</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="content">내용</Label>
+                    <Textarea
+                      id="content"
+                      value={newContent}
+                      onChange={(e) => setNewContent(e.target.value)}
+                      placeholder="문의 내용을 자세히 입력해주세요"
+                      rows={6}
+                      className="resize-none"
+                    />
+                  </div>
+                  {newAttachments.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {newAttachments.map((url, idx) => (
+                        <div key={idx} className="relative w-20 h-20">
+                          <Image
+                            src={url}
+                            alt="첨부"
+                            width={80}
+                            height={80}
+                            className="w-20 h-20 object-cover rounded border"
+                            unoptimized
+                          />
+                          <button
+                            onClick={() =>
+                              setNewAttachments(
+                                newAttachments.filter((_, i) => i !== idx),
+                              )
+                            }
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div>
+                    <input
+                      type="file"
+                      id="new-thread-file"
+                      accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.hwp,.txt,.zip,.rar"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleFileUpload(file, true);
+                        e.target.value = "";
+                      }}
+                      disabled={uploading}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled={uploading}
+                      onClick={() =>
+                        document.getElementById("new-thread-file")?.click()
+                      }
+                    >
+                      <Paperclip className="w-4 h-4 mr-2" />
+                      {uploading ? "업로드 중..." : "파일 첨부"}
+                    </Button>
+                  </div>
+                </div>
+
+                {/* 안내 영역 (아코디언) */}
+                <details className="rounded-lg border border-gray-200 bg-gray-50">
+                  <summary className="flex items-center gap-2 px-4 py-3 cursor-pointer text-sm font-medium text-gray-700 select-none list-none">
+                    <MessageSquare className="w-4 h-4 text-gray-400 shrink-0" />
+                    파일 첨부 안내
+                  </summary>
+                  <div className="px-4 pb-3 text-xs text-gray-500 space-y-1 border-t border-gray-200 pt-3">
+                    <p>• 10MB 이하, 영상 파일 제외 모든 형식 가능</p>
+                    <p>
+                      • 영상 파일은{" "}
+                      <a
+                        href="mailto:mkt@polarad.co.kr"
+                        className="text-gold-600 underline font-medium"
+                      >
+                        mkt@polarad.co.kr
+                      </a>
+                      로 메일 발송 부탁드립니다
+                    </p>
+                  </div>
+                </details>
+
+                <div className="flex justify-end gap-2 pt-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setNewThreadOpen(false)}
+                  >
+                    취소
+                  </Button>
+                  <Button
+                    onClick={handleCreateThread}
+                    disabled={
+                      creating || !newTitle.trim() || !newContent.trim()
+                    }
+                    className="bg-navy-900 hover:bg-navy-800"
+                  >
+                    {creating ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : null}
+                    {creating ? "등록 중..." : "등록"}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          {/* 안내 배너 (아코디언) */}
+          <details className="rounded-lg border border-gold-200 bg-gold-50 mb-5">
+            <summary className="flex items-center gap-2 px-4 py-3 cursor-pointer select-none list-none">
+              <MessageSquare className="w-4 h-4 text-gold-600 shrink-0" />
+              <span className="text-sm font-semibold text-navy-900">
+                문의 안내사항
+              </span>
+              <span className="text-xs text-gray-500 ml-1">
+                — 영업일 기준 1~2일 내 처리
+              </span>
+            </summary>
+            <div className="px-4 pb-4 border-t border-gold-200 pt-3">
+              <ul className="space-y-1.5 text-xs md:text-sm text-gray-600">
+                <li>
+                  • 문의 사항은{" "}
+                  <span className="font-medium text-navy-800">
+                    영업일 기준 1일 이내
+                  </span>{" "}
+                  답변드립니다.
+                </li>
+                <li>
+                  • 주말은 업무 처리가 어려우며, 평일 기준으로 처리됩니다.
+                </li>
+                <li>
+                  • 긴급사항(홈페이지 사용불가, 광고계정 정지 등) 외에는 반드시
+                  본 게시판을 이용해 주시기 바랍니다.
+                </li>
+                <li>
+                  • 문의사항 메일:{" "}
+                  <a
+                    href="mailto:mkt@polarad.co.kr"
+                    className="text-gold-600 underline font-medium"
+                  >
+                    mkt@polarad.co.kr
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </details>
+        </>
       )}
 
       <div
@@ -633,46 +662,71 @@ export default function UserCommunicationPage() {
         <Card
           className={`lg:col-span-1 flex flex-col ${selectedThread ? "hidden lg:flex" : "flex"} h-[calc(100dvh-300px)] md:h-[calc(100vh-250px)]`}
         >
-          <CardHeader>
-            <CardTitle className="text-lg">내 문의 목록</CardTitle>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base font-semibold text-gray-900">
+                내 문의 목록
+              </CardTitle>
+              {threads.length > 0 && (
+                <span className="text-xs text-gray-400 font-medium">
+                  {threads.length}건
+                </span>
+              )}
+            </div>
           </CardHeader>
-          <CardContent className="flex-1 overflow-y-auto">
+          <CardContent className="flex-1 overflow-y-auto pt-0 px-3 pb-3">
             {loading ? (
-              <p className="text-center text-gray-500">로딩 중...</p>
+              <div className="flex items-center justify-center py-12 gap-2 text-gray-400">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span className="text-sm">불러오는 중...</span>
+              </div>
             ) : threads.length === 0 ? (
               <div className="text-center py-12">
-                <MessageSquare className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                <p className="text-gray-500 mb-2">문의 내역이 없습니다</p>
-                <p className="text-sm text-gray-400">새 문의를 작성해보세요</p>
+                <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
+                  <MessageSquare className="w-7 h-7 text-gray-300" />
+                </div>
+                <p className="text-sm text-gray-500 mb-1">
+                  문의 내역이 없습니다
+                </p>
+                <p className="text-xs text-gray-400">
+                  위 버튼으로 새 문의를 작성해보세요
+                </p>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 {threads.map((thread) => (
                   <div
                     key={thread.id}
                     onClick={() => handleSelectThread(thread)}
-                    className={`p-4 rounded-lg cursor-pointer transition-all border-2 ${
+                    className={`p-3.5 rounded-lg cursor-pointer transition-all border ${
                       selectedThread?.id === thread.id
-                        ? "bg-gold-50 border-gold-300"
-                        : "bg-gray-50 border-gray-200 hover:border-gold-200"
+                        ? "bg-gold-50 border-gold-300 shadow-sm"
+                        : "bg-white border-gray-200 hover:border-gold-200 hover:bg-gold-50/30"
                     }`}
                   >
-                    <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-start justify-between gap-2 mb-1.5">
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Badge variant="outline" className="text-xs">
-                            {thread.category}
-                          </Badge>
-                        </div>
-                        <p className="text-sm font-semibold text-gray-900 truncate">
+                        <p className="text-sm font-semibold text-gray-900 truncate leading-snug">
                           {thread.title}
                         </p>
                       </div>
                       {getStatusBadge(thread.status)}
                     </div>
-                    <div className="flex items-center justify-between text-xs text-gray-500">
-                      <span>{thread._count.messages}개 메시지</span>
-                      <span>{formatTime(thread.lastReplyAt)}</span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <Badge
+                          variant="outline"
+                          className="text-[10px] px-1.5 py-0 h-4 font-normal"
+                        >
+                          {thread.category}
+                        </Badge>
+                        <span className="text-[11px] text-gray-400">
+                          {thread._count.messages}개
+                        </span>
+                      </div>
+                      <span className="text-[11px] text-gray-400">
+                        {formatTime(thread.lastReplyAt)}
+                      </span>
                     </div>
                   </div>
                 ))}
@@ -712,9 +766,18 @@ export default function UserCommunicationPage() {
                       {getStatusBadge(selectedThread.status)}
                     </div>
                     {!isMobile && (
-                      <CardDescription className="mt-0.5 text-sm">
-                        {selectedThread.category}
-                      </CardDescription>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge
+                          variant="outline"
+                          className="text-xs font-normal"
+                        >
+                          {selectedThread.category}
+                        </Badge>
+                        <span className="text-xs text-gray-400">
+                          {selectedThread._count.messages}개 메시지 ·{" "}
+                          {formatTime(selectedThread.lastReplyAt)}
+                        </span>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -1095,9 +1158,18 @@ export default function UserCommunicationPage() {
             </>
           ) : (
             <CardContent className="flex items-center justify-center h-full">
-              <div className="text-center text-gray-400">
-                <MessageSquare className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                <p>문의를 선택하세요</p>
+              <div className="text-center">
+                <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                  <MessageSquare className="w-8 h-8 text-gray-300" />
+                </div>
+                <p className="text-sm font-medium text-gray-500 mb-1">
+                  문의를 선택하세요
+                </p>
+                <p className="text-xs text-gray-400">
+                  왼쪽 목록에서 문의를 선택하면
+                  <br />
+                  대화 내용을 확인할 수 있습니다
+                </p>
               </div>
             </CardContent>
           )}

@@ -155,7 +155,9 @@ export default function UserLayout({
 
       {/* Main Content */}
       <main className="relative lg:ml-64 pt-16 lg:pt-0 min-h-screen pb-bottom-bar">
-        <div className="container mx-auto p-3 sm:p-4 md:p-6">{children}</div>
+        <div className="mx-auto p-3 sm:p-4 md:p-6 lg:max-w-[900px]">
+          {children}
+        </div>
 
         {/* Footer */}
         <footer className="mt-8 sm:mt-12 border-t border-gray-200 bg-white py-4 sm:py-6">
