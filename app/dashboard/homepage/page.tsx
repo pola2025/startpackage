@@ -280,7 +280,7 @@ export default function HomepageSettingsPage() {
       <div className="space-y-6">
         {/* 트래픽 기반 요금 안내 */}
         <Card className="border-orange-200 bg-orange-50">
-          <CardContent className="pt-6">
+          <CardContent className="pt-4">
             <div className="flex items-start gap-3">
               <AlertCircle className="w-6 h-6 text-orange-600 flex-shrink-0" />
               <div>
@@ -313,86 +313,91 @@ export default function HomepageSettingsPage() {
               도메인을 먼저 구매한 후 관리 정보를 입력해주세요.
             </CardDescription>
           </CardHeader>
-          <CardContent className="pt-6 space-y-6">
+          <CardContent className="pt-4 space-y-6">
             {/* 도메인 구매 안내 */}
             <div className="space-y-3">
-              <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
-                <div className="flex items-start gap-3">
-                  <Info className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                  <div className="flex-1">
-                    <p className="font-medium text-purple-900">
-                      도메인을 먼저 구매해주세요
-                    </p>
-                    <p className="text-sm text-purple-700 mt-1">
-                      후이즈(whois.co.kr)에서 도메인을 검색하고 할인가에 바로
-                      등록할 수 있습니다.
-                    </p>
-                    <a
-                      href="https://www.whois.co.kr"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 mt-2 px-3 py-1.5 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 transition-colors"
-                    >
-                      <ExternalLink className="w-3 h-3" />
-                      후이즈 바로가기
-                    </a>
-                  </div>
-                </div>
-              </div>
-
-              {/* 도메인 검색 가이드 */}
-              <div className="border border-gray-200 rounded-lg overflow-hidden">
-                <div className="bg-gray-50 px-3 py-2 border-b border-gray-200">
-                  <p className="text-xs font-semibold text-gray-600">
-                    📋 후이즈 사이트에서 이렇게 검색하세요
-                  </p>
-                </div>
-                {/* 후이즈 화면 미리보기 */}
-                <div className="relative">
-                  <div className="bg-[#0066cc] p-4 opacity-80">
-                    <p className="text-white text-sm font-medium mb-3">
-                      도메인을 검색해보세요! 할인가에 바로 등록할 수 있습니다.
-                    </p>
-                    <div className="flex gap-2">
-                      <div className="flex-1 bg-white rounded-lg px-3 py-2 text-sm text-gray-400">
-                        영문 / 한글 입력 (예: &apos;whois&apos; 또는
-                        &apos;후이즈&apos;)
-                      </div>
-                      <div className="bg-[#ff6600] text-white text-sm font-medium px-4 py-2 rounded-lg">
-                        검색
-                      </div>
-                    </div>
-                  </div>
-                  {/* 화살표 오버레이 */}
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full shadow-lg">
-                      ↑ 여기에 브랜드명 입력 후 검색
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-white px-4 py-3 space-y-2">
-                  <ol className="text-xs text-gray-600 space-y-1.5 list-decimal list-inside">
-                    <li>
+              <details>
+                <summary className="cursor-pointer text-sm font-medium text-purple-900 p-3 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors">
+                  도메인 구매 안내
+                </summary>
+                <div className="p-4 bg-purple-50 border border-purple-200 border-t-0 rounded-b-lg">
+                  <div className="flex items-start gap-3">
+                    <Info className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="font-medium text-purple-900">
+                        도메인을 먼저 구매해주세요
+                      </p>
+                      <p className="text-sm text-purple-700 mt-1">
+                        후이즈(whois.co.kr)에서 도메인을 검색하고 할인가에 바로
+                        등록할 수 있습니다.
+                      </p>
                       <a
                         href="https://www.whois.co.kr"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-gold-600 underline"
+                        className="inline-flex items-center gap-1 mt-2 px-3 py-1.5 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 transition-colors"
                       >
-                        후이즈 사이트
+                        <ExternalLink className="w-3 h-3" />
+                        후이즈 바로가기
                       </a>
-                      에 접속하세요
-                    </li>
-                    <li>검색창에 원하는 도메인명 입력 (예: 브랜드명)</li>
-                    <li>
-                      검색 결과에서 <strong>.co.kr</strong> 또는{" "}
-                      <strong>.com</strong> 선택
-                    </li>
-                    <li>회원가입 후 결제 완료</li>
-                    <li>구매 후 아래에 후이즈 ID/PW를 입력해주세요</li>
-                  </ol>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </details>
+
+              {/* 도메인 검색 가이드 */}
+              <details>
+                <summary className="cursor-pointer text-sm font-medium text-gray-700 p-3 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
+                  도메인 구매 가이드
+                </summary>
+                <div className="border border-gray-200 border-t-0 rounded-b-lg overflow-hidden">
+                  {/* 후이즈 화면 미리보기 */}
+                  <div className="relative">
+                    <div className="bg-[#0066cc] p-4 opacity-80">
+                      <p className="text-white text-sm font-medium mb-3">
+                        도메인을 검색해보세요! 할인가에 바로 등록할 수 있습니다.
+                      </p>
+                      <div className="flex gap-2">
+                        <div className="flex-1 bg-white rounded-lg px-3 py-2 text-sm text-gray-400">
+                          영문 / 한글 입력 (예: &apos;whois&apos; 또는
+                          &apos;후이즈&apos;)
+                        </div>
+                        <div className="bg-[#ff6600] text-white text-sm font-medium px-4 py-2 rounded-lg">
+                          검색
+                        </div>
+                      </div>
+                    </div>
+                    {/* 화살표 오버레이 */}
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <div className="bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full shadow-lg">
+                        ↑ 여기에 브랜드명 입력 후 검색
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-white px-4 py-3 space-y-2">
+                    <ol className="text-xs text-gray-600 space-y-1.5 list-decimal list-inside">
+                      <li>
+                        <a
+                          href="https://www.whois.co.kr"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-gold-600 underline"
+                        >
+                          후이즈 사이트
+                        </a>
+                        에 접속하세요
+                      </li>
+                      <li>검색창에 원하는 도메인명 입력 (예: 브랜드명)</li>
+                      <li>
+                        검색 결과에서 <strong>.co.kr</strong> 또는{" "}
+                        <strong>.com</strong> 선택
+                      </li>
+                      <li>회원가입 후 결제 완료</li>
+                      <li>구매 후 아래에 후이즈 ID/PW를 입력해주세요</li>
+                    </ol>
+                  </div>
+                </div>
+              </details>
             </div>
 
             {/* 입력 폼 */}
@@ -478,16 +483,14 @@ export default function HomepageSettingsPage() {
               등록해주세요.
             </CardDescription>
           </CardHeader>
-          <CardContent className="pt-6 space-y-6">
+          <CardContent className="pt-4 space-y-6">
             {/* 보안 안내 */}
-            <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
-              <div className="flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 text-gray-600" />
-                <span className="text-sm text-gray-700">
-                  카드 정보는 서비스 결제 연동에만 사용되며 암호화되어 안전하게
-                  저장됩니다.
-                </span>
-              </div>
+            <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-gray-600 flex-shrink-0" />
+              <span className="text-sm text-gray-700">
+                카드 정보는 서비스 결제 연동에만 사용되며 암호화되어 안전하게
+                저장됩니다.
+              </span>
             </div>
 
             {/* 카드 이미지 업로드 */}
@@ -789,7 +792,7 @@ export default function HomepageSettingsPage() {
                   type="color"
                   value={websiteColor}
                   onChange={(e) => setWebsiteColor(e.target.value)}
-                  className="w-20 h-20 rounded-lg border border-gray-300 cursor-pointer"
+                  className="w-12 h-12 rounded-lg border border-gray-300 cursor-pointer"
                 />
                 <div className="flex-1 space-y-2">
                   <Input
@@ -815,7 +818,7 @@ export default function HomepageSettingsPage() {
         <Button
           onClick={handleSave}
           disabled={!canSave || saving}
-          className="w-full md:w-auto px-8 h-12 md:h-10"
+          className="w-full md:w-auto px-8 h-10"
         >
           {saving ? (
             <>

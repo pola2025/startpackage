@@ -216,12 +216,12 @@ export function Sidebar({
   const SidebarContent = ({ closeMobile }: { closeMobile?: () => void }) => (
     <>
       {/* 로고 */}
-      <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-navy-900 flex items-center justify-center shadow-sm">
-            <Package className="w-6 h-6 text-white" />
+      <div className="p-4 border-b border-gray-200">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-navy-900 flex items-center justify-center">
+            <Package className="w-5 h-5 text-white" />
           </div>
-          <h1 className="text-lg font-bold text-gray-900">START PACKAGE</h1>
+          <h1 className="text-base font-bold text-gray-900">START PACKAGE</h1>
         </div>
       </div>
 
@@ -284,12 +284,13 @@ export function Sidebar({
       </nav>
 
       {/* 사용자 정보 + 로그아웃 */}
-      <div className="p-4 border-t border-gray-200">
-        <div className="mb-3 p-3 bg-gray-50 rounded-lg">
-          <p className="text-xs text-gray-500 mb-1">로그인 정보</p>
-          <p className="text-sm font-semibold text-gray-900">{userName}</p>
+      <div className="p-3 border-t border-gray-200">
+        <div className="flex items-center gap-2 mb-2">
+          <p className="text-sm font-semibold text-gray-900 truncate flex-1">
+            {userName}
+          </p>
           {isGraduated && (
-            <span className="inline-block mt-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded">
+            <span className="px-1.5 py-0.5 bg-green-100 text-green-700 text-[10px] font-semibold rounded flex-shrink-0">
               수료생
             </span>
           )}

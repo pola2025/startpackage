@@ -28,8 +28,8 @@ export default function MetaAdsPage() {
       {/* 헤더 */}
       <div>
         <div className="flex items-center gap-2 md:gap-3 mb-1 md:mb-2">
-          <Facebook className="w-6 h-6 md:w-8 md:h-8 text-gold-600" />
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+          <Facebook className="w-5 h-5 md:w-6 md:h-6 text-gold-600" />
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">
             Meta 광고 시작하기
           </h1>
         </div>

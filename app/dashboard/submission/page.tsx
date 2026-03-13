@@ -653,7 +653,7 @@ export default function SubmissionPage() {
       {/* 헤더 - 깔끔하고 명확한 */}
       <div className="space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-gray-900 tracking-tight">
+          <h1 className="text-2xl sm:text-2xl md:text-2xl font-bold text-gray-900 tracking-tight">
             자료 제출
           </h1>
           {!submission?.isComplete && submission && (

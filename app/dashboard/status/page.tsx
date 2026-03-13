@@ -398,10 +398,10 @@ export default function StatusDashboardPage() {
         {/* 헤더 */}
         <div className="flex items-center justify-between">
           <div className="space-y-2">
-            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
               진행 상황
             </h1>
-            <p className="text-base sm:text-lg text-gray-600">
+            <p className="text-sm text-gray-600">
               자료 제출 및 제작 진행 상황을 확인하세요
             </p>
           </div>
@@ -419,7 +419,7 @@ export default function StatusDashboardPage() {
         {/* 전체 진행 상황 */}
         <Card className="border border-gray-200">
           <CardHeader>
-            <CardTitle className="text-xl">전체 제출 현황</CardTitle>
+            <CardTitle className="text-base">전체 제출 현황</CardTitle>
           </CardHeader>
           <CardContent>
             <SubmissionProgress
@@ -432,14 +432,14 @@ export default function StatusDashboardPage() {
 
         {/* 디자인 제작 현황 */}
         <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-gray-900">디자인 제작 현황</h2>
+          <h2 className="text-lg font-bold text-gray-900">디자인 제작 현황</h2>
 
           {workflows.filter((w) => w.type === "로고" || w.type === "홈페이지")
             .length === 0 ? (
             <Card className="border border-gray-200">
-              <CardContent className="py-12">
+              <CardContent className="py-6">
                 <div className="text-center space-y-3">
-                  <Package className="w-12 h-12 text-gray-400 mx-auto" />
+                  <Package className="w-8 h-8 text-gray-400 mx-auto" />
                   <p className="text-gray-600">
                     아직 디자인 제작이 시작되지 않았습니다
                   </p>
@@ -461,7 +461,7 @@ export default function StatusDashboardPage() {
                           {getWorkflowIcon(workflow.type)}
                         </div>
                         <div>
-                          <CardTitle className="text-xl">
+                          <CardTitle className="text-base">
                             {workflow.type}
                           </CardTitle>
                           <CardDescription className="mt-1">
@@ -490,7 +490,7 @@ export default function StatusDashboardPage() {
                           className="block"
                         >
                           <Button
-                            className="w-full h-12 bg-navy-900 hover:bg-navy-800 text-white font-semibold"
+                            className="w-full h-9 md:h-10 bg-navy-900 hover:bg-navy-800 text-white font-semibold"
                             size="lg"
                           >
                             <FileCheck className="w-5 h-5 mr-2" />
@@ -503,7 +503,7 @@ export default function StatusDashboardPage() {
                         {workflow.type === "로고" &&
                           workflow.status === "시안컨펌요청" && (
                             <Button
-                              className="w-full h-12 bg-ok-600 hover:bg-ok-700 text-white font-semibold"
+                              className="w-full h-9 md:h-10 bg-ok-600 hover:bg-ok-700 text-white font-semibold"
                               size="lg"
                               onClick={async () => {
                                 if (
@@ -550,7 +550,7 @@ export default function StatusDashboardPage() {
                             !workflow.발주승인일)) && (
                           <Button
                             variant="outline"
-                            className="w-full h-12 border border-terra-100 text-terra-500 hover:bg-terra-50 font-semibold"
+                            className="w-full h-9 md:h-10 border border-terra-100 text-terra-500 hover:bg-terra-50 font-semibold"
                             size="lg"
                             onClick={() => {
                               setFeedbackModal({
@@ -601,14 +601,14 @@ export default function StatusDashboardPage() {
 
         {/* 인쇄물 제작 현황 */}
         <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-gray-900">인쇄물 제작 현황</h2>
+          <h2 className="text-lg font-bold text-gray-900">인쇄물 제작 현황</h2>
 
           {workflows.filter((w) => w.type !== "로고" && w.type !== "홈페이지")
             .length === 0 ? (
             <Card className="border border-gray-200">
-              <CardContent className="py-12">
+              <CardContent className="py-6">
                 <div className="text-center space-y-3">
-                  <Package className="w-12 h-12 text-gray-400 mx-auto" />
+                  <Package className="w-8 h-8 text-gray-400 mx-auto" />
                   <p className="text-gray-600">
                     아직 인쇄물 제작이 시작되지 않았습니다
                   </p>
@@ -630,7 +630,7 @@ export default function StatusDashboardPage() {
                           {getWorkflowIcon(workflow.type)}
                         </div>
                         <div>
-                          <CardTitle className="text-xl">
+                          <CardTitle className="text-base">
                             {workflow.type}
                           </CardTitle>
                           <CardDescription className="mt-1">
@@ -659,7 +659,7 @@ export default function StatusDashboardPage() {
                           className="block"
                         >
                           <Button
-                            className="w-full h-12 bg-navy-900 hover:bg-navy-800 text-white font-semibold"
+                            className="w-full h-9 md:h-10 bg-navy-900 hover:bg-navy-800 text-white font-semibold"
                             size="lg"
                           >
                             <FileCheck className="w-5 h-5 mr-2" />
@@ -672,7 +672,7 @@ export default function StatusDashboardPage() {
                         {!workflow.발주승인일 && (
                           <Button
                             variant="outline"
-                            className="w-full h-12 border border-terra-100 text-terra-500 hover:bg-terra-50 font-semibold"
+                            className="w-full h-9 md:h-10 border border-terra-100 text-terra-500 hover:bg-terra-50 font-semibold"
                             size="lg"
                             onClick={() => {
                               setFeedbackModal({
@@ -759,23 +759,26 @@ export default function StatusDashboardPage() {
         </div>
 
         {/* 도움말 */}
-        <Card className="border border-gray-200 bg-white">
-          <CardHeader>
-            <CardTitle className="text-lg text-navy-900 flex items-center gap-2">
-              <AlertCircle className="w-5 h-5" />
-              안내사항
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm text-navy-800">
-            <p>• 시안은 영업일 기준 1-2일 내에 완료됩니다</p>
-            <p>• 시안 확인 후 발주를 진행해주세요</p>
-            <p>• 발주 후에는 정보 변경이 불가능합니다</p>
-            <p>• 제작 기간은 인쇄물 종류에 따라 다릅니다</p>
-            <p className="pt-2 border-t border-gold-200 font-semibold">
-              문의사항이 있으시면 관리자에게 연락해주세요
-            </p>
-          </CardContent>
-        </Card>
+        <details className="group">
+          <summary className="flex items-center gap-2 cursor-pointer list-none text-sm font-semibold text-navy-900 py-2">
+            <AlertCircle className="w-4 h-4" />
+            안내사항
+            <span className="ml-auto text-xs text-gray-400 group-open:rotate-90 transition-transform">
+              ▶
+            </span>
+          </summary>
+          <Card className="border border-gray-200 bg-white mt-2">
+            <CardContent className="space-y-2 text-sm text-navy-800 pt-4">
+              <p>• 시안은 영업일 기준 1-2일 내에 완료됩니다</p>
+              <p>• 시안 확인 후 발주를 진행해주세요</p>
+              <p>• 발주 후에는 정보 변경이 불가능합니다</p>
+              <p>• 제작 기간은 인쇄물 종류에 따라 다릅니다</p>
+              <p className="pt-2 border-t border-gold-200 font-semibold">
+                문의사항이 있으시면 관리자에게 연락해주세요
+              </p>
+            </CardContent>
+          </Card>
+        </details>
       </div>
 
       {/* 피드백 모달 */}

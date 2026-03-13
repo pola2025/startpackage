@@ -276,37 +276,29 @@ export default function WorkflowsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">제작 현황</h1>
+        <h1 className="text-xl font-bold text-gray-900 mb-2">제작 현황</h1>
         <p className="text-gray-600">
           인쇄물 및 홈페이지 제작 진행 상황을 확인하세요
         </p>
       </div>
 
       {/* 인쇄물 배송 안내 */}
-      <Alert className="bg-terra-50 border border-terra-100 shadow-lg">
+      <Alert className="bg-terra-50 border border-terra-100">
         <Truck className="h-5 w-5 text-terra-500" />
         <AlertDescription>
-          <div className="space-y-2">
-            <p className="text-terra-600 font-bold text-base">
-              인쇄물 배송 안내
-            </p>
-            <div className="bg-white border border-terra-100 rounded-lg p-3">
-              <p className="text-gray-800 text-sm leading-relaxed">
-                인쇄물(명함, 대봉투, 계약서)은{" "}
-                <span className="font-bold text-terra-500">
-                  각각의 제작 일정에 따라 개별 배송
-                </span>
-                됩니다.
-                <br />
-                합배송되지 않으니 참고해 주세요.
-              </p>
-            </div>
-          </div>
+          <p className="text-terra-600 font-bold text-sm">인쇄물 배송 안내</p>
+          <p className="text-gray-800 text-sm leading-relaxed">
+            인쇄물(명함, 대봉투, 계약서)은{" "}
+            <span className="font-bold text-terra-500">
+              각각의 제작 일정에 따라 개별 배송
+            </span>
+            됩니다. 합배송되지 않으니 참고해 주세요.
+          </p>
         </AlertDescription>
       </Alert>
 
       {/* 제작 소요 기간 안내 */}
-      <Alert className="bg-white border border-gray-200 shadow-lg">
+      <Alert className="bg-white border border-gray-200">
         <Info className="h-5 w-5 text-navy-700" />
         <AlertDescription>
           <div className="space-y-3 md:space-y-4">
@@ -337,9 +329,7 @@ export default function WorkflowsPage() {
                   </h3>
                 </div>
                 <div className="flex items-baseline gap-1 md:gap-2">
-                  <span className="text-lg md:text-3xl font-bold text-navy-700">
-                    2~3일
-                  </span>
+                  <span className="text-lg font-bold text-navy-700">2~3일</span>
                 </div>
               </div>
 
@@ -354,7 +344,7 @@ export default function WorkflowsPage() {
                   </h3>
                 </div>
                 <div className="flex items-baseline gap-1 md:gap-2">
-                  <span className="text-lg md:text-3xl font-bold text-terra-500">
+                  <span className="text-lg font-bold text-terra-500">
                     4~5일
                   </span>
                 </div>
@@ -371,9 +361,7 @@ export default function WorkflowsPage() {
                   </h3>
                 </div>
                 <div className="flex items-baseline gap-1 md:gap-2">
-                  <span className="text-lg md:text-3xl font-bold text-ok-700">
-                    7일
-                  </span>
+                  <span className="text-lg font-bold text-ok-700">7일</span>
                 </div>
               </div>
             </div>
@@ -390,8 +378,8 @@ export default function WorkflowsPage() {
 
       {workflows.length === 0 ? (
         <Card className="bg-white">
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <Package className="w-16 h-16 text-gray-400 mb-4" />
+          <CardContent className="flex flex-col items-center justify-center py-6">
+            <Package className="w-8 h-8 text-gray-400 mb-4" />
             <p className="text-gray-500">워크플로우가 없습니다.</p>
           </CardContent>
         </Card>

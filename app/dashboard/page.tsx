@@ -377,170 +377,77 @@ export default async function UserDashboard() {
   notifications.sort((a, b) => a.priority - b.priority);
 
   return (
-    <div className="space-y-6 sm:space-y-8">
-      {/* Welcome Header with D-Day */}
-      <div className="flex flex-col gap-6">
-        <div>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3 tracking-tight">
-            안녕하세요, {user.이름}님
-          </h1>
-          <p className="text-base sm:text-lg text-gray-600">
-            스타트패키지 진행 현황을 한눈에 확인하세요
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-4">
-          {user.cohort && dday && (
-            <div className="inline-flex items-center gap-3 bg-white rounded-2xl border border-gray-200 px-6 py-4">
-              <div className="flex items-center justify-center w-12 h-12 bg-white rounded-full shadow-sm">
-                <Calendar className="w-6 h-6 text-gold-600" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gold-700 mb-0.5">
-                  자료 제출 마감일
-                </p>
-                <p className="text-3xl font-bold text-gold-600">{dday}</p>
-                <p className="text-xs text-gold-600 mt-1">
-                  {new Date(user.cohort.자료제출마감일).toLocaleDateString(
-                    "ko-KR",
-                    {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                      weekday: "short",
-                    },
-                  )}
-                </p>
-              </div>
-            </div>
-          )}
-          {marketingEndDate &&
-            (() => {
-              const now = new Date();
-              const daysRemaining = Math.ceil(
-                (marketingEndDate.getTime() - now.getTime()) /
-                  (1000 * 60 * 60 * 24),
-              );
-              const isExpired = daysRemaining <= 0;
-              const isUrgent = daysRemaining <= 7;
-              const isWarning = daysRemaining <= 30;
-
-              return (
-                <div
-                  className={`inline-flex items-center gap-3 rounded-2xl border px-6 py-4 ${
-                    isExpired
-                      ? "bg-white border-gray-200"
-                      : isUrgent
-                        ? "bg-terra-50 border-terra-100"
-                        : isWarning
-                          ? "bg-terra-50 border-terra-100"
-                          : "bg-white border-gray-200"
-                  }`}
-                >
-                  <div
-                    className={`flex items-center justify-center w-12 h-12 bg-white rounded-full shadow-sm`}
-                  >
-                    <Megaphone
-                      className={`w-6 h-6 ${
-                        isExpired
-                          ? "text-gray-600"
-                          : isUrgent
-                            ? "text-terra-500"
-                            : isWarning
-                              ? "text-terra-500"
-                              : "text-navy-600"
-                      }`}
-                    />
-                  </div>
-                  <div>
-                    <p
-                      className={`text-sm font-medium mb-0.5 ${
-                        isExpired
-                          ? "text-gray-700"
-                          : isUrgent
-                            ? "text-terra-600"
-                            : isWarning
-                              ? "text-terra-600"
-                              : "text-navy-700"
-                      }`}
-                    >
-                      마케팅 지원 종료일
-                    </p>
-                    <p
-                      className={`text-3xl font-bold ${
-                        isExpired
-                          ? "text-gray-600"
-                          : isUrgent
-                            ? "text-terra-500"
-                            : isWarning
-                              ? "text-terra-500"
-                              : "text-navy-600"
-                      }`}
-                    >
-                      {isExpired ? "종료됨" : `D-${daysRemaining}`}
-                    </p>
-                    <p
-                      className={`text-xs mt-1 ${
-                        isExpired
-                          ? "text-gray-600"
-                          : isUrgent
-                            ? "text-terra-500"
-                            : isWarning
-                              ? "text-terra-500"
-                              : "text-navy-600"
-                      }`}
-                    >
-                      {marketingEndDate.toLocaleDateString("ko-KR", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                        weekday: "short",
-                      })}
-                    </p>
-                    {/* 연장 신청 버튼 */}
-                    {!isExpired &&
-                      daysRemaining <= 30 &&
-                      daysRemaining > 0 &&
-                      (() => {
-                        const hasPendingExtension =
-                          user.marketingExtensionRequests.some(
-                            (req) => req.status === "pending",
-                          );
-                        if (
-                          !hasPendingExtension &&
-                          marketingStartDate &&
-                          marketingEndDate
-                        ) {
-                          return (
-                            <div className="mt-3">
-                              <MarketingExtensionDialog
-                                currentEndDate={marketingEndDate}
-                              />
-                            </div>
-                          );
-                        }
-                      })()}
-                  </div>
-                </div>
-              );
-            })()}
-        </div>
+    <div className="space-y-4">
+      {/* Compact Header: 이름 + 기수 + D-Day 한 줄 */}
+      <div className="flex flex-wrap items-center gap-2 md:gap-3">
+        <h1 className="text-lg md:text-xl font-bold text-gray-900">
+          {user.이름}님
+        </h1>
+        {user.cohort && (
+          <span className="text-xs md:text-sm text-gray-500 font-medium">
+            {user.cohort.name}
+          </span>
+        )}
+        {user.cohort && dday && (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gold-50 border border-gold-200 rounded-full text-xs font-semibold text-gold-700">
+            <Calendar className="w-3 h-3" />
+            마감 {dday}
+          </span>
+        )}
+        {marketingEndDate &&
+          (() => {
+            const now = new Date();
+            const daysRemaining = Math.ceil(
+              (marketingEndDate.getTime() - now.getTime()) /
+                (1000 * 60 * 60 * 24),
+            );
+            const isExpired = daysRemaining <= 0;
+            const isUrgent = daysRemaining <= 7;
+            return (
+              <span
+                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold border ${
+                  isExpired
+                    ? "bg-gray-50 border-gray-200 text-gray-500"
+                    : isUrgent
+                      ? "bg-terra-50 border-terra-100 text-terra-600"
+                      : "bg-navy-50 border-navy-200 text-navy-600"
+                }`}
+              >
+                <Megaphone className="w-3 h-3" />
+                마케팅 {isExpired ? "종료" : `D-${daysRemaining}`}
+              </span>
+            );
+          })()}
       </div>
 
-      {/* 알림 리스트 - 모바일/데스크탑 모두 세로 리스트 */}
+      {/* 인라인 제출률 */}
+      <div className="flex items-center gap-3 px-3 py-2 bg-white border border-gray-200 rounded-lg">
+        <FileText className="w-4 h-4 text-navy-700 flex-shrink-0" />
+        <span className="text-sm font-medium text-gray-700">자료 제출</span>
+        <span className="text-sm font-bold text-navy-700">
+          {completionPercent}%
+        </span>
+        <Progress value={completionPercent} className="flex-1 h-1.5" />
+        <span className="text-xs text-gray-500">
+          {completedFields}/{totalFields}
+        </span>
+      </div>
+
+      {/* 알림 리스트 */}
       {notifications.length > 0 && (
         <Card className="bg-white border border-gray-200">
-          <CardHeader className="p-4 md:p-6 pb-2 md:pb-4">
-            <CardTitle className="text-base md:text-xl text-gray-900 flex items-center gap-2">
-              <Bell className="w-4 h-4 md:w-5 md:h-5 text-gold-600" />
+          <CardHeader className="p-3 md:p-4 pb-1 md:pb-2">
+            <CardTitle className="text-sm md:text-base text-gray-900 flex items-center gap-2">
+              <Bell className="w-4 h-4 text-gold-600" />
               알림
-              <span className="text-xs md:text-sm font-normal text-gray-500 ml-auto">
+              <span className="text-xs font-normal text-gray-500 ml-auto">
                 {notifications.length}건
               </span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
-            <div className="space-y-1.5 md:space-y-2">
-              {notifications.map((notification, index) => {
+          <CardContent className="p-3 md:p-4 pt-0">
+            <div className="space-y-1">
+              {notifications.map((notification) => {
                 const colors = {
                   urgent: "text-terra-600 hover:bg-terra-50 border-terra-100",
                   warning: "text-terra-500 hover:bg-terra-50 border-terra-100",
@@ -559,20 +466,16 @@ export default async function UserDashboard() {
                   <Link
                     key={notification.id}
                     href={notification.link}
-                    className={`flex items-center gap-2 md:gap-3 p-2.5 md:p-4 rounded-lg border bg-white ${colors[notification.type]} transition-all cursor-pointer group`}
+                    className={`flex items-center gap-2 p-2 md:p-2.5 rounded-lg border bg-white ${colors[notification.type]} transition-all cursor-pointer group`}
                   >
-                    <span className="hidden md:inline text-sm md:text-base font-semibold text-gray-600 min-w-[60px]">
-                      알림{index + 1}.
-                    </span>
                     <span
-                      className={`text-[10px] md:text-xs font-bold px-1.5 md:px-2 py-0.5 md:py-1 rounded border whitespace-nowrap ${badgeColors[notification.type]}`}
+                      className={`text-[10px] md:text-xs font-bold px-1.5 py-0.5 rounded border whitespace-nowrap ${badgeColors[notification.type]}`}
                     >
                       {notification.badge}
                     </span>
-                    <span className="flex-1 text-xs md:text-base font-medium line-clamp-1">
+                    <span className="flex-1 text-xs md:text-sm font-medium line-clamp-1">
                       {notification.message}
                     </span>
-                    <MessageSquare className="w-3 h-3 md:w-4 md:h-4 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
                   </Link>
                 );
               })}
@@ -581,115 +484,22 @@ export default async function UserDashboard() {
         </Card>
       )}
 
-      {/* User Info Card */}
+      {/* 자료 제출 현황 */}
       <Card className="bg-white border border-gray-200">
-        <CardHeader>
-          <CardTitle className="text-lg sm:text-xl text-gray-900 flex items-center gap-2">
-            <User className="w-4 h-4 sm:w-5 sm:h-5" />내 정보
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-3 sm:gap-4 md:grid-cols-2">
-          <div className="space-y-2 sm:space-y-3">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-                <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs sm:text-sm text-gray-500">이름</p>
-                <p className="text-sm sm:text-base text-gray-900 font-medium truncate">
-                  {user.이름}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-                <Package className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs sm:text-sm text-gray-500">기수</p>
-                <p className="text-sm sm:text-base text-gray-900 font-medium truncate">
-                  {user.cohort?.name || "미지정"}
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="space-y-2 sm:space-y-3">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-                <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs sm:text-sm text-gray-500">연락처</p>
-                <p className="text-sm sm:text-base text-gray-900 font-medium truncate">
-                  {user.연락처}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-                <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs sm:text-sm text-gray-500">이메일</p>
-                <p className="text-sm sm:text-base text-gray-900 font-medium truncate">
-                  {user.email}
-                </p>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Quick Stats - 주요 지표 */}
-      <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2">
-        {/* 자료 제출 완료율 */}
-        <Card className="bg-white border border-gray-200 shadow-lg hover:shadow-xl transition-shadow">
-          <CardContent className="p-6 sm:p-8">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center justify-center w-14 h-14 bg-navy-900 rounded-2xl shadow-md">
-                <FileText className="w-7 h-7 text-white" />
-              </div>
-              <div className="text-right">
-                <p className="text-sm font-medium text-gray-600 mb-1">
-                  자료 제출
-                </p>
-                <p className="text-lg font-bold text-navy-700">
-                  {completionPercent}
-                  <span className="text-base">%</span>
-                </p>
-              </div>
-            </div>
-            <Progress value={completionPercent} className="h-3 mb-3" />
-            <p className="text-sm text-gray-600">
-              {completedFields}개 완료 / 전체 {totalFields}개
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Submission Status - 모바일 3열 그리드 */}
-      <Card className="bg-white border-0 shadow-lg">
-        <CardHeader className="p-4 md:p-6 pb-2 md:pb-4">
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 md:gap-4">
-            <div className="space-y-1 md:space-y-2">
-              <CardTitle className="text-lg md:text-2xl lg:text-3xl text-gray-900 font-bold tracking-tight">
-                자료 제출 현황
-              </CardTitle>
-              <CardDescription className="text-xs md:text-base text-gray-600">
-                {completionPercent === 100
-                  ? "모든 자료가 제출되었습니다!"
-                  : "필수 자료를 제출하여 진행을 완료하세요"}
-              </CardDescription>
-            </div>
+        <CardHeader className="p-3 md:p-4 pb-1 md:pb-2">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-sm md:text-base text-gray-900 font-bold">
+              자료 제출 현황
+            </CardTitle>
             <PrintRequestButton
               completionRate={completionPercent}
               hasWorkflows={user.workflows.length > 0}
             />
           </div>
         </CardHeader>
-        <CardContent className="p-4 md:p-6 pt-2">
+        <CardContent className="p-3 md:p-4 pt-1">
           {user.submission ? (
-            <div className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">
+            <div className="grid grid-cols-4 md:grid-cols-4 lg:grid-cols-7 gap-1.5 md:gap-2">
               {[
                 {
                   label: "사업자등록증",
@@ -742,106 +552,30 @@ export default async function UserDashboard() {
                 },
               ].map((item, idx) => {
                 const Icon = item.icon;
-                const sharedClassName = `group relative flex flex-col items-center p-2 md:p-4 rounded-lg md:rounded-xl ${
+                const sharedClassName = `group flex flex-col items-center p-1.5 md:p-2 rounded-lg ${
                   item.value
                     ? "bg-white border border-gray-200"
                     : "bg-gray-50 border border-gray-200 hover:bg-navy-50 hover:border-navy-200 cursor-pointer"
-                } transition-all duration-200 ${!item.value ? "hover:shadow-md" : ""}`;
-
-                const progressRing = item.value ? (
-                  <svg
-                    className="absolute top-1 right-1 md:top-2 md:right-2 w-6 h-6 md:w-8 md:h-8"
-                    viewBox="0 0 36 36"
-                  >
-                    <circle
-                      cx="18"
-                      cy="18"
-                      r="15.5"
-                      fill="none"
-                      stroke="#e5e7eb"
-                      strokeWidth="3"
-                    />
-                    <circle
-                      cx="18"
-                      cy="18"
-                      r="15.5"
-                      fill="none"
-                      stroke="#22c55e"
-                      strokeWidth="3"
-                      strokeDasharray="97.39"
-                      strokeDashoffset="0"
-                      strokeLinecap="round"
-                      transform="rotate(-90 18 18)"
-                    />
-                    <text
-                      x="18"
-                      y="20"
-                      textAnchor="middle"
-                      fontSize="10"
-                      fill="#374151"
-                      fontWeight="bold"
-                    >
-                      ✓
-                    </text>
-                  </svg>
-                ) : (
-                  <svg
-                    className="absolute top-1 right-1 md:top-2 md:right-2 w-6 h-6 md:w-8 md:h-8"
-                    viewBox="0 0 36 36"
-                  >
-                    <circle
-                      cx="18"
-                      cy="18"
-                      r="15.5"
-                      fill="none"
-                      stroke="#e5e7eb"
-                      strokeWidth="3"
-                    />
-                    <circle
-                      cx="18"
-                      cy="18"
-                      r="15.5"
-                      fill="none"
-                      stroke="#b85e52"
-                      strokeWidth="3"
-                      strokeDasharray="97.39"
-                      strokeDashoffset="73.05"
-                      strokeLinecap="round"
-                      transform="rotate(-90 18 18)"
-                    />
-                  </svg>
-                );
+                } transition-all`;
 
                 const content = (
                   <>
-                    {progressRing}
                     <div
-                      className={`flex items-center justify-center w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-xl mb-1.5 md:mb-3 ${
+                      className={`flex items-center justify-center w-6 h-6 md:w-8 md:h-8 rounded-lg mb-1 ${
                         item.value
                           ? "bg-navy-800"
                           : "bg-navy-300 group-hover:bg-navy-900"
                       } transition-colors`}
                     >
-                      <Icon className="w-4 h-4 md:w-6 md:h-6 text-white" />
+                      <Icon className="w-3 h-3 md:w-4 md:h-4 text-white" />
                     </div>
-                    <p className="text-[10px] md:text-sm font-semibold text-gray-900 text-center mb-0.5 md:mb-1 line-clamp-1">
-                      <span className="md:hidden">{item.shortLabel}</span>
-                      <span className="hidden md:inline">{item.label}</span>
+                    <p className="text-[9px] md:text-xs font-semibold text-gray-900 text-center line-clamp-1">
+                      {item.shortLabel}
                     </p>
                     {item.value ? (
-                      <div className="flex items-center gap-0.5 md:gap-1.5 text-ok-600">
-                        <CheckCircle2 className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
-                        <span className="text-[9px] md:text-xs font-medium">
-                          완료
-                        </span>
-                      </div>
+                      <CheckCircle2 className="w-3 h-3 text-ok-600 mt-0.5" />
                     ) : (
-                      <div className="flex items-center gap-0.5 md:gap-1.5 text-terra-500 group-hover:text-navy-600">
-                        <AlertCircle className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
-                        <span className="text-[9px] md:text-xs font-medium">
-                          필요
-                        </span>
-                      </div>
+                      <AlertCircle className="w-3 h-3 text-terra-500 mt-0.5" />
                     )}
                   </>
                 );
@@ -867,14 +601,12 @@ export default async function UserDashboard() {
             </div>
           ) : (
             <Link href="/dashboard/submission?tab=basic" className="block">
-              <div className="text-center py-8 md:py-12 px-4 md:px-6 bg-white rounded-xl md:rounded-2xl border border-gray-200 hover:border-gold-400 hover:shadow-lg transition-all cursor-pointer group">
-                <div className="flex items-center justify-center w-14 h-14 md:w-20 md:h-20 bg-navy-900 rounded-full mx-auto mb-3 md:mb-4 group-hover:scale-110 transition-transform">
-                  <AlertCircle className="w-7 h-7 md:w-10 md:h-10 text-white" />
-                </div>
-                <p className="text-sm md:text-lg font-semibold text-gray-900 mb-1 md:mb-2">
+              <div className="text-center py-6 px-4 bg-white rounded-lg border border-gray-200 hover:border-gold-400 transition-all cursor-pointer group">
+                <AlertCircle className="w-8 h-8 text-navy-600 mx-auto mb-2" />
+                <p className="text-sm font-semibold text-gray-900 mb-1">
                   자료를 아직 제출하지 않으셨어요
                 </p>
-                <p className="text-xs md:text-base text-gold-600 font-medium">
+                <p className="text-xs text-gold-600 font-medium">
                   클릭하여 지금 제출하기 →
                 </p>
               </div>
@@ -883,20 +615,17 @@ export default async function UserDashboard() {
         </CardContent>
       </Card>
 
-      {/* Workflow Status */}
+      {/* Workflow Status — 2열 미니 그리드 */}
       <Card className="bg-white border border-gray-200">
-        <CardHeader>
-          <CardTitle className="text-lg sm:text-xl text-gray-900 flex items-center gap-2">
-            <Package className="w-4 h-4 sm:w-5 sm:h-5" />
+        <CardHeader className="p-3 md:p-4 pb-1 md:pb-2">
+          <CardTitle className="text-sm md:text-base text-gray-900 flex items-center gap-2">
+            <Package className="w-4 h-4" />
             제작 진행 현황
           </CardTitle>
-          <CardDescription className="text-xs sm:text-sm text-gray-600">
-            명찰, 명함, 대봉투, 자문계약서 제작 상태
-          </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-3 md:p-4 pt-0">
           {user.workflows.length > 0 ? (
-            <div className="space-y-2 sm:space-y-3">
+            <div className="grid grid-cols-2 gap-1.5 md:gap-2">
               {user.workflows.map((workflow) => {
                 const statusColor =
                   workflow.status === "완료"
@@ -905,69 +634,31 @@ export default async function UserDashboard() {
                       ? "navy-600"
                       : "navy-300";
 
-                const statusBorderColor =
-                  workflow.status === "완료"
-                    ? "border-ok-600"
-                    : workflow.status === "진행중"
-                      ? "border-navy-600"
-                      : "border-navy-300";
-
                 return (
                   <div
                     key={workflow.id}
-                    className="p-3 sm:p-4 rounded-lg bg-gray-50 border border-gray-200 hover:border-gold-300 transition-all"
+                    className="flex items-center gap-2 p-2 md:p-2.5 rounded-lg bg-gray-50 border border-gray-200"
                   >
-                    <div className="flex items-center justify-between mb-2 sm:mb-3">
-                      <div className="flex items-center gap-2 sm:gap-3">
-                        <div
-                          className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-${statusColor} flex-shrink-0`}
-                        />
-                        <h3 className="font-medium text-gray-900 text-sm sm:text-lg">
-                          {workflow.type}
-                        </h3>
-                      </div>
-                      <Badge
-                        variant="outline"
-                        className={`${statusBorderColor} text-${statusColor} text-xs flex-shrink-0`}
-                      >
-                        {workflow.status}
-                      </Badge>
-                    </div>
-
-                    <div className="grid gap-1.5 sm:gap-2 text-xs sm:text-sm">
-                      {workflow.시안업로드일 && (
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                          <span className="truncate">
-                            시안 업로드: {formatDate(workflow.시안업로드일)}
-                          </span>
-                        </div>
-                      )}
-                      {workflow.발주승인일 && (
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                          <span className="truncate">
-                            발주 승인: {formatDate(workflow.발주승인일)}
-                          </span>
-                        </div>
-                      )}
-                      {workflow.택배회사 && workflow.운송장번호 && (
-                        <div className="flex items-center gap-2 text-gold-600">
-                          <Truck className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                          <span className="truncate">
-                            배송: {workflow.택배회사} ({workflow.운송장번호})
-                          </span>
-                        </div>
-                      )}
-                    </div>
+                    <div
+                      className={`w-2 h-2 rounded-full bg-${statusColor} flex-shrink-0`}
+                    />
+                    <span className="text-xs md:text-sm font-medium text-gray-900 truncate">
+                      {workflow.type}
+                    </span>
+                    <Badge
+                      variant="outline"
+                      className={`ml-auto text-[10px] md:text-xs px-1.5 py-0 border-${statusColor === "ok-600" ? "ok-100" : statusColor === "navy-600" ? "navy-200" : "gray-200"} text-${statusColor} flex-shrink-0`}
+                    >
+                      {workflow.status}
+                    </Badge>
                   </div>
                 );
               })}
             </div>
           ) : (
-            <div className="text-center py-6 sm:py-8">
-              <Clock className="w-10 h-10 sm:w-12 sm:h-12 mx-auto text-gray-400 mb-3" />
-              <p className="text-sm sm:text-base text-gray-500">
+            <div className="text-center py-4">
+              <Clock className="w-8 h-8 mx-auto text-gray-400 mb-2" />
+              <p className="text-xs text-gray-500">
                 워크플로우가 아직 생성되지 않았습니다.
               </p>
             </div>
@@ -975,100 +666,67 @@ export default async function UserDashboard() {
         </CardContent>
       </Card>
 
-      {/* Marketing Support Detail Card */}
+      {/* Marketing Support — 아코디언 (기본 접힘) */}
       {marketingStartDate && marketingEndDate && (
-        <Card className="bg-white border border-gray-200 shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-xl sm:text-2xl text-gray-900 flex items-center gap-2">
-              <Megaphone className="w-5 h-5 sm:w-6 sm:h-6 text-navy-600" />
+        <details className="bg-white border border-gray-200 rounded-lg">
+          <summary className="flex items-center gap-2 p-3 md:p-4 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+            <Megaphone className="w-4 h-4 text-navy-600" />
+            <span className="text-sm md:text-base font-bold text-gray-900 flex-1">
               마케팅 지원 서비스
-            </CardTitle>
-            <CardDescription className="text-sm text-gray-600">
-              교육 기간 동안 제공되는 마케팅 지원 항목 및 기간 관리
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* 지원 기간 */}
-            <div className="bg-white p-5 rounded-xl border border-gray-200">
-              <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-navy-600" />
-                지원 기간
-              </h3>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div>
-                  <p className="text-xs text-gray-600 mb-1">
-                    시작일 (교육시작일)
-                  </p>
-                  <p className="text-base font-bold text-gray-900">
-                    {marketingStartDate.toLocaleDateString("ko-KR")}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-600 mb-1">종료일</p>
-                  <p className="text-base font-bold text-navy-700">
-                    {marketingEndDate.toLocaleDateString("ko-KR")}
-                  </p>
-                </div>
-              </div>
+            </span>
+            {(() => {
+              const now = new Date();
+              const daysRemaining = Math.ceil(
+                (marketingEndDate.getTime() - now.getTime()) /
+                  (1000 * 60 * 60 * 24),
+              );
+              return (
+                <span
+                  className={`text-xs font-semibold px-2 py-0.5 rounded-full ${daysRemaining <= 0 ? "bg-gray-100 text-gray-500" : daysRemaining <= 7 ? "bg-terra-50 text-terra-600" : "bg-navy-50 text-navy-600"}`}
+                >
+                  {daysRemaining <= 0 ? "종료" : `D-${daysRemaining}`}
+                </span>
+              );
+            })()}
+            <span className="text-gray-400 text-xs">▼</span>
+          </summary>
+          <div className="p-3 md:p-4 pt-0 space-y-3">
+            {/* 기간 인라인 */}
+            <div className="flex gap-4 text-xs text-gray-600">
+              <span>
+                시작:{" "}
+                <strong className="text-gray-900">
+                  {marketingStartDate.toLocaleDateString("ko-KR")}
+                </strong>
+              </span>
+              <span>
+                종료:{" "}
+                <strong className="text-navy-700">
+                  {marketingEndDate.toLocaleDateString("ko-KR")}
+                </strong>
+              </span>
             </div>
 
-            {/* 지원 항목 */}
-            <div className="bg-white p-5 rounded-xl border border-gray-200">
-              <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Package className="w-4 h-4 text-navy-600" />
-                지원 항목
-              </h3>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {[
-                  {
-                    icon: BarChart3,
-                    label: "Meta 광고 게재 지원",
-                    iconBg: "bg-gray-100",
-                    iconColor: "text-gray-600",
-                  },
-                  {
-                    icon: Database,
-                    label: "잠재고객 접수 자동화",
-                    iconBg: "bg-gray-100",
-                    iconColor: "text-gray-600",
-                  },
-                  {
-                    icon: Bell,
-                    label: "실시간 DB 접수 알림",
-                    iconBg: "bg-gray-100",
-                    iconColor: "text-gray-600",
-                  },
-                  {
-                    icon: MessageSquare,
-                    label: "고객 안내 SMS 발송",
-                    iconBg: "bg-gray-100",
-                    iconColor: "text-gray-600",
-                  },
-                  {
-                    icon: Sheet,
-                    label: "고객 DB 시트 저장",
-                    iconBg: "bg-gray-100",
-                    iconColor: "text-gray-600",
-                  },
-                ].map((item, idx) => {
-                  const Icon = item.icon;
-                  return (
-                    <div
-                      key={idx}
-                      className="flex items-center gap-3 p-3 rounded-lg bg-white border border-gray-200"
-                    >
-                      <div
-                        className={`flex items-center justify-center w-10 h-10 rounded-lg ${item.iconBg} flex-shrink-0`}
-                      >
-                        <Icon className={`w-5 h-5 ${item.iconColor}`} />
-                      </div>
-                      <p className="text-sm font-medium text-gray-900">
-                        {item.label}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
+            {/* 지원 항목 - 컴팩트 */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-1.5">
+              {[
+                { icon: BarChart3, label: "Meta 광고" },
+                { icon: Database, label: "잠재고객 접수" },
+                { icon: Bell, label: "DB 알림" },
+                { icon: MessageSquare, label: "SMS 발송" },
+                { icon: Sheet, label: "DB 시트 저장" },
+              ].map((item, idx) => {
+                const Icon = item.icon;
+                return (
+                  <div
+                    key={idx}
+                    className="flex items-center gap-2 p-2 rounded bg-gray-50 border border-gray-200"
+                  >
+                    <Icon className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />
+                    <span className="text-xs text-gray-700">{item.label}</span>
+                  </div>
+                );
+              })}
             </div>
 
             {/* 연장 신청 */}
@@ -1082,66 +740,31 @@ export default async function UserDashboard() {
                 (req) => req.status === "pending",
               );
 
-              // Calculate new end date (current + 3 months)
-              const newEndDate = new Date(marketingEndDate);
-              newEndDate.setMonth(newEndDate.getMonth() + 3);
+              if (hasPendingRequest) {
+                return (
+                  <div className="flex items-center gap-2 p-2 bg-gold-50 border border-gold-200 rounded-lg text-xs text-gold-700">
+                    <Clock className="w-3.5 h-3.5" />
+                    연장 신청 검토 중
+                  </div>
+                );
+              }
 
               return (
-                <div className="bg-white p-5 rounded-xl border border-gray-200">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-navy-600" />
-                    기간 연장
-                  </h3>
-
-                  {hasPendingRequest ? (
-                    <div className="bg-white p-4 rounded-lg border border-gray-200">
-                      <div className="flex items-start gap-3">
-                        <Clock className="w-5 h-5 text-gold-600 flex-shrink-0 mt-0.5" />
-                        <div>
-                          <p className="text-sm font-semibold text-navy-900 mb-1">
-                            연장 신청 검토 중
-                          </p>
-                          <p className="text-xs text-navy-800">
-                            관리자가 검토 중입니다. 승인 시 알림을 보내드립니다.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col gap-4">
-                      <div className="flex items-center justify-between p-4 bg-navy-50 rounded-lg border border-navy-200">
-                        <div>
-                          <p className="text-xs text-gray-600 mb-1">
-                            현재 남은 기간
-                          </p>
-                          <p
-                            className={`text-2xl font-bold ${daysRemaining <= 7 ? "text-terra-500" : daysRemaining <= 30 ? "text-terra-500" : "text-navy-600"}`}
-                          >
-                            {daysRemaining > 0
-                              ? `${daysRemaining}일`
-                              : "종료됨"}
-                          </p>
-                        </div>
-                        <MarketingExtensionDialog
-                          currentEndDate={marketingEndDate}
-                        />
-                      </div>
-                      <div className="text-xs text-gray-600 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <p className="font-medium text-gray-900 mb-1">
-                          연장 안내
-                        </p>
-                        <p>
-                          3/6/12개월 단위로 연장이 가능하며, 장기 결제 시 할인
-                          혜택이 적용됩니다.
-                        </p>
-                      </div>
-                    </div>
-                  )}
+                <div className="flex items-center justify-between p-2 bg-navy-50 rounded-lg border border-navy-200">
+                  <div className="text-xs">
+                    <span className="text-gray-600">남은 기간: </span>
+                    <span
+                      className={`font-bold ${daysRemaining <= 7 ? "text-terra-500" : "text-navy-600"}`}
+                    >
+                      {daysRemaining > 0 ? `${daysRemaining}일` : "종료됨"}
+                    </span>
+                  </div>
+                  <MarketingExtensionDialog currentEndDate={marketingEndDate} />
                 </div>
               );
             })()}
-          </CardContent>
-        </Card>
+          </div>
+        </details>
       )}
 
       {/* 모바일 플로팅 액션 버튼 - 자료 제출 바로가기 */}

@@ -107,7 +107,7 @@ export default function GuidesPage() {
     <div className="space-y-4 md:space-y-6 px-4 md:px-0">
       {/* Header */}
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1 md:mb-2">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-1 md:mb-2">
           가이드
         </h1>
         <p className="text-sm md:text-base text-gray-600">
@@ -120,7 +120,7 @@ export default function GuidesPage() {
         href="https://booking.naver.com/booking/5/bizes/1304508/items/6516411"
         target="_blank"
         rel="noopener noreferrer"
-        className="block w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg px-4 py-3 transition-all shadow-md hover:shadow-lg"
+        className="block w-full bg-green-600 hover:bg-green-700 text-white rounded-lg px-4 py-3 transition-all shadow-md hover:shadow-lg"
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -202,7 +202,7 @@ export default function GuidesPage() {
         {/* 텔레그램 가이드 */}
         <TabsContent value="telegram">
           <Card className="bg-white border border-gray-200">
-            <CardHeader className="p-4 md:p-6">
+            <CardHeader className="p-3 md:p-4">
               <CardTitle className="text-lg md:text-xl text-gray-900 flex items-center gap-2">
                 <MessageSquare className="w-4 h-4 md:w-5 md:h-5" />
                 텔레그램 설정 가이드
@@ -211,7 +211,7 @@ export default function GuidesPage() {
                 고객 상담 알림을 받기 위한 텔레그램 설정 방법
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3 md:space-y-4 text-gray-700 p-4 md:p-6 pt-0 md:pt-0">
+            <CardContent className="space-y-3 md:space-y-4 text-gray-700 p-3 md:p-4 pt-0 md:pt-0">
               <div>
                 <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-1.5 md:mb-2">
                   1. 텔레그램 설치
@@ -258,7 +258,7 @@ export default function GuidesPage() {
         {/* SMS 발신 가이드 */}
         <TabsContent value="sms">
           <Card className="bg-white border border-gray-200">
-            <CardHeader className="p-4 md:p-6">
+            <CardHeader className="p-3 md:p-4">
               <CardTitle className="text-lg md:text-xl text-gray-900 flex items-center gap-2">
                 <Mail className="w-4 h-4 md:w-5 md:h-5" />
                 SMS 발신 등록 가이드
@@ -267,7 +267,7 @@ export default function GuidesPage() {
                 고객에게 문자 발송을 위한 필수 서류 안내
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3 md:space-y-4 p-4 md:p-6 pt-0 md:pt-0">
+            <CardContent className="space-y-3 md:space-y-4 p-3 md:p-4 pt-0 md:pt-0">
               <div>
                 <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-2 md:mb-3">
                   📋 필요 서류
@@ -348,7 +348,7 @@ export default function GuidesPage() {
         {/* 메타 결제 가이드 */}
         <TabsContent value="meta">
           <Card className="bg-white border border-gray-200">
-            <CardHeader className="p-4 md:p-6">
+            <CardHeader className="p-3 md:p-4">
               <CardTitle className="text-lg md:text-xl text-gray-900 flex items-center gap-2">
                 <CreditCard className="w-4 h-4 md:w-5 md:h-5" />
                 메타 광고 결제 안내
@@ -357,7 +357,7 @@ export default function GuidesPage() {
                 메타(페이스북/인스타그램) 광고 결제 방식 안내
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3 md:space-y-4 p-4 md:p-6 pt-0 md:pt-0">
+            <CardContent className="space-y-3 md:space-y-4 p-3 md:p-4 pt-0 md:pt-0">
               <div>
                 <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-2 md:mb-3">
                   💳 결제 패턴
@@ -405,13 +405,13 @@ export default function GuidesPage() {
         {/* 아임웹 가이드 */}
         <TabsContent value="imweb">
           <Card className="bg-white border border-gray-200">
-            <CardHeader className="p-4 md:p-6">
+            <CardHeader className="p-3 md:p-4">
               <CardTitle className="text-lg md:text-xl text-gray-900 flex items-center gap-2">
                 <Globe className="w-4 h-4 md:w-5 md:h-5" />
                 아임웹 사용 가이드
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 md:space-y-4 p-4 md:p-6 pt-0 md:pt-0">
+            <CardContent className="space-y-3 md:space-y-4 p-3 md:p-4 pt-0 md:pt-0">
               <div>
                 <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-2 md:mb-3">
                   ✍️ 게시글 등록 방법
@@ -683,7 +683,7 @@ export default function GuidesPage() {
         {/* Meta 광고관리자 초대 가이드 */}
         <TabsContent value="meta-admin">
           <Card className="bg-white border border-gray-200">
-            <CardHeader className="p-4 md:p-6">
+            <CardHeader className="p-3 md:p-4">
               <CardTitle className="text-lg md:text-xl text-gray-900 flex items-center gap-2">
                 <UserPlus className="w-4 h-4 md:w-5 md:h-5" />
                 Meta 광고관리자 초대 안내
@@ -692,7 +692,7 @@ export default function GuidesPage() {
                 Meta 광고 계정에 관리자 권한 부여 방법
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3 md:space-y-4 p-4 md:p-6 pt-0 md:pt-0">
+            <CardContent className="space-y-3 md:space-y-4 p-3 md:p-4 pt-0 md:pt-0">
               <div>
                 <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-2 md:mb-3">
                   👥 관리자 초대 절차
@@ -746,7 +746,7 @@ export default function GuidesPage() {
         {/* Instagram PC 로그인 가이드 */}
         <TabsContent value="instagram">
           <Card className="bg-white border border-gray-200">
-            <CardHeader className="p-4 md:p-6">
+            <CardHeader className="p-3 md:p-4">
               <CardTitle className="text-lg md:text-xl text-gray-900 flex items-center gap-2">
                 <Instagram className="w-4 h-4 md:w-5 md:h-5" />
                 Instagram PC 로그인 오류 해결
@@ -755,7 +755,7 @@ export default function GuidesPage() {
                 PC에서 Instagram 접속 시 비밀번호 오류 해결 방법
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3 md:space-y-4 p-4 md:p-6 pt-0 md:pt-0">
+            <CardContent className="space-y-3 md:space-y-4 p-3 md:p-4 pt-0 md:pt-0">
               <div className="bg-white border border-gray-200 rounded-lg p-3 md:p-4 mb-3 md:mb-4">
                 <p className="text-xs md:text-sm text-gray-700 font-semibold mb-1.5 md:mb-2">
                   ⚠️ 반드시 다음 과정으로 진행하세요!
@@ -805,7 +805,7 @@ export default function GuidesPage() {
         {/* 로고 제작 가이드 */}
         <TabsContent value="logo">
           <Card className="bg-white border border-gray-200">
-            <CardHeader className="p-4 md:p-6">
+            <CardHeader className="p-3 md:p-4">
               <CardTitle className="text-lg md:text-xl text-gray-900 flex items-center gap-2">
                 <Palette className="w-4 h-4 md:w-5 md:h-5" />
                 로고 제작 가이드
@@ -814,7 +814,7 @@ export default function GuidesPage() {
                 로고 제작 요청 방법 및 추천 사이트 안내
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3 md:space-y-4 p-4 md:p-6 pt-0 md:pt-0">
+            <CardContent className="space-y-3 md:space-y-4 p-3 md:p-4 pt-0 md:pt-0">
               <div>
                 <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-2 md:mb-3">
                   📋 로고 제작 방법
@@ -940,7 +940,7 @@ export default function GuidesPage() {
         {/* AI 활용 팁 */}
         <TabsContent value="ai-tips">
           <Card className="bg-white border border-gray-200">
-            <CardHeader className="p-4 md:p-6">
+            <CardHeader className="p-3 md:p-4">
               <CardTitle className="text-lg md:text-xl text-gray-900 flex items-center gap-2">
                 <Sparkles className="w-4 h-4 md:w-5 md:h-5" />
                 AI 활용 무료 팁
@@ -949,8 +949,8 @@ export default function GuidesPage() {
                 Google AI Studio로 무료로 강력한 AI 기능 사용하기
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3 md:space-y-4 p-4 md:p-6 pt-0 md:pt-0">
-              <div className="bg-white border border-gray-200 rounded-xl p-4 md:p-6">
+            <CardContent className="space-y-3 md:space-y-4 p-3 md:p-4 pt-0 md:pt-0">
+              <div className="bg-white border border-gray-200 rounded-xl p-3 md:p-4">
                 <h3 className="text-purple-700 font-bold text-base md:text-lg mb-2 md:mb-3 flex items-center gap-2">
                   <Sparkles className="w-4 h-4 md:w-5 md:h-5" />
                   Google AI Studio 무료 사용법
@@ -1028,7 +1028,7 @@ export default function GuidesPage() {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 md:gap-3">
-                      <div className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-navy-900 to-navy-700 rounded-xl shadow-md">
+                      <div className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 bg-navy-900 rounded-xl shadow-md">
                         <BookOpen className="w-5 h-5 md:w-6 md:h-6 text-white" />
                       </div>
                       <div>
@@ -1061,7 +1061,7 @@ export default function GuidesPage() {
         {/* 인쇄물 발주 가이드 */}
         <TabsContent value="design">
           <Card className="bg-white border border-gray-200">
-            <CardHeader className="p-4 md:p-6">
+            <CardHeader className="p-3 md:p-4">
               <CardTitle className="text-lg md:text-xl text-gray-900 flex items-center gap-2">
                 <FileText className="w-4 h-4 md:w-5 md:h-5" />
                 인쇄물 발주 안내
@@ -1070,7 +1070,7 @@ export default function GuidesPage() {
                 인쇄물 시안 검토 및 발주 시 주의사항
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3 md:space-y-4 p-4 md:p-6 pt-0 md:pt-0">
+            <CardContent className="space-y-3 md:space-y-4 p-3 md:p-4 pt-0 md:pt-0">
               {/* 인쇄물 디자인 제한 안내 */}
               <div className="bg-white border border-gray-200 rounded-lg p-3 md:p-4">
                 <h3 className="text-sm md:text-base text-navy-900 font-bold mb-2 md:mb-3 flex items-center gap-2">
@@ -1345,7 +1345,7 @@ export default function GuidesPage() {
         {/* 영상제작 가이드 */}
         <TabsContent value="video">
           <Card className="bg-white border border-gray-200">
-            <CardHeader className="p-4 md:p-6">
+            <CardHeader className="p-3 md:p-4">
               <CardTitle className="text-lg md:text-xl text-gray-900 flex items-center gap-2">
                 <Video className="w-4 h-4 md:w-5 md:h-5" />
                 정책자금 광고 영상 제작 가이드
@@ -1354,7 +1354,7 @@ export default function GuidesPage() {
                 승인율 높이고, 전환 극대화하는 영상 제작 전략
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4 md:space-y-6 p-4 md:p-6 pt-0 md:pt-0">
+            <CardContent className="space-y-4 md:space-y-6 p-3 md:p-4 pt-0 md:pt-0">
               {/* 핵심 요약 */}
               <div>
                 <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-3 md:mb-4 flex items-center gap-2">

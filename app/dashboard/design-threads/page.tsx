@@ -498,17 +498,17 @@ export default function UserDesignThreadsPage() {
     >
       {/* 헤더 - 모바일 상세뷰에서는 숨김 */}
       {(!isMobile || !selectedThread) && (
-        <div className="space-y-6 mb-6">
+        <div className="space-y-4 mb-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+              <h1 className="text-xl md:text-2xl font-bold text-gray-900">
                 시안 확인
               </h1>
               <p className="text-gray-600 mt-1 md:mt-2 text-sm md:text-base">
                 시안 확인 및 피드백
               </p>
             </div>
-            <Palette className="w-6 h-6 md:w-8 md:h-8 text-purple-600" />
+            <Palette className="w-5 h-5 md:w-6 md:h-6 text-purple-600" />
           </div>
 
           {/* 안내 - 모바일에서 축소 */}
@@ -539,7 +539,7 @@ export default function UserDesignThreadsPage() {
       )}
 
       <div
-        className={`grid grid-cols-1 lg:grid-cols-3 gap-6 ${isMobile && selectedThread ? "h-full" : ""}`}
+        className={`grid grid-cols-1 lg:grid-cols-3 gap-4 ${isMobile && selectedThread ? "h-full" : ""}`}
       >
         {/* 스레드 목록 */}
         <Card
@@ -691,7 +691,7 @@ export default function UserDesignThreadsPage() {
               {/* 새 메시지 알림 */}
               {newMessageAlert && (
                 <div className="sticky top-0 z-10 mx-3 sm:mx-6 mt-3">
-                  <div className="bg-purple-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center justify-between animate-bounce">
+                  <div className="bg-purple-600 text-white px-4 py-2 rounded-lg shadow-md flex items-center justify-between animate-bounce">
                     <span className="text-sm font-medium">
                       새 메시지가 도착했습니다
                     </span>
@@ -707,7 +707,7 @@ export default function UserDesignThreadsPage() {
 
               {/* 메시지 목록 */}
               <CardContent
-                className={`flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 bg-gray-50 ${isMobile ? "pb-40" : ""}`}
+                className={`flex-1 overflow-y-auto p-3 sm:p-4 space-y-4 bg-gray-50 ${isMobile ? "pb-40" : ""}`}
               >
                 {groupMessagesByDate(selectedThread.messages).map(
                   (item, groupIndex) => {
