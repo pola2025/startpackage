@@ -1073,7 +1073,7 @@ export default function SubmissionPage() {
               <form
                 key={`logo-${submission?.로고선호스타일}-${isEditingLogo}`}
                 onSubmit={(e) => handleSubmit(e, "logo")}
-                className="space-y-5"
+                className="space-y-5 max-w-2xl mx-auto"
               >
                 {/* Step 1: 로고 파일 업로드 */}
                 <div>
@@ -1370,15 +1370,6 @@ export default function SubmissionPage() {
                     </span>
                   </div>
                   <div className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
-                    {/* Layer 3: 경고 (유일한 1개) */}
-                    <div className="bg-red-50 border border-red-300 rounded-md p-2.5 text-xs text-red-900">
-                      ⚠️ 로고 제작은{" "}
-                      <span className="font-bold underline">
-                        심볼형 OR 워드마크형 중 한 가지만
-                      </span>{" "}
-                      선택 가능합니다.
-                    </div>
-
                     <p className="text-xs text-gray-500">
                       이 항목을 작성해야 로고 제작이 시작됩니다.
                     </p>
@@ -1389,7 +1380,7 @@ export default function SubmissionPage() {
                       rows={6}
                       defaultValue={submission?.로고제작요청사항}
                       disabled={submission?.isComplete || !isEditingLogo}
-                      placeholder="여기에 구체적인 요청사항을 작성해주세요..."
+                      placeholder="⚠️ '고급스럽게, 예쁘게, 깔끔하게, 알아서' 등 모호한 표현은 구현 불가합니다.&#10;&#10;여기에 구체적인 요청사항을 작성해주세요...&#10;예) 심볼형 선택, 파란색 계열(#2563EB), 산세리프체, 원형 프레임"
                       className="w-full p-3 rounded-lg border border-gray-300 focus:border-gold-500 focus:ring-2 focus:ring-gold-200 resize-none disabled:opacity-50 disabled:cursor-not-allowed text-sm placeholder:text-gray-400"
                     />
 
@@ -1503,6 +1494,15 @@ export default function SubmissionPage() {
                         </div>
                       </div>
                     </details>
+
+                    {/* Layer 3: 경고 — 아코디언 아래 */}
+                    <div className="bg-red-50 border border-red-300 rounded-md p-2.5 text-xs text-red-900">
+                      ⚠️ 로고 제작은{" "}
+                      <span className="font-bold underline">
+                        심볼형 OR 워드마크형 중 한 가지만
+                      </span>{" "}
+                      선택 가능합니다.
+                    </div>
                   </div>
                 </div>
 
@@ -1539,7 +1539,7 @@ export default function SubmissionPage() {
 
         {/* 인쇄물 */}
         <TabsContent value="print">
-          <div className="space-y-5">
+          <div className="space-y-5 max-w-2xl mx-auto">
             {/* Layer 2: 안내 (약한 존재감) */}
             <div className="bg-gray-50 rounded-md p-2.5 text-xs text-gray-500">
               📋 인쇄물 디자인 안내: 기본 디자인에서 일부 변경만 가능합니다.
