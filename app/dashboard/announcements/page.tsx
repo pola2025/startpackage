@@ -4,7 +4,17 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Megaphone, Bell, BellOff, Settings, X, ArrowLeft, Youtube, CreditCard, ExternalLink } from "lucide-react";
+import {
+  Megaphone,
+  Bell,
+  BellOff,
+  Settings,
+  X,
+  ArrowLeft,
+  Youtube,
+  CreditCard,
+  ExternalLink,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -34,7 +44,8 @@ export default function UserAnnouncementsPage() {
   const { data: session } = useSession();
   const isMobile = useIsMobile();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-  const [selectedAnnouncement, setSelectedAnnouncement] = useState<Announcement | null>(null);
+  const [selectedAnnouncement, setSelectedAnnouncement] =
+    useState<Announcement | null>(null);
   const [loading, setLoading] = useState(true);
   const [emailEnabled, setEmailEnabled] = useState(true);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -61,7 +72,7 @@ export default function UserAnnouncementsPage() {
 
   const fetchUserSettings = async () => {
     try {
-      const user = (session?.user as any);
+      const user = session?.user as any;
       if (user?.공지사항이메일수신 !== undefined) {
         setEmailEnabled(user.공지사항이메일수신);
       }
@@ -88,7 +99,7 @@ export default function UserAnnouncementsPage() {
         alert(
           emailEnabled
             ? "이메일 수신을 해제했습니다"
-            : "이메일 수신을 설정했습니다"
+            : "이메일 수신을 설정했습니다",
         );
         setIsSettingsOpen(false);
         // 세션 새로고침
@@ -127,7 +138,9 @@ export default function UserAnnouncementsPage() {
 
   const extractYoutubeId = (url: string) => {
     if (!url) return null;
-    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
+    const match = url.match(
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/,
+    );
     return match ? match[1] : null;
   };
 
@@ -146,7 +159,7 @@ export default function UserAnnouncementsPage() {
       : null;
 
     return (
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="space-y-6">
         <Button
           variant="outline"
           onClick={() => setSelectedAnnouncement(null)}
@@ -171,21 +184,25 @@ export default function UserAnnouncementsPage() {
             </div>
 
             {/* 이미지 갤러리 */}
-            {selectedAnnouncement.imageUrls && selectedAnnouncement.imageUrls.length > 0 && (
-              <div className="space-y-4 mb-6">
-                {selectedAnnouncement.imageUrls.map((imageUrl, index) => (
-                  <div key={index} className="relative w-full rounded-lg overflow-hidden">
-                    <Image
-                      src={imageUrl}
-                      alt={`${selectedAnnouncement.title} - 이미지 ${index + 1}`}
-                      width={1200}
-                      height={800}
-                      className="w-full h-auto"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
+            {selectedAnnouncement.imageUrls &&
+              selectedAnnouncement.imageUrls.length > 0 && (
+                <div className="space-y-4 mb-6">
+                  {selectedAnnouncement.imageUrls.map((imageUrl, index) => (
+                    <div
+                      key={index}
+                      className="relative w-full rounded-lg overflow-hidden"
+                    >
+                      <Image
+                        src={imageUrl}
+                        alt={`${selectedAnnouncement.title} - 이미지 ${index + 1}`}
+                        width={1200}
+                        height={800}
+                        className="w-full h-auto"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
 
             {/* 내용 */}
             <div className="prose prose-lg max-w-none mb-6">
@@ -223,7 +240,7 @@ export default function UserAnnouncementsPage() {
 
   // 목록 모드
   return (
-    <div className="max-w-6xl mx-auto space-y-4 md:space-y-6 px-4 md:px-0">
+    <div className="space-y-4 md:space-y-6">
       {/* 헤더 - 모바일에서 스택 레이아웃 */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-0">
         <div>
@@ -314,7 +331,9 @@ export default function UserAnnouncementsPage() {
                 </a>
                 <div className="bg-gold-100 border border-gold-300 rounded-lg p-2.5 md:p-3">
                   <p className="text-xs text-navy-900">
-                    <strong>💡 충전 방법:</strong> 위 버튼을 클릭하여 네이버 검색광고 관리 페이지로 이동 → <strong>충전하기</strong> 버튼 클릭
+                    <strong>💡 충전 방법:</strong> 위 버튼을 클릭하여 네이버
+                    검색광고 관리 페이지로 이동 → <strong>충전하기</strong> 버튼
+                    클릭
                   </p>
                 </div>
               </div>
@@ -323,71 +342,66 @@ export default function UserAnnouncementsPage() {
         </CardContent>
       </Card>
 
-      {/* 게시판 리스트 - 모바일 1열, 태블릿 2열, 데스크탑 3열 */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+      {/* 게시판 리스트 - 목록형 */}
+      <div className="space-y-3">
         {announcements.length === 0 ? (
-          <div className="col-span-full">
-            <Card>
-              <CardContent className="text-center py-12 text-gray-500">
-                아직 작성된 공지사항이 없습니다
-              </CardContent>
-            </Card>
-          </div>
+          <Card>
+            <CardContent className="text-center py-12 text-gray-500">
+              아직 작성된 공지사항이 없습니다
+            </CardContent>
+          </Card>
         ) : (
-          announcements.map((announcement) => (
-            <Card
-              key={announcement.id}
-              className="cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden"
-              onClick={() => setSelectedAnnouncement(announcement)}
-            >
-              {/* 썸네일 이미지 */}
-              {announcement.imageUrls && announcement.imageUrls.length > 0 ? (
-                <div className="relative w-full aspect-square bg-gray-100">
-                  <Image
-                    src={announcement.imageUrls[0]}
-                    alt={announcement.title}
-                    fill
-                    className="object-cover"
-                  />
-                  {announcement.imageUrls.length > 1 && (
-                    <div className="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs font-medium">
-                      +{announcement.imageUrls.length - 1}
+          <Card className="divide-y">
+            {announcements.map((announcement) => (
+              <div
+                key={announcement.id}
+                className="flex items-start gap-3 md:gap-4 p-3 md:p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+                onClick={() => setSelectedAnnouncement(announcement)}
+              >
+                {/* 썸네일 */}
+                <div className="w-16 h-16 md:w-20 md:h-20 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
+                  {announcement.imageUrls &&
+                  announcement.imageUrls.length > 0 ? (
+                    <Image
+                      src={announcement.imageUrls[0]}
+                      alt={announcement.title}
+                      width={80}
+                      height={80}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-red-50 to-orange-50">
+                      <Megaphone className="w-6 h-6 text-red-300" />
                     </div>
                   )}
                 </div>
-              ) : (
-                <div className="w-full aspect-square bg-gradient-to-br from-red-50 via-pink-50 to-orange-50 flex items-center justify-center">
-                  <Megaphone className="w-16 h-16 text-red-300" />
-                </div>
-              )}
-
-              <CardContent className="p-4">
-                {/* 제목 */}
-                <h3 className="font-bold text-lg text-gray-900 line-clamp-2 mb-2 hover:text-red-600 transition-colors">
-                  {announcement.title}
-                </h3>
-
-                {/* 내용 미리보기 */}
-                <p className="text-sm text-gray-600 line-clamp-3 mb-3">
-                  {announcement.content}
-                </p>
-
-                {/* 유튜브 태그 */}
-                {announcement.youtubeUrl && (
-                  <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-100 text-red-700 text-xs font-medium mb-3">
-                    <Youtube className="w-3 h-3" />
-                    영상 포함
+                {/* 내용 */}
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-sm md:text-base text-gray-900 line-clamp-1 mb-1">
+                    {announcement.title}
+                  </h3>
+                  <p className="text-xs md:text-sm text-gray-500 line-clamp-2 mb-2">
+                    {announcement.content}
+                  </p>
+                  <div className="flex items-center gap-2 text-xs text-gray-400">
+                    <span>{formatDate(announcement.createdAt)}</span>
+                    {announcement.youtubeUrl && (
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-red-100 text-red-600 text-[10px] font-medium">
+                        <Youtube className="w-2.5 h-2.5" />
+                        영상
+                      </span>
+                    )}
+                    {announcement.imageUrls &&
+                      announcement.imageUrls.length > 1 && (
+                        <span className="text-gray-400">
+                          +{announcement.imageUrls.length - 1} 이미지
+                        </span>
+                      )}
                   </div>
-                )}
-
-                {/* 날짜 */}
-                <div className="flex items-center justify-between text-xs text-gray-500 pt-3 border-t">
-                  <span>{formatDate(announcement.createdAt)}</span>
-                  <span className="text-red-600 font-medium">자세히 보기 →</span>
                 </div>
-              </CardContent>
-            </Card>
-          ))
+              </div>
+            ))}
+          </Card>
         )}
       </div>
 
@@ -433,8 +447,8 @@ export default function UserAnnouncementsPage() {
               {updating
                 ? "처리 중..."
                 : emailEnabled
-                ? "이메일 수신 해제"
-                : "이메일 수신 설정"}
+                  ? "이메일 수신 해제"
+                  : "이메일 수신 설정"}
             </Button>
             <Button
               variant="outline"
@@ -497,8 +511,8 @@ export default function UserAnnouncementsPage() {
                 {updating
                   ? "처리 중..."
                   : emailEnabled
-                  ? "이메일 수신 해제"
-                  : "이메일 수신 설정"}
+                    ? "이메일 수신 해제"
+                    : "이메일 수신 설정"}
               </Button>
             </DialogFooter>
           </DialogContent>

@@ -24,7 +24,7 @@ import {
 
 export default function MetaAdsPage() {
   return (
-    <div className="space-y-4 md:space-y-6 max-w-7xl mx-auto px-4 md:px-0">
+    <div className="space-y-4 md:space-y-6">
       {/* 헤더 */}
       <div>
         <div className="flex items-center gap-2 md:gap-3 mb-1 md:mb-2">

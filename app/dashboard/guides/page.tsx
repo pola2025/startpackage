@@ -104,10 +104,11 @@ export default function GuidesPage() {
   };
 
   return (
-    <div className="space-y-4 md:space-y-6 px-4 md:px-0">
+    <div className="space-y-4 md:space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-1 md:mb-2">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-2 mb-1 md:mb-2">
+          <BookOpen className="w-5 h-5 md:w-6 md:h-6 text-navy-900" />
           가이드
         </h1>
         <p className="text-sm md:text-base text-gray-600">

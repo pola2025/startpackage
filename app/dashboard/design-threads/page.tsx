@@ -501,21 +501,29 @@ export default function UserDesignThreadsPage() {
         <div className="space-y-4 mb-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-xl md:text-2xl font-bold text-gray-900">
+              <h1 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <Palette className="w-5 h-5 md:w-6 md:h-6 text-navy-900" />
                 시안 확인
               </h1>
               <p className="text-gray-600 mt-1 md:mt-2 text-sm md:text-base">
                 시안 확인 및 피드백
               </p>
             </div>
-            <Palette className="w-5 h-5 md:w-6 md:h-6 text-purple-600" />
           </div>
 
-          {/* 안내 - 모바일에서 축소 */}
-          <Alert className="bg-purple-50 border-purple-200">
-            <AlertDescription className="text-sm text-gray-700 space-y-1">
-              <p className="font-semibold text-purple-900">시안 확인 안내</p>
-              <ul className="space-y-1 mt-2 text-xs md:text-sm">
+          {/* 안내 - 아코디언으로 압축 */}
+          <details className="group">
+            <summary className="cursor-pointer text-sm font-medium text-gray-700 p-3 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-purple-600" />
+                시안 확인 안내
+              </span>
+              <span className="text-gray-400 text-xs group-open:hidden">
+                펼치기
+              </span>
+            </summary>
+            <div className="p-3 bg-gray-50 border border-gray-200 border-t-0 rounded-b-lg">
+              <ul className="space-y-1 text-xs md:text-sm text-gray-700">
                 <li>
                   •{" "}
                   <span className="font-medium text-purple-800">
@@ -533,8 +541,8 @@ export default function UserDesignThreadsPage() {
                   • 시안 확정 후에는 변경이 어려우니 신중하게 확인해주세요.
                 </li>
               </ul>
-            </AlertDescription>
-          </Alert>
+            </div>
+          </details>
         </div>
       )}
 

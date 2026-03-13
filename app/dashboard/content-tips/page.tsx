@@ -5,7 +5,16 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Lightbulb, Bell, BellOff, Settings, ExternalLink, Youtube, Globe, ChevronRight } from "lucide-react";
+import {
+  Lightbulb,
+  Bell,
+  BellOff,
+  Settings,
+  ExternalLink,
+  Youtube,
+  Globe,
+  ChevronRight,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -98,7 +107,7 @@ export default function UserContentTipsPage() {
 
   const fetchUserSettings = async () => {
     try {
-      const user = (session?.user as any);
+      const user = session?.user as any;
       if (user?.콘텐츠팁이메일수신 !== undefined) {
         setEmailEnabled(user.콘텐츠팁이메일수신);
       }
@@ -125,7 +134,7 @@ export default function UserContentTipsPage() {
         alert(
           emailEnabled
             ? "이메일 수신을 해제했습니다"
-            : "이메일 수신을 설정했습니다"
+            : "이메일 수신을 설정했습니다",
         );
         setIsSettingsOpen(false);
         window.location.reload();
@@ -163,7 +172,9 @@ export default function UserContentTipsPage() {
 
   const extractYoutubeId = (url: string) => {
     if (!url) return null;
-    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
+    const match = url.match(
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/,
+    );
     return match ? match[1] : null;
   };
 
@@ -195,7 +206,7 @@ export default function UserContentTipsPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-4 md:space-y-6 px-4 md:px-0">
+    <div className="space-y-4 md:space-y-6">
       {/* 헤더 - 모바일 스택 */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-0">
         <div>
@@ -266,13 +277,18 @@ export default function UserContentTipsPage() {
           const total = categoryCounts[totalKey] || 0;
 
           return (
-            <div key={categoryId} className={`rounded-lg p-4 md:p-6 ${category.color.bg} border-2 ${category.color.border}`}>
+            <div
+              key={categoryId}
+              className={`rounded-lg p-4 md:p-6 ${category.color.bg} border-2 ${category.color.border}`}
+            >
               {/* 섹션 헤더 - 모바일 최적화 */}
               <div className="flex items-center justify-between mb-4 md:mb-6">
                 <div className="flex items-center gap-2 md:gap-3">
                   <span className="text-2xl md:text-3xl">{category.icon}</span>
                   <div>
-                    <h2 className={`text-lg md:text-2xl font-bold ${category.color.text}`}>
+                    <h2
+                      className={`text-lg md:text-2xl font-bold ${category.color.text}`}
+                    >
                       {category.name}
                     </h2>
                     <p className="text-xs md:text-sm text-gray-600 mt-0.5 md:mt-1">
@@ -281,12 +297,14 @@ export default function UserContentTipsPage() {
                   </div>
                 </div>
                 {/* 더보기 버튼 - 인스타그램: 12개 초과, 나머지: 8개 초과 */}
-                {((categoryId === 'instagram' && total > 12) ||
-                  (categoryId !== 'instagram' && total > 8)) && (
+                {((categoryId === "instagram" && total > 12) ||
+                  (categoryId !== "instagram" && total > 8)) && (
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => router.push(`/dashboard/content-tips/${categoryId}`)}
+                    onClick={() =>
+                      router.push(`/dashboard/content-tips/${categoryId}`)
+                    }
                     className={`${category.color.text} border-current hover:bg-white/50 text-xs md:text-sm px-2 md:px-3`}
                   >
                     더보기
@@ -317,7 +335,9 @@ export default function UserContentTipsPage() {
                           return thumbnailUrl ? (
                             <div
                               className="relative w-full aspect-video bg-gray-100 bg-cover bg-center"
-                              style={{ backgroundImage: `url(${thumbnailUrl})` }}
+                              style={{
+                                backgroundImage: `url(${thumbnailUrl})`,
+                              }}
                             >
                               {tips[0].linkType === "youtube" && (
                                 <div className="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 rounded-md text-xs font-medium flex items-center gap-1">
@@ -326,7 +346,9 @@ export default function UserContentTipsPage() {
                                 </div>
                               )}
                               {tips[0].subCategory && (
-                                <div className={`absolute top-2 left-2 px-2 py-1 rounded-md text-xs font-medium ${category.color.badge}`}>
+                                <div
+                                  className={`absolute top-2 left-2 px-2 py-1 rounded-md text-xs font-medium ${category.color.badge}`}
+                                >
                                   {tips[0].subCategory}
                                 </div>
                               )}
@@ -347,7 +369,9 @@ export default function UserContentTipsPage() {
                           </h3>
                           <div className="flex items-center justify-between text-xs text-gray-500">
                             <span>{formatDate(tips[0].createdAt)}</span>
-                            <span className="text-yellow-600 font-medium">보기 →</span>
+                            <span className="text-yellow-600 font-medium">
+                              보기 →
+                            </span>
                           </div>
                         </CardContent>
                       </Card>
@@ -367,7 +391,9 @@ export default function UserContentTipsPage() {
                               {getThumbnailUrl(tip) ? (
                                 <div
                                   className="w-full h-full bg-cover bg-center"
-                                  style={{ backgroundImage: `url(${getThumbnailUrl(tip)})` }}
+                                  style={{
+                                    backgroundImage: `url(${getThumbnailUrl(tip)})`,
+                                  }}
                                 />
                               ) : tip.linkType === "youtube" ? (
                                 <Youtube className="w-5 h-5 text-red-500" />
@@ -383,7 +409,9 @@ export default function UserContentTipsPage() {
                               <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
                                 <span>{formatDate(tip.createdAt)}</span>
                                 {tip.subCategory && (
-                                  <span className={`px-1.5 py-0.5 rounded text-[10px] ${category.color.badge}`}>
+                                  <span
+                                    className={`px-1.5 py-0.5 rounded text-[10px] ${category.color.badge}`}
+                                  >
                                     {tip.subCategory}
                                   </span>
                                 )}
@@ -411,7 +439,9 @@ export default function UserContentTipsPage() {
                           {thumbnailUrl ? (
                             <div
                               className="relative w-full aspect-video bg-gray-100 bg-cover bg-center"
-                              style={{ backgroundImage: `url(${thumbnailUrl})` }}
+                              style={{
+                                backgroundImage: `url(${thumbnailUrl})`,
+                              }}
                             >
                               {tip.linkType === "youtube" && (
                                 <div className="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 rounded-md text-xs font-medium flex items-center gap-1">
@@ -427,7 +457,9 @@ export default function UserContentTipsPage() {
                               )}
                               {/* 서브카테고리 뱃지 */}
                               {tip.subCategory && (
-                                <div className={`absolute top-2 left-2 px-2 py-1 rounded-md text-xs font-medium ${category.color.badge}`}>
+                                <div
+                                  className={`absolute top-2 left-2 px-2 py-1 rounded-md text-xs font-medium ${category.color.badge}`}
+                                >
                                   {tip.subCategory}
                                 </div>
                               )}
@@ -437,17 +469,23 @@ export default function UserContentTipsPage() {
                               {tip.linkType === "youtube" ? (
                                 <>
                                   <Youtube className="w-12 h-12 text-yellow-400 mb-2" />
-                                  <span className="text-sm text-yellow-700 font-medium">YouTube</span>
+                                  <span className="text-sm text-yellow-700 font-medium">
+                                    YouTube
+                                  </span>
                                 </>
                               ) : (
                                 <>
                                   <Globe className="w-12 h-12 text-gold-400 mb-2" />
-                                  <span className="text-sm text-navy-700 font-medium">Blog</span>
+                                  <span className="text-sm text-navy-700 font-medium">
+                                    Blog
+                                  </span>
                                 </>
                               )}
                               {/* 서브카테고리 뱃지 */}
                               {tip.subCategory && (
-                                <div className={`absolute top-2 left-2 px-2 py-1 rounded-md text-xs font-medium ${category.color.badge}`}>
+                                <div
+                                  className={`absolute top-2 left-2 px-2 py-1 rounded-md text-xs font-medium ${category.color.badge}`}
+                                >
                                   {tip.subCategory}
                                 </div>
                               )}
@@ -468,7 +506,9 @@ export default function UserContentTipsPage() {
                             {/* 날짜 */}
                             <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t">
                               <span>{formatDate(tip.createdAt)}</span>
-                              <span className="text-yellow-600 font-medium">보기 →</span>
+                              <span className="text-yellow-600 font-medium">
+                                보기 →
+                              </span>
                             </div>
                           </CardContent>
                         </Card>
@@ -530,7 +570,9 @@ export default function UserContentTipsPage() {
               {selectedTip.linkType === "blog" && selectedTip.thumbnailUrl && (
                 <div
                   className="relative w-full pb-[56.25%] rounded-lg overflow-hidden bg-gray-100 bg-cover bg-center"
-                  style={{ backgroundImage: `url(${selectedTip.thumbnailUrl})` }}
+                  style={{
+                    backgroundImage: `url(${selectedTip.thumbnailUrl})`,
+                  }}
                 />
               )}
 
@@ -540,8 +582,7 @@ export default function UserContentTipsPage() {
                   onClick={handleOpenInNewWindow}
                   className="w-full h-12 bg-yellow-600 hover:bg-yellow-700"
                 >
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  새 창에서 열기
+                  <ExternalLink className="w-4 h-4 mr-2" />새 창에서 열기
                 </Button>
                 <Button
                   variant="outline"
@@ -569,7 +610,8 @@ export default function UserContentTipsPage() {
                     {selectedTip.title}
                   </DialogTitle>
                   <DialogDescription className="text-sm text-gray-500">
-                    {selectedTip.authorName} · {formatDate(selectedTip.createdAt)}
+                    {selectedTip.authorName} ·{" "}
+                    {formatDate(selectedTip.createdAt)}
                   </DialogDescription>
                 </DialogHeader>
 
@@ -596,12 +638,15 @@ export default function UserContentTipsPage() {
                   )}
 
                   {/* 블로그 미리보기 */}
-                  {selectedTip.linkType === "blog" && selectedTip.thumbnailUrl && (
-                    <div
-                      className="relative w-full pb-[56.25%] rounded-lg overflow-hidden bg-gray-100 bg-cover bg-center"
-                      style={{ backgroundImage: `url(${selectedTip.thumbnailUrl})` }}
-                    />
-                  )}
+                  {selectedTip.linkType === "blog" &&
+                    selectedTip.thumbnailUrl && (
+                      <div
+                        className="relative w-full pb-[56.25%] rounded-lg overflow-hidden bg-gray-100 bg-cover bg-center"
+                        style={{
+                          backgroundImage: `url(${selectedTip.thumbnailUrl})`,
+                        }}
+                      />
+                    )}
                 </div>
 
                 <DialogFooter className="flex gap-2">
@@ -615,8 +660,7 @@ export default function UserContentTipsPage() {
                     onClick={handleOpenInNewWindow}
                     className="bg-yellow-600 hover:bg-yellow-700"
                   >
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    새 창에서 열기
+                    <ExternalLink className="w-4 h-4 mr-2" />새 창에서 열기
                   </Button>
                 </DialogFooter>
               </>
@@ -667,8 +711,8 @@ export default function UserContentTipsPage() {
               {updating
                 ? "처리 중..."
                 : emailEnabled
-                ? "이메일 수신 해제"
-                : "이메일 수신 설정"}
+                  ? "이메일 수신 해제"
+                  : "이메일 수신 설정"}
             </Button>
             <Button
               variant="outline"
@@ -731,8 +775,8 @@ export default function UserContentTipsPage() {
                 {updating
                   ? "처리 중..."
                   : emailEnabled
-                  ? "이메일 수신 해제"
-                  : "이메일 수신 설정"}
+                    ? "이메일 수신 해제"
+                    : "이메일 수신 설정"}
               </Button>
             </DialogFooter>
           </DialogContent>
