@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .spark {
+      transform-origin: 16px 8px;
+      transform-box: fill-box;
+      animation: sparkleSpin 2s ease-in-out infinite, sparkleTwinkle 2s ease-in-out infinite;
+    }
+    .spark path {
+      stroke-dasharray: 40;
+      stroke-dashoffset: 40;
+      animation: sparkleDraw 2s ease-in-out infinite;
+    }
+
+    @keyframes sparkleSpin {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(14deg); }
+    }
+    @keyframes sparkleTwinkle {
+      0%, 20%, 100% { opacity: 0.5; }
+      45%, 65% { opacity: 1; }
+    }
+    @keyframes sparkleDraw {
+      0%, 30%, 100% { stroke-dashoffset: 40; }
+      45%, 75% { stroke-dashoffset: 0; }
+    }
+  </style>
+  <path d="M4.1 19.9 14.5 9.6m2.8-2.8 1.7-1.7a1.7 1.7 0 0 1 2.4 0l2.4 2.4a1.7 1.7 0 0 1 0 2.4L19 12.5m-5.4-4.7-3.4 3.4" />
+  <g class="spark">
+    <path d="M16 6.7l.4-2.1.4 2.1 2.1-.4-2.1.4.4 2.1-.4-2.1-2.1.4" />
+  </g>
+</svg>

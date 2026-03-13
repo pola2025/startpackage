@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .bar {
+      transform-origin: 12px 12px;
+      animation-duration: 2s;
+      animation-timing-function: ease-in-out;
+      animation-iteration-count: infinite;
+    }
+    .top {
+      animation-name: menu-top;
+    }
+    .middle {
+      animation-name: menu-middle;
+    }
+    .bottom {
+      animation-name: menu-bottom;
+    }
+    @keyframes menu-top {
+      0%, 40%, 100% {
+        transform: rotate(0deg);
+      }
+      55%, 85% {
+        transform: rotate(45deg);
+      }
+    }
+    @keyframes menu-bottom {
+      0%, 40%, 100% {
+        transform: rotate(0deg);
+      }
+      55%, 85% {
+        transform: rotate(-45deg);
+      }
+    }
+    @keyframes menu-middle {
+      0%, 35%, 100% {
+        opacity: 1;
+      }
+      55%, 85% {
+        opacity: 0.15;
+      }
+    }
+  </style>
+  <line class="bar top" x1="4" y1="6" x2="20" y2="6" />
+  <line class="bar middle" x1="4" y1="12" x2="20" y2="12" />
+  <line class="bar bottom" x1="4" y1="18" x2="20" y2="18" />
+</svg>

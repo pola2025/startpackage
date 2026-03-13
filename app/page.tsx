@@ -36,7 +36,7 @@ export default function LoginPage() {
   // 로딩 중이거나 이미 인증된 경우 렌더링하지 않음
   if (status === "loading" || status === "authenticated") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gold-50 via-white to-gold-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-gold-600 animate-pulse">로딩 중...</div>
       </div>
     );
@@ -113,13 +113,13 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-gold-50 via-white to-gold-50 overflow-hidden">
+    <div className="relative min-h-screen bg-white overflow-hidden">
       <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.02]" />
 
       <div className="relative flex min-h-screen items-center justify-center p-4">
-        <Card className="w-full max-w-md bg-white shadow-xl border-gold-200">
-          <CardHeader className="space-y-4 text-center border-b border-gold-100 bg-gradient-to-b from-gold-50/30 to-transparent">
-            <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-navy-900 to-navy-800 flex items-center justify-center shadow-lg">
+        <Card className="w-full max-w-md bg-white shadow-xl border-gray-200">
+          <CardHeader className="space-y-4 text-center border-b border-gray-100 bg-white">
+            <div className="mx-auto w-20 h-20 rounded-full bg-navy-900 flex items-center justify-center shadow-lg">
               {mode === "login" ? (
                 <User className="w-10 h-10 text-white" />
               ) : (
@@ -157,7 +157,7 @@ export default function LoginPage() {
                     onChange={(e) => setPhone(e.target.value.replace(/-/g, ""))}
                     required
                     disabled={loading}
-                    className="bg-gold-50/50 border-gold-200 focus:border-gold-600 focus:ring-gold-600"
+                    className="bg-gold-50/50 border-gray-200 focus:border-gold-600 focus:ring-gold-600"
                   />
                   <p className="text-xs text-gold-600">
                     숫자만 입력 (하이픈 자동 제거)
@@ -180,7 +180,7 @@ export default function LoginPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     disabled={loading}
-                    className="bg-gold-50/50 border-gold-200 focus:border-gold-600 focus:ring-gold-600"
+                    className="bg-gold-50/50 border-gray-200 focus:border-gold-600 focus:ring-gold-600"
                   />
                 </div>
 
@@ -227,7 +227,7 @@ export default function LoginPage() {
                     onChange={(e) => setPhone(e.target.value.replace(/-/g, ""))}
                     required
                     disabled={loading}
-                    className="bg-gold-50/50 border-gold-200 focus:border-gold-600 focus:ring-gold-600"
+                    className="bg-gold-50/50 border-gray-200 focus:border-gold-600 focus:ring-gold-600"
                   />
                   <p className="text-xs text-gold-600">
                     숫자만 입력 (해당 번호로 4자리 임시 비밀번호 발송)
@@ -273,7 +273,7 @@ export default function LoginPage() {
             )}
 
             {mode === "login" && (
-              <div className="space-y-3 border-t border-gold-100 pt-6">
+              <div className="space-y-3 border-t border-gray-100 pt-6">
                 <Link href="/signup">
                   <Button
                     variant="outline"

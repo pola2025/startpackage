@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .roof {
+      stroke-dasharray: 30;
+      stroke-dashoffset: 30;
+      animation: drawRoof 3.5s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+    }
+    .walls {
+      stroke-dasharray: 50;
+      stroke-dashoffset: 50;
+      animation: drawWalls 3.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+    }
+    .door {
+      stroke-dasharray: 20;
+      stroke-dashoffset: 20;
+      animation: drawDoor 3.5s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+    }
+    .home-group {
+      animation: homeSettle 3.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+      transform-origin: 12px 20px;
+    }
+    @keyframes drawRoof {
+      0% { stroke-dashoffset: 30; }
+      20% { stroke-dashoffset: 0; }
+      75% { stroke-dashoffset: 0; }
+      90% { stroke-dashoffset: 0; opacity: 1; }
+      100% { stroke-dashoffset: 0; }
+    }
+    @keyframes drawWalls {
+      0%, 15% { stroke-dashoffset: 50; }
+      40% { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: 0; }
+    }
+    @keyframes drawDoor {
+      0%, 35% { stroke-dashoffset: 20; opacity: 0; }
+      40% { opacity: 1; }
+      55% { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: 0; }
+    }
+    @keyframes homeSettle {
+      0% { transform: scale(0.8) translateY(-4px); opacity: 0; }
+      15% { opacity: 1; }
+      30% { transform: scale(1.05) translateY(0px); }
+      40% { transform: scale(0.98) translateY(1px); }
+      50% { transform: scale(1) translateY(0px); }
+      75% { transform: scale(1) translateY(0px); opacity: 1; }
+      90% { opacity: 0.6; transform: scale(0.95); }
+      100% { opacity: 0; transform: scale(0.8) translateY(-4px); }
+    }
+  </style>
+  <g class="home-group">
+    <path class="roof" d="M3 12l9-8 9 8" />
+    <path class="walls" d="M5 12v8h14v-8" />
+    <path class="door" d="M10 20v-6h4v6" />
+  </g>
+</svg>

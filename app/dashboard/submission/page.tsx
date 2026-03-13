@@ -3,22 +3,53 @@
 import { useState, useEffect, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Upload, FileText, CheckCircle2, AlertCircle, Loader2, Square, CreditCard, ExternalLink, Shield } from "lucide-react";
+import {
+  Upload,
+  FileText,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+  Square,
+  CreditCard,
+  ExternalLink,
+  Shield,
+} from "lucide-react";
 import { SLACK_ONLY_MARKER } from "@/lib/constants/sensitiveFields";
 import imageCompression from "browser-image-compression";
 import { ProgressBar } from "@/components/ui/progress-bar";
-import { calculateProgress, type ProgressResult } from "@/lib/submission-progress";
-import { MobileStepBar, MobileStepNavigation } from "@/components/ui/mobile-step-bar";
-import { OnboardingDialog, shouldShowOnboarding } from "@/components/submission/onboarding-dialog";
+import {
+  calculateProgress,
+  type ProgressResult,
+} from "@/lib/submission-progress";
+import {
+  MobileStepBar,
+  MobileStepNavigation,
+} from "@/components/ui/mobile-step-bar";
+import {
+  OnboardingDialog,
+  shouldShowOnboarding,
+} from "@/components/submission/onboarding-dialog";
 import { SubmissionSummary } from "@/components/submission/submission-summary";
-import { SecurityNotice, DataUsageNotice } from "@/components/submission/security-notice";
+import {
+  SecurityNotice,
+  DataUsageNotice,
+} from "@/components/submission/security-notice";
 import { Celebration, useCelebration } from "@/components/ui/celebration";
-import { useAutoFocus, useKeyboardNavigation } from "@/lib/submission/use-auto-focus";
+import {
+  useAutoFocus,
+  useKeyboardNavigation,
+} from "@/lib/submission/use-auto-focus";
 import { LogoColorSelector } from "@/components/submission/logo-style-selector";
 import { MySubmissionStatus } from "@/components/submission/my-submission-status";
 import { ChevronDown, ChevronUp } from "lucide-react";
@@ -84,7 +115,12 @@ export default function SubmissionPage() {
   useKeyboardNavigation();
 
   // Sprint 2: 축하 애니메이션
-  const { showCelebration, celebrationMessage, checkSectionCompletion, closeCelebration } = useCelebration();
+  const {
+    showCelebration,
+    celebrationMessage,
+    checkSectionCompletion,
+    closeCelebration,
+  } = useCelebration();
 
   // 탭 변경 함수 - URL 쿼리 파라미터 업데이트
   const handleTabChange = (tab: string) => {
@@ -127,7 +163,7 @@ export default function SubmissionPage() {
   // 무한 루프 방지: sections 배열의 isComplete 값만 직렬화하여 비교
   const sectionsKey = useMemo(() => {
     if (!progress?.sections) return "";
-    return progress.sections.map(s => `${s.name}:${s.isComplete}`).join(",");
+    return progress.sections.map((s) => `${s.name}:${s.isComplete}`).join(",");
   }, [progress?.sections]);
 
   useEffect(() => {
@@ -183,7 +219,9 @@ export default function SubmissionPage() {
     const logoWorkflow = workflows.find((w: any) => w.type === "로고");
     if (!logoWorkflow) return false;
     // 최종확정 또는 발주완료(기존 상태) = 로고 시안 최종 확정 상태
-    return logoWorkflow.status === "최종확정" || logoWorkflow.status === "발주완료";
+    return (
+      logoWorkflow.status === "최종확정" || logoWorkflow.status === "발주완료"
+    );
   };
 
   // submission 데이터가 변경되면 선택 상태 업데이트
@@ -224,9 +262,16 @@ export default function SubmissionPage() {
         // 데이터가 없으면 편집 모드(true), 있으면 읽기 모드(false)
         if (data) {
           const hasBasic = data.브랜드명 || data.업종 || data.주소;
-          const hasLogo = data.로고선호스타일 || data.로고선호폰트 || data.명함색상;
+          const hasLogo =
+            data.로고선호스타일 || data.로고선호폰트 || data.명함색상;
           const hasNamecard = data.명함시안;
-          const hasMarketing = data.네이버검색광고ID || data.네이버검색광고PW || data.네이버클라우드ID || data.네이버클라우드PW || data.InstagramID || data.GmailID;
+          const hasMarketing =
+            data.네이버검색광고ID ||
+            data.네이버검색광고PW ||
+            data.네이버클라우드ID ||
+            data.네이버클라우드PW ||
+            data.InstagramID ||
+            data.GmailID;
 
           setIsEditingBasicInfo(!hasBasic);
           setIsEditingBusiness(true); // 사업자 정보는 항상 편집 가능
@@ -251,11 +296,18 @@ export default function SubmissionPage() {
 
   // 각 섹션별로 데이터가 있는지 확인
   const hasBasicInfo = () => {
-    return submission && (submission.브랜드명 || submission.업종 || submission.주소);
+    return (
+      submission && (submission.브랜드명 || submission.업종 || submission.주소)
+    );
   };
 
   const hasLogoInfo = () => {
-    return submission && (submission.로고선호스타일 || submission.로고선호폰트 || submission.명함색상);
+    return (
+      submission &&
+      (submission.로고선호스타일 ||
+        submission.로고선호폰트 ||
+        submission.명함색상)
+    );
   };
 
   const hasNamecardInfo = () => {
@@ -263,13 +315,14 @@ export default function SubmissionPage() {
   };
 
   const hasMarketingInfo = () => {
-    return submission && (
-      submission.네이버검색광고ID ||
-      submission.네이버검색광고PW ||
-      submission.네이버클라우드ID ||
-      submission.네이버클라우드PW ||
-      submission.InstagramID ||
-      submission.GmailID
+    return (
+      submission &&
+      (submission.네이버검색광고ID ||
+        submission.네이버검색광고PW ||
+        submission.네이버클라우드ID ||
+        submission.네이버클라우드PW ||
+        submission.InstagramID ||
+        submission.GmailID)
     );
   };
 
@@ -283,7 +336,9 @@ export default function SubmissionPage() {
       "명함시안",
     ];
 
-    const completedFields = requiredFields.filter(field => data[field]).length;
+    const completedFields = requiredFields.filter(
+      (field) => data[field],
+    ).length;
     const rate = Math.round((completedFields / requiredFields.length) * 100);
     setCompletionRate(rate);
   };
@@ -292,9 +347,15 @@ export default function SubmissionPage() {
     setUploading(true);
 
     // 사업자등록증URL 또는 프로필사진URL 필드이고 이미지인 경우 자동 압축
-    if ((field === "사업자등록증URL" || field === "프로필사진URL") && file.type.startsWith("image/") && file.type !== "image/gif") {
+    if (
+      (field === "사업자등록증URL" || field === "프로필사진URL") &&
+      file.type.startsWith("image/") &&
+      file.type !== "image/gif"
+    ) {
       try {
-        console.log(`[압축] 원본 파일 크기: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+        console.log(
+          `[압축] 원본 파일 크기: ${(file.size / 1024 / 1024).toFixed(2)}MB`,
+        );
 
         const options = {
           maxSizeMB: 2, // 최대 2MB로 압축
@@ -304,7 +365,9 @@ export default function SubmissionPage() {
         };
 
         const compressedFile = await imageCompression(file, options);
-        console.log(`[압축] 압축 후 파일 크기: ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`);
+        console.log(
+          `[압축] 압축 후 파일 크기: ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`,
+        );
 
         // 압축된 파일로 교체
         file = new File([compressedFile], file.name, {
@@ -322,7 +385,15 @@ export default function SubmissionPage() {
     formData.append("field", field);
 
     try {
-      console.log("[클라이언트] 파일 업로드 시작:", field, file.name, "크기:", file.size, "타입:", file.type);
+      console.log(
+        "[클라이언트] 파일 업로드 시작:",
+        field,
+        file.name,
+        "크기:",
+        file.size,
+        "타입:",
+        file.type,
+      );
       const res = await fetch("/api/upload", {
         method: "POST",
         body: formData,
@@ -358,7 +429,9 @@ export default function SubmissionPage() {
       }
     } catch (error) {
       console.error("[클라이언트] 네트워크 오류:", error);
-      alert("파일 업로드 중 네트워크 오류가 발생했습니다.\n인터넷 연결을 확인해주세요.");
+      alert(
+        "파일 업로드 중 네트워크 오류가 발생했습니다.\n인터넷 연결을 확인해주세요.",
+      );
     } finally {
       setUploading(false);
     }
@@ -401,7 +474,9 @@ export default function SubmissionPage() {
     if (section === "logo") {
       const logoColor = data.명함색상 as string;
       if (!logoColor || logoColor.trim() === "" || logoColor === "#3B82F6") {
-        alert("로고/명함 색상을 선택해주세요!\n\n컬러피커에서 원하는 색상을 선택한 후 저장해주세요.");
+        alert(
+          "로고/명함 색상을 선택해주세요!\n\n컬러피커에서 원하는 색상을 선택한 후 저장해주세요.",
+        );
         return;
       }
     }
@@ -410,7 +485,9 @@ export default function SubmissionPage() {
     if (section === "basic") {
       const phoneRegex = /^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$/;
       if (!phoneRegex.test(userPhone)) {
-        alert("올바른 전화번호 형식이 아닙니다.\n예: 010-1234-5678 또는 01012345678");
+        alert(
+          "올바른 전화번호 형식이 아닙니다.\n예: 010-1234-5678 또는 01012345678",
+        );
         return;
       }
     }
@@ -447,7 +524,7 @@ export default function SubmissionPage() {
         await fetchSubmission();
 
         // 섹션별로 수정 모드 종료
-        switch(section) {
+        switch (section) {
           case "basic":
             setIsEditingBasicInfo(false);
             break;
@@ -486,7 +563,11 @@ export default function SubmissionPage() {
       return;
     }
 
-    if (!confirm("디자인 시안 제작을 요청하시겠습니까?\n\n요청 후에는 제출 자료를 수정할 수 없습니다.")) {
+    if (
+      !confirm(
+        "디자인 시안 제작을 요청하시겠습니까?\n\n요청 후에는 제출 자료를 수정할 수 없습니다.",
+      )
+    ) {
       return;
     }
 
@@ -501,7 +582,9 @@ export default function SubmissionPage() {
       if (res.ok) {
         await fetchSubmission();
         await fetchWorkflows();
-        alert("디자인 시안 제작요청이 완료되었습니다!\n\n오전 11시 이전: 영업일 2일차\n오전 11시 이후: 영업일 3일차\n\n시안 전달 예정일을 확인해주세요.");
+        alert(
+          "디자인 시안 제작요청이 완료되었습니다!\n\n오전 11시 이전: 영업일 2일차\n오전 11시 이후: 영업일 3일차\n\n시안 전달 예정일을 확인해주세요.",
+        );
       } else {
         alert("제작요청에 실패했습니다.");
       }
@@ -517,18 +600,20 @@ export default function SubmissionPage() {
     <div className="space-y-8 overflow-x-hidden w-full max-w-full">
       {/* 마감일 경고 메시지 */}
       {isDeadlinePassed && (
-        <div className="flex items-center gap-3 p-4 bg-yellow-50 border-2 border-yellow-300 rounded-lg">
+        <div className="flex items-center gap-3 p-4 bg-yellow-50 border border-gray-200 rounded-lg">
           <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0" />
           <div className="flex-1">
             <p className="text-yellow-800 font-bold text-base sm:text-lg">
               자료 제출 마감일이 지났습니다
             </p>
             <p className="text-yellow-700 text-sm mt-1">
-              마감일이 경과했으나 자료 제출은 가능합니다. 빠른 시일 내에 제출해주세요.
+              마감일이 경과했으나 자료 제출은 가능합니다. 빠른 시일 내에
+              제출해주세요.
             </p>
             {deadlineDate && (
               <p className="text-yellow-600 text-xs mt-2">
-                마감일: {deadlineDate.toLocaleDateString("ko-KR", {
+                마감일:{" "}
+                {deadlineDate.toLocaleDateString("ko-KR", {
                   year: "numeric",
                   month: "long",
                   day: "numeric",
@@ -574,7 +659,10 @@ export default function SubmissionPage() {
           {!submission?.isComplete && submission && (
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
               <div className="text-xs sm:text-sm text-gray-500">
-                완성도: <span className="font-bold text-gold-600">{completionRate}%</span>
+                완성도:{" "}
+                <span className="font-bold text-gold-600">
+                  {completionRate}%
+                </span>
               </div>
               <div className="text-xs sm:text-sm text-gray-500 hidden sm:block">
                 각 섹션별로 수정이 가능합니다
@@ -596,22 +684,27 @@ export default function SubmissionPage() {
               {workflows
                 .filter((w: any) => w.시안업로드일)
                 .map((w: any, index: number) => (
-                  <div key={index} className="flex items-center gap-2 p-4 bg-green-50 border border-green-200 rounded-lg">
+                  <div
+                    key={index}
+                    className="flex items-center gap-2 p-4 bg-green-50 border border-green-200 rounded-lg"
+                  >
                     <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
                     <div className="flex-1">
                       <p className="text-green-700 font-medium">
-                        {w.type} 시안 전달 완료: {new Date(w.시안업로드일).toLocaleDateString('ko-KR', {
-                          month: 'long',
-                          day: 'numeric',
-                          weekday: 'short'
+                        {w.type} 시안 전달 완료:{" "}
+                        {new Date(w.시안업로드일).toLocaleDateString("ko-KR", {
+                          month: "long",
+                          day: "numeric",
+                          weekday: "short",
                         })}
                       </p>
                       {w.발주승인일 && (
                         <p className="text-green-600 text-sm mt-1">
-                          발주 완료: {new Date(w.발주승인일).toLocaleDateString('ko-KR', {
-                            month: 'long',
-                            day: 'numeric',
-                            weekday: 'short'
+                          발주 완료:{" "}
+                          {new Date(w.발주승인일).toLocaleDateString("ko-KR", {
+                            month: "long",
+                            day: "numeric",
+                            weekday: "short",
                           })}
                         </p>
                       )}
@@ -620,18 +713,25 @@ export default function SubmissionPage() {
                 ))}
 
               {/* 시안 전달 예정 - 아직 시안업로드일이 없는 워크플로우가 있고 시안예정일이 있을 때만 표시 */}
-              {workflows.some((w: any) => !w.시안업로드일 && w.type !== "로고") && submission.시안예정일 && (
-                <div className="flex items-center gap-2 p-4 bg-gold-50 border border-gold-200 rounded-lg">
-                  <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-gold-600" />
-                  <p className="text-navy-700 font-medium">
-                    {new Date(submission.시안예정일).toLocaleDateString('ko-KR', {
-                      month: 'long',
-                      day: 'numeric',
-                      weekday: 'short'
-                    })} 시안 전달 예정
-                  </p>
-                </div>
-              )}
+              {workflows.some(
+                (w: any) => !w.시안업로드일 && w.type !== "로고",
+              ) &&
+                submission.시안예정일 && (
+                  <div className="flex items-center gap-2 p-4 bg-gold-50 border border-gold-200 rounded-lg">
+                    <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-gold-600" />
+                    <p className="text-navy-700 font-medium">
+                      {new Date(submission.시안예정일).toLocaleDateString(
+                        "ko-KR",
+                        {
+                          month: "long",
+                          day: "numeric",
+                          weekday: "short",
+                        },
+                      )}{" "}
+                      시안 전달 예정
+                    </p>
+                  </div>
+                )}
             </div>
           </div>
         ) : (
@@ -639,7 +739,8 @@ export default function SubmissionPage() {
             <div className="flex items-center gap-2 p-4 bg-gold-50 border border-gold-200 rounded-lg">
               <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-gold-600" />
               <p className="text-navy-700">
-                각 카테고리별 필요한 자료를 제출해주세요. 디자인 제작요청 전까지 언제든 수정 가능합니다.
+                각 카테고리별 필요한 자료를 제출해주세요. 디자인 제작요청 전까지
+                언제든 수정 가능합니다.
               </p>
             </div>
             {completionRate === 100 && !hasWorkflows && (
@@ -670,7 +771,7 @@ export default function SubmissionPage() {
         <div className="mb-6">
           <button
             onClick={() => setShowMyStatus(!showMyStatus)}
-            className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-gold-50 to-gold-100 border-2 border-gold-200 rounded-xl hover:border-gold-300 transition-colors"
+            className="w-full flex items-center justify-between p-4 bg-white border border-gray-200 rounded-xl hover:border-gold-300 transition-colors"
           >
             <div className="flex items-center gap-3">
               <span className="text-lg">📋</span>
@@ -699,7 +800,8 @@ export default function SubmissionPage() {
                 submission={submission}
                 workflows={workflows}
                 user={{
-                  이름: (session?.user as any)?.이름 || session?.user?.name || "",
+                  이름:
+                    (session?.user as any)?.이름 || session?.user?.name || "",
                   연락처: userPhone,
                 }}
                 onNavigateToSection={(tab, hash) => {
@@ -716,7 +818,11 @@ export default function SubmissionPage() {
         </div>
       )}
 
-      <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6 w-full">
+      <Tabs
+        value={activeTab}
+        onValueChange={handleTabChange}
+        className="space-y-6 w-full"
+      >
         {/* 모바일 스텝 진행 바 */}
         <MobileStepBar
           steps={[
@@ -736,7 +842,7 @@ export default function SubmissionPage() {
         />
 
         {/* 깔끔하고 직관적인 탭 네비게이션 - 데스크탑 */}
-        <TabsList className="hidden md:grid bg-white border-2 border-gray-200 p-1.5 rounded-xl shadow-sm grid-cols-4 gap-1 h-auto">
+        <TabsList className="hidden md:grid bg-white border border-gray-200 p-1.5 rounded-xl shadow-sm grid-cols-4 gap-1 h-auto">
           <TabsTrigger
             value="basic"
             className="data-[state=active]:bg-navy-900 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-semibold text-xs sm:text-sm py-2"
@@ -747,7 +853,9 @@ export default function SubmissionPage() {
             value="logo"
             disabled={!isBasicInfoComplete()}
             className="data-[state=active]:bg-navy-900 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm py-2"
-            title={!isBasicInfoComplete() ? "기본 정보를 먼저 완성해주세요" : ""}
+            title={
+              !isBasicInfoComplete() ? "기본 정보를 먼저 완성해주세요" : ""
+            }
           >
             🎨 로고
           </TabsTrigger>
@@ -755,7 +863,9 @@ export default function SubmissionPage() {
             value="print"
             disabled={!isBasicInfoComplete()}
             className="data-[state=active]:bg-navy-900 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm py-2"
-            title={!isBasicInfoComplete() ? "기본 정보를 먼저 완성해주세요" : ""}
+            title={
+              !isBasicInfoComplete() ? "기본 정보를 먼저 완성해주세요" : ""
+            }
           >
             🖨️ 인쇄물
           </TabsTrigger>
@@ -772,7 +882,9 @@ export default function SubmissionPage() {
           <Card className="glass border-white/10">
             <CardHeader>
               <div>
-                <CardTitle className="text-gray-900 text-lg sm:text-xl">기본 정보</CardTitle>
+                <CardTitle className="text-gray-900 text-lg sm:text-xl">
+                  기본 정보
+                </CardTitle>
                 <CardDescription className="text-gray-400 text-xs sm:text-sm">
                   인쇄물에 들어갈 기본 정보를 입력해주세요
                 </CardDescription>
@@ -781,7 +893,9 @@ export default function SubmissionPage() {
                 <div className="flex items-center gap-2 p-4 bg-amber-50 border border-amber-200 rounded-lg mt-3">
                   <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0" />
                   <div className="flex-1">
-                    <p className="text-amber-700 font-semibold text-sm">기본 정보를 완성해야 다음 단계로 진행할 수 있습니다</p>
+                    <p className="text-amber-700 font-semibold text-sm">
+                      기본 정보를 완성해야 다음 단계로 진행할 수 있습니다
+                    </p>
                     <p className="text-amber-600 text-xs mt-1">
                       필수 항목: 브랜드명, 업종, 사업장 주소
                     </p>
@@ -792,7 +906,8 @@ export default function SubmissionPage() {
                 <div className="flex items-center gap-2 p-4 bg-green-50 border border-green-200 rounded-lg mt-3">
                   <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />
                   <p className="text-green-700 font-medium text-sm">
-                    기본 정보가 완성되었습니다! 이제 로고 및 인쇄물 탭에서 계속 진행하세요.
+                    기본 정보가 완성되었습니다! 이제 로고 및 인쇄물 탭에서 계속
+                    진행하세요.
                   </p>
                 </div>
               )}
@@ -805,7 +920,9 @@ export default function SubmissionPage() {
               >
                 <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
                   <div id="brand-section" className="space-y-2">
-                    <Label htmlFor="브랜드명" className="text-sm sm:text-base">브랜드명 *</Label>
+                    <Label htmlFor="브랜드명" className="text-sm sm:text-base">
+                      브랜드명 *
+                    </Label>
                     <Input
                       id="브랜드명"
                       name="브랜드명"
@@ -816,7 +933,9 @@ export default function SubmissionPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="업종" className="text-sm sm:text-base">업종 *</Label>
+                    <Label htmlFor="업종" className="text-sm sm:text-base">
+                      업종 *
+                    </Label>
                     <Input
                       id="업종"
                       name="업종"
@@ -845,7 +964,9 @@ export default function SubmissionPage() {
                     </p>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="대표번호" className="text-sm sm:text-base">대표번호</Label>
+                    <Label htmlFor="대표번호" className="text-sm sm:text-base">
+                      대표번호
+                    </Label>
                     <Input
                       id="대표번호"
                       name="대표번호"
@@ -855,7 +976,9 @@ export default function SubmissionPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="이메일" className="text-sm sm:text-base">이메일</Label>
+                    <Label htmlFor="이메일" className="text-sm sm:text-base">
+                      이메일
+                    </Label>
                     <Input
                       id="이메일"
                       name="이메일"
@@ -866,7 +989,9 @@ export default function SubmissionPage() {
                     />
                   </div>
                   <div className="space-y-2 sm:col-span-2">
-                    <Label htmlFor="주소" className="text-sm sm:text-base">사업장 주소 *</Label>
+                    <Label htmlFor="주소" className="text-sm sm:text-base">
+                      사업장 주소 *
+                    </Label>
                     <Input
                       id="주소"
                       name="주소"
@@ -877,7 +1002,12 @@ export default function SubmissionPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="은행명" className="text-sm sm:text-base break-words">은행명 (고객이 입금할 계좌번호입니다.)</Label>
+                    <Label
+                      htmlFor="은행명"
+                      className="text-sm sm:text-base break-words"
+                    >
+                      은행명 (고객이 입금할 계좌번호입니다.)
+                    </Label>
                     <Input
                       id="은행명"
                       name="은행명"
@@ -888,7 +1018,9 @@ export default function SubmissionPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="계좌번호" className="text-sm sm:text-base">계좌번호</Label>
+                    <Label htmlFor="계좌번호" className="text-sm sm:text-base">
+                      계좌번호
+                    </Label>
                     <Input
                       id="계좌번호"
                       name="계좌번호"
@@ -915,14 +1047,23 @@ export default function SubmissionPage() {
                       </Label>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="인쇄물받을주소" className="text-sm sm:text-base break-words">인쇄물 받을 주소</Label>
+                      <Label
+                        htmlFor="인쇄물받을주소"
+                        className="text-sm sm:text-base break-words"
+                      >
+                        인쇄물 받을 주소
+                      </Label>
                       <Input
                         id="인쇄물받을주소"
                         name="인쇄물받을주소"
                         defaultValue={submission?.인쇄물받을주소}
                         placeholder="사업장 주소와 다른 경우만 입력"
                         className="bg-white border-gray-200"
-                        disabled={sameAddress || submission?.isComplete || !isEditingBasicInfo}
+                        disabled={
+                          sameAddress ||
+                          submission?.isComplete ||
+                          !isEditingBasicInfo
+                        }
                       />
                     </div>
                   </div>
@@ -943,7 +1084,11 @@ export default function SubmissionPage() {
                         disabled={loading}
                         className="bg-navy-900 text-white hover:bg-navy-800 text-sm sm:text-base"
                       >
-                        {loading ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />}
+                        {loading ? (
+                          <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" />
+                        ) : (
+                          <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                        )}
                         저장하기
                       </Button>
                     )}
@@ -959,18 +1104,24 @@ export default function SubmissionPage() {
           <Card className="glass border-white/10">
             <CardHeader>
               <div>
-                <CardTitle className="text-gray-900 text-lg sm:text-xl">로고 디자인 정보</CardTitle>
+                <CardTitle className="text-gray-900 text-lg sm:text-xl">
+                  로고 디자인 정보
+                </CardTitle>
                 <CardDescription className="text-gray-400 text-xs sm:text-sm">
-                  로고 파일이 있으면 업로드하거나, 선호하는 스타일과 색상을 선택해주세요
+                  로고 파일이 있으면 업로드하거나, 선호하는 스타일과 색상을
+                  선택해주세요
                 </CardDescription>
               </div>
               {!isBasicInfoComplete() && (
                 <div className="flex items-center gap-2 p-4 bg-amber-50 border border-amber-200 rounded-lg mt-3">
                   <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0" />
                   <div className="flex-1">
-                    <p className="text-amber-700 font-semibold text-sm">기본 정보를 먼저 완성해주세요</p>
+                    <p className="text-amber-700 font-semibold text-sm">
+                      기본 정보를 먼저 완성해주세요
+                    </p>
                     <p className="text-amber-600 text-xs mt-1">
-                      기본 정보 탭에서 브랜드명, 업종, 사업장 주소를 입력하면 로고 탭이 활성화됩니다.
+                      기본 정보 탭에서 브랜드명, 업종, 사업장 주소를 입력하면
+                      로고 탭이 활성화됩니다.
                     </p>
                   </div>
                 </div>
@@ -984,14 +1135,21 @@ export default function SubmissionPage() {
               >
                 {/* 로고 파일 업로드 */}
                 <div id="logo-section" className="space-y-2">
-                  <Label className="text-sm sm:text-base">로고 파일 (있는 경우)</Label>
-                  <p className="text-xs text-gray-500">이미지 파일(JPG, PNG 등) 또는 ZIP 파일을 업로드할 수 있습니다</p>
+                  <Label className="text-sm sm:text-base">
+                    로고 파일 (있는 경우)
+                  </Label>
+                  <p className="text-xs text-gray-500">
+                    이미지 파일(JPG, PNG 등) 또는 ZIP 파일을 업로드할 수
+                    있습니다
+                  </p>
                   {submission?.로고URL ? (
                     <div className="space-y-2">
                       <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 border border-green-200">
                         <div className="flex items-center gap-2">
                           <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-700" />
-                          <span className="text-green-700 text-sm sm:text-base">업로드 완료</span>
+                          <span className="text-green-700 text-sm sm:text-base">
+                            업로드 완료
+                          </span>
                         </div>
                         <a
                           href={submission.로고URL}
@@ -1016,7 +1174,9 @@ export default function SubmissionPage() {
                         />
                         <div className="flex items-center justify-center gap-2 p-2 rounded-lg border border-gray-300 hover:border-gold-500 hover:bg-gold-50 cursor-pointer transition-all">
                           <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
-                          <span className="text-sm sm:text-base">파일 변경</span>
+                          <span className="text-sm sm:text-base">
+                            파일 변경
+                          </span>
                         </div>
                       </label>
                     </div>
@@ -1033,9 +1193,11 @@ export default function SubmissionPage() {
                         }}
                         disabled={uploading}
                       />
-                      <div className="flex items-center justify-center gap-2 p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-gold-500 cursor-pointer transition-all">
+                      <div className="flex items-center justify-center gap-2 p-4 rounded-lg border border-dashed border-gray-300 hover:border-gold-500 cursor-pointer transition-all">
                         <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
-                        <span className="text-sm sm:text-base">로고 파일 업로드</span>
+                        <span className="text-sm sm:text-base">
+                          로고 파일 업로드
+                        </span>
                       </div>
                     </label>
                   )}
@@ -1044,13 +1206,21 @@ export default function SubmissionPage() {
                 {/* 로고 선호 스타일 */}
                 <div className="space-y-3">
                   <div className="flex items-start gap-2">
-                    <Label className="text-sm sm:text-base">로고 선호 스타일</Label>
+                    <Label className="text-sm sm:text-base">
+                      로고 선호 스타일
+                    </Label>
                     <p className="text-xs text-red-600 font-medium mt-0.5">
-                      ※ 로고 선택 후 시안은 심볼형, 워드마크형 중 선택한 사항으로만 구성 가능합니다.<br />
+                      ※ 로고 선택 후 시안은 심볼형, 워드마크형 중 선택한
+                      사항으로만 구성 가능합니다.
+                      <br />
                       (심볼형 시안 요청 시 워드마크형 시안 요청 불가)
                     </p>
                   </div>
-                  <input type="hidden" name="로고선호스타일" value={selectedStyle} />
+                  <input
+                    type="hidden"
+                    name="로고선호스타일"
+                    value={selectedStyle}
+                  />
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {[
                       {
@@ -1061,7 +1231,10 @@ export default function SubmissionPage() {
                       {
                         name: "워드마크형 (텍스트)",
                         description: "브랜드명 텍스트 중심 로고",
-                        images: ["/logo-examples/wordmark1.png", "/logo-examples/wordmark2.png"],
+                        images: [
+                          "/logo-examples/wordmark1.png",
+                          "/logo-examples/wordmark2.png",
+                        ],
                       },
                     ].map((style) => (
                       <button
@@ -1069,11 +1242,11 @@ export default function SubmissionPage() {
                         type="button"
                         onClick={() => setSelectedStyle(style.name)}
                         disabled={submission?.isComplete || !isEditingLogo}
-                        className={`p-4 rounded-lg border-2 transition-all ${
+                        className={`p-4 rounded-lg border transition-all ${
                           selectedStyle === style.name
                             ? "border-gold-600 bg-gold-50"
-                            : "border-gray-300 hover:border-gold-400 hover:bg-gold-50/50"
-                        } ${(submission?.isComplete || !isEditingLogo) ? "opacity-60 cursor-not-allowed" : ""}`}
+                            : "border-gray-300 hover:border-gold-400 hover:bg-white"
+                        } ${submission?.isComplete || !isEditingLogo ? "opacity-60 cursor-not-allowed" : ""}`}
                       >
                         <div className="flex flex-col items-center gap-3">
                           <div className="flex gap-2 items-center justify-center h-24">
@@ -1095,7 +1268,9 @@ export default function SubmissionPage() {
                             )}
                           </div>
                           <div className="text-center">
-                            <div className="font-semibold text-sm">{style.name}</div>
+                            <div className="font-semibold text-sm">
+                              {style.name}
+                            </div>
                             <div className="text-xs text-gray-500 mt-1">
                               {style.description}
                             </div>
@@ -1109,7 +1284,9 @@ export default function SubmissionPage() {
                 {/* 로고 선호 폰트 */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <Label className="text-sm sm:text-base">로고 선호 폰트</Label>
+                    <Label className="text-sm sm:text-base">
+                      로고 선호 폰트
+                    </Label>
                     <a
                       href="https://noonnu.cc/"
                       target="_blank"
@@ -1117,8 +1294,18 @@ export default function SubmissionPage() {
                       className="text-xs sm:text-sm text-gold-600 hover:text-navy-700 hover:underline font-medium flex items-center gap-1"
                     >
                       <span>폰트 찾기 (눈누)</span>
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      <svg
+                        className="w-3 h-3"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                        />
                       </svg>
                     </a>
                   </div>
@@ -1130,15 +1317,29 @@ export default function SubmissionPage() {
                       <div className="flex-1 text-xs text-navy-700 space-y-1">
                         <p className="font-semibold">📌 폰트 선택 안내</p>
                         <ul className="list-disc ml-4 space-y-0.5">
-                          <li><span className="font-semibold">무료 폰트만 사용 가능</span>합니다 (눈누 사이트에서 무료 폰트 검색)</li>
-                          <li><span className="font-semibold">유료 폰트는 직접 구매 후 파일 전달</span>이 필요합니다</li>
+                          <li>
+                            <span className="font-semibold">
+                              무료 폰트만 사용 가능
+                            </span>
+                            합니다 (눈누 사이트에서 무료 폰트 검색)
+                          </li>
+                          <li>
+                            <span className="font-semibold">
+                              유료 폰트는 직접 구매 후 파일 전달
+                            </span>
+                            이 필요합니다
+                          </li>
                           <li>원하는 폰트명을 아래 요청사항에 작성해주세요</li>
                         </ul>
                       </div>
                     </div>
                   </div>
 
-                  <input type="hidden" name="로고선호폰트" value={selectedFont} />
+                  <input
+                    type="hidden"
+                    name="로고선호폰트"
+                    value={selectedFont}
+                  />
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {[
                       { name: "고딕체 (깔끔한)", style: "font-sans" },
@@ -1151,16 +1352,18 @@ export default function SubmissionPage() {
                         type="button"
                         onClick={() => setSelectedFont(fontOption.name)}
                         disabled={submission?.isComplete || !isEditingLogo}
-                        className={`p-4 rounded-lg border-2 transition-all ${
+                        className={`p-4 rounded-lg border transition-all ${
                           selectedFont === fontOption.name
                             ? "border-gold-600 bg-gold-50"
-                            : "border-gray-300 hover:border-gold-400 hover:bg-gold-50/50"
-                        } ${(submission?.isComplete || !isEditingLogo) ? "opacity-60 cursor-not-allowed" : ""}`}
+                            : "border-gray-300 hover:border-gold-400 hover:bg-white"
+                        } ${submission?.isComplete || !isEditingLogo ? "opacity-60 cursor-not-allowed" : ""}`}
                       >
                         <div className={`font-semibold ${fontOption.style}`}>
                           {fontOption.name}
                         </div>
-                        <div className={`text-2xl mt-2 ${fontOption.style}`}>Aa</div>
+                        <div className={`text-2xl mt-2 ${fontOption.style}`}>
+                          Aa
+                        </div>
                       </button>
                     ))}
                   </div>
@@ -1168,7 +1371,11 @@ export default function SubmissionPage() {
 
                 {/* 로고 선호 색상 선택 - PRD D-3 비주얼 선택 UI */}
                 <div className="space-y-3">
-                  <input type="hidden" name="로고선호색상" value={logoPreferenceColor} />
+                  <input
+                    type="hidden"
+                    name="로고선호색상"
+                    value={logoPreferenceColor}
+                  />
                   <LogoColorSelector
                     value={logoPreferenceColor}
                     onChange={setLogoPreferenceColor}
@@ -1177,15 +1384,19 @@ export default function SubmissionPage() {
                 </div>
 
                 {/* 명함 색상 선택 (16진수) */}
-                <div className="space-y-3 p-4 rounded-lg border-2 border-orange-300 bg-orange-50/50">
+                <div className="space-y-3 p-4 rounded-lg border border-orange-300 bg-orange-50/50">
                   <div className="flex items-start gap-2">
                     <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
-                    <Label htmlFor="명함색상" className="text-sm sm:text-base font-semibold text-orange-900">
+                    <Label
+                      htmlFor="명함색상"
+                      className="text-sm sm:text-base font-semibold text-orange-900"
+                    >
                       명함에 사용할 정확한 색상 코드 *
                     </Label>
                   </div>
                   <p className="text-xs text-orange-700">
-                    위에서 선택한 색상 계열을 기반으로, 명함에 사용할 정확한 색상을 선택해주세요.
+                    위에서 선택한 색상 계열을 기반으로, 명함에 사용할 정확한
+                    색상을 선택해주세요.
                   </p>
                   <div className="flex gap-3 items-center">
                     <input
@@ -1193,7 +1404,7 @@ export default function SubmissionPage() {
                       value={businessCardColor}
                       onChange={(e) => setBusinessCardColor(e.target.value)}
                       disabled={submission?.isComplete || !isEditingLogo}
-                      className="w-20 h-20 rounded-lg border-2 border-orange-400 cursor-pointer disabled:opacity-50"
+                      className="w-20 h-20 rounded-lg border border-orange-400 cursor-pointer disabled:opacity-50"
                     />
                     <div className="flex-1 space-y-2">
                       <Input
@@ -1207,12 +1418,14 @@ export default function SubmissionPage() {
                         required
                       />
                       <p className="text-xs text-orange-700 font-medium">
-                        컬러피커에서 선택하거나 직접 16진수 색상값을 입력하세요 (예: #FF5733)
+                        컬러피커에서 선택하거나 직접 16진수 색상값을 입력하세요
+                        (예: #FF5733)
                       </p>
                       <div className="bg-orange-100 border border-orange-300 rounded-md p-2">
                         <p className="text-xs sm:text-sm font-bold text-orange-900 flex items-center gap-1">
                           <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5" />
-                          필수! 색상을 반드시 선택한 후 &quot;저장하기&quot; 버튼을 눌러주세요!
+                          필수! 색상을 반드시 선택한 후 &quot;저장하기&quot;
+                          버튼을 눌러주세요!
                         </p>
                       </div>
                     </div>
@@ -1220,43 +1433,63 @@ export default function SubmissionPage() {
                 </div>
 
                 {/* 상세 제작 요청사항 (필수) */}
-                <div className="space-y-3 p-4 rounded-lg border-2 border-orange-200 bg-orange-50/50">
+                <div className="space-y-3 p-4 rounded-lg border border-orange-200 bg-orange-50/50">
                   <div className="flex items-start gap-2">
                     <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
                     <div className="flex-1">
-                      <Label htmlFor="로고제작요청사항" className="text-sm sm:text-base font-semibold text-orange-900">
+                      <Label
+                        htmlFor="로고제작요청사항"
+                        className="text-sm sm:text-base font-semibold text-orange-900"
+                      >
                         상세 제작 요청사항 *
                       </Label>
                       <p className="text-xs text-orange-700 mt-1">
-                        이 항목을 작성해야 로고 제작이 시작됩니다. 임시저장은 가능하지만, 최종 제출하려면 반드시 작성해주세요.
+                        이 항목을 작성해야 로고 제작이 시작됩니다. 임시저장은
+                        가능하지만, 최종 제출하려면 반드시 작성해주세요.
                       </p>
                     </div>
                   </div>
 
                   {/* 최우선 강조사항 */}
-                  <div className="p-4 bg-red-50 rounded-lg border-2 border-red-400 shadow-lg">
+                  <div className="p-4 bg-red-50 rounded-lg border border-red-400 shadow-lg">
                     <div className="flex items-start gap-3">
                       <div className="bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 font-bold text-lg">
                         !
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-base font-bold text-red-900 mb-2">⚠️ 필수 확인 사항</h3>
+                        <h3 className="text-base font-bold text-red-900 mb-2">
+                          ⚠️ 필수 확인 사항
+                        </h3>
                         <div className="bg-white p-3 rounded-lg border border-red-300">
                           <p className="text-sm font-bold text-red-800 mb-2">
-                            로고 제작은 <span className="underline decoration-2 decoration-red-500">심볼형 OR 워드마크형 중 한 가지만</span> 선택 가능합니다.
+                            로고 제작은{" "}
+                            <span className="underline decoration-2 decoration-red-500">
+                              심볼형 OR 워드마크형 중 한 가지만
+                            </span>{" "}
+                            선택 가능합니다.
                           </p>
                           <ul className="text-xs text-gray-800 space-y-1.5 ml-4">
                             <li className="flex items-start gap-2">
                               <span className="text-red-600 font-bold">✓</span>
-                              <span><span className="font-semibold">심볼형:</span> 아이콘/도형 (예: 나이키, 애플)</span>
+                              <span>
+                                <span className="font-semibold">심볼형:</span>{" "}
+                                아이콘/도형 (예: 나이키, 애플)
+                              </span>
                             </li>
                             <li className="flex items-start gap-2">
                               <span className="text-red-600 font-bold">✓</span>
-                              <span><span className="font-semibold">워드마크형:</span> 브랜드명만 디자인 (예: Google, Coca-Cola)</span>
+                              <span>
+                                <span className="font-semibold">
+                                  워드마크형:
+                                </span>{" "}
+                                브랜드명만 디자인 (예: Google, Coca-Cola)
+                              </span>
                             </li>
                             <li className="flex items-start gap-2">
                               <span className="text-red-600 font-bold">✗</span>
-                              <span className="line-through">심볼 + 워드마크 동시 제작 불가</span>
+                              <span className="line-through">
+                                심볼 + 워드마크 동시 제작 불가
+                              </span>
                             </li>
                           </ul>
                         </div>
@@ -1265,7 +1498,7 @@ export default function SubmissionPage() {
                   </div>
 
                   {/* 작성 가이드 - 항상 보이도록 상단에 배치 */}
-                  <div className="space-y-3 p-4 bg-white rounded-lg border-2 border-gold-200 shadow-sm">
+                  <div className="space-y-3 p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {/* 좋은 예시 */}
                       <div className="space-y-2">
@@ -1274,48 +1507,101 @@ export default function SubmissionPage() {
                         </p>
                         <ul className="text-xs text-gray-800 space-y-1.5 bg-green-50 p-3 rounded-lg border border-green-200 max-h-[400px] overflow-y-auto">
                           <li className="flex items-start gap-2">
-                            <span className="text-green-600 font-bold mt-0.5">1.</span>
-                            <span><span className="font-bold text-red-700">로고 형태:</span> 심볼형 선택 - 원형 프레임 안에 클라우드 아이콘 배치</span>
+                            <span className="text-green-600 font-bold mt-0.5">
+                              1.
+                            </span>
+                            <span>
+                              <span className="font-bold text-red-700">
+                                로고 형태:
+                              </span>{" "}
+                              심볼형 선택 - 원형 프레임 안에 클라우드 아이콘
+                              배치
+                            </span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-green-600 font-bold mt-0.5">2.</span>
-                            <span>메인 컬러는 파란색 계열(#2563EB), 흰색 배경에서 명확히 보이게</span>
+                            <span className="text-green-600 font-bold mt-0.5">
+                              2.
+                            </span>
+                            <span>
+                              메인 컬러는 파란색 계열(#2563EB), 흰색 배경에서
+                              명확히 보이게
+                            </span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-green-600 font-bold mt-0.5">3.</span>
-                            <span>폰트는 산세리프체(고딕체) 사용, 가독성 우선</span>
+                            <span className="text-green-600 font-bold mt-0.5">
+                              3.
+                            </span>
+                            <span>
+                              폰트는 산세리프체(고딕체) 사용, 가독성 우선
+                            </span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-green-600 font-bold mt-0.5">4.</span>
-                            <span>심볼은 업종과 연관된 아이콘 (예: IT 기업 - 클라우드/데이터 모티브)</span>
+                            <span className="text-green-600 font-bold mt-0.5">
+                              4.
+                            </span>
+                            <span>
+                              심볼은 업종과 연관된 아이콘 (예: IT 기업 -
+                              클라우드/데이터 모티브)
+                            </span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-green-600 font-bold mt-0.5">5.</span>
-                            <span>장식 요소 최소화, 선의 굵기는 균일하게 2-3px 유지</span>
+                            <span className="text-green-600 font-bold mt-0.5">
+                              5.
+                            </span>
+                            <span>
+                              장식 요소 최소화, 선의 굵기는 균일하게 2-3px 유지
+                            </span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-green-600 font-bold mt-0.5">6.</span>
-                            <span>그라데이션 지양, 단색으로 인쇄 가능한 디자인</span>
+                            <span className="text-green-600 font-bold mt-0.5">
+                              6.
+                            </span>
+                            <span>
+                              그라데이션 지양, 단색으로 인쇄 가능한 디자인
+                            </span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-green-600 font-bold mt-0.5">7.</span>
-                            <span>참고 브랜드: 삼성 (블루 계열), 네이버 (심볼+텍스트 조합)</span>
+                            <span className="text-green-600 font-bold mt-0.5">
+                              7.
+                            </span>
+                            <span>
+                              참고 브랜드: 삼성 (블루 계열), 네이버 (심볼+텍스트
+                              조합)
+                            </span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-green-600 font-bold mt-0.5">8.</span>
-                            <span>제외 요소: 빨강/노랑 색상, 세리프체, 손글씨체, 3D 효과</span>
+                            <span className="text-green-600 font-bold mt-0.5">
+                              8.
+                            </span>
+                            <span>
+                              제외 요소: 빨강/노랑 색상, 세리프체, 손글씨체, 3D
+                              효과
+                            </span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-green-600 font-bold mt-0.5">9.</span>
-                            <span>타겟: 30-40대 전문직, B2B 고객 대상, 신뢰감 중시</span>
+                            <span className="text-green-600 font-bold mt-0.5">
+                              9.
+                            </span>
+                            <span>
+                              타겟: 30-40대 전문직, B2B 고객 대상, 신뢰감 중시
+                            </span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-green-600 font-bold mt-0.5">10.</span>
-                            <span>로고 변형: 가로형/세로형/아이콘형 3가지 버전 필요</span>
+                            <span className="text-green-600 font-bold mt-0.5">
+                              10.
+                            </span>
+                            <span>
+                              로고 변형: 가로형/세로형/아이콘형 3가지 버전 필요
+                            </span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-green-600 font-bold mt-0.5">11.</span>
-                            <span>사용처: 웹사이트 헤더(150x50px), 명함(3x3cm), SNS 프로필(500x500px)</span>
+                            <span className="text-green-600 font-bold mt-0.5">
+                              11.
+                            </span>
+                            <span>
+                              사용처: 웹사이트 헤더(150x50px), 명함(3x3cm), SNS
+                              프로필(500x500px)
+                            </span>
                           </li>
                         </ul>
                       </div>
@@ -1327,68 +1613,136 @@ export default function SubmissionPage() {
                         </p>
                         <ul className="text-xs text-gray-800 space-y-1.5 bg-red-50 p-3 rounded-lg border border-red-200">
                           <li className="flex items-start gap-2">
-                            <span className="text-red-600 font-bold mt-0.5">✗</span>
-                            <span className="line-through">&apos;예쁘게 해주세요&apos;</span>
+                            <span className="text-red-600 font-bold mt-0.5">
+                              ✗
+                            </span>
+                            <span className="line-through">
+                              &apos;예쁘게 해주세요&apos;
+                            </span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-red-600 font-bold mt-0.5">✗</span>
-                            <span className="line-through">&apos;멋진 로고 부탁드립니다&apos;</span>
+                            <span className="text-red-600 font-bold mt-0.5">
+                              ✗
+                            </span>
+                            <span className="line-through">
+                              &apos;멋진 로고 부탁드립니다&apos;
+                            </span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-red-600 font-bold mt-0.5">✗</span>
-                            <span className="line-through">&apos;고급스럽게 해주세요&apos;</span>
+                            <span className="text-red-600 font-bold mt-0.5">
+                              ✗
+                            </span>
+                            <span className="line-through">
+                              &apos;고급스럽게 해주세요&apos;
+                            </span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-red-600 font-bold mt-0.5">✗</span>
-                            <span className="line-through">&apos;깔끔하게 만들어주세요&apos;</span>
+                            <span className="text-red-600 font-bold mt-0.5">
+                              ✗
+                            </span>
+                            <span className="line-through">
+                              &apos;깔끔하게 만들어주세요&apos;
+                            </span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-red-600 font-bold mt-0.5">✗</span>
-                            <span className="line-through">&apos;심플하게 해주세요&apos;</span>
+                            <span className="text-red-600 font-bold mt-0.5">
+                              ✗
+                            </span>
+                            <span className="line-through">
+                              &apos;심플하게 해주세요&apos;
+                            </span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-red-600 font-bold mt-0.5">✗</span>
-                            <span className="line-through">&apos;디자인 요소 추가해주세요&apos;</span>
+                            <span className="text-red-600 font-bold mt-0.5">
+                              ✗
+                            </span>
+                            <span className="line-through">
+                              &apos;디자인 요소 추가해주세요&apos;
+                            </span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-red-600 font-bold mt-0.5">✗</span>
-                            <span className="line-through">&apos;디자인해주세요&apos;</span>
+                            <span className="text-red-600 font-bold mt-0.5">
+                              ✗
+                            </span>
+                            <span className="line-through">
+                              &apos;디자인해주세요&apos;
+                            </span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-red-600 font-bold mt-0.5">✗</span>
-                            <span className="line-through">&apos;세련되게 만들어주세요&apos;</span>
+                            <span className="text-red-600 font-bold mt-0.5">
+                              ✗
+                            </span>
+                            <span className="line-through">
+                              &apos;세련되게 만들어주세요&apos;
+                            </span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-red-600 font-bold mt-0.5">✗</span>
-                            <span className="line-through">&apos;트렌디하게 해주세요&apos;</span>
+                            <span className="text-red-600 font-bold mt-0.5">
+                              ✗
+                            </span>
+                            <span className="line-through">
+                              &apos;트렌디하게 해주세요&apos;
+                            </span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-red-600 font-bold mt-0.5">✗</span>
-                            <span className="line-through">&apos;감각적으로 부탁드립니다&apos;</span>
+                            <span className="text-red-600 font-bold mt-0.5">
+                              ✗
+                            </span>
+                            <span className="line-through">
+                              &apos;감각적으로 부탁드립니다&apos;
+                            </span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-red-600 font-bold mt-0.5">✗</span>
-                            <span className="line-through">&apos;센스있게 해주세요&apos;</span>
+                            <span className="text-red-600 font-bold mt-0.5">
+                              ✗
+                            </span>
+                            <span className="line-through">
+                              &apos;센스있게 해주세요&apos;
+                            </span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-red-600 font-bold mt-0.5">✗</span>
-                            <span className="line-through">&apos;잘 부탁드립니다&apos;</span>
+                            <span className="text-red-600 font-bold mt-0.5">
+                              ✗
+                            </span>
+                            <span className="line-through">
+                              &apos;잘 부탁드립니다&apos;
+                            </span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-red-600 font-bold mt-0.5">✗</span>
-                            <span className="line-through">&apos;아무거나 괜찮아요&apos;</span>
+                            <span className="text-red-600 font-bold mt-0.5">
+                              ✗
+                            </span>
+                            <span className="line-through">
+                              &apos;아무거나 괜찮아요&apos;
+                            </span>
                           </li>
                         </ul>
                       </div>
                     </div>
 
                     <div className="bg-gold-50 p-3 rounded-lg border border-gold-200">
-                      <p className="text-xs text-navy-900 font-semibold mb-2">💡 작성 Tip</p>
+                      <p className="text-xs text-navy-900 font-semibold mb-2">
+                        💡 작성 Tip
+                      </p>
                       <ul className="text-xs text-navy-800 space-y-1 ml-4 list-disc">
-                        <li><span className="font-semibold">브랜드 컨셉:</span> 어떤 이미지를 주고 싶으신가요? (예: 신뢰감, 역동성, 전문성)</li>
-                        <li><span className="font-semibold">원하는 느낌:</span> 어떤 분위기를 원하시나요? (예: 모던한, 클래식한, 친근한)</li>
-                        <li><span className="font-semibold">포함 요소:</span> 로고에 꼭 들어가야 할 것은? (예: 브랜드명, 특정 심볼)</li>
-                        <li><span className="font-semibold">피하고 싶은 것:</span> 구체적으로 어떤 스타일을 피하고 싶으신가요?</li>
+                        <li>
+                          <span className="font-semibold">브랜드 컨셉:</span>{" "}
+                          어떤 이미지를 주고 싶으신가요? (예: 신뢰감, 역동성,
+                          전문성)
+                        </li>
+                        <li>
+                          <span className="font-semibold">원하는 느낌:</span>{" "}
+                          어떤 분위기를 원하시나요? (예: 모던한, 클래식한,
+                          친근한)
+                        </li>
+                        <li>
+                          <span className="font-semibold">포함 요소:</span>{" "}
+                          로고에 꼭 들어가야 할 것은? (예: 브랜드명, 특정 심볼)
+                        </li>
+                        <li>
+                          <span className="font-semibold">피하고 싶은 것:</span>{" "}
+                          구체적으로 어떤 스타일을 피하고 싶으신가요?
+                        </li>
                       </ul>
                     </div>
                   </div>
@@ -1400,7 +1754,7 @@ export default function SubmissionPage() {
                     defaultValue={submission?.로고제작요청사항}
                     disabled={submission?.isComplete || !isEditingLogo}
                     placeholder="여기에 구체적인 요청사항을 작성해주세요..."
-                    className="w-full p-4 rounded-lg border-2 border-orange-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 resize-none disabled:opacity-50 disabled:cursor-not-allowed text-sm placeholder:text-gray-500"
+                    className="w-full p-4 rounded-lg border border-orange-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 resize-none disabled:opacity-50 disabled:cursor-not-allowed text-sm placeholder:text-gray-500"
                   />
                 </div>
 
@@ -1420,7 +1774,11 @@ export default function SubmissionPage() {
                         disabled={loading}
                         className="bg-navy-900 text-white hover:bg-navy-800 text-sm sm:text-base"
                       >
-                        {loading ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />}
+                        {loading ? (
+                          <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" />
+                        ) : (
+                          <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                        )}
                         저장하기
                       </Button>
                     )}
@@ -1435,19 +1793,23 @@ export default function SubmissionPage() {
         <TabsContent value="print">
           <div className="space-y-6">
             {/* 인쇄물 디자인 제한 안내 */}
-            <div className="p-4 bg-gold-50 border-2 border-gold-200 rounded-lg">
+            <div className="p-4 bg-gold-50 border border-gray-200 rounded-lg">
               <div className="flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-gold-600 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-navy-900 font-semibold text-sm mb-2">📋 인쇄물 디자인 안내</p>
+                  <p className="text-navy-900 font-semibold text-sm mb-2">
+                    📋 인쇄물 디자인 안내
+                  </p>
                   <p className="text-navy-800 text-xs leading-relaxed mb-2">
-                    인쇄물 디자인은 <strong>기본 디자인에서 일부 변경만 가능</strong>합니다.
+                    인쇄물 디자인은{" "}
+                    <strong>기본 디자인에서 일부 변경만 가능</strong>합니다.
                   </p>
                   <div className="text-navy-700 text-xs space-y-1">
                     <p>• 신규 디자인 제작 불가</p>
                     <p>• 지정된 레이아웃 변형 불가</p>
                     <p className="text-gold-600 text-[11px] mt-2 pl-2">
-                      예) 대봉투 디자인 다른 도안으로 변경, 자문계약서 표지 문양 교체 또는 이미지 삽입 등
+                      예) 대봉투 디자인 다른 도안으로 변경, 자문계약서 표지 문양
+                      교체 또는 이미지 삽입 등
                     </p>
                   </div>
                 </div>
@@ -1458,16 +1820,21 @@ export default function SubmissionPage() {
               <div className="flex items-center gap-2 p-4 bg-amber-50 border border-amber-200 rounded-lg">
                 <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0" />
                 <div className="flex-1">
-                  <p className="text-amber-700 font-semibold text-sm">기본 정보를 먼저 완성해주세요</p>
+                  <p className="text-amber-700 font-semibold text-sm">
+                    기본 정보를 먼저 완성해주세요
+                  </p>
                   <p className="text-amber-600 text-xs mt-1">
-                    기본 정보 탭에서 브랜드명, 업종, 사업장 주소를 입력하면 인쇄물 탭이 활성화됩니다.
+                    기본 정보 탭에서 브랜드명, 업종, 사업장 주소를 입력하면
+                    인쇄물 탭이 활성화됩니다.
                   </p>
                 </div>
               </div>
             )}
             <Card className="glass border-white/10">
               <CardHeader>
-                <CardTitle className="text-gray-900 text-lg sm:text-xl">필수 서류</CardTitle>
+                <CardTitle className="text-gray-900 text-lg sm:text-xl">
+                  필수 서류
+                </CardTitle>
                 <CardDescription className="text-gray-400 text-xs sm:text-sm">
                   사업자등록증과 프로필 사진을 업로드해주세요
                 </CardDescription>
@@ -1481,7 +1848,9 @@ export default function SubmissionPage() {
                       <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 border border-green-200">
                         <div className="flex items-center gap-2">
                           <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-700" />
-                          <span className="text-green-700 text-sm sm:text-base">업로드 완료</span>
+                          <span className="text-green-700 text-sm sm:text-base">
+                            업로드 완료
+                          </span>
                         </div>
                         <a
                           href={submission.사업자등록증URL}
@@ -1499,14 +1868,19 @@ export default function SubmissionPage() {
                           className="hidden"
                           onChange={(e) => {
                             if (e.target.files?.[0]) {
-                              handleFileUpload("사업자등록증URL", e.target.files[0]);
+                              handleFileUpload(
+                                "사업자등록증URL",
+                                e.target.files[0],
+                              );
                             }
                           }}
                           disabled={uploading}
                         />
                         <div className="flex items-center justify-center gap-2 p-2 rounded-lg border border-gray-300 hover:border-gold-500 hover:bg-gold-50 cursor-pointer transition-all">
                           <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
-                          <span className="text-sm sm:text-base">파일 변경</span>
+                          <span className="text-sm sm:text-base">
+                            파일 변경
+                          </span>
                         </div>
                       </label>
                     </div>
@@ -1518,14 +1892,19 @@ export default function SubmissionPage() {
                         className="hidden"
                         onChange={(e) => {
                           if (e.target.files?.[0]) {
-                            handleFileUpload("사업자등록증URL", e.target.files[0]);
+                            handleFileUpload(
+                              "사업자등록증URL",
+                              e.target.files[0],
+                            );
                           }
                         }}
                         disabled={uploading}
                       />
-                      <div className="flex items-center justify-center gap-2 p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-gold-500 cursor-pointer transition-all">
+                      <div className="flex items-center justify-center gap-2 p-4 rounded-lg border border-dashed border-gray-300 hover:border-gold-500 cursor-pointer transition-all">
                         <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
-                        <span className="text-sm sm:text-base">클릭하여 파일 업로드</span>
+                        <span className="text-sm sm:text-base">
+                          클릭하여 파일 업로드
+                        </span>
                       </div>
                     </label>
                   )}
@@ -1533,13 +1912,17 @@ export default function SubmissionPage() {
 
                 {/* 프로필사진 */}
                 <div id="profile-photo-section" className="space-y-2">
-                  <Label className="text-sm sm:text-base break-words">프로필사진 * (1000px 이하)</Label>
+                  <Label className="text-sm sm:text-base break-words">
+                    프로필사진 * (1000px 이하)
+                  </Label>
                   {submission?.프로필사진URL ? (
                     <div className="space-y-2">
                       <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 border border-green-200">
                         <div className="flex items-center gap-2">
                           <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-700" />
-                          <span className="text-green-700 text-sm sm:text-base">업로드 완료</span>
+                          <span className="text-green-700 text-sm sm:text-base">
+                            업로드 완료
+                          </span>
                         </div>
                         <a
                           href={submission.프로필사진URL}
@@ -1557,14 +1940,19 @@ export default function SubmissionPage() {
                           className="hidden"
                           onChange={(e) => {
                             if (e.target.files?.[0]) {
-                              handleFileUpload("프로필사진URL", e.target.files[0]);
+                              handleFileUpload(
+                                "프로필사진URL",
+                                e.target.files[0],
+                              );
                             }
                           }}
                           disabled={uploading}
                         />
                         <div className="flex items-center justify-center gap-2 p-2 rounded-lg border border-gray-300 hover:border-gold-500 hover:bg-gold-50 cursor-pointer transition-all">
                           <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
-                          <span className="text-sm sm:text-base">파일 변경</span>
+                          <span className="text-sm sm:text-base">
+                            파일 변경
+                          </span>
                         </div>
                       </label>
                     </div>
@@ -1576,14 +1964,19 @@ export default function SubmissionPage() {
                         className="hidden"
                         onChange={(e) => {
                           if (e.target.files?.[0]) {
-                            handleFileUpload("프로필사진URL", e.target.files[0]);
+                            handleFileUpload(
+                              "프로필사진URL",
+                              e.target.files[0],
+                            );
                           }
                         }}
                         disabled={uploading}
                       />
-                      <div className="flex items-center justify-center gap-2 p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-gold-500 cursor-pointer transition-all">
+                      <div className="flex items-center justify-center gap-2 p-4 rounded-lg border border-dashed border-gray-300 hover:border-gold-500 cursor-pointer transition-all">
                         <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
-                        <span className="text-sm sm:text-base">클릭하여 파일 업로드</span>
+                        <span className="text-sm sm:text-base">
+                          클릭하여 파일 업로드
+                        </span>
                       </div>
                     </label>
                   )}
@@ -1595,7 +1988,9 @@ export default function SubmissionPage() {
             <Card id="namecard-section" className="glass border-white/10">
               <CardHeader>
                 <div>
-                  <CardTitle className="text-gray-900 text-lg sm:text-xl">명함 스타일</CardTitle>
+                  <CardTitle className="text-gray-900 text-lg sm:text-xl">
+                    명함 스타일
+                  </CardTitle>
                   <CardDescription className="text-gray-400 text-xs sm:text-sm">
                     명함 스타일을 선택해주세요
                   </CardDescription>
@@ -1609,8 +2004,14 @@ export default function SubmissionPage() {
                 >
                   {/* 명함 스타일 선택 */}
                   <div className="space-y-3">
-                    <Label className="text-sm sm:text-base break-words">명함 스타일 선택 (6종 중 1개 선택)</Label>
-                    <input type="hidden" name="명함시안" value={selectedNamecard} />
+                    <Label className="text-sm sm:text-base break-words">
+                      명함 스타일 선택 (6종 중 1개 선택)
+                    </Label>
+                    <input
+                      type="hidden"
+                      name="명함시안"
+                      value={selectedNamecard}
+                    />
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {[1, 2, 3, 4, 5, 6].map((num) => (
                         <div
@@ -1620,11 +2021,11 @@ export default function SubmissionPage() {
                               setSelectedNamecard(`스타일 ${num}`);
                             }
                           }}
-                          className={`relative p-3 rounded-lg border-2 transition-all ${
+                          className={`relative p-3 rounded-lg border transition-all ${
                             selectedNamecard === `스타일 ${num}`
                               ? "border-gold-600 ring-2 ring-gold-200 bg-gold-50"
                               : "border-gray-300 hover:border-gold-400"
-                          } ${(submission?.isComplete || !isEditingNamecard) ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
+                          } ${submission?.isComplete || !isEditingNamecard ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
                         >
                           <div className="flex flex-col items-center gap-2">
                             <img
@@ -1653,12 +2054,28 @@ export default function SubmissionPage() {
 
                   {/* 계약서 스타일 선택 */}
                   <div className="space-y-3 pt-6 border-t border-gray-200">
-                    <Label className="text-sm sm:text-base break-words">자문계약서 스타일 선택 (2종 중 1개 선택)</Label>
-                    <input type="hidden" name="계약서시안" value={selectedContract} />
+                    <Label className="text-sm sm:text-base break-words">
+                      자문계약서 스타일 선택 (2종 중 1개 선택)
+                    </Label>
+                    <input
+                      type="hidden"
+                      name="계약서시안"
+                      value={selectedContract}
+                    />
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {[
-                        { id: "스타일 1", label: "스타일 1", cover: "/guides/print/contract_cover.jpg", inner: "/guides/print/contract_inner.jpg" },
-                        { id: "스타일 2", label: "스타일 2", cover: "/guides/print/contract_cover_2.jpg", inner: "/guides/print/contract_inner_2.jpg" },
+                        {
+                          id: "스타일 1",
+                          label: "스타일 1",
+                          cover: "/guides/print/contract_cover.jpg",
+                          inner: "/guides/print/contract_inner.jpg",
+                        },
+                        {
+                          id: "스타일 2",
+                          label: "스타일 2",
+                          cover: "/guides/print/contract_cover_2.jpg",
+                          inner: "/guides/print/contract_inner_2.jpg",
+                        },
                       ].map((style) => (
                         <div
                           key={style.id}
@@ -1667,16 +2084,18 @@ export default function SubmissionPage() {
                               setSelectedContract(style.id);
                             }
                           }}
-                          className={`relative p-3 rounded-lg border-2 transition-all ${
+                          className={`relative p-3 rounded-lg border transition-all ${
                             selectedContract === style.id
                               ? "border-indigo-600 ring-2 ring-indigo-200 bg-indigo-50"
                               : "border-gray-300 hover:border-indigo-400"
-                          } ${(submission?.isComplete || !isEditingNamecard) ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
+                          } ${submission?.isComplete || !isEditingNamecard ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
                         >
                           <div className="flex flex-col items-center gap-2">
                             <div className="grid grid-cols-2 gap-1 w-full">
                               <div>
-                                <p className="text-[10px] text-gray-500 mb-0.5">표지</p>
+                                <p className="text-[10px] text-gray-500 mb-0.5">
+                                  표지
+                                </p>
                                 <img
                                   src={style.cover}
                                   alt={`계약서 ${style.label} 표지`}
@@ -1684,7 +2103,9 @@ export default function SubmissionPage() {
                                 />
                               </div>
                               <div>
-                                <p className="text-[10px] text-gray-500 mb-0.5">내지</p>
+                                <p className="text-[10px] text-gray-500 mb-0.5">
+                                  내지
+                                </p>
                                 <img
                                   src={style.inner}
                                   alt={`계약서 ${style.label} 내지`}
@@ -1727,7 +2148,11 @@ export default function SubmissionPage() {
                           disabled={loading}
                           className="bg-navy-900 text-white hover:bg-navy-800 text-sm sm:text-base"
                         >
-                          {loading ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />}
+                          {loading ? (
+                            <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" />
+                          ) : (
+                            <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                          )}
                           저장하기
                         </Button>
                       )}
@@ -1764,9 +2189,11 @@ export default function SubmissionPage() {
 
         {/* 마케팅 */}
         <TabsContent value="marketing" id="marketing">
-          <Card className="bg-white border-2 border-gray-200">
+          <Card className="bg-white border border-gray-200">
             <CardHeader>
-              <CardTitle className="text-gray-900 text-lg sm:text-xl">마케팅 정보</CardTitle>
+              <CardTitle className="text-gray-900 text-lg sm:text-xl">
+                마케팅 정보
+              </CardTitle>
               <CardDescription className="text-gray-600 text-xs sm:text-sm">
                 메타광고, 네이버 광고, 인스타그램 정보를 입력해주세요
               </CardDescription>
@@ -1781,9 +2208,14 @@ export default function SubmissionPage() {
                 <SecurityNotice type="marketing" />
 
                 {/* 네이버 검색광고 */}
-                <div id="account-section" className="space-y-4 p-4 rounded-lg border-2 border-gold-200 bg-gold-50/50">
+                <div
+                  id="account-section"
+                  className="space-y-4 p-4 rounded-lg border border-gray-200 bg-white"
+                >
                   <div className="space-y-2">
-                    <Label className="text-sm sm:text-base font-semibold">네이버 검색광고</Label>
+                    <Label className="text-sm sm:text-base font-semibold">
+                      네이버 검색광고
+                    </Label>
                     <div className="text-xs sm:text-sm text-navy-700 bg-gold-50 border border-gold-200 rounded-md p-3">
                       <p className="font-medium mb-1.5">📋 가입 안내</p>
                       <p className="text-gold-600 mb-2">
@@ -1796,13 +2228,23 @@ export default function SubmissionPage() {
                           네이버 검색광고 가입하기 →
                         </a>
                       </p>
-                      <p className="text-gold-600 mb-1">• 가입만하면 안되고 사업자 정보 정확히 입력 및 본인인증 필수</p>
-                      <p className="text-gold-600">• 사업자 대표 명의 계정으로 진행 필수</p>
+                      <p className="text-gold-600 mb-1">
+                        • 가입만하면 안되고 사업자 정보 정확히 입력 및 본인인증
+                        필수
+                      </p>
+                      <p className="text-gold-600">
+                        • 사업자 대표 명의 계정으로 진행 필수
+                      </p>
                     </div>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="네이버검색광고ID" className="text-sm sm:text-base">ID</Label>
+                      <Label
+                        htmlFor="네이버검색광고ID"
+                        className="text-sm sm:text-base"
+                      >
+                        ID
+                      </Label>
                       <Input
                         id="네이버검색광고ID"
                         name="네이버검색광고ID"
@@ -1811,7 +2253,12 @@ export default function SubmissionPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="네이버검색광고PW" className="text-sm sm:text-base">비밀번호</Label>
+                      <Label
+                        htmlFor="네이버검색광고PW"
+                        className="text-sm sm:text-base"
+                      >
+                        비밀번호
+                      </Label>
                       <Input
                         id="네이버검색광고PW"
                         name="네이버검색광고PW"
@@ -1823,7 +2270,7 @@ export default function SubmissionPage() {
                   </div>
 
                   {/* 광고비 충전 안내 */}
-                  <div className="mt-4 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-lg p-4">
+                  <div className="mt-4 bg-white border border-gray-200 rounded-lg p-4">
                     <div className="flex items-start gap-3">
                       <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
                         <CreditCard className="w-5 h-5 text-green-600" />
@@ -1851,7 +2298,9 @@ export default function SubmissionPage() {
                         </a>
                         <div className="mt-3 bg-green-100 border border-green-300 rounded-md p-2">
                           <p className="text-xs text-green-900">
-                            <strong>💡 충전 방법:</strong> 위 버튼 클릭 → 네이버 검색광고 관리 페이지 → <strong>충전하기</strong> 버튼 클릭
+                            <strong>💡 충전 방법:</strong> 위 버튼 클릭 → 네이버
+                            검색광고 관리 페이지 → <strong>충전하기</strong>{" "}
+                            버튼 클릭
                           </p>
                         </div>
                       </div>
@@ -1860,9 +2309,11 @@ export default function SubmissionPage() {
                 </div>
 
                 {/* 네이버 클라우드 */}
-                <div className="space-y-4 p-4 rounded-lg border-2 border-gold-200 bg-gold-50/50">
+                <div className="space-y-4 p-4 rounded-lg border border-gray-200 bg-white">
                   <div className="space-y-2">
-                    <Label className="text-sm sm:text-base font-semibold">네이버 클라우드</Label>
+                    <Label className="text-sm sm:text-base font-semibold">
+                      네이버 클라우드
+                    </Label>
                     <div className="text-xs sm:text-sm text-navy-700 bg-gold-50 border border-gold-200 rounded-md p-3">
                       <p className="font-medium mb-1.5">📋 가입 안내</p>
                       <p className="text-gold-600 mb-2">
@@ -1875,13 +2326,22 @@ export default function SubmissionPage() {
                           네이버 클라우드 가입하기 →
                         </a>
                       </p>
-                      <p className="text-gold-600 mb-1">• 가입하고 로그아웃 창 옆에 결제수단 등록 해야함</p>
-                      <p className="text-gold-600">• 사업자 대표 명의 계정으로 진행 필수</p>
+                      <p className="text-gold-600 mb-1">
+                        • 가입하고 로그아웃 창 옆에 결제수단 등록 해야함
+                      </p>
+                      <p className="text-gold-600">
+                        • 사업자 대표 명의 계정으로 진행 필수
+                      </p>
                     </div>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="네이버클라우드ID" className="text-sm sm:text-base">ID</Label>
+                      <Label
+                        htmlFor="네이버클라우드ID"
+                        className="text-sm sm:text-base"
+                      >
+                        ID
+                      </Label>
                       <Input
                         id="네이버클라우드ID"
                         name="네이버클라우드ID"
@@ -1890,7 +2350,12 @@ export default function SubmissionPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="네이버클라우드PW" className="text-sm sm:text-base">비밀번호</Label>
+                      <Label
+                        htmlFor="네이버클라우드PW"
+                        className="text-sm sm:text-base"
+                      >
+                        비밀번호
+                      </Label>
                       <Input
                         id="네이버클라우드PW"
                         name="네이버클라우드PW"
@@ -1903,11 +2368,18 @@ export default function SubmissionPage() {
                 </div>
 
                 {/* 인스타그램 */}
-                <div className="space-y-4 p-4 rounded-lg border-2 border-gold-200 bg-gold-50/50">
-                  <Label className="text-sm sm:text-base font-semibold">Instagram</Label>
+                <div className="space-y-4 p-4 rounded-lg border border-gray-200 bg-white">
+                  <Label className="text-sm sm:text-base font-semibold">
+                    Instagram
+                  </Label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="InstagramID" className="text-sm sm:text-base">ID</Label>
+                      <Label
+                        htmlFor="InstagramID"
+                        className="text-sm sm:text-base"
+                      >
+                        ID
+                      </Label>
                       <Input
                         id="InstagramID"
                         name="InstagramID"
@@ -1917,7 +2389,12 @@ export default function SubmissionPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="InstagramPW" className="text-sm sm:text-base">비밀번호</Label>
+                      <Label
+                        htmlFor="InstagramPW"
+                        className="text-sm sm:text-base"
+                      >
+                        비밀번호
+                      </Label>
                       <Input
                         id="InstagramPW"
                         name="InstagramPW"
@@ -1931,14 +2408,20 @@ export default function SubmissionPage() {
                 </div>
 
                 {/* Gmail (메일발신용) */}
-                <div className="space-y-4 p-4 rounded-lg border-2 border-purple-200 bg-purple-50/50">
+                <div className="space-y-4 p-4 rounded-lg border border-purple-200 bg-purple-50/50">
                   <div className="space-y-2">
-                    <Label className="text-sm sm:text-base font-semibold">Gmail (메일발신용)</Label>
-                    <p className="text-xs sm:text-sm text-gray-600">신규 개설한 Gmail 계정 ID/PW를 입력해주세요</p>
+                    <Label className="text-sm sm:text-base font-semibold">
+                      Gmail (메일발신용)
+                    </Label>
+                    <p className="text-xs sm:text-sm text-gray-600">
+                      신규 개설한 Gmail 계정 ID/PW를 입력해주세요
+                    </p>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="GmailID" className="text-sm sm:text-base">ID</Label>
+                      <Label htmlFor="GmailID" className="text-sm sm:text-base">
+                        ID
+                      </Label>
                       <Input
                         id="GmailID"
                         name="GmailID"
@@ -1948,7 +2431,9 @@ export default function SubmissionPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="GmailPW" className="text-sm sm:text-base">비밀번호</Label>
+                      <Label htmlFor="GmailPW" className="text-sm sm:text-base">
+                        비밀번호
+                      </Label>
                       <Input
                         id="GmailPW"
                         name="GmailPW"
@@ -1975,7 +2460,11 @@ export default function SubmissionPage() {
                       disabled={loading}
                       className="bg-navy-900 text-white hover:bg-navy-800 text-sm sm:text-base"
                     >
-                      {loading ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />}
+                      {loading ? (
+                        <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" />
+                      ) : (
+                        <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                      )}
                       저장하기
                     </Button>
                   )}
@@ -1984,26 +2473,34 @@ export default function SubmissionPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-white border-2 border-gray-200 mt-6">
+          <Card className="bg-white border border-gray-200 mt-6">
             <CardHeader>
-              <CardTitle className="text-gray-900 text-lg sm:text-xl">SMS 발신 등록 서류</CardTitle>
+              <CardTitle className="text-gray-900 text-lg sm:text-xl">
+                SMS 발신 등록 서류
+              </CardTitle>
               <CardDescription className="text-gray-600 text-xs sm:text-sm">
                 SMS 발신번호 등록에 필요한 서류를 업로드해주세요
               </CardDescription>
               <div className="text-xs sm:text-sm text-navy-700 bg-gold-50 border border-gold-200 rounded-md p-3 mt-3">
                 <p className="font-medium mb-1.5">📋 SMS 발신 이용 안내</p>
-                <p className="text-gold-600">DB 자동화 적용 시 고객 접수 시 자동 안내 문자가 발송됩니다</p>
+                <p className="text-gold-600">
+                  DB 자동화 적용 시 고객 접수 시 자동 안내 문자가 발송됩니다
+                </p>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* 대표자신분증 */}
               <div className="space-y-2">
-                <Label className="text-sm sm:text-base break-words">대표자 신분증 - 마스킹 없어야 됩니다. (번호안가리고)</Label>
+                <Label className="text-sm sm:text-base break-words">
+                  대표자 신분증 - 마스킹 없어야 됩니다. (번호안가리고)
+                </Label>
                 {/* 민감 정보 안내 */}
                 <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
                   <Shield className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
                   <p className="text-sm text-amber-700">
-                    이 파일은 보안을 위해 <strong>서버에 저장되지 않습니다</strong>. 담당자에게 안전하게 전달됩니다.
+                    이 파일은 보안을 위해{" "}
+                    <strong>서버에 저장되지 않습니다</strong>. 담당자에게
+                    안전하게 전달됩니다.
                   </p>
                 </div>
                 {submission?.대표자신분증URL === SLACK_ONLY_MARKER ? (
@@ -2012,8 +2509,12 @@ export default function SubmissionPage() {
                       <Shield className="w-4 h-4 text-green-600" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-green-700">담당자에게 전송 완료</p>
-                      <p className="text-xs text-green-600">보안을 위해 서버에 저장되지 않았습니다</p>
+                      <p className="text-sm font-medium text-green-700">
+                        담당자에게 전송 완료
+                      </p>
+                      <p className="text-xs text-green-600">
+                        보안을 위해 서버에 저장되지 않았습니다
+                      </p>
                     </div>
                     <label className="cursor-pointer">
                       <input
@@ -2022,12 +2523,17 @@ export default function SubmissionPage() {
                         className="hidden"
                         onChange={(e) => {
                           if (e.target.files?.[0]) {
-                            handleFileUpload("대표자신분증URL", e.target.files[0]);
+                            handleFileUpload(
+                              "대표자신분증URL",
+                              e.target.files[0],
+                            );
                           }
                         }}
                         disabled={uploading}
                       />
-                      <span className="text-sm text-gold-600 hover:underline">재전송</span>
+                      <span className="text-sm text-gold-600 hover:underline">
+                        재전송
+                      </span>
                     </label>
                   </div>
                 ) : submission?.대표자신분증URL ? (
@@ -2035,7 +2541,9 @@ export default function SubmissionPage() {
                     <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 border border-green-200">
                       <div className="flex items-center gap-2">
                         <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-700" />
-                        <span className="text-green-700 text-sm sm:text-base">업로드 완료</span>
+                        <span className="text-green-700 text-sm sm:text-base">
+                          업로드 완료
+                        </span>
                       </div>
                       <a
                         href={submission.대표자신분증URL}
@@ -2053,7 +2561,10 @@ export default function SubmissionPage() {
                         className="hidden"
                         onChange={(e) => {
                           if (e.target.files?.[0]) {
-                            handleFileUpload("대표자신분증URL", e.target.files[0]);
+                            handleFileUpload(
+                              "대표자신분증URL",
+                              e.target.files[0],
+                            );
                           }
                         }}
                         disabled={uploading}
@@ -2072,14 +2583,19 @@ export default function SubmissionPage() {
                       className="hidden"
                       onChange={(e) => {
                         if (e.target.files?.[0]) {
-                          handleFileUpload("대표자신분증URL", e.target.files[0]);
+                          handleFileUpload(
+                            "대표자신분증URL",
+                            e.target.files[0],
+                          );
                         }
                       }}
                       disabled={uploading}
                     />
-                    <div className="flex items-center justify-center gap-2 p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-gold-500 cursor-pointer transition-all">
+                    <div className="flex items-center justify-center gap-2 p-4 rounded-lg border border-dashed border-gray-300 hover:border-gold-500 cursor-pointer transition-all">
                       <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
-                      <span className="text-sm sm:text-base">클릭하여 파일 업로드</span>
+                      <span className="text-sm sm:text-base">
+                        클릭하여 파일 업로드
+                      </span>
                     </div>
                   </label>
                 )}
@@ -2087,22 +2603,33 @@ export default function SubmissionPage() {
 
               {/* 통신서비스이용증명원 */}
               <div className="space-y-2">
-                <Label className="text-sm sm:text-base break-words">통신서비스 이용증명원 (통신사 모바일앱 또는 고객센터에서 발급가능)</Label>
+                <Label className="text-sm sm:text-base break-words">
+                  통신서비스 이용증명원 (통신사 모바일앱 또는 고객센터에서
+                  발급가능)
+                </Label>
                 <div className="text-xs sm:text-sm text-gray-600 space-y-1 pl-1">
                   <p className="flex items-start gap-1.5">
                     <span className="text-gold-600 font-medium mt-0.5">•</span>
-                    <span><span className="font-medium">대표번호 등록 시:</span> 1차 안내 문자 발송 후 고객 문자 수신 불가</span>
+                    <span>
+                      <span className="font-medium">대표번호 등록 시:</span> 1차
+                      안내 문자 발송 후 고객 문자 수신 불가
+                    </span>
                   </p>
                   <p className="flex items-start gap-1.5">
                     <span className="text-green-600 font-medium mt-0.5">•</span>
-                    <span><span className="font-medium">핸드폰 번호 등록 시:</span> 1차 안내 문자 발송 후 고객 문자 수신 가능</span>
+                    <span>
+                      <span className="font-medium">핸드폰 번호 등록 시:</span>{" "}
+                      1차 안내 문자 발송 후 고객 문자 수신 가능
+                    </span>
                   </p>
                 </div>
                 {/* 민감 정보 안내 */}
                 <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
                   <Shield className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
                   <p className="text-sm text-amber-700">
-                    이 파일은 보안을 위해 <strong>서버에 저장되지 않습니다</strong>. 담당자에게 안전하게 전달됩니다.
+                    이 파일은 보안을 위해{" "}
+                    <strong>서버에 저장되지 않습니다</strong>. 담당자에게
+                    안전하게 전달됩니다.
                   </p>
                 </div>
                 {submission?.통신서비스이용증명원URL === SLACK_ONLY_MARKER ? (
@@ -2111,8 +2638,12 @@ export default function SubmissionPage() {
                       <Shield className="w-4 h-4 text-green-600" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-green-700">담당자에게 전송 완료</p>
-                      <p className="text-xs text-green-600">보안을 위해 서버에 저장되지 않았습니다</p>
+                      <p className="text-sm font-medium text-green-700">
+                        담당자에게 전송 완료
+                      </p>
+                      <p className="text-xs text-green-600">
+                        보안을 위해 서버에 저장되지 않았습니다
+                      </p>
                     </div>
                     <label className="cursor-pointer">
                       <input
@@ -2121,12 +2652,17 @@ export default function SubmissionPage() {
                         className="hidden"
                         onChange={(e) => {
                           if (e.target.files?.[0]) {
-                            handleFileUpload("통신서비스이용증명원URL", e.target.files[0]);
+                            handleFileUpload(
+                              "통신서비스이용증명원URL",
+                              e.target.files[0],
+                            );
                           }
                         }}
                         disabled={uploading}
                       />
-                      <span className="text-sm text-gold-600 hover:underline">재전송</span>
+                      <span className="text-sm text-gold-600 hover:underline">
+                        재전송
+                      </span>
                     </label>
                   </div>
                 ) : submission?.통신서비스이용증명원URL ? (
@@ -2134,7 +2670,9 @@ export default function SubmissionPage() {
                     <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 border border-green-200">
                       <div className="flex items-center gap-2">
                         <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-700" />
-                        <span className="text-green-700 text-sm sm:text-base">업로드 완료</span>
+                        <span className="text-green-700 text-sm sm:text-base">
+                          업로드 완료
+                        </span>
                       </div>
                       <a
                         href={submission.통신서비스이용증명원URL}
@@ -2152,7 +2690,10 @@ export default function SubmissionPage() {
                         className="hidden"
                         onChange={(e) => {
                           if (e.target.files?.[0]) {
-                            handleFileUpload("통신서비스이용증명원URL", e.target.files[0]);
+                            handleFileUpload(
+                              "통신서비스이용증명원URL",
+                              e.target.files[0],
+                            );
                           }
                         }}
                         disabled={uploading}
@@ -2171,14 +2712,19 @@ export default function SubmissionPage() {
                       className="hidden"
                       onChange={(e) => {
                         if (e.target.files?.[0]) {
-                          handleFileUpload("통신서비스이용증명원URL", e.target.files[0]);
+                          handleFileUpload(
+                            "통신서비스이용증명원URL",
+                            e.target.files[0],
+                          );
                         }
                       }}
                       disabled={uploading}
                     />
-                    <div className="flex items-center justify-center gap-2 p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-gold-500 cursor-pointer transition-all">
+                    <div className="flex items-center justify-center gap-2 p-4 rounded-lg border border-dashed border-gray-300 hover:border-gold-500 cursor-pointer transition-all">
                       <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
-                      <span className="text-sm sm:text-base">클릭하여 파일 업로드</span>
+                      <span className="text-sm sm:text-base">
+                        클릭하여 파일 업로드
+                      </span>
                     </div>
                   </label>
                 )}
@@ -2186,12 +2732,16 @@ export default function SubmissionPage() {
 
               {/* 신용카드앞면 */}
               <div className="space-y-2">
-                <Label className="text-sm sm:text-base break-words">신용카드 번호 보이는면 CVC 번호 필수</Label>
+                <Label className="text-sm sm:text-base break-words">
+                  신용카드 번호 보이는면 CVC 번호 필수
+                </Label>
                 {/* 민감 정보 안내 */}
                 <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
                   <Shield className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
                   <p className="text-sm text-amber-700">
-                    이 파일은 보안을 위해 <strong>서버에 저장되지 않습니다</strong>. 담당자에게 안전하게 전달됩니다.
+                    이 파일은 보안을 위해{" "}
+                    <strong>서버에 저장되지 않습니다</strong>. 담당자에게
+                    안전하게 전달됩니다.
                   </p>
                 </div>
                 {submission?.신용카드앞면URL === SLACK_ONLY_MARKER ? (
@@ -2200,8 +2750,12 @@ export default function SubmissionPage() {
                       <Shield className="w-4 h-4 text-green-600" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-green-700">담당자에게 전송 완료</p>
-                      <p className="text-xs text-green-600">보안을 위해 서버에 저장되지 않았습니다</p>
+                      <p className="text-sm font-medium text-green-700">
+                        담당자에게 전송 완료
+                      </p>
+                      <p className="text-xs text-green-600">
+                        보안을 위해 서버에 저장되지 않았습니다
+                      </p>
                     </div>
                     <label className="cursor-pointer">
                       <input
@@ -2210,12 +2764,17 @@ export default function SubmissionPage() {
                         className="hidden"
                         onChange={(e) => {
                           if (e.target.files?.[0]) {
-                            handleFileUpload("신용카드앞면URL", e.target.files[0]);
+                            handleFileUpload(
+                              "신용카드앞면URL",
+                              e.target.files[0],
+                            );
                           }
                         }}
                         disabled={uploading}
                       />
-                      <span className="text-sm text-gold-600 hover:underline">재전송</span>
+                      <span className="text-sm text-gold-600 hover:underline">
+                        재전송
+                      </span>
                     </label>
                   </div>
                 ) : submission?.신용카드앞면URL ? (
@@ -2223,7 +2782,9 @@ export default function SubmissionPage() {
                     <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 border border-green-200">
                       <div className="flex items-center gap-2">
                         <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-700" />
-                        <span className="text-green-700 text-sm sm:text-base">업로드 완료</span>
+                        <span className="text-green-700 text-sm sm:text-base">
+                          업로드 완료
+                        </span>
                       </div>
                       <a
                         href={submission.신용카드앞면URL}
@@ -2241,7 +2802,10 @@ export default function SubmissionPage() {
                         className="hidden"
                         onChange={(e) => {
                           if (e.target.files?.[0]) {
-                            handleFileUpload("신용카드앞면URL", e.target.files[0]);
+                            handleFileUpload(
+                              "신용카드앞면URL",
+                              e.target.files[0],
+                            );
                           }
                         }}
                         disabled={uploading}
@@ -2260,14 +2824,19 @@ export default function SubmissionPage() {
                       className="hidden"
                       onChange={(e) => {
                         if (e.target.files?.[0]) {
-                          handleFileUpload("신용카드앞면URL", e.target.files[0]);
+                          handleFileUpload(
+                            "신용카드앞면URL",
+                            e.target.files[0],
+                          );
                         }
                       }}
                       disabled={uploading}
                     />
-                    <div className="flex items-center justify-center gap-2 p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-gold-500 cursor-pointer transition-all">
+                    <div className="flex items-center justify-center gap-2 p-4 rounded-lg border border-dashed border-gray-300 hover:border-gold-500 cursor-pointer transition-all">
                       <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
-                      <span className="text-sm sm:text-base">클릭하여 파일 업로드</span>
+                      <span className="text-sm sm:text-base">
+                        클릭하여 파일 업로드
+                      </span>
                     </div>
                   </label>
                 )}
@@ -2279,7 +2848,7 @@ export default function SubmissionPage() {
 
       {uploading && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 flex items-center gap-3 shadow-xl border-2 border-gray-200">
+          <div className="bg-white rounded-lg p-6 flex items-center gap-3 shadow-xl border border-gray-200">
             <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin text-gold-600" />
             <span className="text-gray-900 font-medium">파일 업로드 중...</span>
           </div>
@@ -2326,7 +2895,7 @@ export default function SubmissionPage() {
           sections={progress.sections}
           overallPercentage={progress.overallPercentage}
           onNavigateToSection={(href) => {
-            const [tab, elementId] = href.split('#');
+            const [tab, elementId] = href.split("#");
             const url = elementId
               ? `/dashboard/submission?tab=${tab}#${elementId}`
               : `/dashboard/submission?tab=${tab}`;

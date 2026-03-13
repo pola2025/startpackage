@@ -1,0 +1,38 @@
+// 디자인 시스템 컬러 & 스타일
+export const colors = {
+  bg: "#0a0a0a",
+  surface: "#0f0f0f",
+  card: "#1e1e1e",
+  cardBorder: "rgba(255,255,255,0.08)",
+  text: "#ffffff",
+  textSub: "#888888",
+  textMuted: "#555555",
+  gold: "#c9a962",
+  goldLight: "#c9a962",
+  goldBg: "rgba(201,169,98,0.12)",
+  goldBorder: "rgba(201,169,98,0.3)",
+  green: "#22c55e",
+  greenBg: "rgba(34,197,94,0.08)",
+  greenBorder: "rgba(34,197,94,0.2)",
+  amber: "#f59e0b",
+  amberBg: "rgba(245,158,11,0.08)",
+  amberBorder: "rgba(245,158,11,0.2)",
+  orange: "#f97316",
+  orangeBg: "rgba(249,115,22,0.08)",
+  orangeBorder: "rgba(249,115,22,0.2)",
+  blue: "#3b82f6",
+  blueBg: "rgba(59,130,246,0.08)",
+  blueBorder: "rgba(59,130,246,0.2)",
+  red: "#ef4444",
+  redBg: "rgba(239,68,68,0.05)",
+  redBorder: "rgba(239,68,68,0.2)",
+  purple: "#a855f7",
+  purpleBg: "rgba(168,85,247,0.08)",
+  purpleBorder: "rgba(168,85,247,0.2)",
+  yellow: "#eab308",
+  yellowBg: "rgba(234,179,8,0.15)",
+};
+
+export const fonts = {
+  main: "Pretendard, -apple-system, BlinkMacSystemFont, sans-serif",
+};

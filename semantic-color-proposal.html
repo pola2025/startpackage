@@ -1,0 +1,1069 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>시맨틱 컬러 v2 — Navy/Gold 동일계열 + Error only Red</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #f5f3ee;
+        color: #1a1a1a;
+        padding: 32px 20px;
+        max-width: 760px;
+        margin: 0 auto;
+      }
+      h1 {
+        font-size: 20px;
+        font-weight: 800;
+        color: #0d1b2a;
+        margin-bottom: 4px;
+      }
+      .subtitle {
+        font-size: 12px;
+        color: #667180;
+        margin-bottom: 24px;
+      }
+      .concept {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #e5d9ad;
+        padding: 16px;
+        margin-bottom: 24px;
+        font-size: 12px;
+        line-height: 1.7;
+        color: #1f3044;
+      }
+      .concept strong {
+        color: #0d1b2a;
+      }
+      .concept .red {
+        color: #b85e52;
+        font-weight: 700;
+      }
+
+      .section-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #0d1b2a;
+        margin: 24px 0 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .section-title .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+
+      .role-card {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #e5d9ad;
+        padding: 14px;
+        margin-bottom: 10px;
+      }
+      .role-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+      }
+      .role-name {
+        font-size: 13px;
+        font-weight: 700;
+      }
+      .role-desc {
+        font-size: 10px;
+        color: #667180;
+      }
+
+      .swatches {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 10px;
+      }
+      .sw {
+        flex: 1;
+        text-align: center;
+      }
+      .sw-box {
+        height: 40px;
+        border-radius: 6px;
+        margin-bottom: 3px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+      }
+      .sw-lbl {
+        font-size: 9px;
+        font-weight: 600;
+        color: #667180;
+      }
+      .sw-hex {
+        font-size: 8px;
+        color: #8f9ba6;
+        font-family: monospace;
+      }
+
+      .demos {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+        padding-top: 8px;
+        border-top: 1px solid #f0e8cc;
+      }
+      .d-label {
+        font-size: 8px;
+        color: #8f9ba6;
+      }
+      .d-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+      .d-badge {
+        font-size: 10px;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 4px;
+      }
+      .d-alert {
+        font-size: 10px;
+        padding: 7px 10px;
+        border-radius: 6px;
+        border-left: 3px solid;
+        flex: 1;
+        min-width: 160px;
+      }
+
+      .compare {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      .compare-col {
+        background: #fff;
+        border-radius: 10px;
+        padding: 12px;
+        border: 1px solid #e5d9ad;
+      }
+      .compare-col h4 {
+        font-size: 11px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        text-align: center;
+        padding-bottom: 6px;
+        border-bottom: 1px solid #f0e8cc;
+      }
+      .c-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 5px;
+        font-size: 11px;
+      }
+      .c-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .c-badge {
+        font-size: 9px;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 3px;
+      }
+      .c-name {
+        font-size: 9px;
+        color: #aaa;
+        margin-left: auto;
+      }
+
+      .mock {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #e5d9ad;
+        padding: 16px;
+        margin-bottom: 20px;
+      }
+      .mock-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+      .mock-pill {
+        font-size: 10px;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 20px;
+      }
+      .mock-noti {
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 8px;
+      }
+      .mock-noti-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: #fff;
+        padding: 6px 8px;
+        border-radius: 6px;
+        border: 1px solid;
+        margin-bottom: 3px;
+      }
+      .mock-noti-badge {
+        font-size: 9px;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 3px;
+        color: #fff;
+      }
+      .mock-noti-text {
+        font-size: 10px;
+        font-weight: 500;
+      }
+      .mock-grid {
+        display: grid;
+        gap: 4px;
+      }
+      .mock-grid-4 {
+        grid-template-columns: repeat(4, 1fr);
+      }
+      .mock-grid-2 {
+        grid-template-columns: 1fr 1fr;
+      }
+      .mock-cell {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 8px 4px;
+        border-radius: 8px;
+        border: 1px solid;
+      }
+      .mock-wf {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 8px;
+        border-radius: 6px;
+        border: 1px solid #e4e8ec;
+        background: #f4f6f8;
+      }
+      .mock-wf-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+
+      .config {
+        background: #0d1b2a;
+        color: #e8edf2;
+        border-radius: 12px;
+        padding: 14px 18px;
+        font-family: "Consolas", monospace;
+        font-size: 11px;
+        line-height: 1.6;
+        overflow-x: auto;
+        white-space: pre;
+        margin-bottom: 20px;
+      }
+      .config .k {
+        color: #c9a84c;
+      }
+      .config .v {
+        color: #d4b86a;
+      }
+      .config .c {
+        color: #5a7893;
+      }
+
+      .rationale {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #e5d9ad;
+        padding: 14px;
+        font-size: 11px;
+        line-height: 1.7;
+        color: #1f3044;
+      }
+      .rationale div {
+        margin-bottom: 6px;
+      }
+      .footer {
+        text-align: center;
+        font-size: 10px;
+        color: #8f9ba6;
+        margin-top: 24px;
+        padding-top: 12px;
+        border-top: 1px solid #e5d9ad;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>시맨틱 컬러 v2</h1>
+    <p class="subtitle">Navy/Gold 동일계열 통합 + Error only Red</p>
+
+    <div class="concept">
+      <strong>컨셉:</strong> 모든 상태 색상을 <strong>Gold(warm)</strong>과
+      <strong>Navy(cool)</strong> 2개 축으로 통일. 유일하게
+      <span class="red">Error만 붉은색(Terra Cotta)</span>으로 분리하여 긴급
+      상황이 즉시 눈에 띄게 함. <br /><br />
+      <strong>Gold 축 (긍정/달성):</strong> Success, Social — 완료, 달성, 따뜻한
+      느낌<br />
+      <strong>Navy 축 (정보/프로세스):</strong> Warning, Design, Inactive —
+      주의, 진행중, 중립<br />
+      <strong>Red 축 (유일한 예외):</strong> Error — 긴급, 오류, 즉시 행동 필요
+    </div>
+
+    <!-- ===== SUCCESS: Gold ===== -->
+    <div class="section-title">
+      <span class="dot" style="background: #c9a84c"></span> Success / 완료 —
+      Gold
+    </div>
+    <div class="role-card">
+      <div class="role-header">
+        <div class="role-name" style="color: #8a7328">
+          Success — Gold (기존 팔레트 재사용)
+        </div>
+        <div class="role-desc">완료, 발주완료, 최종확정, 체크마크</div>
+      </div>
+      <div class="swatches">
+        <div class="sw">
+          <div class="sw-box" style="background: #faf6eb"></div>
+          <div class="sw-lbl">50</div>
+          <div class="sw-hex">#faf6eb</div>
+        </div>
+        <div class="sw">
+          <div class="sw-box" style="background: #f0e8cc"></div>
+          <div class="sw-lbl">100</div>
+          <div class="sw-hex">#f0e8cc</div>
+        </div>
+        <div class="sw">
+          <div class="sw-box" style="background: #c9a84c"></div>
+          <div class="sw-lbl">500</div>
+          <div class="sw-hex">#c9a84c</div>
+        </div>
+        <div class="sw">
+          <div class="sw-box" style="background: #8a7328"></div>
+          <div class="sw-lbl">600</div>
+          <div class="sw-hex">#8a7328</div>
+        </div>
+      </div>
+      <div class="demos">
+        <span class="d-label">dot</span
+        ><span class="d-dot" style="background: #c9a84c"></span>
+        <span class="d-label">badge</span
+        ><span class="d-badge" style="background: #f0e8cc; color: #8a7328"
+          >✓ 완료</span
+        >
+        <span class="d-label">filled</span
+        ><span class="d-badge" style="background: #c9a84c; color: #fff"
+          >발주완료</span
+        >
+        <div
+          class="d-alert"
+          style="background: #faf6eb; border-color: #c9a84c; color: #8a7328"
+        >
+          자료 제출이 완료되었습니다
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== WARNING: Navy-light ===== -->
+    <div class="section-title">
+      <span class="dot" style="background: #5a7893"></span> Warning / 대기 —
+      Navy Light
+    </div>
+    <div class="role-card">
+      <div class="role-header">
+        <div class="role-name" style="color: #2d4d6b">
+          Warning — Navy Light (cool 축 주의)
+        </div>
+        <div class="role-desc">발주대기, 필수입력, D-day 마감, 주의사항</div>
+      </div>
+      <div class="swatches">
+        <div class="sw">
+          <div class="sw-box" style="background: #e8edf2"></div>
+          <div class="sw-lbl">50</div>
+          <div class="sw-hex">#e8edf2</div>
+        </div>
+        <div class="sw">
+          <div class="sw-box" style="background: #c5cfd9"></div>
+          <div class="sw-lbl">100</div>
+          <div class="sw-hex">#c5cfd9</div>
+        </div>
+        <div class="sw">
+          <div class="sw-box" style="background: #5a7893"></div>
+          <div class="sw-lbl">500</div>
+          <div class="sw-hex">#5a7893</div>
+        </div>
+        <div class="sw">
+          <div class="sw-box" style="background: #2d4d6b"></div>
+          <div class="sw-lbl">600</div>
+          <div class="sw-hex">#2d4d6b</div>
+        </div>
+      </div>
+      <div class="demos">
+        <span class="d-label">dot</span
+        ><span class="d-dot" style="background: #5a7893"></span>
+        <span class="d-label">badge</span
+        ><span class="d-badge" style="background: #c5cfd9; color: #2d4d6b"
+          >⚠ 필요</span
+        >
+        <span class="d-label">filled</span
+        ><span class="d-badge" style="background: #5a7893; color: #fff"
+          >발주대기</span
+        >
+        <div
+          class="d-alert"
+          style="background: #e8edf2; border-color: #5a7893; color: #2d4d6b"
+        >
+          ⚠ 마감일까지 14일 남았습니다
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ERROR: Terra Cotta (유일한 Red) ===== -->
+    <div class="section-title">
+      <span class="dot" style="background: #b85e52"></span> Error / 긴급 — Terra
+      Cotta (유일한 Red)
+    </div>
+    <div class="role-card" style="border-color: #ecd0cc">
+      <div class="role-header">
+        <div class="role-name" style="color: #8b3f35">
+          Error — Terra Cotta (유일한 붉은색)
+        </div>
+        <div class="role-desc">오류, 긴급 알림, 시안확인 필수, 검증 실패</div>
+      </div>
+      <div class="swatches">
+        <div class="sw">
+          <div class="sw-box" style="background: #faefed"></div>
+          <div class="sw-lbl">50</div>
+          <div class="sw-hex">#faefed</div>
+        </div>
+        <div class="sw">
+          <div class="sw-box" style="background: #ecd0cc"></div>
+          <div class="sw-lbl">100</div>
+          <div class="sw-hex">#ecd0cc</div>
+        </div>
+        <div class="sw">
+          <div class="sw-box" style="background: #b85e52"></div>
+          <div class="sw-lbl">500</div>
+          <div class="sw-hex">#b85e52</div>
+        </div>
+        <div class="sw">
+          <div class="sw-box" style="background: #8b3f35"></div>
+          <div class="sw-lbl">600</div>
+          <div class="sw-hex">#8b3f35</div>
+        </div>
+      </div>
+      <div class="demos">
+        <span class="d-label">dot</span
+        ><span class="d-dot" style="background: #b85e52"></span>
+        <span class="d-label">badge</span
+        ><span class="d-badge" style="background: #ecd0cc; color: #8b3f35"
+          >긴급</span
+        >
+        <span class="d-label">filled</span
+        ><span class="d-badge" style="background: #b85e52; color: #fff"
+          >시안확인</span
+        >
+        <div
+          class="d-alert"
+          style="background: #faefed; border-color: #b85e52; color: #8b3f35"
+        >
+          시안을 확인해주세요! 발주 기한이 지났습니다.
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== DESIGN: Navy Deep ===== -->
+    <div class="section-title">
+      <span class="dot" style="background: #1f3044"></span> Design / 시안 — Navy
+      Deep
+    </div>
+    <div class="role-card">
+      <div class="role-header">
+        <div class="role-name" style="color: #1f3044">
+          Design — Navy Deep (진행중 프로세스)
+        </div>
+        <div class="role-desc">시안 제작중, 디자인 스레드, 드래프트</div>
+      </div>
+      <div class="swatches">
+        <div class="sw">
+          <div class="sw-box" style="background: #e8edf2"></div>
+          <div class="sw-lbl">50</div>
+          <div class="sw-hex">#e8edf2</div>
+        </div>
+        <div class="sw">
+          <div class="sw-box" style="background: #9fafc0"></div>
+          <div class="sw-lbl">100</div>
+          <div class="sw-hex">#9fafc0</div>
+        </div>
+        <div class="sw">
+          <div class="sw-box" style="background: #1f3044"></div>
+          <div class="sw-lbl">500</div>
+          <div class="sw-hex">#1f3044</div>
+        </div>
+        <div class="sw">
+          <div class="sw-box" style="background: #0d1b2a"></div>
+          <div class="sw-lbl">600</div>
+          <div class="sw-hex">#0d1b2a</div>
+        </div>
+      </div>
+      <div class="demos">
+        <span class="d-label">dot</span
+        ><span class="d-dot" style="background: #1f3044"></span>
+        <span class="d-label">badge</span
+        ><span class="d-badge" style="background: #c5cfd9; color: #0d1b2a"
+          >시안중</span
+        >
+        <span class="d-label">filled</span
+        ><span class="d-badge" style="background: #1f3044; color: #fff"
+          >제작중</span
+        >
+        <div
+          class="d-alert"
+          style="background: #e8edf2; border-color: #1f3044; color: #0d1b2a"
+        >
+          디자인 시안이 업로드되었습니다
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SOCIAL: Gold Warm ===== -->
+    <div class="section-title">
+      <span class="dot" style="background: #b8942f"></span> Social / SNS — Gold
+      Warm
+    </div>
+    <div class="role-card">
+      <div class="role-header">
+        <div class="role-name" style="color: #86671f">
+          Social — Gold Warm (따뜻한 Gold 변형)
+        </div>
+        <div class="role-desc">인스타그램, SNS 연동, 소셜 마케팅</div>
+      </div>
+      <div class="swatches">
+        <div class="sw">
+          <div class="sw-box" style="background: #fdf5ed"></div>
+          <div class="sw-lbl">50</div>
+          <div class="sw-hex">#fdf5ed</div>
+        </div>
+        <div class="sw">
+          <div class="sw-box" style="background: #f0dcc4"></div>
+          <div class="sw-lbl">100</div>
+          <div class="sw-hex">#f0dcc4</div>
+        </div>
+        <div class="sw">
+          <div class="sw-box" style="background: #b8942f"></div>
+          <div class="sw-lbl">500</div>
+          <div class="sw-hex">#b8942f</div>
+        </div>
+        <div class="sw">
+          <div class="sw-box" style="background: #86671f"></div>
+          <div class="sw-lbl">600</div>
+          <div class="sw-hex">#86671f</div>
+        </div>
+      </div>
+      <div class="demos">
+        <span class="d-label">dot</span
+        ><span class="d-dot" style="background: #b8942f"></span>
+        <span class="d-label">badge</span
+        ><span class="d-badge" style="background: #f0dcc4; color: #86671f"
+          >Instagram</span
+        >
+        <span class="d-label">filled</span
+        ><span class="d-badge" style="background: #b8942f; color: #fff"
+          >SNS</span
+        >
+      </div>
+    </div>
+
+    <!-- ===== INACTIVE: Navy-gray ===== -->
+    <div class="section-title">
+      <span class="dot" style="background: #8f9ba6"></span> Inactive / 비활성 —
+      Navy Gray
+    </div>
+    <div class="role-card">
+      <div class="role-header">
+        <div class="role-name" style="color: #667180">
+          Inactive — Navy-tinted Gray
+        </div>
+        <div class="role-desc">비활성, 아카이브, 종료</div>
+      </div>
+      <div class="swatches">
+        <div class="sw">
+          <div
+            class="sw-box"
+            style="background: #f4f6f8; border: 1px solid #e4e8ec"
+          ></div>
+          <div class="sw-lbl">50</div>
+          <div class="sw-hex">#f4f6f8</div>
+        </div>
+        <div class="sw">
+          <div class="sw-box" style="background: #e4e8ec"></div>
+          <div class="sw-lbl">100</div>
+          <div class="sw-hex">#e4e8ec</div>
+        </div>
+        <div class="sw">
+          <div class="sw-box" style="background: #8f9ba6"></div>
+          <div class="sw-lbl">500</div>
+          <div class="sw-hex">#8f9ba6</div>
+        </div>
+        <div class="sw">
+          <div class="sw-box" style="background: #667180"></div>
+          <div class="sw-lbl">600</div>
+          <div class="sw-hex">#667180</div>
+        </div>
+      </div>
+      <div class="demos">
+        <span class="d-label">dot</span
+        ><span class="d-dot" style="background: #8f9ba6"></span>
+        <span class="d-label">badge</span
+        ><span class="d-badge" style="background: #e4e8ec; color: #667180"
+          >비활성</span
+        >
+        <span class="d-label">filled</span
+        ><span class="d-badge" style="background: #8f9ba6; color: #fff"
+          >아카이브</span
+        >
+      </div>
+    </div>
+
+    <!-- ===== 3축 시각화 ===== -->
+    <div class="section-title">
+      <span class="dot" style="background: #c9a84c"></span> 3축 컬러 시스템
+    </div>
+    <div
+      style="
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #e5d9ad;
+        padding: 14px;
+        margin-bottom: 20px;
+      "
+    >
+      <div
+        style="
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+          gap: 8px;
+          text-align: center;
+          font-size: 10px;
+        "
+      >
+        <div
+          style="
+            background: #faf6eb;
+            border: 1px solid #f0e8cc;
+            border-radius: 8px;
+            padding: 12px;
+          "
+        >
+          <div style="font-weight: 700; color: #8a7328; margin-bottom: 6px">
+            Gold 축 (Warm)
+          </div>
+          <div
+            style="
+              display: flex;
+              justify-content: center;
+              gap: 4px;
+              margin-bottom: 6px;
+            "
+          >
+            <span class="d-dot" style="background: #c9a84c"></span>
+            <span class="d-dot" style="background: #b8942f"></span>
+          </div>
+          <div style="color: #86671f">Success</div>
+          <div style="color: #86671f">Social</div>
+        </div>
+        <div
+          style="
+            background: #e8edf2;
+            border: 1px solid #c5cfd9;
+            border-radius: 8px;
+            padding: 12px;
+          "
+        >
+          <div style="font-weight: 700; color: #1f3044; margin-bottom: 6px">
+            Navy 축 (Cool)
+          </div>
+          <div
+            style="
+              display: flex;
+              justify-content: center;
+              gap: 4px;
+              margin-bottom: 6px;
+            "
+          >
+            <span class="d-dot" style="background: #5a7893"></span>
+            <span class="d-dot" style="background: #1f3044"></span>
+            <span class="d-dot" style="background: #8f9ba6"></span>
+          </div>
+          <div style="color: #2d4d6b">Warning</div>
+          <div style="color: #2d4d6b">Design</div>
+          <div style="color: #2d4d6b">Inactive</div>
+        </div>
+        <div
+          style="
+            background: #faefed;
+            border: 1px solid #ecd0cc;
+            border-radius: 8px;
+            padding: 12px;
+          "
+        >
+          <div style="font-weight: 700; color: #8b3f35; margin-bottom: 6px">
+            Red 축 (Alert)
+          </div>
+          <div
+            style="
+              display: flex;
+              justify-content: center;
+              gap: 4px;
+              margin-bottom: 6px;
+            "
+          >
+            <span class="d-dot" style="background: #b85e52"></span>
+          </div>
+          <div style="color: #8b3f35">Error</div>
+          <div style="color: #8b3f35; font-size: 9px; margin-top: 4px">
+            (유일한 예외)
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Before / After ===== -->
+    <div class="section-title">
+      <span class="dot" style="background: #0d1b2a"></span> Before / After 비교
+    </div>
+    <div class="compare">
+      <div class="compare-col">
+        <h4 style="color: #667180">Before (6색 혼합)</h4>
+        <div class="c-row">
+          <span class="c-dot" style="background: #22c55e"></span
+          ><span class="c-badge" style="background: #dcfce7; color: #16a34a"
+            >✓ 완료</span
+          ><span class="c-name">green</span>
+        </div>
+        <div class="c-row">
+          <span class="c-dot" style="background: #f97316"></span
+          ><span class="c-badge" style="background: #ffedd5; color: #ea580c"
+            >⚠ 필요</span
+          ><span class="c-name">orange</span>
+        </div>
+        <div class="c-row">
+          <span class="c-dot" style="background: #ef4444"></span
+          ><span class="c-badge" style="background: #fee2e2; color: #dc2626"
+            >긴급</span
+          ><span class="c-name">red</span>
+        </div>
+        <div class="c-row">
+          <span class="c-dot" style="background: #a855f7"></span
+          ><span class="c-badge" style="background: #f3e8ff; color: #7c3aed"
+            >시안중</span
+          ><span class="c-name">purple</span>
+        </div>
+        <div class="c-row">
+          <span class="c-dot" style="background: #ec4899"></span
+          ><span class="c-badge" style="background: #fce7f3; color: #db2777"
+            >SNS</span
+          ><span class="c-name">pink</span>
+        </div>
+        <div class="c-row">
+          <span class="c-dot" style="background: #9ca3af"></span
+          ><span class="c-badge" style="background: #f3f4f6; color: #6b7280"
+            >비활성</span
+          ><span class="c-name">gray</span>
+        </div>
+      </div>
+      <div class="compare-col">
+        <h4 style="color: #0d1b2a">After (동일계열 + Red 1)</h4>
+        <div class="c-row">
+          <span class="c-dot" style="background: #c9a84c"></span
+          ><span class="c-badge" style="background: #f0e8cc; color: #8a7328"
+            >✓ 완료</span
+          ><span class="c-name">gold</span>
+        </div>
+        <div class="c-row">
+          <span class="c-dot" style="background: #5a7893"></span
+          ><span class="c-badge" style="background: #c5cfd9; color: #2d4d6b"
+            >⚠ 필요</span
+          ><span class="c-name">navy-l</span>
+        </div>
+        <div class="c-row">
+          <span class="c-dot" style="background: #b85e52"></span
+          ><span class="c-badge" style="background: #ecd0cc; color: #8b3f35"
+            >긴급</span
+          ><span class="c-name" style="color: #b85e52">terra</span>
+        </div>
+        <div class="c-row">
+          <span class="c-dot" style="background: #1f3044"></span
+          ><span class="c-badge" style="background: #c5cfd9; color: #0d1b2a"
+            >시안중</span
+          ><span class="c-name">navy-d</span>
+        </div>
+        <div class="c-row">
+          <span class="c-dot" style="background: #b8942f"></span
+          ><span class="c-badge" style="background: #f0dcc4; color: #86671f"
+            >SNS</span
+          ><span class="c-name">gold-w</span>
+        </div>
+        <div class="c-row">
+          <span class="c-dot" style="background: #8f9ba6"></span
+          ><span class="c-badge" style="background: #e4e8ec; color: #667180"
+            >비활성</span
+          ><span class="c-name">slate</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Dashboard Mock ===== -->
+    <div class="section-title">
+      <span class="dot" style="background: #0d1b2a"></span> 대시보드 적용
+      시뮬레이션
+    </div>
+    <div class="mock">
+      <div class="mock-header">
+        <span style="font-size: 13px; font-weight: 700; color: #0d1b2a"
+          >이재호님</span
+        >
+        <span
+          style="
+            font-size: 10px;
+            color: #667180;
+            background: #f4f6f8;
+            padding: 2px 8px;
+            border-radius: 4px;
+          "
+          >19기</span
+        >
+        <span
+          style="margin-left: auto"
+          class="mock-pill"
+          style="background: #c5cfd9; color: #2d4d6b"
+          >D-14 마감</span
+        >
+        <span
+          class="mock-pill"
+          style="background: #c5cfd9; color: #0d1b2a; margin-left: 4px"
+          >D-34 마케팅</span
+        >
+      </div>
+
+      <!-- Notifications -->
+      <div class="mock-noti" style="background: #faf6eb">
+        <div
+          style="
+            font-size: 11px;
+            font-weight: 700;
+            color: #0d1b2a;
+            margin-bottom: 6px;
+          "
+        >
+          🔔 알림
+        </div>
+        <div class="mock-noti-item" style="border-color: #ecd0cc">
+          <span class="mock-noti-badge" style="background: #b85e52"
+            >시안확인</span
+          >
+          <span class="mock-noti-text" style="color: #8b3f35"
+            >명함 시안을 확인해주세요!</span
+          >
+        </div>
+        <div class="mock-noti-item" style="border-color: #c5cfd9">
+          <span class="mock-noti-badge" style="background: #5a7893">필수</span>
+          <span class="mock-noti-text" style="color: #2d4d6b"
+            >기본 정보를 입력해주세요</span
+          >
+        </div>
+        <div class="mock-noti-item" style="border-color: #f0e8cc">
+          <span class="mock-noti-badge" style="background: #c9a84c"
+            >자료입력</span
+          >
+          <span class="mock-noti-text" style="color: #0d1b2a"
+            >홈페이지 제작정보 선택이 필요합니다</span
+          >
+        </div>
+      </div>
+
+      <!-- Submission Grid -->
+      <div class="mock-grid mock-grid-4" style="margin-bottom: 8px">
+        <div
+          class="mock-cell"
+          style="background: #faf6eb; border-color: #f0e8cc"
+        >
+          <span style="font-size: 10px; font-weight: 600; color: #8a7328"
+            >사업자</span
+          ><span style="font-size: 9px; color: #c9a84c">✓</span>
+        </div>
+        <div
+          class="mock-cell"
+          style="background: #faf6eb; border-color: #f0e8cc"
+        >
+          <span style="font-size: 10px; font-weight: 600; color: #8a7328"
+            >프로필</span
+          ><span style="font-size: 9px; color: #c9a84c">✓</span>
+        </div>
+        <div
+          class="mock-cell"
+          style="background: #faf6eb; border-color: #f0e8cc"
+        >
+          <span style="font-size: 10px; font-weight: 600; color: #8a7328"
+            >브랜드</span
+          ><span style="font-size: 9px; color: #c9a84c">✓</span>
+        </div>
+        <div
+          class="mock-cell"
+          style="background: #e8edf2; border-color: #c5cfd9"
+        >
+          <span style="font-size: 10px; font-weight: 600; color: #2d4d6b"
+            >명함</span
+          ><span style="font-size: 9px; color: #5a7893">⚠</span>
+        </div>
+      </div>
+
+      <!-- Workflow Grid -->
+      <div
+        style="
+          font-size: 11px;
+          font-weight: 700;
+          color: #0d1b2a;
+          margin-bottom: 6px;
+        "
+      >
+        📦 제작 진행 현황
+      </div>
+      <div class="mock-grid mock-grid-2">
+        <div class="mock-wf">
+          <span class="mock-wf-dot" style="background: #c9a84c"></span
+          ><span style="font-size: 10px; font-weight: 500">로고</span
+          ><span style="font-size: 9px; color: #c9a84c; margin-left: auto"
+            >최종확정</span
+          >
+        </div>
+        <div class="mock-wf">
+          <span class="mock-wf-dot" style="background: #c9a84c"></span
+          ><span style="font-size: 10px; font-weight: 500">명함</span
+          ><span style="font-size: 9px; color: #c9a84c; margin-left: auto"
+            >발주완료</span
+          >
+        </div>
+        <div class="mock-wf">
+          <span class="mock-wf-dot" style="background: #5a7893"></span
+          ><span style="font-size: 10px; font-weight: 500">명찰</span
+          ><span style="font-size: 9px; color: #5a7893; margin-left: auto"
+            >발주대기</span
+          >
+        </div>
+        <div class="mock-wf">
+          <span class="mock-wf-dot" style="background: #1f3044"></span
+          ><span style="font-size: 10px; font-weight: 500">홈페이지</span
+          ><span style="font-size: 9px; color: #1f3044; margin-left: auto"
+            >제작중</span
+          >
+        </div>
+        <div class="mock-wf">
+          <span class="mock-wf-dot" style="background: #b85e52"></span
+          ><span style="font-size: 10px; font-weight: 500">명찰</span
+          ><span style="font-size: 9px; color: #b85e52; margin-left: auto"
+            >수정요청</span
+          >
+        </div>
+        <div class="mock-wf">
+          <span class="mock-wf-dot" style="background: #8f9ba6"></span
+          ><span style="font-size: 10px; font-weight: 500">대봉투</span
+          ><span style="font-size: 9px; color: #8f9ba6; margin-left: auto"
+            >종료</span
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Tailwind Config ===== -->
+    <div class="section-title">
+      <span class="dot" style="background: #c9a84c"></span> tailwind.config.ts
+    </div>
+    <div class="config">
+      <span class="c">// theme.extend.colors</span>
+      <span class="k">success</span>: { <span class="c">// Gold 축</span>
+      <span class="v">50: '#faf6eb'</span>,
+      <span class="v">100: '#f0e8cc'</span>,
+      <span class="v">500: '#c9a84c'</span>,
+      <span class="v">600: '#8a7328'</span>, }, <span class="k">warning</span>:
+      { <span class="c">// Navy 축 (Light)</span>
+      <span class="v">50: '#e8edf2'</span>,
+      <span class="v">100: '#c5cfd9'</span>,
+      <span class="v">500: '#5a7893'</span>,
+      <span class="v">600: '#2d4d6b'</span>, }, <span class="k">error</span>: {
+      <span class="c">// Red 축 (유일)</span>
+      <span class="v">50: '#faefed'</span>,
+      <span class="v">100: '#ecd0cc'</span>,
+      <span class="v">500: '#b85e52'</span>,
+      <span class="v">600: '#8b3f35'</span>, }, <span class="k">design</span>: {
+      <span class="c">// Navy 축 (Deep)</span>
+      <span class="v">50: '#e8edf2'</span>,
+      <span class="v">100: '#9fafc0'</span>,
+      <span class="v">500: '#1f3044'</span>,
+      <span class="v">600: '#0d1b2a'</span>, }, <span class="k">social</span>: {
+      <span class="c">// Gold 축 (Warm)</span>
+      <span class="v">50: '#fdf5ed'</span>,
+      <span class="v">100: '#f0dcc4'</span>,
+      <span class="v">500: '#b8942f'</span>,
+      <span class="v">600: '#86671f'</span>, }, <span class="k">inactive</span>:
+      { <span class="c">// Navy-gray</span>
+      <span class="v">50: '#f4f6f8'</span>,
+      <span class="v">100: '#e4e8ec'</span>,
+      <span class="v">500: '#8f9ba6'</span>,
+      <span class="v">600: '#667180'</span>, },
+    </div>
+
+    <!-- ===== Rationale ===== -->
+    <div class="section-title">
+      <span class="dot" style="background: #0d1b2a"></span> 설계 근거
+    </div>
+    <div class="rationale">
+      <div>
+        <strong>Success → Gold:</strong> 기존 gold 팔레트 그대로 재사용. "달성 =
+        골드" 직관적 연상. 새 색상 추가 없이 팔레트 일체감 극대화.
+      </div>
+      <div>
+        <strong>Warning → Navy Light:</strong> 기존 navy-400/600 재사용.
+        Gold(긍정)과 Navy(주의) 대비로 온도 차이만으로 구분. 별도 orange 불필요.
+      </div>
+      <div>
+        <strong>Error → Terra Cotta:</strong> 전체 시스템에서 유일한 붉은색.
+        Navy/Gold 속에서 즉시 시선을 끌어 긴급함 전달. Warm red로 프리미엄 톤
+        유지.
+      </div>
+      <div>
+        <strong>Design → Navy Deep:</strong> Navy 팔레트의 깊은 쪽(700/900)
+        활용. Warning(navy-light)과 명도 차이로 구분. "진행중 프로세스" 느낌.
+      </div>
+      <div>
+        <strong>Social → Gold Warm:</strong> Gold에 약간 따뜻한 톤 추가(50:
+        #fdf5ed). Success(순수 gold)와 미세한 온도 차이. SNS의 따뜻한 소통 느낌.
+      </div>
+      <div>
+        <strong>Inactive → Navy Gray:</strong> Navy에서 채도를 뺀 blue-gray.
+        순수 gray보다 전체 톤에 녹아들어 이질감 없음.
+      </div>
+    </div>
+
+    <div class="footer">
+      시맨틱 컬러 v2 — 2026-03-03 | Navy/Gold 동일계열 + Error only Red
+    </div>
+  </body>
+</html>

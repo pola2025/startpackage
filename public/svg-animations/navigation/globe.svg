@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .globe-line {
+      animation: globe-shift 2s ease-in-out infinite;
+    }
+    .line-1 {
+      animation-delay: 0s;
+    }
+    .line-2 {
+      animation-delay: 0.3s;
+    }
+    .line-3 {
+      animation-delay: 0.6s;
+    }
+    @keyframes globe-shift {
+      0%, 100% {
+        transform: translateX(0px);
+      }
+      35% {
+        transform: translateX(1px);
+      }
+      70% {
+        transform: translateX(-1px);
+      }
+    }
+  </style>
+  <circle cx="12" cy="12" r="9" />
+  <path class="globe-line line-1" d="M3 12h18" />
+  <path class="globe-line line-2" d="M3 9a9 9 0 0 1 18 0" />
+  <path class="globe-line line-3" d="M3 15a9 9 0 0 0 18 0" />
+</svg>

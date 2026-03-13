@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .chevron-main {
+      stroke-dasharray: 16;
+      stroke-dashoffset: 16;
+      animation: drawChev 3s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+    }
+    .chevron-bounce {
+      animation: chevBounce 3s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+      transform-origin: 12px 12px;
+    }
+    .chevron-ghost {
+      animation: ghostTrail 3s ease-out infinite;
+      opacity: 0;
+    }
+    @keyframes drawChev {
+      0% { stroke-dashoffset: 16; }
+      20% { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: 0; }
+    }
+    @keyframes chevBounce {
+      0%, 15% { transform: translateY(-2px); }
+      30% { transform: translateY(3px); }
+      42% { transform: translateY(-1.5px); }
+      52% { transform: translateY(1.5px); }
+      60% { transform: translateY(-0.5px); }
+      68%, 85% { transform: translateY(0px); }
+      100% { transform: translateY(-2px); }
+    }
+    @keyframes ghostTrail {
+      0%, 20% { opacity: 0; transform: translateY(-4px); }
+      35% { opacity: 0.3; transform: translateY(0px); }
+      50% { opacity: 0; transform: translateY(4px); }
+      100% { opacity: 0; }
+    }
+  </style>
+  <g class="chevron-bounce">
+    <polyline class="chevron-main" points="6 9 12 15 18 9" />
+  </g>
+  <polyline class="chevron-ghost" points="6 9 12 15 18 9" stroke-width="1" />
+</svg>

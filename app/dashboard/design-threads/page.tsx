@@ -118,7 +118,7 @@ interface ThreadDetail {
 export default function UserDesignThreadsPage() {
   const [threads, setThreads] = useState<DesignThread[]>([]);
   const [selectedThread, setSelectedThread] = useState<ThreadDetail | null>(
-    null
+    null,
   );
   const [loading, setLoading] = useState(true);
 
@@ -195,13 +195,13 @@ export default function UserDesignThreadsPage() {
         setLoading(false);
       }
     },
-    [selectedThread?.id]
+    [selectedThread?.id],
   );
 
   // 스레드 상세 조회
   const fetchThreadDetail = async (
     threadId: string,
-    silentRefresh: boolean = false
+    silentRefresh: boolean = false,
   ) => {
     try {
       const response = await fetch(`/api/design-threads/${threadId}`);
@@ -295,7 +295,7 @@ export default function UserDesignThreadsPage() {
             content: messageContent,
             attachments,
           }),
-        }
+        },
       );
 
       if (response.ok) {
@@ -334,7 +334,7 @@ export default function UserDesignThreadsPage() {
             content: messageContent,
             attachments,
           }),
-        }
+        },
       );
 
       if (response.ok) {
@@ -359,7 +359,8 @@ export default function UserDesignThreadsPage() {
 
     setConfirming(true);
     try {
-      const confirmMessage = `[시안 확정 및 발주 요청]\n\n` +
+      const confirmMessage =
+        `[시안 확정 및 발주 요청]\n\n` +
         `✅ ${selectedThread.currentVersion}차 시안을 최종 확인하였으며, 이 시안으로 발주를 요청합니다.\n` +
         `✅ 확정 후에는 수정이 어려울 수 있음을 이해하고 동의합니다.`;
 
@@ -371,7 +372,7 @@ export default function UserDesignThreadsPage() {
           body: JSON.stringify({
             message: confirmMessage,
           }),
-        }
+        },
       );
 
       if (response.ok) {
@@ -492,14 +493,20 @@ export default function UserDesignThreadsPage() {
     selectedThread.currentVersion > 0;
 
   return (
-    <div className={`${isMobile && selectedThread ? 'h-[calc(100dvh-60px)]' : ''}`}>
+    <div
+      className={`${isMobile && selectedThread ? "h-[calc(100dvh-60px)]" : ""}`}
+    >
       {/* 헤더 - 모바일 상세뷰에서는 숨김 */}
       {(!isMobile || !selectedThread) && (
         <div className="space-y-6 mb-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">시안 확인</h1>
-              <p className="text-gray-600 mt-1 md:mt-2 text-sm md:text-base">시안 확인 및 피드백</p>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+                시안 확인
+              </h1>
+              <p className="text-gray-600 mt-1 md:mt-2 text-sm md:text-base">
+                시안 확인 및 피드백
+              </p>
             </div>
             <Palette className="w-6 h-6 md:w-8 md:h-8 text-purple-600" />
           </div>
@@ -515,8 +522,13 @@ export default function UserDesignThreadsPage() {
                     시안이 업로드되면 알림을 통해 안내드립니다.
                   </span>
                 </li>
-                <li className="hidden md:block">• 시안을 확인하신 후 수정이 필요하면 수정 요청을 보내주세요.</li>
-                <li className="hidden md:block">• 시안이 마음에 드시면 &quot;시안 확정&quot; 버튼을 눌러주세요.</li>
+                <li className="hidden md:block">
+                  • 시안을 확인하신 후 수정이 필요하면 수정 요청을 보내주세요.
+                </li>
+                <li className="hidden md:block">
+                  • 시안이 마음에 드시면 &quot;시안 확정&quot; 버튼을
+                  눌러주세요.
+                </li>
                 <li>
                   • 시안 확정 후에는 변경이 어려우니 신중하게 확인해주세요.
                 </li>
@@ -526,7 +538,9 @@ export default function UserDesignThreadsPage() {
         </div>
       )}
 
-      <div className={`grid grid-cols-1 lg:grid-cols-3 gap-6 ${isMobile && selectedThread ? 'h-full' : ''}`}>
+      <div
+        className={`grid grid-cols-1 lg:grid-cols-3 gap-6 ${isMobile && selectedThread ? "h-full" : ""}`}
+      >
         {/* 스레드 목록 */}
         <Card
           className={`lg:col-span-1 flex flex-col ${
@@ -556,12 +570,12 @@ export default function UserDesignThreadsPage() {
                     <div
                       key={thread.id}
                       onClick={() => handleSelectThread(thread)}
-                      className={`p-4 rounded-lg cursor-pointer transition-all border-2 ${
+                      className={`p-4 rounded-lg cursor-pointer transition-all border ${
                         selectedThread?.id === thread.id
                           ? "bg-purple-50 border-purple-300"
                           : hasUnread
-                          ? "bg-purple-100 border-purple-400 hover:bg-purple-200"
-                          : "bg-gray-50 border-gray-200 hover:border-purple-200"
+                            ? "bg-purple-100 border-purple-400 hover:bg-purple-200"
+                            : "bg-gray-50 border-gray-200 hover:border-purple-200"
                       }`}
                     >
                       <div className="flex items-start justify-between mb-2">
@@ -606,11 +620,13 @@ export default function UserDesignThreadsPage() {
         <Card
           className={`lg:col-span-2 flex flex-col ${
             selectedThread ? "flex" : "hidden lg:flex"
-          } ${isMobile ? 'h-full border-0 shadow-none rounded-none' : 'h-[calc(100vh-250px)]'}`}
+          } ${isMobile ? "h-full border-0 shadow-none rounded-none" : "h-[calc(100vh-250px)]"}`}
         >
           {selectedThread ? (
             <>
-              <CardHeader className={`border-b ${isMobile ? 'py-3 px-4 bg-white sticky top-0 z-20' : 'py-4'}`}>
+              <CardHeader
+                className={`border-b ${isMobile ? "py-3 px-4 bg-white sticky top-0 z-20" : "py-4"}`}
+              >
                 <div className="flex items-center gap-3">
                   {/* 모바일 뒤로가기 버튼 */}
                   {isMobile && (
@@ -625,7 +641,9 @@ export default function UserDesignThreadsPage() {
                   )}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <CardTitle className={`${isMobile ? 'text-base' : 'text-xl'} truncate`}>
+                      <CardTitle
+                        className={`${isMobile ? "text-base" : "text-xl"} truncate`}
+                      >
                         {WORKFLOW_TYPE_LABELS[selectedThread.workflow.type] ||
                           selectedThread.workflow.type}{" "}
                         시안
@@ -646,7 +664,7 @@ export default function UserDesignThreadsPage() {
               {/* 시안 확정 필요 알림 */}
               {needsFeedback && (
                 <div className="mx-3 sm:mx-6 mt-3">
-                  <Alert className="bg-gold-50 border-gold-200">
+                  <Alert className="bg-white border-gray-200">
                     <AlertDescription className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <FileImage className="w-5 h-5 text-gold-600" />
@@ -688,7 +706,9 @@ export default function UserDesignThreadsPage() {
               )}
 
               {/* 메시지 목록 */}
-              <CardContent className={`flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 bg-gray-50 ${isMobile ? 'pb-40' : ''}`}>
+              <CardContent
+                className={`flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 bg-gray-50 ${isMobile ? "pb-40" : ""}`}
+              >
                 {groupMessagesByDate(selectedThread.messages).map(
                   (item, groupIndex) => {
                     if (item.type === "date") {
@@ -702,7 +722,7 @@ export default function UserDesignThreadsPage() {
                             {format(
                               new Date(item.date),
                               "yyyy년 M월 d일 EEEE",
-                              { locale: ko }
+                              { locale: ko },
                             )}
                           </span>
                           <div className="flex-1 h-px bg-gray-300" />
@@ -750,7 +770,7 @@ export default function UserDesignThreadsPage() {
                             <div
                               className={`rounded-lg p-4 shadow-md ${
                                 message.authorType === "admin"
-                                  ? "bg-white border-2 border-purple-200"
+                                  ? "bg-white border border-purple-200"
                                   : "bg-purple-600 text-white"
                               }`}
                             >
@@ -774,7 +794,9 @@ export default function UserDesignThreadsPage() {
                                     </span>
                                   </div>
                                   {/* 이미지 파일인 경우 미리보기 */}
-                                  {/\.(jpg|jpeg|png|gif|webp|svg)$/i.test(message.designUrl) ? (
+                                  {/\.(jpg|jpeg|png|gif|webp|svg)$/i.test(
+                                    message.designUrl,
+                                  ) ? (
                                     <div className="space-y-2">
                                       <div
                                         className="cursor-pointer"
@@ -799,7 +821,9 @@ export default function UserDesignThreadsPage() {
                                           size="sm"
                                           className="text-purple-700 border-purple-300 hover:bg-purple-100"
                                           onClick={() => {
-                                            setModalImages([message.designUrl!]);
+                                            setModalImages([
+                                              message.designUrl!,
+                                            ]);
                                             setModalInitialIndex(0);
                                             setImageModalOpen(true);
                                           }}
@@ -822,7 +846,8 @@ export default function UserDesignThreadsPage() {
                                     <div className="flex items-center gap-2">
                                       <div className="flex-1 p-2 bg-white rounded border border-purple-200">
                                         <span className="text-sm text-gray-600 break-all">
-                                          {message.designUrl.split('/').pop() || '시안 파일'}
+                                          {message.designUrl.split("/").pop() ||
+                                            "시안 파일"}
                                         </span>
                                       </div>
                                       <a
@@ -876,7 +901,7 @@ export default function UserDesignThreadsPage() {
                         </div>
                       </div>
                     );
-                  }
+                  },
                 )}
 
                 {selectedThread.messages.length === 0 && (
@@ -892,12 +917,17 @@ export default function UserDesignThreadsPage() {
 
               {/* 메시지 입력 영역 */}
               {selectedThread.status !== "confirmed" && (
-                <div className={`p-3 sm:p-4 border-t ${isMobile ? 'fixed-input-above-tab' : 'bg-white'}`}>
+                <div
+                  className={`p-3 sm:p-4 border-t ${isMobile ? "fixed-input-above-tab" : "bg-white"}`}
+                >
                   <div className="space-y-2">
                     {attachments.length > 0 && (
                       <div className="flex flex-wrap gap-2">
                         {attachments.map((url, idx) => (
-                          <div key={idx} className="relative w-14 h-14 sm:w-16 sm:h-16">
+                          <div
+                            key={idx}
+                            className="relative w-14 h-14 sm:w-16 sm:h-16"
+                          >
                             <Image
                               src={url}
                               alt="첨부"
@@ -909,7 +939,7 @@ export default function UserDesignThreadsPage() {
                             <button
                               onClick={() =>
                                 setAttachments(
-                                  attachments.filter((_, i) => i !== idx)
+                                  attachments.filter((_, i) => i !== idx),
                                 )
                               }
                               className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
@@ -968,7 +998,8 @@ export default function UserDesignThreadsPage() {
                           <Button
                             onClick={handleSendMessage}
                             disabled={
-                              (!messageContent.trim() && attachments.length === 0) ||
+                              (!messageContent.trim() &&
+                                attachments.length === 0) ||
                               sending
                             }
                             size="icon"
@@ -988,7 +1019,8 @@ export default function UserDesignThreadsPage() {
                             if (e.key === "Enter" && !e.shiftKey) {
                               e.preventDefault();
                               if (
-                                (messageContent.trim() || attachments.length > 0) &&
+                                (messageContent.trim() ||
+                                  attachments.length > 0) &&
                                 !sending
                               ) {
                                 handleSendMessage();
@@ -1017,7 +1049,9 @@ export default function UserDesignThreadsPage() {
                               variant="outline"
                               disabled={uploading}
                               onClick={() =>
-                                document.getElementById("user-design-file-desktop")?.click()
+                                document
+                                  .getElementById("user-design-file-desktop")
+                                  ?.click()
                               }
                             >
                               <Paperclip className="w-4 h-4 mr-2" />
@@ -1067,7 +1101,7 @@ export default function UserDesignThreadsPage() {
                         {format(
                           new Date(selectedThread.confirmedAt),
                           "yyyy-MM-dd HH:mm",
-                          { locale: ko }
+                          { locale: ko },
                         )}
                         )
                       </span>
@@ -1125,7 +1159,9 @@ export default function UserDesignThreadsPage() {
                 <Checkbox
                   id="confirm-agreement"
                   checked={confirmChecked}
-                  onCheckedChange={(checked) => setConfirmChecked(checked === true)}
+                  onCheckedChange={(checked) =>
+                    setConfirmChecked(checked === true)
+                  }
                   className="mt-0.5"
                 />
                 <Label
@@ -1193,7 +1229,7 @@ export default function UserDesignThreadsPage() {
             <button
               onClick={() => document.getElementById("camera-input")?.click()}
               disabled={uploading}
-              className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 border-dashed border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-colors"
+              className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-dashed border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-colors"
             >
               <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
                 <Camera className="w-6 h-6 text-purple-600" />
@@ -1219,10 +1255,10 @@ export default function UserDesignThreadsPage() {
             <button
               onClick={() => document.getElementById("gallery-input")?.click()}
               disabled={uploading}
-              className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 border-dashed border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-colors"
+              className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-dashed border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-colors"
             >
-              <div className="w-12 h-12 rounded-full bg-gold-100 flex items-center justify-center">
-                <ImageIcon className="w-6 h-6 text-gold-600" />
+              <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+                <ImageIcon className="w-6 h-6 text-gray-600" />
               </div>
               <span className="text-sm font-medium text-gray-700">갤러리</span>
             </button>
@@ -1245,10 +1281,10 @@ export default function UserDesignThreadsPage() {
             <button
               onClick={() => document.getElementById("file-input")?.click()}
               disabled={uploading}
-              className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 border-dashed border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-colors"
+              className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-dashed border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-colors"
             >
-              <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-                <FolderOpen className="w-6 h-6 text-green-600" />
+              <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+                <FolderOpen className="w-6 h-6 text-gray-600" />
               </div>
               <span className="text-sm font-medium text-gray-700">파일</span>
             </button>

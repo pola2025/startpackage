@@ -20,7 +20,18 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Edit, Truck, CheckCircle2, Upload, Loader2, Clock, MessageSquare, ExternalLink, Globe, Trash2 } from "lucide-react";
+import {
+  Edit,
+  Truck,
+  CheckCircle2,
+  Upload,
+  Loader2,
+  Clock,
+  MessageSquare,
+  ExternalLink,
+  Globe,
+  Trash2,
+} from "lucide-react";
 
 interface DesignHistory {
   id: string;
@@ -62,7 +73,9 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
 
   const fetchDesignHistory = async () => {
     try {
-      const response = await fetch(`/api/admin/workflows/${workflow.id}/design-history`);
+      const response = await fetch(
+        `/api/admin/workflows/${workflow.id}/design-history`,
+      );
       if (response.ok) {
         const data = await response.json();
         setDesignHistory(data);
@@ -73,7 +86,11 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
   };
 
   const handleDeleteDesign = async (historyId: string, version: number) => {
-    if (!confirm(`${version}차 시안을 삭제하시겠습니까?\n삭제 후 복구할 수 없습니다.`)) {
+    if (
+      !confirm(
+        `${version}차 시안을 삭제하시겠습니까?\n삭제 후 복구할 수 없습니다.`,
+      )
+    ) {
       return;
     }
 
@@ -81,7 +98,7 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
     try {
       const response = await fetch(
         `/api/admin/workflows/${workflow.id}/design-history?historyId=${historyId}`,
-        { method: "DELETE" }
+        { method: "DELETE" },
       );
 
       if (!response.ok) {
@@ -102,7 +119,9 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
   const fetchSubmission = async () => {
     setLoadingSubmission(true);
     try {
-      const response = await fetch(`/api/admin/users/${workflow.userId}/submission`);
+      const response = await fetch(
+        `/api/admin/users/${workflow.userId}/submission`,
+      );
       if (response.ok) {
         const data = await response.json();
         setSubmission(data);
@@ -234,18 +253,22 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
         <div className="flex-1 overflow-y-auto min-h-0 space-y-4 mt-4">
           {/* Revision Count Warning */}
           {workflow.수정횟수 >= 2 && (
-            <div className={`p-3 rounded-lg border ${workflow.수정횟수 > 2 ? 'bg-red-50 border-red-200' : 'bg-amber-50 border-amber-200'}`}>
-              <p className={`text-sm font-medium ${workflow.수정횟수 > 2 ? 'text-red-700' : 'amber-700'}`}>
+            <div
+              className={`p-3 rounded-lg border ${workflow.수정횟수 > 2 ? "bg-red-50 border-red-200" : "bg-amber-50 border-amber-200"}`}
+            >
+              <p
+                className={`text-sm font-medium ${workflow.수정횟수 > 2 ? "text-red-700" : "amber-700"}`}
+              >
                 {workflow.수정횟수 > 2
                   ? `⚠️ 수정 ${workflow.수정횟수}회 - 유료 작업으로 진행됩니다`
-                  : '⚠️ 수정 2회 완료 - 다음 수정부터는 유료 작업으로 진행됩니다'}
+                  : "⚠️ 수정 2회 완료 - 다음 수정부터는 유료 작업으로 진행됩니다"}
               </p>
             </div>
           )}
 
           {/* 홈페이지 선택 정보 */}
           {workflow.type === "홈페이지" && (
-            <div className="p-4 rounded-lg border-2 border-gold-200 bg-gold-50">
+            <div className="p-4 rounded-lg border border-gray-200 bg-white">
               <div className="flex items-center gap-2 mb-3">
                 <Globe className="w-5 h-5 text-gold-600" />
                 <Label className="text-navy-900 font-semibold text-base">
@@ -257,7 +280,9 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
               ) : submission ? (
                 <div className="space-y-3">
                   <div>
-                    <span className="text-sm font-medium text-navy-900">선택한 스타일:</span>
+                    <span className="text-sm font-medium text-navy-900">
+                      선택한 스타일:
+                    </span>
                     {submission.홈페이지스타일 ? (
                       <a
                         href={submission.홈페이지스타일}
@@ -269,14 +294,36 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
                         <span className="text-sm">
                           {(() => {
                             const styles = [
-                              { url: "https://www.jnipartners.co.kr", name: "스타일 1" },
-                              { url: "https://mjgood.imweb.me/", name: "스타일 2" },
-                              { url: "https://jmbiz.imweb.me/", name: "스타일 3" },
-                              { url: "https://ksupport-center.imweb.me/", name: "스타일 4" },
-                              { url: "https://www.wiztion.com/", name: "스타일 5" },
-                              { url: "https://fpbiz.imweb.me/", name: "스타일 6" },
+                              {
+                                url: "https://www.jnipartners.co.kr",
+                                name: "스타일 1",
+                              },
+                              {
+                                url: "https://mjgood.imweb.me/",
+                                name: "스타일 2",
+                              },
+                              {
+                                url: "https://jmbiz.imweb.me/",
+                                name: "스타일 3",
+                              },
+                              {
+                                url: "https://ksupport-center.imweb.me/",
+                                name: "스타일 4",
+                              },
+                              {
+                                url: "https://www.wiztion.com/",
+                                name: "스타일 5",
+                              },
+                              {
+                                url: "https://fpbiz.imweb.me/",
+                                name: "스타일 6",
+                              },
                             ];
-                            return styles.find(s => s.url === submission.홈페이지스타일)?.name || submission.홈페이지스타일;
+                            return (
+                              styles.find(
+                                (s) => s.url === submission.홈페이지스타일,
+                              )?.name || submission.홈페이지스타일
+                            );
                           })()}
                         </span>
                       </a>
@@ -285,12 +332,16 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
                     )}
                   </div>
                   <div>
-                    <span className="text-sm font-medium text-navy-900">컬러 컨셉:</span>
+                    <span className="text-sm font-medium text-navy-900">
+                      컬러 컨셉:
+                    </span>
                     {submission.홈페이지컬러컨셉 ? (
                       <div className="flex items-center gap-2 mt-1">
                         <div
-                          className="w-10 h-10 rounded-lg border-2 border-gold-300 shadow-sm"
-                          style={{ backgroundColor: submission.홈페이지컬러컨셉 }}
+                          className="w-10 h-10 rounded-lg border border-gray-300 shadow-sm"
+                          style={{
+                            backgroundColor: submission.홈페이지컬러컨셉,
+                          }}
                         />
                         <span className="text-sm font-mono text-navy-800">
                           {submission.홈페이지컬러컨셉}
@@ -317,7 +368,9 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
                     <Label className="text-orange-900 font-semibold">
                       사용자 피드백
                       {workflow.feedbackRead && (
-                        <span className="ml-2 text-xs font-normal text-orange-700">(확인 완료)</span>
+                        <span className="ml-2 text-xs font-normal text-orange-700">
+                          (확인 완료)
+                        </span>
                       )}
                     </Label>
                   </div>
@@ -326,7 +379,8 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
                   </p>
                   {workflow.feedbackDate && (
                     <p className="text-xs text-orange-600 mt-2">
-                      작성일: {new Date(workflow.feedbackDate).toLocaleString("ko-KR")}
+                      작성일:{" "}
+                      {new Date(workflow.feedbackDate).toLocaleString("ko-KR")}
                     </p>
                   )}
                 </div>
@@ -352,7 +406,10 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
               <Label className="text-gray-700">시안 업로드 이력</Label>
               <div className="space-y-2 max-h-40 overflow-y-auto">
                 {designHistory.map((history) => (
-                  <div key={history.id} className="p-3 rounded bg-gray-50 border border-gray-200 text-sm">
+                  <div
+                    key={history.id}
+                    className="p-3 rounded bg-gray-50 border border-gray-200 text-sm"
+                  >
                     <div className="flex items-center justify-between mb-2">
                       <a
                         href={history.fileUrl}
@@ -365,7 +422,9 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleDeleteDesign(history.id, history.version)}
+                        onClick={() =>
+                          handleDeleteDesign(history.id, history.version)
+                        }
                         disabled={deleting === history.id}
                         className="h-7 px-2 text-red-500 hover:text-red-700 hover:bg-red-50"
                       >
@@ -379,18 +438,30 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
                     <div className="space-y-1 text-xs text-gray-600">
                       <div className="flex items-center gap-2">
                         <Clock className="w-3 h-3" />
-                        <span>제공일: {new Date(history.createdAt).toLocaleDateString("ko-KR", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                          weekday: "short",
-                        })}</span>
+                        <span>
+                          제공일:{" "}
+                          {new Date(history.createdAt).toLocaleDateString(
+                            "ko-KR",
+                            {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                              weekday: "short",
+                            },
+                          )}
+                        </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span>업로드 시간: {new Date(history.createdAt).toLocaleTimeString("ko-KR", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}</span>
+                        <span>
+                          업로드 시간:{" "}
+                          {new Date(history.createdAt).toLocaleTimeString(
+                            "ko-KR",
+                            {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            },
+                          )}
+                        </span>
                       </div>
                       <div>업로드: {history.uploadedByName}</div>
                     </div>
@@ -446,7 +517,11 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
                     rel="noopener noreferrer"
                     className="text-green-600 hover:underline"
                   >
-                    현재 시안 보기 ({designHistory.length > 0 ? `${designHistory.length}차시안` : '최초 시안'})
+                    현재 시안 보기 (
+                    {designHistory.length > 0
+                      ? `${designHistory.length}차시안`
+                      : "최초 시안"}
+                    )
                   </a>
                 </div>
               )}
@@ -462,7 +537,7 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
                   }}
                   disabled={uploading || loading}
                 />
-                <div className="flex items-center justify-center gap-2 p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 cursor-pointer transition-all">
+                <div className="flex items-center justify-center gap-2 p-4 rounded-lg border border-dashed border-gray-300 hover:border-gray-400 cursor-pointer transition-all">
                   {uploading ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin text-gray-600" />
@@ -476,7 +551,9 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
                   ) : (
                     <>
                       <Upload className="w-5 h-5 text-gray-600" />
-                      <span className="text-gray-600">시안 파일 업로드 (AI, JPEG, PNG)</span>
+                      <span className="text-gray-600">
+                        시안 파일 업로드 (AI, JPEG, PNG)
+                      </span>
                     </>
                   )}
                 </div>
@@ -502,13 +579,17 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
                     <SelectItem value="대기">대기</SelectItem>
                     <SelectItem value="시안제작중">시안제작 중</SelectItem>
                     <SelectItem value="시안컨펌요청">시안컨펌요청</SelectItem>
-                    <SelectItem value="최종확정">최종확정 (로고 확정)</SelectItem>
+                    <SelectItem value="최종확정">
+                      최종확정 (로고 확정)
+                    </SelectItem>
                   </>
                 ) : (
                   <>
                     <SelectItem value="대기">대기</SelectItem>
                     <SelectItem value="시안중">시안 작업중</SelectItem>
-                    <SelectItem value="발주대기">발주대기 (시안완료)</SelectItem>
+                    <SelectItem value="발주대기">
+                      발주대기 (시안완료)
+                    </SelectItem>
                     <SelectItem value="발주완료">발주완료</SelectItem>
                     <SelectItem value="발송완료">발송완료</SelectItem>
                   </>

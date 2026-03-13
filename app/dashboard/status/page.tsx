@@ -393,7 +393,7 @@ export default function StatusDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gold-50 to-white pb-20">
+    <div className="min-h-screen bg-white pb-20">
       <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
         {/* 헤더 */}
         <div className="flex items-center justify-between">
@@ -417,7 +417,7 @@ export default function StatusDashboardPage() {
         </div>
 
         {/* 전체 진행 상황 */}
-        <Card className="border-2 border-gray-200">
+        <Card className="border border-gray-200">
           <CardHeader>
             <CardTitle className="text-xl">전체 제출 현황</CardTitle>
           </CardHeader>
@@ -436,7 +436,7 @@ export default function StatusDashboardPage() {
 
           {workflows.filter((w) => w.type === "로고" || w.type === "홈페이지")
             .length === 0 ? (
-            <Card className="border-2 border-gray-200">
+            <Card className="border border-gray-200">
               <CardContent className="py-12">
                 <div className="text-center space-y-3">
                   <Package className="w-12 h-12 text-gray-400 mx-auto" />
@@ -453,7 +453,7 @@ export default function StatusDashboardPage() {
             workflows
               .filter((w) => w.type === "로고" || w.type === "홈페이지")
               .map((workflow) => (
-                <Card key={workflow.id} className="border-2 border-gray-200">
+                <Card key={workflow.id} className="border border-gray-200">
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -471,7 +471,7 @@ export default function StatusDashboardPage() {
                       </div>
                       <Badge
                         className={cn(
-                          "px-3 py-1 text-sm font-bold border-2",
+                          "px-3 py-1 text-sm font-bold border",
                           getStatusColor(workflow.status),
                         )}
                       >
@@ -550,7 +550,7 @@ export default function StatusDashboardPage() {
                             !workflow.발주승인일)) && (
                           <Button
                             variant="outline"
-                            className="w-full h-12 border-2 border-terra-100 text-terra-500 hover:bg-terra-50 font-semibold"
+                            className="w-full h-12 border border-terra-100 text-terra-500 hover:bg-terra-50 font-semibold"
                             size="lg"
                             onClick={() => {
                               setFeedbackModal({
@@ -569,7 +569,7 @@ export default function StatusDashboardPage() {
 
                         {/* 기존 피드백 표시 */}
                         {workflow.feedback && (
-                          <div className="p-4 rounded-lg bg-terra-50 border-2 border-terra-100">
+                          <div className="p-4 rounded-lg bg-terra-50 border border-terra-100">
                             <p className="text-sm font-semibold text-terra-600 mb-2">
                               제출한 피드백:
                             </p>
@@ -605,7 +605,7 @@ export default function StatusDashboardPage() {
 
           {workflows.filter((w) => w.type !== "로고" && w.type !== "홈페이지")
             .length === 0 ? (
-            <Card className="border-2 border-gray-200">
+            <Card className="border border-gray-200">
               <CardContent className="py-12">
                 <div className="text-center space-y-3">
                   <Package className="w-12 h-12 text-gray-400 mx-auto" />
@@ -622,7 +622,7 @@ export default function StatusDashboardPage() {
             workflows
               .filter((w) => w.type !== "로고" && w.type !== "홈페이지")
               .map((workflow) => (
-                <Card key={workflow.id} className="border-2 border-gray-200">
+                <Card key={workflow.id} className="border border-gray-200">
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -640,7 +640,7 @@ export default function StatusDashboardPage() {
                       </div>
                       <Badge
                         className={cn(
-                          "px-3 py-1 text-sm font-bold border-2",
+                          "px-3 py-1 text-sm font-bold border",
                           getStatusColor(workflow.status),
                         )}
                       >
@@ -672,7 +672,7 @@ export default function StatusDashboardPage() {
                         {!workflow.발주승인일 && (
                           <Button
                             variant="outline"
-                            className="w-full h-12 border-2 border-terra-100 text-terra-500 hover:bg-terra-50 font-semibold"
+                            className="w-full h-12 border border-terra-100 text-terra-500 hover:bg-terra-50 font-semibold"
                             size="lg"
                             onClick={() => {
                               setFeedbackModal({
@@ -691,7 +691,7 @@ export default function StatusDashboardPage() {
 
                         {/* 기존 피드백 표시 */}
                         {workflow.feedback && (
-                          <div className="p-4 rounded-lg bg-terra-50 border-2 border-terra-100">
+                          <div className="p-4 rounded-lg bg-terra-50 border border-terra-100">
                             <p className="text-sm font-semibold text-terra-600 mb-2">
                               제출한 피드백:
                             </p>
@@ -718,7 +718,7 @@ export default function StatusDashboardPage() {
 
                     {/* 택배 추적 */}
                     {workflow.운송장번호 && (
-                      <div className="p-4 rounded-xl bg-navy-50 border-2 border-navy-200">
+                      <div className="p-4 rounded-xl bg-white border border-gray-200">
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex items-start gap-3">
                             <Truck className="w-6 h-6 text-navy-600 flex-shrink-0 mt-1" />
@@ -759,7 +759,7 @@ export default function StatusDashboardPage() {
         </div>
 
         {/* 도움말 */}
-        <Card className="border-2 border-gold-200 bg-gold-50">
+        <Card className="border border-gray-200 bg-white">
           <CardHeader>
             <CardTitle className="text-lg text-navy-900 flex items-center gap-2">
               <AlertCircle className="w-5 h-5" />
@@ -804,7 +804,7 @@ export default function StatusDashboardPage() {
               value={feedbackText}
               onChange={(e) => setFeedbackText(e.target.value)}
               placeholder="예: 로고 색상을 파란색으로 변경해주세요"
-              className="w-full h-32 px-4 py-3 border-2 border-gray-300 rounded-lg resize-none focus:outline-none focus:border-terra-500"
+              className="w-full h-32 px-4 py-3 border border-gray-300 rounded-lg resize-none focus:outline-none focus:border-terra-500"
             />
 
             <div className="flex gap-3">

@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .first-person {
+      animation: firstAppear 3.5s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+      transform-origin: 9px 12px;
+    }
+    .second-person {
+      animation: secondSlide 3.5s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+    }
+    .first-head {
+      stroke-dasharray: 26;
+      stroke-dashoffset: 26;
+      animation: drawFirst 3.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+    }
+    .first-body {
+      stroke-dasharray: 40;
+      stroke-dashoffset: 40;
+      animation: drawFirstBody 3.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+    }
+    @keyframes firstAppear {
+      0% { transform: scale(0.7); opacity: 0; }
+      15% { transform: scale(1.05); opacity: 1; }
+      25% { transform: scale(0.98); }
+      32%, 80% { transform: scale(1); opacity: 1; }
+      95% { opacity: 0; }
+      100% { opacity: 0; }
+    }
+    @keyframes secondSlide {
+      0%, 25% { transform: translateX(8px); opacity: 0; }
+      35% { opacity: 1; }
+      45% { transform: translateX(-1px); }
+      55% { transform: translateX(0.5px); }
+      62%, 80% { transform: translateX(0px); opacity: 1; }
+      95% { opacity: 0; }
+      100% { opacity: 0; transform: translateX(8px); }
+    }
+    @keyframes drawFirst {
+      0% { stroke-dashoffset: 26; }
+      20% { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: 0; }
+    }
+    @keyframes drawFirstBody {
+      0%, 10% { stroke-dashoffset: 40; }
+      30% { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: 0; }
+    }
+  </style>
+  <g class="first-person">
+    <path class="first-body" d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+    <circle class="first-head" cx="9" cy="7" r="4" />
+  </g>
+  <g class="second-person">
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+  </g>
+</svg>

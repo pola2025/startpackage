@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .arrow-tip {
+      transform-origin: 20px 4px;
+      transform-box: fill-box;
+      animation: tip-pulse 2s ease-in-out infinite;
+    }
+    @keyframes tip-pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.08);
+      }
+    }
+  </style>
+  <line x1="3" y1="20" x2="19" y2="4" />
+  <path class="arrow-tip" d="M19 4h-5v5" />
+</svg>

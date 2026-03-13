@@ -35,7 +35,12 @@ export default function AdminRegisterPage() {
     setLoading(true);
 
     // 클라이언트 측 검증
-    if (!formData.name || !formData.email || !formData.phone || !formData.password) {
+    if (
+      !formData.name ||
+      !formData.email ||
+      !formData.phone ||
+      !formData.password
+    ) {
       setError(ValidationMessages.required);
       setLoading(false);
       return;
@@ -99,22 +104,26 @@ export default function AdminRegisterPage() {
 
   if (success) {
     return (
-      <div className="relative min-h-screen bg-gradient-to-br from-gold-50 via-white to-gold-50 overflow-hidden">
+      <div className="relative min-h-screen bg-white overflow-hidden">
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.02]" />
 
         <div className="relative flex min-h-screen items-center justify-center p-4">
-          <Card className="w-full max-w-md bg-white shadow-xl border-gold-200">
+          <Card className="w-full max-w-md bg-white shadow-xl border-gray-200">
             <CardContent className="pt-12 pb-12 text-center space-y-4">
-              <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-navy-900 to-navy-800 flex items-center justify-center shadow-lg">
+              <div className="mx-auto w-20 h-20 rounded-full bg-navy-900 flex items-center justify-center shadow-lg">
                 <Shield className="w-10 h-10 text-white" />
               </div>
-              <h2 className="text-2xl font-bold text-navy-900">가입 신청 완료</h2>
+              <h2 className="text-2xl font-bold text-navy-900">
+                가입 신청 완료
+              </h2>
               <p className="text-navy-700">
                 관리자 승인 후 이메일로 안내드립니다.
                 <br />
                 텔레그램 알림이 발송되었습니다.
               </p>
-              <p className="text-sm text-gold-600">잠시 후 로그인 페이지로 이동합니다...</p>
+              <p className="text-sm text-gold-600">
+                잠시 후 로그인 페이지로 이동합니다...
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -123,27 +132,32 @@ export default function AdminRegisterPage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-gold-50 via-white to-gold-50 overflow-hidden">
+    <div className="relative min-h-screen bg-white overflow-hidden">
       <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.02]" />
 
       <div className="relative flex min-h-screen items-center justify-center p-4">
-        <Card className="w-full max-w-md bg-white shadow-xl border-gold-200">
-          <CardHeader className="space-y-4 text-center border-b border-gold-100 bg-gradient-to-b from-gold-50/30 to-transparent">
-            <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-navy-900 to-navy-800 flex items-center justify-center shadow-lg">
+        <Card className="w-full max-w-md bg-white shadow-xl border-gray-200">
+          <CardHeader className="space-y-4 text-center border-b border-gray-100 bg-white">
+            <div className="mx-auto w-20 h-20 rounded-full bg-navy-900 flex items-center justify-center shadow-lg">
               <Shield className="w-10 h-10 text-white" />
             </div>
             <div>
               <CardTitle className="text-3xl font-bold text-navy-900 mb-2">
                 관리자 가입 신청
               </CardTitle>
-              <p className="text-sm text-navy-700">스타트패키지 관리자 시스템</p>
+              <p className="text-sm text-navy-700">
+                스타트패키지 관리자 시스템
+              </p>
             </div>
           </CardHeader>
 
           <CardContent className="space-y-6">
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-navy-900 flex items-center gap-2 font-semibold">
+                <Label
+                  htmlFor="name"
+                  className="text-navy-900 flex items-center gap-2 font-semibold"
+                >
                   <User className="w-4 h-4" />
                   이름
                 </Label>
@@ -156,12 +170,15 @@ export default function AdminRegisterPage() {
                   onChange={handleChange}
                   required
                   disabled={loading}
-                  className="bg-gold-50/50 border-gold-200 focus:border-gold-600 focus:ring-gold-600"
+                  className="bg-gold-50/50 border-gray-200 focus:border-gold-600 focus:ring-gold-600"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-navy-900 flex items-center gap-2 font-semibold">
+                <Label
+                  htmlFor="email"
+                  className="text-navy-900 flex items-center gap-2 font-semibold"
+                >
                   <Mail className="w-4 h-4" />
                   이메일
                 </Label>
@@ -174,12 +191,15 @@ export default function AdminRegisterPage() {
                   onChange={handleChange}
                   required
                   disabled={loading}
-                  className="bg-gold-50/50 border-gold-200 focus:border-gold-600 focus:ring-gold-600"
+                  className="bg-gold-50/50 border-gray-200 focus:border-gold-600 focus:ring-gold-600"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone" className="text-navy-900 flex items-center gap-2 font-semibold">
+                <Label
+                  htmlFor="phone"
+                  className="text-navy-900 flex items-center gap-2 font-semibold"
+                >
                   <Phone className="w-4 h-4" />
                   전화번호
                 </Label>
@@ -192,13 +212,18 @@ export default function AdminRegisterPage() {
                   onChange={handleChange}
                   required
                   disabled={loading}
-                  className="bg-gold-50/50 border-gold-200 focus:border-gold-600 focus:ring-gold-600"
+                  className="bg-gold-50/50 border-gray-200 focus:border-gold-600 focus:ring-gold-600"
                 />
-                <p className="text-xs text-gold-600">하이픈(-) 포함 또는 제외 가능</p>
+                <p className="text-xs text-gold-600">
+                  하이픈(-) 포함 또는 제외 가능
+                </p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-navy-900 flex items-center gap-2 font-semibold">
+                <Label
+                  htmlFor="password"
+                  className="text-navy-900 flex items-center gap-2 font-semibold"
+                >
                   <Lock className="w-4 h-4" />
                   비밀번호
                 </Label>
@@ -211,11 +236,13 @@ export default function AdminRegisterPage() {
                   onChange={handleChange}
                   required
                   disabled={loading}
-                  className="bg-gold-50/50 border-gold-200 focus:border-gold-600 focus:ring-gold-600"
+                  className="bg-gold-50/50 border-gray-200 focus:border-gold-600 focus:ring-gold-600"
                 />
-                <div className="flex items-start gap-2 text-xs text-navy-700 bg-gold-50 rounded-md p-2 border border-gold-200">
+                <div className="flex items-start gap-2 text-xs text-navy-700 bg-gold-50 rounded-md p-2 border border-gray-200">
                   <Info className="w-3 h-3 mt-0.5 flex-shrink-0 text-gold-600" />
-                  <span>최소 8자 이상 입력해주세요. (영문, 숫자, 특수문자 조합 권장)</span>
+                  <span>
+                    최소 8자 이상 입력해주세요. (영문, 숫자, 특수문자 조합 권장)
+                  </span>
                 </div>
               </div>
 
@@ -236,7 +263,7 @@ export default function AdminRegisterPage() {
                   onChange={handleChange}
                   required
                   disabled={loading}
-                  className="bg-gold-50/50 border-gold-200 focus:border-gold-600 focus:ring-gold-600"
+                  className="bg-gold-50/50 border-gray-200 focus:border-gold-600 focus:ring-gold-600"
                 />
               </div>
 
@@ -257,7 +284,7 @@ export default function AdminRegisterPage() {
               </Button>
             </form>
 
-            <div className="border-t border-gold-100 pt-4 space-y-2">
+            <div className="border-t border-gray-100 pt-4 space-y-2">
               <p className="text-xs text-center text-gold-600">
                 이미 계정이 있으신가요?{" "}
                 <button

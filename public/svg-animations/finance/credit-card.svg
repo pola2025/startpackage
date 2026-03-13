@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .card-body {
+      animation: cardSlide 4s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+    }
+    .card-chip {
+      animation: chipGlint 4s ease infinite;
+    }
+    .card-shine {
+      animation: shineSweep 4s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+    }
+    .wave1 { animation: waveOut 4s ease infinite 1.8s; }
+    .wave2 { animation: waveOut 4s ease infinite 2.0s; }
+    .wave3 { animation: waveOut 4s ease infinite 2.2s; }
+    @keyframes cardSlide {
+      0% { transform: translateX(6px); opacity: 0; }
+      10% { transform: translateX(-1px); opacity: 1; }
+      15% { transform: translateX(0.5px); }
+      20%, 85% { transform: translateX(0); opacity: 1; }
+      95% { transform: translateX(6px); opacity: 0; }
+      100% { transform: translateX(6px); opacity: 0; }
+    }
+    @keyframes chipGlint {
+      0%, 30% { opacity: 1; }
+      35% { opacity: 0.3; }
+      38% { opacity: 1; }
+      42% { opacity: 0.5; }
+      46%, 100% { opacity: 1; }
+    }
+    @keyframes shineSweep {
+      0%, 25% { transform: translateX(-16px); opacity: 0; }
+      35% { opacity: 0.5; }
+      50% { transform: translateX(16px); opacity: 0; }
+      100% { opacity: 0; }
+    }
+    @keyframes waveOut {
+      0% { transform: scale(0.7); opacity: 0; }
+      30% { opacity: 0.8; }
+      70% { transform: scale(1.2); opacity: 0; }
+      100% { opacity: 0; }
+    }
+  </style>
+  <g class="card-body">
+    <rect x="1" y="4" width="22" height="16" rx="2"/>
+    <line x1="1" y1="10" x2="23" y2="10"/>
+    <rect class="card-chip" x="4" y="6.5" width="3.5" height="2.5" rx="0.5" stroke-width="1.5"/>
+    <line x1="5" y1="15" x2="9" y2="15"/>
+    <line x1="13" y1="15" x2="15" y2="15"/>
+  </g>
+  <rect class="card-shine" x="10" y="4" width="3" height="16" rx="1" fill="currentColor" opacity="0" stroke="none"/>
+  <path class="wave1" d="M19 6.5a2 2 0 0 1 0 3" stroke-width="1.5" fill="none" opacity="0"/>
+  <path class="wave2" d="M20 5.5a3.5 3.5 0 0 1 0 5" stroke-width="1.5" fill="none" opacity="0"/>
+  <path class="wave3" d="M21 4.5a5 5 0 0 1 0 7" stroke-width="1.5" fill="none" opacity="0"/>
+</svg>

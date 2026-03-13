@@ -1,0 +1,3308 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Navigation Scenes - Animation Showcase</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
+    />
+    <style>
+      :root {
+        --bg: #faf8f5;
+        --bg-warm: #f5f0ea;
+        --surface: #ffffff;
+        --gold: #b08d3e;
+        --gold-light: #c9a84c;
+        --gold-pale: rgba(176, 141, 62, 0.08);
+        --gold-border: rgba(176, 141, 62, 0.2);
+        --coffee: #6b5344;
+        --text: #2c2420;
+        --text-sub: #5c5248;
+        --text-muted: #9c9088;
+        --border: #e8e0d8;
+        --border-light: #f0ebe5;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family:
+          "Pretendard",
+          -apple-system,
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.7;
+      }
+
+      .page-header {
+        text-align: center;
+        padding: 60px 24px 40px;
+        background: linear-gradient(180deg, var(--bg) 0%, var(--bg-warm) 100%);
+      }
+
+      .page-header h1 {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      .page-header p {
+        font-size: 15px;
+        color: var(--text-sub);
+      }
+
+      .showcase-grid {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 24px 80px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 32px;
+      }
+
+      .showcase-card {
+        background: var(--surface);
+        border: 1px solid var(--border-light);
+        border-radius: 20px;
+        overflow: hidden;
+        transition: box-shadow 0.3s ease;
+      }
+
+      .showcase-card:hover {
+        box-shadow: 0 8px 30px rgba(44, 36, 32, 0.1);
+      }
+
+      .anim-stage {
+        height: 320px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .card-info {
+        padding: 24px 28px;
+      }
+
+      .card-num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        background: var(--gold);
+        color: #fff;
+        border-radius: 50%;
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      .card-info h3 {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 6px;
+      }
+
+      .card-info .meaning {
+        font-size: 14px;
+        color: var(--gold);
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+
+      .card-info .desc {
+        font-size: 13px;
+        color: var(--text-muted);
+      }
+
+      .replay-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 12px;
+        padding: 6px 14px;
+        background: var(--gold-pale);
+        border: 1px solid var(--gold-border);
+        border-radius: 100px;
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--gold);
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .replay-btn:hover {
+        background: var(--gold);
+        color: #fff;
+      }
+
+      /* ========================================
+         SHARED KEYFRAMES
+         ======================================== */
+      @keyframes fadeIn {
+        0% {
+          opacity: 0;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+
+      @keyframes checkPop {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(0);
+        }
+        100% {
+          opacity: 1;
+          transform: translate(-50%, -50%) scale(1);
+        }
+      }
+
+      @keyframes scalePopIn {
+        0% {
+          opacity: 0;
+          transform: scale(0);
+        }
+        70% {
+          opacity: 1;
+          transform: scale(1.15);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      /* ========================================
+         1. COMPASS FIND
+         ======================================== */
+      .anim-compass-find {
+        position: relative;
+        width: 220px;
+        height: 220px;
+      }
+
+      /* Outer ring draws via stroke-dasharray */
+      .cf-ring-outer {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        opacity: 0;
+      }
+
+      .anim-compass-find.play .cf-ring-outer {
+        animation: fadeIn 0.5s ease 0.2s forwards;
+      }
+
+      .cf-ring-inner {
+        position: absolute;
+        inset: 18px;
+        border-radius: 50%;
+        opacity: 0;
+      }
+
+      .anim-compass-find.play .cf-ring-inner {
+        animation: fadeIn 0.4s ease 0.5s forwards;
+      }
+
+      .cf-ticks {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+      }
+
+      .anim-compass-find.play .cf-ticks {
+        animation: fadeIn 0.4s ease 0.4s forwards;
+      }
+
+      .cf-label {
+        position: absolute;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: -0.3px;
+      }
+
+      .cf-label.n {
+        top: 14px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: var(--gold);
+      }
+      .cf-label.s {
+        bottom: 14px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: var(--text-muted);
+      }
+      .cf-label.e {
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+      }
+      .cf-label.w {
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+      }
+
+      .cf-label.n {
+        opacity: 0;
+      }
+      .cf-label.s {
+        opacity: 0;
+      }
+      .cf-label.e {
+        opacity: 0;
+      }
+      .cf-label.w {
+        opacity: 0;
+      }
+
+      .anim-compass-find.play .cf-label.n {
+        animation: fadeIn 0.3s ease 0.7s forwards;
+      }
+      .anim-compass-find.play .cf-label.s {
+        animation: fadeIn 0.3s ease 0.8s forwards;
+      }
+      .anim-compass-find.play .cf-label.e {
+        animation: fadeIn 0.3s ease 0.9s forwards;
+      }
+      .anim-compass-find.play .cf-label.w {
+        animation: fadeIn 0.3s ease 1s forwards;
+      }
+
+      /* Needle */
+      .cf-needle-wrap {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 4px;
+        height: 80px;
+        transform-origin: center bottom;
+        transform: translate(-50%, -100%) rotate(150deg);
+        opacity: 0;
+      }
+
+      .anim-compass-find.play .cf-needle-wrap {
+        animation:
+          cfNeedleEntry 0.3s ease 1.1s forwards,
+          cfNeedleSwing 2s cubic-bezier(0.4, 0, 0.2, 1) 1.4s forwards;
+      }
+
+      @keyframes cfNeedleEntry {
+        0% {
+          opacity: 0;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+
+      @keyframes cfNeedleSwing {
+        0% {
+          transform: translate(-50%, -100%) rotate(150deg);
+        }
+        20% {
+          transform: translate(-50%, -100%) rotate(-25deg);
+        }
+        45% {
+          transform: translate(-50%, -100%) rotate(18deg);
+        }
+        65% {
+          transform: translate(-50%, -100%) rotate(-8deg);
+        }
+        80% {
+          transform: translate(-50%, -100%) rotate(4deg);
+        }
+        100% {
+          transform: translate(-50%, -100%) rotate(0deg);
+        }
+      }
+
+      .cf-needle-n {
+        width: 4px;
+        height: 40px;
+        background: linear-gradient(to top, var(--gold-light), var(--gold));
+        clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+        border-radius: 1px;
+      }
+
+      .cf-needle-s {
+        width: 4px;
+        height: 40px;
+        background: var(--text-muted);
+        clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+        opacity: 0.35;
+      }
+
+      .cf-center {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 12px;
+        height: 12px;
+        background: var(--gold);
+        border-radius: 50%;
+        border: 2px solid #fff;
+        z-index: 3;
+        opacity: 0;
+      }
+
+      .anim-compass-find.play .cf-center {
+        animation: fadeIn 0.3s ease 1.2s forwards;
+      }
+
+      /* Glow at north */
+      .cf-glow {
+        position: absolute;
+        top: 4px;
+        left: 50%;
+        transform: translateX(-50%) scale(0);
+        width: 52px;
+        height: 52px;
+        background: radial-gradient(
+          circle,
+          rgba(176, 141, 62, 0.4),
+          transparent 70%
+        );
+        border-radius: 50%;
+        opacity: 0;
+      }
+
+      .anim-compass-find.play .cf-glow {
+        animation: cfGlow 1.2s ease 3.4s forwards;
+      }
+
+      @keyframes cfGlow {
+        0% {
+          opacity: 0;
+          transform: translateX(-50%) scale(0.3);
+        }
+        50% {
+          opacity: 1;
+          transform: translateX(-50%) scale(1.6);
+        }
+        100% {
+          opacity: 0.7;
+          transform: translateX(-50%) scale(1.2);
+        }
+      }
+
+      /* ========================================
+         2. MAP ROUTE
+         ======================================== */
+      .anim-map-route {
+        position: relative;
+        width: 260px;
+        height: 200px;
+      }
+
+      /* Map outline */
+      .mr-map {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+      }
+
+      .anim-map-route.play .mr-map {
+        animation: fadeIn 0.6s ease 0.2s forwards;
+      }
+
+      /* Start pin */
+      .mr-pin-start {
+        position: absolute;
+        left: 30px;
+        top: 60px;
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+
+      .anim-map-route.play .mr-pin-start {
+        animation: pinDrop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.8s forwards;
+      }
+
+      @keyframes pinDrop {
+        0% {
+          opacity: 0;
+          transform: translateY(-30px);
+        }
+        60% {
+          opacity: 1;
+          transform: translateY(4px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Path SVG draws with stroke-dashoffset */
+      .mr-path-svg {
+        position: absolute;
+        inset: 0;
+        overflow: visible;
+      }
+
+      .mr-path-line {
+        fill: none;
+        stroke: var(--gold);
+        stroke-width: 2.5;
+        stroke-dasharray: 240;
+        stroke-dashoffset: 240;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-dasharray: 6 5;
+      }
+
+      .anim-map-route.play .mr-path-line {
+        animation: mrPathDraw 1.2s ease 1.3s forwards;
+      }
+
+      @keyframes mrPathDraw {
+        0% {
+          stroke-dashoffset: 240;
+          opacity: 0;
+        }
+        10% {
+          opacity: 1;
+        }
+        100% {
+          stroke-dashoffset: 0;
+          opacity: 1;
+        }
+      }
+
+      /* End pin */
+      .mr-pin-end {
+        position: absolute;
+        right: 28px;
+        top: 55px;
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+
+      .anim-map-route.play .mr-pin-end {
+        animation: pinDrop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 2.5s forwards;
+      }
+
+      /* Flag */
+      .mr-flag {
+        position: absolute;
+        right: 24px;
+        top: 32px;
+        opacity: 0;
+        transform: scale(0);
+        transform-origin: bottom left;
+      }
+
+      .anim-map-route.play .mr-flag {
+        animation: flagWave 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 3s forwards;
+      }
+
+      @keyframes flagWave {
+        0% {
+          opacity: 0;
+          transform: scale(0) rotate(-20deg);
+        }
+        70% {
+          opacity: 1;
+          transform: scale(1.15) rotate(3deg);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1) rotate(0deg);
+        }
+      }
+
+      /* ========================================
+         3. GPS LOCATE
+         ======================================== */
+      .anim-gps {
+        position: relative;
+        width: 220px;
+        height: 220px;
+      }
+
+      /* Ripple circles */
+      .gps-ripple {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        border-radius: 50%;
+        border: 2px solid var(--gold);
+        opacity: 0;
+      }
+
+      .gps-ripple.r1 {
+        width: 60px;
+        height: 60px;
+      }
+      .gps-ripple.r2 {
+        width: 100px;
+        height: 100px;
+      }
+      .gps-ripple.r3 {
+        width: 140px;
+        height: 140px;
+      }
+      .gps-ripple.r4 {
+        width: 180px;
+        height: 180px;
+      }
+
+      .anim-gps.play .gps-ripple.r1 {
+        animation: gpsRipple 1.8s ease 0.2s infinite;
+      }
+      .anim-gps.play .gps-ripple.r2 {
+        animation: gpsRipple 1.8s ease 0.45s infinite;
+      }
+      .anim-gps.play .gps-ripple.r3 {
+        animation: gpsRipple 1.8s ease 0.7s infinite;
+      }
+      .anim-gps.play .gps-ripple.r4 {
+        animation: gpsRipple 1.8s ease 0.95s 3;
+      }
+
+      @keyframes gpsRipple {
+        0% {
+          transform: translate(-50%, -50%) scale(0.3);
+          opacity: 0.8;
+        }
+        100% {
+          transform: translate(-50%, -50%) scale(1);
+          opacity: 0;
+        }
+      }
+
+      /* Pin */
+      .gps-pin {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -80px);
+        opacity: 0;
+      }
+
+      .anim-gps.play .gps-pin {
+        animation: gpsPinDrop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 1.2s
+          forwards;
+      }
+
+      @keyframes gpsPinDrop {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -120px);
+        }
+        60% {
+          opacity: 1;
+          transform: translate(-50%, -38px);
+        }
+        75% {
+          transform: translate(-50%, -52px);
+        }
+        90% {
+          transform: translate(-50%, -42px);
+        }
+        100% {
+          opacity: 1;
+          transform: translate(-50%, -46px);
+        }
+      }
+
+      /* Label */
+      .gps-label {
+        position: absolute;
+        bottom: 22px;
+        left: 50%;
+        transform: translateX(-50%) translateY(10px);
+        opacity: 0;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--gold);
+        white-space: nowrap;
+        background: var(--gold-pale);
+        border: 1px solid var(--gold-border);
+        border-radius: 20px;
+        padding: 4px 14px;
+      }
+
+      .anim-gps.play .gps-label {
+        animation: gpsLabelIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 2s forwards;
+      }
+
+      @keyframes gpsLabelIn {
+        0% {
+          opacity: 0;
+          transform: translateX(-50%) translateY(10px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(-50%) translateY(0);
+        }
+      }
+
+      /* ========================================
+         4. SEARCH DISCOVER
+         ======================================== */
+      .anim-search {
+        position: relative;
+        width: 240px;
+        height: 200px;
+      }
+
+      /* Text lines background */
+      .sd-lines {
+        position: absolute;
+        top: 30px;
+        left: 20px;
+        right: 20px;
+        opacity: 0;
+      }
+
+      .anim-search.play .sd-lines {
+        animation: fadeIn 0.5s ease 0.2s forwards;
+      }
+
+      .sd-line {
+        height: 3px;
+        border-radius: 2px;
+        background: var(--border);
+        margin-bottom: 10px;
+      }
+
+      .sd-line:nth-child(1) {
+        width: 90%;
+      }
+      .sd-line:nth-child(2) {
+        width: 75%;
+      }
+      .sd-line:nth-child(3) {
+        width: 85%;
+      }
+      .sd-line:nth-child(4) {
+        width: 60%;
+      }
+      .sd-line:nth-child(5) {
+        width: 80%;
+      }
+      .sd-line:nth-child(6) {
+        width: 70%;
+      }
+
+      /* Highlight bar (the "match") */
+      .sd-highlight {
+        position: absolute;
+        top: 63px;
+        left: 20px;
+        height: 10px;
+        width: 0;
+        background: rgba(176, 141, 62, 0.25);
+        border-radius: 3px;
+        border-left: 3px solid var(--gold);
+      }
+
+      .anim-search.play .sd-highlight {
+        animation: sdHighlight 0.4s ease 1.6s forwards;
+      }
+
+      @keyframes sdHighlight {
+        0% {
+          width: 0;
+          opacity: 0;
+        }
+        100% {
+          width: 55%;
+          opacity: 1;
+        }
+      }
+
+      /* Magnifying glass */
+      .sd-glass {
+        position: absolute;
+        top: 20px;
+        left: 0px;
+        opacity: 0;
+      }
+
+      .anim-search.play .sd-glass {
+        animation:
+          sdGlassMove 1.2s ease 0.5s forwards,
+          sdGlassZoom 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 2s forwards;
+      }
+
+      @keyframes sdGlassMove {
+        0% {
+          left: 0px;
+          top: 20px;
+          opacity: 0.8;
+        }
+        30% {
+          left: 30px;
+          top: 30px;
+          opacity: 0.9;
+        }
+        60% {
+          left: 60px;
+          top: 50px;
+          opacity: 0.9;
+        }
+        100% {
+          left: 80px;
+          top: 55px;
+          opacity: 1;
+        }
+      }
+
+      @keyframes sdGlassZoom {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.4);
+        }
+        100% {
+          transform: scale(1.2);
+        }
+      }
+
+      /* Star badge */
+      .sd-star {
+        position: absolute;
+        top: 90px;
+        right: 20px;
+        opacity: 0;
+        transform: scale(0) rotate(-30deg);
+      }
+
+      .anim-search.play .sd-star {
+        animation: sdStarPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 2.6s
+          forwards;
+      }
+
+      @keyframes sdStarPop {
+        0% {
+          opacity: 0;
+          transform: scale(0) rotate(-30deg);
+        }
+        70% {
+          opacity: 1;
+          transform: scale(1.2) rotate(5deg);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1) rotate(0deg);
+        }
+      }
+
+      /* ========================================
+         5. PATH CHOOSE
+         ======================================== */
+      .anim-path {
+        position: relative;
+        width: 260px;
+        height: 200px;
+      }
+
+      .pc-svg {
+        position: absolute;
+        inset: 0;
+        overflow: visible;
+      }
+
+      /* Trunk road */
+      .pc-road-trunk {
+        fill: none;
+        stroke: var(--border);
+        stroke-width: 6;
+        stroke-linecap: round;
+        stroke-dasharray: 80;
+        stroke-dashoffset: 80;
+      }
+
+      .anim-path.play .pc-road-trunk {
+        animation: pcDraw 0.5s ease 0.3s forwards;
+      }
+
+      @keyframes pcDraw {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+
+      /* Left branch (wrong) */
+      .pc-road-left {
+        fill: none;
+        stroke: var(--border);
+        stroke-width: 5;
+        stroke-linecap: round;
+        stroke-dasharray: 100;
+        stroke-dashoffset: 100;
+        opacity: 0.5;
+      }
+
+      .anim-path.play .pc-road-left {
+        animation: pcDraw 0.6s ease 0.8s forwards;
+      }
+
+      /* Right branch (correct - gold) */
+      .pc-road-right {
+        fill: none;
+        stroke: var(--border);
+        stroke-width: 5;
+        stroke-linecap: round;
+        stroke-dasharray: 100;
+        stroke-dashoffset: 100;
+      }
+
+      .anim-path.play .pc-road-right {
+        animation:
+          pcDraw 0.6s ease 1s forwards,
+          pcGoldGlow 0.6s ease 1.8s forwards;
+      }
+
+      @keyframes pcGoldGlow {
+        to {
+          stroke: var(--gold);
+          stroke-width: 6;
+        }
+      }
+
+      /* Arrows */
+      .pc-arrow {
+        opacity: 0;
+        transform-origin: center;
+      }
+
+      .pc-arrow.left {
+        transform: translate(80px, 80px) rotate(-30deg);
+      }
+
+      .pc-arrow.right {
+        transform: translate(140px, 80px) rotate(30deg);
+      }
+
+      .anim-path.play .pc-arrow.left {
+        animation: pcArrow 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1.5s forwards;
+      }
+      .anim-path.play .pc-arrow.right {
+        animation: pcArrow 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1.7s forwards;
+      }
+
+      @keyframes pcArrow {
+        0% {
+          opacity: 0;
+          transform: scale(0.5);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      /* Checkmark on right path */
+      .pc-check {
+        position: absolute;
+        right: 20px;
+        top: 30px;
+        opacity: 0;
+        transform: scale(0);
+      }
+
+      .anim-path.play .pc-check {
+        animation: scalePopIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 2.4s
+          forwards;
+      }
+
+      /* X on left path */
+      .pc-cross {
+        position: absolute;
+        left: 20px;
+        top: 30px;
+        opacity: 0;
+        transform: scale(0);
+      }
+
+      .anim-path.play .pc-cross {
+        animation: scalePopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 2.1s
+          forwards;
+      }
+
+      /* ========================================
+         6. DESTINATION ARRIVE
+         ======================================== */
+      .anim-arrive {
+        position: relative;
+        width: 280px;
+        height: 200px;
+      }
+
+      /* Road */
+      .da-road {
+        position: absolute;
+        bottom: 30px;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: var(--border);
+        border-radius: 3px;
+        overflow: visible;
+        opacity: 0;
+      }
+
+      .anim-arrive.play .da-road {
+        animation: fadeIn 0.4s ease 0.2s forwards;
+      }
+
+      /* Road curve SVG */
+      .da-road-svg {
+        position: absolute;
+        bottom: 22px;
+        left: 0;
+        right: 0;
+        overflow: visible;
+      }
+
+      .da-road-line {
+        fill: none;
+        stroke: var(--border);
+        stroke-width: 5;
+        stroke-linecap: round;
+        stroke-dasharray: 320;
+        stroke-dashoffset: 320;
+      }
+
+      .anim-arrive.play .da-road-line {
+        animation: daRoadDraw 0.7s ease 0.2s forwards;
+      }
+
+      @keyframes daRoadDraw {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+
+      /* Milestones */
+      .da-milestone {
+        position: absolute;
+        bottom: 42px;
+        width: 3px;
+        height: 14px;
+        background: var(--border);
+        border-radius: 1px;
+        opacity: 0;
+      }
+
+      .da-milestone.m1 {
+        left: 60px;
+      }
+      .da-milestone.m2 {
+        left: 120px;
+      }
+      .da-milestone.m3 {
+        left: 180px;
+      }
+
+      .anim-arrive.play .da-milestone.m1 {
+        animation: fadeIn 0.3s ease 0.9s forwards;
+      }
+      .anim-arrive.play .da-milestone.m2 {
+        animation: fadeIn 0.3s ease 1s forwards;
+      }
+      .anim-arrive.play .da-milestone.m3 {
+        animation: fadeIn 0.3s ease 1.1s forwards;
+      }
+
+      /* Car */
+      .da-car {
+        position: absolute;
+        bottom: 38px;
+        left: 8px;
+        opacity: 0;
+      }
+
+      .anim-arrive.play .da-car {
+        animation: daCar 2.2s cubic-bezier(0.4, 0, 0.2, 1) 0.9s forwards;
+      }
+
+      @keyframes daCar {
+        0% {
+          left: 8px;
+          opacity: 0;
+          bottom: 38px;
+        }
+        5% {
+          opacity: 1;
+        }
+        30% {
+          left: 80px;
+          bottom: 50px;
+        }
+        60% {
+          left: 160px;
+          bottom: 38px;
+        }
+        90% {
+          left: 216px;
+          bottom: 38px;
+          opacity: 1;
+        }
+        100% {
+          left: 210px;
+          bottom: 38px;
+          opacity: 1;
+        }
+      }
+
+      /* Building */
+      .da-building {
+        position: absolute;
+        right: 14px;
+        bottom: 37px;
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      .anim-arrive.play .da-building {
+        animation: daBuildingIn 0.6s ease 0.3s forwards;
+      }
+
+      @keyframes daBuildingIn {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Arrival flag */
+      .da-flag {
+        position: absolute;
+        right: 10px;
+        bottom: 85px;
+        opacity: 0;
+        transform: scale(0) rotate(-10deg);
+        transform-origin: bottom left;
+      }
+
+      .anim-arrive.play .da-flag {
+        animation: flagWave 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 3.2s forwards;
+      }
+
+      /* ========================================
+         7. LIGHTHOUSE GUIDE
+         ======================================== */
+      .anim-lighthouse {
+        position: relative;
+        width: 260px;
+        height: 200px;
+        overflow: hidden;
+      }
+
+      /* Sea */
+      .lh-sea {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 50px;
+        background: linear-gradient(
+          180deg,
+          rgba(176, 141, 62, 0.06),
+          rgba(107, 83, 68, 0.08)
+        );
+        border-radius: 0 0 0 0;
+        opacity: 0;
+      }
+
+      .anim-lighthouse.play .lh-sea {
+        animation: fadeIn 0.5s ease 0.2s forwards;
+      }
+
+      /* Waves */
+      .lh-wave {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 40px;
+        opacity: 0;
+      }
+
+      .lh-wave path {
+        fill: none;
+        stroke: var(--border);
+        stroke-width: 2;
+      }
+
+      .anim-lighthouse.play .lh-wave {
+        animation:
+          fadeIn 0.4s ease 0.5s forwards,
+          lhWaveMove 3s ease-in-out 0.9s infinite;
+      }
+
+      @keyframes lhWaveMove {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        50% {
+          transform: translateX(-15px);
+        }
+      }
+
+      /* Tower */
+      .lh-tower {
+        position: absolute;
+        bottom: 35px;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+      }
+
+      .anim-lighthouse.play .lh-tower {
+        animation: lhTowerRise 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.7s
+          forwards;
+      }
+
+      @keyframes lhTowerRise {
+        0% {
+          opacity: 0;
+          transform: translateX(-50%) translateY(20px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(-50%) translateY(0);
+        }
+      }
+
+      /* Light beam */
+      .lh-beam {
+        position: absolute;
+        bottom: 118px;
+        left: 50%;
+        width: 120px;
+        height: 120px;
+        transform-origin: 0 100%;
+        transform: translateY(-100%) rotate(-10deg);
+        opacity: 0;
+        background: conic-gradient(
+          from -10deg,
+          transparent,
+          rgba(176, 141, 62, 0.2) 25deg,
+          transparent 26deg
+        );
+        border-radius: 0 100% 0 0;
+      }
+
+      .anim-lighthouse.play .lh-beam {
+        animation:
+          fadeIn 0.4s ease 1.5s forwards,
+          lhBeamRotate 3s linear 1.9s 2;
+      }
+
+      @keyframes lhBeamRotate {
+        0% {
+          transform: translateY(-100%) rotate(-10deg);
+        }
+        50% {
+          transform: translateY(-100%) rotate(40deg);
+        }
+        100% {
+          transform: translateY(-100%) rotate(-10deg);
+        }
+      }
+
+      /* Ship */
+      .lh-ship {
+        position: absolute;
+        bottom: 38px;
+        left: -40px;
+        opacity: 0;
+      }
+
+      .anim-lighthouse.play .lh-ship {
+        animation: lhShip 2.5s ease 2s forwards;
+      }
+
+      @keyframes lhShip {
+        0% {
+          left: -40px;
+          opacity: 0;
+        }
+        10% {
+          opacity: 1;
+        }
+        80% {
+          left: 70px;
+          opacity: 1;
+        }
+        100% {
+          left: 80px;
+          opacity: 1;
+        }
+      }
+
+      /* ========================================
+         8. TELESCOPE VIEW
+         ======================================== */
+      .anim-telescope {
+        position: relative;
+        width: 260px;
+        height: 200px;
+      }
+
+      /* Telescope body */
+      .tv-scope {
+        position: absolute;
+        bottom: 40px;
+        left: 20px;
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+
+      .anim-telescope.play .tv-scope {
+        animation: tvScopeIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s
+          forwards;
+      }
+
+      @keyframes tvScopeIn {
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      /* Lens circles (focus rings) */
+      .tv-lens {
+        position: absolute;
+        top: 30px;
+        right: 30px;
+        opacity: 0;
+      }
+
+      .anim-telescope.play .tv-lens {
+        animation: fadeIn 0.5s ease 1s forwards;
+      }
+
+      .tv-lens-ring {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        border: 2px solid var(--gold-border);
+      }
+
+      .tv-lens-ring.r1 {
+        width: 80px;
+        height: 80px;
+      }
+      .tv-lens-ring.r2 {
+        width: 58px;
+        height: 58px;
+        border-color: var(--gold);
+        opacity: 0.6;
+      }
+      .tv-lens-ring.r3 {
+        width: 38px;
+        height: 38px;
+        border-color: var(--gold);
+      }
+
+      /* Blurry mountain → clear */
+      .tv-mountain-blur {
+        position: absolute;
+        top: 20px;
+        right: 22px;
+        opacity: 0;
+      }
+
+      .anim-telescope.play .tv-mountain-blur {
+        animation: tvFocus 1.5s ease 1.2s forwards;
+      }
+
+      @keyframes tvFocus {
+        0% {
+          opacity: 0.5;
+          filter: blur(4px);
+        }
+        100% {
+          opacity: 1;
+          filter: blur(0);
+        }
+      }
+
+      /* Star badge */
+      .tv-star {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        opacity: 0;
+        transform: scale(0) rotate(-20deg);
+      }
+
+      .anim-telescope.play .tv-star {
+        animation: sdStarPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 2.8s
+          forwards;
+      }
+
+      /* ========================================
+         9. SIGNPOST
+         ======================================== */
+      .anim-signpost {
+        position: relative;
+        width: 240px;
+        height: 200px;
+      }
+
+      /* Ground line */
+      .sp-ground {
+        position: absolute;
+        bottom: 20px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--border);
+        opacity: 0;
+        border-radius: 1px;
+      }
+
+      .anim-signpost.play .sp-ground {
+        animation: fadeIn 0.4s ease 0.2s forwards;
+      }
+
+      /* Post */
+      .sp-post {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 5px;
+        height: 0;
+        background: var(--coffee);
+        border-radius: 2px;
+        transform-origin: bottom center;
+      }
+
+      .anim-signpost.play .sp-post {
+        animation: spPostGrow 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s
+          forwards;
+      }
+
+      @keyframes spPostGrow {
+        to {
+          height: 130px;
+        }
+      }
+
+      /* Signs */
+      .sp-sign {
+        position: absolute;
+        height: 28px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        padding: 0 10px;
+        font-size: 11px;
+        font-weight: 700;
+        opacity: 0;
+        transform: scaleX(0);
+        white-space: nowrap;
+      }
+
+      .sp-sign.left {
+        background: var(--coffee);
+        color: #fff;
+        right: 50%;
+        margin-right: 2px;
+        transform-origin: right center;
+      }
+
+      .sp-sign.right {
+        background: var(--gold);
+        color: #fff;
+        left: 50%;
+        margin-left: 2px;
+        transform-origin: left center;
+      }
+
+      .sp-sign.s1 {
+        bottom: 120px;
+      }
+      .sp-sign.s2 {
+        bottom: 88px;
+      }
+      .sp-sign.s3 {
+        bottom: 56px;
+      }
+
+      .anim-signpost.play .sp-sign.s1 {
+        animation: spSign 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1s forwards;
+      }
+      .anim-signpost.play .sp-sign.s2 {
+        animation: spSign 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1.2s forwards;
+      }
+      .anim-signpost.play .sp-sign.s3 {
+        animation: spSign 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1.4s forwards;
+      }
+
+      @keyframes spSign {
+        0% {
+          opacity: 0;
+          transform: scaleX(0);
+        }
+        100% {
+          opacity: 1;
+          transform: scaleX(1);
+        }
+      }
+
+      /* Traveler */
+      .sp-traveler {
+        position: absolute;
+        bottom: 22px;
+        left: -20px;
+        opacity: 0;
+      }
+
+      .anim-signpost.play .sp-traveler {
+        animation: spWalk 2s ease 2s forwards;
+      }
+
+      @keyframes spWalk {
+        0% {
+          left: -20px;
+          opacity: 0;
+        }
+        10% {
+          opacity: 1;
+        }
+        45% {
+          left: 90px;
+          opacity: 1;
+        }
+        55% {
+          left: 95px;
+        }
+        100% {
+          left: 210px;
+          opacity: 0.4;
+        }
+      }
+
+      /* ========================================
+         10. ORBIT NAVIGATE
+         ======================================== */
+      .anim-orbit {
+        position: relative;
+        width: 220px;
+        height: 220px;
+      }
+
+      /* Goal center */
+      .on-goal {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        width: 44px;
+        height: 44px;
+        background: var(--gold-pale);
+        border: 2px solid var(--gold);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+      }
+
+      .anim-orbit.play .on-goal {
+        animation: scalePopIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s
+          forwards;
+      }
+
+      /* Ellipse trace */
+      .on-orbit-svg {
+        position: absolute;
+        inset: 0;
+        overflow: visible;
+      }
+
+      .on-ellipse {
+        fill: none;
+        stroke: var(--gold-border);
+        stroke-width: 1.5;
+        stroke-dasharray: 380;
+        stroke-dashoffset: 380;
+      }
+
+      .anim-orbit.play .on-ellipse {
+        animation: onEllipseDraw 1.5s ease 0.9s forwards;
+      }
+
+      @keyframes onEllipseDraw {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+
+      /* Golden trace (drawn after) */
+      .on-ellipse-gold {
+        fill: none;
+        stroke: var(--gold);
+        stroke-width: 2;
+        stroke-dasharray: 380;
+        stroke-dashoffset: 380;
+        opacity: 0.6;
+      }
+
+      .anim-orbit.play .on-ellipse-gold {
+        animation: onEllipseDraw 2s ease 2.4s forwards;
+      }
+
+      /* Satellite */
+      .on-satellite {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        opacity: 0;
+      }
+
+      .on-satellite-dot {
+        width: 16px;
+        height: 16px;
+        background: var(--coffee);
+        border-radius: 50%;
+        border: 2px solid var(--gold);
+      }
+
+      .anim-orbit.play .on-satellite {
+        animation: onOrbit 3s linear 1s 1.5 forwards;
+      }
+
+      @keyframes onOrbit {
+        0% {
+          transform: translate(calc(-50% + 90px), calc(-50% + 0px));
+          opacity: 0;
+        }
+        5% {
+          opacity: 1;
+        }
+        25% {
+          transform: translate(calc(-50% + 10px), calc(-50% - 45px));
+        }
+        50% {
+          transform: translate(calc(-50% - 90px), calc(-50% + 0px));
+        }
+        75% {
+          transform: translate(calc(-50% + 10px), calc(-50% + 45px));
+        }
+        95% {
+          opacity: 1;
+        }
+        100% {
+          transform: translate(calc(-50% + 90px), calc(-50% + 0px));
+          opacity: 0.7;
+        }
+      }
+
+      /* Lock-on indicator */
+      .on-lock {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        width: 60px;
+        height: 60px;
+        border: 2px solid var(--gold);
+        border-radius: 50%;
+        opacity: 0;
+      }
+
+      .anim-orbit.play .on-lock {
+        animation: onLock 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 4.5s forwards;
+      }
+
+      @keyframes onLock {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(2);
+        }
+        100% {
+          opacity: 0.8;
+          transform: translate(-50%, -50%) scale(1);
+        }
+      }
+
+      /* Corner crosshairs */
+      .on-crosshair {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 60px;
+        height: 60px;
+        transform: translate(-50%, -50%);
+        opacity: 0;
+      }
+
+      .anim-orbit.play .on-crosshair {
+        animation: fadeIn 0.4s ease 5s forwards;
+      }
+
+      @media (max-width: 768px) {
+        .showcase-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-header">
+      <h1>Navigation Scenes</h1>
+      <p>방향·경로·탐색 컨셉 애니메이션 10종</p>
+    </div>
+
+    <div class="showcase-grid">
+      <!-- 1. Compass Find -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-compass-find play" id="anim1">
+            <!-- Outer ring SVG -->
+            <svg
+              style="position: absolute; inset: 0; overflow: visible"
+              width="220"
+              height="220"
+            >
+              <!-- Outer ring draw -->
+              <circle
+                cx="110"
+                cy="110"
+                r="105"
+                fill="none"
+                stroke="var(--border)"
+                stroke-width="3"
+                class="cf-ring-outer"
+                style="position: static"
+              />
+            </svg>
+
+            <!-- Structural rings using divs -->
+            <div
+              class="cf-ring-outer"
+              style="
+                border: 3px solid var(--border);
+                position: absolute;
+                inset: 0;
+                border-radius: 50%;
+              "
+            ></div>
+            <div
+              class="cf-ring-inner"
+              style="
+                border: 1.5px solid var(--border-light);
+                position: absolute;
+                inset: 18px;
+                border-radius: 50%;
+              "
+            ></div>
+
+            <!-- Cardinal tick marks -->
+            <svg
+              class="cf-ticks"
+              viewBox="0 0 220 220"
+              style="position: absolute; inset: 0; overflow: visible"
+            >
+              <!-- Major ticks N/S/E/W -->
+              <line
+                x1="110"
+                y1="8"
+                x2="110"
+                y2="22"
+                stroke="var(--gold)"
+                stroke-width="2.5"
+                stroke-linecap="round"
+              />
+              <line
+                x1="110"
+                y1="198"
+                x2="110"
+                y2="212"
+                stroke="var(--border)"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
+              <line
+                x1="8"
+                y1="110"
+                x2="22"
+                y2="110"
+                stroke="var(--border)"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
+              <line
+                x1="198"
+                y1="110"
+                x2="212"
+                y2="110"
+                stroke="var(--border)"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
+              <!-- Minor ticks at 45° -->
+              <line
+                x1="42"
+                y1="42"
+                x2="51"
+                y2="51"
+                stroke="var(--border-light)"
+                stroke-width="1"
+                stroke-linecap="round"
+              />
+              <line
+                x1="178"
+                y1="42"
+                x2="169"
+                y2="51"
+                stroke="var(--border-light)"
+                stroke-width="1"
+                stroke-linecap="round"
+              />
+              <line
+                x1="42"
+                y1="178"
+                x2="51"
+                y2="169"
+                stroke="var(--border-light)"
+                stroke-width="1"
+                stroke-linecap="round"
+              />
+              <line
+                x1="178"
+                y1="178"
+                x2="169"
+                y2="169"
+                stroke="var(--border-light)"
+                stroke-width="1"
+                stroke-linecap="round"
+              />
+              <!-- Degree marks every 30° -->
+              <line
+                x1="165"
+                y1="19"
+                x2="162"
+                y2="32"
+                stroke="var(--border-light)"
+                stroke-width="1"
+                stroke-linecap="round"
+              />
+              <line
+                x1="55"
+                y1="19"
+                x2="58"
+                y2="32"
+                stroke="var(--border-light)"
+                stroke-width="1"
+                stroke-linecap="round"
+              />
+              <line
+                x1="200"
+                y1="55"
+                x2="188"
+                y2="58"
+                stroke="var(--border-light)"
+                stroke-width="1"
+                stroke-linecap="round"
+              />
+              <line
+                x1="200"
+                y1="165"
+                x2="188"
+                y2="162"
+                stroke="var(--border-light)"
+                stroke-width="1"
+                stroke-linecap="round"
+              />
+              <line
+                x1="20"
+                y1="55"
+                x2="32"
+                y2="58"
+                stroke="var(--border-light)"
+                stroke-width="1"
+                stroke-linecap="round"
+              />
+              <line
+                x1="20"
+                y1="165"
+                x2="32"
+                y2="162"
+                stroke="var(--border-light)"
+                stroke-width="1"
+                stroke-linecap="round"
+              />
+            </svg>
+
+            <span class="cf-label n">N</span>
+            <span class="cf-label s">S</span>
+            <span class="cf-label e">E</span>
+            <span class="cf-label w">W</span>
+
+            <!-- Needle -->
+            <div class="cf-needle-wrap">
+              <div class="cf-needle-n"></div>
+              <div class="cf-needle-s"></div>
+            </div>
+            <div class="cf-center"></div>
+            <div class="cf-glow"></div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">1</div>
+          <h3>Compass Find</h3>
+          <div class="meaning">"방향을 찾다"</div>
+          <div class="desc">
+            링 등장 → 눈금 → 방위 라벨 → 바늘 스윙 → 북쪽 글로우
+          </div>
+          <button class="replay-btn" onclick="replay('anim1')">
+            다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 2. Map Route -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-map-route play" id="anim2">
+            <!-- Map background outline -->
+            <svg class="mr-map" viewBox="0 0 260 200" width="260" height="200">
+              <!-- Map territory shape -->
+              <path
+                d="M30 40 Q60 20 100 30 Q140 15 180 35 Q220 25 240 55 L235 150 Q210 170 175 160 Q140 175 110 162 Q75 175 45 158 Q20 145 25 110 Z"
+                fill="rgba(176,141,62,0.05)"
+                stroke="var(--border)"
+                stroke-width="1.5"
+              />
+              <!-- Inner details: small region lines -->
+              <path
+                d="M80 70 Q120 60 160 75"
+                fill="none"
+                stroke="var(--border-light)"
+                stroke-width="1"
+              />
+              <path
+                d="M70 110 Q100 100 130 110 Q160 100 195 115"
+                fill="none"
+                stroke="var(--border-light)"
+                stroke-width="1"
+              />
+              <!-- Grid crosshatch light -->
+              <line
+                x1="80"
+                y1="40"
+                x2="75"
+                y2="160"
+                stroke="var(--border-light)"
+                stroke-width="0.5"
+              />
+              <line
+                x1="130"
+                y1="25"
+                x2="125"
+                y2="165"
+                stroke="var(--border-light)"
+                stroke-width="0.5"
+              />
+              <line
+                x1="180"
+                y1="35"
+                x2="178"
+                y2="158"
+                stroke="var(--border-light)"
+                stroke-width="0.5"
+              />
+              <line
+                x1="40"
+                y1="80"
+                x2="235"
+                y2="75"
+                stroke="var(--border-light)"
+                stroke-width="0.5"
+              />
+              <line
+                x1="35"
+                y1="120"
+                x2="235"
+                y2="118"
+                stroke="var(--border-light)"
+                stroke-width="0.5"
+              />
+            </svg>
+
+            <!-- Route path -->
+            <svg
+              class="mr-path-svg"
+              viewBox="0 0 260 200"
+              width="260"
+              height="200"
+            >
+              <path
+                class="mr-path-line"
+                d="M52 120 Q80 80 110 95 Q140 110 165 85 Q190 65 210 110"
+              />
+            </svg>
+
+            <!-- Start pin -->
+            <div class="mr-pin-start">
+              <svg width="24" height="30" viewBox="0 0 24 30">
+                <path
+                  d="M12 2 C7.6 2 4 5.6 4 10 C4 16 12 28 12 28 C12 28 20 16 20 10 C20 5.6 16.4 2 12 2Z"
+                  fill="var(--coffee)"
+                  stroke="rgba(255,255,255,0.4)"
+                  stroke-width="1"
+                />
+                <circle cx="12" cy="10" r="4" fill="#fff" opacity="0.8" />
+              </svg>
+            </div>
+
+            <!-- End pin -->
+            <div class="mr-pin-end">
+              <svg width="24" height="30" viewBox="0 0 24 30">
+                <path
+                  d="M12 2 C7.6 2 4 5.6 4 10 C4 16 12 28 12 28 C12 28 20 16 20 10 C20 5.6 16.4 2 12 2Z"
+                  fill="var(--gold)"
+                  stroke="rgba(255,255,255,0.4)"
+                  stroke-width="1"
+                />
+                <circle cx="12" cy="10" r="4" fill="#fff" opacity="0.9" />
+              </svg>
+            </div>
+
+            <!-- Flag -->
+            <div class="mr-flag">
+              <svg width="20" height="26" viewBox="0 0 20 26">
+                <line
+                  x1="2"
+                  y1="2"
+                  x2="2"
+                  y2="24"
+                  stroke="var(--coffee)"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <path d="M2 2 L18 6 L2 12 Z" fill="var(--gold)" />
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">2</div>
+          <h3>Map Route</h3>
+          <div class="meaning">"경로 안내"</div>
+          <div class="desc">
+            지도 등장 → 출발 핀 낙하 → 점선 경로 → 도착 핀 → 깃발
+          </div>
+          <button class="replay-btn" onclick="replay('anim2')">
+            다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 3. GPS Locate -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-gps play" id="anim3">
+            <div class="gps-ripple r1"></div>
+            <div class="gps-ripple r2"></div>
+            <div class="gps-ripple r3"></div>
+            <div class="gps-ripple r4"></div>
+
+            <!-- GPS pin -->
+            <div class="gps-pin">
+              <svg width="34" height="44" viewBox="0 0 34 44">
+                <defs>
+                  <radialGradient id="pinGrad" cx="40%" cy="35%">
+                    <stop offset="0%" stop-color="var(--gold-light)" />
+                    <stop offset="100%" stop-color="var(--gold)" />
+                  </radialGradient>
+                </defs>
+                <path
+                  d="M17 1 C9.3 1 3 7.3 3 15 C3 25 17 43 17 43 C17 43 31 25 31 15 C31 7.3 24.7 1 17 1Z"
+                  fill="url(#pinGrad)"
+                  stroke="rgba(255,255,255,0.5)"
+                  stroke-width="1.5"
+                />
+                <circle cx="17" cy="15" r="6" fill="#fff" opacity="0.9" />
+                <circle cx="17" cy="15" r="2.5" fill="var(--gold)" />
+                <!-- Shadow -->
+                <ellipse
+                  cx="17"
+                  cy="43"
+                  rx="5"
+                  ry="2"
+                  fill="rgba(44,36,32,0.15)"
+                />
+              </svg>
+            </div>
+
+            <!-- Center dot -->
+            <div
+              style="
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: var(--gold);
+                opacity: 0.3;
+              "
+            ></div>
+
+            <div class="gps-label">현재 위치</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">3</div>
+          <h3>GPS Locate</h3>
+          <div class="meaning">"위치 확인"</div>
+          <div class="desc">
+            동심원 펄스 → 핀 낙하 바운스 → "현재 위치" 라벨 등장
+          </div>
+          <button class="replay-btn" onclick="replay('anim3')">
+            다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 4. Search Discover -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-search play" id="anim4">
+            <!-- Text lines -->
+            <div class="sd-lines">
+              <div class="sd-line"></div>
+              <div class="sd-line"></div>
+              <div class="sd-line"></div>
+              <div class="sd-line"></div>
+              <div class="sd-line"></div>
+              <div class="sd-line"></div>
+            </div>
+
+            <!-- Highlight bar -->
+            <div class="sd-highlight"></div>
+
+            <!-- Magnifying glass -->
+            <div class="sd-glass">
+              <svg width="44" height="44" viewBox="0 0 44 44">
+                <circle
+                  cx="18"
+                  cy="18"
+                  r="13"
+                  fill="rgba(176,141,62,0.1)"
+                  stroke="var(--gold)"
+                  stroke-width="3"
+                />
+                <line
+                  x1="27"
+                  y1="27"
+                  x2="40"
+                  y2="40"
+                  stroke="var(--gold)"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                />
+                <!-- Inner circle to suggest lens -->
+                <circle cx="18" cy="18" r="8" fill="rgba(176,141,62,0.06)" />
+              </svg>
+            </div>
+
+            <!-- Star badge -->
+            <div class="sd-star">
+              <svg width="36" height="36" viewBox="0 0 36 36">
+                <circle
+                  cx="18"
+                  cy="18"
+                  r="17"
+                  fill="var(--gold)"
+                  opacity="0.15"
+                  stroke="var(--gold)"
+                  stroke-width="1.5"
+                />
+                <polygon
+                  points="18,6 20.5,14 29,14 22.5,19 25,27 18,22 11,27 13.5,19 7,14 15.5,14"
+                  fill="var(--gold)"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">4</div>
+          <h3>Search Discover</h3>
+          <div class="meaning">"핵심을 찾다"</div>
+          <div class="desc">
+            돋보기 이동 → 매칭 하이라이트 → 줌인 → 별 배지 등장
+          </div>
+          <button class="replay-btn" onclick="replay('anim4')">
+            다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 5. Path Choose -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-path play" id="anim5">
+            <svg class="pc-svg" viewBox="0 0 260 200" width="260" height="200">
+              <!-- Trunk road coming from bottom center -->
+              <path class="pc-road-trunk" d="M130 195 L130 120" />
+
+              <!-- Left branch (wrong) -->
+              <path class="pc-road-left" d="M130 120 Q100 100 55 55" />
+
+              <!-- Right branch (correct) -->
+              <path class="pc-road-right" d="M130 120 Q160 100 205 55" />
+
+              <!-- Left arrow -->
+              <g
+                class="pc-arrow left"
+                style="transform: translate(55px, 55px) rotate(-35deg)"
+              >
+                <line
+                  x1="0"
+                  y1="0"
+                  x2="-24"
+                  y2="0"
+                  stroke="var(--text-muted)"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                />
+                <polyline
+                  points="-8,-8 -24,0 -8,8"
+                  fill="none"
+                  stroke="var(--text-muted)"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </g>
+
+              <!-- Right arrow (gold) -->
+              <g
+                class="pc-arrow right"
+                style="transform: translate(205px, 55px) rotate(35deg)"
+              >
+                <line
+                  x1="0"
+                  y1="0"
+                  x2="24"
+                  y2="0"
+                  stroke="var(--gold)"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                />
+                <polyline
+                  points="8,-8 24,0 8,8"
+                  fill="none"
+                  stroke="var(--gold)"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </g>
+            </svg>
+
+            <!-- X mark (wrong path) -->
+            <div
+              class="pc-cross"
+              style="left: 22px; top: 22px; transform: scale(0)"
+            >
+              <svg width="28" height="28" viewBox="0 0 28 28">
+                <circle
+                  cx="14"
+                  cy="14"
+                  r="13"
+                  fill="rgba(107,83,68,0.1)"
+                  stroke="var(--coffee)"
+                  stroke-width="1.5"
+                />
+                <line
+                  x1="9"
+                  y1="9"
+                  x2="19"
+                  y2="19"
+                  stroke="var(--coffee)"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <line
+                  x1="19"
+                  y1="9"
+                  x2="9"
+                  y2="19"
+                  stroke="var(--coffee)"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </div>
+
+            <!-- Check mark (correct path) -->
+            <div
+              class="pc-check"
+              style="
+                right: 22px;
+                top: 22px;
+                left: auto;
+                transform: scale(0);
+                position: absolute;
+              "
+            >
+              <svg width="32" height="32" viewBox="0 0 32 32">
+                <circle
+                  cx="16"
+                  cy="16"
+                  r="15"
+                  fill="var(--gold)"
+                  opacity="0.15"
+                  stroke="var(--gold)"
+                  stroke-width="1.5"
+                />
+                <polyline
+                  points="9,16 14,21 23,11"
+                  fill="none"
+                  stroke="var(--gold)"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">5</div>
+          <h3>Path Choose</h3>
+          <div class="meaning">"올바른 선택"</div>
+          <div class="desc">
+            갈림길 등장 → 화살표 팝 → 올바른 경로 골드 → 체크마크
+          </div>
+          <button class="replay-btn" onclick="replay('anim5')">
+            다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 6. Destination Arrive -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-arrive play" id="anim6">
+            <!-- Curved road SVG -->
+            <svg
+              class="da-road-svg"
+              viewBox="0 0 280 120"
+              width="280"
+              height="120"
+            >
+              <path
+                class="da-road-line"
+                d="M8 90 Q60 90 100 70 Q140 50 180 75 Q220 95 265 85"
+              />
+              <!-- Road markings -->
+              <path
+                d="M8 90 Q60 90 100 70 Q140 50 180 75 Q220 95 265 85"
+                fill="none"
+                stroke="#fff"
+                stroke-width="1"
+                stroke-dasharray="8 10"
+                stroke-linecap="round"
+                opacity="0.6"
+                style="stroke-dashoffset: 0"
+              />
+            </svg>
+
+            <!-- Milestones -->
+            <div class="da-milestone m1">
+              <svg width="14" height="22" viewBox="0 0 14 22">
+                <line
+                  x1="7"
+                  y1="2"
+                  x2="7"
+                  y2="22"
+                  stroke="var(--border)"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <rect
+                  x="0"
+                  y="2"
+                  width="12"
+                  height="8"
+                  rx="2"
+                  fill="var(--border)"
+                />
+              </svg>
+            </div>
+            <div class="da-milestone m2">
+              <svg width="14" height="22" viewBox="0 0 14 22">
+                <line
+                  x1="7"
+                  y1="2"
+                  x2="7"
+                  y2="22"
+                  stroke="var(--border)"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <rect
+                  x="0"
+                  y="2"
+                  width="12"
+                  height="8"
+                  rx="2"
+                  fill="var(--border)"
+                />
+              </svg>
+            </div>
+            <div class="da-milestone m3">
+              <svg width="14" height="22" viewBox="0 0 14 22">
+                <line
+                  x1="7"
+                  y1="2"
+                  x2="7"
+                  y2="22"
+                  stroke="var(--border)"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <rect
+                  x="0"
+                  y="2"
+                  width="12"
+                  height="8"
+                  rx="2"
+                  fill="var(--border)"
+                />
+              </svg>
+            </div>
+
+            <!-- Car (simple) -->
+            <div class="da-car">
+              <svg width="36" height="22" viewBox="0 0 36 22">
+                <rect
+                  x="2"
+                  y="8"
+                  width="32"
+                  height="12"
+                  rx="4"
+                  fill="var(--coffee)"
+                />
+                <path
+                  d="M6 8 Q9 2 14 2 L22 2 Q27 2 30 8Z"
+                  fill="var(--coffee)"
+                />
+                <!-- Windows -->
+                <rect
+                  x="9"
+                  y="3"
+                  width="7"
+                  height="5"
+                  rx="1.5"
+                  fill="rgba(250,248,245,0.7)"
+                />
+                <rect
+                  x="18"
+                  y="3"
+                  width="7"
+                  height="5"
+                  rx="1.5"
+                  fill="rgba(250,248,245,0.7)"
+                />
+                <!-- Wheels -->
+                <circle
+                  cx="10"
+                  cy="20"
+                  r="3.5"
+                  fill="var(--text)"
+                  stroke="var(--border)"
+                  stroke-width="1"
+                />
+                <circle
+                  cx="26"
+                  cy="20"
+                  r="3.5"
+                  fill="var(--text)"
+                  stroke="var(--border)"
+                  stroke-width="1"
+                />
+                <circle cx="10" cy="20" r="1.5" fill="var(--border)" />
+                <circle cx="26" cy="20" r="1.5" fill="var(--border)" />
+                <!-- Headlights -->
+                <rect
+                  x="30"
+                  y="10"
+                  width="4"
+                  height="3"
+                  rx="1"
+                  fill="rgba(176,141,62,0.5)"
+                />
+              </svg>
+            </div>
+
+            <!-- Building -->
+            <div class="da-building">
+              <svg width="48" height="62" viewBox="0 0 48 62">
+                <!-- Main building -->
+                <rect
+                  x="6"
+                  y="14"
+                  width="36"
+                  height="48"
+                  rx="3"
+                  fill="var(--gold)"
+                  opacity="0.9"
+                />
+                <!-- Roof -->
+                <path d="M2 16 L24 2 L46 16Z" fill="var(--coffee)" />
+                <!-- Windows -->
+                <rect
+                  x="10"
+                  y="20"
+                  width="8"
+                  height="8"
+                  rx="1"
+                  fill="rgba(250,248,245,0.7)"
+                />
+                <rect
+                  x="22"
+                  y="20"
+                  width="8"
+                  height="8"
+                  rx="1"
+                  fill="rgba(250,248,245,0.7)"
+                />
+                <rect x="34" y="20" width="0" height="0" rx="0" fill="none" />
+                <rect
+                  x="10"
+                  y="34"
+                  width="8"
+                  height="8"
+                  rx="1"
+                  fill="rgba(250,248,245,0.7)"
+                />
+                <rect
+                  x="22"
+                  y="34"
+                  width="8"
+                  height="8"
+                  rx="1"
+                  fill="rgba(250,248,245,0.7)"
+                />
+                <!-- Door -->
+                <rect
+                  x="18"
+                  y="46"
+                  width="12"
+                  height="16"
+                  rx="2"
+                  fill="var(--coffee)"
+                />
+                <!-- Door knob -->
+                <circle cx="27" cy="55" r="1.5" fill="var(--gold-light)" />
+              </svg>
+            </div>
+
+            <!-- Arrival flag -->
+            <div class="da-flag">
+              <svg width="18" height="22" viewBox="0 0 18 22">
+                <line
+                  x1="2"
+                  y1="2"
+                  x2="2"
+                  y2="20"
+                  stroke="var(--coffee)"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                />
+                <path d="M2 2 L16 5 L2 10Z" fill="var(--gold)" />
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">6</div>
+          <h3>Destination Arrive</h3>
+          <div class="meaning">"목적지 도착"</div>
+          <div class="desc">
+            도로 그리기 → 이정표 등장 → 차 이동 → 건물 → 깃발
+          </div>
+          <button class="replay-btn" onclick="replay('anim6')">
+            다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 7. Lighthouse Guide -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-lighthouse play" id="anim7">
+            <!-- Sea background -->
+            <div class="lh-sea"></div>
+
+            <!-- Animated waves -->
+            <div class="lh-wave">
+              <svg
+                viewBox="0 0 260 50"
+                width="260"
+                height="50"
+                style="position: absolute; bottom: 0; left: 0"
+              >
+                <path
+                  d="M0 30 Q30 15 65 30 Q100 45 135 30 Q170 15 205 30 Q240 45 260 30 L260 50 L0 50Z"
+                  fill="rgba(176,141,62,0.07)"
+                  stroke="none"
+                />
+                <path
+                  d="M-15 20 Q20 5 55 20 Q90 35 125 20 Q160 5 195 20 Q230 35 260 20"
+                  fill="none"
+                  stroke="var(--border)"
+                  stroke-width="1.5"
+                />
+              </svg>
+            </div>
+
+            <!-- Lighthouse tower -->
+            <div class="lh-tower">
+              <svg width="50" height="90" viewBox="0 0 50 90">
+                <!-- Foundation -->
+                <rect
+                  x="8"
+                  y="80"
+                  width="34"
+                  height="8"
+                  rx="2"
+                  fill="var(--coffee)"
+                />
+                <!-- Main tower body (tapers) -->
+                <path d="M18 80 L14 30 L36 30 L32 80Z" fill="var(--coffee)" />
+                <!-- Stripes -->
+                <path
+                  d="M18 80 L14 30 L36 30 L32 80Z"
+                  fill="none"
+                  stroke="rgba(176,141,62,0.4)"
+                  stroke-width="0"
+                  clip-path="url(#towerClip)"
+                />
+                <rect
+                  x="13"
+                  y="42"
+                  width="24"
+                  height="7"
+                  fill="rgba(176,141,62,0.35)"
+                  style="clip-path: polygon(0 80px, 0 0, 100% 0, 100% 80px)"
+                />
+                <rect
+                  x="13"
+                  y="57"
+                  width="24"
+                  height="7"
+                  fill="rgba(176,141,62,0.35)"
+                />
+                <rect
+                  x="13"
+                  y="72"
+                  width="24"
+                  height="7"
+                  fill="rgba(176,141,62,0.35)"
+                />
+                <!-- Lantern room -->
+                <rect
+                  x="10"
+                  y="22"
+                  width="30"
+                  height="10"
+                  rx="2"
+                  fill="var(--text)"
+                  opacity="0.8"
+                />
+                <!-- Light -->
+                <circle
+                  cx="25"
+                  cy="27"
+                  r="7"
+                  fill="var(--gold)"
+                  opacity="0.9"
+                />
+                <circle cx="25" cy="27" r="4" fill="var(--gold-light)" />
+                <!-- Gallery railing -->
+                <line
+                  x1="8"
+                  y1="30"
+                  x2="42"
+                  y2="30"
+                  stroke="var(--border)"
+                  stroke-width="1.5"
+                />
+                <!-- Top cap -->
+                <path
+                  d="M14 22 L25 14 L36 22Z"
+                  fill="var(--text)"
+                  opacity="0.7"
+                />
+              </svg>
+            </div>
+
+            <!-- Light beam (rotates) -->
+            <div class="lh-beam"></div>
+
+            <!-- Ship -->
+            <div class="lh-ship">
+              <svg width="50" height="30" viewBox="0 0 50 30">
+                <!-- Hull -->
+                <path
+                  d="M2 18 Q5 25 10 26 L40 26 Q45 25 48 18Z"
+                  fill="var(--coffee)"
+                />
+                <!-- Cabin -->
+                <rect
+                  x="14"
+                  y="10"
+                  width="18"
+                  height="10"
+                  rx="2"
+                  fill="var(--coffee)"
+                  opacity="0.8"
+                />
+                <!-- Mast -->
+                <line
+                  x1="25"
+                  y1="2"
+                  x2="25"
+                  y2="18"
+                  stroke="var(--coffee)"
+                  stroke-width="1.5"
+                />
+                <!-- Sail -->
+                <path
+                  d="M25 4 L38 12 L25 14Z"
+                  fill="rgba(176,141,62,0.4)"
+                  stroke="var(--gold-border)"
+                  stroke-width="1"
+                />
+                <!-- Window -->
+                <rect
+                  x="17"
+                  y="12"
+                  width="5"
+                  height="4"
+                  rx="1"
+                  fill="rgba(250,248,245,0.5)"
+                />
+                <!-- Wave line at hull -->
+                <path
+                  d="M2 22 Q10 19 18 22 Q26 25 34 22 Q42 19 48 22"
+                  fill="none"
+                  stroke="rgba(176,141,62,0.3)"
+                  stroke-width="1"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">7</div>
+          <h3>Lighthouse Guide</h3>
+          <div class="meaning">"안전한 안내"</div>
+          <div class="desc">
+            파도 애니메이션 → 등대 등장 → 빛줄기 회전 → 배 안착
+          </div>
+          <button class="replay-btn" onclick="replay('anim7')">
+            다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 8. Telescope View -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-telescope play" id="anim8">
+            <!-- Telescope body (tripod + scope) -->
+            <div class="tv-scope">
+              <svg width="120" height="110" viewBox="0 0 120 110">
+                <!-- Tripod legs -->
+                <line
+                  x1="55"
+                  y1="75"
+                  x2="20"
+                  y2="108"
+                  stroke="var(--coffee)"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                />
+                <line
+                  x1="55"
+                  y1="75"
+                  x2="55"
+                  y2="108"
+                  stroke="var(--coffee)"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                />
+                <line
+                  x1="55"
+                  y1="75"
+                  x2="90"
+                  y2="108"
+                  stroke="var(--coffee)"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                />
+                <!-- Crossbar -->
+                <line
+                  x1="28"
+                  y1="100"
+                  x2="82"
+                  y2="100"
+                  stroke="var(--coffee)"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                />
+                <!-- Mount -->
+                <circle cx="55" cy="74" r="5" fill="var(--coffee)" />
+                <!-- Scope tube (angled up-right) -->
+                <rect
+                  x="46"
+                  y="18"
+                  width="80"
+                  height="18"
+                  rx="9"
+                  transform="rotate(-25 46 27)"
+                  fill="var(--coffee)"
+                />
+                <!-- Lens end (larger) -->
+                <ellipse
+                  cx="32"
+                  cy="55"
+                  rx="12"
+                  ry="9"
+                  transform="rotate(-25 32 55)"
+                  fill="var(--gold)"
+                  opacity="0.3"
+                  stroke="var(--gold)"
+                  stroke-width="2"
+                />
+                <!-- Eyepiece -->
+                <ellipse
+                  cx="96"
+                  cy="22"
+                  rx="7"
+                  ry="5"
+                  transform="rotate(-25 96 22)"
+                  fill="var(--text)"
+                  opacity="0.7"
+                />
+                <!-- Focus knob -->
+                <circle
+                  cx="68"
+                  cy="40"
+                  r="5"
+                  fill="var(--gold)"
+                  opacity="0.6"
+                  transform="rotate(-25 68 40)"
+                />
+              </svg>
+            </div>
+
+            <!-- Lens view (focus rings + mountain) -->
+            <div class="tv-lens" style="width: 90px; height: 90px">
+              <!-- Outer halo -->
+              <div class="tv-lens-ring r1"></div>
+              <div class="tv-lens-ring r2"></div>
+              <div class="tv-lens-ring r3"></div>
+
+              <!-- Mountain (clipped inside lens) -->
+              <div
+                class="tv-mountain-blur"
+                style="top: 15px; right: auto; left: 5px"
+              >
+                <svg
+                  width="74"
+                  height="56"
+                  viewBox="0 0 74 56"
+                  style="overflow: hidden; border-radius: 50%"
+                >
+                  <!-- Sky -->
+                  <rect
+                    x="0"
+                    y="0"
+                    width="74"
+                    height="56"
+                    fill="rgba(176,141,62,0.05)"
+                  />
+                  <!-- Mountain silhouette -->
+                  <path
+                    d="M0 56 L20 28 L30 35 L42 12 L55 32 L74 56Z"
+                    fill="var(--coffee)"
+                    opacity="0.5"
+                  />
+                  <!-- Snow cap -->
+                  <path
+                    d="M38 16 L42 12 L46 16 L44 20 L40 20Z"
+                    fill="rgba(250,248,245,0.8)"
+                  />
+                  <!-- Horizon line -->
+                  <line
+                    x1="0"
+                    y1="44"
+                    x2="74"
+                    y2="44"
+                    stroke="var(--border-light)"
+                    stroke-width="1"
+                  />
+                </svg>
+              </div>
+            </div>
+
+            <!-- Star badge -->
+            <div class="tv-star">
+              <svg width="32" height="32" viewBox="0 0 32 32">
+                <circle
+                  cx="16"
+                  cy="16"
+                  r="15"
+                  fill="var(--gold)"
+                  opacity="0.15"
+                  stroke="var(--gold)"
+                  stroke-width="1.5"
+                />
+                <polygon
+                  points="16,5 18.5,12 26,12 20,17 22.5,24 16,19 9.5,24 12,17 6,12 13.5,12"
+                  fill="var(--gold)"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">8</div>
+          <h3>Telescope View</h3>
+          <div class="meaning">"멀리 내다보다"</div>
+          <div class="desc">
+            망원경 슬라이드인 → 렌즈 포커스링 → 산 선명화 → 별
+          </div>
+          <button class="replay-btn" onclick="replay('anim8')">
+            다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 9. Signpost -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-signpost play" id="anim9">
+            <div class="sp-ground"></div>
+            <div class="sp-post"></div>
+
+            <!-- Left signs (wrong directions) -->
+            <div class="sp-sign left s1">서울 45km</div>
+            <div class="sp-sign left s2">부산 320km</div>
+
+            <!-- Right sign (correct - gold) -->
+            <div class="sp-sign right s3">목표 방향</div>
+
+            <!-- Traveler (stick figure walking) -->
+            <div class="sp-traveler">
+              <svg width="20" height="36" viewBox="0 0 20 36">
+                <!-- Head -->
+                <circle cx="10" cy="5" r="5" fill="var(--coffee)" />
+                <!-- Body -->
+                <line
+                  x1="10"
+                  y1="10"
+                  x2="10"
+                  y2="24"
+                  stroke="var(--coffee)"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                />
+                <!-- Left arm -->
+                <line
+                  x1="10"
+                  y1="16"
+                  x2="2"
+                  y2="21"
+                  stroke="var(--coffee)"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <!-- Right arm (holding bag) -->
+                <line
+                  x1="10"
+                  y1="16"
+                  x2="18"
+                  y2="21"
+                  stroke="var(--coffee)"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <!-- Left leg -->
+                <line
+                  x1="10"
+                  y1="24"
+                  x2="4"
+                  y2="34"
+                  stroke="var(--coffee)"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <!-- Right leg -->
+                <line
+                  x1="10"
+                  y1="24"
+                  x2="16"
+                  y2="34"
+                  stroke="var(--coffee)"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <!-- Bag -->
+                <rect
+                  x="16"
+                  y="20"
+                  width="5"
+                  height="5"
+                  rx="1"
+                  fill="var(--gold)"
+                  opacity="0.7"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">9</div>
+          <h3>Signpost</h3>
+          <div class="meaning">"갈림길의 이정표"</div>
+          <div class="desc">
+            지면 등장 → 기둥 성장 → 표지판 팝 → 여행자 통과
+          </div>
+          <button class="replay-btn" onclick="replay('anim9')">
+            다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 10. Orbit Navigate -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-orbit play" id="anim10">
+            <!-- Goal center -->
+            <div class="on-goal">
+              <svg width="22" height="22" viewBox="0 0 22 22">
+                <polygon
+                  points="11,2 13.5,8 20,8 15,13 17,20 11,16 5,20 7,13 2,8 8.5,8"
+                  fill="var(--gold)"
+                />
+              </svg>
+            </div>
+
+            <!-- Orbit path SVG -->
+            <svg
+              class="on-orbit-svg"
+              viewBox="0 0 220 220"
+              width="220"
+              height="220"
+            >
+              <!-- Faint orbit ellipse -->
+              <ellipse class="on-ellipse" cx="110" cy="110" rx="90" ry="46" />
+              <!-- Golden traced ellipse -->
+              <ellipse
+                class="on-ellipse-gold"
+                cx="110"
+                cy="110"
+                rx="90"
+                ry="46"
+              />
+
+              <!-- Crosshair lines -->
+              <g class="on-crosshair">
+                <!-- Top-left crosshair -->
+                <line
+                  x1="88"
+                  y1="88"
+                  x2="96"
+                  y2="88"
+                  stroke="var(--gold)"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  opacity="0"
+                />
+                <line
+                  x1="88"
+                  y1="88"
+                  x2="88"
+                  y2="96"
+                  stroke="var(--gold)"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  opacity="0"
+                />
+                <!-- Top-right crosshair -->
+                <line
+                  x1="132"
+                  y1="88"
+                  x2="124"
+                  y2="88"
+                  stroke="var(--gold)"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  opacity="0"
+                />
+                <line
+                  x1="132"
+                  y1="88"
+                  x2="132"
+                  y2="96"
+                  stroke="var(--gold)"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  opacity="0"
+                />
+                <!-- Bottom-left crosshair -->
+                <line
+                  x1="88"
+                  y1="132"
+                  x2="96"
+                  y2="132"
+                  stroke="var(--gold)"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  opacity="0"
+                />
+                <line
+                  x1="88"
+                  y1="132"
+                  x2="88"
+                  y2="124"
+                  stroke="var(--gold)"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  opacity="0"
+                />
+                <!-- Bottom-right crosshair -->
+                <line
+                  x1="132"
+                  y1="132"
+                  x2="124"
+                  y2="132"
+                  stroke="var(--gold)"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  opacity="0"
+                />
+                <line
+                  x1="132"
+                  y1="132"
+                  x2="132"
+                  y2="124"
+                  stroke="var(--gold)"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  opacity="0"
+                />
+              </g>
+            </svg>
+
+            <!-- Satellite dot -->
+            <div class="on-satellite">
+              <svg width="20" height="20" viewBox="0 0 20 20">
+                <!-- Satellite body -->
+                <rect
+                  x="6"
+                  y="6"
+                  width="8"
+                  height="8"
+                  rx="2"
+                  fill="var(--coffee)"
+                />
+                <!-- Solar panels -->
+                <rect
+                  x="0"
+                  y="8"
+                  width="5"
+                  height="4"
+                  rx="1"
+                  fill="var(--gold)"
+                  opacity="0.7"
+                />
+                <rect
+                  x="15"
+                  y="8"
+                  width="5"
+                  height="4"
+                  rx="1"
+                  fill="var(--gold)"
+                  opacity="0.7"
+                />
+                <!-- Antenna -->
+                <line
+                  x1="10"
+                  y1="6"
+                  x2="10"
+                  y2="2"
+                  stroke="var(--coffee)"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                />
+                <circle
+                  cx="10"
+                  cy="2"
+                  r="1.5"
+                  fill="var(--gold)"
+                  opacity="0.8"
+                />
+              </svg>
+            </div>
+
+            <!-- Lock-on ring -->
+            <div class="on-lock"></div>
+
+            <!-- Crosshair corners indicator -->
+            <div
+              class="on-crosshair"
+              style="
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 44px;
+                height: 44px;
+              "
+            >
+              <svg width="44" height="44" viewBox="0 0 44 44">
+                <line
+                  x1="0"
+                  y1="0"
+                  x2="10"
+                  y2="0"
+                  stroke="var(--gold)"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <line
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="10"
+                  stroke="var(--gold)"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <line
+                  x1="44"
+                  y1="0"
+                  x2="34"
+                  y2="0"
+                  stroke="var(--gold)"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <line
+                  x1="44"
+                  y1="0"
+                  x2="44"
+                  y2="10"
+                  stroke="var(--gold)"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <line
+                  x1="0"
+                  y1="44"
+                  x2="10"
+                  y2="44"
+                  stroke="var(--gold)"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <line
+                  x1="0"
+                  y1="44"
+                  x2="0"
+                  y2="34"
+                  stroke="var(--gold)"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <line
+                  x1="44"
+                  y1="44"
+                  x2="34"
+                  y2="44"
+                  stroke="var(--gold)"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <line
+                  x1="44"
+                  y1="44"
+                  x2="44"
+                  y2="34"
+                  stroke="var(--gold)"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">10</div>
+          <h3>Orbit Navigate</h3>
+          <div class="meaning">"목표를 향해"</div>
+          <div class="desc">
+            목표 팝 → 궤도 그리기 → 위성 공전 → 황금 궤적 → 락온
+          </div>
+          <button class="replay-btn" onclick="replay('anim10')">
+            다시 보기
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function replay(id) {
+        const el = document.getElementById(id);
+        el.classList.remove("play");
+        void el.offsetWidth; // Force reflow
+        el.classList.add("play");
+      }
+
+      // Auto-play all on load
+      document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll('[id^="anim"]').forEach((el) => {
+          el.classList.add("play");
+        });
+      });
+    </script>
+  </body>
+</html>

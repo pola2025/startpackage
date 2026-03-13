@@ -158,7 +158,7 @@ export default function GuidesPage() {
                 key={menu.value}
                 onClick={() => handleTabChange(menu.value)}
                 className={cn(
-                  "flex flex-col items-center justify-center p-3 md:p-4 rounded-xl border-2 transition-all",
+                  "flex flex-col items-center justify-center p-3 md:p-4 rounded-xl border transition-all",
                   isActive
                     ? "bg-gold-50 border-gold-500 shadow-md"
                     : "bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50",
@@ -201,7 +201,7 @@ export default function GuidesPage() {
 
         {/* 텔레그램 가이드 */}
         <TabsContent value="telegram">
-          <Card className="bg-white border-2 border-gray-200">
+          <Card className="bg-white border border-gray-200">
             <CardHeader className="p-4 md:p-6">
               <CardTitle className="text-lg md:text-xl text-gray-900 flex items-center gap-2">
                 <MessageSquare className="w-4 h-4 md:w-5 md:h-5" />
@@ -245,7 +245,7 @@ export default function GuidesPage() {
                 </ol>
               </div>
 
-              <div className="bg-gold-50 border-2 border-gold-200 rounded-lg p-3 md:p-4">
+              <div className="bg-white border border-gray-200 rounded-lg p-3 md:p-4">
                 <p className="text-xs md:text-sm text-gray-700">
                   💡 <strong>Tip:</strong> 개인정보 보호 설정을 완료해야
                   홈페이지 상담 접수 시 텔레그램으로 알림을 받을 수 있습니다.
@@ -257,7 +257,7 @@ export default function GuidesPage() {
 
         {/* SMS 발신 가이드 */}
         <TabsContent value="sms">
-          <Card className="bg-white border-2 border-gray-200">
+          <Card className="bg-white border border-gray-200">
             <CardHeader className="p-4 md:p-6">
               <CardTitle className="text-lg md:text-xl text-gray-900 flex items-center gap-2">
                 <Mail className="w-4 h-4 md:w-5 md:h-5" />
@@ -313,7 +313,7 @@ export default function GuidesPage() {
                   📱 발신번호 선택
                 </h3>
                 <div className="grid gap-2 md:gap-3 md:grid-cols-2">
-                  <div className="p-3 md:p-4 bg-green-50 border-2 border-green-200 rounded-lg">
+                  <div className="p-3 md:p-4 bg-white border border-gray-200 rounded-lg">
                     <h4 className="text-sm md:text-base font-medium text-green-700 mb-1.5 md:mb-2">
                       핸드폰 번호 발신
                     </h4>
@@ -322,7 +322,7 @@ export default function GuidesPage() {
                       <li>✅ 핸드폰 통신사에서 발급</li>
                     </ul>
                   </div>
-                  <div className="p-3 md:p-4 bg-orange-50 border-2 border-orange-200 rounded-lg">
+                  <div className="p-3 md:p-4 bg-white border border-gray-200 rounded-lg">
                     <h4 className="text-sm md:text-base font-medium text-orange-600 mb-1.5 md:mb-2">
                       대표번호 발신
                     </h4>
@@ -334,7 +334,7 @@ export default function GuidesPage() {
                 </div>
               </div>
 
-              <div className="bg-orange-50 border-2 border-orange-200 rounded-lg p-3 md:p-4">
+              <div className="bg-white border border-gray-200 rounded-lg p-3 md:p-4">
                 <p className="text-xs md:text-sm text-gray-700">
                   ⚠️ <strong>중요:</strong> 통신서비스 이용증명원은 통신사별로
                   문서 이름이 다릅니다. 네이버에서 &apos;통신서비스 이용증명원
@@ -347,7 +347,7 @@ export default function GuidesPage() {
 
         {/* 메타 결제 가이드 */}
         <TabsContent value="meta">
-          <Card className="bg-white border-2 border-gray-200">
+          <Card className="bg-white border border-gray-200">
             <CardHeader className="p-4 md:p-6">
               <CardTitle className="text-lg md:text-xl text-gray-900 flex items-center gap-2">
                 <CreditCard className="w-4 h-4 md:w-5 md:h-5" />
@@ -390,7 +390,7 @@ export default function GuidesPage() {
                 </div>
               </div>
 
-              <div className="bg-gold-50 border-2 border-gold-200 rounded-lg p-3 md:p-4">
+              <div className="bg-white border border-gray-200 rounded-lg p-3 md:p-4">
                 <p className="text-xs md:text-sm text-gray-700">
                   💡 <strong>Tip:</strong> 카드 결제 시점에 따라 전월 결제액이
                   당월로 넘어와 청구될 수 있습니다. 결제 청구일에 따라 시점이
@@ -404,7 +404,7 @@ export default function GuidesPage() {
 
         {/* 아임웹 가이드 */}
         <TabsContent value="imweb">
-          <Card className="bg-white border-2 border-gray-200">
+          <Card className="bg-white border border-gray-200">
             <CardHeader className="p-4 md:p-6">
               <CardTitle className="text-lg md:text-xl text-gray-900 flex items-center gap-2">
                 <Globe className="w-4 h-4 md:w-5 md:h-5" />
@@ -425,7 +425,7 @@ export default function GuidesPage() {
                 </ol>
               </div>
 
-              <div className="bg-green-50 border-2 border-green-200 rounded-lg p-3 md:p-4">
+              <div className="bg-white border border-gray-200 rounded-lg p-3 md:p-4">
                 <p className="text-xs md:text-sm text-gray-700 mb-1.5 md:mb-2">
                   <strong>✅ SEO 최적화 Tip:</strong>
                 </p>
@@ -442,7 +442,7 @@ export default function GuidesPage() {
                   💰 아임웹 요금 체계
                 </h3>
                 <div className="space-y-2 md:space-y-3">
-                  <div className="bg-indigo-50 border-2 border-indigo-200 rounded-lg p-2.5 md:p-3 mb-2 md:mb-3">
+                  <div className="bg-white border border-gray-200 rounded-lg p-2.5 md:p-3 mb-2 md:mb-3">
                     <p className="text-xs md:text-sm text-indigo-900 font-medium">
                       💡 <strong>도메인 + 호스팅 비용이 포함된 금액</strong>
                       입니다
@@ -450,7 +450,7 @@ export default function GuidesPage() {
                   </div>
                   {/* 테이블 - 모바일 가로 스크롤 */}
                   <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
-                    <div className="bg-gradient-to-br from-gold-50 to-gold-100 border-2 border-gold-200 rounded-lg overflow-hidden min-w-[400px] md:min-w-0">
+                    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden min-w-[400px] md:min-w-0">
                       <table className="w-full">
                         <thead>
                           <tr className="bg-gold-100">
@@ -530,7 +530,7 @@ export default function GuidesPage() {
                     </div>
                   </div>
 
-                  <div className="p-2.5 md:p-3 bg-yellow-50 border-2 border-yellow-200 rounded-lg">
+                  <div className="p-2.5 md:p-3 bg-white border border-gray-200 rounded-lg">
                     <p className="text-xs md:text-sm text-gray-700 font-medium mb-0.5 md:mb-1">
                       📌 결제 안내
                     </p>
@@ -552,7 +552,7 @@ export default function GuidesPage() {
                   💳 아임웹 결제 방법
                 </h3>
                 <div className="space-y-2 md:space-y-3">
-                  <div className="bg-gold-50 border-2 border-gold-200 rounded-lg p-3 md:p-4">
+                  <div className="bg-white border border-gray-200 rounded-lg p-3 md:p-4">
                     <h4 className="text-sm md:text-base font-medium text-navy-900 mb-2 md:mb-3">
                       1단계: 결제수단 등록
                     </h4>
@@ -579,7 +579,7 @@ export default function GuidesPage() {
                     </div>
                   </div>
 
-                  <div className="bg-green-50 border-2 border-green-200 rounded-lg p-3 md:p-4">
+                  <div className="bg-white border border-gray-200 rounded-lg p-3 md:p-4">
                     <h4 className="text-sm md:text-base font-medium text-green-900 mb-2 md:mb-3">
                       2단계: 요금제 결제
                     </h4>
@@ -614,7 +614,7 @@ export default function GuidesPage() {
                     </a>
                   </div>
 
-                  <div className="bg-orange-50 border-2 border-orange-200 rounded-lg p-3 md:p-4">
+                  <div className="bg-white border border-gray-200 rounded-lg p-3 md:p-4">
                     <p className="text-xs md:text-sm text-gray-700">
                       ⚠️ <strong>주의:</strong> 결제 전 요금제와 기간을 다시
                       한번 확인하세요. 중도 해지 시 할인 금액은 일부만
@@ -635,7 +635,7 @@ export default function GuidesPage() {
                   <p className="text-xs md:text-sm text-gray-600">
                     ✅ HTTPS 보안 인증 완료 상태
                   </p>
-                  <div className="p-2.5 md:p-3 bg-orange-50 border-2 border-orange-200 rounded-lg mt-1.5 md:mt-2">
+                  <div className="p-2.5 md:p-3 bg-white border border-gray-200 rounded-lg mt-1.5 md:mt-2">
                     <p className="text-xs md:text-sm">
                       <strong>개인 도메인 (.co.kr, .com 등):</strong>
                       <br />
@@ -651,7 +651,7 @@ export default function GuidesPage() {
                 <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-2 md:mb-3">
                   🔑 관리자 비밀번호를 잊으셨나요?
                 </h3>
-                <div className="p-3 md:p-4 bg-orange-50 border-2 border-orange-200 rounded-lg">
+                <div className="p-3 md:p-4 bg-white border border-gray-200 rounded-lg">
                   <p className="text-xs md:text-sm text-gray-700 mb-2 md:mb-3">
                     아임웹 관리자 비밀번호가 생각나지 않을 때는 아래 가이드를
                     참고하여 비밀번호를 변경해주세요.
@@ -682,7 +682,7 @@ export default function GuidesPage() {
 
         {/* Meta 광고관리자 초대 가이드 */}
         <TabsContent value="meta-admin">
-          <Card className="bg-white border-2 border-gray-200">
+          <Card className="bg-white border border-gray-200">
             <CardHeader className="p-4 md:p-6">
               <CardTitle className="text-lg md:text-xl text-gray-900 flex items-center gap-2">
                 <UserPlus className="w-4 h-4 md:w-5 md:h-5" />
@@ -725,14 +725,14 @@ export default function GuidesPage() {
                 </ol>
               </div>
 
-              <div className="bg-gold-50 border-2 border-gold-200 rounded-lg p-3 md:p-4">
+              <div className="bg-white border border-gray-200 rounded-lg p-3 md:p-4">
                 <p className="text-xs md:text-sm text-gray-700">
                   💡 <strong>Tip:</strong> 초대받은 사람은 이메일로 받은 초대
                   링크를 통해 수락해야 권한이 활성화됩니다.
                 </p>
               </div>
 
-              <div className="bg-orange-50 border-2 border-orange-200 rounded-lg p-3 md:p-4">
+              <div className="bg-white border border-gray-200 rounded-lg p-3 md:p-4">
                 <p className="text-xs md:text-sm text-gray-700">
                   ⚠️ <strong>주의:</strong> 관리자 권한은 광고 계정의 모든
                   설정을 변경할 수 있으므로, 신뢰할 수 있는 사람에게만
@@ -745,7 +745,7 @@ export default function GuidesPage() {
 
         {/* Instagram PC 로그인 가이드 */}
         <TabsContent value="instagram">
-          <Card className="bg-white border-2 border-gray-200">
+          <Card className="bg-white border border-gray-200">
             <CardHeader className="p-4 md:p-6">
               <CardTitle className="text-lg md:text-xl text-gray-900 flex items-center gap-2">
                 <Instagram className="w-4 h-4 md:w-5 md:h-5" />
@@ -756,7 +756,7 @@ export default function GuidesPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3 md:space-y-4 p-4 md:p-6 pt-0 md:pt-0">
-              <div className="bg-red-50 border-2 border-red-200 rounded-lg p-3 md:p-4 mb-3 md:mb-4">
+              <div className="bg-white border border-gray-200 rounded-lg p-3 md:p-4 mb-3 md:mb-4">
                 <p className="text-xs md:text-sm text-gray-700 font-semibold mb-1.5 md:mb-2">
                   ⚠️ 반드시 다음 과정으로 진행하세요!
                 </p>
@@ -792,7 +792,7 @@ export default function GuidesPage() {
                 </ol>
               </div>
 
-              <div className="bg-green-50 border-2 border-green-200 rounded-lg p-3 md:p-4">
+              <div className="bg-white border border-gray-200 rounded-lg p-3 md:p-4">
                 <p className="text-xs md:text-sm text-gray-700">
                   ✅ <strong>완료 후:</strong> 새로운 비밀번호로 PC에서 로그인이
                   정상적으로 가능합니다.
@@ -804,7 +804,7 @@ export default function GuidesPage() {
 
         {/* 로고 제작 가이드 */}
         <TabsContent value="logo">
-          <Card className="bg-white border-2 border-gray-200">
+          <Card className="bg-white border border-gray-200">
             <CardHeader className="p-4 md:p-6">
               <CardTitle className="text-lg md:text-xl text-gray-900 flex items-center gap-2">
                 <Palette className="w-4 h-4 md:w-5 md:h-5" />
@@ -820,7 +820,7 @@ export default function GuidesPage() {
                   📋 로고 제작 방법
                 </h3>
                 <div className="space-y-2 md:space-y-3">
-                  <div className="p-3 md:p-4 bg-green-50 border-2 border-green-200 rounded-lg">
+                  <div className="p-3 md:p-4 bg-white border border-gray-200 rounded-lg">
                     <h4 className="text-sm md:text-base font-medium text-green-700 mb-1.5 md:mb-2">
                       방법 1: 이미지로 전달
                     </h4>
@@ -828,7 +828,7 @@ export default function GuidesPage() {
                       로고 이미지를 전달하시면 바로 제작 진행됩니다
                     </p>
                   </div>
-                  <div className="p-3 md:p-4 bg-gold-50 border-2 border-gold-200 rounded-lg">
+                  <div className="p-3 md:p-4 bg-white border border-gray-200 rounded-lg">
                     <h4 className="text-sm md:text-base font-medium text-navy-700 mb-1.5 md:mb-2">
                       방법 2: 텍스트 설명으로 요청
                     </h4>
@@ -873,7 +873,7 @@ export default function GuidesPage() {
                 </div>
               </div>
 
-              <div className="bg-orange-50 border-2 border-orange-200 rounded-lg p-3 md:p-4">
+              <div className="bg-white border border-gray-200 rounded-lg p-3 md:p-4">
                 <h4 className="text-sm md:text-base font-semibold text-orange-700 mb-1.5 md:mb-2">
                   📌 중요 안내
                 </h4>
@@ -927,7 +927,7 @@ export default function GuidesPage() {
                 </div>
               </div>
 
-              <div className="bg-gold-50 border-2 border-gold-200 rounded-lg p-3 md:p-4">
+              <div className="bg-white border border-gray-200 rounded-lg p-3 md:p-4">
                 <p className="text-xs md:text-sm text-gray-700">
                   💡 <strong>Tip:</strong> AI 로고 생성 사이트를 활용하면 빠르고
                   저렴하게 다양한 로고 옵션을 확인할 수 있습니다.
@@ -939,7 +939,7 @@ export default function GuidesPage() {
 
         {/* AI 활용 팁 */}
         <TabsContent value="ai-tips">
-          <Card className="bg-white border-2 border-gray-200">
+          <Card className="bg-white border border-gray-200">
             <CardHeader className="p-4 md:p-6">
               <CardTitle className="text-lg md:text-xl text-gray-900 flex items-center gap-2">
                 <Sparkles className="w-4 h-4 md:w-5 md:h-5" />
@@ -950,7 +950,7 @@ export default function GuidesPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3 md:space-y-4 p-4 md:p-6 pt-0 md:pt-0">
-              <div className="bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl p-4 md:p-6">
+              <div className="bg-white border border-gray-200 rounded-xl p-4 md:p-6">
                 <h3 className="text-purple-700 font-bold text-base md:text-lg mb-2 md:mb-3 flex items-center gap-2">
                   <Sparkles className="w-4 h-4 md:w-5 md:h-5" />
                   Google AI Studio 무료 사용법
@@ -966,7 +966,7 @@ export default function GuidesPage() {
                   ✨ 주요 특징
                 </h3>
                 <div className="space-y-2 md:space-y-3">
-                  <div className="flex items-start gap-2 md:gap-3 p-3 md:p-4 bg-gold-50 border-2 border-gold-200 rounded-lg">
+                  <div className="flex items-start gap-2 md:gap-3 p-3 md:p-4 bg-white border border-gray-200 rounded-lg">
                     <div className="flex items-center justify-center w-6 h-6 md:w-8 md:h-8 bg-navy-900 rounded-full flex-shrink-0 mt-0.5">
                       <span className="text-white font-bold text-xs md:text-sm">
                         1
@@ -982,7 +982,7 @@ export default function GuidesPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-2 md:gap-3 p-3 md:p-4 bg-green-50 border-2 border-green-200 rounded-lg">
+                  <div className="flex items-start gap-2 md:gap-3 p-3 md:p-4 bg-white border border-gray-200 rounded-lg">
                     <div className="flex items-center justify-center w-6 h-6 md:w-8 md:h-8 bg-green-600 rounded-full flex-shrink-0 mt-0.5">
                       <span className="text-white font-bold text-xs md:text-sm">
                         2
@@ -998,7 +998,7 @@ export default function GuidesPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-2 md:gap-3 p-3 md:p-4 bg-orange-50 border-2 border-orange-200 rounded-lg">
+                  <div className="flex items-start gap-2 md:gap-3 p-3 md:p-4 bg-white border border-gray-200 rounded-lg">
                     <div className="flex items-center justify-center w-6 h-6 md:w-8 md:h-8 bg-orange-600 rounded-full flex-shrink-0 mt-0.5">
                       <span className="text-white font-bold text-xs md:text-sm">
                         3
@@ -1024,7 +1024,7 @@ export default function GuidesPage() {
                   href="https://blog.naver.com/ryurime88/223859489656?trackingCode=rss"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block p-3 md:p-4 bg-white border-2 border-gray-200 rounded-xl hover:border-gold-400 hover:shadow-lg transition-all group"
+                  className="block p-3 md:p-4 bg-white border border-gray-200 rounded-xl hover:border-gold-400 hover:shadow-lg transition-all group"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 md:gap-3">
@@ -1047,7 +1047,7 @@ export default function GuidesPage() {
                 </a>
               </div>
 
-              <div className="bg-gold-50 border-2 border-gold-200 rounded-lg p-3 md:p-4">
+              <div className="bg-white border border-gray-200 rounded-lg p-3 md:p-4">
                 <p className="text-xs md:text-sm text-gray-700">
                   💡 <strong>Tip:</strong> 마케팅 콘텐츠 작성, 광고 문구 생성,
                   고객 응대 등 다양한 업무에 AI를 활용하여 효율을 높일 수
@@ -1060,7 +1060,7 @@ export default function GuidesPage() {
 
         {/* 인쇄물 발주 가이드 */}
         <TabsContent value="design">
-          <Card className="bg-white border-2 border-gray-200">
+          <Card className="bg-white border border-gray-200">
             <CardHeader className="p-4 md:p-6">
               <CardTitle className="text-lg md:text-xl text-gray-900 flex items-center gap-2">
                 <FileText className="w-4 h-4 md:w-5 md:h-5" />
@@ -1072,7 +1072,7 @@ export default function GuidesPage() {
             </CardHeader>
             <CardContent className="space-y-3 md:space-y-4 p-4 md:p-6 pt-0 md:pt-0">
               {/* 인쇄물 디자인 제한 안내 */}
-              <div className="bg-gold-50 border-2 border-gold-200 rounded-lg p-3 md:p-4">
+              <div className="bg-white border border-gray-200 rounded-lg p-3 md:p-4">
                 <h3 className="text-sm md:text-base text-navy-900 font-bold mb-2 md:mb-3 flex items-center gap-2">
                   📋 인쇄물 디자인 안내
                 </h3>
@@ -1092,7 +1092,7 @@ export default function GuidesPage() {
                 </div>
               </div>
 
-              <div className="bg-red-50 border-2 border-red-200 rounded-lg p-3 md:p-4">
+              <div className="bg-white border border-gray-200 rounded-lg p-3 md:p-4">
                 <h3 className="text-sm md:text-base text-red-600 font-bold mb-2 md:mb-3 flex items-center gap-2">
                   ⚠️ 필독! 발주 전 주의사항
                 </h3>
@@ -1344,7 +1344,7 @@ export default function GuidesPage() {
 
         {/* 영상제작 가이드 */}
         <TabsContent value="video">
-          <Card className="bg-white border-2 border-gray-200">
+          <Card className="bg-white border border-gray-200">
             <CardHeader className="p-4 md:p-6">
               <CardTitle className="text-lg md:text-xl text-gray-900 flex items-center gap-2">
                 <Video className="w-4 h-4 md:w-5 md:h-5" />
@@ -1362,7 +1362,7 @@ export default function GuidesPage() {
                   핵심 요약
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
-                  <div className="bg-gradient-to-br from-gold-50 to-gold-100 border-2 border-gold-200 rounded-xl p-4">
+                  <div className="bg-white border border-gray-200 rounded-xl p-4">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="p-1.5 bg-gold-200 rounded-lg">
                         <Clock className="w-4 h-4 text-navy-700" />
@@ -1382,7 +1382,7 @@ export default function GuidesPage() {
                     </p>
                   </div>
 
-                  <div className="bg-gradient-to-br from-orange-50 to-orange-100 border-2 border-orange-200 rounded-xl p-4">
+                  <div className="bg-white border border-gray-200 rounded-xl p-4">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="p-1.5 bg-orange-200 rounded-lg">
                         <Target className="w-4 h-4 text-orange-700" />
@@ -1402,7 +1402,7 @@ export default function GuidesPage() {
                     </p>
                   </div>
 
-                  <div className="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 rounded-xl p-4">
+                  <div className="bg-white border border-gray-200 rounded-xl p-4">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="p-1.5 bg-green-200 rounded-lg">
                         <ShieldCheck className="w-4 h-4 text-green-700" />
@@ -1432,7 +1432,7 @@ export default function GuidesPage() {
                 </h3>
 
                 {/* 승인 OK */}
-                <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4 mb-3">
+                <div className="bg-white border border-gray-200 rounded-xl p-4 mb-3">
                   <div className="flex items-center gap-2 mb-3">
                     <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
                     <h4 className="text-sm md:text-base font-semibold text-green-800">
@@ -1500,7 +1500,7 @@ export default function GuidesPage() {
                 </div>
 
                 {/* 승인 NO */}
-                <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 mb-3">
+                <div className="bg-white border border-gray-200 rounded-xl p-4 mb-3">
                   <div className="flex items-center gap-2 mb-3">
                     <XCircle className="w-4 h-4 md:w-5 md:h-5 text-red-600" />
                     <h4 className="text-sm md:text-base font-semibold text-red-800">
@@ -1567,7 +1567,7 @@ export default function GuidesPage() {
                 </div>
 
                 {/* 승인 공식 */}
-                <div className="bg-gold-50 border-2 border-gold-200 rounded-xl p-4">
+                <div className="bg-white border border-gray-200 rounded-xl p-4">
                   <div className="flex items-center gap-2 mb-3">
                     <Lightbulb className="w-4 h-4 md:w-5 md:h-5 text-gold-600" />
                     <h4 className="text-sm md:text-base font-semibold text-navy-800">
@@ -1604,7 +1604,7 @@ export default function GuidesPage() {
                   <Clapperboard className="w-4 h-4" />
                   영상 구조 (45초 기준)
                 </h3>
-                <div className="bg-white border-2 border-gray-200 rounded-xl overflow-hidden">
+                <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
                   {/* 타임라인 바 */}
                   <div className="p-4">
                     <div className="flex items-center gap-2 mb-3">
@@ -1728,7 +1728,7 @@ export default function GuidesPage() {
                   플랫폼별 영상 스펙
                 </h3>
                 <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
-                  <div className="bg-white border-2 border-gray-200 rounded-xl overflow-hidden min-w-[500px] md:min-w-0">
+                  <div className="bg-white border border-gray-200 rounded-xl overflow-hidden min-w-[500px] md:min-w-0">
                     <table className="w-full">
                       <thead className="bg-gray-800 text-white">
                         <tr>
@@ -1830,7 +1830,7 @@ export default function GuidesPage() {
                     </table>
                   </div>
                 </div>
-                <div className="bg-gold-50 border-2 border-gold-200 rounded-lg p-3 mt-3">
+                <div className="bg-white border border-gray-200 rounded-lg p-3 mt-3">
                   <p className="text-xs md:text-sm text-gray-700">
                     💡 <strong>팁:</strong> YouTube Shorts가 가장 높은
                     참여율(5.91%)을 보이며, 하루 2000억 뷰를 기록합니다.
@@ -1844,7 +1844,7 @@ export default function GuidesPage() {
                   <AlertTriangle className="w-4 h-4" />
                   데드존 가이드
                 </h3>
-                <div className="bg-red-50 border-2 border-red-200 rounded-lg p-3 mb-4">
+                <div className="bg-white border border-gray-200 rounded-lg p-3 mb-4">
                   <p className="text-xs md:text-sm text-gray-700">
                     ⚠️ <strong>중요:</strong> 데드존은 플랫폼 UI 요소(프로필,
                     좋아요, 설명 등)가 겹쳐지는 영역입니다.{" "}
@@ -1855,7 +1855,7 @@ export default function GuidesPage() {
                 </div>
 
                 {/* 데드존 시각화 */}
-                <div className="bg-white border-2 border-gray-200 rounded-xl p-4">
+                <div className="bg-white border border-gray-200 rounded-xl p-4">
                   <div className="flex items-center gap-2 mb-4">
                     <Ruler className="w-4 h-4 text-gray-600" />
                     <span className="text-xs md:text-sm font-medium text-gray-700">
@@ -1984,7 +1984,7 @@ export default function GuidesPage() {
 
                 {/* 안전 배치 팁 */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
-                  <div className="bg-green-50 border-2 border-green-200 rounded-lg p-3">
+                  <div className="bg-white border border-gray-200 rounded-lg p-3">
                     <div className="flex items-center gap-2 mb-2">
                       <CheckCircle className="w-4 h-4 text-green-600" />
                       <h4 className="text-xs md:text-sm font-semibold text-green-800">
@@ -2006,7 +2006,7 @@ export default function GuidesPage() {
                       </li>
                     </ul>
                   </div>
-                  <div className="bg-red-50 border-2 border-red-200 rounded-lg p-3">
+                  <div className="bg-white border border-gray-200 rounded-lg p-3">
                     <div className="flex items-center gap-2 mb-2">
                       <XCircle className="w-4 h-4 text-red-600" />
                       <h4 className="text-xs md:text-sm font-semibold text-red-800">
@@ -2030,7 +2030,7 @@ export default function GuidesPage() {
                   </div>
                 </div>
 
-                <div className="bg-gold-50 border-2 border-gold-200 rounded-lg p-3 mt-3">
+                <div className="bg-white border border-gray-200 rounded-lg p-3 mt-3">
                   <p className="text-xs md:text-sm text-gray-700">
                     💡 <strong>크로스 플랫폼 팁:</strong> 모든 플랫폼에서
                     안전하게 보이려면 <strong>화면 중앙 1340×880px 영역</strong>
@@ -2047,7 +2047,7 @@ export default function GuidesPage() {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                   {/* DO */}
-                  <div className="bg-white border-2 border-gray-200 rounded-xl p-4">
+                  <div className="bg-white border border-gray-200 rounded-xl p-4">
                     <div className="flex items-center gap-2 mb-3">
                       <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
                       <h4 className="text-sm md:text-base font-semibold text-gray-900">
@@ -2114,7 +2114,7 @@ export default function GuidesPage() {
                   </div>
 
                   {/* DON'T */}
-                  <div className="bg-white border-2 border-gray-200 rounded-xl p-4">
+                  <div className="bg-white border border-gray-200 rounded-xl p-4">
                     <div className="flex items-center gap-2 mb-3">
                       <XCircle className="w-4 h-4 md:w-5 md:h-5 text-red-600" />
                       <h4 className="text-sm md:text-base font-semibold text-gray-900">
@@ -2188,7 +2188,7 @@ export default function GuidesPage() {
                   <ClipboardCheck className="w-4 h-4" />
                   영상 제작 체크리스트
                 </h3>
-                <div className="bg-white border-2 border-gray-200 rounded-xl p-4">
+                <div className="bg-white border border-gray-200 rounded-xl p-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                     {/* 기획 단계 */}
                     <div>
@@ -2200,23 +2200,23 @@ export default function GuidesPage() {
                       </div>
                       <ul className="space-y-2">
                         <li className="flex items-center gap-2 text-xs md:text-sm text-gray-700">
-                          <div className="w-4 h-4 border-2 border-gray-300 rounded"></div>
+                          <div className="w-4 h-4 border border-gray-300 rounded"></div>
                           <span>영상 길이 35초~2분 이내 설정</span>
                         </li>
                         <li className="flex items-center gap-2 text-xs md:text-sm text-gray-700">
-                          <div className="w-4 h-4 border-2 border-gray-300 rounded"></div>
+                          <div className="w-4 h-4 border border-gray-300 rounded"></div>
                           <span>후킹 문구 6~10초 내 배치</span>
                         </li>
                         <li className="flex items-center gap-2 text-xs md:text-sm text-gray-700">
-                          <div className="w-4 h-4 border-2 border-gray-300 rounded"></div>
+                          <div className="w-4 h-4 border border-gray-300 rounded"></div>
                           <span>팩트 기반 콘텐츠 (금액, 정책)</span>
                         </li>
                         <li className="flex items-center gap-2 text-xs md:text-sm text-gray-700">
-                          <div className="w-4 h-4 border-2 border-gray-300 rounded"></div>
+                          <div className="w-4 h-4 border border-gray-300 rounded"></div>
                           <span>허위/과장 표현 제거</span>
                         </li>
                         <li className="flex items-center gap-2 text-xs md:text-sm text-gray-700">
-                          <div className="w-4 h-4 border-2 border-gray-300 rounded"></div>
+                          <div className="w-4 h-4 border border-gray-300 rounded"></div>
                           <span>CTA(상담 유도) 명확히 설정</span>
                         </li>
                       </ul>
@@ -2232,23 +2232,23 @@ export default function GuidesPage() {
                       </div>
                       <ul className="space-y-2">
                         <li className="flex items-center gap-2 text-xs md:text-sm text-gray-700">
-                          <div className="w-4 h-4 border-2 border-gray-300 rounded"></div>
+                          <div className="w-4 h-4 border border-gray-300 rounded"></div>
                           <span>세로 촬영 (9:16 비율)</span>
                         </li>
                         <li className="flex items-center gap-2 text-xs md:text-sm text-gray-700">
-                          <div className="w-4 h-4 border-2 border-gray-300 rounded"></div>
+                          <div className="w-4 h-4 border border-gray-300 rounded"></div>
                           <span>1080×1920 해상도</span>
                         </li>
                         <li className="flex items-center gap-2 text-xs md:text-sm text-gray-700">
-                          <div className="w-4 h-4 border-2 border-gray-300 rounded"></div>
+                          <div className="w-4 h-4 border border-gray-300 rounded"></div>
                           <span>자막 추가 (무음 시청 대응)</span>
                         </li>
                         <li className="flex items-center gap-2 text-xs md:text-sm text-gray-700">
-                          <div className="w-4 h-4 border-2 border-gray-300 rounded"></div>
+                          <div className="w-4 h-4 border border-gray-300 rounded"></div>
                           <span>핵심 요소 화면 중앙 배치</span>
                         </li>
                         <li className="flex items-center gap-2 text-xs md:text-sm text-gray-700">
-                          <div className="w-4 h-4 border-2 border-gray-300 rounded"></div>
+                          <div className="w-4 h-4 border border-gray-300 rounded"></div>
                           <span>썸네일 최적화</span>
                         </li>
                       </ul>
@@ -2258,7 +2258,7 @@ export default function GuidesPage() {
               </div>
 
               {/* 상세 가이드 링크 */}
-              <div className="bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-200 rounded-xl p-4">
+              <div className="bg-white border border-gray-200 rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <BookOpen className="w-4 h-4 text-gray-600" />
                   <span className="text-xs md:text-sm font-semibold text-gray-800">

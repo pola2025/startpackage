@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .hand {
+      transform-origin: 10px 20px;
+      animation: handPresent 4s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+    }
+    .coin1 {
+      animation: coinFloat1 4s cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
+      transform-origin: 10px 8px;
+    }
+    .coin2 {
+      animation: coinFloat2 4s cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
+      transform-origin: 16px 6px;
+    }
+    .coin3 {
+      animation: coinFloat3 4s cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
+      transform-origin: 13px 4px;
+    }
+    .glint1 { animation: glint 4s ease infinite 1.2s; }
+    .glint2 { animation: glint 4s ease infinite 1.5s; }
+    @keyframes handPresent {
+      0% { transform: translateY(6px) rotate(5deg); opacity: 0; }
+      15% { transform: translateY(-1px) rotate(-1deg); opacity: 1; }
+      22%, 80% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      92%, 100% { transform: translateY(6px) rotate(5deg); opacity: 0; }
+    }
+    @keyframes coinFloat1 {
+      0%, 18% { transform: translateY(4px) scale(0.5); opacity: 0; }
+      28% { transform: translateY(-2px) scale(1.1); opacity: 1; }
+      35%, 65% { transform: translateY(0) scale(1); opacity: 1; }
+      75% { transform: translateY(-8px) scale(0.7); opacity: 0; }
+      100% { opacity: 0; }
+    }
+    @keyframes coinFloat2 {
+      0%, 24% { transform: translateY(4px) scale(0.5); opacity: 0; }
+      34% { transform: translateY(-2px) scale(1.1); opacity: 1; }
+      42%, 65% { transform: translateY(0) scale(1); opacity: 1; }
+      78% { transform: translateY(-9px) scale(0.6); opacity: 0; }
+      100% { opacity: 0; }
+    }
+    @keyframes coinFloat3 {
+      0%, 30% { transform: translateY(6px) scale(0.4); opacity: 0; }
+      42% { transform: translateY(-1px) scale(1.15); opacity: 1; }
+      50%, 65% { transform: translateY(0) scale(1); opacity: 1; }
+      80% { transform: translateY(-10px) scale(0.5); opacity: 0; }
+      100% { opacity: 0; }
+    }
+    @keyframes glint {
+      0%, 5% { opacity: 0; transform: scale(0); }
+      15% { opacity: 0.8; transform: scale(1.2); }
+      30% { opacity: 0; transform: scale(0); }
+      100% { opacity: 0; }
+    }
+  </style>
+  <!-- Hand -->
+  <g class="hand">
+    <path d="M18 16v-2a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2"/>
+    <path d="M4 18a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2H4v2Z"/>
+    <path d="M2 16h2v4H2z"/>
+    <path d="M8 14v-1a2 2 0 0 1 2-2h4"/>
+  </g>
+  <!-- Coins floating up from palm -->
+  <circle class="coin1" cx="10" cy="8" r="2.5"/>
+  <circle class="coin2" cx="16" cy="6" r="2"/>
+  <circle class="coin3" cx="13" cy="4" r="1.5"/>
+  <!-- Glint effects -->
+  <g class="glint1" style="transform-origin:8px 3px" opacity="0">
+    <line x1="8" y1="1.5" x2="8" y2="4.5" stroke-width="1"/>
+    <line x1="6.5" y1="3" x2="9.5" y2="3" stroke-width="1"/>
+  </g>
+  <g class="glint2" style="transform-origin:18px 2px" opacity="0">
+    <line x1="18" y1="0.5" x2="18" y2="3.5" stroke-width="1"/>
+    <line x1="16.5" y1="2" x2="19.5" y2="2" stroke-width="1"/>
+  </g>
+</svg>

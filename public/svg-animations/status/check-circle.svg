@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .circle-draw {
+      stroke-dasharray: 63;
+      stroke-dashoffset: 63;
+      animation: circle-in 3.5s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+    }
+    .check-draw {
+      stroke-dasharray: 16;
+      stroke-dashoffset: 16;
+      animation: check-in 3.5s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+    }
+    .check-group {
+      transform-origin: 12px 12px;
+      animation: check-bounce 3.5s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+    }
+    @keyframes circle-in {
+      0%, 5% { stroke-dashoffset: 63; stroke-opacity: 0.4; }
+      25% { stroke-dashoffset: 0; stroke-opacity: 1; }
+      70% { stroke-dashoffset: 0; stroke-opacity: 1; }
+      85%, 100% { stroke-dashoffset: 63; stroke-opacity: 0.4; }
+    }
+    @keyframes check-in {
+      0%, 25% { stroke-dashoffset: 16; }
+      40% { stroke-dashoffset: -1; }
+      45% { stroke-dashoffset: 1; }
+      50%, 70% { stroke-dashoffset: 0; }
+      85%, 100% { stroke-dashoffset: 16; }
+    }
+    @keyframes check-bounce {
+      0%, 25% { transform: scale(0.5); opacity: 0; }
+      38% { transform: scale(1.15); opacity: 1; }
+      45% { transform: scale(0.95); }
+      52%, 70% { transform: scale(1); opacity: 1; }
+      85%, 100% { transform: scale(0.5); opacity: 0; }
+    }
+  </style>
+  <circle class="circle-draw" cx="12" cy="12" r="10"/>
+  <g class="check-group">
+    <path class="check-draw" d="M8 12l3 3 5-5"/>
+  </g>
+</svg>

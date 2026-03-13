@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .board {
+      animation: boardSlide 4s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+    }
+    @keyframes boardSlide {
+      0% { transform: translateY(4px); opacity: 0; }
+      12% { transform: translateY(-1px); opacity: 1; }
+      18% { transform: translateY(0.5px); }
+      22% { transform: translateY(0); }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+    .clip {
+      animation: clipBounce 4s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+      transform-origin: 12px 4px;
+    }
+    @keyframes clipBounce {
+      0%, 5% { transform: scaleY(0); }
+      15% { transform: scaleY(1.15); }
+      20% { transform: scaleY(0.95); }
+      25% { transform: scaleY(1); }
+      100% { transform: scaleY(1); }
+    }
+    .chk {
+      stroke-dasharray: 14;
+      stroke-dashoffset: 14;
+      animation: chkDraw 4s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+    }
+    @keyframes chkDraw {
+      0%, 35% { stroke-dashoffset: 14; opacity: 0; }
+      40% { opacity: 1; }
+      55% { stroke-dashoffset: 0; }
+      58% { transform: scale(1.2); }
+      62% { transform: scale(0.92); }
+      68%, 85% { transform: scale(1); stroke-dashoffset: 0; opacity: 1; }
+      95%, 100% { opacity: 0.5; }
+    }
+  </style>
+  <g class="board">
+    <rect x="5" y="4" width="14" height="18" rx="2"/>
+  </g>
+  <g class="clip">
+    <path d="M9 2h6a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1Z"/>
+  </g>
+  <path class="chk" d="M9 13l2.5 2.5L16 11"/>
+</svg>

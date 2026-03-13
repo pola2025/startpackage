@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .bill-body {
+      transform-origin: 2px 12px;
+      animation: billUnfold 4s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+    }
+    .bill-detail {
+      animation: detailFade 4s ease infinite;
+    }
+    .bill-flutter {
+      animation: flutter 4s ease infinite;
+    }
+    .bill-shine {
+      animation: billShine 4s ease infinite;
+    }
+    @keyframes billUnfold {
+      0% { transform: scaleX(0.15) rotate(3deg); }
+      15% { transform: scaleX(1.05) rotate(-1deg); }
+      22% { transform: scaleX(0.98) rotate(0.5deg); }
+      30%, 75% { transform: scaleX(1) rotate(0deg); }
+      85% { transform: scaleX(1) rotate(0deg); }
+      100% { transform: scaleX(0.15) rotate(3deg); }
+    }
+    @keyframes detailFade {
+      0%, 10% { opacity: 0; }
+      25%, 75% { opacity: 1; }
+      90%, 100% { opacity: 0; }
+    }
+    @keyframes flutter {
+      0%, 30% { transform: translateY(0); }
+      40% { transform: translateY(-0.8px); }
+      50% { transform: translateY(0.5px); }
+      60% { transform: translateY(-0.4px); }
+      70%, 100% { transform: translateY(0); }
+    }
+    @keyframes billShine {
+      0%, 40% { opacity: 0; transform: translateX(-12px); }
+      55% { opacity: 0.4; }
+      70% { opacity: 0; transform: translateX(12px); }
+      100% { opacity: 0; }
+    }
+  </style>
+  <g class="bill-flutter">
+    <g class="bill-body">
+      <rect x="2" y="6" width="20" height="12" rx="2"/>
+      <g class="bill-detail">
+        <circle cx="12" cy="12" r="3"/>
+        <line x1="6" y1="12" x2="6" y2="12.01"/>
+        <line x1="18" y1="12" x2="18" y2="12.01"/>
+        <path d="M2 9h2M20 9h2M2 15h2M20 15h2" stroke-width="1.5"/>
+      </g>
+      <rect class="bill-shine" x="10" y="6" width="3" height="12" rx="1" fill="currentColor" stroke="none" opacity="0"/>
+    </g>
+  </g>
+</svg>

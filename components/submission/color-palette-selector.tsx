@@ -111,17 +111,17 @@ export function ColorPaletteSelector({
               onClick={() => handleSelect(option)}
               disabled={disabled}
               className={cn(
-                "relative flex flex-col p-4 rounded-xl border-2 transition-all duration-200",
-                "hover:shadow-md focus:outline-none focus:ring-2 focus:ring-gold-500 focus:ring-offset-2",
+                "relative flex flex-col p-4 rounded-xl border transition-all duration-200",
+                "hover:shadow-md focus:outline-none focus:ring-2 focus:ring-navy-500 focus:ring-offset-2",
                 isSelected
-                  ? "border-gold-500 bg-gold-50 shadow-md"
+                  ? "border-navy-700 bg-white shadow-md"
                   : "border-gray-200 bg-white hover:border-gray-300",
                 disabled && "opacity-50 cursor-not-allowed hover:shadow-none",
               )}
             >
               {/* 선택 체크마크 */}
               {isSelected && (
-                <div className="absolute top-2 right-2 w-5 h-5 bg-gold-500 rounded-full flex items-center justify-center">
+                <div className="absolute top-2 right-2 w-5 h-5 bg-navy-700 rounded-full flex items-center justify-center">
                   <Check className="w-3 h-3 text-white" />
                 </div>
               )}
@@ -173,7 +173,7 @@ export function ColorPaletteSelector({
             />
             {customColor && (
               <div
-                className="w-10 h-10 rounded-lg border-2 border-gray-200"
+                className="w-10 h-10 rounded-lg border border-gray-200"
                 style={{
                   backgroundColor: customColor.startsWith("#")
                     ? customColor

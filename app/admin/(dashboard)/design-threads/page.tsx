@@ -567,7 +567,7 @@ export default function AdminDesignThreadsPage() {
                       value={userGroup.user.id}
                       className={`rounded-lg overflow-hidden transition-all ${
                         hasUnread
-                          ? "border-2 border-purple-500 bg-purple-50 shadow-lg"
+                          ? "border border-purple-500 bg-purple-50 shadow-lg"
                           : "border border-gray-200 bg-white"
                       }`}
                     >
@@ -1038,7 +1038,7 @@ export default function AdminDesignThreadsPage() {
                             <Button
                               type="button"
                               variant="outline"
-                              className="w-full h-20 border-dashed border-2 hover:border-purple-400 hover:bg-purple-50"
+                              className="w-full h-20 border-dashed border hover:border-purple-400 hover:bg-purple-50"
                               onClick={() =>
                                 document
                                   .getElementById("design-file-upload")
@@ -1049,7 +1049,7 @@ export default function AdminDesignThreadsPage() {
                               <div className="flex flex-col items-center gap-1">
                                 {designUploading ? (
                                   <>
-                                    <div className="w-5 h-5 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
+                                    <div className="w-5 h-5 border border-purple-600 border-t-transparent rounded-full animate-spin" />
                                     <span className="text-xs text-gray-500">
                                       업로드 중...
                                     </span>

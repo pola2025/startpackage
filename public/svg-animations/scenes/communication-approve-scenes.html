@@ -1,0 +1,2490 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Communication Scenes — 승인/완료</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
+    />
+    <style>
+      :root {
+        --bg: #faf8f5;
+        --bg-warm: #f5f0ea;
+        --surface: #ffffff;
+        --navy: #0d1b2a;
+        --gold: #b08d3e;
+        --gold-light: #c9a84c;
+        --gold-pale: rgba(176, 141, 62, 0.08);
+        --gold-border: rgba(176, 141, 62, 0.2);
+        --coffee: #6b5344;
+        --text: #2c2420;
+        --text-sub: #5c5248;
+        --text-muted: #9c9088;
+        --border: #e8e0d8;
+        --border-light: #f0ebe5;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family:
+          "Pretendard",
+          -apple-system,
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.7;
+      }
+
+      .page-header {
+        text-align: center;
+        padding: 60px 24px 40px;
+        background: linear-gradient(180deg, var(--bg) 0%, var(--bg-warm) 100%);
+      }
+
+      .page-header h1 {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      .page-header p {
+        font-size: 15px;
+        color: var(--text-sub);
+      }
+
+      .showcase-grid {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 24px 80px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 32px;
+      }
+
+      .showcase-card {
+        background: var(--surface);
+        border: 1px solid var(--border-light);
+        border-radius: 20px;
+        overflow: hidden;
+        transition: box-shadow 0.3s ease;
+      }
+
+      .showcase-card:hover {
+        box-shadow: 0 8px 30px rgba(44, 36, 32, 0.1);
+      }
+
+      .anim-stage {
+        height: 320px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .card-info {
+        padding: 24px 28px;
+      }
+
+      .card-num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        background: var(--gold);
+        color: #fff;
+        border-radius: 50%;
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      .card-info h3 {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 6px;
+      }
+
+      .card-info .meaning {
+        font-size: 14px;
+        color: var(--gold);
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+
+      .card-info .desc {
+        font-size: 13px;
+        color: var(--text-muted);
+      }
+
+      .replay-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 12px;
+        padding: 6px 14px;
+        background: var(--gold-pale);
+        border: 1px solid var(--gold-border);
+        border-radius: 100px;
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--gold);
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .replay-btn:hover {
+        background: var(--gold);
+        color: #fff;
+      }
+
+      /* ========================================
+         Shared keyframes
+         ======================================== */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes popIn {
+        0% {
+          opacity: 0;
+          transform: scale(0);
+        }
+        70% {
+          opacity: 1;
+          transform: scale(1.15);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes badgePop {
+        0% {
+          opacity: 0;
+          transform: translateX(-50%) scale(0);
+        }
+        70% {
+          opacity: 1;
+          transform: translateX(-50%) scale(1.15);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(-50%) scale(1);
+        }
+      }
+
+      /* ========================================
+         31. Approval Stamp
+         ======================================== */
+      .anim-stamp {
+        position: relative;
+        width: 260px;
+        height: 240px;
+      }
+
+      /* Document */
+      .stamp-doc {
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 160px;
+        height: 200px;
+        background: var(--surface);
+        border: 1.5px solid var(--border);
+        border-radius: 8px;
+        opacity: 0;
+        box-shadow: 0 4px 16px rgba(44, 36, 32, 0.07);
+      }
+
+      .anim-stamp.play .stamp-doc {
+        animation: slideUp 0.5s ease 0.2s forwards;
+      }
+
+      .stamp-doc-line {
+        height: 6px;
+        background: var(--border);
+        border-radius: 3px;
+        margin: 16px 18px 0;
+      }
+
+      .stamp-doc-line:nth-child(2) {
+        width: 80%;
+        margin-top: 10px;
+      }
+      .stamp-doc-line:nth-child(3) {
+        width: 60%;
+        margin-top: 10px;
+      }
+      .stamp-doc-line:nth-child(4) {
+        width: 70%;
+        margin-top: 10px;
+      }
+      .stamp-doc-line:nth-child(5) {
+        width: 50%;
+        margin-top: 10px;
+      }
+
+      /* Stamp handle */
+      .stamp-handle {
+        position: absolute;
+        top: -10px;
+        left: 50%;
+        transform: translateX(-50%) translateY(-60px);
+        width: 70px;
+        height: 80px;
+        opacity: 0;
+        z-index: 10;
+      }
+
+      .stamp-handle-body {
+        width: 50px;
+        height: 40px;
+        background: var(--coffee);
+        border-radius: 8px 8px 0 0;
+        margin: 0 auto;
+      }
+
+      .stamp-handle-base {
+        width: 70px;
+        height: 16px;
+        background: var(--navy);
+        border-radius: 3px;
+        margin: 0 auto;
+      }
+
+      .anim-stamp.play .stamp-handle {
+        animation: stampDrop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 1s forwards;
+      }
+
+      @keyframes stampDrop {
+        0% {
+          opacity: 1;
+          transform: translateX(-50%) translateY(-60px);
+        }
+        60% {
+          opacity: 1;
+          transform: translateX(-50%) translateY(50px);
+        }
+        75% {
+          opacity: 1;
+          transform: translateX(-50%) translateY(42px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(-50%) translateY(46px);
+        }
+      }
+
+      /* Approval mark */
+      .stamp-mark {
+        position: absolute;
+        top: 90px;
+        left: 50%;
+        transform: translateX(-50%) scale(0) rotate(-15deg);
+        width: 80px;
+        height: 80px;
+        border: 4px solid #c0392b;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        z-index: 5;
+      }
+
+      .stamp-mark-text {
+        font-size: 22px;
+        font-weight: 900;
+        color: #c0392b;
+        letter-spacing: 2px;
+      }
+
+      .anim-stamp.play .stamp-mark {
+        animation: stampAppear 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 1.4s
+          forwards;
+      }
+
+      @keyframes stampAppear {
+        0% {
+          opacity: 0;
+          transform: translateX(-50%) scale(2) rotate(-15deg);
+        }
+        100% {
+          opacity: 0.85;
+          transform: translateX(-50%) scale(1) rotate(-15deg);
+        }
+      }
+
+      /* Shockwave */
+      .stamp-shockwave {
+        position: absolute;
+        top: 110px;
+        left: 50%;
+        transform: translateX(-50%) scale(0);
+        width: 120px;
+        height: 120px;
+        border: 2px solid rgba(192, 57, 43, 0.3);
+        border-radius: 50%;
+        opacity: 0;
+      }
+
+      .anim-stamp.play .stamp-shockwave {
+        animation: shockwave 0.8s ease-out 1.4s forwards;
+      }
+
+      .anim-stamp.play .stamp-shockwave:nth-child(7) {
+        animation: shockwave 0.8s ease-out 1.55s forwards;
+      }
+
+      @keyframes shockwave {
+        0% {
+          opacity: 0.6;
+          transform: translateX(-50%) scale(0.5);
+        }
+        100% {
+          opacity: 0;
+          transform: translateX(-50%) scale(2.5);
+        }
+      }
+
+      /* ========================================
+         32. Contract Sign
+         ======================================== */
+      .anim-sign {
+        position: relative;
+        width: 260px;
+        height: 240px;
+      }
+
+      .sign-contract {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%) perspective(300px) rotateX(10deg);
+        width: 180px;
+        height: 210px;
+        background: var(--surface);
+        border: 1.5px solid var(--border);
+        border-radius: 6px;
+        opacity: 0;
+        box-shadow: 0 6px 20px rgba(44, 36, 32, 0.08);
+        transform-origin: bottom center;
+      }
+
+      .anim-sign.play .sign-contract {
+        animation: contractUnfold 0.7s ease 0.2s forwards;
+      }
+
+      @keyframes contractUnfold {
+        0% {
+          opacity: 0;
+          transform: translateX(-50%) perspective(300px) rotateX(40deg)
+            scaleY(0.6);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(-50%) perspective(300px) rotateX(0deg) scaleY(1);
+        }
+      }
+
+      .sign-contract-title {
+        text-align: center;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--navy);
+        padding: 16px 0 8px;
+        letter-spacing: 4px;
+      }
+
+      .sign-contract-line {
+        height: 5px;
+        background: var(--border);
+        border-radius: 3px;
+        margin: 6px 20px;
+      }
+
+      .sign-contract-line:nth-child(3) {
+        width: 70%;
+      }
+      .sign-contract-line:nth-child(4) {
+        width: 85%;
+      }
+      .sign-contract-line:nth-child(5) {
+        width: 60%;
+      }
+
+      .sign-area {
+        margin: 16px 20px 0;
+        border-top: 1px dashed var(--text-muted);
+        padding-top: 8px;
+        height: 40px;
+        position: relative;
+      }
+
+      .sign-area-label {
+        font-size: 9px;
+        color: var(--text-muted);
+        position: absolute;
+        right: 0;
+        top: 4px;
+      }
+
+      /* Pen */
+      .sign-pen {
+        position: absolute;
+        right: 30px;
+        top: 40px;
+        width: 6px;
+        height: 60px;
+        opacity: 0;
+        z-index: 10;
+        transform: rotate(-30deg);
+      }
+
+      .sign-pen-body {
+        width: 6px;
+        height: 50px;
+        background: linear-gradient(180deg, var(--navy) 0%, #1a3050 100%);
+        border-radius: 2px 2px 0 0;
+      }
+
+      .sign-pen-tip {
+        width: 0;
+        height: 0;
+        border-left: 3px solid transparent;
+        border-right: 3px solid transparent;
+        border-top: 10px solid var(--navy);
+      }
+
+      .anim-sign.play .sign-pen {
+        animation: penSign 2s ease 1.2s forwards;
+      }
+
+      @keyframes penSign {
+        0% {
+          opacity: 0;
+          right: 20px;
+          top: 30px;
+        }
+        10% {
+          opacity: 1;
+          right: 40px;
+          top: 130px;
+        }
+        30% {
+          right: 80px;
+          top: 148px;
+        }
+        50% {
+          right: 110px;
+          top: 138px;
+        }
+        70% {
+          right: 130px;
+          top: 150px;
+        }
+        90% {
+          right: 150px;
+          top: 140px;
+          opacity: 1;
+        }
+        100% {
+          right: 150px;
+          top: 60px;
+          opacity: 0;
+        }
+      }
+
+      /* Signature SVG path */
+      .sign-signature {
+        position: absolute;
+        bottom: 42px;
+        left: 24px;
+        width: 120px;
+        height: 30px;
+        opacity: 0;
+      }
+
+      .sign-signature path {
+        stroke: var(--navy);
+        stroke-width: 2;
+        fill: none;
+        stroke-dasharray: 200;
+        stroke-dashoffset: 200;
+        stroke-linecap: round;
+      }
+
+      .anim-sign.play .sign-signature {
+        animation: fadeIn 0.1s ease 1.5s forwards;
+      }
+
+      .anim-sign.play .sign-signature path {
+        animation: drawSign 1.5s ease 1.5s forwards;
+      }
+
+      @keyframes drawSign {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+
+      /* Check badge */
+      .sign-badge {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 40px;
+        height: 40px;
+        background: var(--gold);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transform: scale(0);
+        box-shadow: 0 4px 14px rgba(176, 141, 62, 0.35);
+      }
+
+      .anim-sign.play .sign-badge {
+        animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 3s forwards;
+      }
+
+      /* ========================================
+         33. Handshake Deal
+         ======================================== */
+      .anim-handshake {
+        position: relative;
+        width: 280px;
+        height: 240px;
+      }
+
+      .hand-left,
+      .hand-right {
+        position: absolute;
+        top: 80px;
+        width: 100px;
+        height: 60px;
+        opacity: 0;
+      }
+
+      .hand-left {
+        left: -80px;
+      }
+
+      .hand-right {
+        right: -80px;
+      }
+
+      .anim-handshake.play .hand-left {
+        animation: handFromLeft 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s
+          forwards;
+      }
+
+      .anim-handshake.play .hand-right {
+        animation: handFromRight 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s
+          forwards;
+      }
+
+      @keyframes handFromLeft {
+        0% {
+          opacity: 0;
+          left: -80px;
+        }
+        100% {
+          opacity: 1;
+          left: 40px;
+        }
+      }
+
+      @keyframes handFromRight {
+        0% {
+          opacity: 0;
+          right: -80px;
+        }
+        100% {
+          opacity: 1;
+          right: 40px;
+        }
+      }
+
+      .hand-shape {
+        width: 80px;
+        height: 36px;
+        border-radius: 20px 8px 8px 20px;
+        position: relative;
+      }
+
+      .hand-left .hand-shape {
+        background: var(--navy);
+        border-radius: 8px 20px 20px 8px;
+      }
+
+      .hand-right .hand-shape {
+        background: var(--gold);
+      }
+
+      .hand-wrist {
+        width: 40px;
+        height: 20px;
+        border-radius: 0 0 6px 6px;
+      }
+
+      .hand-left .hand-wrist {
+        background: var(--navy);
+        opacity: 0.7;
+        margin-left: 0;
+      }
+
+      .hand-right .hand-wrist {
+        background: var(--gold);
+        opacity: 0.7;
+        margin-left: auto;
+      }
+
+      /* Sparkles */
+      .hs-sparkle {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        opacity: 0;
+      }
+
+      .hs-sparkle:nth-child(3) {
+        top: 40px;
+        left: 80px;
+      }
+      .hs-sparkle:nth-child(4) {
+        top: 60px;
+        right: 80px;
+      }
+      .hs-sparkle:nth-child(5) {
+        top: 30px;
+        left: 130px;
+      }
+      .hs-sparkle:nth-child(6) {
+        top: 70px;
+        left: 110px;
+      }
+      .hs-sparkle:nth-child(7) {
+        top: 50px;
+        right: 100px;
+      }
+
+      .anim-handshake.play .hs-sparkle:nth-child(3) {
+        animation: sparkle 0.6s ease 1.2s forwards;
+      }
+      .anim-handshake.play .hs-sparkle:nth-child(4) {
+        animation: sparkle 0.6s ease 1.4s forwards;
+      }
+      .anim-handshake.play .hs-sparkle:nth-child(5) {
+        animation: sparkle 0.6s ease 1.6s forwards;
+      }
+      .anim-handshake.play .hs-sparkle:nth-child(6) {
+        animation: sparkle 0.6s ease 1.3s forwards;
+      }
+      .anim-handshake.play .hs-sparkle:nth-child(7) {
+        animation: sparkle 0.6s ease 1.5s forwards;
+      }
+
+      @keyframes sparkle {
+        0% {
+          opacity: 0;
+          transform: scale(0) rotate(0deg);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.5) rotate(90deg);
+        }
+        100% {
+          opacity: 0;
+          transform: scale(0) rotate(180deg);
+        }
+      }
+
+      /* Deal label */
+      .hs-label {
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%) scale(0);
+        background: var(--gold);
+        color: #fff;
+        font-size: 13px;
+        font-weight: 700;
+        padding: 8px 24px;
+        border-radius: 100px;
+        white-space: nowrap;
+        opacity: 0;
+        box-shadow: 0 4px 14px rgba(176, 141, 62, 0.35);
+      }
+
+      .anim-handshake.play .hs-label {
+        animation: badgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 1.8s forwards;
+      }
+
+      /* ========================================
+         34. Success Notify
+         ======================================== */
+      .anim-success {
+        position: relative;
+        width: 200px;
+        height: 240px;
+      }
+
+      .success-phone {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 120px;
+        height: 200px;
+        background: var(--surface);
+        border: 2px solid var(--border);
+        border-radius: 18px;
+        opacity: 0;
+        box-shadow: 0 4px 16px rgba(44, 36, 32, 0.08);
+        overflow: hidden;
+      }
+
+      .anim-success.play .success-phone {
+        animation: slideUp 0.5s ease 0.2s forwards;
+      }
+
+      .success-phone-notch {
+        width: 50px;
+        height: 6px;
+        background: var(--border);
+        border-radius: 0 0 6px 6px;
+        margin: 0 auto;
+      }
+
+      .success-phone-content {
+        padding: 20px 12px;
+        text-align: center;
+      }
+
+      .success-phone-icon {
+        width: 40px;
+        height: 40px;
+        margin: 10px auto;
+        background: rgba(39, 174, 96, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .success-phone-line {
+        height: 5px;
+        background: var(--border);
+        border-radius: 3px;
+        margin: 8px auto;
+        width: 70%;
+      }
+
+      .success-phone-line:last-child {
+        width: 50%;
+      }
+
+      /* Green check badge */
+      .success-check {
+        position: absolute;
+        top: 50px;
+        right: 25px;
+        width: 44px;
+        height: 44px;
+        background: #27ae60;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transform: scale(0);
+        box-shadow: 0 4px 16px rgba(39, 174, 96, 0.4);
+        z-index: 10;
+      }
+
+      .anim-success.play .success-check {
+        animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 1s forwards;
+      }
+
+      /* Confetti */
+      .confetti {
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        border-radius: 1px;
+        opacity: 0;
+      }
+
+      .confetti-1 {
+        background: var(--gold);
+        top: 30px;
+        left: 30px;
+      }
+      .confetti-2 {
+        background: #c0392b;
+        top: 20px;
+        left: 80px;
+      }
+      .confetti-3 {
+        background: var(--gold-light);
+        top: 40px;
+        right: 20px;
+      }
+      .confetti-4 {
+        background: var(--coffee);
+        top: 15px;
+        right: 50px;
+      }
+      .confetti-5 {
+        background: #27ae60;
+        top: 50px;
+        left: 50px;
+      }
+      .confetti-6 {
+        background: var(--gold);
+        top: 25px;
+        left: 120px;
+        width: 4px;
+        height: 8px;
+      }
+      .confetti-7 {
+        background: #c0392b;
+        top: 45px;
+        right: 40px;
+        width: 8px;
+        height: 4px;
+      }
+      .confetti-8 {
+        background: var(--gold-light);
+        top: 35px;
+        left: 15px;
+        width: 4px;
+        height: 8px;
+      }
+
+      .anim-success.play .confetti-1 {
+        animation: confettiFall1 1s ease 1.3s forwards;
+      }
+      .anim-success.play .confetti-2 {
+        animation: confettiFall2 1.1s ease 1.4s forwards;
+      }
+      .anim-success.play .confetti-3 {
+        animation: confettiFall3 0.9s ease 1.35s forwards;
+      }
+      .anim-success.play .confetti-4 {
+        animation: confettiFall1 1s ease 1.5s forwards;
+      }
+      .anim-success.play .confetti-5 {
+        animation: confettiFall2 1.1s ease 1.45s forwards;
+      }
+      .anim-success.play .confetti-6 {
+        animation: confettiFall3 1s ease 1.3s forwards;
+      }
+      .anim-success.play .confetti-7 {
+        animation: confettiFall1 0.9s ease 1.5s forwards;
+      }
+      .anim-success.play .confetti-8 {
+        animation: confettiFall2 1s ease 1.4s forwards;
+      }
+
+      @keyframes confettiFall1 {
+        0% {
+          opacity: 1;
+          transform: translateY(0) rotate(0deg);
+        }
+        100% {
+          opacity: 0;
+          transform: translateY(100px) rotate(360deg);
+        }
+      }
+
+      @keyframes confettiFall2 {
+        0% {
+          opacity: 1;
+          transform: translateY(0) rotate(0deg) translateX(0);
+        }
+        100% {
+          opacity: 0;
+          transform: translateY(120px) rotate(-270deg) translateX(-20px);
+        }
+      }
+
+      @keyframes confettiFall3 {
+        0% {
+          opacity: 1;
+          transform: translateY(0) rotate(0deg) translateX(0);
+        }
+        100% {
+          opacity: 0;
+          transform: translateY(90px) rotate(200deg) translateX(15px);
+        }
+      }
+
+      /* ========================================
+         35. Certificate Issue
+         ======================================== */
+      .anim-cert {
+        position: relative;
+        width: 260px;
+        height: 240px;
+      }
+
+      /* Printer */
+      .cert-printer {
+        position: absolute;
+        bottom: 60px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 180px;
+        height: 60px;
+        background: var(--navy);
+        border-radius: 8px 8px 4px 4px;
+        opacity: 0;
+        box-shadow: 0 4px 12px rgba(13, 27, 42, 0.2);
+      }
+
+      .anim-cert.play .cert-printer {
+        animation: fadeIn 0.4s ease 0.2s forwards;
+      }
+
+      .cert-printer-slot {
+        position: absolute;
+        top: -4px;
+        left: 20px;
+        right: 20px;
+        height: 4px;
+        background: #1a3050;
+        border-radius: 2px 2px 0 0;
+      }
+
+      .cert-printer-led {
+        position: absolute;
+        bottom: 10px;
+        right: 16px;
+        width: 8px;
+        height: 8px;
+        background: #27ae60;
+        border-radius: 50%;
+        opacity: 0;
+      }
+
+      .anim-cert.play .cert-printer-led {
+        animation: ledBlink 0.5s ease 0.8s infinite alternate;
+      }
+
+      @keyframes ledBlink {
+        0% {
+          opacity: 0.4;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+
+      /* Certificate paper */
+      .cert-paper {
+        position: absolute;
+        bottom: 110px;
+        left: 50%;
+        transform: translateX(-50%) translateY(80px);
+        width: 150px;
+        height: 190px;
+        background: var(--surface);
+        border: 1.5px solid var(--border);
+        border-radius: 6px;
+        opacity: 0;
+        box-shadow: 0 4px 16px rgba(44, 36, 32, 0.07);
+        z-index: 5;
+      }
+
+      .anim-cert.play .cert-paper {
+        animation: paperSlideOut 1s ease 1s forwards;
+      }
+
+      @keyframes paperSlideOut {
+        0% {
+          opacity: 0;
+          transform: translateX(-50%) translateY(80px);
+        }
+        30% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(-50%) translateY(-10px);
+        }
+      }
+
+      .cert-paper-header {
+        text-align: center;
+        padding: 16px 0 6px;
+        font-size: 10px;
+        font-weight: 800;
+        color: var(--navy);
+        letter-spacing: 6px;
+      }
+
+      .cert-paper-border {
+        margin: 6px 12px;
+        border: 1px solid var(--gold-border);
+        padding: 10px;
+        border-radius: 4px;
+      }
+
+      .cert-paper-line {
+        height: 4px;
+        background: var(--border);
+        border-radius: 2px;
+        margin-bottom: 6px;
+      }
+
+      .cert-paper-line:nth-child(2) {
+        width: 85%;
+      }
+      .cert-paper-line:nth-child(3) {
+        width: 65%;
+      }
+      .cert-paper-line:nth-child(4) {
+        width: 75%;
+      }
+
+      /* Gold seal */
+      .cert-seal {
+        position: absolute;
+        bottom: 90px;
+        left: 50%;
+        transform: translateX(-50%) scale(0);
+        width: 50px;
+        height: 50px;
+        opacity: 0;
+        z-index: 10;
+      }
+
+      .cert-seal-outer {
+        width: 50px;
+        height: 50px;
+        background: radial-gradient(
+          circle,
+          var(--gold-light) 40%,
+          var(--gold) 100%
+        );
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 14px rgba(176, 141, 62, 0.4);
+      }
+
+      .cert-seal-text {
+        font-size: 8px;
+        font-weight: 900;
+        color: #fff;
+        letter-spacing: 1px;
+      }
+
+      .anim-cert.play .cert-seal {
+        animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 2.2s forwards;
+      }
+
+      /* ========================================
+         36. Final Review
+         ======================================== */
+      .anim-review {
+        position: relative;
+        width: 260px;
+        height: 240px;
+      }
+
+      .review-page {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 140px;
+        height: 170px;
+        background: var(--surface);
+        border: 1.5px solid var(--border);
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(44, 36, 32, 0.06);
+        opacity: 0;
+      }
+
+      .review-page-1 {
+        bottom: 30px;
+        z-index: 3;
+      }
+      .review-page-2 {
+        bottom: 34px;
+        z-index: 2;
+        background: #f9f6f2;
+      }
+      .review-page-3 {
+        bottom: 38px;
+        z-index: 1;
+        background: #f5f0ea;
+      }
+
+      .anim-review.play .review-page-1 {
+        animation: slideUp 0.5s ease 0.3s forwards;
+      }
+
+      .anim-review.play .review-page-2 {
+        animation: slideUp 0.5s ease 0.15s forwards;
+      }
+
+      .anim-review.play .review-page-3 {
+        animation: slideUp 0.5s ease 0s forwards;
+      }
+
+      .review-page-line {
+        height: 5px;
+        background: var(--border);
+        border-radius: 3px;
+        margin: 14px 16px 0;
+      }
+
+      .review-page-line:nth-child(2) {
+        width: 70%;
+        margin-top: 8px;
+      }
+      .review-page-line:nth-child(3) {
+        width: 55%;
+        margin-top: 8px;
+      }
+
+      /* Check marks appearing on each page */
+      .review-check {
+        position: absolute;
+        right: 12px;
+        width: 24px;
+        height: 24px;
+        background: #27ae60;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transform: scale(0);
+        z-index: 15;
+      }
+
+      .review-check-1 {
+        top: 60px;
+        right: 40px;
+      }
+      .review-check-2 {
+        top: 80px;
+        right: 50px;
+      }
+      .review-check-3 {
+        top: 100px;
+        right: 36px;
+      }
+
+      .anim-review.play .review-check-1 {
+        animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1s forwards;
+      }
+
+      .anim-review.play .review-check-2 {
+        animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1.5s forwards;
+      }
+
+      .anim-review.play .review-check-3 {
+        animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 2s forwards;
+      }
+
+      /* Page flip effect */
+      .anim-review.play .review-page-1 {
+        animation:
+          slideUp 0.5s ease 0.3s forwards,
+          pageFlip1 0.5s ease 1.3s forwards;
+      }
+
+      .anim-review.play .review-page-2 {
+        animation:
+          slideUp 0.5s ease 0.15s forwards,
+          pageFlip2 0.5s ease 1.8s forwards;
+      }
+
+      @keyframes pageFlip1 {
+        0% {
+          transform: translateX(-50%) rotate(0deg);
+          z-index: 3;
+        }
+        100% {
+          transform: translateX(-120%) rotate(-10deg);
+          z-index: 1;
+          opacity: 0.5;
+        }
+      }
+
+      @keyframes pageFlip2 {
+        0% {
+          transform: translateX(-50%) rotate(0deg);
+          z-index: 2;
+        }
+        100% {
+          transform: translateX(-110%) rotate(-5deg);
+          z-index: 1;
+          opacity: 0.5;
+        }
+      }
+
+      /* Final stamp on last page */
+      .review-stamp {
+        position: absolute;
+        bottom: 60px;
+        left: 50%;
+        transform: translateX(-50%) scale(0) rotate(-15deg);
+        width: 60px;
+        height: 60px;
+        border: 3px solid #c0392b;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        z-index: 20;
+      }
+
+      .review-stamp-text {
+        font-size: 14px;
+        font-weight: 900;
+        color: #c0392b;
+      }
+
+      .anim-review.play .review-stamp {
+        animation: stampAppear 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 2.5s
+          forwards;
+      }
+
+      /* ========================================
+         37. Task Complete
+         ======================================== */
+      .anim-task {
+        position: relative;
+        width: 200px;
+        height: 200px;
+      }
+
+      .task-ring-bg {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 140px;
+        height: 140px;
+      }
+
+      .task-ring-track {
+        fill: none;
+        stroke: var(--border);
+        stroke-width: 8;
+      }
+
+      .task-ring-progress {
+        fill: none;
+        stroke: var(--gold);
+        stroke-width: 8;
+        stroke-linecap: round;
+        stroke-dasharray: 408;
+        stroke-dashoffset: 408;
+        transform: rotate(-90deg);
+        transform-origin: center;
+      }
+
+      .anim-task.play .task-ring-progress {
+        animation: ringFill 2s ease 0.4s forwards;
+      }
+
+      @keyframes ringFill {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+
+      /* Percentage text */
+      .task-percent {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 28px;
+        font-weight: 800;
+        color: var(--navy);
+        opacity: 0;
+      }
+
+      .anim-task.play .task-percent {
+        animation: fadeIn 0.3s ease 0.4s forwards;
+      }
+
+      /* Check mark replaces percentage */
+      .task-check {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+        z-index: 5;
+      }
+
+      .task-check svg {
+        filter: drop-shadow(0 2px 6px rgba(39, 174, 96, 0.3));
+      }
+
+      .anim-task.play .task-check {
+        animation: taskCheckAppear 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 2.5s
+          forwards;
+      }
+
+      .anim-task.play .task-percent {
+        animation:
+          fadeIn 0.3s ease 0.4s forwards,
+          fadeOut 0.3s ease 2.3s forwards;
+      }
+
+      @keyframes fadeOut {
+        to {
+          opacity: 0;
+        }
+      }
+
+      @keyframes taskCheckAppear {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(0);
+        }
+        70% {
+          opacity: 1;
+          transform: translate(-50%, -50%) scale(1.2);
+        }
+        100% {
+          opacity: 1;
+          transform: translate(-50%, -50%) scale(1);
+        }
+      }
+
+      /* Ring glow on complete */
+      .task-ring-glow {
+        fill: none;
+        stroke: var(--gold);
+        stroke-width: 8;
+        stroke-linecap: round;
+        opacity: 0;
+        stroke-dasharray: 408;
+        stroke-dashoffset: 0;
+        transform: rotate(-90deg);
+        transform-origin: center;
+      }
+
+      .anim-task.play .task-ring-glow {
+        animation: ringGlow 0.8s ease 2.4s forwards;
+      }
+
+      @keyframes ringGlow {
+        0% {
+          opacity: 0;
+          stroke-width: 8;
+        }
+        50% {
+          opacity: 0.4;
+          stroke-width: 16;
+        }
+        100% {
+          opacity: 0;
+          stroke-width: 24;
+        }
+      }
+
+      /* ========================================
+         38. Report Send
+         ======================================== */
+      .anim-report {
+        position: relative;
+        width: 260px;
+        height: 240px;
+      }
+
+      .report-doc {
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 130px;
+        background: var(--surface);
+        border: 1.5px solid var(--border);
+        border-radius: 6px;
+        opacity: 0;
+        box-shadow: 0 4px 12px rgba(44, 36, 32, 0.06);
+        z-index: 5;
+      }
+
+      .anim-report.play .report-doc {
+        animation:
+          slideUp 0.4s ease 0.2s forwards,
+          docFold 0.6s ease 1s forwards;
+      }
+
+      @keyframes docFold {
+        0% {
+          transform: translateX(-50%) scaleY(1);
+          height: 130px;
+        }
+        50% {
+          transform: translateX(-50%) scaleY(0.5);
+          height: 65px;
+          top: 55px;
+        }
+        100% {
+          transform: translateX(-50%) scaleY(0.3);
+          height: 40px;
+          top: 85px;
+          opacity: 0;
+        }
+      }
+
+      .report-doc-title {
+        text-align: center;
+        font-size: 9px;
+        font-weight: 700;
+        color: var(--navy);
+        padding: 12px 0 6px;
+      }
+
+      .report-doc-line {
+        height: 4px;
+        background: var(--border);
+        border-radius: 2px;
+        margin: 5px 14px;
+      }
+
+      .report-doc-line:nth-child(3) {
+        width: 70%;
+      }
+      .report-doc-line:nth-child(4) {
+        width: 55%;
+      }
+
+      /* Envelope */
+      .report-envelope {
+        position: absolute;
+        bottom: 50px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 130px;
+        height: 80px;
+        opacity: 0;
+      }
+
+      .anim-report.play .report-envelope {
+        animation:
+          fadeIn 0.4s ease 0.8s forwards,
+          envelopeFly 1s ease 2s forwards;
+      }
+
+      @keyframes envelopeFly {
+        0% {
+          transform: translateX(-50%) translateY(0) rotate(0deg);
+        }
+        50% {
+          transform: translateX(-50%) translateY(-80px) rotate(-5deg);
+          opacity: 1;
+        }
+        100% {
+          transform: translateX(-50%) translateY(-200px) rotate(-10deg)
+            scale(0.5);
+          opacity: 0;
+        }
+      }
+
+      .env-body {
+        width: 130px;
+        height: 80px;
+        background: var(--surface);
+        border: 1.5px solid var(--border);
+        border-radius: 6px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .env-flap-shape {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 0;
+        height: 0;
+        border-left: 65px solid transparent;
+        border-right: 65px solid transparent;
+        border-top: 40px solid var(--border);
+      }
+
+      .env-bottom-v {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 0;
+        border-left: 65px solid transparent;
+        border-right: 65px solid transparent;
+        border-bottom: 35px solid rgba(176, 141, 62, 0.1);
+      }
+
+      /* Send indicator */
+      .report-send-icon {
+        position: absolute;
+        top: 30px;
+        right: 20px;
+        opacity: 0;
+        transform: scale(0);
+      }
+
+      .anim-report.play .report-send-icon {
+        animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1.8s forwards;
+      }
+
+      /* ========================================
+         39. Confirm Call
+         ======================================== */
+      .anim-call {
+        position: relative;
+        width: 200px;
+        height: 240px;
+      }
+
+      .call-handset {
+        position: absolute;
+        top: 60px;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+      }
+
+      .anim-call.play .call-handset {
+        animation:
+          slideUp 0.5s ease 0.2s forwards,
+          handsetLift 0.6s ease 0.9s forwards;
+      }
+
+      @keyframes handsetLift {
+        0% {
+          transform: translateX(-50%) rotate(0deg);
+        }
+        30% {
+          transform: translateX(-50%) rotate(-20deg) translateY(-10px);
+        }
+        100% {
+          transform: translateX(-50%) rotate(-20deg) translateY(-10px);
+        }
+      }
+
+      /* Call waves */
+      .call-wave {
+        position: absolute;
+        top: 40px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40px;
+        height: 40px;
+        border: 2px solid var(--gold);
+        border-radius: 50%;
+        opacity: 0;
+      }
+
+      .anim-call.play .call-wave:nth-child(2) {
+        animation: callPulse 1s ease 1.5s forwards;
+      }
+
+      .anim-call.play .call-wave:nth-child(3) {
+        animation: callPulse 1s ease 1.7s forwards;
+      }
+
+      .anim-call.play .call-wave:nth-child(4) {
+        animation: callPulse 1s ease 1.9s forwards;
+      }
+
+      @keyframes callPulse {
+        0% {
+          opacity: 0.6;
+          transform: translateX(-50%) scale(0.5);
+        }
+        100% {
+          opacity: 0;
+          transform: translateX(-50%) scale(2.5);
+        }
+      }
+
+      /* Transition to check */
+      .call-check {
+        position: absolute;
+        top: 55px;
+        left: 50%;
+        transform: translateX(-50%) scale(0);
+        width: 56px;
+        height: 56px;
+        background: #27ae60;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        box-shadow: 0 4px 16px rgba(39, 174, 96, 0.3);
+        z-index: 10;
+      }
+
+      .anim-call.play .call-check {
+        animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 2.8s forwards;
+      }
+
+      .call-label {
+        position: absolute;
+        bottom: 40px;
+        left: 50%;
+        transform: translateX(-50%) scale(0);
+        background: var(--gold);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 6px 18px;
+        border-radius: 100px;
+        white-space: nowrap;
+        opacity: 0;
+        box-shadow: 0 4px 14px rgba(176, 141, 62, 0.35);
+      }
+
+      .anim-call.play .call-label {
+        animation: badgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 3.2s forwards;
+      }
+
+      /* ========================================
+         40. Done Celebrate
+         ======================================== */
+      .anim-celebrate {
+        position: relative;
+        width: 280px;
+        height: 260px;
+      }
+
+      /* Trophy */
+      .trophy {
+        position: absolute;
+        bottom: 50px;
+        left: 50%;
+        transform: translateX(-50%) translateY(100px);
+        opacity: 0;
+        z-index: 5;
+      }
+
+      .anim-celebrate.play .trophy {
+        animation: trophyRise 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s
+          forwards;
+      }
+
+      @keyframes trophyRise {
+        0% {
+          opacity: 0;
+          transform: translateX(-50%) translateY(100px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(-50%) translateY(0);
+        }
+      }
+
+      /* Confetti bursts */
+      .cele-confetti {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        border-radius: 2px;
+        opacity: 0;
+      }
+
+      .cele-c1 {
+        background: var(--gold);
+      }
+      .cele-c2 {
+        background: #c0392b;
+      }
+      .cele-c3 {
+        background: var(--gold-light);
+      }
+      .cele-c4 {
+        background: var(--coffee);
+      }
+      .cele-c5 {
+        background: #27ae60;
+      }
+      .cele-c6 {
+        background: var(--navy);
+      }
+
+      .cele-left-1 {
+        top: 80px;
+        left: 20px;
+      }
+      .cele-left-2 {
+        top: 60px;
+        left: 40px;
+      }
+      .cele-left-3 {
+        top: 100px;
+        left: 10px;
+      }
+      .cele-left-4 {
+        top: 70px;
+        left: 60px;
+      }
+      .cele-left-5 {
+        top: 90px;
+        left: 35px;
+      }
+      .cele-right-1 {
+        top: 80px;
+        right: 20px;
+      }
+      .cele-right-2 {
+        top: 60px;
+        right: 40px;
+      }
+      .cele-right-3 {
+        top: 100px;
+        right: 10px;
+      }
+      .cele-right-4 {
+        top: 70px;
+        right: 60px;
+      }
+      .cele-right-5 {
+        top: 90px;
+        right: 35px;
+      }
+      .cele-center-1 {
+        top: 40px;
+        left: 130px;
+        width: 6px;
+        height: 10px;
+      }
+      .cele-center-2 {
+        top: 50px;
+        left: 150px;
+        width: 10px;
+        height: 4px;
+      }
+
+      .anim-celebrate.play .cele-left-1 {
+        animation: confettiLeft 1s ease 1.3s forwards;
+      }
+      .anim-celebrate.play .cele-left-2 {
+        animation: confettiLeft 1.1s ease 1.4s forwards;
+      }
+      .anim-celebrate.play .cele-left-3 {
+        animation: confettiLeft 0.9s ease 1.5s forwards;
+      }
+      .anim-celebrate.play .cele-left-4 {
+        animation: confettiLeft 1s ease 1.35s forwards;
+      }
+      .anim-celebrate.play .cele-left-5 {
+        animation: confettiLeft 1.1s ease 1.45s forwards;
+      }
+      .anim-celebrate.play .cele-right-1 {
+        animation: confettiRight 1s ease 1.3s forwards;
+      }
+      .anim-celebrate.play .cele-right-2 {
+        animation: confettiRight 1.1s ease 1.4s forwards;
+      }
+      .anim-celebrate.play .cele-right-3 {
+        animation: confettiRight 0.9s ease 1.5s forwards;
+      }
+      .anim-celebrate.play .cele-right-4 {
+        animation: confettiRight 1s ease 1.35s forwards;
+      }
+      .anim-celebrate.play .cele-right-5 {
+        animation: confettiRight 1.1s ease 1.45s forwards;
+      }
+      .anim-celebrate.play .cele-center-1 {
+        animation: confettiFall1 1s ease 1.3s forwards;
+      }
+      .anim-celebrate.play .cele-center-2 {
+        animation: confettiFall2 1s ease 1.4s forwards;
+      }
+
+      @keyframes confettiLeft {
+        0% {
+          opacity: 1;
+          transform: translateY(0) translateX(0) rotate(0deg);
+        }
+        100% {
+          opacity: 0;
+          transform: translateY(100px) translateX(-40px) rotate(360deg);
+        }
+      }
+
+      @keyframes confettiRight {
+        0% {
+          opacity: 1;
+          transform: translateY(0) translateX(0) rotate(0deg);
+        }
+        100% {
+          opacity: 0;
+          transform: translateY(100px) translateX(40px) rotate(-360deg);
+        }
+      }
+
+      /* Banner */
+      .cele-banner {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%) scale(0);
+        background: linear-gradient(
+          135deg,
+          var(--gold) 0%,
+          var(--gold-light) 100%
+        );
+        color: #fff;
+        font-size: 14px;
+        font-weight: 800;
+        padding: 10px 28px;
+        border-radius: 100px;
+        white-space: nowrap;
+        opacity: 0;
+        box-shadow: 0 6px 20px rgba(176, 141, 62, 0.4);
+        letter-spacing: 2px;
+      }
+
+      .anim-celebrate.play .cele-banner {
+        animation: badgePop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 2s forwards;
+      }
+
+      /* ========================================
+         Responsive
+         ======================================== */
+      @media (max-width: 768px) {
+        .showcase-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-header">
+      <h1>Communication Scenes — 승인/완료</h1>
+      <p>승인 과정과 완료 알림 애니메이션 10종</p>
+    </div>
+
+    <div class="showcase-grid">
+      <!-- 31. Approval Stamp -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-stamp play" id="anim31">
+            <div class="stamp-doc">
+              <div class="stamp-doc-line"></div>
+              <div class="stamp-doc-line"></div>
+              <div class="stamp-doc-line"></div>
+              <div class="stamp-doc-line"></div>
+              <div class="stamp-doc-line"></div>
+            </div>
+            <div class="stamp-handle">
+              <div class="stamp-handle-body"></div>
+              <div class="stamp-handle-base"></div>
+            </div>
+            <div class="stamp-mark">
+              <span class="stamp-mark-text">승인</span>
+            </div>
+            <div class="stamp-shockwave"></div>
+            <div class="stamp-shockwave"></div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">31</div>
+          <h3>Approval Stamp</h3>
+          <div class="meaning">승인 도장</div>
+          <div class="desc">
+            서류 등장 → 도장이 쿵 내려찍힘 → 빨간 "승인" 마크 + 충격파
+          </div>
+          <button class="replay-btn" onclick="replay('anim31')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 32. Contract Sign -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-sign play" id="anim32">
+            <div class="sign-contract">
+              <div class="sign-contract-title">계 약 서</div>
+              <div class="sign-contract-line"></div>
+              <div class="sign-contract-line"></div>
+              <div class="sign-contract-line"></div>
+              <div class="sign-area">
+                <span class="sign-area-label">서명란</span>
+              </div>
+            </div>
+            <div class="sign-pen">
+              <div class="sign-pen-body"></div>
+              <div class="sign-pen-tip"></div>
+            </div>
+            <svg class="sign-signature" viewBox="0 0 120 30">
+              <path
+                d="M5 25 Q15 5, 30 20 T55 15 Q65 5, 75 18 T100 10 Q108 8, 115 12"
+              />
+            </svg>
+            <div class="sign-badge">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#fff"
+                stroke-width="3"
+              >
+                <polyline points="6 12 10 16 18 8"></polyline>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">32</div>
+          <h3>Contract Sign</h3>
+          <div class="meaning">계약 서명</div>
+          <div class="desc">
+            계약서 펼쳐짐 → 펜이 서명란에 곡선 서명 → 체크 배지
+          </div>
+          <button class="replay-btn" onclick="replay('anim32')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 33. Handshake Deal -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-handshake play" id="anim33">
+            <div class="hand-left">
+              <div class="hand-shape"></div>
+              <div class="hand-wrist"></div>
+            </div>
+            <div class="hand-right">
+              <div class="hand-shape"></div>
+              <div class="hand-wrist"></div>
+            </div>
+            <div class="hs-sparkle">
+              <svg width="8" height="8" viewBox="0 0 8 8">
+                <polygon
+                  points="4,0 5,3 8,4 5,5 4,8 3,5 0,4 3,3"
+                  fill="#c9a84c"
+                />
+              </svg>
+            </div>
+            <div class="hs-sparkle">
+              <svg width="8" height="8" viewBox="0 0 8 8">
+                <polygon
+                  points="4,0 5,3 8,4 5,5 4,8 3,5 0,4 3,3"
+                  fill="#b08d3e"
+                />
+              </svg>
+            </div>
+            <div class="hs-sparkle">
+              <svg width="8" height="8" viewBox="0 0 8 8">
+                <polygon
+                  points="4,0 5,3 8,4 5,5 4,8 3,5 0,4 3,3"
+                  fill="#c9a84c"
+                />
+              </svg>
+            </div>
+            <div class="hs-sparkle">
+              <svg width="8" height="8" viewBox="0 0 8 8">
+                <polygon
+                  points="4,0 5,3 8,4 5,5 4,8 3,5 0,4 3,3"
+                  fill="#b08d3e"
+                />
+              </svg>
+            </div>
+            <div class="hs-sparkle">
+              <svg width="8" height="8" viewBox="0 0 8 8">
+                <polygon
+                  points="4,0 5,3 8,4 5,5 4,8 3,5 0,4 3,3"
+                  fill="#c9a84c"
+                />
+              </svg>
+            </div>
+            <div class="hs-label">합의완료</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">33</div>
+          <h3>Handshake Deal</h3>
+          <div class="meaning">합의 완료</div>
+          <div class="desc">
+            양쪽에서 손이 들어와 악수 → 별 반짝 이펙트 + "합의완료"
+          </div>
+          <button class="replay-btn" onclick="replay('anim33')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 34. Success Notify -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-success play" id="anim34">
+            <div class="success-phone">
+              <div class="success-phone-notch"></div>
+              <div class="success-phone-content">
+                <div class="success-phone-icon">
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#27ae60"
+                    stroke-width="2.5"
+                  >
+                    <polyline points="6 12 10 16 18 8"></polyline>
+                  </svg>
+                </div>
+                <div class="success-phone-line"></div>
+                <div class="success-phone-line"></div>
+              </div>
+            </div>
+            <div class="success-check">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#fff"
+                stroke-width="3"
+              >
+                <polyline points="6 12 10 16 18 8"></polyline>
+              </svg>
+            </div>
+            <div class="confetti confetti-1"></div>
+            <div class="confetti confetti-2"></div>
+            <div class="confetti confetti-3"></div>
+            <div class="confetti confetti-4"></div>
+            <div class="confetti confetti-5"></div>
+            <div class="confetti confetti-6"></div>
+            <div class="confetti confetti-7"></div>
+            <div class="confetti confetti-8"></div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">34</div>
+          <h3>Success Notify</h3>
+          <div class="meaning">성공 알림</div>
+          <div class="desc">스마트폰에 초록 체크 뱃지 팝업 → 축하 컨페티</div>
+          <button class="replay-btn" onclick="replay('anim34')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 35. Certificate Issue -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-cert play" id="anim35">
+            <div class="cert-printer">
+              <div class="cert-printer-slot"></div>
+              <div class="cert-printer-led"></div>
+            </div>
+            <div class="cert-paper">
+              <div class="cert-paper-header">증 명 서</div>
+              <div class="cert-paper-border">
+                <div class="cert-paper-line"></div>
+                <div class="cert-paper-line"></div>
+                <div class="cert-paper-line"></div>
+                <div class="cert-paper-line"></div>
+              </div>
+            </div>
+            <div class="cert-seal">
+              <div class="cert-seal-outer">
+                <span class="cert-seal-text">GOLD</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">35</div>
+          <h3>Certificate Issue</h3>
+          <div class="meaning">증명서 발급</div>
+          <div class="desc">
+            증명서가 프린터에서 슬라이드 아웃 → 골드 인장 스탬프
+          </div>
+          <button class="replay-btn" onclick="replay('anim35')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 36. Final Review -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-review play" id="anim36">
+            <div class="review-page review-page-3">
+              <div class="review-page-line"></div>
+              <div class="review-page-line"></div>
+              <div class="review-page-line"></div>
+            </div>
+            <div class="review-page review-page-2">
+              <div class="review-page-line"></div>
+              <div class="review-page-line"></div>
+              <div class="review-page-line"></div>
+            </div>
+            <div class="review-page review-page-1">
+              <div class="review-page-line"></div>
+              <div class="review-page-line"></div>
+              <div class="review-page-line"></div>
+            </div>
+            <div class="review-check review-check-1">
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#fff"
+                stroke-width="3"
+              >
+                <polyline points="6 12 10 16 18 8"></polyline>
+              </svg>
+            </div>
+            <div class="review-check review-check-2">
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#fff"
+                stroke-width="3"
+              >
+                <polyline points="6 12 10 16 18 8"></polyline>
+              </svg>
+            </div>
+            <div class="review-check review-check-3">
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#fff"
+                stroke-width="3"
+              >
+                <polyline points="6 12 10 16 18 8"></polyline>
+              </svg>
+            </div>
+            <div class="review-stamp">
+              <span class="review-stamp-text">승인</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">36</div>
+          <h3>Final Review</h3>
+          <div class="meaning">최종 검토</div>
+          <div class="desc">
+            서류 3장을 한 장씩 넘기며 체크 → 마지막에 "승인" 도장
+          </div>
+          <button class="replay-btn" onclick="replay('anim36')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 37. Task Complete -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-task play" id="anim37">
+            <svg class="task-ring-bg" viewBox="0 0 140 140">
+              <circle class="task-ring-track" cx="70" cy="70" r="65" />
+              <circle class="task-ring-progress" cx="70" cy="70" r="65" />
+              <circle class="task-ring-glow" cx="70" cy="70" r="65" />
+            </svg>
+            <div class="task-percent">100%</div>
+            <div class="task-check">
+              <svg
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#27ae60"
+                stroke-width="2.5"
+              >
+                <polyline points="6 12 10 16 18 8"></polyline>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">37</div>
+          <h3>Task Complete</h3>
+          <div class="meaning">작업 완료</div>
+          <div class="desc">
+            원형 프로그레스가 360도 채워지며 중앙에 체크마크 완성
+          </div>
+          <button class="replay-btn" onclick="replay('anim37')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 38. Report Send -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-report play" id="anim38">
+            <div class="report-doc">
+              <div class="report-doc-title">보고서</div>
+              <div class="report-doc-line"></div>
+              <div class="report-doc-line"></div>
+              <div class="report-doc-line"></div>
+            </div>
+            <div class="report-envelope">
+              <div class="env-body">
+                <div class="env-flap-shape"></div>
+                <div class="env-bottom-v"></div>
+              </div>
+            </div>
+            <div class="report-send-icon">
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="var(--gold)"
+                stroke-width="2"
+              >
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">38</div>
+          <h3>Report Send</h3>
+          <div class="meaning">보고서 전송</div>
+          <div class="desc">
+            보고서 문서가 접혀서 봉투에 들어감 → 봉투 날아감
+          </div>
+          <button class="replay-btn" onclick="replay('anim38')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 39. Confirm Call -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-call play" id="anim39">
+            <div class="call-handset">
+              <svg
+                width="60"
+                height="60"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="var(--navy)"
+                stroke-width="2"
+              >
+                <path
+                  d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013 10.92a19.79 19.79 0 01-3.07-8.67A2 2 0 011.9 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"
+                />
+              </svg>
+            </div>
+            <div class="call-wave"></div>
+            <div class="call-wave"></div>
+            <div class="call-wave"></div>
+            <div class="call-check">
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#fff"
+                stroke-width="3"
+              >
+                <polyline points="6 12 10 16 18 8"></polyline>
+              </svg>
+            </div>
+            <div class="call-label">확인 완료</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">39</div>
+          <h3>Confirm Call</h3>
+          <div class="meaning">확인 통화</div>
+          <div class="desc">
+            전화기 수화기 들림 → 통화중 파동 → 체크마크로 전환
+          </div>
+          <button class="replay-btn" onclick="replay('anim39')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 40. Done Celebrate -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-celebrate play" id="anim40">
+            <div class="trophy">
+              <svg width="80" height="100" viewBox="0 0 80 100" fill="none">
+                <!-- Trophy cup -->
+                <path
+                  d="M20 10 H60 V15 C60 35, 55 50, 40 55 C25 50, 20 35, 20 15 Z"
+                  fill="var(--gold)"
+                  opacity="0.9"
+                />
+                <path
+                  d="M20 10 H60 V15 C60 35, 55 50, 40 55 C25 50, 20 35, 20 15 Z"
+                  stroke="var(--gold-light)"
+                  stroke-width="2"
+                  fill="none"
+                />
+                <!-- Left handle -->
+                <path
+                  d="M20 18 C10 18, 5 28, 12 35 C16 38, 20 35, 20 30"
+                  stroke="var(--gold)"
+                  stroke-width="3"
+                  fill="none"
+                />
+                <!-- Right handle -->
+                <path
+                  d="M60 18 C70 18, 75 28, 68 35 C64 38, 60 35, 60 30"
+                  stroke="var(--gold)"
+                  stroke-width="3"
+                  fill="none"
+                />
+                <!-- Stem -->
+                <rect
+                  x="35"
+                  y="55"
+                  width="10"
+                  height="15"
+                  fill="var(--gold)"
+                  rx="2"
+                />
+                <!-- Base -->
+                <rect
+                  x="25"
+                  y="70"
+                  width="30"
+                  height="8"
+                  fill="var(--gold)"
+                  rx="3"
+                />
+                <rect
+                  x="20"
+                  y="78"
+                  width="40"
+                  height="6"
+                  fill="var(--gold-light)"
+                  rx="2"
+                />
+                <!-- Star -->
+                <polygon
+                  points="40,20 43,30 53,30 45,36 48,46 40,40 32,46 35,36 27,30 37,30"
+                  fill="#fff"
+                  opacity="0.4"
+                />
+              </svg>
+            </div>
+            <!-- Confetti pieces -->
+            <div class="cele-confetti cele-c1 cele-left-1"></div>
+            <div class="cele-confetti cele-c2 cele-left-2"></div>
+            <div class="cele-confetti cele-c3 cele-left-3"></div>
+            <div class="cele-confetti cele-c4 cele-left-4"></div>
+            <div class="cele-confetti cele-c5 cele-left-5"></div>
+            <div class="cele-confetti cele-c1 cele-right-1"></div>
+            <div class="cele-confetti cele-c2 cele-right-2"></div>
+            <div class="cele-confetti cele-c3 cele-right-3"></div>
+            <div class="cele-confetti cele-c6 cele-right-4"></div>
+            <div class="cele-confetti cele-c4 cele-right-5"></div>
+            <div class="cele-confetti cele-c5 cele-center-1"></div>
+            <div class="cele-confetti cele-c3 cele-center-2"></div>
+            <div class="cele-banner">축하합니다</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">40</div>
+          <h3>Done Celebrate</h3>
+          <div class="meaning">완료 축하</div>
+          <div class="desc">
+            트로피가 올라오며 좌우에서 컨페티 폭죽 → "축하합니다" 배너
+          </div>
+          <button class="replay-btn" onclick="replay('anim40')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function replay(id) {
+        const el = document.getElementById(id);
+        el.classList.remove("play");
+        void el.offsetWidth; // force reflow
+        el.classList.add("play");
+      }
+
+      // IntersectionObserver for auto-play on scroll
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("play");
+            }
+          });
+        },
+        { threshold: 0.3 },
+      );
+
+      document.querySelectorAll("[id^='anim']").forEach((el) => {
+        el.classList.remove("play");
+        observer.observe(el);
+      });
+    </script>
+  </body>
+</html>

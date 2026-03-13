@@ -1,17 +1,8 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Bell,
-  Mail,
-  MessageSquare,
-} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Bell, Mail, MessageSquare } from "lucide-react";
 import NotificationsClient from "./notifications-client";
 
 async function getNotifications() {
@@ -60,13 +51,17 @@ export default async function NotificationsPage() {
     <div className="space-y-4 sm:space-y-6">
       {/* Page Header */}
       <div>
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">알림 이력</h1>
-        <p className="text-sm sm:text-base text-gray-600">모든 SMS 및 이메일 발송 이력을 확인하세요</p>
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">
+          알림 이력
+        </h1>
+        <p className="text-sm sm:text-base text-gray-600">
+          모든 SMS 및 이메일 발송 이력을 확인하세요
+        </p>
       </div>
 
       {/* Stats */}
       <div className="grid gap-2 sm:gap-3 md:gap-4 grid-cols-2 md:grid-cols-4">
-        <Card className="bg-white border-2 border-gray-200 shadow-md">
+        <Card className="bg-white border border-gray-200 shadow-md">
           <CardHeader className="p-2 sm:p-3 md:p-4 pb-1 sm:pb-2">
             <CardTitle className="text-xs sm:text-sm font-medium text-gray-600 flex items-center gap-1 sm:gap-2">
               <Bell className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -75,11 +70,13 @@ export default async function NotificationsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-2 sm:p-3 md:p-4 pt-0">
-            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">{stats.total}</div>
+            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
+              {stats.total}
+            </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-gold-50 to-white border-0 shadow-md">
+        <Card className="bg-white border border-gray-200 shadow-md">
           <CardHeader className="p-2 sm:p-3 md:p-4 pb-1 sm:pb-2">
             <CardTitle className="text-xs sm:text-sm font-medium text-gray-600 flex items-center gap-1 sm:gap-2">
               <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4 text-gold-600" />
@@ -87,13 +84,13 @@ export default async function NotificationsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-2 sm:p-3 md:p-4 pt-0">
-            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-gold-600">
+            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-navy-700">
               {stats.smsCount}
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-orange-50 to-white border-0 shadow-md">
+        <Card className="bg-white border border-gray-200 shadow-md">
           <CardHeader className="p-2 sm:p-3 md:p-4 pb-1 sm:pb-2">
             <CardTitle className="text-xs sm:text-sm font-medium text-gray-600 flex items-center gap-1 sm:gap-2">
               <Mail className="w-3 h-3 sm:w-4 sm:h-4 text-orange-600" />
@@ -107,7 +104,7 @@ export default async function NotificationsPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-green-50 to-white border-0 shadow-md">
+        <Card className="bg-white border border-gray-200 shadow-md">
           <CardHeader className="p-2 sm:p-3 md:p-4 pb-1 sm:pb-2">
             <CardTitle className="text-xs sm:text-sm font-medium text-gray-600">
               성공률

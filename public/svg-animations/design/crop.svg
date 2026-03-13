@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .tl { animation: cropInTL 2s ease-in-out infinite; }
+    .tr { animation: cropInTR 2s ease-in-out infinite; }
+    .bl { animation: cropInBL 2s ease-in-out infinite; }
+    .br { animation: cropInBR 2s ease-in-out infinite; }
+
+    @keyframes cropInTL {
+      0%, 20%, 100% { transform: translate(0, 0); }
+      45%, 70% { transform: translate(2px, 2px); }
+    }
+    @keyframes cropInTR {
+      0%, 20%, 100% { transform: translate(0, 0); }
+      45%, 70% { transform: translate(-2px, 2px); }
+    }
+    @keyframes cropInBL {
+      0%, 20%, 100% { transform: translate(0, 0); }
+      45%, 70% { transform: translate(2px, -2px); }
+    }
+    @keyframes cropInBR {
+      0%, 20%, 100% { transform: translate(0, 0); }
+      45%, 70% { transform: translate(-2px, -2px); }
+    }
+
+    path { transform-origin: center; transform-box: fill-box; }
+  </style>
+  <path class="tl" d="M4 9h4v4" />
+  <path class="tr" d="M20 9h-4v4" />
+  <path class="bl" d="M4 15h4v-4" />
+  <path class="br" d="M20 15h-4v-4" />
+  <rect x="8" y="8" width="8" height="8" />
+</svg>

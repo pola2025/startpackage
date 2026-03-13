@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .check {
+      stroke-dasharray: 22;
+      stroke-dashoffset: 22;
+    }
+    .check-1 {
+      animation: draw1 3.5s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+    }
+    .check-2 {
+      animation: draw2 3.5s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+    }
+    .g1 {
+      transform-origin: 9px 14px;
+      animation: pop1 3.5s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+    }
+    .g2 {
+      transform-origin: 14px 14px;
+      animation: pop2 3.5s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+    }
+    @keyframes draw1 {
+      0%, 8% { stroke-dashoffset: 22; }
+      22% { stroke-dashoffset: -1; }
+      28%, 65% { stroke-dashoffset: 0; }
+      82%, 100% { stroke-dashoffset: 22; }
+    }
+    @keyframes draw2 {
+      0%, 22% { stroke-dashoffset: 22; }
+      40% { stroke-dashoffset: -1; }
+      46%, 65% { stroke-dashoffset: 0; }
+      82%, 100% { stroke-dashoffset: 22; }
+    }
+    @keyframes pop1 {
+      0%, 8% { transform: scale(0.6); opacity: 0; }
+      22% { transform: scale(1.12); opacity: 1; }
+      28%, 65% { transform: scale(1); }
+      82%, 100% { transform: scale(0.6); opacity: 0; }
+    }
+    @keyframes pop2 {
+      0%, 22% { transform: scale(0.6); opacity: 0; }
+      40% { transform: scale(1.12); opacity: 1; }
+      46%, 65% { transform: scale(1); }
+      82%, 100% { transform: scale(0.6); opacity: 0; }
+    }
+  </style>
+  <g class="g1"><path class="check check-1" d="M2 12l5 5L17 7"/></g>
+  <g class="g2"><path class="check check-2" d="M7 12l5 5L22 7"/></g>
+</svg>

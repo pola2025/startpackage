@@ -304,7 +304,7 @@ export default function MobileSubmissionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gold-50 to-white pb-20 mobile-compact-form">
+    <div className="min-h-screen bg-white pb-20 mobile-compact-form">
       <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
         {/* 헤더 - 모바일 컴팩트 */}
         <div className="space-y-1">

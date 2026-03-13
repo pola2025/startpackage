@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .ext-box {
+      stroke-dasharray: 52;
+      stroke-dashoffset: 52;
+      animation: drawBox 3.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+    }
+    .ext-arrow-line {
+      stroke-dasharray: 16;
+      stroke-dashoffset: 16;
+      animation: drawArrowLine 3.5s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+    }
+    .ext-arrow-corner {
+      stroke-dasharray: 16;
+      stroke-dashoffset: 16;
+      animation: drawCorner 3.5s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+    }
+    .ext-arrow-group {
+      animation: shootOut 3.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+    }
+    @keyframes drawBox {
+      0% { stroke-dashoffset: 52; }
+      35% { stroke-dashoffset: 0; }
+      80% { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: 0; }
+    }
+    @keyframes drawArrowLine {
+      0%, 20% { stroke-dashoffset: 16; }
+      45% { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: 0; }
+    }
+    @keyframes drawCorner {
+      0%, 30% { stroke-dashoffset: 16; }
+      50% { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: 0; }
+    }
+    @keyframes shootOut {
+      0%, 40% { transform: translate(0, 0); }
+      52% { transform: translate(2px, -2px); }
+      60% { transform: translate(-0.5px, 0.5px); }
+      68% { transform: translate(1px, -1px); }
+      76%, 100% { transform: translate(0, 0); }
+    }
+  </style>
+  <path class="ext-box" d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+  <g class="ext-arrow-group">
+    <line class="ext-arrow-line" x1="10" y1="14" x2="21" y2="3" />
+    <polyline class="ext-arrow-corner" points="15 3 21 3 21 9" />
+  </g>
+</svg>

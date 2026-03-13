@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .face {
+      transform-origin: 12px 12px;
+      animation: face-breathe 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+    .minute-hand {
+      transform-origin: 12px 12px;
+      animation: minute-tick 4s steps(12, end) infinite;
+    }
+    .hour-hand {
+      transform-origin: 12px 12px;
+      animation: hour-rotate 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+    .tick-dot {
+      transform-origin: 12px 12px;
+      animation: tick-pulse 0.333s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+    }
+    @keyframes face-breathe {
+      0%, 100% { stroke-opacity: 0.85; }
+      50% { stroke-opacity: 1; }
+    }
+    @keyframes minute-tick {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @keyframes hour-rotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(30deg); }
+    }
+    @keyframes tick-pulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.6; }
+    }
+  </style>
+  <circle class="face" cx="12" cy="12" r="10"/>
+  <circle class="tick-dot" cx="12" cy="3.5" r="0.3" fill="currentColor" stroke="none"/>
+  <line class="hour-hand" x1="12" y1="12" x2="12" y2="7.5"/>
+  <line class="minute-hand" x1="12" y1="12" x2="16" y2="14"/>
+</svg>

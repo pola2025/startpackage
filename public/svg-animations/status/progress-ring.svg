@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .track {
+      stroke: currentColor;
+      opacity: 0.15;
+    }
+    .progress {
+      stroke-dasharray: 63;
+      stroke-dashoffset: 63;
+      transform: rotate(-90deg);
+      transform-origin: 12px 12px;
+      animation: fill-ring 3.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+    .glow {
+      stroke-dasharray: 63;
+      stroke-dashoffset: 63;
+      transform: rotate(-90deg);
+      transform-origin: 12px 12px;
+      animation: fill-ring 3.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      stroke-width: 3.5;
+      opacity: 0.15;
+      filter: blur(1px);
+    }
+    .dot {
+      transform-origin: 12px 12px;
+      animation: dot-orbit 3.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+    @keyframes fill-ring {
+      0%, 8% { stroke-dashoffset: 63; stroke-opacity: 0.5; }
+      50% { stroke-dashoffset: 0; stroke-opacity: 1; }
+      60%, 72% { stroke-dashoffset: 0; stroke-opacity: 1; }
+      78% { stroke-dashoffset: 0; stroke-opacity: 0.6; }
+      82% { stroke-dashoffset: 0; stroke-opacity: 1; }
+      92%, 100% { stroke-dashoffset: 63; stroke-opacity: 0.5; }
+    }
+    @keyframes dot-orbit {
+      0%, 8% { transform: rotate(-90deg); opacity: 0; }
+      12% { opacity: 1; }
+      50% { transform: rotate(270deg); opacity: 1; }
+      60% { opacity: 0; }
+      100% { opacity: 0; transform: rotate(270deg); }
+    }
+  </style>
+  <circle class="track" cx="12" cy="12" r="10"/>
+  <circle class="glow" cx="12" cy="12" r="10"/>
+  <circle class="progress" cx="12" cy="12" r="10"/>
+  <circle class="dot" cx="12" cy="2" r="1.2" fill="currentColor" stroke="none"/>
+</svg>

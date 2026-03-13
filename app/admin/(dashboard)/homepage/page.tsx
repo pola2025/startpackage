@@ -439,7 +439,7 @@ export default function HomepageManagementPage() {
 
       {/* 최근 접수 알림 */}
       {recentRequests.length > 0 && (
-        <Card className="border-blue-200 bg-blue-50/30">
+        <Card className="border-gray-200 bg-white">
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2 text-blue-700">
               <Bell className="w-4 h-4" />
@@ -627,7 +627,7 @@ export default function HomepageManagementPage() {
                                 className={
                                   user.homepageWorkflow &&
                                   !user.homepageCompleted
-                                    ? "bg-blue-50/30"
+                                    ? ""
                                     : user.homepageCompleted
                                       ? "bg-green-50/30"
                                       : ""
@@ -758,7 +758,7 @@ export default function HomepageManagementPage() {
                     제작 요청 정보
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="p-3 bg-blue-50 rounded-lg">
+                    <div className="p-3 bg-gray-50 rounded-lg">
                       <Label className="text-xs text-blue-600">
                         선택 스타일
                       </Label>
@@ -776,12 +776,12 @@ export default function HomepageManagementPage() {
                         <p className="text-gray-400 mt-1">선택 안됨</p>
                       )}
                     </div>
-                    <div className="p-3 bg-blue-50 rounded-lg">
+                    <div className="p-3 bg-gray-50 rounded-lg">
                       <Label className="text-xs text-blue-600">컬러 컨셉</Label>
                       {selectedUser.submission?.홈페이지컬러컨셉 ? (
                         <div className="flex items-center gap-2 mt-1">
                           <div
-                            className="w-8 h-8 rounded-lg border-2 border-blue-200"
+                            className="w-8 h-8 rounded-lg border border-gray-200"
                             style={{
                               backgroundColor:
                                 selectedUser.submission.홈페이지컬러컨셉,

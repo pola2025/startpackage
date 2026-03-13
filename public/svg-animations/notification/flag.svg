@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .cloth {
+      transform-origin: 4px 4px;
+      transform-box: fill-box;
+      animation: flagWave 2s ease-in-out infinite;
+    }
+    @keyframes flagWave {
+      0%,100% { transform: skewX(-2deg); }
+      50% { transform: skewX(2deg); }
+    }
+  </style>
+  <path d="M4 3v18"/>
+  <path d="M4 4h11l3-2v12l-3-2H4"/>
+  <g class="cloth">
+    <path d="M4 9h7l2-2-2-2H4"/>
+  </g>
+</svg>

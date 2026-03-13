@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .arrow-line {
+      stroke-dasharray: 14;
+      stroke-dashoffset: 14;
+      animation: drawLine 3s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+    }
+    .arrow-head {
+      stroke-dasharray: 12;
+      stroke-dashoffset: 12;
+      animation: drawHead 3s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+    }
+    .arrow-group {
+      animation: slideRight 3s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+    }
+    @keyframes drawLine {
+      0% { stroke-dashoffset: 14; opacity: 0; }
+      10% { opacity: 1; }
+      25% { stroke-dashoffset: 0; }
+      70% { stroke-dashoffset: 0; opacity: 1; }
+      85% { stroke-dashoffset: -14; opacity: 0; }
+      100% { stroke-dashoffset: 14; opacity: 0; }
+    }
+    @keyframes drawHead {
+      0%, 8% { stroke-dashoffset: 12; opacity: 0; }
+      12% { opacity: 1; }
+      30% { stroke-dashoffset: 0; }
+      70% { stroke-dashoffset: 0; opacity: 1; }
+      85% { stroke-dashoffset: -12; opacity: 0; }
+      100% { stroke-dashoffset: 12; opacity: 0; }
+    }
+    @keyframes slideRight {
+      0% { transform: translateX(-3px); }
+      20% { transform: translateX(0px); }
+      40% { transform: translateX(3px); }
+      55% { transform: translateX(-1px); }
+      65% { transform: translateX(1px); }
+      75%, 100% { transform: translateX(0px); }
+    }
+  </style>
+  <g class="arrow-group">
+    <line class="arrow-line" x1="5" y1="12" x2="19" y2="12" />
+    <polyline class="arrow-head" points="14 7 19 12 14 17" />
+  </g>
+</svg>

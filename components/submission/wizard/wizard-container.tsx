@@ -169,7 +169,7 @@ function WizardInner({
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-gold-50 to-white">
+    <div className="flex flex-col min-h-screen bg-white">
       {/* 헤더 영역 */}
       <div className="sticky top-0 z-10 bg-white/95 backdrop-blur border-b border-gray-100">
         <div className="max-w-2xl mx-auto px-4 py-3 space-y-3">
@@ -271,8 +271,8 @@ export function WizardModeSelector({
             <button
               onClick={() => onSelect("tab")}
               className={cn(
-                "w-full p-4 rounded-xl border-2 text-left transition-all",
-                "hover:border-gold-300 hover:bg-gold-50",
+                "w-full p-4 rounded-xl border text-left transition-all",
+                "hover:border-gray-400 hover:bg-gray-50",
                 "border-gray-200",
               )}
             >
@@ -286,9 +286,9 @@ export function WizardModeSelector({
           <button
             onClick={() => onSelect("wizard")}
             className={cn(
-              "w-full p-4 rounded-xl border-2 text-left transition-all",
-              "hover:border-gold-500 hover:bg-gold-50",
-              "border-gold-500 bg-gold-50",
+              "w-full p-4 rounded-xl border text-left transition-all",
+              "hover:border-navy-500 hover:bg-gray-50",
+              "border-navy-700 bg-white",
             )}
           >
             <p className="font-semibold text-navy-700">

@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .pct-slash {
+      stroke-dasharray: 20;
+      stroke-dashoffset: 20;
+      animation: drawSlash 4s cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
+    }
+    .pct-top {
+      transform-origin: 6.5px 6.5px;
+      animation: circleTop 4s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+    }
+    .pct-bottom {
+      transform-origin: 17.5px 17.5px;
+      animation: circleBottom 4s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+    }
+    .pct-pulse {
+      transform-origin: 12px 12px;
+      animation: pulseBg 4s ease infinite;
+    }
+    .number-tick {
+      animation: numFlip 4s ease infinite;
+    }
+    @keyframes drawSlash {
+      0%, 5% { stroke-dashoffset: 20; }
+      20% { stroke-dashoffset: 0; }
+      75% { stroke-dashoffset: 0; }
+      90%, 100% { stroke-dashoffset: -20; }
+    }
+    @keyframes circleTop {
+      0%, 8% { transform: scale(0) rotate(-90deg); }
+      18% { transform: scale(1.2) rotate(10deg); }
+      25%, 75% { transform: scale(1) rotate(0deg); }
+      85%, 100% { transform: scale(0) rotate(90deg); }
+    }
+    @keyframes circleBottom {
+      0%, 14% { transform: scale(0) rotate(-90deg); }
+      26% { transform: scale(1.2) rotate(10deg); }
+      33%, 75% { transform: scale(1) rotate(0deg); }
+      87%, 100% { transform: scale(0) rotate(90deg); }
+    }
+    @keyframes pulseBg {
+      0%, 30% { opacity: 0; }
+      40% { opacity: 0.15; }
+      50% { opacity: 0.08; }
+      60% { opacity: 0.12; }
+      70%, 80% { opacity: 0.06; }
+      90%, 100% { opacity: 0; }
+    }
+    @keyframes numFlip {
+      0%, 35% { opacity: 0; transform: translateY(3px); }
+      42% { opacity: 1; transform: translateY(-0.5px); }
+      48%, 60% { opacity: 1; transform: translateY(0); }
+      65% { opacity: 0; transform: translateY(-2px); }
+      70% { opacity: 0; transform: translateY(3px); }
+      77% { opacity: 1; transform: translateY(-0.5px); }
+      82%, 90% { opacity: 1; transform: translateY(0); }
+      95%, 100% { opacity: 0; transform: translateY(-2px); }
+    }
+  </style>
+  <!-- Pulse background -->
+  <circle class="pct-pulse" cx="12" cy="12" r="10" fill="currentColor" stroke="none" opacity="0"/>
+  <!-- Percent sign -->
+  <line class="pct-slash" x1="19" y1="5" x2="5" y2="19"/>
+  <circle class="pct-top" cx="6.5" cy="6.5" r="2.5"/>
+  <circle class="pct-bottom" cx="17.5" cy="17.5" r="2.5"/>
+  <!-- Number ticks inside circles -->
+  <text class="number-tick" x="6.5" y="7.8" text-anchor="middle" font-size="3.5" font-family="system-ui" fill="currentColor" stroke="none" font-weight="bold" opacity="0">5</text>
+  <text class="number-tick" x="17.5" y="18.8" text-anchor="middle" font-size="3.5" font-family="system-ui" fill="currentColor" stroke="none" font-weight="bold" opacity="0" style="animation-delay:0.2s">0</text>
+</svg>

@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .glass-circle {
+      stroke-dasharray: 44;
+      stroke-dashoffset: 44;
+      animation: drawGlass 3.5s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+    }
+    .handle {
+      stroke-dasharray: 8;
+      stroke-dashoffset: 8;
+      animation: drawHandle 3.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+    }
+    .search-group {
+      animation: zoomPulse 3.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+      transform-origin: 11px 11px;
+    }
+    .search-glint {
+      animation: glint 3.5s ease-in-out infinite;
+      opacity: 0;
+    }
+    @keyframes drawGlass {
+      0% { stroke-dashoffset: 44; }
+      30% { stroke-dashoffset: 0; }
+      80% { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: 0; }
+    }
+    @keyframes drawHandle {
+      0%, 25% { stroke-dashoffset: 8; }
+      45% { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: 0; }
+    }
+    @keyframes zoomPulse {
+      0% { transform: scale(0.85); opacity: 0; }
+      15% { opacity: 1; }
+      35% { transform: scale(1.08); }
+      45% { transform: scale(0.97); }
+      55% { transform: scale(1.02); }
+      65% { transform: scale(1); }
+      80% { transform: scale(1); opacity: 1; }
+      95% { transform: scale(0.9); opacity: 0; }
+      100% { transform: scale(0.85); opacity: 0; }
+    }
+    @keyframes glint {
+      0%, 50% { opacity: 0; }
+      60% { opacity: 0.8; }
+      70% { opacity: 0; }
+      100% { opacity: 0; }
+    }
+  </style>
+  <g class="search-group">
+    <circle class="glass-circle" cx="11" cy="11" r="7" />
+    <line class="handle" x1="16.5" y1="16.5" x2="21" y2="21" />
+    <line class="search-glint" x1="8" y1="8" x2="9" y2="9" stroke-width="1.5" />
+  </g>
+</svg>

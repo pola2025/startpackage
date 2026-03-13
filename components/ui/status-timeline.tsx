@@ -182,9 +182,9 @@ export function StatusTimeline({
             <div className="flex-1 min-w-0 pt-1">
               <div
                 className={cn(
-                  "p-4 rounded-xl border-2 transition-all",
+                  "p-4 rounded-xl border transition-all",
                   event.status === "current"
-                    ? "bg-gold-50 border-gold-200 shadow-sm"
+                    ? "bg-white border-navy-200 shadow-sm"
                     : event.status === "completed"
                       ? "bg-white border-gray-200"
                       : event.status === "warning"

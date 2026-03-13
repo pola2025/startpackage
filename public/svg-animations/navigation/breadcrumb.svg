@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .dot {
+      animation: breadcrumb-dot 2s ease-in-out infinite;
+      transform-origin: center;
+      transform-box: fill-box;
+    }
+    .dot-1 {
+      animation-delay: 0s;
+    }
+    .dot-2 {
+      animation-delay: 0.35s;
+    }
+    .dot-3 {
+      animation-delay: 0.7s;
+    }
+    @keyframes breadcrumb-dot {
+      0%, 100% {
+        opacity: 0.25;
+        transform: scale(0.9);
+      }
+      35% {
+        opacity: 1;
+        transform: scale(1.1);
+      }
+    }
+  </style>
+  <circle class="dot dot-1" cx="6" cy="12" r="1.4" />
+  <circle class="dot dot-2" cx="12" cy="12" r="1.4" />
+  <circle class="dot dot-3" cx="18" cy="12" r="1.4" />
+  <path d="M7.4 12h3.2" />
+  <path d="M13.4 12h3.2" />
+</svg>

@@ -1,0 +1,2565 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>스타트패키지 가이드 영상 5편 - 와이어프레임</title>
+    <style>
+      @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family:
+          "Pretendard",
+          -apple-system,
+          sans-serif;
+        background: #0a0a0a;
+        color: #fff;
+        min-height: 100vh;
+      }
+
+      /* 탭 네비게이션 */
+      .tab-nav {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: #111;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        display: flex;
+        gap: 4px;
+        padding: 12px 16px;
+        overflow-x: auto;
+      }
+      .tab-btn {
+        padding: 10px 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        background: transparent;
+        color: #888;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.2s;
+      }
+      .tab-btn.active {
+        background: rgba(201, 169, 98, 0.15);
+        border-color: rgba(201, 169, 98, 0.4);
+        color: #c9a962;
+      }
+      .tab-btn:hover {
+        border-color: rgba(201, 169, 98, 0.3);
+        color: #ccc;
+      }
+
+      /* 레이아웃 */
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 32px 16px;
+      }
+      .video-panel {
+        display: none;
+      }
+      .video-panel.active {
+        display: block;
+      }
+
+      .video-header {
+        text-align: center;
+        margin-bottom: 32px;
+      }
+      .video-header h2 {
+        font-size: 28px;
+        font-weight: 800;
+        margin-bottom: 8px;
+      }
+      .video-header h2 span {
+        color: #c9a962;
+      }
+      .video-header p {
+        color: #888;
+        font-size: 15px;
+      }
+      .video-header .meta {
+        display: inline-flex;
+        gap: 12px;
+        margin-top: 12px;
+      }
+      .video-header .meta span {
+        padding: 4px 12px;
+        background: rgba(201, 169, 98, 0.1);
+        border: 1px solid rgba(201, 169, 98, 0.2);
+        border-radius: 20px;
+        font-size: 12px;
+        color: #c9a962;
+      }
+
+      /* 폰 프레임 */
+      .phone-stage {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 24px;
+      }
+      .phone-frame {
+        width: 360px;
+        height: 640px;
+        background: #0f0f0f;
+        border-radius: 32px;
+        border: 3px solid #333;
+        overflow: hidden;
+        position: relative;
+        flex-shrink: 0;
+        transition:
+          width 0.4s ease,
+          height 0.4s ease;
+      }
+      .phone-frame.landscape {
+        width: 720px;
+        height: 405px;
+        border-radius: 24px;
+      }
+      .phone-notch {
+        width: 120px;
+        height: 28px;
+        background: #0f0f0f;
+        border-radius: 0 0 16px 16px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 10;
+        transition: all 0.3s;
+      }
+      .phone-frame.landscape .phone-notch {
+        width: 80px;
+        height: 20px;
+        border-radius: 0 0 10px 10px;
+      }
+      .phone-screen {
+        width: 100%;
+        height: calc(100% - 28px);
+        overflow: hidden;
+        position: relative;
+      }
+      .phone-frame.landscape .phone-screen {
+        height: calc(100% - 20px);
+      }
+      /* 가로모드 씬 패딩 조정 */
+      .phone-frame.landscape .scene {
+        padding: 16px 24px;
+      }
+      .phone-frame.landscape .title-scene h1 {
+        font-size: 28px;
+      }
+      .phone-frame.landscape .title-scene .sub {
+        font-size: 15px;
+      }
+      .phone-frame.landscape .title-scene .icon-circle {
+        width: 60px;
+        height: 60px;
+        font-size: 28px;
+      }
+      .phone-frame.landscape .section-title {
+        font-size: 16px;
+        margin-bottom: 8px;
+      }
+      .phone-frame.landscape .grid-3 {
+        gap: 6px;
+      }
+      .phone-frame.landscape .wf-item {
+        padding: 8px 12px;
+        margin-bottom: 6px;
+      }
+      .phone-frame.landscape .mock-card {
+        padding: 12px;
+        margin-bottom: 6px;
+      }
+      .phone-frame.landscape .mock-input {
+        padding: 8px 12px;
+        margin-bottom: 5px;
+        font-size: 12px;
+      }
+      .phone-frame.landscape .mock-upload {
+        padding: 10px;
+        margin-bottom: 5px;
+        font-size: 11px;
+      }
+      /* 가로모드 2열 레이아웃 (시안목록, 워크플로우 등) */
+      .phone-frame.landscape .scene.scrollable {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px 16px;
+        align-content: start;
+      }
+      .phone-frame.landscape .scene.scrollable > .section-title {
+        grid-column: 1 / -1;
+      }
+      .phone-frame.landscape .scene.scrollable > .grid-3 {
+        grid-column: 1 / -1;
+      }
+
+      /* 비율 토글 버튼 */
+      .ratio-toggle {
+        display: flex;
+        gap: 6px;
+        margin-left: auto;
+      }
+      .ratio-btn {
+        padding: 8px 14px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 8px;
+        background: transparent;
+        color: #888;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .ratio-btn.active {
+        background: rgba(59, 130, 246, 0.15);
+        border-color: rgba(59, 130, 246, 0.4);
+        color: #3b82f6;
+      }
+      .ratio-btn:hover {
+        border-color: rgba(59, 130, 246, 0.3);
+      }
+
+      /* 비율 토글 */
+      .ratio-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+      .ratio-controls .label {
+        font-size: 12px;
+        color: #666;
+        font-weight: 600;
+      }
+      .ratio-toggle {
+        display: flex;
+        gap: 4px;
+      }
+      .ratio-btn {
+        padding: 6px 14px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 8px;
+        background: transparent;
+        color: #888;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .ratio-btn.active {
+        background: rgba(59, 130, 246, 0.15);
+        border-color: rgba(59, 130, 246, 0.4);
+        color: #3b82f6;
+      }
+      .ratio-btn:hover {
+        border-color: rgba(59, 130, 246, 0.3);
+      }
+
+      /* 씬 컨트롤 */
+      .scene-controls {
+        flex: 1;
+        max-width: 400px;
+      }
+      .scene-info {
+        background: #1a1a1a;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 16px;
+      }
+      .scene-info h3 {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+      .scene-info p {
+        color: #888;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .scene-nav {
+        display: flex;
+        gap: 8px;
+      }
+      .scene-dot {
+        flex: 1;
+        height: 6px;
+        border-radius: 3px;
+        background: rgba(255, 255, 255, 0.1);
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+      .scene-dot.active {
+        background: #c9a962;
+      }
+      .scene-dot.done {
+        background: rgba(201, 169, 98, 0.4);
+      }
+
+      .scene-btns {
+        display: flex;
+        gap: 8px;
+        margin-top: 16px;
+      }
+      .scene-btn {
+        flex: 1;
+        padding: 12px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: transparent;
+        color: #ccc;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .scene-btn:hover {
+        background: rgba(255, 255, 255, 0.05);
+      }
+      .scene-btn.primary {
+        background: rgba(201, 169, 98, 0.15);
+        border-color: rgba(201, 169, 98, 0.4);
+        color: #c9a962;
+      }
+      .play-btn {
+        width: 100%;
+        padding: 14px;
+        border-radius: 12px;
+        border: none;
+        background: linear-gradient(135deg, #c9a962, #b08d3e);
+        color: #1a1a1a;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        margin-top: 16px;
+        transition: all 0.2s;
+      }
+      .play-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 20px rgba(201, 169, 98, 0.3);
+      }
+      .play-btn.playing {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        animation: playingPulse 1.5s ease infinite;
+      }
+      @keyframes playingPulse {
+        0%,
+        100% {
+          box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.3);
+        }
+        50% {
+          box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+        }
+      }
+
+      /* ===== 씬 내부 스타일 (폰 화면 안) ===== */
+      .scene {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.35s ease;
+        padding: 24px 20px;
+        z-index: 1;
+      }
+      .scene.visible {
+        opacity: 1;
+        visibility: visible;
+        z-index: 2;
+      }
+
+      /* 타이틀 씬 */
+      .title-scene {
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        gap: 16px;
+      }
+      .title-scene .icon-circle {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: rgba(201, 169, 98, 0.12);
+        border: 2px solid rgba(201, 169, 98, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 36px;
+        margin-bottom: 8px;
+      }
+      .title-scene h1 {
+        font-size: 36px;
+        font-weight: 800;
+        line-height: 1.3;
+      }
+      .title-scene h1 em {
+        color: #c9a962;
+        font-style: normal;
+      }
+      .title-scene .sub {
+        font-size: 18px;
+        color: #888;
+        line-height: 1.5;
+      }
+      .title-scene .step-badge {
+        display: inline-flex;
+        padding: 6px 16px;
+        border-radius: 20px;
+        background: rgba(201, 169, 98, 0.12);
+        border: 1px solid rgba(201, 169, 98, 0.3);
+        color: #c9a962;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      /* 목업 카드 */
+      .mock-card {
+        background: #1e1e1e;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        padding: 16px;
+        margin-bottom: 10px;
+        animation: slideUp 0.4s ease forwards;
+      }
+      .mock-card.amber {
+        background: rgba(245, 158, 11, 0.08);
+        border-color: rgba(245, 158, 11, 0.2);
+      }
+      .mock-card.green {
+        background: rgba(34, 197, 94, 0.08);
+        border-color: rgba(34, 197, 94, 0.2);
+      }
+      .mock-card.blue {
+        background: rgba(59, 130, 246, 0.08);
+        border-color: rgba(59, 130, 246, 0.2);
+      }
+      .mock-card.orange {
+        background: rgba(249, 115, 22, 0.08);
+        border-color: rgba(249, 115, 22, 0.2);
+      }
+      .mock-card.purple {
+        background: rgba(168, 85, 247, 0.08);
+        border-color: rgba(168, 85, 247, 0.2);
+      }
+      .mock-card.red-outline {
+        border: 2px solid rgba(239, 68, 68, 0.4);
+        background: rgba(239, 68, 68, 0.05);
+      }
+      .mock-card.gold-outline {
+        border: 2px solid rgba(201, 169, 98, 0.4);
+        background: rgba(201, 169, 98, 0.08);
+      }
+
+      .card-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+      .card-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+      }
+      .card-icon.gold {
+        background: rgba(201, 169, 98, 0.15);
+      }
+      .card-icon.green {
+        background: rgba(34, 197, 94, 0.15);
+      }
+      .card-icon.blue {
+        background: rgba(59, 130, 246, 0.15);
+      }
+      .card-icon.amber {
+        background: rgba(245, 158, 11, 0.15);
+      }
+      .card-icon.orange {
+        background: rgba(249, 115, 22, 0.15);
+      }
+      .card-icon.purple {
+        background: rgba(168, 85, 247, 0.15);
+      }
+      .card-icon.red {
+        background: rgba(239, 68, 68, 0.15);
+      }
+
+      .card-title {
+        font-size: 17px;
+        font-weight: 700;
+      }
+      .card-desc {
+        font-size: 13px;
+        color: #888;
+        margin-top: 2px;
+      }
+
+      /* 뱃지 */
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 10px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+      }
+      .badge.gold {
+        background: rgba(201, 169, 98, 0.15);
+        color: #c9a962;
+      }
+      .badge.green {
+        background: rgba(34, 197, 94, 0.15);
+        color: #22c55e;
+      }
+      .badge.yellow {
+        background: rgba(234, 179, 8, 0.15);
+        color: #eab308;
+      }
+      .badge.orange {
+        background: rgba(249, 115, 22, 0.15);
+        color: #f97316;
+      }
+      .badge.blue {
+        background: rgba(59, 130, 246, 0.15);
+        color: #3b82f6;
+      }
+      .badge.red {
+        background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+      }
+      .badge.purple {
+        background: rgba(168, 85, 247, 0.15);
+        color: #a855f7;
+      }
+      .badge.amber {
+        background: rgba(245, 158, 11, 0.15);
+        color: #f59e0b;
+      }
+
+      /* 입력 필드 목업 */
+      .mock-input {
+        background: #2a2a2a;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        padding: 12px 14px;
+        color: #555;
+        font-size: 14px;
+        margin-bottom: 8px;
+      }
+      .mock-input.filled {
+        color: #ddd;
+        border-color: rgba(201, 169, 98, 0.3);
+      }
+
+      /* 파일 업로드 목업 */
+      .mock-upload {
+        border: 2px dashed rgba(255, 255, 255, 0.12);
+        border-radius: 12px;
+        padding: 16px;
+        text-align: center;
+        font-size: 13px;
+        color: #666;
+        margin-bottom: 8px;
+      }
+      .mock-upload.done {
+        border-color: rgba(34, 197, 94, 0.4);
+        border-style: solid;
+        background: rgba(34, 197, 94, 0.05);
+        color: #22c55e;
+      }
+
+      /* 버튼 목업 */
+      .mock-btn {
+        padding: 14px 20px;
+        border-radius: 12px;
+        text-align: center;
+        font-size: 16px;
+        font-weight: 700;
+        margin-top: 12px;
+      }
+      .mock-btn.gold {
+        background: linear-gradient(135deg, #c9a962, #b08d3e);
+        color: #1a1a1a;
+      }
+      .mock-btn.green {
+        background: #22c55e;
+        color: #fff;
+      }
+      .mock-btn.blue {
+        background: #3b82f6;
+        color: #fff;
+      }
+      .mock-btn.outline {
+        background: transparent;
+        border: 2px solid rgba(255, 255, 255, 0.15);
+        color: #ccc;
+      }
+
+      /* 3열 그리드 (작은 카드) */
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      .mini-card {
+        background: #1e1e1e;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        padding: 12px 8px;
+        text-align: center;
+      }
+      .mini-card .mc-icon {
+        font-size: 22px;
+        margin-bottom: 4px;
+      }
+      .mini-card .mc-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #ccc;
+      }
+      .mini-card .mc-badge {
+        font-size: 10px;
+        color: #f59e0b;
+        margin-top: 2px;
+      }
+
+      /* 스타일 선택 그리드 */
+      .style-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+        margin-bottom: 12px;
+      }
+      .style-item {
+        background: #2a2a2a;
+        border: 2px solid rgba(255, 255, 255, 0.06);
+        border-radius: 10px;
+        overflow: hidden;
+        position: relative;
+      }
+      .style-item.selected {
+        border-color: #3b82f6;
+      }
+      .style-item .swatch {
+        width: 100%;
+        height: 50px;
+        background: linear-gradient(135deg, #333, #444);
+      }
+      .style-item .style-name {
+        font-size: 11px;
+        padding: 6px;
+        text-align: center;
+        color: #aaa;
+      }
+      .style-item .check-mark {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #3b82f6;
+        color: #fff;
+        font-size: 11px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* 진행 바 */
+      .progress-row {
+        display: flex;
+        gap: 4px;
+        margin: 12px 0;
+      }
+      .progress-step {
+        flex: 1;
+        text-align: center;
+      }
+      .progress-step .dot {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        margin: 0 auto 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 700;
+      }
+      .progress-step .dot.active {
+        background: #c9a962;
+        color: #1a1a1a;
+      }
+      .progress-step .dot.done {
+        background: #22c55e;
+        color: #fff;
+      }
+      .progress-step .dot.pending {
+        background: #333;
+        color: #666;
+      }
+      .progress-step .plabel {
+        font-size: 11px;
+        color: #888;
+      }
+      .progress-line {
+        width: 100%;
+        height: 3px;
+        background: #333;
+        margin: 16px 0;
+        border-radius: 2px;
+        position: relative;
+        overflow: hidden;
+      }
+      .progress-line .fill {
+        height: 100%;
+        background: linear-gradient(90deg, #22c55e, #c9a962);
+        border-radius: 2px;
+        transition: width 0.5s ease;
+      }
+
+      /* 타임라인 세로 */
+      .timeline {
+        padding-left: 20px;
+        border-left: 3px solid rgba(201, 169, 98, 0.2);
+      }
+      .timeline-item {
+        position: relative;
+        padding: 0 0 16px 20px;
+      }
+      .timeline-item::before {
+        content: "";
+        position: absolute;
+        left: -12px;
+        top: 4px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #333;
+        border: 3px solid #555;
+      }
+      .timeline-item.done::before {
+        background: #22c55e;
+        border-color: #22c55e;
+      }
+      .timeline-item.current::before {
+        background: #c9a962;
+        border-color: #c9a962;
+        box-shadow: 0 0 8px rgba(201, 169, 98, 0.5);
+      }
+      .timeline-item .tl-title {
+        font-size: 15px;
+        font-weight: 700;
+      }
+      .timeline-item .tl-date {
+        font-size: 12px;
+        color: #888;
+        margin-top: 2px;
+      }
+
+      /* 워크플로우 리스트 */
+      .wf-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 14px;
+        background: #1e1e1e;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        margin-bottom: 8px;
+      }
+      .wf-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+      }
+      .wf-content {
+        flex: 1;
+      }
+      .wf-name {
+        font-size: 15px;
+        font-weight: 600;
+      }
+      .wf-sub {
+        font-size: 12px;
+        color: #888;
+        margin-top: 2px;
+      }
+
+      /* 소요일 표 */
+      .duration-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 6px;
+      }
+      .duration-table td {
+        padding: 12px 14px;
+        background: #1e1e1e;
+        font-size: 14px;
+      }
+      .duration-table td:first-child {
+        border-radius: 10px 0 0 10px;
+        font-weight: 600;
+      }
+      .duration-table td:last-child {
+        border-radius: 0 10px 10px 0;
+        text-align: right;
+        color: #c9a962;
+        font-weight: 700;
+      }
+
+      /* O/X 카드 */
+      .ox-card {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px;
+        border-radius: 12px;
+        margin-bottom: 10px;
+      }
+      .ox-card.ok {
+        background: rgba(34, 197, 94, 0.08);
+        border: 1px solid rgba(34, 197, 94, 0.2);
+      }
+      .ox-card.ng {
+        background: rgba(239, 68, 68, 0.05);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+      }
+      .ox-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        font-weight: 800;
+        flex-shrink: 0;
+      }
+      .ox-icon.ok {
+        background: rgba(34, 197, 94, 0.2);
+        color: #22c55e;
+      }
+      .ox-icon.ng {
+        background: rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+      }
+      .ox-text {
+        font-size: 14px;
+        line-height: 1.5;
+      }
+      .ox-text .strike {
+        text-decoration: line-through;
+        color: #666;
+      }
+
+      /* 섹션 제목 (폰 안) */
+      .section-title {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .section-title .st-icon {
+        font-size: 20px;
+      }
+
+      /* 컬러피커 목업 */
+      .color-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+      .color-swatch {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        border: 2px solid rgba(255, 255, 255, 0.15);
+      }
+      .color-hex {
+        font-family: monospace;
+        font-size: 14px;
+        color: #aaa;
+      }
+
+      /* 체크 완료 오버레이 */
+      .check-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(15, 15, 15, 0.85);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        z-index: 20;
+      }
+      .check-circle {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: rgba(34, 197, 94, 0.15);
+        border: 3px solid #22c55e;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 40px;
+      }
+      .check-text {
+        font-size: 22px;
+        font-weight: 700;
+      }
+      .check-sub {
+        font-size: 14px;
+        color: #888;
+      }
+
+      /* 하이라이트 pulse */
+      .highlight-pulse {
+        animation: pulse 1.5s infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          box-shadow: 0 0 0 0 rgba(201, 169, 98, 0.4);
+        }
+        50% {
+          box-shadow: 0 0 0 8px rgba(201, 169, 98, 0);
+        }
+      }
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(16px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* 스크롤 가능 씬 */
+      .scrollable {
+        overflow-y: auto;
+        padding-bottom: 20px;
+      }
+      .scrollable::-webkit-scrollbar {
+        width: 0;
+      }
+
+      /* 반응형 */
+      @media (max-width: 800px) {
+        .phone-stage {
+          flex-direction: column;
+          align-items: center;
+        }
+        .scene-controls {
+          max-width: 100%;
+        }
+      }
+
+      /* 골드 강조 박스 */
+      .gold-box {
+        background: rgba(201, 169, 98, 0.1);
+        border: 2px solid rgba(201, 169, 98, 0.3);
+        border-radius: 14px;
+        padding: 20px;
+        text-align: center;
+      }
+      .gold-box .gb-text {
+        font-size: 18px;
+        font-weight: 700;
+        color: #c9a962;
+        line-height: 1.5;
+      }
+
+      /* 시안 상세 */
+      .design-preview {
+        width: 100%;
+        height: 180px;
+        background: linear-gradient(135deg, #2a2a2a, #333);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #555;
+        font-size: 14px;
+        margin-bottom: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .btn-row {
+        display: flex;
+        gap: 8px;
+      }
+      .btn-row .mock-btn {
+        flex: 1;
+        margin-top: 0;
+      }
+
+      /* 계약 정보 행 */
+      .contract-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        font-size: 14px;
+      }
+      .contract-row .cr-label {
+        color: #888;
+      }
+      .contract-row .cr-value {
+        font-weight: 600;
+      }
+
+      /* 경고 아이콘 */
+      .warn-icon {
+        color: #f59e0b;
+        font-size: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 탭 네비게이션 -->
+    <nav class="tab-nav">
+      <button class="tab-btn active" onclick="showTab(0)">1. 자료제출</button>
+      <button class="tab-btn" onclick="showTab(1)">2. 시안확인·컨펌</button>
+      <button class="tab-btn" onclick="showTab(2)">3. 발주요청</button>
+      <button class="tab-btn" onclick="showTab(3)">4. 제작소요기간</button>
+      <button class="tab-btn" onclick="showTab(4)">5. 로고 주의사항</button>
+    </nav>
+
+    <div class="container">
+      <!-- ========== 1. 자료제출 ========== -->
+      <div class="video-panel active" id="panel-0">
+        <div class="video-header">
+          <h2><span>1.</span> 자료제출 안내</h2>
+          <p>스타트패키지 시작 시 필요한 자료 제출 과정</p>
+          <div class="meta">
+            <span>~20초</span><span>5씬</span><span>1080×1920</span>
+          </div>
+        </div>
+        <div class="phone-stage">
+          <div class="phone-frame">
+            <div class="phone-notch"></div>
+            <div class="phone-screen" id="screen-0">
+              <!-- 씬 1: 타이틀 -->
+              <div class="scene title-scene visible" data-scene="0-0">
+                <div class="step-badge">스타트패키지 STEP 1</div>
+                <div class="icon-circle">📋</div>
+                <h1><em>자료제출</em> 안내</h1>
+                <div class="sub">
+                  서비스 시작을 위해<br />아래 자료를 준비해주세요
+                </div>
+              </div>
+              <!-- 씬 2: 민감정보 -->
+              <div class="scene scrollable" data-scene="0-1">
+                <div class="section-title">
+                  <span class="st-icon">🔒</span> 민감정보 서류
+                </div>
+                <div style="margin-bottom: 8px">
+                  <span class="badge amber"
+                    >⚠ 서버 미저장 · 슬랙 직접 전송</span
+                  >
+                </div>
+                <div class="grid-3">
+                  <div class="mini-card">
+                    <div class="mc-icon">📄</div>
+                    <div class="mc-label">사업자등록증</div>
+                    <div class="mc-badge">필수</div>
+                  </div>
+                  <div class="mini-card">
+                    <div class="mc-icon">🪪</div>
+                    <div class="mc-label">신분증</div>
+                    <div class="mc-badge">필수</div>
+                  </div>
+                  <div class="mini-card">
+                    <div class="mc-icon">🏦</div>
+                    <div class="mc-label">통장사본</div>
+                    <div class="mc-badge">필수</div>
+                  </div>
+                </div>
+                <div class="mock-card amber" style="margin-top: 8px">
+                  <div
+                    style="font-size: 13px; color: #f59e0b; line-height: 1.5"
+                  >
+                    보안을 위해 서버에 저장되지 않고<br />슬랙 채널로 직접
+                    전송됩니다
+                  </div>
+                </div>
+                <div class="mock-upload" style="margin-top: 12px">
+                  📎 파일 업로드<br />
+                  <span style="font-size: 11px">jpg, png, pdf (최대 10MB)</span>
+                </div>
+                <div class="mock-upload done">
+                  ✅ 사업자등록증.pdf 업로드 완료
+                </div>
+              </div>
+              <!-- 씬 3: 프로필/연락처 -->
+              <div class="scene scrollable" data-scene="0-2">
+                <div class="section-title">
+                  <span class="st-icon">👤</span> 프로필 · 연락처
+                </div>
+                <div class="mock-upload done" style="text-align: center">
+                  🖼️ 프로필 사진 업로드 완료
+                </div>
+                <div class="mock-input filled">퓨처인테리어</div>
+                <div class="mock-input filled">interior@naver.com</div>
+                <div class="mock-input filled">010-1234-5678</div>
+                <div style="margin-top: 12px">
+                  <div class="section-title" style="font-size: 15px">
+                    <span class="st-icon">💳</span> 계좌정보
+                  </div>
+                  <div style="display: flex; gap: 6px">
+                    <div class="mock-input filled" style="flex: 1">
+                      국민은행
+                    </div>
+                    <div class="mock-input filled" style="flex: 2">
+                      123-456-789012
+                    </div>
+                  </div>
+                  <div class="mock-input filled">홍길동</div>
+                </div>
+                <div style="margin-top: 12px">
+                  <div class="mock-input">배송 주소 입력 (선택)</div>
+                </div>
+              </div>
+              <!-- 씬 4: 디자인 정보 -->
+              <div class="scene scrollable" data-scene="0-3">
+                <div class="section-title">
+                  <span class="st-icon">🎨</span> 디자인 정보
+                </div>
+                <div style="font-size: 13px; color: #888; margin-bottom: 10px">
+                  원하시는 홈페이지 스타일을 선택해주세요
+                </div>
+                <div class="style-grid">
+                  <div class="style-item">
+                    <div
+                      class="swatch"
+                      style="
+                        background: linear-gradient(135deg, #1a3a5c, #2a5a8c);
+                      "
+                    ></div>
+                    <div class="style-name">스타일 1</div>
+                  </div>
+                  <div class="style-item selected">
+                    <div class="check-mark">✓</div>
+                    <div
+                      class="swatch"
+                      style="
+                        background: linear-gradient(135deg, #2d4a2d, #4a7a4a);
+                      "
+                    ></div>
+                    <div class="style-name">스타일 2</div>
+                  </div>
+                  <div class="style-item">
+                    <div
+                      class="swatch"
+                      style="
+                        background: linear-gradient(135deg, #4a3a2d, #7a6a4d);
+                      "
+                    ></div>
+                    <div class="style-name">스타일 3</div>
+                  </div>
+                  <div class="style-item">
+                    <div
+                      class="swatch"
+                      style="
+                        background: linear-gradient(135deg, #3a2a4a, #5a4a7a);
+                      "
+                    ></div>
+                    <div class="style-name">스타일 4</div>
+                  </div>
+                  <div class="style-item">
+                    <div
+                      class="swatch"
+                      style="
+                        background: linear-gradient(135deg, #4a2a2a, #7a4a4a);
+                      "
+                    ></div>
+                    <div class="style-name">스타일 5</div>
+                  </div>
+                  <div class="style-item">
+                    <div
+                      class="swatch"
+                      style="
+                        background: linear-gradient(135deg, #2a3a4a, #4a5a7a);
+                      "
+                    ></div>
+                    <div class="style-name">스타일 6</div>
+                  </div>
+                </div>
+                <div class="color-row">
+                  <div class="color-swatch" style="background: #3b82f6"></div>
+                  <div class="color-hex">#3B82F6</div>
+                  <span style="font-size: 13px; color: #888">브랜드 컬러</span>
+                </div>
+                <div class="mock-upload done">🖼️ 로고파일 업로드 완료</div>
+                <div class="mock-upload done">
+                  🖼️ 블로그 참고디자인 업로드 완료
+                </div>
+              </div>
+              <!-- 씬 5: 제출 완료 -->
+              <div class="scene" data-scene="0-4">
+                <div
+                  style="
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    padding: 0 8px;
+                  "
+                >
+                  <div
+                    class="mock-card green"
+                    style="text-align: center; padding: 24px"
+                  >
+                    <div style="font-size: 48px; margin-bottom: 12px">✅</div>
+                    <div
+                      style="font-size: 22px; font-weight: 800; color: #22c55e"
+                    >
+                      자료 제출 완료
+                    </div>
+                    <div style="font-size: 14px; color: #888; margin-top: 8px">
+                      모든 필수 자료가 제출되었습니다
+                    </div>
+                  </div>
+                  <div style="margin-top: 16px">
+                    <div
+                      class="mock-card"
+                      style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                      "
+                    >
+                      <span
+                        style="
+                          font-size: 14px;
+                          color: #22c55e;
+                          font-weight: 600;
+                        "
+                        >✓ 제출 완료</span
+                      >
+                      <div
+                        class="mock-btn blue"
+                        style="
+                          margin: 0;
+                          padding: 8px 16px;
+                          font-size: 13px;
+                          border-radius: 8px;
+                        "
+                      >
+                        수정하기
+                      </div>
+                    </div>
+                  </div>
+                  <div style="margin-top: 20px; text-align: center">
+                    <div style="font-size: 14px; color: #888">다음 단계</div>
+                    <div
+                      style="
+                        font-size: 18px;
+                        font-weight: 700;
+                        color: #c9a962;
+                        margin-top: 4px;
+                      "
+                    >
+                      시안 제작이 시작됩니다 →
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="scene-controls">
+            <div class="ratio-controls">
+              <span class="label">비율</span>
+              <div class="ratio-toggle">
+                <button
+                  class="ratio-btn active"
+                  onclick="setRatio(0, 'portrait')"
+                >
+                  9:16
+                </button>
+                <button class="ratio-btn" onclick="setRatio(0, 'landscape')">
+                  16:9
+                </button>
+              </div>
+            </div>
+            <div class="scene-nav" id="nav-0">
+              <div class="scene-dot active" onclick="goScene(0, 0)"></div>
+              <div class="scene-dot" onclick="goScene(0, 1)"></div>
+              <div class="scene-dot" onclick="goScene(0, 2)"></div>
+              <div class="scene-dot" onclick="goScene(0, 3)"></div>
+              <div class="scene-dot" onclick="goScene(0, 4)"></div>
+            </div>
+            <div class="scene-info" id="info-0">
+              <h3>씬 1 — 타이틀</h3>
+              <p>
+                스타트패키지 첫 번째 단계임을 알리는 인트로. 골드 아이콘 +
+                "자료제출 안내" 타이틀 등장.
+              </p>
+            </div>
+            <div class="scene-btns">
+              <button class="scene-btn" onclick="prevScene(0)">← 이전</button>
+              <button class="scene-btn primary" onclick="nextScene(0)">
+                다음 →
+              </button>
+            </div>
+            <button class="play-btn" id="play-0" onclick="toggleAutoPlay(0)">
+              ▶ 자동 재생
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== 2. 시안확인·컨펌 ========== -->
+      <div class="video-panel" id="panel-1">
+        <div class="video-header">
+          <h2><span>2.</span> 시안확인 · <span>컨펌</span></h2>
+          <p>디자인 시안 검토 및 승인/수정 요청 과정</p>
+          <div class="meta">
+            <span>~15초</span><span>4씬</span><span>1080×1920</span>
+          </div>
+        </div>
+        <div class="phone-stage">
+          <div class="phone-frame">
+            <div class="phone-notch"></div>
+            <div class="phone-screen" id="screen-1">
+              <!-- 씬 1: 타이틀 -->
+              <div class="scene title-scene visible" data-scene="1-0">
+                <div class="step-badge">스타트패키지 STEP 2</div>
+                <div class="icon-circle">🎨</div>
+                <h1><em>시안확인</em> · 컨펌</h1>
+                <div class="sub">
+                  디자인 시안을 확인하고<br />피드백을 남겨주세요
+                </div>
+              </div>
+              <!-- 씬 2: 시안 목록 -->
+              <div class="scene scrollable" data-scene="1-1">
+                <div class="section-title">
+                  <span class="st-icon">🎨</span> 내 시안 관리
+                </div>
+                <!-- 통계 -->
+                <div class="grid-3" style="margin-bottom: 14px">
+                  <div
+                    class="mini-card"
+                    style="
+                      background: rgba(234, 179, 8, 0.08);
+                      border-color: rgba(234, 179, 8, 0.2);
+                    "
+                  >
+                    <div
+                      style="font-size: 24px; font-weight: 800; color: #eab308"
+                    >
+                      2
+                    </div>
+                    <div class="mc-label">확인대기</div>
+                  </div>
+                  <div
+                    class="mini-card"
+                    style="
+                      background: rgba(249, 115, 22, 0.08);
+                      border-color: rgba(249, 115, 22, 0.2);
+                    "
+                  >
+                    <div
+                      style="font-size: 24px; font-weight: 800; color: #f97316"
+                    >
+                      1
+                    </div>
+                    <div class="mc-label">수정요청</div>
+                  </div>
+                  <div
+                    class="mini-card"
+                    style="
+                      background: rgba(34, 197, 94, 0.08);
+                      border-color: rgba(34, 197, 94, 0.2);
+                    "
+                  >
+                    <div
+                      style="font-size: 24px; font-weight: 800; color: #22c55e"
+                    >
+                      3
+                    </div>
+                    <div class="mc-label">확정</div>
+                  </div>
+                </div>
+                <!-- 시안 카드들 -->
+                <div class="wf-item">
+                  <div
+                    class="wf-icon"
+                    style="background: rgba(234, 179, 8, 0.12)"
+                  >
+                    🖼️
+                  </div>
+                  <div class="wf-content">
+                    <div class="wf-name">
+                      명함 <span style="color: #888; font-size: 12px">v2</span>
+                    </div>
+                    <span class="badge yellow">👁 확인대기</span>
+                  </div>
+                  <span style="font-size: 12px; color: #888">방금</span>
+                </div>
+                <div class="wf-item">
+                  <div
+                    class="wf-icon"
+                    style="background: rgba(249, 115, 22, 0.12)"
+                  >
+                    🖼️
+                  </div>
+                  <div class="wf-content">
+                    <div class="wf-name">
+                      블로그
+                      <span style="color: #888; font-size: 12px">v1</span>
+                    </div>
+                    <span class="badge orange">🔄 수정요청</span>
+                  </div>
+                  <span style="font-size: 12px; color: #888">어제</span>
+                </div>
+                <div class="wf-item">
+                  <div
+                    class="wf-icon"
+                    style="background: rgba(34, 197, 94, 0.12)"
+                  >
+                    🖼️
+                  </div>
+                  <div class="wf-content">
+                    <div class="wf-name">
+                      홈페이지
+                      <span style="color: #888; font-size: 12px">v3</span>
+                    </div>
+                    <span class="badge green">✓ 확정</span>
+                  </div>
+                  <span style="font-size: 12px; color: #888">3일전</span>
+                </div>
+                <div class="wf-item">
+                  <div
+                    class="wf-icon"
+                    style="background: rgba(34, 197, 94, 0.12)"
+                  >
+                    🖼️
+                  </div>
+                  <div class="wf-content">
+                    <div class="wf-name">
+                      명찰 <span style="color: #888; font-size: 12px">v1</span>
+                    </div>
+                    <span class="badge green">✓ 확정</span>
+                  </div>
+                  <span style="font-size: 12px; color: #888">3일전</span>
+                </div>
+              </div>
+              <!-- 씬 3: 시안 상세 -->
+              <div class="scene scrollable" data-scene="1-2">
+                <div class="section-title">
+                  <span class="st-icon">🖼️</span> 명함 시안 v2
+                </div>
+                <span class="badge yellow" style="margin-bottom: 12px"
+                  >👁 확인대기</span
+                >
+                <div class="design-preview">
+                  <div style="text-align: center">
+                    <div style="font-size: 36px">📇</div>
+                    <div style="margin-top: 8px">명함 시안 미리보기</div>
+                  </div>
+                </div>
+                <div style="font-size: 13px; color: #888; margin-bottom: 12px">
+                  시안이 준비되었습니다. 확인 후 승인하거나 수정을 요청해주세요.
+                </div>
+                <div class="btn-row">
+                  <div class="mock-btn green" style="font-size: 14px">
+                    ✓ 시안 승인
+                  </div>
+                  <div
+                    class="mock-btn"
+                    style="background: #f97316; color: #fff; font-size: 14px"
+                  >
+                    ✏ 수정 요청
+                  </div>
+                </div>
+                <div class="mock-card" style="margin-top: 14px">
+                  <div
+                    style="
+                      font-size: 13px;
+                      font-weight: 600;
+                      margin-bottom: 8px;
+                    "
+                  >
+                    피드백 작성
+                  </div>
+                  <div class="mock-input" style="min-height: 60px">
+                    수정이 필요한 부분을 자세히 설명해주세요...
+                  </div>
+                </div>
+              </div>
+              <!-- 씬 4: 승인 완료 -->
+              <div class="scene" data-scene="1-3">
+                <div
+                  style="
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 16px;
+                  "
+                >
+                  <div class="check-circle">✓</div>
+                  <div class="check-text" style="color: #22c55e">
+                    시안 확정 완료
+                  </div>
+                  <div class="check-sub">승인된 시안으로 발주가 진행됩니다</div>
+                  <div style="margin-top: 20px; width: 100%; padding: 0 16px">
+                    <div
+                      class="mock-card gold-outline"
+                      style="text-align: center"
+                    >
+                      <div
+                        style="
+                          font-size: 16px;
+                          font-weight: 700;
+                          color: #c9a962;
+                        "
+                      >
+                        다음 단계
+                      </div>
+                      <div
+                        style="font-size: 14px; color: #888; margin-top: 4px"
+                      >
+                        발주요청 →
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="scene-controls">
+            <div class="ratio-controls">
+              <span class="label">비율</span>
+              <div class="ratio-toggle">
+                <button
+                  class="ratio-btn active"
+                  onclick="setRatio(1, 'portrait')"
+                >
+                  9:16
+                </button>
+                <button class="ratio-btn" onclick="setRatio(1, 'landscape')">
+                  16:9
+                </button>
+              </div>
+            </div>
+            <div class="scene-nav" id="nav-1">
+              <div class="scene-dot active" onclick="goScene(1, 0)"></div>
+              <div class="scene-dot" onclick="goScene(1, 1)"></div>
+              <div class="scene-dot" onclick="goScene(1, 2)"></div>
+              <div class="scene-dot" onclick="goScene(1, 3)"></div>
+            </div>
+            <div class="scene-info" id="info-1">
+              <h3>씬 1 — 타이틀</h3>
+              <p>"시안확인·컨펌" 인트로. 시안 검토 과정의 시작을 알림.</p>
+            </div>
+            <div class="scene-btns">
+              <button class="scene-btn" onclick="prevScene(1)">← 이전</button>
+              <button class="scene-btn primary" onclick="nextScene(1)">
+                다음 →
+              </button>
+            </div>
+            <button class="play-btn" id="play-1" onclick="toggleAutoPlay(1)">
+              ▶ 자동 재생
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== 3. 발주요청 ========== -->
+      <div class="video-panel" id="panel-2">
+        <div class="video-header">
+          <h2><span>3.</span> <span>발주요청</span> 안내</h2>
+          <p>시안 확정 후 계약서 작성 및 발주 진행 과정</p>
+          <div class="meta">
+            <span>~15초</span><span>4씬</span><span>1080×1920</span>
+          </div>
+        </div>
+        <div class="phone-stage">
+          <div class="phone-frame">
+            <div class="phone-notch"></div>
+            <div class="phone-screen" id="screen-2">
+              <!-- 씬 1: 타이틀 -->
+              <div class="scene title-scene visible" data-scene="2-0">
+                <div class="step-badge">스타트패키지 STEP 3</div>
+                <div class="icon-circle">📝</div>
+                <h1><em>발주요청</em> 안내</h1>
+                <div class="sub">
+                  시안 확정 후 자동으로<br />발주가 진행됩니다
+                </div>
+              </div>
+              <!-- 씬 2: 계약서 알림 -->
+              <div class="scene scrollable" data-scene="2-1">
+                <div class="section-title">
+                  <span class="st-icon">📝</span> 계약서 관리
+                </div>
+                <div class="mock-card orange" style="padding: 18px">
+                  <div class="card-header">
+                    <div class="card-icon orange">✏️</div>
+                    <div>
+                      <div class="card-title" style="color: #f97316">
+                        작성 대기 중인 계약서
+                      </div>
+                      <div class="card-desc">
+                        스타트패키지 계약서를 작성해주세요
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="mock-btn"
+                    style="
+                      background: #f97316;
+                      color: #fff;
+                      font-size: 14px;
+                      margin-top: 8px;
+                    "
+                  >
+                    계약서 작성하기 →
+                  </div>
+                </div>
+                <div style="margin-top: 12px">
+                  <div class="wf-item">
+                    <div
+                      class="wf-icon"
+                      style="background: rgba(59, 130, 246, 0.12)"
+                    >
+                      📋
+                    </div>
+                    <div class="wf-content">
+                      <div class="wf-name">PA-2026-001</div>
+                      <div class="wf-sub">스타트패키지</div>
+                    </div>
+                    <span class="badge orange">작성대기</span>
+                  </div>
+                </div>
+              </div>
+              <!-- 씬 3: 계약서 상세 -->
+              <div class="scene scrollable" data-scene="2-2">
+                <div class="section-title">
+                  <span class="st-icon">📋</span> 계약서 상세
+                </div>
+                <div class="mock-card">
+                  <div
+                    style="font-size: 12px; color: #888; font-family: monospace"
+                  >
+                    PA-2026-001
+                  </div>
+                  <div
+                    style="font-size: 18px; font-weight: 700; margin-top: 4px"
+                  >
+                    스타트패키지
+                  </div>
+                  <div style="margin-top: 14px">
+                    <div class="contract-row">
+                      <span class="cr-label">패키지</span>
+                      <span class="cr-value">운영형</span>
+                    </div>
+                    <div class="contract-row">
+                      <span class="cr-label">월 이용료</span>
+                      <span class="cr-value">220,000원</span>
+                    </div>
+                    <div class="contract-row">
+                      <span class="cr-label">계약기간</span>
+                      <span class="cr-value">6개월</span>
+                    </div>
+                    <div class="contract-row" style="border: none">
+                      <span class="cr-label">총 결제액</span>
+                      <span
+                        class="cr-value"
+                        style="color: #c9a962; font-size: 18px"
+                        >1,320,000원</span
+                      >
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="mock-btn gold highlight-pulse"
+                  style="font-size: 16px"
+                >
+                  제출하기
+                </div>
+              </div>
+              <!-- 씬 4: 상태 플로우 -->
+              <div class="scene" data-scene="2-3">
+                <div
+                  style="
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 24px;
+                    padding: 0 16px;
+                  "
+                >
+                  <div style="font-size: 20px; font-weight: 700">
+                    발주 진행 상태
+                  </div>
+                  <div class="progress-row" style="width: 100%">
+                    <div class="progress-step">
+                      <div class="dot done">✓</div>
+                      <div class="plabel">작성대기</div>
+                    </div>
+                    <div class="progress-step">
+                      <div class="dot done">✓</div>
+                      <div class="plabel">승인대기</div>
+                    </div>
+                    <div class="progress-step">
+                      <div
+                        class="dot active"
+                        style="animation: pulse 1.5s infinite"
+                      >
+                        ✓
+                      </div>
+                      <div
+                        class="plabel"
+                        style="color: #c9a962; font-weight: 600"
+                      >
+                        승인완료
+                      </div>
+                    </div>
+                  </div>
+                  <div class="progress-line" style="width: 100%">
+                    <div class="fill" style="width: 100%"></div>
+                  </div>
+                  <div
+                    class="mock-card green"
+                    style="width: 100%; text-align: center; padding: 20px"
+                  >
+                    <div style="font-size: 32px">✅</div>
+                    <div
+                      style="
+                        font-size: 18px;
+                        font-weight: 700;
+                        color: #22c55e;
+                        margin-top: 8px;
+                      "
+                    >
+                      계약서 승인 완료
+                    </div>
+                    <div style="font-size: 13px; color: #888; margin-top: 4px">
+                      제작이 시작됩니다
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="scene-controls">
+            <div class="ratio-controls">
+              <span class="label">비율</span>
+              <div class="ratio-toggle">
+                <button
+                  class="ratio-btn active"
+                  onclick="setRatio(2, 'portrait')"
+                >
+                  9:16
+                </button>
+                <button class="ratio-btn" onclick="setRatio(2, 'landscape')">
+                  16:9
+                </button>
+              </div>
+            </div>
+            <div class="scene-nav" id="nav-2">
+              <div class="scene-dot active" onclick="goScene(2, 0)"></div>
+              <div class="scene-dot" onclick="goScene(2, 1)"></div>
+              <div class="scene-dot" onclick="goScene(2, 2)"></div>
+              <div class="scene-dot" onclick="goScene(2, 3)"></div>
+            </div>
+            <div class="scene-info" id="info-2">
+              <h3>씬 1 — 타이틀</h3>
+              <p>"발주요청 안내" 인트로. 시안 확정 후 자동 발주 진행 안내.</p>
+            </div>
+            <div class="scene-btns">
+              <button class="scene-btn" onclick="prevScene(2)">← 이전</button>
+              <button class="scene-btn primary" onclick="nextScene(2)">
+                다음 →
+              </button>
+            </div>
+            <button class="play-btn" id="play-2" onclick="toggleAutoPlay(2)">
+              ▶ 자동 재생
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== 4. 제작소요기간 ========== -->
+      <div class="video-panel" id="panel-3">
+        <div class="video-header">
+          <h2><span>4.</span> <span>제작소요기간</span></h2>
+          <p>각 항목별 진행 상황 및 예상 소요일</p>
+          <div class="meta">
+            <span>~18초</span><span>4씬</span><span>1080×1920</span>
+          </div>
+        </div>
+        <div class="phone-stage">
+          <div class="phone-frame">
+            <div class="phone-notch"></div>
+            <div class="phone-screen" id="screen-3">
+              <!-- 씬 1: 타이틀 -->
+              <div class="scene title-scene visible" data-scene="3-0">
+                <div class="step-badge">스타트패키지 STEP 4</div>
+                <div class="icon-circle">⏱</div>
+                <h1><em>제작소요</em>기간</h1>
+                <div class="sub">
+                  각 항목별 진행 상황을<br />실시간으로 확인하세요
+                </div>
+              </div>
+              <!-- 씬 2: 워크플로우 목록 -->
+              <div class="scene scrollable" data-scene="3-1">
+                <div class="section-title">
+                  <span class="st-icon">📦</span> 제작 현황
+                </div>
+                <div class="grid-3" style="margin-bottom: 14px">
+                  <div class="mini-card">
+                    <div style="font-size: 20px; font-weight: 800">8</div>
+                    <div class="mc-label">전체</div>
+                  </div>
+                  <div
+                    class="mini-card"
+                    style="background: rgba(234, 179, 8, 0.08)"
+                  >
+                    <div
+                      style="font-size: 20px; font-weight: 800; color: #eab308"
+                    >
+                      3
+                    </div>
+                    <div class="mc-label">진행중</div>
+                  </div>
+                  <div
+                    class="mini-card"
+                    style="background: rgba(34, 197, 94, 0.08)"
+                  >
+                    <div
+                      style="font-size: 20px; font-weight: 800; color: #22c55e"
+                    >
+                      5
+                    </div>
+                    <div class="mc-label">완료</div>
+                  </div>
+                </div>
+                <div class="wf-item">
+                  <div
+                    class="wf-icon"
+                    style="background: rgba(234, 179, 8, 0.12)"
+                  >
+                    📇
+                  </div>
+                  <div class="wf-content">
+                    <div class="wf-name">명함</div>
+                  </div>
+                  <span class="badge yellow">제작 중</span>
+                </div>
+                <div class="wf-item">
+                  <div
+                    class="wf-icon"
+                    style="background: rgba(168, 85, 247, 0.12)"
+                  >
+                    🏷
+                  </div>
+                  <div class="wf-content">
+                    <div class="wf-name">명찰</div>
+                  </div>
+                  <span class="badge purple">디자인완료</span>
+                </div>
+                <div class="wf-item">
+                  <div
+                    class="wf-icon"
+                    style="background: rgba(34, 197, 94, 0.12)"
+                  >
+                    ✉️
+                  </div>
+                  <div class="wf-content">
+                    <div class="wf-name">대봉투</div>
+                  </div>
+                  <span class="badge green">완료</span>
+                </div>
+                <div class="wf-item">
+                  <div
+                    class="wf-icon"
+                    style="background: rgba(234, 179, 8, 0.12)"
+                  >
+                    🌐
+                  </div>
+                  <div class="wf-content">
+                    <div class="wf-name">홈페이지</div>
+                  </div>
+                  <span class="badge yellow">제작 중</span>
+                </div>
+                <div class="wf-item">
+                  <div
+                    class="wf-icon"
+                    style="background: rgba(34, 197, 94, 0.12)"
+                  >
+                    📝
+                  </div>
+                  <div class="wf-content">
+                    <div class="wf-name">블로그</div>
+                  </div>
+                  <span class="badge green">완료</span>
+                </div>
+                <div class="wf-item">
+                  <div
+                    class="wf-icon"
+                    style="background: rgba(59, 130, 246, 0.12)"
+                  >
+                    📢
+                  </div>
+                  <div class="wf-content">
+                    <div class="wf-name">메타광고</div>
+                  </div>
+                  <span class="badge blue">접수됨</span>
+                </div>
+              </div>
+              <!-- 씬 3: 타임라인 상세 -->
+              <div class="scene scrollable" data-scene="3-2">
+                <div class="section-title">
+                  <span class="st-icon">📇</span> 명함 — 진행 기록
+                </div>
+                <div class="timeline">
+                  <div class="timeline-item done">
+                    <div class="tl-title">접수</div>
+                    <div class="tl-date">2026년 3월 10일</div>
+                  </div>
+                  <div class="timeline-item done">
+                    <div class="tl-title">디자인 시작</div>
+                    <div class="tl-date">2026년 3월 10일</div>
+                  </div>
+                  <div class="timeline-item done">
+                    <div class="tl-title">디자인 완료</div>
+                    <div class="tl-date">2026년 3월 11일</div>
+                  </div>
+                  <div class="timeline-item current">
+                    <div class="tl-title" style="color: #c9a962">주문 승인</div>
+                    <div class="tl-date" style="color: #c9a962">대기 중</div>
+                  </div>
+                  <div class="timeline-item">
+                    <div class="tl-title" style="color: #555">완료</div>
+                    <div class="tl-date">-</div>
+                  </div>
+                  <div class="timeline-item">
+                    <div class="tl-title" style="color: #555">배송</div>
+                    <div class="tl-date">-</div>
+                  </div>
+                </div>
+              </div>
+              <!-- 씬 4: 소요일 요약 -->
+              <div class="scene" data-scene="3-3">
+                <div
+                  style="
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    padding: 0 4px;
+                  "
+                >
+                  <div style="text-align: center; margin-bottom: 20px">
+                    <div style="font-size: 20px; font-weight: 700">
+                      📋 예상 제작 소요일
+                    </div>
+                    <div style="font-size: 13px; color: #888; margin-top: 4px">
+                      자료 제출 완료 후 기준
+                    </div>
+                  </div>
+                  <table class="duration-table">
+                    <tr>
+                      <td>📇 명함</td>
+                      <td>~3일</td>
+                    </tr>
+                    <tr>
+                      <td>🏷 명찰</td>
+                      <td>~3일</td>
+                    </tr>
+                    <tr>
+                      <td>📋 계약서</td>
+                      <td>~2일</td>
+                    </tr>
+                    <tr>
+                      <td>✉️ 대봉투</td>
+                      <td>~3일</td>
+                    </tr>
+                    <tr>
+                      <td>🌐 홈페이지</td>
+                      <td>5~7일</td>
+                    </tr>
+                    <tr>
+                      <td>📝 블로그</td>
+                      <td>3~5일</td>
+                    </tr>
+                    <tr>
+                      <td>📢 메타광고</td>
+                      <td>5~7일</td>
+                    </tr>
+                    <tr>
+                      <td>🔍 네이버광고</td>
+                      <td>5~7일</td>
+                    </tr>
+                  </table>
+                  <div
+                    style="
+                      margin-top: 16px;
+                      text-align: center;
+                      font-size: 12px;
+                      color: #888;
+                    "
+                  >
+                    * 수정 요청 시 추가 소요될 수 있습니다
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="scene-controls">
+            <div class="ratio-controls">
+              <span class="label">비율</span>
+              <div class="ratio-toggle">
+                <button
+                  class="ratio-btn active"
+                  onclick="setRatio(3, 'portrait')"
+                >
+                  9:16
+                </button>
+                <button class="ratio-btn" onclick="setRatio(3, 'landscape')">
+                  16:9
+                </button>
+              </div>
+            </div>
+            <div class="scene-nav" id="nav-3">
+              <div class="scene-dot active" onclick="goScene(3, 0)"></div>
+              <div class="scene-dot" onclick="goScene(3, 1)"></div>
+              <div class="scene-dot" onclick="goScene(3, 2)"></div>
+              <div class="scene-dot" onclick="goScene(3, 3)"></div>
+            </div>
+            <div class="scene-info" id="info-3">
+              <h3>씬 1 — 타이틀</h3>
+              <p>"제작소요기간" 인트로. 실시간 진행 확인 가능 안내.</p>
+            </div>
+            <div class="scene-btns">
+              <button class="scene-btn" onclick="prevScene(3)">← 이전</button>
+              <button class="scene-btn primary" onclick="nextScene(3)">
+                다음 →
+              </button>
+            </div>
+            <button class="play-btn" id="play-3" onclick="toggleAutoPlay(3)">
+              ▶ 자동 재생
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== 5. 로고 주의사항 ========== -->
+      <div class="video-panel" id="panel-4">
+        <div class="video-header">
+          <h2><span>5.</span> 로고요청 시 <span>주의사항</span></h2>
+          <p>로고 파일 제출 시 반드시 확인해야 할 사항</p>
+          <div class="meta">
+            <span>~15초</span><span>4씬</span><span>1080×1920</span>
+          </div>
+        </div>
+        <div class="phone-stage">
+          <div class="phone-frame">
+            <div class="phone-notch"></div>
+            <div class="phone-screen" id="screen-4">
+              <!-- 씬 1: 타이틀 -->
+              <div class="scene title-scene visible" data-scene="4-0">
+                <div
+                  class="icon-circle"
+                  style="
+                    border-color: rgba(245, 158, 11, 0.4);
+                    background: rgba(245, 158, 11, 0.12);
+                  "
+                >
+                  ⚠️
+                </div>
+                <h1>로고요청 시<br /><em>주의사항</em></h1>
+                <div class="sub">
+                  로고 파일 제출 전<br />반드시 확인해주세요
+                </div>
+              </div>
+              <!-- 씬 2: O 케이스 -->
+              <div class="scene scrollable" data-scene="4-1">
+                <div
+                  style="
+                    font-size: 20px;
+                    font-weight: 800;
+                    color: #22c55e;
+                    margin-bottom: 16px;
+                  "
+                >
+                  ✅ 이렇게 해주세요
+                </div>
+                <div class="ox-card ok">
+                  <div class="ox-icon ok">O</div>
+                  <div>
+                    <div class="ox-text" style="font-weight: 700">
+                      기존 제작 로고가 있는 경우
+                    </div>
+                    <div
+                      class="ox-text"
+                      style="color: #888; font-size: 13px; margin-top: 4px"
+                    >
+                      → 로고 파일을 업로드해주세요
+                    </div>
+                    <div
+                      class="mock-upload done"
+                      style="margin-top: 10px; font-size: 12px"
+                    >
+                      ✅ 기업로고.ai 업로드 완료
+                    </div>
+                  </div>
+                </div>
+                <div class="ox-card ok">
+                  <div class="ox-icon ok">O</div>
+                  <div>
+                    <div class="ox-text" style="font-weight: 700">
+                      원하는 로고 모양이 있는 경우
+                    </div>
+                    <div
+                      class="ox-text"
+                      style="color: #888; font-size: 13px; margin-top: 4px"
+                    >
+                      → 참고 이미지를 업로드해주세요
+                    </div>
+                    <div
+                      class="mock-upload done"
+                      style="margin-top: 10px; font-size: 12px"
+                    >
+                      ✅ 참고로고.png 업로드 완료
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="mock-card gold-outline"
+                  style="margin-top: 12px; text-align: center; padding: 14px"
+                >
+                  <div
+                    style="font-size: 14px; font-weight: 700; color: #c9a962"
+                  >
+                    원하는 모양이 있어야<br />일러스트 디자인화 가능합니다
+                  </div>
+                </div>
+              </div>
+              <!-- 씬 3: X 케이스 -->
+              <div class="scene scrollable" data-scene="4-2">
+                <div
+                  style="
+                    font-size: 20px;
+                    font-weight: 800;
+                    color: #ef4444;
+                    margin-bottom: 16px;
+                  "
+                >
+                  ❌ 이건 안 됩니다
+                </div>
+                <div class="ox-card ng">
+                  <div class="ox-icon ng">X</div>
+                  <div>
+                    <div class="ox-text">
+                      <span class="strike">추상적 의미만으로 자체 제작</span>
+                    </div>
+                    <div
+                      class="ox-text"
+                      style="color: #888; font-size: 13px; margin-top: 4px"
+                    >
+                      "밝은 느낌의 로고로 만들어주세요"<br />→ 구체적 형태
+                      없이는 제작 불가
+                    </div>
+                  </div>
+                </div>
+                <div class="ox-card ng">
+                  <div class="ox-icon ng">X</div>
+                  <div>
+                    <div class="ox-text">
+                      <span class="strike">로고 제작 대행</span>
+                    </div>
+                    <div
+                      class="ox-text"
+                      style="color: #888; font-size: 13px; margin-top: 4px"
+                    >
+                      폴라애드는 로고 디자인 제작 서비스를<br />제공하지
+                      않습니다
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="mock-card red-outline"
+                  style="margin-top: 12px; text-align: center; padding: 14px"
+                >
+                  <div
+                    style="font-size: 14px; font-weight: 700; color: #ef4444"
+                  >
+                    ⚠ 로고가 없으시면 텍스트 로고로<br />대체하여 제작됩니다
+                  </div>
+                </div>
+              </div>
+              <!-- 씬 4: 핵심 정리 -->
+              <div class="scene" data-scene="4-3">
+                <div
+                  style="
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 20px;
+                    padding: 0 12px;
+                  "
+                >
+                  <div style="font-size: 48px">📌</div>
+                  <div class="gold-box" style="width: 100%">
+                    <div class="gb-text">
+                      원하는 모양이 있어야<br />일러스트 디자인화<br />가능합니다
+                    </div>
+                  </div>
+                  <div style="width: 100%">
+                    <div class="ox-card ok" style="margin-bottom: 8px">
+                      <div
+                        class="ox-icon ok"
+                        style="width: 24px; height: 24px; font-size: 14px"
+                      >
+                        O
+                      </div>
+                      <div class="ox-text" style="font-size: 14px">
+                        기존 로고 파일 업로드
+                      </div>
+                    </div>
+                    <div class="ox-card ok" style="margin-bottom: 8px">
+                      <div
+                        class="ox-icon ok"
+                        style="width: 24px; height: 24px; font-size: 14px"
+                      >
+                        O
+                      </div>
+                      <div class="ox-text" style="font-size: 14px">
+                        원하는 모양 참고 이미지
+                      </div>
+                    </div>
+                    <div class="ox-card ng">
+                      <div
+                        class="ox-icon ng"
+                        style="width: 24px; height: 24px; font-size: 14px"
+                      >
+                        X
+                      </div>
+                      <div class="ox-text" style="font-size: 14px">
+                        추상적 설명만 / 제작 대행
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="scene-controls">
+            <div class="ratio-controls">
+              <span class="label">비율</span>
+              <div class="ratio-toggle">
+                <button
+                  class="ratio-btn active"
+                  onclick="setRatio(4, 'portrait')"
+                >
+                  9:16
+                </button>
+                <button class="ratio-btn" onclick="setRatio(4, 'landscape')">
+                  16:9
+                </button>
+              </div>
+            </div>
+            <div class="scene-nav" id="nav-4">
+              <div class="scene-dot active" onclick="goScene(4, 0)"></div>
+              <div class="scene-dot" onclick="goScene(4, 1)"></div>
+              <div class="scene-dot" onclick="goScene(4, 2)"></div>
+              <div class="scene-dot" onclick="goScene(4, 3)"></div>
+            </div>
+            <div class="scene-info" id="info-4">
+              <h3>씬 1 — 타이틀</h3>
+              <p>"로고요청 시 주의사항" 인트로. 경고 아이콘으로 주의 환기.</p>
+            </div>
+            <div class="scene-btns">
+              <button class="scene-btn" onclick="prevScene(4)">← 이전</button>
+              <button class="scene-btn primary" onclick="nextScene(4)">
+                다음 →
+              </button>
+            </div>
+            <button class="play-btn" id="play-4" onclick="toggleAutoPlay(4)">
+              ▶ 자동 재생
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // 상태
+      const state = {
+        currentTab: 0,
+        scenes: [0, 0, 0, 0, 0], // 각 탭의 현재 씬
+        sceneCounts: [5, 4, 4, 4, 4], // 각 탭의 씬 수
+        autoPlayTimers: [null, null, null, null, null],
+      };
+
+      const sceneDescriptions = [
+        // 1. 자료제출
+        [
+          {
+            title: "씬 1 — 타이틀",
+            desc: '스타트패키지 첫 번째 단계 인트로. 골드 아이콘 + "자료제출 안내" 타이틀이 페이드업으로 등장.',
+          },
+          {
+            title: "씬 2 — 민감정보 서류",
+            desc: '사업자등록증/신분증/통장사본 3개 카드가 순차 등장. "서버 미저장" 뱃지로 보안 안내. 파일 업로드 UI 표시.',
+          },
+          {
+            title: "씬 3 — 프로필·연락처",
+            desc: "프로필사진, 브랜드명, 이메일, 연락처, 계좌정보 입력 필드가 하나씩 채워지는 애니메이션.",
+          },
+          {
+            title: "씬 4 — 디자인 정보",
+            desc: "웹사이트 스타일 6개 카드 그리드, 브랜드 컬러 피커, 로고/참고디자인 업로드 완료 상태.",
+          },
+          {
+            title: "씬 5 — 제출 완료",
+            desc: '"자료 제출 완료" 체크 애니메이션 → 다음 단계 안내 (시안 제작 시작).',
+          },
+        ],
+        // 2. 시안확인
+        [
+          {
+            title: "씬 1 — 타이틀",
+            desc: '"시안확인·컨펌" 인트로. 시안 검토 과정의 시작을 알림.',
+          },
+          {
+            title: "씬 2 — 시안 목록",
+            desc: "확인대기/수정요청/확정 통계 카드 + 명함·블로그·홈페이지 등 시안 리스트. 상태별 뱃지 색상 구분.",
+          },
+          {
+            title: "씬 3 — 시안 상세·피드백",
+            desc: '시안 미리보기 + "시안 승인" / "수정 요청" 버튼 2개. 피드백 입력창.',
+          },
+          {
+            title: "씬 4 — 승인 완료",
+            desc: '체크 아이콘 + "시안 확정 완료" → 다음 단계(발주요청) 안내.',
+          },
+        ],
+        // 3. 발주요청
+        [
+          {
+            title: "씬 1 — 타이틀",
+            desc: '"발주요청 안내" 인트로. 시안 확정 후 자동 발주 안내.',
+          },
+          {
+            title: "씬 2 — 계약서 알림",
+            desc: '"작성 대기 중인 계약서" 오렌지 알림 카드 + 계약서 작성하기 버튼.',
+          },
+          {
+            title: "씬 3 — 계약서 상세",
+            desc: '패키지명, 월 이용료, 계약기간, 총 결제액 정보 → "제출하기" 골드 버튼 강조.',
+          },
+          {
+            title: "씬 4 — 상태 플로우",
+            desc: "작성대기 → 승인대기 → 승인완료 3단계 진행 바 + 완료 체크.",
+          },
+        ],
+        // 4. 제작소요기간
+        [
+          {
+            title: "씬 1 — 타이틀",
+            desc: '"제작소요기간" 인트로. 실시간 진행 확인 가능 안내.',
+          },
+          {
+            title: "씬 2 — 제작 현황",
+            desc: "명함~메타광고까지 6개 워크플로우 카드 순차 등장. 상태 뱃지 + 통계.",
+          },
+          {
+            title: "씬 3 — 타임라인 상세",
+            desc: "명함 예시: 접수→디자인시작→디자인완료→주문승인→완료→배송 세로 타임라인.",
+          },
+          {
+            title: "씬 4 — 소요일 요약 표",
+            desc: "항목별 예상 소요일 표. 명함 3일, 홈페이지 5~7일 등.",
+          },
+        ],
+        // 5. 로고 주의사항
+        [
+          {
+            title: "씬 1 — 타이틀",
+            desc: '"로고요청 시 주의사항" 인트로. 경고 아이콘으로 주의 환기.',
+          },
+          {
+            title: "씬 2 — O 가능한 경우",
+            desc: '기존 로고 업로드 ✅ / 참고 이미지 업로드 ✅. "원하는 모양이 있어야 디자인화 가능" 골드 박스.',
+          },
+          {
+            title: "씬 3 — X 불가한 경우",
+            desc: '"추상적 의미만으로 제작" ❌ / "로고 제작대행" ❌. 텍스트 로고 대체 안내.',
+          },
+          {
+            title: "씬 4 — 핵심 정리",
+            desc: "골드 강조 박스 + O/X 요약 3줄. 한눈에 정리.",
+          },
+        ],
+      ];
+
+      function showTab(idx) {
+        state.currentTab = idx;
+        document.querySelectorAll(".tab-btn").forEach((b, i) => {
+          b.classList.toggle("active", i === idx);
+        });
+        document.querySelectorAll(".video-panel").forEach((p, i) => {
+          p.classList.toggle("active", i === idx);
+        });
+        // 자동재생 중지
+        stopAutoPlay(idx);
+      }
+
+      function goScene(tabIdx, sceneIdx) {
+        state.scenes[tabIdx] = sceneIdx;
+        const screen = document.getElementById(`screen-${tabIdx}`);
+        const scenes = screen.querySelectorAll(".scene");
+        scenes.forEach((s, i) => {
+          s.classList.toggle("visible", i === sceneIdx);
+        });
+        // 네비게이션 dot
+        const nav = document.getElementById(`nav-${tabIdx}`);
+        nav.querySelectorAll(".scene-dot").forEach((d, i) => {
+          d.className = "scene-dot";
+          if (i < sceneIdx) d.classList.add("done");
+          if (i === sceneIdx) d.classList.add("active");
+        });
+        // 설명
+        const info = document.getElementById(`info-${tabIdx}`);
+        const desc = sceneDescriptions[tabIdx][sceneIdx];
+        info.innerHTML = `<h3>${desc.title}</h3><p>${desc.desc}</p>`;
+      }
+
+      function nextScene(tabIdx) {
+        const next = Math.min(
+          state.scenes[tabIdx] + 1,
+          state.sceneCounts[tabIdx] - 1,
+        );
+        goScene(tabIdx, next);
+      }
+
+      function prevScene(tabIdx) {
+        const prev = Math.max(state.scenes[tabIdx] - 1, 0);
+        goScene(tabIdx, prev);
+      }
+
+      const autoPlayIntervals = [
+        [4000, 4000, 5000, 4000, 3000], // 자료제출
+        [3000, 4000, 4000, 4000], // 시안확인
+        [3000, 4000, 4000, 4000], // 발주요청
+        [3000, 6000, 5000, 4000], // 제작소요기간
+        [3000, 4000, 4000, 4000], // 로고
+      ];
+
+      function toggleAutoPlay(tabIdx) {
+        if (state.autoPlayTimers[tabIdx]) {
+          stopAutoPlay(tabIdx);
+        } else {
+          startAutoPlay(tabIdx);
+        }
+      }
+
+      function startAutoPlay(tabIdx) {
+        stopAutoPlay(tabIdx);
+        goScene(tabIdx, 0);
+        let current = 0;
+        const btn = document.getElementById(`play-${tabIdx}`);
+        btn.textContent = "■ 정지";
+        btn.classList.add("playing");
+
+        function step() {
+          current++;
+          if (current >= state.sceneCounts[tabIdx]) {
+            stopAutoPlay(tabIdx);
+            return;
+          }
+          goScene(tabIdx, current);
+          state.autoPlayTimers[tabIdx] = setTimeout(
+            step,
+            autoPlayIntervals[tabIdx][current] || 3000,
+          );
+        }
+
+        state.autoPlayTimers[tabIdx] = setTimeout(
+          step,
+          autoPlayIntervals[tabIdx][0] || 3000,
+        );
+      }
+
+      function stopAutoPlay(tabIdx) {
+        if (state.autoPlayTimers[tabIdx]) {
+          clearTimeout(state.autoPlayTimers[tabIdx]);
+          state.autoPlayTimers[tabIdx] = null;
+        }
+        const btn = document.getElementById(`play-${tabIdx}`);
+        if (btn) {
+          btn.textContent = "▶ 자동 재생";
+          btn.classList.remove("playing");
+        }
+      }
+
+      // 비율 토글
+      function setRatio(tabIdx, mode) {
+        const panel = document.getElementById(`panel-${tabIdx}`);
+        const frame = panel.querySelector(".phone-frame");
+        const btns = panel.querySelectorAll(".ratio-btn");
+        if (mode === "landscape") {
+          frame.classList.add("landscape");
+          btns[0].classList.remove("active");
+          btns[1].classList.add("active");
+        } else {
+          frame.classList.remove("landscape");
+          btns[0].classList.add("active");
+          btns[1].classList.remove("active");
+        }
+      }
+
+      // 키보드
+      document.addEventListener("keydown", (e) => {
+        const t = state.currentTab;
+        if (e.key === "ArrowRight") nextScene(t);
+        if (e.key === "ArrowLeft") prevScene(t);
+        if (e.key === " ") {
+          e.preventDefault();
+          toggleAutoPlay(t);
+        }
+        if (e.key >= "1" && e.key <= "5") showTab(parseInt(e.key) - 1);
+      });
+    </script>
+  </body>
+</html>

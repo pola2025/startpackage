@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .arrow {
+      animation: archiveArrow 2s ease-in-out infinite;
+      transform-origin: 12px 13px;
+      transform-box: fill-box;
+    }
+    @keyframes archiveArrow {
+      0%, 30%, 100% { transform: translateY(0); }
+      50% { transform: translateY(2px); }
+    }
+  </style>
+  <path d="M3 8h18v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z"/>
+  <path d="M3 8l3-5h12l6 5H3z"/>
+  <path class="arrow" d="M12 11v4m-3 0 3 3 3-3"/>
+</svg>

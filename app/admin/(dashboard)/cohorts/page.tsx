@@ -1,12 +1,7 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GraduationCap, Users, CheckCircle2 } from "lucide-react";
 import AddCohortButton from "./add-cohort-button";
 import CohortsList from "./cohorts-list";
@@ -42,15 +37,19 @@ export default async function CohortsPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">기수 관리</h1>
-          <p className="text-sm sm:text-base text-gray-600">기수를 생성하고 활성화 상태를 관리하세요</p>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">
+            기수 관리
+          </h1>
+          <p className="text-sm sm:text-base text-gray-600">
+            기수를 생성하고 활성화 상태를 관리하세요
+          </p>
         </div>
         <AddCohortButton />
       </div>
 
       {/* Stats */}
       <div className="grid gap-3 sm:gap-4 grid-cols-3">
-        <Card className="bg-white border-2 border-gray-200 shadow-md">
+        <Card className="bg-white border border-gray-200 shadow-md">
           <CardHeader className="p-2 sm:p-3 md:p-4 pb-1 sm:pb-2">
             <CardTitle className="text-xs sm:text-sm font-medium text-gray-600 flex items-center gap-1 sm:gap-2">
               <GraduationCap className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -65,7 +64,7 @@ export default async function CohortsPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-green-50 to-white border-0 shadow-md">
+        <Card className="bg-white border border-gray-200 shadow-md">
           <CardHeader className="p-2 sm:p-3 md:p-4 pb-1 sm:pb-2">
             <CardTitle className="text-xs sm:text-sm font-medium text-gray-600 flex items-center gap-1 sm:gap-2">
               <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" />
@@ -80,7 +79,7 @@ export default async function CohortsPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-gold-50 to-white border-0 shadow-md">
+        <Card className="bg-white border border-gray-200 shadow-md">
           <CardHeader className="p-2 sm:p-3 md:p-4 pb-1 sm:pb-2">
             <CardTitle className="text-xs sm:text-sm font-medium text-gray-600 flex items-center gap-1 sm:gap-2">
               <Users className="w-3 h-3 sm:w-4 sm:h-4 text-gold-600" />
@@ -89,7 +88,7 @@ export default async function CohortsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-2 sm:p-3 md:p-4 pt-0">
-            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-gold-600">
+            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-navy-700">
               {totalStudents}
             </div>
           </CardContent>

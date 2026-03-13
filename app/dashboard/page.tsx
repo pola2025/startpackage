@@ -23,7 +23,7 @@ function Progress({ value, className }: { value: number; className?: string }) {
       className={`relative h-2 w-full overflow-hidden rounded-full bg-gray-200 ${className || ""}`}
     >
       <div
-        className="h-full bg-gold-500 transition-all"
+        className="h-full bg-navy-700 transition-all"
         style={{ width: `${value}%` }}
       />
     </div>
@@ -390,7 +390,7 @@ export default async function UserDashboard() {
         </div>
         <div className="flex flex-wrap gap-4">
           {user.cohort && dday && (
-            <div className="inline-flex items-center gap-3 bg-gradient-to-r from-gold-100 to-gold-50 rounded-2xl border-2 border-gold-200 px-6 py-4">
+            <div className="inline-flex items-center gap-3 bg-white rounded-2xl border border-gray-200 px-6 py-4">
               <div className="flex items-center justify-center w-12 h-12 bg-white rounded-full shadow-sm">
                 <Calendar className="w-6 h-6 text-gold-600" />
               </div>
@@ -426,14 +426,14 @@ export default async function UserDashboard() {
 
               return (
                 <div
-                  className={`inline-flex items-center gap-3 rounded-2xl border-2 px-6 py-4 ${
+                  className={`inline-flex items-center gap-3 rounded-2xl border px-6 py-4 ${
                     isExpired
-                      ? "bg-gradient-to-r from-gray-50 to-gray-100 border-gray-300"
+                      ? "bg-white border-gray-200"
                       : isUrgent
-                        ? "bg-gradient-to-r from-terra-50 to-terra-50 border-terra-100"
+                        ? "bg-terra-50 border-terra-100"
                         : isWarning
-                          ? "bg-gradient-to-r from-terra-50 to-terra-50 border-terra-100"
-                          : "bg-gradient-to-r from-navy-50 to-gold-50 border-navy-200"
+                          ? "bg-terra-50 border-terra-100"
+                          : "bg-white border-gray-200"
                   }`}
                 >
                   <div
@@ -528,7 +528,7 @@ export default async function UserDashboard() {
 
       {/* 알림 리스트 - 모바일/데스크탑 모두 세로 리스트 */}
       {notifications.length > 0 && (
-        <Card className="bg-gradient-to-r from-gold-50 to-gold-100 border-2 border-gold-200">
+        <Card className="bg-white border border-gray-200">
           <CardHeader className="p-4 md:p-6 pb-2 md:pb-4">
             <CardTitle className="text-base md:text-xl text-gray-900 flex items-center gap-2">
               <Bell className="w-4 h-4 md:w-5 md:h-5 text-gold-600" />
@@ -582,7 +582,7 @@ export default async function UserDashboard() {
       )}
 
       {/* User Info Card */}
-      <Card className="bg-white border-2 border-gray-200">
+      <Card className="bg-white border border-gray-200">
         <CardHeader>
           <CardTitle className="text-lg sm:text-xl text-gray-900 flex items-center gap-2">
             <User className="w-4 h-4 sm:w-5 sm:h-5" />내 정보
@@ -591,8 +591,8 @@ export default async function UserDashboard() {
         <CardContent className="grid gap-3 sm:gap-4 md:grid-cols-2">
           <div className="space-y-2 sm:space-y-3">
             <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gold-100 flex items-center justify-center flex-shrink-0">
-                <User className="w-4 h-4 sm:w-5 sm:h-5 text-gold-600" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
               </div>
               <div className="min-w-0">
                 <p className="text-xs sm:text-sm text-gray-500">이름</p>
@@ -602,8 +602,8 @@ export default async function UserDashboard() {
               </div>
             </div>
             <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-ok-100 flex items-center justify-center flex-shrink-0">
-                <Package className="w-4 h-4 sm:w-5 sm:h-5 text-ok-700" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                <Package className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
               </div>
               <div className="min-w-0">
                 <p className="text-xs sm:text-sm text-gray-500">기수</p>
@@ -615,8 +615,8 @@ export default async function UserDashboard() {
           </div>
           <div className="space-y-2 sm:space-y-3">
             <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-terra-100 flex items-center justify-center flex-shrink-0">
-                <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-terra-500" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
               </div>
               <div className="min-w-0">
                 <p className="text-xs sm:text-sm text-gray-500">연락처</p>
@@ -643,7 +643,7 @@ export default async function UserDashboard() {
       {/* Quick Stats - 주요 지표 */}
       <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2">
         {/* 자료 제출 완료율 */}
-        <Card className="bg-gradient-to-br from-gold-50 to-white border-0 shadow-lg hover:shadow-xl transition-shadow">
+        <Card className="bg-white border border-gray-200 shadow-lg hover:shadow-xl transition-shadow">
           <CardContent className="p-6 sm:p-8">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center justify-center w-14 h-14 bg-navy-900 rounded-2xl shadow-md">
@@ -653,9 +653,9 @@ export default async function UserDashboard() {
                 <p className="text-sm font-medium text-gray-600 mb-1">
                   자료 제출
                 </p>
-                <p className="text-4xl sm:text-5xl font-bold text-gold-600">
+                <p className="text-lg font-bold text-navy-700">
                   {completionPercent}
-                  <span className="text-2xl">%</span>
+                  <span className="text-base">%</span>
                 </p>
               </div>
             </div>
@@ -742,10 +742,10 @@ export default async function UserDashboard() {
                 },
               ].map((item, idx) => {
                 const Icon = item.icon;
-                const sharedClassName = `group relative flex flex-col items-center p-2 md:p-4 rounded-lg md:rounded-xl bg-gradient-to-br ${
+                const sharedClassName = `group relative flex flex-col items-center p-2 md:p-4 rounded-lg md:rounded-xl ${
                   item.value
-                    ? "from-white to-white border border-gray-200 md:border-2"
-                    : "from-gray-50 to-gray-100 border border-gray-200 md:border-2 hover:from-navy-50 hover:to-navy-50 hover:border-navy-200 cursor-pointer"
+                    ? "bg-white border border-gray-200"
+                    : "bg-gray-50 border border-gray-200 hover:bg-navy-50 hover:border-navy-200 cursor-pointer"
                 } transition-all duration-200 ${!item.value ? "hover:shadow-md" : ""}`;
 
                 const progressRing = item.value ? (
@@ -867,7 +867,7 @@ export default async function UserDashboard() {
             </div>
           ) : (
             <Link href="/dashboard/submission?tab=basic" className="block">
-              <div className="text-center py-8 md:py-12 px-4 md:px-6 bg-gradient-to-br from-gold-50 to-indigo-50 rounded-xl md:rounded-2xl border-2 border-gold-200 hover:border-gold-400 hover:shadow-lg transition-all cursor-pointer group">
+              <div className="text-center py-8 md:py-12 px-4 md:px-6 bg-white rounded-xl md:rounded-2xl border border-gray-200 hover:border-gold-400 hover:shadow-lg transition-all cursor-pointer group">
                 <div className="flex items-center justify-center w-14 h-14 md:w-20 md:h-20 bg-navy-900 rounded-full mx-auto mb-3 md:mb-4 group-hover:scale-110 transition-transform">
                   <AlertCircle className="w-7 h-7 md:w-10 md:h-10 text-white" />
                 </div>
@@ -884,7 +884,7 @@ export default async function UserDashboard() {
       </Card>
 
       {/* Workflow Status */}
-      <Card className="bg-white border-2 border-gray-200">
+      <Card className="bg-white border border-gray-200">
         <CardHeader>
           <CardTitle className="text-lg sm:text-xl text-gray-900 flex items-center gap-2">
             <Package className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -977,7 +977,7 @@ export default async function UserDashboard() {
 
       {/* Marketing Support Detail Card */}
       {marketingStartDate && marketingEndDate && (
-        <Card className="bg-gradient-to-br from-navy-50 to-gold-50 border-0 shadow-lg">
+        <Card className="bg-white border border-gray-200 shadow-lg">
           <CardHeader>
             <CardTitle className="text-xl sm:text-2xl text-gray-900 flex items-center gap-2">
               <Megaphone className="w-5 h-5 sm:w-6 sm:h-6 text-navy-600" />
@@ -989,7 +989,7 @@ export default async function UserDashboard() {
           </CardHeader>
           <CardContent className="space-y-6">
             {/* 지원 기간 */}
-            <div className="bg-white p-5 rounded-xl border-2 border-navy-200">
+            <div className="bg-white p-5 rounded-xl border border-gray-200">
               <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-navy-600" />
                 지원 기간
@@ -1013,7 +1013,7 @@ export default async function UserDashboard() {
             </div>
 
             {/* 지원 항목 */}
-            <div className="bg-white p-5 rounded-xl border-2 border-navy-200">
+            <div className="bg-white p-5 rounded-xl border border-gray-200">
               <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <Package className="w-4 h-4 text-navy-600" />
                 지원 항목
@@ -1023,39 +1023,39 @@ export default async function UserDashboard() {
                   {
                     icon: BarChart3,
                     label: "Meta 광고 게재 지원",
-                    iconBg: "bg-gold-100",
-                    iconColor: "text-gold-600",
+                    iconBg: "bg-gray-100",
+                    iconColor: "text-gray-600",
                   },
                   {
                     icon: Database,
                     label: "잠재고객 접수 자동화",
-                    iconBg: "bg-ok-100",
-                    iconColor: "text-ok-600",
+                    iconBg: "bg-gray-100",
+                    iconColor: "text-gray-600",
                   },
                   {
                     icon: Bell,
                     label: "실시간 DB 접수 알림",
-                    iconBg: "bg-terra-100",
-                    iconColor: "text-terra-500",
+                    iconBg: "bg-gray-100",
+                    iconColor: "text-gray-600",
                   },
                   {
                     icon: MessageSquare,
                     label: "고객 안내 SMS 발송",
-                    iconBg: "bg-navy-100",
-                    iconColor: "text-navy-600",
+                    iconBg: "bg-gray-100",
+                    iconColor: "text-gray-600",
                   },
                   {
                     icon: Sheet,
                     label: "고객 DB 시트 저장",
-                    iconBg: "bg-navy-100",
-                    iconColor: "text-navy-600",
+                    iconBg: "bg-gray-100",
+                    iconColor: "text-gray-600",
                   },
                 ].map((item, idx) => {
                   const Icon = item.icon;
                   return (
                     <div
                       key={idx}
-                      className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-br from-gray-50 to-white border border-gray-200"
+                      className="flex items-center gap-3 p-3 rounded-lg bg-white border border-gray-200"
                     >
                       <div
                         className={`flex items-center justify-center w-10 h-10 rounded-lg ${item.iconBg} flex-shrink-0`}
@@ -1087,14 +1087,14 @@ export default async function UserDashboard() {
               newEndDate.setMonth(newEndDate.getMonth() + 3);
 
               return (
-                <div className="bg-white p-5 rounded-xl border-2 border-navy-200">
+                <div className="bg-white p-5 rounded-xl border border-gray-200">
                   <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
                     <Clock className="w-4 h-4 text-navy-600" />
                     기간 연장
                   </h3>
 
                   {hasPendingRequest ? (
-                    <div className="bg-gold-50 p-4 rounded-lg border-2 border-gold-200">
+                    <div className="bg-white p-4 rounded-lg border border-gray-200">
                       <div className="flex items-start gap-3">
                         <Clock className="w-5 h-5 text-gold-600 flex-shrink-0 mt-0.5" />
                         <div>

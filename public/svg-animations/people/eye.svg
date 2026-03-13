@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    @keyframes blink {
+      0%, 40%, 100% { transform: scaleY(1); }
+      45% { transform: scaleY(0.1); }
+      50% { transform: scaleY(1); }
+    }
+    .eye-group {
+      transform-origin: 12px 12px;
+      animation: blink 2s ease-in-out infinite;
+    }
+  </style>
+  <g class="eye-group">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+    <circle cx="12" cy="12" r="3"/>
+  </g>
+</svg>

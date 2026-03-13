@@ -30,13 +30,13 @@ export function ProgressBar({
           <h3 className="text-sm sm:text-base font-semibold text-gray-900">
             전체 진행률
           </h3>
-          <span className="text-sm sm:text-lg font-bold text-gold-600">
+          <span className="text-sm sm:text-lg font-bold text-navy-700">
             {overallPercentage}%
           </span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-3 sm:h-4 overflow-hidden">
           <div
-            className="bg-gradient-to-r from-gold-500 to-gold-600 h-full transition-all duration-500 ease-out rounded-full"
+            className="bg-navy-700 h-full transition-all duration-500 ease-out rounded-full"
             style={{ width: `${overallPercentage}%` }}
           />
         </div>

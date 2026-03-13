@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .wallet-flap {
+      transform-origin: 1px 7px;
+      animation: walletOpen 4s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+    }
+    .wallet-coin {
+      animation: coinPeek 4s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+    }
+    .wallet-body {
+      animation: walletPulse 4s ease infinite;
+    }
+    .wallet-clasp {
+      animation: claspGlint 4s ease infinite;
+    }
+    @keyframes walletOpen {
+      0%, 15% { transform: rotate(0deg); }
+      25% { transform: rotate(-20deg); }
+      35% { transform: rotate(-17deg); }
+      55% { transform: rotate(-18deg); }
+      70% { transform: rotate(-2deg); }
+      80%, 100% { transform: rotate(0deg); }
+    }
+    @keyframes coinPeek {
+      0%, 20% { transform: translate(0, 0) scale(1); opacity: 0; }
+      30% { transform: translate(1px, -4px) scale(1); opacity: 1; }
+      40% { transform: translate(1px, -5px) scale(1.05); opacity: 1; }
+      55% { transform: translate(1px, -3px) scale(1); opacity: 1; }
+      70% { transform: translate(0, 0) scale(0.9); opacity: 0; }
+      100% { opacity: 0; }
+    }
+    @keyframes walletPulse {
+      0%, 20% { transform: scale(1); }
+      28% { transform: scale(1.02); }
+      36%, 100% { transform: scale(1); }
+    }
+    @keyframes claspGlint {
+      0%, 60% { opacity: 1; }
+      65% { opacity: 0.4; }
+      70% { opacity: 1; }
+      75% { opacity: 0.5; }
+      80%, 100% { opacity: 1; }
+    }
+  </style>
+  <g class="wallet-body">
+    <rect x="1" y="7" width="22" height="13" rx="2"/>
+    <path d="M17 11h4v5h-4a2.5 2.5 0 0 1 0-5Z"/>
+  </g>
+  <path class="wallet-flap" d="M21 4H3a2 2 0 0 0-2 2v1h20V6a2 2 0 0 0-2-2Z"/>
+  <circle class="wallet-coin" cx="18" cy="13.5" r="1.5" fill="currentColor" stroke="none" opacity="0"/>
+  <circle class="wallet-clasp" cx="18" cy="13.5" r="1" fill="currentColor" stroke="none" opacity="0.6"/>
+</svg>

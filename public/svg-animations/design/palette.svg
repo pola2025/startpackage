@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .palette-body { stroke-dasharray: 180; stroke-dashoffset: 180; animation: drawPalette 2s ease-in-out infinite; }
+    .drop { opacity: 0; animation: paletteDrop 2s ease-in-out infinite; }
+    .drop1 { animation-delay: 0.1s; }
+    .drop2 { animation-delay: 0.25s; }
+    .drop3 { animation-delay: 0.4s; }
+
+    @keyframes drawPalette {
+      0%, 16%, 100% { stroke-dashoffset: 180; }
+      32%, 72% { stroke-dashoffset: 0; }
+    }
+    @keyframes paletteDrop {
+      0%, 18%, 100% { opacity: 0; }
+      26%, 54% { opacity: 1; }
+      64%, 100% { opacity: 0; }
+    }
+  </style>
+  <path class="palette-body" d="M12 4a7 7 0 0 0-7 7c0 2.2 1.3 4.5 3.2 5.8h.7c.4 0 .7.3.7.7 0 1.2.9 2.3 2.1 2.6.5.1 1.1.3 1.6.4 2.5.7 4.3-1.8 7-4.9 7a6.2 6.2 0 0 0 5-5.9A7 7 0 0 0 12 4z"/>
+  <path class="palette-body" d="M12.2 4.2L11 8M9.8 10.8l-4.9-2.2"/>
+  <circle class="drop drop1" cx="9.1" cy="9.3" r="1.05" />
+  <circle class="drop drop2" cx="12.1" cy="7.7" r="1.05" />
+  <circle class="drop drop3" cx="14.9" cy="9.4" r="1.05" />
+</svg>

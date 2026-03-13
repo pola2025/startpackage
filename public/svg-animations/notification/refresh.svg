@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .spin {
+      transform-origin: 12px 12px;
+      transform-box: fill-box;
+      animation: spin360 2s linear infinite;
+    }
+    @keyframes spin360 {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+  </style>
+  <g class="spin">
+    <path d="M20 12a8 8 0 0 0-8-8"/>
+    <path d="M20 8v4h-4"/>
+    <path d="M4 12a8 8 0 0 0 8 8"/>
+    <path d="M4 16v-4h4"/>
+  </g>
+</svg>

@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .zap-bolt {
+      stroke-dasharray: 50;
+      stroke-dashoffset: 50;
+      animation: drawBolt 3s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+    }
+    .zap-flash {
+      animation: flashStrike 3s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+      transform-origin: 12px 12px;
+    }
+    .zap-glow {
+      animation: glowPulse 3s ease-out infinite;
+      opacity: 0;
+      transform-origin: 12px 12px;
+    }
+    .zap-spark-1, .zap-spark-2, .zap-spark-3, .zap-spark-4 {
+      animation: sparkFly 3s ease-out infinite;
+      opacity: 0;
+    }
+    .zap-spark-2 { animation-delay: 0.05s; }
+    .zap-spark-3 { animation-delay: 0.1s; }
+    .zap-spark-4 { animation-delay: 0.15s; }
+    @keyframes drawBolt {
+      0% { stroke-dashoffset: 50; }
+      8% { stroke-dashoffset: 0; }
+      15% { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: 0; }
+    }
+    @keyframes flashStrike {
+      0% { opacity: 0; transform: scale(0.9); }
+      5% { opacity: 1; transform: scale(1.15); }
+      10% { opacity: 0.6; transform: scale(1); }
+      15% { opacity: 1; transform: scale(1.05); }
+      25% { opacity: 0.85; transform: scale(1); }
+      35%, 70% { opacity: 1; transform: scale(1); }
+      85% { opacity: 0.4; }
+      90% { opacity: 0.8; }
+      95% { opacity: 0.2; }
+      100% { opacity: 0; }
+    }
+    @keyframes glowPulse {
+      0%, 2% { opacity: 0; transform: scale(0.5); }
+      6% { opacity: 0.4; transform: scale(1.5); }
+      20% { opacity: 0; transform: scale(2); }
+      100% { opacity: 0; }
+    }
+    @keyframes sparkFly {
+      0%, 5% { opacity: 0; }
+      8% { opacity: 0.8; }
+      20% { opacity: 0; }
+      100% { opacity: 0; }
+    }
+  </style>
+  <circle class="zap-glow" cx="12" cy="12" r="8" stroke-width="0.5" />
+  <g class="zap-flash">
+    <path class="zap-bolt" d="M13 2L4.5 13H12l-1 9L20 10h-7.5L13 2z" />
+  </g>
+  <line class="zap-spark-1" x1="4" y1="8" x2="2" y2="7" stroke-width="1.5" />
+  <line class="zap-spark-2" x1="20" y1="16" x2="22" y2="17" stroke-width="1.5" />
+  <line class="zap-spark-3" x1="5" y1="17" x2="3" y2="19" stroke-width="1.5" />
+  <line class="zap-spark-4" x1="19" y1="7" x2="21" y2="5" stroke-width="1.5" />
+</svg>

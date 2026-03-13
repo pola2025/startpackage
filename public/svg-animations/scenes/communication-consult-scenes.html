@@ -1,0 +1,2358 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Communication Scenes — 상담/접수</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
+    />
+    <style>
+      :root {
+        --bg: #faf8f5;
+        --bg-warm: #f5f0ea;
+        --surface: #ffffff;
+        --navy: #0d1b2a;
+        --gold: #b08d3e;
+        --gold-light: #c9a84c;
+        --gold-pale: rgba(176, 141, 62, 0.08);
+        --gold-border: rgba(176, 141, 62, 0.2);
+        --coffee: #6b5344;
+        --text: #2c2420;
+        --text-sub: #5c5248;
+        --text-muted: #9c9088;
+        --border: #e8e0d8;
+        --border-light: #f0ebe5;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family:
+          "Pretendard",
+          -apple-system,
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.7;
+      }
+
+      .page-header {
+        text-align: center;
+        padding: 60px 24px 40px;
+        background: linear-gradient(180deg, var(--bg) 0%, var(--bg-warm) 100%);
+      }
+
+      .page-header h1 {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      .page-header p {
+        font-size: 15px;
+        color: var(--text-sub);
+      }
+
+      .showcase-grid {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 24px 80px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 32px;
+      }
+
+      .showcase-card {
+        background: var(--surface);
+        border: 1px solid var(--border-light);
+        border-radius: 20px;
+        overflow: hidden;
+        transition: box-shadow 0.3s ease;
+      }
+
+      .showcase-card:hover {
+        box-shadow: 0 8px 30px rgba(44, 36, 32, 0.1);
+      }
+
+      .anim-stage {
+        height: 320px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .card-info {
+        padding: 24px 28px;
+      }
+
+      .card-num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        background: var(--gold);
+        color: #fff;
+        border-radius: 50%;
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      .card-info h3 {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 6px;
+      }
+
+      .card-info .meaning {
+        font-size: 14px;
+        color: var(--gold);
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+
+      .card-info .desc {
+        font-size: 13px;
+        color: var(--text-muted);
+      }
+
+      .replay-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 12px;
+        padding: 6px 14px;
+        background: var(--gold-pale);
+        border: 1px solid var(--gold-border);
+        border-radius: 100px;
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--gold);
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .replay-btn:hover {
+        background: var(--gold);
+        color: #fff;
+      }
+
+      /* ========================================
+         Shared keyframes
+         ======================================== */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes popIn {
+        0% {
+          opacity: 0;
+          transform: scale(0);
+        }
+        70% {
+          opacity: 1;
+          transform: scale(1.15);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes slideLeft {
+        from {
+          opacity: 0;
+          transform: translateX(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      @keyframes slideRight {
+        from {
+          opacity: 0;
+          transform: translateX(-30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      /* ========================================
+         11. Consultation Start (상담 시작)
+         ======================================== */
+      .anim-consult {
+        position: relative;
+        width: 280px;
+        height: 240px;
+      }
+
+      /* Table */
+      .consult-table {
+        position: absolute;
+        bottom: 70px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 120px;
+        height: 8px;
+        background: var(--coffee);
+        border-radius: 4px;
+        opacity: 0;
+      }
+
+      .consult-table-leg-l,
+      .consult-table-leg-r {
+        position: absolute;
+        bottom: 56px;
+        width: 4px;
+        height: 20px;
+        background: var(--coffee);
+        border-radius: 2px;
+        opacity: 0;
+      }
+
+      .consult-table-leg-l {
+        left: 90px;
+      }
+      .consult-table-leg-r {
+        right: 90px;
+      }
+
+      .anim-consult.play .consult-table,
+      .anim-consult.play .consult-table-leg-l,
+      .anim-consult.play .consult-table-leg-r {
+        animation: fadeIn 0.5s ease 0.2s forwards;
+      }
+
+      /* Person silhouettes */
+      .consult-person {
+        position: absolute;
+        bottom: 78px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        opacity: 0;
+      }
+
+      .consult-person.left {
+        left: 40px;
+      }
+      .consult-person.right {
+        right: 40px;
+      }
+
+      .consult-person .p-head {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+      }
+
+      .consult-person .p-body {
+        width: 32px;
+        height: 16px;
+        border-radius: 10px 10px 0 0;
+      }
+
+      .consult-person.left .p-head {
+        background: var(--navy);
+      }
+      .consult-person.left .p-body {
+        background: var(--navy);
+        opacity: 0.7;
+      }
+      .consult-person.right .p-head {
+        background: var(--gold);
+      }
+      .consult-person.right .p-body {
+        background: var(--gold);
+        opacity: 0.7;
+      }
+
+      .anim-consult.play .consult-person.left {
+        animation: slideRight 0.5s ease 0.5s forwards;
+      }
+
+      .anim-consult.play .consult-person.right {
+        animation: slideLeft 0.5s ease 0.5s forwards;
+      }
+
+      /* Speech bubbles */
+      .consult-bubble {
+        position: absolute;
+        padding: 6px 12px;
+        border-radius: 12px;
+        font-size: 10px;
+        font-weight: 600;
+        opacity: 0;
+        white-space: nowrap;
+      }
+
+      .consult-bubble.b1 {
+        top: 40px;
+        left: 20px;
+        background: var(--navy);
+        color: #fff;
+        border-radius: 12px 12px 12px 4px;
+      }
+
+      .consult-bubble.b2 {
+        top: 28px;
+        right: 20px;
+        background: var(--gold);
+        color: #fff;
+        border-radius: 12px 12px 4px 12px;
+      }
+
+      .consult-bubble.b3 {
+        top: 56px;
+        left: 28px;
+        background: var(--navy);
+        color: #fff;
+        border-radius: 12px 12px 12px 4px;
+        font-size: 9px;
+      }
+
+      .anim-consult.play .consult-bubble.b1 {
+        animation: slideRight 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1s forwards;
+      }
+
+      .anim-consult.play .consult-bubble.b2 {
+        animation: slideLeft 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1.6s
+          forwards;
+      }
+
+      .anim-consult.play .consult-bubble.b3 {
+        animation: slideRight 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 2.2s
+          forwards;
+      }
+
+      /* Document on table */
+      .consult-doc {
+        position: absolute;
+        bottom: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 20px;
+        height: 26px;
+        background: var(--surface);
+        border: 1.5px solid var(--border);
+        border-radius: 3px;
+        opacity: 0;
+      }
+
+      .consult-doc::after {
+        content: "";
+        position: absolute;
+        top: 5px;
+        left: 3px;
+        right: 3px;
+        height: 2px;
+        background: var(--border);
+        box-shadow:
+          0 5px 0 var(--border),
+          0 10px 0 var(--border);
+      }
+
+      .anim-consult.play .consult-doc {
+        animation: fadeIn 0.4s ease 0.8s forwards;
+      }
+
+      /* ========================================
+         12. Document Submit (서류 접수)
+         ======================================== */
+      .anim-submit {
+        position: relative;
+        width: 280px;
+        height: 240px;
+      }
+
+      /* Reception window */
+      .submit-window {
+        position: absolute;
+        right: 30px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 90px;
+        height: 110px;
+        background: var(--surface);
+        border: 2px solid var(--border);
+        border-radius: 12px;
+        opacity: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+
+      .submit-window-label {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--coffee);
+      }
+
+      .submit-window-slot {
+        width: 50px;
+        height: 6px;
+        background: var(--border);
+        border-radius: 3px;
+      }
+
+      .anim-submit.play .submit-window {
+        animation: fadeIn 0.4s ease 0.2s forwards;
+      }
+
+      /* Envelope */
+      .submit-envelope {
+        position: absolute;
+        left: -60px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 56px;
+        height: 40px;
+        opacity: 0;
+      }
+
+      .envelope-body {
+        width: 56px;
+        height: 40px;
+        background: var(--gold-light);
+        border-radius: 4px;
+        position: relative;
+      }
+
+      .envelope-flap {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 0;
+        height: 0;
+        border-left: 28px solid transparent;
+        border-right: 28px solid transparent;
+        border-top: 20px solid var(--gold);
+      }
+
+      .anim-submit.play .submit-envelope {
+        animation: envelopeSlide 1s cubic-bezier(0.34, 1.56, 0.64, 1) 0.6s
+          forwards;
+      }
+
+      @keyframes envelopeSlide {
+        0% {
+          opacity: 0;
+          left: -60px;
+        }
+        40% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 1;
+          left: 80px;
+        }
+      }
+
+      /* Stamp */
+      .submit-stamp {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0) rotate(-15deg);
+        width: 80px;
+        height: 40px;
+        border: 3px solid #e05252;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 800;
+        color: #e05252;
+        opacity: 0;
+        background: rgba(224, 82, 82, 0.05);
+      }
+
+      .anim-submit.play .submit-stamp {
+        animation: stampSlam 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 2s forwards;
+      }
+
+      @keyframes stampSlam {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(2.5) rotate(-15deg);
+        }
+        60% {
+          opacity: 1;
+          transform: translate(-50%, -50%) scale(0.9) rotate(-15deg);
+        }
+        100% {
+          opacity: 1;
+          transform: translate(-50%, -50%) scale(1) rotate(-15deg);
+        }
+      }
+
+      /* ========================================
+         13. Form Fill (양식 작성)
+         ======================================== */
+      .anim-form {
+        position: relative;
+        width: 240px;
+        height: 240px;
+      }
+
+      .form-paper {
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 180px;
+        background: var(--surface);
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        padding: 16px;
+        opacity: 0;
+        box-shadow: 0 4px 16px rgba(44, 36, 32, 0.07);
+      }
+
+      .anim-form.play .form-paper {
+        animation: slideUp 0.5s ease 0.2s forwards;
+      }
+
+      .form-title {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--navy);
+        margin-bottom: 12px;
+        padding-bottom: 6px;
+        border-bottom: 1.5px solid var(--border);
+      }
+
+      .form-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+
+      .form-checkbox {
+        width: 16px;
+        height: 16px;
+        border: 2px solid var(--border);
+        border-radius: 4px;
+        flex-shrink: 0;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .form-checkbox .check-fill {
+        position: absolute;
+        inset: 0;
+        background: var(--gold);
+        border-radius: 2px;
+        transform: scale(0);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .form-line {
+        height: 3px;
+        background: var(--border-light);
+        border-radius: 2px;
+        flex: 1;
+      }
+
+      .anim-form.play .form-row:nth-child(2) .check-fill {
+        animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.8s forwards;
+      }
+
+      .anim-form.play .form-row:nth-child(3) .check-fill {
+        animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 1.2s forwards;
+      }
+
+      .anim-form.play .form-row:nth-child(4) .check-fill {
+        animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 1.6s forwards;
+      }
+
+      .anim-form.play .form-row:nth-child(5) .check-fill {
+        animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 2s forwards;
+      }
+
+      /* Pen */
+      .form-pen {
+        position: absolute;
+        top: 40px;
+        right: 12px;
+        width: 6px;
+        height: 40px;
+        opacity: 0;
+      }
+
+      .form-pen-body {
+        width: 6px;
+        height: 32px;
+        background: var(--navy);
+        border-radius: 2px 2px 0 0;
+      }
+
+      .form-pen-tip {
+        width: 0;
+        height: 0;
+        border-left: 3px solid transparent;
+        border-right: 3px solid transparent;
+        border-top: 8px solid var(--navy);
+      }
+
+      .anim-form.play .form-pen {
+        animation: penMove 2.4s ease 0.6s forwards;
+      }
+
+      @keyframes penMove {
+        0% {
+          opacity: 0;
+          top: 30px;
+        }
+        10% {
+          opacity: 1;
+          top: 46px;
+        }
+        30% {
+          top: 46px;
+        }
+        40% {
+          top: 60px;
+        }
+        60% {
+          top: 60px;
+        }
+        70% {
+          top: 74px;
+        }
+        85% {
+          top: 74px;
+        }
+        95% {
+          top: 88px;
+        }
+        100% {
+          opacity: 1;
+          top: 88px;
+        }
+      }
+
+      /* Complete badge */
+      .form-complete {
+        position: absolute;
+        bottom: 8px;
+        left: 50%;
+        transform: translateX(-50%) scale(0);
+        background: var(--gold);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 5px 14px;
+        border-radius: 100px;
+        white-space: nowrap;
+        opacity: 0;
+        box-shadow: 0 4px 14px rgba(176, 141, 62, 0.35);
+      }
+
+      .anim-form.play .form-complete {
+        animation: badgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 2.6s forwards;
+      }
+
+      @keyframes badgePop {
+        0% {
+          opacity: 0;
+          transform: translateX(-50%) scale(0);
+        }
+        70% {
+          opacity: 1;
+          transform: translateX(-50%) scale(1.15);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(-50%) scale(1);
+        }
+      }
+
+      /* ========================================
+         14. Welcome Greeting (환영 인사)
+         ======================================== */
+      .anim-welcome {
+        position: relative;
+        width: 240px;
+        height: 220px;
+      }
+
+      /* Person */
+      .welcome-person {
+        position: absolute;
+        bottom: 60px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        opacity: 0;
+      }
+
+      .welcome-person .wp-head {
+        width: 28px;
+        height: 28px;
+        background: var(--gold);
+        border-radius: 50%;
+      }
+
+      .welcome-person .wp-body {
+        width: 44px;
+        height: 22px;
+        background: var(--navy);
+        border-radius: 14px 14px 0 0;
+      }
+
+      .anim-welcome.play .welcome-person {
+        animation: slideUp 0.5s ease 0.2s forwards;
+      }
+
+      /* Waving hand */
+      .welcome-hand {
+        position: absolute;
+        bottom: 96px;
+        right: 72px;
+        font-size: 24px;
+        opacity: 0;
+        transform-origin: bottom center;
+      }
+
+      .anim-welcome.play .welcome-hand {
+        animation: waveHand 1.2s ease 0.8s forwards;
+      }
+
+      @keyframes waveHand {
+        0% {
+          opacity: 0;
+          transform: rotate(0deg);
+        }
+        15% {
+          opacity: 1;
+          transform: rotate(20deg);
+        }
+        30% {
+          transform: rotate(-10deg);
+        }
+        45% {
+          transform: rotate(20deg);
+        }
+        60% {
+          transform: rotate(-5deg);
+        }
+        75% {
+          transform: rotate(15deg);
+        }
+        100% {
+          opacity: 1;
+          transform: rotate(0deg);
+        }
+      }
+
+      /* Speech bubble */
+      .welcome-bubble {
+        position: absolute;
+        top: 24px;
+        left: 50%;
+        transform: translateX(-50%) scale(0);
+        background: var(--surface);
+        border: 2px solid var(--gold);
+        border-radius: 16px;
+        padding: 8px 16px;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--navy);
+        opacity: 0;
+        white-space: nowrap;
+        box-shadow: 0 4px 14px rgba(176, 141, 62, 0.12);
+      }
+
+      .welcome-bubble::after {
+        content: "";
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-top: 8px solid var(--gold);
+      }
+
+      .anim-welcome.play .welcome-bubble {
+        animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 1.4s forwards;
+      }
+
+      /* Heart & star effects */
+      .welcome-effect {
+        position: absolute;
+        font-size: 14px;
+        opacity: 0;
+      }
+
+      .welcome-effect.e1 {
+        top: 16px;
+        left: 30px;
+      }
+      .welcome-effect.e2 {
+        top: 30px;
+        right: 26px;
+      }
+      .welcome-effect.e3 {
+        top: 8px;
+        right: 50px;
+      }
+      .welcome-effect.e4 {
+        top: 40px;
+        left: 40px;
+      }
+
+      .anim-welcome.play .welcome-effect.e1 {
+        animation: effectFloat 0.8s ease 2s forwards;
+      }
+
+      .anim-welcome.play .welcome-effect.e2 {
+        animation: effectFloat 0.8s ease 2.2s forwards;
+      }
+
+      .anim-welcome.play .welcome-effect.e3 {
+        animation: effectFloat 0.8s ease 2.4s forwards;
+      }
+
+      .anim-welcome.play .welcome-effect.e4 {
+        animation: effectFloat 0.8s ease 2.6s forwards;
+      }
+
+      @keyframes effectFloat {
+        0% {
+          opacity: 0;
+          transform: translateY(10px) scale(0);
+        }
+        50% {
+          opacity: 1;
+          transform: translateY(-5px) scale(1.2);
+        }
+        100% {
+          opacity: 0.7;
+          transform: translateY(-14px) scale(1);
+        }
+      }
+
+      /* ========================================
+         15. Initial Review (초기 검토)
+         ======================================== */
+      .anim-review {
+        position: relative;
+        width: 260px;
+        height: 240px;
+      }
+
+      .review-doc {
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 160px;
+        height: 180px;
+        background: var(--surface);
+        border: 1.5px solid var(--border);
+        border-radius: 8px;
+        padding: 18px 14px;
+        opacity: 0;
+        box-shadow: 0 4px 16px rgba(44, 36, 32, 0.07);
+      }
+
+      .anim-review.play .review-doc {
+        animation: fadeIn 0.4s ease 0.2s forwards;
+      }
+
+      .review-line {
+        height: 3px;
+        background: var(--border-light);
+        border-radius: 2px;
+        margin-bottom: 8px;
+      }
+
+      .review-line:nth-child(1) {
+        width: 100%;
+      }
+      .review-line:nth-child(2) {
+        width: 85%;
+      }
+      .review-line:nth-child(3) {
+        width: 90%;
+      }
+      .review-line:nth-child(4) {
+        width: 70%;
+      }
+      .review-line:nth-child(5) {
+        width: 80%;
+      }
+      .review-line:nth-child(6) {
+        width: 60%;
+      }
+      .review-line:nth-child(7) {
+        width: 95%;
+      }
+      .review-line:nth-child(8) {
+        width: 75%;
+      }
+
+      .review-line.highlight-line {
+        background: rgba(176, 141, 62, 0.3);
+        opacity: 0;
+      }
+
+      .anim-review.play .review-line.hl1 {
+        animation: highlightReveal 0.4s ease 1.6s forwards;
+      }
+
+      .anim-review.play .review-line.hl2 {
+        animation: highlightReveal 0.4s ease 2s forwards;
+      }
+
+      @keyframes highlightReveal {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      /* Magnifying glass */
+      .review-mag {
+        position: absolute;
+        top: 40px;
+        left: 40px;
+        width: 36px;
+        height: 36px;
+        opacity: 0;
+      }
+
+      .mag-glass {
+        width: 28px;
+        height: 28px;
+        border: 3px solid var(--navy);
+        border-radius: 50%;
+        position: relative;
+      }
+
+      .mag-handle {
+        position: absolute;
+        bottom: -8px;
+        right: -8px;
+        width: 4px;
+        height: 14px;
+        background: var(--navy);
+        border-radius: 2px;
+        transform: rotate(-45deg);
+        transform-origin: top center;
+      }
+
+      .anim-review.play .review-mag {
+        animation: magScan 2.4s ease 0.6s forwards;
+      }
+
+      @keyframes magScan {
+        0% {
+          opacity: 0;
+          left: 30px;
+          top: 30px;
+        }
+        10% {
+          opacity: 1;
+        }
+        30% {
+          left: 170px;
+          top: 50px;
+        }
+        50% {
+          left: 40px;
+          top: 80px;
+        }
+        70% {
+          left: 160px;
+          top: 110px;
+        }
+        90% {
+          left: 80px;
+          top: 130px;
+        }
+        100% {
+          opacity: 1;
+          left: 80px;
+          top: 130px;
+        }
+      }
+
+      /* Final check */
+      .review-check {
+        position: absolute;
+        bottom: 14px;
+        right: 40px;
+        width: 32px;
+        height: 32px;
+        background: var(--gold);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transform: scale(0);
+        box-shadow: 0 4px 14px rgba(176, 141, 62, 0.35);
+      }
+
+      .anim-review.play .review-check {
+        animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 2.8s forwards;
+      }
+
+      /* ========================================
+         16. Expert Match (전문가 매칭)
+         ======================================== */
+      .anim-match {
+        position: relative;
+        width: 280px;
+        height: 220px;
+      }
+
+      .match-profile {
+        position: absolute;
+        top: 30px;
+        width: 80px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        opacity: 0;
+      }
+
+      .match-profile.client {
+        left: 20px;
+      }
+      .match-profile.expert {
+        right: 20px;
+      }
+
+      .match-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        font-weight: 700;
+        color: #fff;
+      }
+
+      .match-profile.client .match-avatar {
+        background: var(--navy);
+      }
+      .match-profile.expert .match-avatar {
+        background: var(--gold);
+      }
+
+      .match-label {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--text-sub);
+      }
+
+      .match-tag {
+        font-size: 9px;
+        color: var(--text-muted);
+        background: var(--bg);
+        padding: 2px 8px;
+        border-radius: 100px;
+        border: 1px solid var(--border);
+      }
+
+      .anim-match.play .match-profile.client {
+        animation: slideRight 0.5s ease 0.3s forwards;
+      }
+
+      .anim-match.play .match-profile.expert {
+        animation: slideLeft 0.5s ease 0.3s forwards;
+      }
+
+      /* Dashed connection line */
+      .match-line {
+        position: absolute;
+        top: 52px;
+        left: 100px;
+        width: 80px;
+        height: 2px;
+        background: repeating-linear-gradient(
+          90deg,
+          var(--gold) 0px,
+          var(--gold) 6px,
+          transparent 6px,
+          transparent 12px
+        );
+        opacity: 0;
+        transform: scaleX(0);
+        transform-origin: left center;
+      }
+
+      .anim-match.play .match-line {
+        animation: lineGrow 0.8s ease 1s forwards;
+      }
+
+      @keyframes lineGrow {
+        0% {
+          opacity: 1;
+          transform: scaleX(0);
+        }
+        100% {
+          opacity: 1;
+          transform: scaleX(1);
+        }
+      }
+
+      /* Match pulse */
+      .match-pulse {
+        position: absolute;
+        top: 44px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 18px;
+        height: 18px;
+        background: var(--gold);
+        border-radius: 50%;
+        opacity: 0;
+      }
+
+      .anim-match.play .match-pulse {
+        animation: matchPulseAnim 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 1.8s
+          forwards;
+      }
+
+      @keyframes matchPulseAnim {
+        0% {
+          opacity: 0;
+          transform: translateX(-50%) scale(0);
+        }
+        60% {
+          opacity: 1;
+          transform: translateX(-50%) scale(1.4);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(-50%) scale(1);
+        }
+      }
+
+      /* Badge */
+      .match-badge {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%) scale(0);
+        background: var(--gold);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 6px 16px;
+        border-radius: 100px;
+        white-space: nowrap;
+        opacity: 0;
+        box-shadow: 0 4px 14px rgba(176, 141, 62, 0.35);
+      }
+
+      .anim-match.play .match-badge {
+        animation: badgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 2.4s forwards;
+      }
+
+      /* ========================================
+         17. Priority Queue (우선 처리)
+         ======================================== */
+      .anim-priority {
+        position: relative;
+        width: 260px;
+        height: 220px;
+      }
+
+      .priority-card {
+        position: absolute;
+        width: 160px;
+        height: 50px;
+        background: var(--surface);
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        padding: 0 14px;
+        gap: 10px;
+        opacity: 0;
+      }
+
+      .priority-card .pc-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--border);
+        flex-shrink: 0;
+      }
+
+      .priority-card .pc-lines {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .priority-card .pc-line {
+        height: 3px;
+        background: var(--border-light);
+        border-radius: 2px;
+      }
+
+      .priority-card .pc-line:first-child {
+        width: 90%;
+      }
+      .priority-card .pc-line:last-child {
+        width: 60%;
+      }
+
+      .priority-card.c1 {
+        left: 50px;
+        top: 20px;
+      }
+      .priority-card.c2 {
+        left: 50px;
+        top: 82px;
+      }
+      .priority-card.c3 {
+        left: 50px;
+        top: 144px;
+      }
+
+      .anim-priority.play .priority-card.c1 {
+        animation: slideUp 0.4s ease 0.3s forwards;
+      }
+
+      .anim-priority.play .priority-card.c2 {
+        animation: slideUp 0.4s ease 0.5s forwards;
+      }
+
+      .anim-priority.play .priority-card.c3 {
+        animation: slideUp 0.4s ease 0.7s forwards;
+      }
+
+      /* Priority highlight on first card */
+      .anim-priority.play .priority-card.c1 {
+        animation:
+          slideUp 0.4s ease 0.3s forwards,
+          priorityGlow 0.6s ease 1.4s forwards;
+      }
+
+      @keyframes priorityGlow {
+        0% {
+          border-color: var(--border);
+          box-shadow: none;
+        }
+        100% {
+          border-color: var(--gold);
+          box-shadow: 0 4px 20px rgba(176, 141, 62, 0.2);
+          transform: translateX(-10px);
+        }
+      }
+
+      .priority-card.c1 .pc-dot {
+        transition: background 0.3s;
+      }
+
+      .anim-priority.play .priority-card.c1 .pc-dot {
+        animation: dotGold 0.3s ease 1.4s forwards;
+      }
+
+      @keyframes dotGold {
+        to {
+          background: var(--gold);
+        }
+      }
+
+      /* Star badge on priority card */
+      .priority-star {
+        position: absolute;
+        top: 12px;
+        left: 32px;
+        width: 24px;
+        height: 24px;
+        background: var(--gold);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transform: scale(0);
+        box-shadow: 0 2px 8px rgba(176, 141, 62, 0.35);
+      }
+
+      .anim-priority.play .priority-star {
+        animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1.8s forwards;
+      }
+
+      /* ========================================
+         18. Appointment Set (방문 예약)
+         ======================================== */
+      .anim-appoint {
+        position: relative;
+        width: 240px;
+        height: 220px;
+      }
+
+      .appoint-cal {
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 200px;
+        background: var(--surface);
+        border: 1.5px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        opacity: 0;
+        box-shadow: 0 4px 16px rgba(44, 36, 32, 0.07);
+      }
+
+      .anim-appoint.play .appoint-cal {
+        animation: slideUp 0.5s ease 0.2s forwards;
+      }
+
+      .appoint-cal-header {
+        background: var(--navy);
+        padding: 10px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .appoint-cal-month {
+        font-size: 12px;
+        font-weight: 700;
+        color: #fff;
+      }
+
+      .appoint-cal-nav {
+        display: flex;
+        gap: 8px;
+      }
+
+      .appoint-cal-nav span {
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      .appoint-days-header {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        padding: 6px 8px 2px;
+        gap: 2px;
+      }
+
+      .appoint-day-name {
+        text-align: center;
+        font-size: 9px;
+        font-weight: 600;
+        color: var(--text-muted);
+      }
+
+      .appoint-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        padding: 2px 8px 8px;
+        gap: 2px;
+      }
+
+      .appoint-cell {
+        text-align: center;
+        font-size: 10px;
+        font-weight: 500;
+        color: var(--text-sub);
+        padding: 3px 0;
+        border-radius: 5px;
+        position: relative;
+      }
+
+      .appoint-cell.empty {
+        color: transparent;
+      }
+      .appoint-cell.weekend {
+        color: var(--text-muted);
+      }
+
+      /* Gold pin */
+      .appoint-cell.pinned::after {
+        content: "";
+        position: absolute;
+        top: -4px;
+        left: 50%;
+        transform: translateX(-50%) scale(0);
+        width: 8px;
+        height: 8px;
+        background: var(--gold);
+        border-radius: 50%;
+        box-shadow: 0 2px 6px rgba(176, 141, 62, 0.5);
+      }
+
+      .appoint-cell.pinned {
+        font-weight: 700;
+        color: var(--gold);
+      }
+
+      .anim-appoint.play .appoint-cell.pinned::after {
+        animation: pinDrop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 1.2s forwards;
+      }
+
+      @keyframes pinDrop {
+        0% {
+          transform: translateX(-50%) scale(0) translateY(-10px);
+        }
+        60% {
+          transform: translateX(-50%) scale(1.3) translateY(0);
+        }
+        100% {
+          transform: translateX(-50%) scale(1) translateY(0);
+        }
+      }
+
+      /* Ribbon badge */
+      .appoint-ribbon {
+        position: absolute;
+        bottom: 6px;
+        left: 50%;
+        transform: translateX(-50%) scale(0);
+        background: var(--gold);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 5px 16px;
+        border-radius: 100px;
+        white-space: nowrap;
+        opacity: 0;
+        box-shadow: 0 4px 14px rgba(176, 141, 62, 0.35);
+      }
+
+      .appoint-ribbon::before,
+      .appoint-ribbon::after {
+        content: "";
+        position: absolute;
+        top: -3px;
+        width: 10px;
+        height: 10px;
+        background: var(--gold-light);
+        border-radius: 2px;
+        transform: rotate(45deg);
+        z-index: -1;
+      }
+
+      .appoint-ribbon::before {
+        left: -2px;
+      }
+      .appoint-ribbon::after {
+        right: -2px;
+      }
+
+      .anim-appoint.play .appoint-ribbon {
+        animation: badgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 2s forwards;
+      }
+
+      /* ========================================
+         19. Quick Response (빠른 응답)
+         ======================================== */
+      .anim-quick {
+        position: relative;
+        width: 260px;
+        height: 220px;
+      }
+
+      .quick-bubble {
+        position: absolute;
+        padding: 8px 14px;
+        border-radius: 14px;
+        font-size: 11px;
+        font-weight: 600;
+        opacity: 0;
+        white-space: nowrap;
+      }
+
+      .quick-bubble.q1 {
+        top: 20px;
+        left: 16px;
+        background: var(--navy);
+        color: #fff;
+        border-radius: 14px 14px 14px 4px;
+      }
+
+      .quick-bubble.q2 {
+        top: 52px;
+        right: 16px;
+        background: var(--gold);
+        color: #fff;
+        border-radius: 14px 14px 4px 14px;
+      }
+
+      .quick-bubble.q3 {
+        top: 84px;
+        left: 22px;
+        background: var(--navy);
+        color: #fff;
+        border-radius: 14px 14px 14px 4px;
+      }
+
+      .quick-bubble.q4 {
+        top: 116px;
+        right: 22px;
+        background: var(--gold);
+        color: #fff;
+        border-radius: 14px 14px 4px 14px;
+      }
+
+      .quick-bubble.q5 {
+        top: 148px;
+        left: 16px;
+        background: var(--navy);
+        color: #fff;
+        border-radius: 14px 14px 14px 4px;
+      }
+
+      .anim-quick.play .quick-bubble.q1 {
+        animation: slideRight 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s
+          forwards;
+      }
+
+      .anim-quick.play .quick-bubble.q2 {
+        animation: slideLeft 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s
+          forwards;
+      }
+
+      .anim-quick.play .quick-bubble.q3 {
+        animation: slideRight 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) 0.8s
+          forwards;
+      }
+
+      .anim-quick.play .quick-bubble.q4 {
+        animation: slideLeft 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) 1.1s
+          forwards;
+      }
+
+      .anim-quick.play .quick-bubble.q5 {
+        animation: slideRight 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) 1.4s
+          forwards;
+      }
+
+      /* Speed lines */
+      .quick-speed {
+        position: absolute;
+        width: 30px;
+        height: 2px;
+        border-radius: 1px;
+        opacity: 0;
+      }
+
+      .quick-speed.s1 {
+        top: 28px;
+        right: 60px;
+        background: var(--navy);
+      }
+
+      .quick-speed.s2 {
+        top: 60px;
+        left: 60px;
+        background: var(--gold);
+      }
+
+      .quick-speed.s3 {
+        top: 92px;
+        right: 50px;
+        background: var(--navy);
+      }
+
+      .anim-quick.play .quick-speed.s1 {
+        animation: speedLine 0.3s ease 0.35s forwards;
+      }
+
+      .anim-quick.play .quick-speed.s2 {
+        animation: speedLine 0.3s ease 0.65s forwards;
+      }
+
+      .anim-quick.play .quick-speed.s3 {
+        animation: speedLine 0.3s ease 0.95s forwards;
+      }
+
+      @keyframes speedLine {
+        0% {
+          opacity: 0;
+          width: 0;
+        }
+        50% {
+          opacity: 0.6;
+          width: 30px;
+        }
+        100% {
+          opacity: 0;
+          width: 40px;
+        }
+      }
+
+      /* Fast badge */
+      .quick-badge {
+        position: absolute;
+        bottom: 16px;
+        left: 50%;
+        transform: translateX(-50%) scale(0);
+        background: var(--gold);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 100px;
+        white-space: nowrap;
+        opacity: 0;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .anim-quick.play .quick-badge {
+        animation: badgePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1.8s forwards;
+      }
+
+      /* ========================================
+         20. Inquiry Receive (문의 접수)
+         ======================================== */
+      .anim-inquiry {
+        position: relative;
+        width: 260px;
+        height: 220px;
+      }
+
+      /* Inbox */
+      .inquiry-inbox {
+        position: absolute;
+        top: 40px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 120px;
+        height: 90px;
+        background: var(--surface);
+        border: 2px solid var(--border);
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        opacity: 0;
+        box-shadow: 0 4px 16px rgba(44, 36, 32, 0.07);
+      }
+
+      .inbox-icon-tray {
+        width: 40px;
+        height: 6px;
+        background: var(--border);
+        border-radius: 3px;
+      }
+
+      .inbox-label {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--coffee);
+      }
+
+      .anim-inquiry.play .inquiry-inbox {
+        animation: fadeIn 0.4s ease 0.2s forwards;
+      }
+
+      /* Flying letter */
+      .inquiry-letter {
+        position: absolute;
+        top: 0;
+        left: -50px;
+        width: 40px;
+        height: 30px;
+        opacity: 0;
+      }
+
+      .letter-body {
+        width: 40px;
+        height: 30px;
+        background: var(--gold-light);
+        border-radius: 4px;
+        position: relative;
+      }
+
+      .letter-flap {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 0;
+        height: 0;
+        border-left: 20px solid transparent;
+        border-right: 20px solid transparent;
+        border-top: 15px solid var(--gold);
+      }
+
+      .anim-inquiry.play .inquiry-letter {
+        animation: letterFly 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.6s
+          forwards;
+      }
+
+      @keyframes letterFly {
+        0% {
+          opacity: 0;
+          left: -50px;
+          top: 0;
+          transform: rotate(-10deg);
+        }
+        40% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 1;
+          left: 110px;
+          top: 52px;
+          transform: rotate(0deg) scale(0.7);
+        }
+      }
+
+      /* Bell notification */
+      .inquiry-bell {
+        position: absolute;
+        top: 22px;
+        right: 50px;
+        opacity: 0;
+      }
+
+      .anim-inquiry.play .inquiry-bell {
+        animation: fadeIn 0.3s ease 1.6s forwards;
+      }
+
+      .anim-inquiry.play .inquiry-bell svg {
+        animation: bellRing 0.6s ease 1.8s;
+      }
+
+      @keyframes bellRing {
+        0% {
+          transform: rotate(0deg);
+        }
+        20% {
+          transform: rotate(20deg);
+        }
+        40% {
+          transform: rotate(-15deg);
+        }
+        60% {
+          transform: rotate(12deg);
+        }
+        80% {
+          transform: rotate(-8deg);
+        }
+        100% {
+          transform: rotate(0deg);
+        }
+      }
+
+      /* Badge number */
+      .inquiry-badge-num {
+        position: absolute;
+        top: 16px;
+        right: 42px;
+        width: 20px;
+        height: 20px;
+        background: #e05252;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 700;
+        color: #fff;
+        opacity: 0;
+        transform: scale(0);
+        border: 2px solid var(--surface);
+      }
+
+      .anim-inquiry.play .inquiry-badge-num {
+        animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 2.2s forwards;
+      }
+
+      /* Confirmation text */
+      .inquiry-confirm {
+        position: absolute;
+        bottom: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--gold);
+        opacity: 0;
+        white-space: nowrap;
+      }
+
+      .anim-inquiry.play .inquiry-confirm {
+        animation: fadeIn 0.4s ease 2.6s forwards;
+      }
+
+      /* ========================================
+         Responsive
+         ======================================== */
+      @media (max-width: 768px) {
+        .showcase-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-header">
+      <h1>Communication Scenes — 상담/접수</h1>
+      <p>고객 상담과 접수 과정 애니메이션 10종</p>
+    </div>
+
+    <div class="showcase-grid">
+      <!-- 11. Consultation Start -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-consult play" id="anim11">
+            <div class="consult-table"></div>
+            <div class="consult-table-leg-l"></div>
+            <div class="consult-table-leg-r"></div>
+            <div class="consult-person left">
+              <div class="p-head"></div>
+              <div class="p-body"></div>
+            </div>
+            <div class="consult-person right">
+              <div class="p-head"></div>
+              <div class="p-body"></div>
+            </div>
+            <div class="consult-doc"></div>
+            <div class="consult-bubble b1">정책자금 문의입니다</div>
+            <div class="consult-bubble b2">네, 안내드리겠습니다</div>
+            <div class="consult-bubble b3">어떤 조건인가요?</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">11</div>
+          <h3>Consultation Start</h3>
+          <div class="meaning">상담 시작</div>
+          <div class="desc">
+            두 인물이 테이블 양쪽에 앉아 말풍선 번갈아 등장, 서류 아이콘
+          </div>
+          <button class="replay-btn" onclick="replay('anim11')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 12. Document Submit -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-submit play" id="anim12">
+            <div class="submit-window">
+              <div class="submit-window-label">접수 창구</div>
+              <div class="submit-window-slot"></div>
+              <div class="submit-window-slot"></div>
+            </div>
+            <div class="submit-envelope">
+              <div class="envelope-body">
+                <div class="envelope-flap"></div>
+              </div>
+            </div>
+            <div class="submit-stamp">접수완료</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">12</div>
+          <h3>Document Submit</h3>
+          <div class="meaning">서류 접수</div>
+          <div class="desc">
+            봉투 슬라이드인 → 접수 창구 도착 → "접수완료" 스탬프 찍힘
+          </div>
+          <button class="replay-btn" onclick="replay('anim12')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 13. Form Fill -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-form play" id="anim13">
+            <div class="form-paper">
+              <div class="form-title">신청서 양식</div>
+              <div class="form-row">
+                <div class="form-checkbox">
+                  <div class="check-fill">
+                    <svg
+                      width="10"
+                      height="10"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#fff"
+                      stroke-width="3"
+                    >
+                      <polyline points="6 12 10 16 18 8"></polyline>
+                    </svg>
+                  </div>
+                </div>
+                <div class="form-line" style="width: 80%"></div>
+              </div>
+              <div class="form-row">
+                <div class="form-checkbox">
+                  <div class="check-fill">
+                    <svg
+                      width="10"
+                      height="10"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#fff"
+                      stroke-width="3"
+                    >
+                      <polyline points="6 12 10 16 18 8"></polyline>
+                    </svg>
+                  </div>
+                </div>
+                <div class="form-line" style="width: 65%"></div>
+              </div>
+              <div class="form-row">
+                <div class="form-checkbox">
+                  <div class="check-fill">
+                    <svg
+                      width="10"
+                      height="10"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#fff"
+                      stroke-width="3"
+                    >
+                      <polyline points="6 12 10 16 18 8"></polyline>
+                    </svg>
+                  </div>
+                </div>
+                <div class="form-line" style="width: 75%"></div>
+              </div>
+              <div class="form-row">
+                <div class="form-checkbox">
+                  <div class="check-fill">
+                    <svg
+                      width="10"
+                      height="10"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#fff"
+                      stroke-width="3"
+                    >
+                      <polyline points="6 12 10 16 18 8"></polyline>
+                    </svg>
+                  </div>
+                </div>
+                <div class="form-line" style="width: 70%"></div>
+              </div>
+            </div>
+            <div class="form-pen">
+              <div class="form-pen-body"></div>
+              <div class="form-pen-tip"></div>
+            </div>
+            <div class="form-complete">작성완료</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">13</div>
+          <h3>Form Fill</h3>
+          <div class="meaning">양식 작성</div>
+          <div class="desc">
+            펜이 위에서부터 순차적으로 체크마크 → "작성완료" 배지
+          </div>
+          <button class="replay-btn" onclick="replay('anim13')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 14. Welcome Greeting -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-welcome play" id="anim14">
+            <div class="welcome-person">
+              <div class="wp-head"></div>
+              <div class="wp-body"></div>
+            </div>
+            <div class="welcome-hand">&#128075;</div>
+            <div class="welcome-bubble">안녕하세요!</div>
+            <div class="welcome-effect e1">&#10084;</div>
+            <div class="welcome-effect e2">&#9733;</div>
+            <div class="welcome-effect e3">&#10084;</div>
+            <div class="welcome-effect e4">&#9733;</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">14</div>
+          <h3>Welcome Greeting</h3>
+          <div class="meaning">환영 인사</div>
+          <div class="desc">
+            인물이 손을 흔들며 "안녕하세요" 말풍선 등장, 하트/별 이펙트
+          </div>
+          <button class="replay-btn" onclick="replay('anim14')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 15. Initial Review -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-review play" id="anim15">
+            <div class="review-doc">
+              <div class="review-line"></div>
+              <div class="review-line"></div>
+              <div class="review-line highlight-line hl1"></div>
+              <div class="review-line"></div>
+              <div class="review-line"></div>
+              <div class="review-line highlight-line hl2"></div>
+              <div class="review-line"></div>
+              <div class="review-line"></div>
+            </div>
+            <div class="review-mag">
+              <div class="mag-glass">
+                <div class="mag-handle"></div>
+              </div>
+            </div>
+            <div class="review-check">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#fff"
+                stroke-width="3"
+              >
+                <polyline points="6 12 10 16 18 8"></polyline>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">15</div>
+          <h3>Initial Review</h3>
+          <div class="meaning">초기 검토</div>
+          <div class="desc">
+            서류 위 돋보기 좌우 스캔 → 핵심 부분 하이라이트 → 체크마크
+          </div>
+          <button class="replay-btn" onclick="replay('anim15')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 16. Expert Match -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-match play" id="anim16">
+            <div class="match-profile client">
+              <div class="match-avatar">C</div>
+              <div class="match-label">고객</div>
+              <div class="match-tag">정책자금 희망</div>
+            </div>
+            <div class="match-profile expert">
+              <div class="match-avatar">E</div>
+              <div class="match-label">전문가</div>
+              <div class="match-tag">10년 경력</div>
+            </div>
+            <div class="match-line"></div>
+            <div class="match-pulse"></div>
+            <div class="match-badge">매칭완료</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">16</div>
+          <h3>Expert Match</h3>
+          <div class="meaning">전문가 매칭</div>
+          <div class="desc">고객-전문가 프로필 점선 연결 → 매칭완료 배지</div>
+          <button class="replay-btn" onclick="replay('anim16')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 17. Priority Queue -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-priority play" id="anim17">
+            <div class="priority-card c1">
+              <div class="pc-dot"></div>
+              <div class="pc-lines">
+                <div class="pc-line"></div>
+                <div class="pc-line"></div>
+              </div>
+            </div>
+            <div class="priority-card c2">
+              <div class="pc-dot"></div>
+              <div class="pc-lines">
+                <div class="pc-line"></div>
+                <div class="pc-line"></div>
+              </div>
+            </div>
+            <div class="priority-card c3">
+              <div class="pc-dot"></div>
+              <div class="pc-lines">
+                <div class="pc-line"></div>
+                <div class="pc-line"></div>
+              </div>
+            </div>
+            <div class="priority-star">
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="#fff"
+                stroke="none"
+              >
+                <polygon
+                  points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+                ></polygon>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">17</div>
+          <h3>Priority Queue</h3>
+          <div class="meaning">우선 처리</div>
+          <div class="desc">
+            3장의 카드 대기열 → 맨 앞 카드가 골드색으로 강조되며 앞으로 슬라이드
+          </div>
+          <button class="replay-btn" onclick="replay('anim17')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 18. Appointment Set -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-appoint play" id="anim18">
+            <div class="appoint-cal">
+              <div class="appoint-cal-header">
+                <span class="appoint-cal-month">2026년 3월</span>
+                <div class="appoint-cal-nav">
+                  <span>&#8249;</span>
+                  <span>&#8250;</span>
+                </div>
+              </div>
+              <div class="appoint-days-header">
+                <span class="appoint-day-name" style="color: #e05252">일</span>
+                <span class="appoint-day-name">월</span>
+                <span class="appoint-day-name">화</span>
+                <span class="appoint-day-name">수</span>
+                <span class="appoint-day-name">목</span>
+                <span class="appoint-day-name">금</span>
+                <span class="appoint-day-name" style="color: #5281e0">토</span>
+              </div>
+              <div class="appoint-grid">
+                <span class="appoint-cell empty">.</span>
+                <span class="appoint-cell empty">.</span>
+                <span class="appoint-cell empty">.</span>
+                <span class="appoint-cell empty">.</span>
+                <span class="appoint-cell empty">.</span>
+                <span class="appoint-cell empty">.</span>
+                <span class="appoint-cell weekend">1</span>
+                <span class="appoint-cell weekend">2</span>
+                <span class="appoint-cell">3</span>
+                <span class="appoint-cell">4</span>
+                <span class="appoint-cell">5</span>
+                <span class="appoint-cell">6</span>
+                <span class="appoint-cell">7</span>
+                <span class="appoint-cell weekend">8</span>
+                <span class="appoint-cell weekend">9</span>
+                <span class="appoint-cell">10</span>
+                <span class="appoint-cell">11</span>
+                <span class="appoint-cell pinned">12</span>
+                <span class="appoint-cell">13</span>
+                <span class="appoint-cell">14</span>
+                <span class="appoint-cell weekend">15</span>
+              </div>
+            </div>
+            <div class="appoint-ribbon">예약확정</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">18</div>
+          <h3>Appointment Set</h3>
+          <div class="meaning">방문 예약</div>
+          <div class="desc">
+            달력 날짜에 골드 핀 → "예약확정" 리본 배지 등장
+          </div>
+          <button class="replay-btn" onclick="replay('anim18')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 19. Quick Response -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-quick play" id="anim19">
+            <div class="quick-bubble q1">지원 조건이 궁금합니다</div>
+            <div class="quick-bubble q2">매출 5억 이하 기업 대상입니다</div>
+            <div class="quick-bubble q3">신청 기간은요?</div>
+            <div class="quick-bubble q4">3월 말까지 접수 가능합니다</div>
+            <div class="quick-bubble q5">감사합니다!</div>
+            <div class="quick-speed s1"></div>
+            <div class="quick-speed s2"></div>
+            <div class="quick-speed s3"></div>
+            <div class="quick-badge">
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#fff"
+                stroke-width="2.5"
+              >
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              빠른 응답
+            </div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">19</div>
+          <h3>Quick Response</h3>
+          <div class="meaning">빠른 응답</div>
+          <div class="desc">
+            두 말풍선이 빠르게 왕복 교환, 속도감 있는 타이밍
+          </div>
+          <button class="replay-btn" onclick="replay('anim19')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 20. Inquiry Receive -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-inquiry play" id="anim20">
+            <div class="inquiry-inbox">
+              <div class="inbox-icon-tray"></div>
+              <div class="inbox-icon-tray" style="width: 30px"></div>
+              <div class="inbox-label">받은편지함</div>
+            </div>
+            <div class="inquiry-letter">
+              <div class="letter-body">
+                <div class="letter-flap"></div>
+              </div>
+            </div>
+            <div class="inquiry-bell">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="var(--gold)"
+                stroke-width="2"
+              >
+                <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 01-3.46 0"></path>
+              </svg>
+            </div>
+            <div class="inquiry-badge-num">1</div>
+            <div class="inquiry-confirm">문의가 접수되었습니다</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">20</div>
+          <h3>Inquiry Receive</h3>
+          <div class="meaning">문의 접수</div>
+          <div class="desc">
+            받은편지함에 편지 날아옴 → 알림 벨 → "1" 뱃지 등장
+          </div>
+          <button class="replay-btn" onclick="replay('anim20')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function replay(id) {
+        const el = document.getElementById(id);
+        el.classList.remove("play");
+        void el.offsetWidth; // force reflow
+        el.classList.add("play");
+      }
+
+      // IntersectionObserver: auto-play when card enters viewport
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            const anim = entry.target.querySelector("[id^='anim']");
+            if (!anim) return;
+            if (entry.isIntersecting) {
+              anim.classList.add("play");
+            }
+          });
+        },
+        { threshold: 0.3 },
+      );
+
+      document.querySelectorAll(".showcase-card").forEach((card) => {
+        observer.observe(card);
+      });
+    </script>
+  </body>
+</html>

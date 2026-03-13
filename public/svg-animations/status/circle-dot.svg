@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .dot {
+      transform-origin: 12px 12px;
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { transform: scale(0.8); }
+      50% { transform: scale(1.2); }
+    }
+  </style>
+  <circle cx="12" cy="12" r="10"/>
+  <circle class="dot" cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/>
+</svg>

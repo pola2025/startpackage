@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .cell {
+      transform-origin: center;
+      transform-box: fill-box;
+      animation: grid-pulse 2s ease-in-out infinite;
+    }
+    .cell-1 {
+      animation-delay: 0s;
+    }
+    .cell-2 {
+      animation-delay: 0.2s;
+    }
+    .cell-3 {
+      animation-delay: 0.4s;
+    }
+    .cell-4 {
+      animation-delay: 0.6s;
+    }
+    @keyframes grid-pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.08);
+      }
+    }
+  </style>
+  <rect class="cell cell-1" x="3" y="3" width="8" height="8" rx="1" />
+  <rect class="cell cell-2" x="13" y="3" width="8" height="8" rx="1" />
+  <rect class="cell cell-3" x="3" y="13" width="8" height="8" rx="1" />
+  <rect class="cell cell-4" x="13" y="13" width="8" height="8" rx="1" />
+</svg>

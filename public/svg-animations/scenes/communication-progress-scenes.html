@@ -1,0 +1,2462 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Communication Scenes — 진행/소통</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
+    />
+    <style>
+      :root {
+        --bg: #faf8f5;
+        --bg-warm: #f5f0ea;
+        --surface: #ffffff;
+        --navy: #0d1b2a;
+        --gold: #b08d3e;
+        --gold-light: #c9a84c;
+        --gold-pale: rgba(176, 141, 62, 0.08);
+        --gold-border: rgba(176, 141, 62, 0.2);
+        --coffee: #6b5344;
+        --text: #2c2420;
+        --text-sub: #5c5248;
+        --text-muted: #9c9088;
+        --border: #e8e0d8;
+        --border-light: #f0ebe5;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family:
+          "Pretendard",
+          -apple-system,
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.7;
+      }
+
+      .page-header {
+        text-align: center;
+        padding: 60px 24px 40px;
+        background: linear-gradient(180deg, var(--bg) 0%, var(--bg-warm) 100%);
+      }
+
+      .page-header h1 {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      .page-header p {
+        font-size: 15px;
+        color: var(--text-sub);
+      }
+
+      .showcase-grid {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 24px 80px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 32px;
+      }
+
+      .showcase-card {
+        background: var(--surface);
+        border: 1px solid var(--border-light);
+        border-radius: 20px;
+        overflow: hidden;
+        transition: box-shadow 0.3s ease;
+      }
+
+      .showcase-card:hover {
+        box-shadow: 0 8px 30px rgba(44, 36, 32, 0.1);
+      }
+
+      .anim-stage {
+        height: 320px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .card-info {
+        padding: 24px 28px;
+      }
+
+      .card-num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        background: var(--gold);
+        color: #fff;
+        border-radius: 50%;
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      .card-info h3 {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 6px;
+      }
+
+      .card-info .meaning {
+        font-size: 14px;
+        color: var(--gold);
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+
+      .card-info .desc {
+        font-size: 13px;
+        color: var(--text-muted);
+      }
+
+      .replay-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 12px;
+        padding: 6px 14px;
+        background: var(--gold-pale);
+        border: 1px solid var(--gold-border);
+        border-radius: 100px;
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--gold);
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .replay-btn:hover {
+        background: var(--gold);
+        color: #fff;
+      }
+
+      /* ========================================
+         Shared keyframes
+         ======================================== */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes popIn {
+        0% {
+          opacity: 0;
+          transform: scale(0);
+        }
+        70% {
+          opacity: 1;
+          transform: scale(1.15);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes slideLeft {
+        from {
+          opacity: 0;
+          transform: translateX(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      @keyframes slideRight {
+        from {
+          opacity: 0;
+          transform: translateX(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      /* ========================================
+         21. Progress Update (진행 알림)
+         ======================================== */
+      .anim-progress {
+        position: relative;
+        width: 260px;
+        height: 200px;
+      }
+
+      .progress-bar-track {
+        position: absolute;
+        top: 90px;
+        left: 20px;
+        width: 220px;
+        height: 18px;
+        background: var(--border-light);
+        border-radius: 10px;
+        overflow: hidden;
+        opacity: 0;
+      }
+
+      .anim-progress.play .progress-bar-track {
+        animation: fadeIn 0.4s ease 0.2s forwards;
+      }
+
+      .progress-bar-fill {
+        width: 0%;
+        height: 100%;
+        background: linear-gradient(90deg, var(--gold), var(--gold-light));
+        border-radius: 10px;
+        transition: none;
+      }
+
+      .anim-progress.play .progress-bar-fill {
+        animation: progressFill 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.6s
+          forwards;
+      }
+
+      @keyframes progressFill {
+        0% {
+          width: 0%;
+        }
+        20% {
+          width: 18%;
+        }
+        45% {
+          width: 42%;
+        }
+        65% {
+          width: 68%;
+        }
+        85% {
+          width: 88%;
+        }
+        100% {
+          width: 100%;
+        }
+      }
+
+      .progress-percent {
+        position: absolute;
+        top: 58px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 28px;
+        font-weight: 800;
+        color: var(--navy);
+        opacity: 0;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .anim-progress.play .progress-percent {
+        animation: fadeIn 0.3s ease 0.4s forwards;
+      }
+
+      .progress-label {
+        position: absolute;
+        top: 40px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        opacity: 0;
+      }
+
+      .anim-progress.play .progress-label {
+        animation: fadeIn 0.3s ease 0.2s forwards;
+      }
+
+      .progress-bell {
+        position: absolute;
+        top: 125px;
+        left: 50%;
+        transform: translateX(-50%) scale(0);
+        opacity: 0;
+      }
+
+      .anim-progress.play .progress-bell {
+        animation: bellAppear 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 3.2s
+          forwards;
+      }
+
+      @keyframes bellAppear {
+        0% {
+          opacity: 0;
+          transform: translateX(-50%) scale(0) rotate(-15deg);
+        }
+        60% {
+          opacity: 1;
+          transform: translateX(-50%) scale(1.2) rotate(10deg);
+        }
+        80% {
+          transform: translateX(-50%) scale(1) rotate(-5deg);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(-50%) scale(1) rotate(0deg);
+        }
+      }
+
+      .progress-complete-badge {
+        position: absolute;
+        top: 158px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--gold);
+        opacity: 0;
+        white-space: nowrap;
+      }
+
+      .anim-progress.play .progress-complete-badge {
+        animation: slideUp 0.4s ease 3.6s forwards;
+      }
+
+      /* ========================================
+         22. Status Check (현황 확인)
+         ======================================== */
+      .anim-status {
+        position: relative;
+        width: 240px;
+        height: 220px;
+      }
+
+      .status-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 12px;
+        margin-bottom: 6px;
+        background: var(--surface);
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        opacity: 0;
+        position: relative;
+      }
+
+      .status-checkbox {
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        border: 2px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: none;
+      }
+
+      .status-checkbox svg {
+        opacity: 0;
+      }
+
+      .status-text {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text);
+      }
+
+      .anim-status.play .status-item:nth-child(1) {
+        animation: slideRight 0.4s ease 0.3s forwards;
+      }
+      .anim-status.play .status-item:nth-child(2) {
+        animation: slideRight 0.4s ease 0.6s forwards;
+      }
+      .anim-status.play .status-item:nth-child(3) {
+        animation: slideRight 0.4s ease 0.9s forwards;
+      }
+      .anim-status.play .status-item:nth-child(4) {
+        animation: slideRight 0.4s ease 1.2s forwards;
+      }
+
+      .anim-status.play .status-item:nth-child(1) .status-checkbox {
+        animation: checkboxFill 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1s
+          forwards;
+      }
+      .anim-status.play .status-item:nth-child(2) .status-checkbox {
+        animation: checkboxFill 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1.5s
+          forwards;
+      }
+      .anim-status.play .status-item:nth-child(3) .status-checkbox {
+        animation: checkboxFill 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 2s
+          forwards;
+      }
+      .anim-status.play .status-item:nth-child(4) .status-checkbox {
+        animation: checkboxFill 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 2.5s
+          forwards;
+      }
+
+      .anim-status.play .status-item:nth-child(1) .status-checkbox svg {
+        animation: popIn 0.4s ease 1.2s forwards;
+      }
+      .anim-status.play .status-item:nth-child(2) .status-checkbox svg {
+        animation: popIn 0.4s ease 1.7s forwards;
+      }
+      .anim-status.play .status-item:nth-child(3) .status-checkbox svg {
+        animation: popIn 0.4s ease 2.2s forwards;
+      }
+      .anim-status.play .status-item:nth-child(4) .status-checkbox svg {
+        animation: popIn 0.4s ease 2.7s forwards;
+      }
+
+      @keyframes checkboxFill {
+        0% {
+          background: transparent;
+          border-color: var(--border);
+        }
+        100% {
+          background: var(--gold);
+          border-color: var(--gold);
+        }
+      }
+
+      .status-badge {
+        position: absolute;
+        bottom: -6px;
+        right: 10px;
+        padding: 4px 14px;
+        background: var(--navy);
+        color: var(--gold-light);
+        border-radius: 100px;
+        font-size: 11px;
+        font-weight: 700;
+        opacity: 0;
+        transform: scale(0);
+      }
+
+      .anim-status.play .status-badge {
+        animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 3s forwards;
+      }
+
+      /* ========================================
+         23. Feedback Loop (피드백 순환)
+         ======================================== */
+      .anim-feedback {
+        position: relative;
+        width: 280px;
+        height: 200px;
+      }
+
+      .fb-bubble-left {
+        position: absolute;
+        left: 10px;
+        top: 60px;
+        width: 80px;
+        height: 50px;
+        background: var(--gold);
+        border-radius: 14px 14px 4px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        box-shadow: 0 4px 14px rgba(176, 141, 62, 0.25);
+      }
+
+      .fb-bubble-left span {
+        font-size: 11px;
+        font-weight: 700;
+        color: #fff;
+      }
+
+      .fb-bubble-right {
+        position: absolute;
+        right: 10px;
+        top: 60px;
+        width: 80px;
+        height: 50px;
+        background: var(--surface);
+        border: 2px solid var(--coffee);
+        border-radius: 14px 14px 14px 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        box-shadow: 0 4px 14px rgba(107, 83, 68, 0.15);
+      }
+
+      .fb-bubble-right span {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--coffee);
+      }
+
+      .anim-feedback.play .fb-bubble-left {
+        animation: slideRight 0.5s ease 0.3s forwards;
+      }
+
+      .anim-feedback.play .fb-bubble-right {
+        animation: slideLeft 0.5s ease 0.6s forwards;
+      }
+
+      .fb-arrow-container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 120px;
+        height: 120px;
+        opacity: 0;
+      }
+
+      .anim-feedback.play .fb-arrow-container {
+        animation: fadeIn 0.4s ease 1s forwards;
+      }
+
+      .fb-arrow-circle {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 120px;
+        height: 120px;
+      }
+
+      .fb-arrow-circle svg {
+        width: 120px;
+        height: 120px;
+      }
+
+      .fb-circle-path {
+        stroke-dasharray: 280;
+        stroke-dashoffset: 280;
+        fill: none;
+        stroke: var(--gold);
+        stroke-width: 2.5;
+        stroke-linecap: round;
+      }
+
+      .anim-feedback.play .fb-circle-path {
+        animation: circleDrawLoop 2.5s ease-in-out 1.2s infinite;
+      }
+
+      @keyframes circleDrawLoop {
+        0% {
+          stroke-dashoffset: 280;
+        }
+        50% {
+          stroke-dashoffset: 0;
+        }
+        100% {
+          stroke-dashoffset: -280;
+        }
+      }
+
+      .fb-arrow-head {
+        position: absolute;
+        top: -4px;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+      }
+
+      .anim-feedback.play .fb-arrow-head {
+        animation:
+          fadeIn 0.3s ease 1.4s forwards,
+          fbArrowSpin 2.5s linear 1.4s infinite;
+      }
+
+      @keyframes fbArrowSpin {
+        0% {
+          transform: translateX(-50%) rotate(0deg);
+        }
+        100% {
+          transform: translateX(-50%) rotate(360deg);
+        }
+      }
+
+      .fb-label {
+        position: absolute;
+        bottom: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--gold);
+        letter-spacing: 0.05em;
+        opacity: 0;
+        white-space: nowrap;
+      }
+
+      .anim-feedback.play .fb-label {
+        animation: slideUp 0.4s ease 1.6s forwards;
+      }
+
+      /* ========================================
+         24. Team Discuss (팀 회의)
+         ======================================== */
+      .anim-team {
+        position: relative;
+        width: 260px;
+        height: 220px;
+      }
+
+      .team-member {
+        position: absolute;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        font-weight: 700;
+        color: #fff;
+        opacity: 0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .team-member-1 {
+        background: var(--navy);
+        top: 30px;
+        left: 108px;
+      }
+
+      .team-member-2 {
+        background: var(--coffee);
+        bottom: 40px;
+        left: 40px;
+      }
+
+      .team-member-3 {
+        background: var(--gold);
+        bottom: 40px;
+        right: 40px;
+      }
+
+      .anim-team.play .team-member-1 {
+        animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s forwards;
+      }
+      .anim-team.play .team-member-2 {
+        animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s forwards;
+      }
+      .anim-team.play .team-member-3 {
+        animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.8s forwards;
+      }
+
+      .team-bubble {
+        position: absolute;
+        top: 85px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 8px 16px;
+        border-radius: 14px;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+        opacity: 0;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+      }
+
+      .team-bubble-1 {
+        background: var(--navy);
+        color: var(--gold-light);
+      }
+
+      .team-bubble-2 {
+        background: var(--surface);
+        border: 1.5px solid var(--coffee);
+        color: var(--coffee);
+      }
+
+      .team-bubble-3 {
+        background: var(--gold);
+        color: #fff;
+      }
+
+      .anim-team.play .team-bubble-1 {
+        animation:
+          bubbleAppear 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 1.2s forwards,
+          bubbleDisappear 0.3s ease 2.2s forwards;
+      }
+      .anim-team.play .team-bubble-2 {
+        animation:
+          bubbleAppear 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 2.5s forwards,
+          bubbleDisappear 0.3s ease 3.5s forwards;
+      }
+      .anim-team.play .team-bubble-3 {
+        animation: bubbleAppear 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 3.8s
+          forwards;
+      }
+
+      @keyframes bubbleAppear {
+        0% {
+          opacity: 0;
+          transform: translateX(-50%) scale(0.5) translateY(10px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(-50%) scale(1) translateY(0);
+        }
+      }
+
+      @keyframes bubbleDisappear {
+        0% {
+          opacity: 1;
+          transform: translateX(-50%) scale(1);
+        }
+        100% {
+          opacity: 0;
+          transform: translateX(-50%) scale(0.8) translateY(-5px);
+        }
+      }
+
+      .team-connect-line {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .anim-team.play .team-connect-line {
+        animation: fadeIn 0.5s ease 0.9s forwards;
+      }
+
+      /* ========================================
+         25. Screen Share (화면 공유)
+         ======================================== */
+      .anim-screen {
+        position: relative;
+        width: 280px;
+        height: 200px;
+      }
+
+      .screen-monitor {
+        position: absolute;
+        left: 10px;
+        top: 30px;
+        width: 110px;
+        height: 80px;
+        background: var(--navy);
+        border-radius: 8px;
+        border: 2.5px solid var(--text-muted);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        overflow: hidden;
+      }
+
+      .screen-monitor-stand {
+        position: absolute;
+        left: 45px;
+        top: 112px;
+        width: 40px;
+        height: 12px;
+        background: var(--text-muted);
+        border-radius: 0 0 6px 6px;
+        opacity: 0;
+      }
+
+      .anim-screen.play .screen-monitor {
+        animation: fadeIn 0.4s ease 0.2s forwards;
+      }
+
+      .anim-screen.play .screen-monitor-stand {
+        animation: fadeIn 0.4s ease 0.2s forwards;
+      }
+
+      .screen-content {
+        width: 80%;
+        height: 60%;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .screen-line {
+        height: 4px;
+        background: var(--gold);
+        border-radius: 2px;
+        opacity: 0.7;
+      }
+
+      .screen-line:nth-child(2) {
+        width: 80%;
+      }
+      .screen-line:nth-child(3) {
+        width: 60%;
+      }
+
+      .screen-receiver {
+        position: absolute;
+        right: 10px;
+        top: 30px;
+        width: 110px;
+        height: 80px;
+        background: var(--surface);
+        border-radius: 8px;
+        border: 2.5px solid var(--gold);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        overflow: hidden;
+      }
+
+      .screen-receiver-stand {
+        position: absolute;
+        right: 45px;
+        top: 112px;
+        width: 40px;
+        height: 12px;
+        background: var(--gold-light);
+        border-radius: 0 0 6px 6px;
+        opacity: 0;
+      }
+
+      .anim-screen.play .screen-receiver {
+        animation: fadeIn 0.4s ease 0.4s forwards;
+      }
+
+      .anim-screen.play .screen-receiver-stand {
+        animation: fadeIn 0.4s ease 0.4s forwards;
+      }
+
+      .screen-beam {
+        position: absolute;
+        top: 60px;
+        left: 120px;
+        width: 40px;
+        height: 3px;
+        opacity: 0;
+        overflow: visible;
+      }
+
+      .beam-line {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, var(--gold), var(--gold-light));
+        border-radius: 2px;
+        position: relative;
+      }
+
+      .beam-dot {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        background: var(--gold);
+        border-radius: 50%;
+        top: -2.5px;
+        left: 0;
+        box-shadow: 0 0 8px rgba(176, 141, 62, 0.6);
+      }
+
+      .anim-screen.play .screen-beam {
+        animation: fadeIn 0.3s ease 0.8s forwards;
+      }
+
+      .anim-screen.play .beam-dot {
+        animation: beamTravel 1.2s ease-in-out 1s infinite;
+      }
+
+      @keyframes beamTravel {
+        0% {
+          left: 0;
+          opacity: 1;
+        }
+        100% {
+          left: 100%;
+          opacity: 0.3;
+        }
+      }
+
+      .screen-receiver-content {
+        width: 80%;
+        height: 60%;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        opacity: 0;
+      }
+
+      .anim-screen.play .screen-receiver-content {
+        animation: fadeIn 0.6s ease 1.5s forwards;
+      }
+
+      .screen-share-label {
+        position: absolute;
+        bottom: 28px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--gold);
+        opacity: 0;
+        white-space: nowrap;
+        letter-spacing: 0.05em;
+      }
+
+      .anim-screen.play .screen-share-label {
+        animation: slideUp 0.4s ease 2s forwards;
+      }
+
+      .screen-pulse {
+        position: absolute;
+        top: 55px;
+        left: 135px;
+        width: 12px;
+        height: 12px;
+        background: var(--gold);
+        border-radius: 50%;
+        opacity: 0;
+      }
+
+      .anim-screen.play .screen-pulse {
+        animation: pulseDot 1.5s ease-in-out 1s infinite;
+      }
+
+      @keyframes pulseDot {
+        0%,
+        100% {
+          opacity: 0.4;
+          transform: scale(0.8);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.3);
+        }
+      }
+
+      /* ========================================
+         26. File Transfer (파일 전송)
+         ======================================== */
+      .anim-file {
+        position: relative;
+        width: 280px;
+        height: 200px;
+      }
+
+      .file-folder {
+        position: absolute;
+        top: 50px;
+        width: 60px;
+        height: 50px;
+        border-radius: 4px 4px 8px 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+      }
+
+      .file-folder-a {
+        left: 20px;
+        background: var(--coffee);
+      }
+
+      .file-folder-b {
+        right: 20px;
+        background: var(--gold);
+      }
+
+      .file-folder-tab {
+        position: absolute;
+        top: -8px;
+        left: 6px;
+        width: 22px;
+        height: 10px;
+        border-radius: 4px 4px 0 0;
+      }
+
+      .file-folder-a .file-folder-tab {
+        background: var(--coffee);
+      }
+
+      .file-folder-b .file-folder-tab {
+        background: var(--gold);
+      }
+
+      .file-folder-label {
+        font-size: 10px;
+        font-weight: 700;
+        color: #fff;
+      }
+
+      .anim-file.play .file-folder-a {
+        animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s forwards;
+      }
+
+      .anim-file.play .file-folder-b {
+        animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s forwards;
+      }
+
+      .file-path {
+        position: absolute;
+        top: 72px;
+        left: 85px;
+        width: 110px;
+        height: 2px;
+        opacity: 0;
+      }
+
+      .file-path-dashes {
+        width: 100%;
+        height: 100%;
+        background: repeating-linear-gradient(
+          90deg,
+          var(--border) 0px,
+          var(--border) 6px,
+          transparent 6px,
+          transparent 12px
+        );
+      }
+
+      .anim-file.play .file-path {
+        animation: fadeIn 0.4s ease 0.8s forwards;
+      }
+
+      .file-doc {
+        position: absolute;
+        top: 56px;
+        left: 55px;
+        width: 30px;
+        height: 36px;
+        background: var(--surface);
+        border: 2px solid var(--navy);
+        border-radius: 4px;
+        opacity: 0;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .file-doc-line {
+        width: 16px;
+        height: 2px;
+        background: var(--navy);
+        border-radius: 1px;
+        opacity: 0.5;
+      }
+
+      .file-doc-line:nth-child(2) {
+        width: 12px;
+      }
+
+      .anim-file.play .file-doc {
+        animation:
+          fadeIn 0.3s ease 1s forwards,
+          fileMove 1.5s cubic-bezier(0.4, 0, 0.2, 1) 1.4s forwards;
+      }
+
+      @keyframes fileMove {
+        0% {
+          left: 55px;
+          top: 56px;
+        }
+        30% {
+          top: 30px;
+        }
+        70% {
+          top: 30px;
+        }
+        100% {
+          left: 195px;
+          top: 56px;
+        }
+      }
+
+      .file-complete {
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--gold);
+        opacity: 0;
+        white-space: nowrap;
+      }
+
+      .anim-file.play .file-complete {
+        animation: slideUp 0.4s ease 3s forwards;
+      }
+
+      /* ========================================
+         27. Voice Record (음성 녹음)
+         ======================================== */
+      .anim-voice {
+        position: relative;
+        width: 260px;
+        height: 200px;
+      }
+
+      .voice-mic {
+        position: absolute;
+        top: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+      }
+
+      .anim-voice.play .voice-mic {
+        animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s forwards;
+      }
+
+      .voice-wave-container {
+        position: absolute;
+        top: 95px;
+        left: 30px;
+        right: 30px;
+        height: 40px;
+        overflow: hidden;
+        opacity: 0;
+      }
+
+      .anim-voice.play .voice-wave-container {
+        animation: fadeIn 0.4s ease 0.7s forwards;
+      }
+
+      .voice-wave {
+        position: absolute;
+        width: 200%;
+        height: 100%;
+      }
+
+      .voice-wave svg {
+        width: 100%;
+        height: 100%;
+      }
+
+      .voice-wave-path {
+        fill: none;
+        stroke: var(--gold);
+        stroke-width: 2.5;
+        stroke-linecap: round;
+      }
+
+      .anim-voice.play .voice-wave {
+        animation: waveScroll 2s linear 0.7s infinite;
+      }
+
+      @keyframes waveScroll {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(-50%);
+        }
+      }
+
+      .voice-rec-dot {
+        position: absolute;
+        top: 38px;
+        right: 55px;
+        width: 10px;
+        height: 10px;
+        background: #e53e3e;
+        border-radius: 50%;
+        opacity: 0;
+      }
+
+      .anim-voice.play .voice-rec-dot {
+        animation: recBlink 1s ease 0.8s infinite;
+      }
+
+      @keyframes recBlink {
+        0%,
+        100% {
+          opacity: 0;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+
+      .voice-rec-label {
+        position: absolute;
+        top: 35px;
+        right: 70px;
+        font-size: 10px;
+        font-weight: 700;
+        color: #e53e3e;
+        opacity: 0;
+      }
+
+      .anim-voice.play .voice-rec-label {
+        animation: fadeIn 0.3s ease 0.8s forwards;
+      }
+
+      .voice-time {
+        position: absolute;
+        bottom: 35px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--navy);
+        font-variant-numeric: tabular-nums;
+        opacity: 0;
+      }
+
+      .anim-voice.play .voice-time {
+        animation: fadeIn 0.3s ease 1s forwards;
+      }
+
+      /* ========================================
+         28. Live Chat (실시간 채팅)
+         ======================================== */
+      .anim-chat {
+        position: relative;
+        width: 220px;
+        height: 240px;
+      }
+
+      .chat-window {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--surface);
+        border: 2px solid var(--border);
+        border-radius: 16px;
+        overflow: hidden;
+        opacity: 0;
+      }
+
+      .anim-chat.play .chat-window {
+        animation: fadeIn 0.4s ease 0.1s forwards;
+      }
+
+      .chat-header {
+        height: 36px;
+        background: var(--navy);
+        display: flex;
+        align-items: center;
+        padding: 0 14px;
+        gap: 6px;
+      }
+
+      .chat-header-dot {
+        width: 8px;
+        height: 8px;
+        background: #4ade80;
+        border-radius: 50%;
+      }
+
+      .chat-header-title {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--gold-light);
+      }
+
+      .chat-body {
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .chat-msg {
+        max-width: 75%;
+        padding: 7px 12px;
+        font-size: 11px;
+        font-weight: 500;
+        border-radius: 12px;
+        opacity: 0;
+        line-height: 1.4;
+      }
+
+      .chat-msg-left {
+        align-self: flex-start;
+        background: var(--bg-warm);
+        color: var(--text);
+        border-radius: 12px 12px 12px 4px;
+      }
+
+      .chat-msg-right {
+        align-self: flex-end;
+        background: var(--gold);
+        color: #fff;
+        border-radius: 12px 12px 4px 12px;
+      }
+
+      .anim-chat.play .chat-msg:nth-child(1) {
+        animation: slideRight 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s
+          forwards;
+      }
+      .anim-chat.play .chat-msg:nth-child(2) {
+        animation: slideLeft 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1.2s
+          forwards;
+      }
+      .anim-chat.play .chat-msg:nth-child(3) {
+        animation: slideRight 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 2s forwards;
+      }
+      .anim-chat.play .chat-msg:nth-child(4) {
+        animation: slideLeft 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 2.8s
+          forwards;
+      }
+      .anim-chat.play .chat-msg:nth-child(5) {
+        animation: slideRight 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 3.5s
+          forwards;
+      }
+
+      .chat-typing-indicator {
+        align-self: flex-start;
+        display: flex;
+        gap: 4px;
+        padding: 8px 12px;
+        background: var(--bg-warm);
+        border-radius: 12px;
+        opacity: 0;
+      }
+
+      .anim-chat.play .chat-typing-indicator {
+        animation:
+          fadeIn 0.3s ease 0.3s forwards,
+          fadeOut 0.3s ease 0.5s forwards;
+      }
+
+      @keyframes fadeOut {
+        from {
+          opacity: 1;
+        }
+        to {
+          opacity: 0;
+        }
+      }
+
+      .chat-typing-dot {
+        width: 5px;
+        height: 5px;
+        background: var(--text-muted);
+        border-radius: 50%;
+      }
+
+      .anim-chat.play .chat-typing-dot:nth-child(1) {
+        animation: dotBounce 0.6s ease 0.3s 2;
+      }
+      .anim-chat.play .chat-typing-dot:nth-child(2) {
+        animation: dotBounce 0.6s ease 0.4s 2;
+      }
+      .anim-chat.play .chat-typing-dot:nth-child(3) {
+        animation: dotBounce 0.6s ease 0.5s 2;
+      }
+
+      @keyframes dotBounce {
+        0%,
+        100% {
+          opacity: 0.3;
+          transform: translateY(0);
+        }
+        50% {
+          opacity: 1;
+          transform: translateY(-3px);
+        }
+      }
+
+      /* ========================================
+         29. Read Receipt (읽음 확인)
+         ======================================== */
+      .anim-receipt {
+        position: relative;
+        width: 220px;
+        height: 200px;
+      }
+
+      .receipt-bubble {
+        position: absolute;
+        top: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 180px;
+        padding: 14px 18px;
+        background: var(--gold);
+        border-radius: 16px 16px 16px 4px;
+        opacity: 0;
+        box-shadow: 0 4px 16px rgba(176, 141, 62, 0.3);
+      }
+
+      .receipt-bubble-text {
+        font-size: 12px;
+        font-weight: 500;
+        color: #fff;
+        line-height: 1.5;
+      }
+
+      .receipt-bubble-time {
+        font-size: 9px;
+        color: rgba(255, 255, 255, 0.7);
+        text-align: right;
+        margin-top: 6px;
+      }
+
+      .anim-receipt.play .receipt-bubble {
+        animation: slideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s forwards;
+      }
+
+      .receipt-checks {
+        position: absolute;
+        top: 110px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        opacity: 0;
+      }
+
+      .receipt-check-single {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        opacity: 0;
+      }
+
+      .receipt-check-label {
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--text-muted);
+      }
+
+      .anim-receipt.play .receipt-checks {
+        animation: fadeIn 0.3s ease 1s forwards;
+      }
+
+      /* Phase 1: single grey check */
+      .receipt-phase1 {
+        position: absolute;
+        top: 115px;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+      }
+
+      .anim-receipt.play .receipt-phase1 {
+        animation:
+          fadeIn 0.3s ease 1.2s forwards,
+          fadeOut 0.3s ease 2.2s forwards;
+      }
+
+      /* Phase 2: double grey check */
+      .receipt-phase2 {
+        position: absolute;
+        top: 115px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 2px;
+        opacity: 0;
+      }
+
+      .anim-receipt.play .receipt-phase2 {
+        animation:
+          fadeIn 0.3s ease 2.5s forwards,
+          fadeOut 0.3s ease 3.5s forwards;
+      }
+
+      /* Phase 3: double blue check */
+      .receipt-phase3 {
+        position: absolute;
+        top: 115px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 2px;
+        opacity: 0;
+      }
+
+      .anim-receipt.play .receipt-phase3 {
+        animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 3.8s forwards;
+      }
+
+      .receipt-status-text {
+        position: absolute;
+        top: 145px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 10px;
+        font-weight: 600;
+        white-space: nowrap;
+        opacity: 0;
+      }
+
+      .receipt-status-1 {
+        color: var(--text-muted);
+      }
+      .receipt-status-2 {
+        color: var(--text-muted);
+      }
+      .receipt-status-3 {
+        color: #3b82f6;
+      }
+
+      .anim-receipt.play .receipt-status-1 {
+        animation:
+          fadeIn 0.3s ease 1.2s forwards,
+          fadeOut 0.3s ease 2.2s forwards;
+      }
+
+      .anim-receipt.play .receipt-status-2 {
+        animation:
+          fadeIn 0.3s ease 2.5s forwards,
+          fadeOut 0.3s ease 3.5s forwards;
+      }
+
+      .anim-receipt.play .receipt-status-3 {
+        animation: fadeIn 0.3s ease 3.8s forwards;
+      }
+
+      /* ========================================
+         30. Reminder Alert (리마인더)
+         ======================================== */
+      .anim-reminder {
+        position: relative;
+        width: 240px;
+        height: 220px;
+      }
+
+      .reminder-clock {
+        position: absolute;
+        top: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+      }
+
+      .anim-reminder.play .reminder-clock {
+        animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s forwards;
+      }
+
+      .anim-reminder.play .reminder-clock-shake {
+        animation: clockShake 0.5s ease 1.5s 3;
+      }
+
+      @keyframes clockShake {
+        0%,
+        100% {
+          transform: rotate(0deg);
+        }
+        15% {
+          transform: rotate(12deg);
+        }
+        30% {
+          transform: rotate(-10deg);
+        }
+        45% {
+          transform: rotate(8deg);
+        }
+        60% {
+          transform: rotate(-6deg);
+        }
+        75% {
+          transform: rotate(3deg);
+        }
+      }
+
+      .reminder-ring-1,
+      .reminder-ring-2,
+      .reminder-ring-3 {
+        position: absolute;
+        top: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-radius: 50%;
+        border: 2px solid var(--gold);
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .reminder-ring-1 {
+        width: 80px;
+        height: 80px;
+        margin-left: -40px;
+        margin-top: -8px;
+      }
+
+      .reminder-ring-2 {
+        width: 100px;
+        height: 100px;
+        margin-left: -50px;
+        margin-top: -18px;
+      }
+
+      .reminder-ring-3 {
+        width: 120px;
+        height: 120px;
+        margin-left: -60px;
+        margin-top: -28px;
+      }
+
+      .anim-reminder.play .reminder-ring-1 {
+        animation: ringPulse 1s ease 1.6s forwards;
+      }
+
+      .anim-reminder.play .reminder-ring-2 {
+        animation: ringPulse 1s ease 1.8s forwards;
+      }
+
+      .anim-reminder.play .reminder-ring-3 {
+        animation: ringPulse 1s ease 2s forwards;
+      }
+
+      @keyframes ringPulse {
+        0% {
+          opacity: 0.7;
+          transform: translateX(-50%) scale(0.8);
+        }
+        100% {
+          opacity: 0;
+          transform: translateX(-50%) scale(1.4);
+        }
+      }
+
+      .reminder-badge {
+        position: absolute;
+        bottom: 35px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 8px 22px;
+        background: var(--navy);
+        color: var(--gold-light);
+        border-radius: 100px;
+        font-size: 18px;
+        font-weight: 800;
+        opacity: 0;
+        white-space: nowrap;
+      }
+
+      .anim-reminder.play .reminder-badge {
+        animation:
+          popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 2.5s forwards,
+          badgeBlink 1s ease 3s infinite;
+      }
+
+      @keyframes badgeBlink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      .reminder-text {
+        position: absolute;
+        bottom: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--text-muted);
+        opacity: 0;
+        white-space: nowrap;
+      }
+
+      .anim-reminder.play .reminder-text {
+        animation: slideUp 0.4s ease 3.2s forwards;
+      }
+
+      /* ========================================
+         Responsive
+         ======================================== */
+      @media (max-width: 768px) {
+        .showcase-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-header">
+      <h1>Communication Scenes — 진행/소통</h1>
+      <p>
+        진행 과정과 실시간 소통 애니메이션 10종 — 프로그레스 · 현황 · 피드백 ·
+        회의 · 공유 · 전송 · 녹음 · 채팅 · 읽음확인 · 리마인더
+      </p>
+    </div>
+
+    <div class="showcase-grid">
+      <!-- 21. Progress Update -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-progress" id="anim21">
+            <div class="progress-label">PROGRESS</div>
+            <div class="progress-percent" id="progressNum">0%</div>
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill"></div>
+            </div>
+            <div class="progress-bell">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"
+                  stroke="var(--gold)"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M13.73 21a2 2 0 0 1-3.46 0"
+                  stroke="var(--gold)"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </div>
+            <div class="progress-complete-badge">COMPLETE!</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">21</div>
+          <h3>Progress Update</h3>
+          <div class="meaning">진행 알림</div>
+          <div class="desc">
+            프로그레스바 0→100% 채움 + 퍼센트 카운트업 + 완료 알림벨
+          </div>
+          <button class="replay-btn" onclick="replay('anim21')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 22. Status Check -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-status" id="anim22">
+            <div class="status-item">
+              <div class="status-checkbox">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#fff"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                >
+                  <polyline points="6 12 10 16 18 8" />
+                </svg>
+              </div>
+              <span class="status-text">서류 접수 완료</span>
+            </div>
+            <div class="status-item">
+              <div class="status-checkbox">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#fff"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                >
+                  <polyline points="6 12 10 16 18 8" />
+                </svg>
+              </div>
+              <span class="status-text">자격 검토 완료</span>
+            </div>
+            <div class="status-item">
+              <div class="status-checkbox">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#fff"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                >
+                  <polyline points="6 12 10 16 18 8" />
+                </svg>
+              </div>
+              <span class="status-text">심사 위원 배정</span>
+            </div>
+            <div class="status-item">
+              <div class="status-checkbox">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#fff"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                >
+                  <polyline points="6 12 10 16 18 8" />
+                </svg>
+              </div>
+              <span class="status-text">최종 승인 완료</span>
+            </div>
+            <div class="status-badge">확인완료</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">22</div>
+          <h3>Status Check</h3>
+          <div class="meaning">현황 확인</div>
+          <div class="desc">
+            4줄 체크리스트 순차 완료 + 체크마크 + "확인완료" 배지
+          </div>
+          <button class="replay-btn" onclick="replay('anim22')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 23. Feedback Loop -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-feedback" id="anim23">
+            <div class="fb-bubble-left"><span>제안</span></div>
+            <div class="fb-bubble-right"><span>검토</span></div>
+            <div class="fb-arrow-container">
+              <div class="fb-arrow-circle">
+                <svg viewBox="0 0 120 120">
+                  <circle class="fb-circle-path" cx="60" cy="60" r="45" />
+                  <!-- Arrow heads at top -->
+                  <polygon
+                    points="60,15 54,25 66,25"
+                    fill="var(--gold)"
+                    opacity="0.9"
+                  />
+                  <!-- Arrow heads at bottom -->
+                  <polygon
+                    points="60,105 54,95 66,95"
+                    fill="var(--gold)"
+                    opacity="0.9"
+                  />
+                </svg>
+              </div>
+            </div>
+            <div class="fb-label">FEEDBACK LOOP</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">23</div>
+          <h3>Feedback Loop</h3>
+          <div class="meaning">피드백 순환</div>
+          <div class="desc">두 말풍선 사이를 원형 화살표가 순환하며 돌아감</div>
+          <button class="replay-btn" onclick="replay('anim23')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 24. Team Discuss -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-team" id="anim24">
+            <!-- Connection lines SVG -->
+            <svg class="team-connect-line" viewBox="0 0 260 220" fill="none">
+              <line
+                x1="130"
+                y1="74"
+                x2="62"
+                y2="158"
+                stroke="var(--border)"
+                stroke-width="1.5"
+                stroke-dasharray="4 4"
+              />
+              <line
+                x1="130"
+                y1="74"
+                x2="198"
+                y2="158"
+                stroke="var(--border)"
+                stroke-width="1.5"
+                stroke-dasharray="4 4"
+              />
+              <line
+                x1="62"
+                y1="158"
+                x2="198"
+                y2="158"
+                stroke="var(--border)"
+                stroke-width="1.5"
+                stroke-dasharray="4 4"
+              />
+            </svg>
+            <div class="team-member team-member-1">A</div>
+            <div class="team-member team-member-2">B</div>
+            <div class="team-member team-member-3">C</div>
+            <div class="team-bubble team-bubble-1">진행 상황 공유합니다</div>
+            <div class="team-bubble team-bubble-2">검토 완료했습니다</div>
+            <div class="team-bubble team-bubble-3">승인하겠습니다!</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">24</div>
+          <h3>Team Discuss</h3>
+          <div class="meaning">팀 회의</div>
+          <div class="desc">3명 원형 배치 + 중앙 말풍선 번갈아 등장</div>
+          <button class="replay-btn" onclick="replay('anim24')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 25. Screen Share -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-screen" id="anim25">
+            <div class="screen-monitor">
+              <div class="screen-content">
+                <div class="screen-line"></div>
+                <div class="screen-line"></div>
+                <div class="screen-line"></div>
+              </div>
+            </div>
+            <div class="screen-monitor-stand"></div>
+            <div class="screen-beam">
+              <div class="beam-line"></div>
+              <div class="beam-dot"></div>
+            </div>
+            <div class="screen-pulse"></div>
+            <div class="screen-receiver">
+              <div class="screen-receiver-content">
+                <div class="screen-line"></div>
+                <div class="screen-line"></div>
+                <div class="screen-line"></div>
+              </div>
+            </div>
+            <div class="screen-receiver-stand"></div>
+            <div class="screen-share-label">SCREEN SHARING</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">25</div>
+          <h3>Screen Share</h3>
+          <div class="meaning">화면 공유</div>
+          <div class="desc">모니터 빔 라인이 오른쪽 스크린에 투사</div>
+          <button class="replay-btn" onclick="replay('anim25')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 26. File Transfer -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-file" id="anim26">
+            <div class="file-folder file-folder-a">
+              <div class="file-folder-tab"></div>
+              <span class="file-folder-label">A</span>
+            </div>
+            <div class="file-path">
+              <div class="file-path-dashes"></div>
+            </div>
+            <div class="file-doc">
+              <div class="file-doc-line"></div>
+              <div class="file-doc-line"></div>
+              <div class="file-doc-line"></div>
+            </div>
+            <div class="file-folder file-folder-b">
+              <div class="file-folder-tab"></div>
+              <span class="file-folder-label">B</span>
+            </div>
+            <div class="file-complete">전송 완료</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">26</div>
+          <h3>File Transfer</h3>
+          <div class="meaning">파일 전송</div>
+          <div class="desc">
+            서류 아이콘이 점선 경로를 따라 A폴더→B폴더 이동
+          </div>
+          <button class="replay-btn" onclick="replay('anim26')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 27. Voice Record -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-voice" id="anim27">
+            <div class="voice-mic">
+              <svg width="36" height="48" viewBox="0 0 36 48" fill="none">
+                <!-- Mic body -->
+                <rect
+                  x="11"
+                  y="2"
+                  width="14"
+                  height="24"
+                  rx="7"
+                  fill="var(--navy)"
+                  stroke="var(--navy)"
+                  stroke-width="1"
+                />
+                <!-- Mic arc -->
+                <path
+                  d="M6 22c0 7.18 5.82 13 13 13s13-5.82 13-13"
+                  stroke="var(--navy)"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  fill="none"
+                />
+                <!-- Mic stand -->
+                <line
+                  x1="18"
+                  y1="35"
+                  x2="18"
+                  y2="44"
+                  stroke="var(--navy)"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                />
+                <line
+                  x1="12"
+                  y1="44"
+                  x2="24"
+                  y2="44"
+                  stroke="var(--navy)"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                />
+                <!-- Mic grille lines -->
+                <line
+                  x1="14"
+                  y1="10"
+                  x2="22"
+                  y2="10"
+                  stroke="var(--bg)"
+                  stroke-width="1"
+                  opacity="0.5"
+                />
+                <line
+                  x1="14"
+                  y1="14"
+                  x2="22"
+                  y2="14"
+                  stroke="var(--bg)"
+                  stroke-width="1"
+                  opacity="0.5"
+                />
+                <line
+                  x1="14"
+                  y1="18"
+                  x2="22"
+                  y2="18"
+                  stroke="var(--bg)"
+                  stroke-width="1"
+                  opacity="0.5"
+                />
+              </svg>
+            </div>
+            <div class="voice-rec-label">REC</div>
+            <div class="voice-rec-dot"></div>
+            <div class="voice-wave-container">
+              <div class="voice-wave">
+                <svg viewBox="0 0 400 40" preserveAspectRatio="none">
+                  <path
+                    class="voice-wave-path"
+                    d="M0,20 Q10,5 20,20 T40,20 T60,20 T80,20 T100,20 T120,20 T140,20 T160,20 T180,20 T200,20 Q210,5 220,20 T240,20 T260,20 T280,20 T300,20 T320,20 T340,20 T360,20 T380,20 T400,20"
+                    style="stroke-dasharray: 2 0"
+                  />
+                  <path
+                    class="voice-wave-path"
+                    d="M0,20 Q10,35 20,20 T40,20 T60,20 T80,20 T100,20 T120,20 T140,20 T160,20 T180,20 T200,20 Q210,35 220,20 T240,20 T260,20 T280,20 T300,20 T320,20 T340,20 T360,20 T380,20 T400,20"
+                    opacity="0.4"
+                  />
+                </svg>
+              </div>
+            </div>
+            <div class="voice-time">00:03</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">27</div>
+          <h3>Voice Record</h3>
+          <div class="meaning">음성 녹음</div>
+          <div class="desc">마이크 + 음파 애니메이션 + "REC" 빨간 점 깜빡</div>
+          <button class="replay-btn" onclick="replay('anim27')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 28. Live Chat -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-chat" id="anim28">
+            <div class="chat-window">
+              <div class="chat-header">
+                <div class="chat-header-dot"></div>
+                <span class="chat-header-title">Live Chat</span>
+              </div>
+              <div class="chat-body">
+                <div class="chat-msg chat-msg-left">
+                  안녕하세요, 진행 상황 문의드려요
+                </div>
+                <div class="chat-msg chat-msg-right">
+                  네, 현재 심사 중입니다
+                </div>
+                <div class="chat-msg chat-msg-left">
+                  언제쯤 결과가 나올까요?
+                </div>
+                <div class="chat-msg chat-msg-right">
+                  이번 주 금요일 예정입니다
+                </div>
+                <div class="chat-msg chat-msg-left">감사합니다!</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">28</div>
+          <h3>Live Chat</h3>
+          <div class="meaning">실시간 채팅</div>
+          <div class="desc">좌/우 말풍선 핑퐁 — 채팅 UI 느낌</div>
+          <button class="replay-btn" onclick="replay('anim28')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 29. Read Receipt -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-receipt" id="anim29">
+            <div class="receipt-bubble">
+              <div class="receipt-bubble-text">
+                서류 검토가 완료되었습니다.<br />결과를 확인해주세요.
+              </div>
+              <div class="receipt-bubble-time">오후 2:30</div>
+            </div>
+            <!-- Phase 1: Single check (grey) -->
+            <div class="receipt-phase1">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="var(--text-muted)"
+                stroke-width="2.5"
+                stroke-linecap="round"
+              >
+                <polyline points="6 12 10 16 18 8" />
+              </svg>
+            </div>
+            <div class="receipt-status-text receipt-status-1">전송됨</div>
+            <!-- Phase 2: Double check (grey) -->
+            <div class="receipt-phase2">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="var(--text-muted)"
+                stroke-width="2.5"
+                stroke-linecap="round"
+              >
+                <polyline points="6 12 10 16 18 8" />
+              </svg>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="var(--text-muted)"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                style="margin-left: -6px"
+              >
+                <polyline points="6 12 10 16 18 8" />
+              </svg>
+            </div>
+            <div class="receipt-status-text receipt-status-2">수신됨</div>
+            <!-- Phase 3: Double check (blue) -->
+            <div class="receipt-phase3">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#3b82f6"
+                stroke-width="2.5"
+                stroke-linecap="round"
+              >
+                <polyline points="6 12 10 16 18 8" />
+              </svg>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#3b82f6"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                style="margin-left: -6px"
+              >
+                <polyline points="6 12 10 16 18 8" />
+              </svg>
+            </div>
+            <div class="receipt-status-text receipt-status-3">읽음</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">29</div>
+          <h3>Read Receipt</h3>
+          <div class="meaning">읽음 확인</div>
+          <div class="desc">단일 체크 → 더블 체크 → 블루 더블 체크 전환</div>
+          <button class="replay-btn" onclick="replay('anim29')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 30. Reminder Alert -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-reminder" id="anim30">
+            <div class="reminder-clock">
+              <div class="reminder-clock-shake">
+                <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+                  <!-- Clock body -->
+                  <circle
+                    cx="28"
+                    cy="30"
+                    r="22"
+                    fill="var(--surface)"
+                    stroke="var(--navy)"
+                    stroke-width="3"
+                  />
+                  <!-- Clock bells -->
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="5"
+                    fill="var(--gold)"
+                    stroke="var(--navy)"
+                    stroke-width="1.5"
+                  />
+                  <circle
+                    cx="44"
+                    cy="12"
+                    r="5"
+                    fill="var(--gold)"
+                    stroke="var(--navy)"
+                    stroke-width="1.5"
+                  />
+                  <!-- Clock legs -->
+                  <line
+                    x1="8"
+                    y1="8"
+                    x2="14"
+                    y2="14"
+                    stroke="var(--navy)"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                  <line
+                    x1="48"
+                    y1="8"
+                    x2="42"
+                    y2="14"
+                    stroke="var(--navy)"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                  <!-- Clock face -->
+                  <circle cx="28" cy="30" r="2" fill="var(--navy)" />
+                  <!-- Hour hand -->
+                  <line
+                    x1="28"
+                    y1="30"
+                    x2="28"
+                    y2="20"
+                    stroke="var(--navy)"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                  />
+                  <!-- Minute hand -->
+                  <line
+                    x1="28"
+                    y1="30"
+                    x2="36"
+                    y2="26"
+                    stroke="var(--navy)"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                  <!-- Hour marks -->
+                  <line
+                    x1="28"
+                    y1="11"
+                    x2="28"
+                    y2="14"
+                    stroke="var(--navy)"
+                    stroke-width="1.5"
+                  />
+                  <line
+                    x1="28"
+                    y1="46"
+                    x2="28"
+                    y2="49"
+                    stroke="var(--navy)"
+                    stroke-width="1.5"
+                  />
+                  <line
+                    x1="9"
+                    y1="30"
+                    x2="12"
+                    y2="30"
+                    stroke="var(--navy)"
+                    stroke-width="1.5"
+                  />
+                  <line
+                    x1="44"
+                    y1="30"
+                    x2="47"
+                    y2="30"
+                    stroke="var(--navy)"
+                    stroke-width="1.5"
+                  />
+                </svg>
+              </div>
+            </div>
+            <!-- Ring waves -->
+            <div class="reminder-ring-1"></div>
+            <div class="reminder-ring-2"></div>
+            <div class="reminder-ring-3"></div>
+            <!-- D-3 badge -->
+            <div class="reminder-badge">D-3</div>
+            <div class="reminder-text">마감까지 3일 남았습니다</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">30</div>
+          <h3>Reminder Alert</h3>
+          <div class="meaning">리마인더</div>
+          <div class="desc">
+            알람 시계 흔들림 + 종소리 파동 + "D-3" 뱃지 깜빡
+          </div>
+          <button class="replay-btn" onclick="replay('anim30')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function replay(id) {
+        const el = document.getElementById(id);
+        el.classList.remove("play");
+        void el.offsetWidth; // force reflow
+        el.classList.add("play");
+        // Reset progress counter if it's the progress animation
+        if (id === "anim21") {
+          startProgressCounter();
+        }
+      }
+
+      // Progress counter animation for #21
+      function startProgressCounter() {
+        const el = document.getElementById("progressNum");
+        if (!el) return;
+        el.textContent = "0%";
+        let start = null;
+        const duration = 2500; // matches progressFill duration
+        const delay = 600; // matches progressFill delay
+
+        setTimeout(() => {
+          function step(timestamp) {
+            if (!start) start = timestamp;
+            const progress = Math.min((timestamp - start) / duration, 1);
+            // Eased progress to roughly match the CSS curve
+            const eased =
+              progress < 0.2
+                ? progress * 0.9
+                : progress < 0.45
+                  ? 0.18 + (progress - 0.2) * 0.96
+                  : progress < 0.65
+                    ? 0.42 + (progress - 0.45) * 1.3
+                    : progress < 0.85
+                      ? 0.68 + (progress - 0.65) * 1.0
+                      : 0.88 + (progress - 0.85) * 0.8;
+            const value = Math.min(Math.round(eased * 100), 100);
+            el.textContent = value + "%";
+            if (progress < 1) {
+              requestAnimationFrame(step);
+            } else {
+              el.textContent = "100%";
+            }
+          }
+          requestAnimationFrame(step);
+        }, delay);
+      }
+
+      // Auto-play on scroll into view
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const anim = entry.target.querySelector('[id^="anim"]');
+              if (anim) {
+                anim.classList.remove("play");
+                void anim.offsetWidth;
+                anim.classList.add("play");
+                if (anim.id === "anim21") {
+                  startProgressCounter();
+                }
+              }
+            }
+          });
+        },
+        { threshold: 0.3 },
+      );
+
+      document
+        .querySelectorAll(".showcase-card")
+        .forEach((card) => observer.observe(card));
+
+      // Initial trigger for visible cards
+      startProgressCounter();
+    </script>
+  </body>
+</html>

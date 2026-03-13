@@ -1,0 +1,2130 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Communication Scenes — 연결/관계</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
+    />
+    <style>
+      :root {
+        --bg: #faf8f5;
+        --bg-warm: #f5f0ea;
+        --surface: #ffffff;
+        --navy: #0d1b2a;
+        --gold: #b08d3e;
+        --gold-light: #c9a84c;
+        --gold-pale: rgba(176, 141, 62, 0.08);
+        --gold-border: rgba(176, 141, 62, 0.2);
+        --coffee: #6b5344;
+        --text: #2c2420;
+        --text-sub: #5c5248;
+        --text-muted: #9c9088;
+        --border: #e8e0d8;
+        --border-light: #f0ebe5;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family:
+          "Pretendard",
+          -apple-system,
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.7;
+      }
+
+      .page-header {
+        text-align: center;
+        padding: 60px 24px 40px;
+        background: linear-gradient(180deg, var(--bg) 0%, var(--bg-warm) 100%);
+      }
+
+      .page-header h1 {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      .page-header p {
+        font-size: 15px;
+        color: var(--text-sub);
+      }
+
+      .showcase-grid {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 24px 80px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 32px;
+      }
+
+      .showcase-card {
+        background: var(--surface);
+        border: 1px solid var(--border-light);
+        border-radius: 20px;
+        overflow: hidden;
+        transition: box-shadow 0.3s ease;
+      }
+
+      .showcase-card:hover {
+        box-shadow: 0 8px 30px rgba(44, 36, 32, 0.1);
+      }
+
+      .anim-stage {
+        height: 320px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .card-info {
+        padding: 24px 28px;
+      }
+
+      .card-num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        background: var(--gold);
+        color: #fff;
+        border-radius: 50%;
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      .card-info h3 {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 6px;
+      }
+
+      .card-info .meaning {
+        font-size: 14px;
+        color: var(--gold);
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+
+      .card-info .desc {
+        font-size: 13px;
+        color: var(--text-muted);
+      }
+
+      .replay-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 12px;
+        padding: 6px 14px;
+        background: var(--gold-pale);
+        border: 1px solid var(--gold-border);
+        border-radius: 100px;
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--gold);
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .replay-btn:hover {
+        background: var(--gold);
+        color: #fff;
+      }
+
+      /* ========================================
+         Shared keyframes
+         ======================================== */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes popIn {
+        0% {
+          opacity: 0;
+          transform: scale(0);
+        }
+        70% {
+          opacity: 1;
+          transform: scale(1.15);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes slideLeft {
+        from {
+          opacity: 0;
+          transform: translateX(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      @keyframes slideRight {
+        from {
+          opacity: 0;
+          transform: translateX(-30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      /* ========================================
+         41. Bridge Connect (다리 연결)
+         ======================================== */
+      .anim-bridge {
+        position: relative;
+        width: 280px;
+        height: 220px;
+      }
+
+      .bridge-cliff-left,
+      .bridge-cliff-right {
+        position: absolute;
+        bottom: 40px;
+        width: 60px;
+        height: 80px;
+        background: var(--navy);
+        border-radius: 4px 4px 0 0;
+        opacity: 0;
+      }
+
+      .bridge-cliff-left {
+        left: 10px;
+      }
+      .bridge-cliff-right {
+        right: 10px;
+      }
+
+      .anim-bridge.play .bridge-cliff-left {
+        animation: slideUp 0.5s ease 0.2s forwards;
+      }
+      .anim-bridge.play .bridge-cliff-right {
+        animation: slideUp 0.5s ease 0.4s forwards;
+      }
+
+      .bridge-half-left,
+      .bridge-half-right {
+        position: absolute;
+        bottom: 100px;
+        height: 8px;
+        width: 0;
+        background: var(--gold);
+        border-radius: 4px;
+      }
+
+      .bridge-half-left {
+        left: 70px;
+        border-radius: 4px 0 0 4px;
+      }
+      .bridge-half-right {
+        right: 70px;
+        border-radius: 0 4px 4px 0;
+      }
+
+      .anim-bridge.play .bridge-half-left {
+        animation: bridgeGrowLeft 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.8s
+          forwards;
+      }
+      .anim-bridge.play .bridge-half-right {
+        animation: bridgeGrowRight 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.8s
+          forwards;
+      }
+
+      @keyframes bridgeGrowLeft {
+        to {
+          width: 72px;
+        }
+      }
+      @keyframes bridgeGrowRight {
+        to {
+          width: 72px;
+        }
+      }
+
+      .bridge-connect-flash {
+        position: absolute;
+        bottom: 96px;
+        left: 50%;
+        transform: translateX(-50%) scale(0);
+        width: 16px;
+        height: 16px;
+        background: var(--gold-light);
+        border-radius: 50%;
+        opacity: 0;
+      }
+
+      .anim-bridge.play .bridge-connect-flash {
+        animation: bridgeFlash 0.6s ease 1.6s forwards;
+      }
+
+      @keyframes bridgeFlash {
+        0% {
+          transform: translateX(-50%) scale(0);
+          opacity: 0;
+        }
+        40% {
+          transform: translateX(-50%) scale(2);
+          opacity: 0.8;
+        }
+        100% {
+          transform: translateX(-50%) scale(0.5);
+          opacity: 0;
+        }
+      }
+
+      .bridge-person {
+        position: absolute;
+        bottom: 108px;
+        left: 20px;
+        opacity: 0;
+      }
+
+      .bridge-person-head {
+        width: 12px;
+        height: 12px;
+        background: var(--coffee);
+        border-radius: 50%;
+        margin: 0 auto 2px;
+      }
+
+      .bridge-person-body {
+        width: 14px;
+        height: 18px;
+        background: var(--coffee);
+        border-radius: 7px 7px 3px 3px;
+        opacity: 0.7;
+      }
+
+      .anim-bridge.play .bridge-person {
+        animation: personWalk 1.2s ease 1.8s forwards;
+      }
+
+      @keyframes personWalk {
+        0% {
+          left: 20px;
+          opacity: 0;
+        }
+        10% {
+          opacity: 1;
+        }
+        100% {
+          left: 240px;
+          opacity: 1;
+        }
+      }
+
+      .bridge-label {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--gold);
+        opacity: 0;
+        white-space: nowrap;
+      }
+
+      .anim-bridge.play .bridge-label {
+        animation: fadeIn 0.5s ease 2.8s forwards;
+      }
+
+      /* ========================================
+         42. Puzzle Fit (퍼즐 맞춤)
+         ======================================== */
+      .anim-puzzle {
+        position: relative;
+        width: 260px;
+        height: 200px;
+      }
+
+      .puzzle-piece {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: 0;
+      }
+
+      .puzzle-left {
+        left: -60px;
+      }
+      .puzzle-right {
+        right: -60px;
+      }
+
+      .anim-puzzle.play .puzzle-left {
+        animation: puzzleSlideIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s
+          forwards;
+      }
+      .anim-puzzle.play .puzzle-right {
+        animation: puzzleSlideInR 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s
+          forwards;
+      }
+
+      @keyframes puzzleSlideIn {
+        0% {
+          left: -60px;
+          opacity: 0;
+        }
+        100% {
+          left: 52px;
+          opacity: 1;
+        }
+      }
+      @keyframes puzzleSlideInR {
+        0% {
+          right: -60px;
+          opacity: 0;
+        }
+        100% {
+          right: 52px;
+          opacity: 1;
+        }
+      }
+
+      .puzzle-snap-ring {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        width: 80px;
+        height: 80px;
+        border: 2px solid var(--gold-light);
+        border-radius: 50%;
+        opacity: 0;
+      }
+
+      .anim-puzzle.play .puzzle-snap-ring {
+        animation: snapRing 0.7s ease 1.3s forwards;
+      }
+
+      @keyframes snapRing {
+        0% {
+          transform: translate(-50%, -50%) scale(0.5);
+          opacity: 0.9;
+        }
+        100% {
+          transform: translate(-50%, -50%) scale(2);
+          opacity: 0;
+        }
+      }
+
+      .puzzle-glow {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        width: 20px;
+        height: 20px;
+        background: radial-gradient(
+          circle,
+          var(--gold-light) 0%,
+          transparent 70%
+        );
+        border-radius: 50%;
+        opacity: 0;
+      }
+
+      .anim-puzzle.play .puzzle-glow {
+        animation: puzzleGlow 0.8s ease 1.3s forwards;
+      }
+
+      @keyframes puzzleGlow {
+        0% {
+          transform: translate(-50%, -50%) scale(0);
+          opacity: 0;
+        }
+        50% {
+          transform: translate(-50%, -50%) scale(4);
+          opacity: 0.6;
+        }
+        100% {
+          transform: translate(-50%, -50%) scale(5);
+          opacity: 0;
+        }
+      }
+
+      .puzzle-label {
+        position: absolute;
+        bottom: 5px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--gold);
+        opacity: 0;
+        white-space: nowrap;
+      }
+
+      .anim-puzzle.play .puzzle-label {
+        animation: fadeIn 0.5s ease 1.8s forwards;
+      }
+
+      /* ========================================
+         43. Link Chain (연결 고리)
+         ======================================== */
+      .anim-chain {
+        position: relative;
+        width: 240px;
+        height: 200px;
+      }
+
+      .chain-link {
+        position: absolute;
+        top: 50%;
+        width: 60px;
+        height: 36px;
+        border: 4px solid var(--navy);
+        border-radius: 18px;
+        opacity: 0;
+      }
+
+      .chain-link-left {
+        left: 40px;
+        transform: translateY(-50%) rotate(-20deg);
+      }
+      .chain-link-right {
+        right: 40px;
+        transform: translateY(-50%) rotate(20deg);
+      }
+
+      .anim-chain.play .chain-link-left {
+        animation: chainRotateIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s
+          forwards;
+      }
+      .anim-chain.play .chain-link-right {
+        animation: chainRotateInR 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s
+          forwards;
+      }
+
+      @keyframes chainRotateIn {
+        0% {
+          opacity: 0;
+          transform: translateY(-50%) rotate(-90deg) scale(0.5);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(-50%) rotate(0deg) scale(1);
+          left: 60px;
+        }
+      }
+      @keyframes chainRotateInR {
+        0% {
+          opacity: 0;
+          transform: translateY(-50%) rotate(90deg) scale(0.5);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(-50%) rotate(0deg) scale(1);
+          right: 60px;
+        }
+      }
+
+      .chain-overlap {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 8px;
+        height: 8px;
+        background: var(--gold);
+        border-radius: 50%;
+        opacity: 0;
+      }
+
+      .anim-chain.play .chain-overlap {
+        animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1.2s forwards;
+      }
+
+      .chain-shake {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      .anim-chain.play .chain-shake {
+        animation: chainShake 0.5s ease 1.8s forwards;
+      }
+
+      @keyframes chainShake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        20% {
+          transform: translateX(-4px);
+        }
+        40% {
+          transform: translateX(4px);
+        }
+        60% {
+          transform: translateX(-3px);
+        }
+        80% {
+          transform: translateX(2px);
+        }
+      }
+
+      .chain-strong-label {
+        position: absolute;
+        bottom: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--gold);
+        opacity: 0;
+        white-space: nowrap;
+      }
+
+      .anim-chain.play .chain-strong-label {
+        animation: fadeIn 0.5s ease 2.2s forwards;
+      }
+
+      /* ========================================
+         44. Signal Broadcast (신호 전파)
+         ======================================== */
+      .anim-signal {
+        position: relative;
+        width: 280px;
+        height: 220px;
+      }
+
+      .signal-tower {
+        position: absolute;
+        bottom: 30px;
+        left: 50px;
+        opacity: 0;
+      }
+
+      .tower-base {
+        width: 8px;
+        height: 60px;
+        background: var(--navy);
+        border-radius: 2px;
+        margin: 0 auto;
+      }
+
+      .tower-top {
+        width: 20px;
+        height: 20px;
+        background: var(--navy);
+        border-radius: 50% 50% 4px 4px;
+        margin: 0 auto -2px;
+      }
+
+      .tower-foot {
+        width: 30px;
+        height: 6px;
+        background: var(--navy);
+        border-radius: 0 0 3px 3px;
+        margin: 0 auto;
+      }
+
+      .anim-signal.play .signal-tower {
+        animation: slideUp 0.5s ease 0.2s forwards;
+      }
+
+      .signal-wave {
+        position: absolute;
+        bottom: 70px;
+        left: 54px;
+        width: 10px;
+        height: 10px;
+        border: 2px solid var(--gold);
+        border-radius: 50%;
+        opacity: 0;
+      }
+
+      .anim-signal.play .signal-wave:nth-child(2) {
+        animation: waveExpand 1.2s ease 0.8s forwards;
+      }
+      .anim-signal.play .signal-wave:nth-child(3) {
+        animation: waveExpand 1.2s ease 1.1s forwards;
+      }
+      .anim-signal.play .signal-wave:nth-child(4) {
+        animation: waveExpand 1.2s ease 1.4s forwards;
+      }
+      .anim-signal.play .signal-wave:nth-child(5) {
+        animation: waveExpand 1.2s ease 1.7s forwards;
+      }
+
+      @keyframes waveExpand {
+        0% {
+          width: 10px;
+          height: 10px;
+          opacity: 0.8;
+          left: 54px;
+          bottom: 70px;
+        }
+        100% {
+          width: 160px;
+          height: 160px;
+          opacity: 0;
+          left: -20px;
+          bottom: -5px;
+        }
+      }
+
+      .signal-receiver {
+        position: absolute;
+        bottom: 40px;
+        right: 30px;
+        width: 40px;
+        height: 50px;
+        opacity: 0;
+      }
+
+      .receiver-body {
+        width: 32px;
+        height: 40px;
+        background: var(--surface);
+        border: 2px solid var(--border);
+        border-radius: 6px;
+        margin: 0 auto;
+        position: relative;
+      }
+
+      .receiver-antenna {
+        width: 2px;
+        height: 14px;
+        background: var(--navy);
+        margin: 0 auto;
+        border-radius: 1px;
+      }
+
+      .receiver-light {
+        position: absolute;
+        top: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 8px;
+        height: 8px;
+        background: var(--text-muted);
+        border-radius: 50%;
+        transition: background 0.3s;
+      }
+
+      .anim-signal.play .signal-receiver {
+        animation: fadeIn 0.5s ease 0.4s forwards;
+      }
+
+      .anim-signal.play .receiver-light {
+        animation: lightOn 0.3s ease 2.2s forwards;
+      }
+
+      @keyframes lightOn {
+        to {
+          background: #4ade80;
+          box-shadow: 0 0 10px rgba(74, 222, 128, 0.6);
+        }
+      }
+
+      .signal-connected {
+        position: absolute;
+        bottom: 10px;
+        right: 20px;
+        font-size: 10px;
+        font-weight: 700;
+        color: #4ade80;
+        opacity: 0;
+      }
+
+      .anim-signal.play .signal-connected {
+        animation: fadeIn 0.4s ease 2.5s forwards;
+      }
+
+      /* ========================================
+         45. Globe Network (글로벌 연결)
+         ======================================== */
+      .anim-globe {
+        position: relative;
+        width: 260px;
+        height: 220px;
+      }
+
+      .globe-circle {
+        position: absolute;
+        top: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 120px;
+        height: 120px;
+        border: 2.5px solid var(--navy);
+        border-radius: 50%;
+        opacity: 0;
+        overflow: hidden;
+      }
+
+      .anim-globe.play .globe-circle {
+        animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s forwards;
+      }
+
+      .globe-meridian {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 120px;
+        border: 1.5px solid rgba(13, 27, 42, 0.3);
+        border-radius: 50%;
+      }
+
+      .globe-equator {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        transform: translateY(-50%);
+        width: 120px;
+        height: 1.5px;
+        background: rgba(13, 27, 42, 0.3);
+      }
+
+      .globe-spin-line {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        width: 80px;
+        height: 120px;
+        border: 1.5px solid rgba(13, 27, 42, 0.15);
+        border-radius: 50%;
+        transform: translateX(-50%);
+      }
+
+      .anim-globe.play .globe-spin-line {
+        animation: globeSpin 4s linear 0.8s infinite;
+      }
+
+      @keyframes globeSpin {
+        0% {
+          transform: translateX(-50%) scaleX(1);
+        }
+        25% {
+          transform: translateX(-50%) scaleX(0.1);
+        }
+        50% {
+          transform: translateX(-50%) scaleX(-1);
+        }
+        75% {
+          transform: translateX(-50%) scaleX(-0.1);
+        }
+        100% {
+          transform: translateX(-50%) scaleX(1);
+        }
+      }
+
+      .globe-node {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background: var(--gold);
+        border-radius: 50%;
+        opacity: 0;
+      }
+
+      .globe-node:nth-child(1) {
+        top: 40px;
+        left: 15px;
+      }
+      .globe-node:nth-child(2) {
+        top: 20px;
+        right: 25px;
+      }
+      .globe-node:nth-child(3) {
+        bottom: 55px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+
+      .anim-globe.play .globe-node:nth-child(1) {
+        animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1.2s forwards;
+      }
+      .anim-globe.play .globe-node:nth-child(2) {
+        animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1.5s forwards;
+      }
+      .anim-globe.play .globe-node:nth-child(3) {
+        animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1.8s forwards;
+      }
+
+      .globe-line {
+        position: absolute;
+        height: 1.5px;
+        background: var(--gold-light);
+        opacity: 0;
+        transform-origin: left center;
+      }
+
+      .globe-line:nth-child(4) {
+        top: 44px;
+        left: 25px;
+        width: 70px;
+        transform: rotate(-15deg);
+      }
+      .globe-line:nth-child(5) {
+        top: 55px;
+        left: 60px;
+        width: 55px;
+        transform: rotate(30deg);
+      }
+      .globe-line:nth-child(6) {
+        top: 28px;
+        left: 45px;
+        width: 40px;
+        transform: rotate(60deg);
+      }
+
+      .anim-globe.play .globe-line:nth-child(4) {
+        animation: lineGrow 0.5s ease 2s forwards;
+      }
+      .anim-globe.play .globe-line:nth-child(5) {
+        animation: lineGrow 0.5s ease 2.2s forwards;
+      }
+      .anim-globe.play .globe-line:nth-child(6) {
+        animation: lineGrow 0.5s ease 2.4s forwards;
+      }
+
+      @keyframes lineGrow {
+        from {
+          opacity: 0;
+          width: 0;
+        }
+        to {
+          opacity: 0.7;
+        }
+      }
+
+      .globe-pulse {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        width: 140px;
+        height: 140px;
+        border: 2px solid rgba(176, 141, 62, 0.25);
+        border-radius: 50%;
+        opacity: 0;
+      }
+
+      .anim-globe.play .globe-pulse {
+        animation: globePulse 1.5s ease 2.6s infinite;
+      }
+
+      @keyframes globePulse {
+        0% {
+          transform: translate(-50%, -50%) scale(0.8);
+          opacity: 0.5;
+        }
+        100% {
+          transform: translate(-50%, -50%) scale(1.5);
+          opacity: 0;
+        }
+      }
+
+      /* ========================================
+         46. Support Hand (지원의 손)
+         ======================================== */
+      .anim-hand {
+        position: relative;
+        width: 240px;
+        height: 220px;
+      }
+
+      .support-hand-svg {
+        position: absolute;
+        bottom: -50px;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+      }
+
+      .anim-hand.play .support-hand-svg {
+        animation: handRise 1s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s forwards;
+      }
+
+      @keyframes handRise {
+        0% {
+          bottom: -50px;
+          opacity: 0;
+        }
+        100% {
+          bottom: 40px;
+          opacity: 1;
+        }
+      }
+
+      .support-star {
+        position: absolute;
+        top: 30px;
+        left: 50%;
+        transform: translateX(-50%) scale(0);
+        opacity: 0;
+      }
+
+      .anim-hand.play .support-star {
+        animation: starFloat 1s cubic-bezier(0.34, 1.56, 0.64, 1) 1s forwards;
+      }
+
+      @keyframes starFloat {
+        0% {
+          top: 80px;
+          opacity: 0;
+          transform: translateX(-50%) scale(0);
+        }
+        60% {
+          opacity: 1;
+          transform: translateX(-50%) scale(1.2);
+        }
+        100% {
+          top: 30px;
+          opacity: 1;
+          transform: translateX(-50%) scale(1);
+        }
+      }
+
+      .support-sparkle {
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        background: var(--gold-light);
+        border-radius: 50%;
+        opacity: 0;
+      }
+
+      .support-sparkle:nth-child(3) {
+        top: 25px;
+        left: 80px;
+      }
+      .support-sparkle:nth-child(4) {
+        top: 40px;
+        right: 75px;
+      }
+      .support-sparkle:nth-child(5) {
+        top: 15px;
+        left: 50%;
+      }
+
+      .anim-hand.play .support-sparkle:nth-child(3) {
+        animation: sparkle 0.6s ease 1.8s forwards;
+      }
+      .anim-hand.play .support-sparkle:nth-child(4) {
+        animation: sparkle 0.6s ease 2s forwards;
+      }
+      .anim-hand.play .support-sparkle:nth-child(5) {
+        animation: sparkle 0.6s ease 2.2s forwards;
+      }
+
+      @keyframes sparkle {
+        0% {
+          opacity: 0;
+          transform: scale(0);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.5);
+        }
+        100% {
+          opacity: 0;
+          transform: scale(0);
+        }
+      }
+
+      .support-label {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--gold);
+        opacity: 0;
+        white-space: nowrap;
+      }
+
+      .anim-hand.play .support-label {
+        animation: fadeIn 0.5s ease 2.4s forwards;
+      }
+
+      /* ========================================
+         47. Trust Badge (신뢰 뱃지)
+         ======================================== */
+      .anim-badge {
+        position: relative;
+        width: 200px;
+        height: 200px;
+      }
+
+      .badge-shield {
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+
+      .badge-shield-outline {
+        stroke-dasharray: 300;
+        stroke-dashoffset: 300;
+      }
+
+      .anim-badge.play .badge-shield-outline {
+        animation: drawShield 1.2s ease 0.3s forwards;
+      }
+
+      @keyframes drawShield {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+
+      .badge-fill {
+        opacity: 0;
+      }
+
+      .anim-badge.play .badge-fill {
+        animation: badgeFillIn 0.8s ease 1.3s forwards;
+      }
+
+      @keyframes badgeFillIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 0.15;
+        }
+      }
+
+      .badge-check {
+        position: absolute;
+        top: 55px;
+        left: 50%;
+        transform: translateX(-50%) scale(0);
+        opacity: 0;
+      }
+
+      .badge-check-path {
+        stroke-dasharray: 40;
+        stroke-dashoffset: 40;
+      }
+
+      .anim-badge.play .badge-check {
+        animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 1.8s forwards;
+      }
+
+      .anim-badge.play .badge-check-path {
+        animation: drawCheck 0.5s ease 2.2s forwards;
+      }
+
+      @keyframes drawCheck {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+
+      .badge-glow-ring {
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%) scale(0);
+        width: 120px;
+        height: 120px;
+        border: 2px solid rgba(176, 141, 62, 0.3);
+        border-radius: 50%;
+        opacity: 0;
+      }
+
+      .anim-badge.play .badge-glow-ring {
+        animation: badgeGlowRing 0.8s ease 2.4s forwards;
+      }
+
+      @keyframes badgeGlowRing {
+        0% {
+          transform: translateX(-50%) scale(0.5);
+          opacity: 0.7;
+        }
+        100% {
+          transform: translateX(-50%) scale(1.5);
+          opacity: 0;
+        }
+      }
+
+      .badge-text {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--gold);
+        opacity: 0;
+        white-space: nowrap;
+      }
+
+      .anim-badge.play .badge-text {
+        animation: fadeIn 0.5s ease 2.6s forwards;
+      }
+
+      /* ========================================
+         48. Growth Partner (동반 성장)
+         ======================================== */
+      .anim-growth {
+        position: relative;
+        width: 240px;
+        height: 220px;
+      }
+
+      .growth-bar {
+        position: absolute;
+        bottom: 50px;
+        width: 36px;
+        background: var(--navy);
+        border-radius: 4px 4px 0 0;
+        height: 0;
+        opacity: 0;
+      }
+
+      .growth-bar-left {
+        left: 60px;
+      }
+      .growth-bar-right {
+        right: 60px;
+      }
+
+      .anim-growth.play .growth-bar-left {
+        animation: barGrowL 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s forwards;
+      }
+      .anim-growth.play .growth-bar-right {
+        animation: barGrowR 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s forwards;
+      }
+
+      @keyframes barGrowL {
+        0% {
+          height: 0;
+          opacity: 0;
+        }
+        100% {
+          height: 100px;
+          opacity: 1;
+        }
+      }
+      @keyframes barGrowR {
+        0% {
+          height: 0;
+          opacity: 0;
+        }
+        100% {
+          height: 120px;
+          opacity: 1;
+        }
+      }
+
+      .growth-bar-label {
+        position: absolute;
+        bottom: 35px;
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--text-muted);
+        opacity: 0;
+      }
+
+      .growth-bar-label-l {
+        left: 60px;
+        width: 36px;
+        text-align: center;
+      }
+      .growth-bar-label-r {
+        right: 60px;
+        width: 36px;
+        text-align: center;
+      }
+
+      .anim-growth.play .growth-bar-label {
+        animation: fadeIn 0.4s ease 1.4s forwards;
+      }
+
+      .growth-heart {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+      }
+
+      .anim-growth.play .growth-heart {
+        animation: heartPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 1.6s forwards;
+      }
+
+      @keyframes heartPop {
+        0% {
+          transform: translate(-50%, -50%) scale(0);
+          opacity: 0;
+        }
+        70% {
+          transform: translate(-50%, -50%) scale(1.3);
+          opacity: 1;
+        }
+        100% {
+          transform: translate(-50%, -50%) scale(1);
+          opacity: 1;
+        }
+      }
+
+      .growth-arrow-l,
+      .growth-arrow-r {
+        position: absolute;
+        bottom: 55px;
+        width: 2px;
+        height: 0;
+        background: var(--gold-light);
+        opacity: 0;
+      }
+
+      .growth-arrow-l {
+        left: 77px;
+      }
+      .growth-arrow-r {
+        right: 77px;
+      }
+
+      .anim-growth.play .growth-arrow-l {
+        animation: arrowUp 0.6s ease 1s forwards;
+      }
+      .anim-growth.play .growth-arrow-r {
+        animation: arrowUp 0.6s ease 1s forwards;
+      }
+
+      @keyframes arrowUp {
+        from {
+          height: 0;
+          opacity: 0;
+        }
+        to {
+          height: 40px;
+          opacity: 0.5;
+        }
+      }
+
+      /* ========================================
+         49. Key Handover (열쇠 전달)
+         ======================================== */
+      .anim-key {
+        position: relative;
+        width: 280px;
+        height: 220px;
+      }
+
+      .key-hand-left {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: 0;
+      }
+
+      .key-hand-right {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%) scaleX(-1);
+        opacity: 0;
+      }
+
+      .anim-key.play .key-hand-left {
+        animation: slideRight 0.6s ease 0.3s forwards;
+      }
+      .anim-key.play .key-hand-right {
+        animation: slideLeft 0.6s ease 0.5s forwards;
+      }
+
+      .key-icon {
+        position: absolute;
+        top: 50%;
+        left: 80px;
+        transform: translateY(-50%);
+        opacity: 0;
+      }
+
+      .anim-key.play .key-icon {
+        animation: keySlide 1s cubic-bezier(0.34, 1.56, 0.64, 1) 1s forwards;
+      }
+
+      @keyframes keySlide {
+        0% {
+          left: 80px;
+          opacity: 0;
+        }
+        30% {
+          opacity: 1;
+        }
+        100% {
+          left: 170px;
+          opacity: 1;
+        }
+      }
+
+      .key-unlock-ring {
+        position: absolute;
+        top: 50%;
+        right: 50px;
+        transform: translateY(-50%) scale(0);
+        width: 50px;
+        height: 50px;
+        border: 2px solid var(--gold-light);
+        border-radius: 50%;
+        opacity: 0;
+      }
+
+      .anim-key.play .key-unlock-ring {
+        animation: unlockBurst 0.6s ease 2s forwards;
+      }
+
+      @keyframes unlockBurst {
+        0% {
+          transform: translateY(-50%) scale(0.3);
+          opacity: 0.8;
+        }
+        100% {
+          transform: translateY(-50%) scale(2);
+          opacity: 0;
+        }
+      }
+
+      .key-unlock-text {
+        position: absolute;
+        bottom: 25px;
+        left: 50%;
+        transform: translateX(-50%) scale(0);
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--gold);
+        opacity: 0;
+        white-space: nowrap;
+      }
+
+      .anim-key.play .key-unlock-text {
+        animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 2.2s forwards;
+      }
+
+      /* ========================================
+         50. Lighthouse Guide (등대 안내)
+         ======================================== */
+      .anim-lighthouse {
+        position: relative;
+        width: 280px;
+        height: 240px;
+      }
+
+      .lighthouse-base {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+      }
+
+      .anim-lighthouse.play .lighthouse-base {
+        animation: slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s forwards;
+      }
+
+      .lh-tower {
+        width: 24px;
+        height: 70px;
+        background: linear-gradient(180deg, var(--surface) 0%, #e8e0d8 100%);
+        border: 2px solid var(--navy);
+        border-radius: 4px 4px 0 0;
+        margin: 0 auto;
+        position: relative;
+      }
+
+      .lh-stripe {
+        position: absolute;
+        left: 0;
+        width: 100%;
+        height: 10px;
+        background: #c0392b;
+      }
+
+      .lh-stripe:nth-child(1) {
+        top: 10px;
+      }
+      .lh-stripe:nth-child(2) {
+        top: 35px;
+      }
+      .lh-stripe:nth-child(3) {
+        top: 55px;
+      }
+
+      .lh-top {
+        width: 18px;
+        height: 18px;
+        background: var(--gold);
+        border: 2px solid var(--navy);
+        border-radius: 50% 50% 2px 2px;
+        margin: 0 auto -2px;
+        position: relative;
+      }
+
+      .lh-cap {
+        width: 12px;
+        height: 8px;
+        background: var(--navy);
+        border-radius: 6px 6px 0 0;
+        margin: 0 auto -1px;
+      }
+
+      .lh-platform {
+        width: 36px;
+        height: 4px;
+        background: var(--navy);
+        border-radius: 2px;
+        margin: 0 auto;
+      }
+
+      .lighthouse-beam {
+        position: absolute;
+        top: 32px;
+        left: 50%;
+        transform-origin: 0% 50%;
+        width: 140px;
+        height: 0;
+        border-top: 12px solid transparent;
+        border-bottom: 12px solid transparent;
+        border-left: 140px solid rgba(176, 141, 62, 0.15);
+        opacity: 0;
+        transform: translateY(-50%) rotate(0deg);
+      }
+
+      .anim-lighthouse.play .lighthouse-beam {
+        animation:
+          beamRotate 4s linear 1s infinite,
+          fadeIn 0.5s ease 1s forwards;
+      }
+
+      @keyframes beamRotate {
+        0% {
+          transform: translateY(-50%) rotate(-30deg);
+        }
+        50% {
+          transform: translateY(-50%) rotate(30deg);
+        }
+        100% {
+          transform: translateY(-50%) rotate(-30deg);
+        }
+      }
+
+      .lighthouse-water {
+        position: absolute;
+        bottom: 10px;
+        left: 0;
+        width: 100%;
+        height: 14px;
+        background: linear-gradient(
+          90deg,
+          transparent 0%,
+          rgba(13, 27, 42, 0.08) 20%,
+          rgba(13, 27, 42, 0.12) 50%,
+          rgba(13, 27, 42, 0.08) 80%,
+          transparent 100%
+        );
+        border-radius: 4px;
+      }
+
+      .anim-lighthouse.play .lighthouse-water {
+        animation: waterWave 2s ease-in-out infinite;
+      }
+
+      @keyframes waterWave {
+        0%,
+        100% {
+          transform: translateX(-5px);
+        }
+        50% {
+          transform: translateX(5px);
+        }
+      }
+
+      .lighthouse-boat {
+        position: absolute;
+        bottom: 18px;
+        right: -30px;
+        opacity: 0;
+      }
+
+      .anim-lighthouse.play .lighthouse-boat {
+        animation: boatArrive 2s ease 2s forwards;
+      }
+
+      @keyframes boatArrive {
+        0% {
+          right: -30px;
+          opacity: 0;
+        }
+        30% {
+          opacity: 1;
+        }
+        100% {
+          right: 40px;
+          opacity: 1;
+        }
+      }
+
+      .boat-body {
+        width: 30px;
+        height: 10px;
+        background: var(--coffee);
+        border-radius: 2px 2px 8px 8px;
+        position: relative;
+      }
+
+      .boat-mast {
+        position: absolute;
+        left: 50%;
+        top: -18px;
+        transform: translateX(-50%);
+        width: 2px;
+        height: 18px;
+        background: var(--navy);
+      }
+
+      .boat-flag {
+        position: absolute;
+        top: 0;
+        left: 2px;
+        width: 10px;
+        height: 7px;
+        background: var(--gold);
+        border-radius: 0 2px 2px 0;
+      }
+
+      .lighthouse-safe {
+        position: absolute;
+        bottom: 42px;
+        right: 30px;
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--gold);
+        opacity: 0;
+        white-space: nowrap;
+      }
+
+      .anim-lighthouse.play .lighthouse-safe {
+        animation: fadeIn 0.5s ease 3.6s forwards;
+      }
+
+      /* ========================================
+         Responsive
+         ======================================== */
+      @media (max-width: 768px) {
+        .showcase-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-header">
+      <h1>Communication Scenes &#8212; &#xC5F0;&#xACB0;/&#xAD00;&#xACC4;</h1>
+      <p>연결과 파트너십 애니메이션 10종</p>
+    </div>
+
+    <div class="showcase-grid">
+      <!-- 41. Bridge Connect -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-bridge play" id="anim41">
+            <div class="bridge-cliff-left"></div>
+            <div class="bridge-cliff-right"></div>
+            <div class="bridge-half-left"></div>
+            <div class="bridge-half-right"></div>
+            <div class="bridge-connect-flash"></div>
+            <div class="bridge-person">
+              <div class="bridge-person-head"></div>
+              <div class="bridge-person-body"></div>
+            </div>
+            <div class="bridge-label">연결 완료</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">41</div>
+          <h3>Bridge Connect</h3>
+          <div class="meaning">다리 연결</div>
+          <div class="desc">
+            양쪽 절벽에서 다리 조각이 자라나 중앙에서 결합 &#8594; 사람이 건너감
+          </div>
+          <button class="replay-btn" onclick="replay('anim41')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 42. Puzzle Fit -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-puzzle play" id="anim42">
+            <div class="puzzle-piece puzzle-left">
+              <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                <path
+                  d="M10 20 h20 v-10 a10 10 0 0 1 20 0 v10 h20 v60 h-60 z"
+                  fill="#0d1b2a"
+                  opacity="0.85"
+                />
+              </svg>
+            </div>
+            <div class="puzzle-piece puzzle-right">
+              <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                <path
+                  d="M70 20 h-20 v-10 a10 10 0 0 0 -20 0 v10 h-20 v60 h60 z"
+                  fill="#b08d3e"
+                  opacity="0.85"
+                />
+              </svg>
+            </div>
+            <div class="puzzle-glow"></div>
+            <div class="puzzle-snap-ring"></div>
+            <div class="puzzle-label">딸깍!</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">42</div>
+          <h3>Puzzle Fit</h3>
+          <div class="meaning">퍼즐 맞춤</div>
+          <div class="desc">
+            두 퍼즐 조각이 양쪽에서 슬라이드인 &#8594; 딸깍 결합 + 빛나는 효과
+          </div>
+          <button class="replay-btn" onclick="replay('anim42')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 43. Link Chain -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-chain play" id="anim43">
+            <div class="chain-shake">
+              <div class="chain-link chain-link-left"></div>
+              <div class="chain-link chain-link-right"></div>
+              <div class="chain-overlap"></div>
+            </div>
+            <div class="chain-strong-label">끊어지지 않는 연결</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">43</div>
+          <h3>Link Chain</h3>
+          <div class="meaning">연결 고리</div>
+          <div class="desc">
+            두 개의 체인 링크가 회전하며 결합 &#8594; 당겨도 안 풀리는 흔들림
+          </div>
+          <button class="replay-btn" onclick="replay('anim43')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 44. Signal Broadcast -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-signal play" id="anim44">
+            <div class="signal-tower">
+              <div class="tower-top"></div>
+              <div class="tower-base"></div>
+              <div class="tower-foot"></div>
+            </div>
+            <div class="signal-wave"></div>
+            <div class="signal-wave"></div>
+            <div class="signal-wave"></div>
+            <div class="signal-wave"></div>
+            <div class="signal-receiver">
+              <div class="receiver-antenna"></div>
+              <div class="receiver-body">
+                <div class="receiver-light"></div>
+              </div>
+            </div>
+            <div class="signal-connected">CONNECTED</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">44</div>
+          <h3>Signal Broadcast</h3>
+          <div class="meaning">신호 전파</div>
+          <div class="desc">
+            안테나 타워에서 동심원 파동이 퍼져나감 &#8594; 수신기 불 켜짐
+          </div>
+          <button class="replay-btn" onclick="replay('anim44')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 45. Globe Network -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-globe play" id="anim45">
+            <div class="globe-circle">
+              <div class="globe-meridian"></div>
+              <div class="globe-equator"></div>
+              <div class="globe-spin-line"></div>
+            </div>
+            <div class="globe-node"></div>
+            <div class="globe-node"></div>
+            <div class="globe-node"></div>
+            <div class="globe-line"></div>
+            <div class="globe-line"></div>
+            <div class="globe-line"></div>
+            <div class="globe-pulse"></div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">45</div>
+          <h3>Globe Network</h3>
+          <div class="meaning">글로벌 연결</div>
+          <div class="desc">
+            지구본이 천천히 회전, 3개 지점에서 연결 노드 점선 &#8594; 펄스
+          </div>
+          <button class="replay-btn" onclick="replay('anim45')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 46. Support Hand -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-hand play" id="anim46">
+            <svg
+              class="support-hand-svg"
+              width="80"
+              height="80"
+              viewBox="0 0 80 80"
+              fill="none"
+            >
+              <path
+                d="M25 70 C25 70 20 50 20 40 C20 35 25 32 30 35 L30 25 C30 22 33 20 36 20 C39 20 42 22 42 25 L42 22 C42 19 45 17 48 17 C51 17 54 19 54 22 L54 25 C54 22 57 20 60 20 C63 20 66 22 66 25 L66 45 C66 58 55 70 42 70 Z"
+                fill="#6b5344"
+                opacity="0.85"
+              />
+              <path
+                d="M30 35 L30 20"
+                stroke="#5c4535"
+                stroke-width="1"
+                opacity="0.3"
+              />
+              <path
+                d="M42 35 L42 17"
+                stroke="#5c4535"
+                stroke-width="1"
+                opacity="0.3"
+              />
+              <path
+                d="M54 35 L54 20"
+                stroke="#5c4535"
+                stroke-width="1"
+                opacity="0.3"
+              />
+            </svg>
+            <svg
+              class="support-star"
+              width="32"
+              height="32"
+              viewBox="0 0 32 32"
+              fill="none"
+            >
+              <polygon
+                points="16,2 20,11 30,12 23,19 24,29 16,24 8,29 9,19 2,12 12,11"
+                fill="#b08d3e"
+              />
+            </svg>
+            <div class="support-sparkle"></div>
+            <div class="support-sparkle"></div>
+            <div class="support-sparkle"></div>
+            <div class="support-label">함께하는 지원</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">46</div>
+          <h3>Support Hand</h3>
+          <div class="meaning">지원의 손</div>
+          <div class="desc">아래에서 손이 올라와 골드 별을 들어올려 건네줌</div>
+          <button class="replay-btn" onclick="replay('anim46')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 47. Trust Badge -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-badge play" id="anim47">
+            <div class="badge-shield">
+              <svg width="100" height="120" viewBox="0 0 100 120" fill="none">
+                <path
+                  class="badge-fill"
+                  d="M50 10 L90 30 L90 70 C90 90 70 110 50 115 C30 110 10 90 10 70 L10 30 Z"
+                  fill="#b08d3e"
+                />
+                <path
+                  class="badge-shield-outline"
+                  d="M50 10 L90 30 L90 70 C90 90 70 110 50 115 C30 110 10 90 10 70 L10 30 Z"
+                  stroke="#b08d3e"
+                  stroke-width="3"
+                  fill="none"
+                />
+              </svg>
+            </div>
+            <div class="badge-check">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <polyline
+                  class="badge-check-path"
+                  points="10,20 18,28 30,12"
+                  stroke="#b08d3e"
+                  stroke-width="4"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  fill="none"
+                />
+              </svg>
+            </div>
+            <div class="badge-glow-ring"></div>
+            <div class="badge-text">TRUSTED</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">47</div>
+          <h3>Trust Badge</h3>
+          <div class="meaning">신뢰 뱃지</div>
+          <div class="desc">
+            방패 윤곽이 그려지고 내부가 골드로 채워지며 체크 등장
+          </div>
+          <button class="replay-btn" onclick="replay('anim47')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 48. Growth Partner -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-growth play" id="anim48">
+            <div class="growth-bar growth-bar-left"></div>
+            <div class="growth-bar growth-bar-right"></div>
+            <div class="growth-arrow-l"></div>
+            <div class="growth-arrow-r"></div>
+            <div class="growth-bar-label growth-bar-label-l">A</div>
+            <div class="growth-bar-label growth-bar-label-r">B</div>
+            <div class="growth-heart">
+              <svg width="28" height="26" viewBox="0 0 28 26" fill="none">
+                <path
+                  d="M14 24 C14 24 2 16 2 8 C2 4 5 1 9 1 C11.5 1 13.5 2.5 14 4 C14.5 2.5 16.5 1 19 1 C23 1 26 4 26 8 C26 16 14 24 14 24Z"
+                  fill="#c0392b"
+                  opacity="0.8"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">48</div>
+          <h3>Growth Partner</h3>
+          <div class="meaning">동반 성장</div>
+          <div class="desc">
+            두 개의 막대 그래프가 나란히 동시에 상승, 사이에 하트
+          </div>
+          <button class="replay-btn" onclick="replay('anim48')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 49. Key Handover -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-key play" id="anim49">
+            <svg
+              class="key-hand-left"
+              width="60"
+              height="50"
+              viewBox="0 0 60 50"
+              fill="none"
+            >
+              <path
+                d="M5 40 C5 40 0 25 0 18 C0 14 4 12 7 14 L10 10 C10 7 13 5 16 5 L16 8 C16 5 19 3 22 3 L22 8 C22 5 25 3 28 3 C31 3 34 5 34 8 L34 28 C34 38 25 45 15 45 Z"
+                fill="#6b5344"
+                opacity="0.8"
+              />
+            </svg>
+            <svg
+              class="key-hand-right"
+              width="60"
+              height="50"
+              viewBox="0 0 60 50"
+              fill="none"
+            >
+              <path
+                d="M5 40 C5 40 0 25 0 18 C0 14 4 12 7 14 L10 10 C10 7 13 5 16 5 L16 8 C16 5 19 3 22 3 L22 8 C22 5 25 3 28 3 C31 3 34 5 34 8 L34 28 C34 38 25 45 15 45 Z"
+                fill="#6b5344"
+                opacity="0.8"
+              />
+            </svg>
+            <div class="key-icon">
+              <svg width="36" height="20" viewBox="0 0 36 20" fill="none">
+                <circle
+                  cx="10"
+                  cy="10"
+                  r="8"
+                  stroke="#b08d3e"
+                  stroke-width="2.5"
+                  fill="none"
+                />
+                <rect
+                  x="16"
+                  y="8"
+                  width="18"
+                  height="4"
+                  rx="2"
+                  fill="#b08d3e"
+                />
+                <rect x="28" y="4" width="3" height="8" rx="1" fill="#b08d3e" />
+                <rect x="32" y="6" width="3" height="6" rx="1" fill="#c9a84c" />
+              </svg>
+            </div>
+            <div class="key-unlock-ring"></div>
+            <div class="key-unlock-text">UNLOCKED</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">49</div>
+          <h3>Key Handover</h3>
+          <div class="meaning">열쇠 전달</div>
+          <div class="desc">
+            왼쪽 손에서 오른쪽 손으로 열쇠가 전달 &#8594; 잠금 해제 효과
+          </div>
+          <button class="replay-btn" onclick="replay('anim49')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 50. Lighthouse Guide -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-lighthouse play" id="anim50">
+            <div class="lighthouse-base">
+              <div class="lh-cap"></div>
+              <div class="lh-top"></div>
+              <div class="lh-platform"></div>
+              <div class="lh-tower">
+                <div class="lh-stripe"></div>
+                <div class="lh-stripe"></div>
+                <div class="lh-stripe"></div>
+              </div>
+            </div>
+            <div class="lighthouse-beam"></div>
+            <div class="lighthouse-water"></div>
+            <div class="lighthouse-boat">
+              <div class="boat-body">
+                <div class="boat-mast">
+                  <div class="boat-flag"></div>
+                </div>
+              </div>
+            </div>
+            <div class="lighthouse-safe">안전 도착</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">50</div>
+          <h3>Lighthouse Guide</h3>
+          <div class="meaning">등대 안내</div>
+          <div class="desc">
+            등대가 세워지고 빛줄기가 회전하며 비추기 &#8594; 배 아이콘 도착
+          </div>
+          <button class="replay-btn" onclick="replay('anim50')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function replay(id) {
+        const el = document.getElementById(id);
+        el.classList.remove("play");
+        void el.offsetWidth; // force reflow
+        el.classList.add("play");
+      }
+
+      // IntersectionObserver: auto-play when card scrolls into view
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            const anim = entry.target.querySelector("[id^='anim']");
+            if (!anim) return;
+            if (entry.isIntersecting) {
+              anim.classList.add("play");
+            } else {
+              anim.classList.remove("play");
+            }
+          });
+        },
+        { threshold: 0.3 },
+      );
+
+      document.querySelectorAll(".showcase-card").forEach((card) => {
+        observer.observe(card);
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,749 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>완료 계층 표현 제안 — 3가지 옵션</title>
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <style>
+      body {
+        background: #f0f2f5;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      .option-card {
+        border: 2px solid #c5cfd9;
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 32px;
+        background: #fff;
+      }
+      .option-label {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 800;
+        color: #fff;
+        background: #0d1b2a;
+        padding: 3px 12px;
+        border-radius: 6px;
+        margin-bottom: 12px;
+      }
+      .spec-note {
+        font-size: 11px;
+        color: #5a7893;
+        background: #e8edf2;
+        padding: 8px 12px;
+        border-radius: 8px;
+        margin-top: 12px;
+        line-height: 1.6;
+      }
+    </style>
+  </head>
+  <body class="p-6 max-w-4xl mx-auto">
+    <h1 class="text-2xl font-bold text-gray-900 mb-2">
+      완료 계층 표현 — 3가지 제안
+    </h1>
+    <p class="text-sm text-gray-500 mb-8">
+      카드 배경 gray 통일 · SVG 아이콘 · 완료/미완 시각 계층 차이
+    </p>
+
+    <!-- ============================================ -->
+    <!-- OPTION A: 체크 오버레이 배지 -->
+    <!-- ============================================ -->
+    <div class="option-card">
+      <span class="option-label">A — 체크 오버레이 배지 (추천)</span>
+      <p class="text-xs text-gray-500 mb-4">
+        아이콘 우하단에 작은 체크/느낌표 배지. 완료 카드는 solid border, 미완은
+        dashed border.
+      </p>
+
+      <div class="grid grid-cols-4 gap-3">
+        <!-- 완료 1: 사업자 -->
+        <div
+          class="flex flex-col items-center p-3 rounded-xl bg-gray-50 border border-gray-200"
+        >
+          <div class="relative mb-2">
+            <div
+              class="w-10 h-10 bg-gray-800 rounded-xl flex items-center justify-center"
+            >
+              <svg
+                class="w-5 h-5 text-white"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"
+                />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+              </svg>
+            </div>
+            <!-- 체크 배지 -->
+            <div
+              class="absolute -bottom-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-sm"
+            >
+              <svg
+                class="w-3.5 h-3.5"
+                fill="none"
+                stroke="#16a34a"
+                stroke-width="2.5"
+                viewBox="0 0 24 24"
+              >
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </div>
+          </div>
+          <span class="text-xs font-semibold text-gray-900">사업자</span>
+          <span class="text-[10px] font-bold" style="color: #16a34a">완료</span>
+        </div>
+
+        <!-- 완료 2: 프로필 -->
+        <div
+          class="flex flex-col items-center p-3 rounded-xl bg-gray-50 border border-gray-200"
+        >
+          <div class="relative mb-2">
+            <div
+              class="w-10 h-10 bg-gray-800 rounded-xl flex items-center justify-center"
+            >
+              <svg
+                class="w-5 h-5 text-white"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+            </div>
+            <div
+              class="absolute -bottom-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-sm"
+            >
+              <svg
+                class="w-3.5 h-3.5"
+                fill="none"
+                stroke="#16a34a"
+                stroke-width="2.5"
+                viewBox="0 0 24 24"
+              >
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </div>
+          </div>
+          <span class="text-xs font-semibold text-gray-900">프로필</span>
+          <span class="text-[10px] font-bold" style="color: #16a34a">완료</span>
+        </div>
+
+        <!-- 완료 3: 브랜드 -->
+        <div
+          class="flex flex-col items-center p-3 rounded-xl bg-gray-50 border border-gray-200"
+        >
+          <div class="relative mb-2">
+            <div
+              class="w-10 h-10 bg-gray-800 rounded-xl flex items-center justify-center"
+            >
+              <svg
+                class="w-5 h-5 text-white"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"
+                />
+                <line x1="7" y1="7" x2="7.01" y2="7" />
+              </svg>
+            </div>
+            <div
+              class="absolute -bottom-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-sm"
+            >
+              <svg
+                class="w-3.5 h-3.5"
+                fill="none"
+                stroke="#16a34a"
+                stroke-width="2.5"
+                viewBox="0 0 24 24"
+              >
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </div>
+          </div>
+          <span class="text-xs font-semibold text-gray-900">브랜드</span>
+          <span class="text-[10px] font-bold" style="color: #16a34a">완료</span>
+        </div>
+
+        <!-- 미완: 명함 -->
+        <div
+          class="flex flex-col items-center p-3 rounded-xl bg-gray-50 border border-gray-300"
+          style="border-style: dashed"
+        >
+          <div class="relative mb-2">
+            <div
+              class="w-10 h-10 bg-gray-300 rounded-xl flex items-center justify-center"
+            >
+              <svg
+                class="w-5 h-5 text-white"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                <line x1="1" y1="10" x2="23" y2="10" />
+              </svg>
+            </div>
+            <!-- 느낌표 배지 -->
+            <div
+              class="absolute -bottom-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-sm"
+            >
+              <svg
+                class="w-3.5 h-3.5"
+                fill="none"
+                stroke="#b85e52"
+                stroke-width="2.5"
+                viewBox="0 0 24 24"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+            </div>
+          </div>
+          <span class="text-xs font-semibold text-gray-400">명함</span>
+          <span class="text-[10px] font-bold" style="color: #b85e52">필요</span>
+        </div>
+      </div>
+
+      <div class="spec-note">
+        <strong>계층 신호 3중:</strong> ① 아이콘 bg 밝기 (dark=완료, light=미완)
+        · ② 배지 (녹색✓ vs 붉은!) · ③ 텍스트 폰트 (ok vs terra)<br />
+        <strong>카드 bg:</strong> gray-50 통일 ·
+        <strong>border:</strong> solid(완료) vs dashed(미완) ·
+        <strong>라벨:</strong> gray-900(완료) vs gray-400(미완)
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- OPTION B: 좌측 accent bar -->
+    <!-- ============================================ -->
+    <div class="option-card">
+      <span class="option-label">B — 좌측 Accent Bar</span>
+      <p class="text-xs text-gray-500 mb-4">
+        카드 좌측에 4px 세로 바. 완료=녹색, 미완=붉은색. 리스트 뷰에 적합.
+      </p>
+
+      <div class="grid grid-cols-4 gap-3">
+        <!-- 완료 1 -->
+        <div
+          class="flex flex-col items-center p-3 rounded-xl bg-gray-50 border-l-4"
+          style="border-left-color: #16a34a"
+        >
+          <div
+            class="w-10 h-10 bg-gray-800 rounded-xl flex items-center justify-center mb-2"
+          >
+            <svg
+              class="w-5 h-5 text-white"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+            </svg>
+          </div>
+          <span class="text-xs font-semibold text-gray-900">사업자</span>
+          <span class="text-[10px] font-bold" style="color: #16a34a">완료</span>
+        </div>
+
+        <!-- 완료 2 -->
+        <div
+          class="flex flex-col items-center p-3 rounded-xl bg-gray-50 border-l-4"
+          style="border-left-color: #16a34a"
+        >
+          <div
+            class="w-10 h-10 bg-gray-800 rounded-xl flex items-center justify-center mb-2"
+          >
+            <svg
+              class="w-5 h-5 text-white"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+          </div>
+          <span class="text-xs font-semibold text-gray-900">프로필</span>
+          <span class="text-[10px] font-bold" style="color: #16a34a">완료</span>
+        </div>
+
+        <!-- 완료 3 -->
+        <div
+          class="flex flex-col items-center p-3 rounded-xl bg-gray-50 border-l-4"
+          style="border-left-color: #16a34a"
+        >
+          <div
+            class="w-10 h-10 bg-gray-800 rounded-xl flex items-center justify-center mb-2"
+          >
+            <svg
+              class="w-5 h-5 text-white"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"
+              />
+              <line x1="7" y1="7" x2="7.01" y2="7" />
+            </svg>
+          </div>
+          <span class="text-xs font-semibold text-gray-900">브랜드</span>
+          <span class="text-[10px] font-bold" style="color: #16a34a">완료</span>
+        </div>
+
+        <!-- 미완 -->
+        <div
+          class="flex flex-col items-center p-3 rounded-xl bg-gray-50 border-l-4"
+          style="
+            border-left-color: #b85e52;
+            border-style: solid solid solid solid;
+          "
+        >
+          <div
+            class="w-10 h-10 bg-gray-300 rounded-xl flex items-center justify-center mb-2"
+          >
+            <svg
+              class="w-5 h-5 text-white"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+              <line x1="1" y1="10" x2="23" y2="10" />
+            </svg>
+          </div>
+          <span class="text-xs font-semibold text-gray-400">명함</span>
+          <span class="text-[10px] font-bold" style="color: #b85e52">필요</span>
+        </div>
+      </div>
+
+      <div class="spec-note">
+        <strong>계층 신호 2중:</strong> ① 좌측 바 색상 (ok vs terra) · ② 텍스트
+        폰트 (ok vs terra)<br />
+        <strong>장점:</strong> 심플, 리스트 형태에서 스캔 용이 ·
+        <strong>단점:</strong> 그리드에서는 좌측 bar가 다소 어색할 수 있음
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- OPTION C: 투명도 + 프로그레스 링 -->
+    <!-- ============================================ -->
+    <div class="option-card">
+      <span class="option-label">C — 투명도 차이 + 프로그레스 링</span>
+      <p class="text-xs text-gray-500 mb-4">
+        완료 카드 opacity 낮춰서 미완에 시선 집중. 아이콘에 원형 프로그레스 링.
+      </p>
+
+      <div class="grid grid-cols-4 gap-3">
+        <!-- 완료 1 (opacity 낮춤) -->
+        <div
+          class="flex flex-col items-center p-3 rounded-xl bg-gray-50 border border-gray-200"
+          style="opacity: 0.55"
+        >
+          <div class="relative mb-2">
+            <!-- 프로그레스 링 (full) -->
+            <svg class="w-12 h-12" viewBox="0 0 48 48">
+              <circle
+                cx="24"
+                cy="24"
+                r="20"
+                fill="none"
+                stroke="#e5e7eb"
+                stroke-width="3"
+              />
+              <circle
+                cx="24"
+                cy="24"
+                r="20"
+                fill="none"
+                stroke="#16a34a"
+                stroke-width="3"
+                stroke-dasharray="125.6"
+                stroke-dashoffset="0"
+                transform="rotate(-90 24 24)"
+              />
+            </svg>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <svg
+                class="w-5 h-5 text-gray-700"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"
+                />
+                <polyline points="14 2 14 8 20 8" />
+              </svg>
+            </div>
+          </div>
+          <span class="text-xs font-semibold text-gray-900">사업자</span>
+          <span class="text-[10px] font-bold" style="color: #16a34a">완료</span>
+        </div>
+
+        <!-- 완료 2 -->
+        <div
+          class="flex flex-col items-center p-3 rounded-xl bg-gray-50 border border-gray-200"
+          style="opacity: 0.55"
+        >
+          <div class="relative mb-2">
+            <svg class="w-12 h-12" viewBox="0 0 48 48">
+              <circle
+                cx="24"
+                cy="24"
+                r="20"
+                fill="none"
+                stroke="#e5e7eb"
+                stroke-width="3"
+              />
+              <circle
+                cx="24"
+                cy="24"
+                r="20"
+                fill="none"
+                stroke="#16a34a"
+                stroke-width="3"
+                stroke-dasharray="125.6"
+                stroke-dashoffset="0"
+                transform="rotate(-90 24 24)"
+              />
+            </svg>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <svg
+                class="w-5 h-5 text-gray-700"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+            </div>
+          </div>
+          <span class="text-xs font-semibold text-gray-900">프로필</span>
+          <span class="text-[10px] font-bold" style="color: #16a34a">완료</span>
+        </div>
+
+        <!-- 완료 3 -->
+        <div
+          class="flex flex-col items-center p-3 rounded-xl bg-gray-50 border border-gray-200"
+          style="opacity: 0.55"
+        >
+          <div class="relative mb-2">
+            <svg class="w-12 h-12" viewBox="0 0 48 48">
+              <circle
+                cx="24"
+                cy="24"
+                r="20"
+                fill="none"
+                stroke="#e5e7eb"
+                stroke-width="3"
+              />
+              <circle
+                cx="24"
+                cy="24"
+                r="20"
+                fill="none"
+                stroke="#16a34a"
+                stroke-width="3"
+                stroke-dasharray="125.6"
+                stroke-dashoffset="0"
+                transform="rotate(-90 24 24)"
+              />
+            </svg>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <svg
+                class="w-5 h-5 text-gray-700"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"
+                />
+                <line x1="7" y1="7" x2="7.01" y2="7" />
+              </svg>
+            </div>
+          </div>
+          <span class="text-xs font-semibold text-gray-900">브랜드</span>
+          <span class="text-[10px] font-bold" style="color: #16a34a">완료</span>
+        </div>
+
+        <!-- 미완 (full opacity = 시선 집중) -->
+        <div
+          class="flex flex-col items-center p-3 rounded-xl bg-gray-50 border border-gray-300"
+        >
+          <div class="relative mb-2">
+            <!-- 빈 링 -->
+            <svg class="w-12 h-12" viewBox="0 0 48 48">
+              <circle
+                cx="24"
+                cy="24"
+                r="20"
+                fill="none"
+                stroke="#e5e7eb"
+                stroke-width="3"
+              />
+              <circle
+                cx="24"
+                cy="24"
+                r="20"
+                fill="none"
+                stroke="#b85e52"
+                stroke-width="3"
+                stroke-dasharray="125.6"
+                stroke-dashoffset="94.2"
+                transform="rotate(-90 24 24)"
+              />
+            </svg>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <svg
+                class="w-5 h-5 text-gray-500"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                <line x1="1" y1="10" x2="23" y2="10" />
+              </svg>
+            </div>
+          </div>
+          <span class="text-xs font-semibold text-gray-500">명함</span>
+          <span class="text-[10px] font-bold" style="color: #b85e52">필요</span>
+        </div>
+      </div>
+
+      <div class="spec-note">
+        <strong>계층 신호:</strong> ① 완료 카드 opacity 0.55 → 미완에 시선 집중
+        · ② 링 색상 (녹색 full vs 붉은색 부분) · ③ 텍스트 폰트<br />
+        <strong>장점:</strong> 미완 항목이 자연스럽게 눈에 띔 ·
+        <strong>단점:</strong> 완료 항목 확인이 약간 어려울 수 있음
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- 공통 규칙 -->
+    <!-- ============================================ -->
+    <div class="option-card" style="border-color: #0d1b2a">
+      <span class="option-label">공통 규칙 (모든 옵션 적용)</span>
+
+      <div class="grid grid-cols-2 gap-6 mt-3">
+        <div>
+          <h3 class="text-sm font-bold text-gray-900 mb-3">SVG 아이콘 매핑</h3>
+          <div class="space-y-2">
+            <div class="flex items-center gap-3 text-xs">
+              <div
+                class="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center"
+              >
+                <svg
+                  class="w-4 h-4 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"
+                  />
+                  <polyline points="14 2 14 8 20 8" />
+                  <line x1="16" y1="13" x2="8" y2="13" />
+                  <line x1="16" y1="17" x2="8" y2="17" />
+                </svg>
+              </div>
+              <span class="text-gray-700">사업자등록증 — FileText</span>
+            </div>
+            <div class="flex items-center gap-3 text-xs">
+              <div
+                class="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center"
+              >
+                <svg
+                  class="w-4 h-4 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+              </div>
+              <span class="text-gray-700">프로필사진 — User</span>
+            </div>
+            <div class="flex items-center gap-3 text-xs">
+              <div
+                class="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center"
+              >
+                <svg
+                  class="w-4 h-4 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"
+                  />
+                  <line x1="7" y1="7" x2="7.01" y2="7" />
+                </svg>
+              </div>
+              <span class="text-gray-700">브랜드명 — Tag</span>
+            </div>
+            <div class="flex items-center gap-3 text-xs">
+              <div
+                class="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center"
+              >
+                <svg
+                  class="w-4 h-4 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                >
+                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                  <line x1="1" y1="10" x2="23" y2="10" />
+                </svg>
+              </div>
+              <span class="text-gray-700">명함 — CreditCard</span>
+            </div>
+            <div class="flex items-center gap-3 text-xs">
+              <div
+                class="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center"
+              >
+                <svg
+                  class="w-4 h-4 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                >
+                  <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                  <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16" />
+                </svg>
+              </div>
+              <span class="text-gray-700">업종 — Briefcase</span>
+            </div>
+            <div class="flex items-center gap-3 text-xs">
+              <div
+                class="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center"
+              >
+                <svg
+                  class="w-4 h-4 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+              </div>
+              <span class="text-gray-700">주소 — MapPin</span>
+            </div>
+            <div class="flex items-center gap-3 text-xs">
+              <div
+                class="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center"
+              >
+                <svg
+                  class="w-4 h-4 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="2" y1="12" x2="22" y2="12" />
+                  <path
+                    d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"
+                  />
+                </svg>
+              </div>
+              <span class="text-gray-700">홈페이지 — Globe</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-sm font-bold text-gray-900 mb-3">폰트 컬러 규칙</h3>
+          <div class="space-y-3">
+            <div class="flex items-center gap-2">
+              <div
+                class="w-4 h-4 rounded-full"
+                style="background: #16a34a"
+              ></div>
+              <span class="text-xs"
+                ><strong style="color: #16a34a">ok-600 #16a34a</strong> — "완료"
+                텍스트</span
+              >
+            </div>
+            <div class="flex items-center gap-2">
+              <div
+                class="w-4 h-4 rounded-full"
+                style="background: #b85e52"
+              ></div>
+              <span class="text-xs"
+                ><strong style="color: #b85e52">terra-500 #b85e52</strong> —
+                "필요" 텍스트</span
+              >
+            </div>
+            <div class="flex items-center gap-2">
+              <div
+                class="w-4 h-4 rounded-full"
+                style="background: #8b3f35"
+              ></div>
+              <span class="text-xs"
+                ><strong style="color: #8b3f35">terra-600 #8b3f35</strong> —
+                "긴급" 텍스트</span
+              >
+            </div>
+          </div>
+
+          <h3 class="text-sm font-bold text-gray-900 mt-6 mb-3">
+            아이콘 배경 규칙
+          </h3>
+          <div class="space-y-2">
+            <div class="flex items-center gap-2">
+              <div class="w-6 h-6 rounded" style="background: #1f2937"></div>
+              <span class="text-xs">gray-800 — 완료 항목</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-6 h-6 rounded" style="background: #d1d5db"></div>
+              <span class="text-xs">gray-300 — 미완 항목</span>
+            </div>
+          </div>
+
+          <h3 class="text-sm font-bold text-gray-900 mt-6 mb-3">카드 배경</h3>
+          <div class="flex items-center gap-2">
+            <div
+              class="w-6 h-6 rounded border border-gray-200"
+              style="background: #f9fafb"
+            ></div>
+            <span class="text-xs">gray-50 — 전체 통일</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

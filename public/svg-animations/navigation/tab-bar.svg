@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .indicator {
+      animation: active-indicator 2s ease-in-out infinite;
+      transform-origin: left center;
+    }
+    @keyframes active-indicator {
+      0% {
+        transform: translateX(0px);
+      }
+      25% {
+        transform: translateX(4px);
+      }
+      50% {
+        transform: translateX(8px);
+      }
+      75% {
+        transform: translateX(12px);
+      }
+      100% {
+        transform: translateX(0px);
+      }
+    }
+  </style>
+  <rect x="2" y="5" width="20" height="14" rx="3" />
+  <circle cx="6.5" cy="12" r="1.6" />
+  <circle cx="10.7" cy="12" r="1.6" />
+  <circle cx="14.9" cy="12" r="1.6" />
+  <circle cx="19.1" cy="12" r="1.6" />
+  <rect class="indicator" x="5" y="14" width="4" height="1.4" rx="0.7" />
+</svg>

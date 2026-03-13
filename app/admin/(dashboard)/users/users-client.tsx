@@ -259,7 +259,7 @@ export default function UsersClient({ users, cohorts }: UsersClientProps) {
             </Button>
           </div>
           {/* 총 인원 뱃지 */}
-          <div className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-gold-50 rounded-lg border-2 border-gold-200 self-start sm:self-auto">
+          <div className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-gold-50 rounded-lg border border-gold-200 self-start sm:self-auto">
             <Users className="w-4 h-4 sm:w-5 sm:h-5 text-gold-600" />
             <span className="text-xl sm:text-2xl font-bold text-gold-600">
               {filteredUsers.length}
@@ -384,7 +384,7 @@ export default function UsersClient({ users, cohorts }: UsersClientProps) {
       </div>
 
       {/* 데스크탑: 테이블 레이아웃 */}
-      <Card className="hidden lg:block bg-white border-2 border-gray-200 shadow-lg">
+      <Card className="hidden lg:block bg-white border border-gray-200 shadow-lg">
         <CardHeader className="p-4 md:p-6">
           <CardTitle className="text-lg md:text-xl text-gray-900">
             전체 사용자 목록

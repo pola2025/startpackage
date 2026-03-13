@@ -820,7 +820,7 @@ export default function WorkflowsClient({
       {/* Stats - 클릭 가능 */}
       <div className="grid gap-2 sm:gap-3 md:gap-4 grid-cols-3 md:grid-cols-5">
         <Card
-          className="bg-white border-2 border-gray-200 shadow-md cursor-pointer hover:shadow-lg transition-shadow"
+          className="bg-white border border-gray-200 shadow-md cursor-pointer hover:shadow-lg transition-shadow"
           onClick={() => handleStatClick("대기")}
         >
           <CardHeader className="p-2 sm:p-3 pb-1 sm:pb-2">
@@ -836,7 +836,7 @@ export default function WorkflowsClient({
         </Card>
 
         <Card
-          className="bg-gradient-to-br from-gold-50 to-white border-0 shadow-md cursor-pointer hover:shadow-lg transition-shadow"
+          className="bg-white border border-gray-200 shadow-md cursor-pointer hover:shadow-lg transition-shadow"
           onClick={() => handleStatClick("시안중")}
         >
           <CardHeader className="p-2 sm:p-3 pb-1 sm:pb-2">
@@ -853,7 +853,7 @@ export default function WorkflowsClient({
         </Card>
 
         <Card
-          className="bg-gradient-to-br from-terra-50 to-white border-0 shadow-md cursor-pointer hover:shadow-lg transition-shadow"
+          className="bg-white border border-gray-200 shadow-md cursor-pointer hover:shadow-lg transition-shadow"
           onClick={() => handleStatClick("발주대기")}
         >
           <CardHeader className="p-2 sm:p-3 pb-1 sm:pb-2">
@@ -870,7 +870,7 @@ export default function WorkflowsClient({
         </Card>
 
         <Card
-          className="bg-gradient-to-br from-terra-50 to-white border-0 shadow-md cursor-pointer hover:shadow-lg transition-shadow"
+          className="bg-white border border-gray-200 shadow-md cursor-pointer hover:shadow-lg transition-shadow"
           onClick={() => handleStatClick("발주완료")}
         >
           <CardHeader className="p-2 sm:p-3 pb-1 sm:pb-2">
@@ -886,7 +886,7 @@ export default function WorkflowsClient({
         </Card>
 
         <Card
-          className="bg-gradient-to-br from-ok-50 to-white border-0 shadow-md cursor-pointer hover:shadow-lg transition-shadow"
+          className="bg-white border border-gray-200 shadow-md cursor-pointer hover:shadow-lg transition-shadow"
           onClick={() => handleStatClick("발송완료")}
         >
           <CardHeader className="p-2 sm:p-3 pb-1 sm:pb-2">
@@ -904,7 +904,7 @@ export default function WorkflowsClient({
       </div>
 
       {/* Filters and Controls */}
-      <Card className="bg-white border-2 border-gray-200 shadow">
+      <Card className="bg-white border border-gray-200 shadow">
         <CardContent className="p-3 sm:p-6">
           <div className="space-y-3 sm:space-y-4">
             <WorkflowFilters
@@ -961,7 +961,7 @@ export default function WorkflowsClient({
               return (
                 <div key={cohortId} className="space-y-3">
                   {/* 기수별 헤더 */}
-                  <Card className="bg-gradient-to-r from-gold-50 to-amber-50 border-2 border-gold-200 shadow-md">
+                  <Card className="bg-white border border-gray-200 shadow-md">
                     <CardHeader className="py-3 sm:py-4 px-3 sm:px-6">
                       <button
                         onClick={() => {
@@ -1007,7 +1007,7 @@ export default function WorkflowsClient({
                           return (
                             <Card
                               key={userId}
-                              className="bg-white border-2 border-gray-200 shadow-lg"
+                              className="bg-white border border-gray-200 shadow-lg"
                             >
                               <CardHeader className="py-3 px-3 sm:px-6">
                                 <button
@@ -1202,7 +1202,7 @@ export default function WorkflowsClient({
             return (
               <Card
                 key={status}
-                className="bg-white border-2 border-gray-200 shadow-lg"
+                className="bg-white border border-gray-200 shadow-lg"
               >
                 <CardHeader>
                   <CardTitle className="text-lg text-gray-900 flex items-center gap-2">
@@ -1230,7 +1230,7 @@ export default function WorkflowsClient({
 
       {/* Kanban Board View */}
       {viewMode === "kanban" && (
-        <Card className="bg-white border-2 border-gray-200 shadow-lg">
+        <Card className="bg-white border border-gray-200 shadow-lg">
           <CardContent className="p-0">
             <KanbanBoard
               workflows={allWorkflows}

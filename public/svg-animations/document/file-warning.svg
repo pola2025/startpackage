@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .doc-shake {
+      animation: docShake 4s cubic-bezier(0.36, 0.07, 0.19, 0.97) infinite;
+      transform-origin: 12px 12px;
+    }
+    @keyframes docShake {
+      0%, 30% { transform: translateX(0); }
+      32% { transform: translateX(-1px) rotate(-0.5deg); }
+      34% { transform: translateX(1.2px) rotate(0.5deg); }
+      36% { transform: translateX(-0.8px) rotate(-0.3deg); }
+      38% { transform: translateX(0.5px) rotate(0.2deg); }
+      40%, 100% { transform: translateX(0) rotate(0); }
+    }
+    .warn-line {
+      stroke-dasharray: 6;
+      stroke-dashoffset: 6;
+      animation: warnDraw 4s ease-out infinite;
+    }
+    @keyframes warnDraw {
+      0%, 10% { stroke-dashoffset: 6; }
+      25% { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: 0; }
+    }
+    .warn-dot {
+      animation: dotPulse 4s ease-in-out infinite;
+    }
+    @keyframes dotPulse {
+      0%, 25% { opacity: 0; transform: scale(0); }
+      30% { opacity: 1; transform: scale(1.4); }
+      36% { transform: scale(1); }
+      50%, 55% { opacity: 1; }
+      57% { opacity: 0.2; }
+      59% { opacity: 1; }
+      61% { opacity: 0.2; }
+      63%, 85% { opacity: 1; }
+      95%, 100% { opacity: 0.5; }
+    }
+    .warn-glow {
+      animation: glowPulse 4s ease-in-out infinite;
+    }
+    @keyframes glowPulse {
+      0%, 40% { opacity: 0; }
+      50% { opacity: 0.15; }
+      60% { opacity: 0; }
+      70% { opacity: 0.15; }
+      80%, 100% { opacity: 0; }
+    }
+  </style>
+  <g class="doc-shake">
+    <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/>
+    <path d="M14 2v4a1 1 0 0 0 1 1h5"/>
+  </g>
+  <circle class="warn-glow" cx="12" cy="14" r="5" fill="currentColor" stroke="none"/>
+  <line class="warn-line" x1="12" y1="10" x2="12" y2="14"/>
+  <circle class="warn-dot" cx="12" cy="17" r="0.5" fill="currentColor" stroke="none"/>
+</svg>

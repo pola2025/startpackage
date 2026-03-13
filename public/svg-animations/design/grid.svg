@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .line {
+      stroke-dasharray: 30;
+      stroke-dashoffset: 30;
+      animation: drawGrid 2s ease-in-out infinite;
+    }
+    .v1 { animation-delay: 0s; }
+    .v2 { animation-delay: .12s; }
+    .v3 { animation-delay: .24s; }
+    .h1 { animation-delay: .36s; }
+    .h2 { animation-delay: .48s; }
+    .h3 { animation-delay: .6s; }
+
+    @keyframes drawGrid {
+      0%, 10%, 100% { stroke-dashoffset: 30; }
+      20%, 80% { stroke-dashoffset: 0; }
+    }
+  </style>
+  <line class="line v1" x1="6" y1="5.5" x2="6" y2="18.5" />
+  <line class="line v2" x1="12" y1="5.5" x2="12" y2="18.5" />
+  <line class="line v3" x1="18" y1="5.5" x2="18" y2="18.5" />
+  <line class="line h1" x1="5.5" y1="6" x2="18.5" y2="6" />
+  <line class="line h2" x1="5.5" y1="12" x2="18.5" y2="12" />
+  <line class="line h3" x1="5.5" y1="18" x2="18.5" y2="18" />
+</svg>

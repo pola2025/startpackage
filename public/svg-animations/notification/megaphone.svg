@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .wave { transform-box: fill-box; transform-origin: 20px 12px; animation: wavePulse 2s ease-in-out infinite; }
+    .wave2 { animation-delay: .4s; }
+    @keyframes wavePulse {
+      0%,100% { transform: scale(0.8); opacity: .35; }
+      50% { transform: scale(1.35); opacity: .9; }
+    }
+  </style>
+  <path d="M3 7h9.5l5-3v16l-5-3H3a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z"/>
+  <path d="M17.5 9.5L21 12l-3.5 2.5"/>
+  <path class="wave" d="M20 7a5 5 0 0 1 0 10"/>
+  <path class="wave wave2" d="M20 4a8 8 0 0 1 0 16"/>
+</svg>

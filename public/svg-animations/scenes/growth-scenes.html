@@ -1,0 +1,3306 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Growth Animations - 성장 씬 10종</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
+    />
+    <style>
+      :root {
+        --bg: #faf8f5;
+        --bg-warm: #f5f0ea;
+        --surface: #ffffff;
+        --gold: #b08d3e;
+        --gold-light: #c9a84c;
+        --gold-pale: rgba(176, 141, 62, 0.08);
+        --gold-border: rgba(176, 141, 62, 0.2);
+        --coffee: #6b5344;
+        --text: #2c2420;
+        --text-sub: #5c5248;
+        --text-muted: #9c9088;
+        --border: #e8e0d8;
+        --border-light: #f0ebe5;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family:
+          "Pretendard",
+          -apple-system,
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.7;
+      }
+
+      .page-header {
+        text-align: center;
+        padding: 60px 24px 40px;
+        background: linear-gradient(180deg, var(--bg) 0%, var(--bg-warm) 100%);
+      }
+
+      .page-header h1 {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      .page-header p {
+        font-size: 15px;
+        color: var(--text-sub);
+      }
+
+      .showcase-grid {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 24px 80px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 32px;
+      }
+
+      .showcase-card {
+        background: var(--surface);
+        border: 1px solid var(--border-light);
+        border-radius: 20px;
+        overflow: hidden;
+        transition: box-shadow 0.3s ease;
+      }
+
+      .showcase-card:hover {
+        box-shadow: 0 8px 30px rgba(44, 36, 32, 0.1);
+      }
+
+      .anim-stage {
+        height: 320px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .card-info {
+        padding: 24px 28px;
+      }
+
+      .card-num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        background: var(--gold);
+        color: #fff;
+        border-radius: 50%;
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      .card-info h3 {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 6px;
+      }
+
+      .card-info .meaning {
+        font-size: 14px;
+        color: var(--gold);
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+
+      .card-info .desc {
+        font-size: 13px;
+        color: var(--text-muted);
+      }
+
+      .replay-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 12px;
+        padding: 6px 14px;
+        background: var(--gold-pale);
+        border: 1px solid var(--gold-border);
+        border-radius: 100px;
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--gold);
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .replay-btn:hover {
+        background: var(--gold);
+        color: #fff;
+      }
+
+      /* ======================================
+         SHARED KEYFRAMES
+      ====================================== */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes checkPop {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(0);
+        }
+        100% {
+          opacity: 1;
+          transform: translate(-50%, -50%) scale(1);
+        }
+      }
+
+      @keyframes popIn {
+        0% {
+          opacity: 0;
+          transform: scale(0);
+        }
+        60% {
+          opacity: 1;
+          transform: scale(1.3);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* ======================================
+         1. SEED TO TREE
+      ====================================== */
+      .anim-seed-tree {
+        position: relative;
+        width: 220px;
+        height: 280px;
+      }
+
+      .st-ground {
+        position: absolute;
+        bottom: 10px;
+        left: 10px;
+        right: 10px;
+        height: 3px;
+        background: var(--coffee);
+        border-radius: 2px;
+        opacity: 0.25;
+      }
+
+      /* Soil mound */
+      .st-soil {
+        position: absolute;
+        bottom: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40px;
+        height: 14px;
+        background: var(--coffee);
+        border-radius: 50% 50% 0 0;
+        opacity: 0;
+      }
+      .anim-seed-tree.play .st-soil {
+        animation: fadeIn 0.4s ease 0.1s forwards;
+      }
+
+      /* Seed */
+      .st-seed {
+        position: absolute;
+        bottom: 18px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 14px;
+        height: 18px;
+        background: var(--gold);
+        border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+        opacity: 0;
+        z-index: 2;
+      }
+      .anim-seed-tree.play .st-seed {
+        animation: seedDropIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s
+          forwards;
+      }
+      @keyframes seedDropIn {
+        0% {
+          opacity: 0;
+          transform: translateX(-50%) translateY(-50px) rotate(-20deg);
+        }
+        70% {
+          opacity: 1;
+          transform: translateX(-50%) translateY(4px) rotate(5deg);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(-50%) translateY(0) rotate(0deg);
+        }
+      }
+
+      /* Sprout stem */
+      .st-sprout {
+        position: absolute;
+        bottom: 28px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 4px;
+        height: 0;
+        background: #7a9e5b;
+        border-radius: 2px;
+        transform-origin: bottom center;
+      }
+      .anim-seed-tree.play .st-sprout {
+        animation: sproutGrow 0.5s ease-out 1.1s forwards;
+      }
+      @keyframes sproutGrow {
+        from {
+          height: 0;
+        }
+        to {
+          height: 22px;
+        }
+      }
+
+      /* Sprout leaves */
+      .st-leaf {
+        position: absolute;
+        width: 16px;
+        height: 10px;
+        background: #7a9e5b;
+        border-radius: 50%;
+        opacity: 0;
+        transform-origin: center right;
+      }
+      .st-leaf.left {
+        bottom: 44px;
+        left: calc(50% - 18px);
+        transform: rotate(-30deg);
+      }
+      .st-leaf.right {
+        bottom: 44px;
+        left: calc(50% + 2px);
+        transform: rotate(30deg);
+        transform-origin: center left;
+      }
+      .anim-seed-tree.play .st-leaf.left {
+        animation: leafOpen 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1.6s forwards;
+      }
+      .anim-seed-tree.play .st-leaf.right {
+        animation: leafOpen 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1.75s
+          forwards;
+      }
+      @keyframes leafOpen {
+        from {
+          opacity: 0;
+          transform: scale(0) rotate(-30deg);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1) rotate(-30deg);
+        }
+      }
+      .st-leaf.right {
+        animation: none;
+      }
+      .anim-seed-tree.play .st-leaf.right {
+        animation: leafOpenR 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1.75s
+          forwards;
+      }
+      @keyframes leafOpenR {
+        from {
+          opacity: 0;
+          transform: scale(0) rotate(30deg);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1) rotate(30deg);
+        }
+      }
+
+      /* Trunk */
+      .st-trunk {
+        position: absolute;
+        bottom: 28px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 8px;
+        height: 0;
+        background: var(--coffee);
+        border-radius: 4px;
+        transform-origin: bottom center;
+      }
+      .anim-seed-tree.play .st-trunk {
+        animation: trunkRise 0.9s ease-out 2.2s forwards;
+      }
+      @keyframes trunkRise {
+        from {
+          height: 0;
+        }
+        to {
+          height: 110px;
+        }
+      }
+
+      /* Branches */
+      .st-branch {
+        position: absolute;
+        height: 4px;
+        width: 0;
+        background: var(--coffee);
+        border-radius: 2px;
+        opacity: 0;
+        bottom: 118px;
+      }
+      .st-branch.bl {
+        right: calc(50% + 0px);
+        transform-origin: right center;
+        transform: rotate(-35deg);
+      }
+      .st-branch.br {
+        left: calc(50% + 0px);
+        transform-origin: left center;
+        transform: rotate(35deg);
+      }
+      .st-branch.bl2 {
+        right: calc(50% + 0px);
+        bottom: 148px;
+        transform-origin: right center;
+        transform: rotate(-20deg);
+      }
+      .st-branch.br2 {
+        left: calc(50% + 0px);
+        bottom: 148px;
+        transform-origin: left center;
+        transform: rotate(20deg);
+      }
+      .anim-seed-tree.play .st-branch.bl {
+        animation: branchSpread 0.5s ease-out 3.1s forwards;
+      }
+      .anim-seed-tree.play .st-branch.br {
+        animation: branchSpread 0.5s ease-out 3.25s forwards;
+      }
+      .anim-seed-tree.play .st-branch.bl2 {
+        animation: branchSpread 0.5s ease-out 3.4s forwards;
+      }
+      .anim-seed-tree.play .st-branch.br2 {
+        animation: branchSpread 0.5s ease-out 3.55s forwards;
+      }
+      @keyframes branchSpread {
+        from {
+          width: 0;
+          opacity: 0;
+        }
+        to {
+          width: 40px;
+          opacity: 1;
+        }
+      }
+
+      /* Canopy */
+      .st-canopy {
+        position: absolute;
+        bottom: 100px;
+        left: 50%;
+        transform: translateX(-50%) scale(0);
+        opacity: 0;
+        width: 140px;
+        height: 140px;
+      }
+      .anim-seed-tree.play .st-canopy {
+        animation: canopyBoom 1s cubic-bezier(0.34, 1.56, 0.64, 1) 2.9s forwards;
+      }
+      @keyframes canopyBoom {
+        from {
+          opacity: 0;
+          transform: translateX(-50%) scale(0);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(-50%) scale(1);
+        }
+      }
+
+      /* Fruits */
+      .st-fruit {
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        background: var(--gold);
+        border-radius: 50%;
+        border: 2px solid var(--gold-light);
+        opacity: 0;
+        transform: scale(0);
+      }
+      .st-fruit:nth-child(1) {
+        top: 48px;
+        left: 48px;
+      }
+      .st-fruit:nth-child(2) {
+        top: 70px;
+        left: 105px;
+      }
+      .st-fruit:nth-child(3) {
+        top: 95px;
+        left: 38px;
+      }
+      .st-fruit:nth-child(4) {
+        top: 58px;
+        left: 82px;
+      }
+      .st-fruit:nth-child(5) {
+        top: 90px;
+        left: 90px;
+      }
+
+      .anim-seed-tree.play .st-fruit {
+        animation: fruitPop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      }
+      .anim-seed-tree.play .st-fruit:nth-child(1) {
+        animation-delay: 3.9s !important;
+      }
+      .anim-seed-tree.play .st-fruit:nth-child(2) {
+        animation-delay: 4.1s !important;
+      }
+      .anim-seed-tree.play .st-fruit:nth-child(3) {
+        animation-delay: 4.3s !important;
+      }
+      .anim-seed-tree.play .st-fruit:nth-child(4) {
+        animation-delay: 4s !important;
+      }
+      .anim-seed-tree.play .st-fruit:nth-child(5) {
+        animation-delay: 4.2s !important;
+      }
+
+      @keyframes fruitPop {
+        0% {
+          opacity: 0;
+          transform: scale(0);
+        }
+        60% {
+          opacity: 1;
+          transform: scale(1.3);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      /* ======================================
+         2. STAIR CLIMB
+      ====================================== */
+      .anim-stair {
+        position: relative;
+        width: 280px;
+        height: 260px;
+      }
+
+      /* Steps */
+      .sc-step {
+        position: absolute;
+        height: 18px;
+        background: var(--coffee);
+        border-radius: 3px 3px 0 0;
+        opacity: 0;
+        bottom: 20px;
+      }
+      .sc-step:nth-child(1) {
+        left: 20px;
+        width: 220px;
+        bottom: 20px;
+      }
+      .sc-step:nth-child(2) {
+        left: 55px;
+        width: 185px;
+        bottom: 38px;
+      }
+      .sc-step:nth-child(3) {
+        left: 90px;
+        width: 150px;
+        bottom: 56px;
+      }
+      .sc-step:nth-child(4) {
+        left: 125px;
+        width: 115px;
+        bottom: 74px;
+      }
+      .sc-step:nth-child(5) {
+        left: 160px;
+        width: 80px;
+        bottom: 92px;
+      }
+
+      .anim-stair.play .sc-step:nth-child(1) {
+        animation: stepAppear 0.4s ease 0.2s forwards;
+      }
+      .anim-stair.play .sc-step:nth-child(2) {
+        animation: stepAppear 0.4s ease 0.45s forwards;
+      }
+      .anim-stair.play .sc-step:nth-child(3) {
+        animation: stepAppear 0.4s ease 0.7s forwards;
+      }
+      .anim-stair.play .sc-step:nth-child(4) {
+        animation: stepAppear 0.4s ease 0.95s forwards;
+      }
+      .anim-stair.play .sc-step:nth-child(5) {
+        animation: stepAppear 0.4s ease 1.2s forwards;
+      }
+
+      @keyframes stepAppear {
+        from {
+          opacity: 0;
+          transform: scaleX(0);
+          transform-origin: left;
+        }
+        to {
+          opacity: 1;
+          transform: scaleX(1);
+          transform-origin: left;
+        }
+      }
+
+      /* Risers (vertical parts) */
+      .sc-riser {
+        position: absolute;
+        width: 35px;
+        background: rgba(107, 83, 68, 0.35);
+        border-radius: 0;
+        opacity: 0;
+      }
+      .sc-riser:nth-child(6) {
+        left: 55px;
+        bottom: 20px;
+        height: 18px;
+      }
+      .sc-riser:nth-child(7) {
+        left: 90px;
+        bottom: 38px;
+        height: 18px;
+      }
+      .sc-riser:nth-child(8) {
+        left: 125px;
+        bottom: 56px;
+        height: 18px;
+      }
+      .sc-riser:nth-child(9) {
+        left: 160px;
+        bottom: 74px;
+        height: 18px;
+      }
+      .sc-riser:nth-child(10) {
+        left: 195px;
+        bottom: 92px;
+        height: 18px;
+      }
+      .anim-stair.play .sc-riser:nth-child(6) {
+        animation: fadeIn 0.3s ease 0.45s forwards;
+      }
+      .anim-stair.play .sc-riser:nth-child(7) {
+        animation: fadeIn 0.3s ease 0.7s forwards;
+      }
+      .anim-stair.play .sc-riser:nth-child(8) {
+        animation: fadeIn 0.3s ease 0.95s forwards;
+      }
+      .anim-stair.play .sc-riser:nth-child(9) {
+        animation: fadeIn 0.3s ease 1.2s forwards;
+      }
+      .anim-stair.play .sc-riser:nth-child(10) {
+        animation: fadeIn 0.3s ease 1.45s forwards;
+      }
+
+      /* Figure */
+      .sc-figure {
+        position: absolute;
+        width: 22px;
+        height: 34px;
+        bottom: 38px;
+        left: 28px;
+        opacity: 0;
+      }
+      .anim-stair.play .sc-figure {
+        animation: figureClimb 2.4s cubic-bezier(0.4, 0, 0.2, 1) 1.6s forwards;
+      }
+      @keyframes figureClimb {
+        0% {
+          opacity: 1;
+          bottom: 38px;
+          left: 28px;
+        }
+        20% {
+          bottom: 56px;
+          left: 63px;
+        }
+        40% {
+          bottom: 74px;
+          left: 98px;
+        }
+        60% {
+          bottom: 92px;
+          left: 133px;
+        }
+        80% {
+          bottom: 110px;
+          left: 168px;
+        }
+        100% {
+          bottom: 128px;
+          left: 168px;
+          opacity: 1;
+        }
+      }
+
+      /* Flag */
+      .sc-flag {
+        position: absolute;
+        bottom: 130px;
+        left: 222px;
+        opacity: 0;
+      }
+      .anim-stair.play .sc-flag {
+        animation: flagRaise 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 4.2s
+          forwards;
+      }
+      @keyframes flagRaise {
+        0% {
+          opacity: 0;
+          transform: translateY(10px) scale(0.5);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      /* Number labels on steps */
+      .sc-label {
+        position: absolute;
+        font-size: 10px;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.8);
+        opacity: 0;
+      }
+      .sc-label:nth-child(16) {
+        left: 28px;
+        bottom: 24px;
+      }
+      .sc-label:nth-child(17) {
+        left: 65px;
+        bottom: 42px;
+      }
+      .sc-label:nth-child(18) {
+        left: 100px;
+        bottom: 60px;
+      }
+      .sc-label:nth-child(19) {
+        left: 135px;
+        bottom: 78px;
+      }
+      .sc-label:nth-child(20) {
+        left: 170px;
+        bottom: 96px;
+      }
+      .anim-stair.play .sc-label:nth-child(16) {
+        animation: fadeIn 0.3s ease 0.25s forwards;
+      }
+      .anim-stair.play .sc-label:nth-child(17) {
+        animation: fadeIn 0.3s ease 0.5s forwards;
+      }
+      .anim-stair.play .sc-label:nth-child(18) {
+        animation: fadeIn 0.3s ease 0.75s forwards;
+      }
+      .anim-stair.play .sc-label:nth-child(19) {
+        animation: fadeIn 0.3s ease 1s forwards;
+      }
+      .anim-stair.play .sc-label:nth-child(20) {
+        animation: fadeIn 0.3s ease 1.25s forwards;
+      }
+
+      /* ======================================
+         3. ROCKET LAUNCH
+      ====================================== */
+      .anim-rocket {
+        position: relative;
+        width: 200px;
+        height: 280px;
+        overflow: hidden;
+      }
+
+      /* Stars */
+      .rl-star {
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        background: var(--gold);
+        border-radius: 50%;
+        opacity: 0;
+      }
+      .rl-star:nth-child(1) {
+        top: 20px;
+        left: 30px;
+      }
+      .rl-star:nth-child(2) {
+        top: 50px;
+        left: 160px;
+      }
+      .rl-star:nth-child(3) {
+        top: 80px;
+        left: 40px;
+      }
+      .rl-star:nth-child(4) {
+        top: 30px;
+        left: 120px;
+      }
+      .rl-star:nth-child(5) {
+        top: 70px;
+        left: 180px;
+      }
+      .rl-star:nth-child(6) {
+        top: 10px;
+        left: 80px;
+      }
+      .anim-rocket.play .rl-star {
+        animation: starTwinkle 0.5s ease forwards;
+      }
+      .anim-rocket.play .rl-star:nth-child(1) {
+        animation-delay: 0.2s !important;
+      }
+      .anim-rocket.play .rl-star:nth-child(2) {
+        animation-delay: 0.35s !important;
+      }
+      .anim-rocket.play .rl-star:nth-child(3) {
+        animation-delay: 0.5s !important;
+      }
+      .anim-rocket.play .rl-star:nth-child(4) {
+        animation-delay: 0.28s !important;
+      }
+      .anim-rocket.play .rl-star:nth-child(5) {
+        animation-delay: 0.42s !important;
+      }
+      .anim-rocket.play .rl-star:nth-child(6) {
+        animation-delay: 0.15s !important;
+      }
+      @keyframes starTwinkle {
+        0% {
+          opacity: 0;
+          transform: scale(0);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.5);
+        }
+        100% {
+          opacity: 0.7;
+          transform: scale(1);
+        }
+      }
+
+      /* Countdown */
+      .rl-countdown {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 52px;
+        font-weight: 900;
+        color: var(--gold);
+        opacity: 0;
+        line-height: 1;
+      }
+      .rl-count3 {
+        animation: countFlash 0.6s ease 0.3s both;
+      }
+      .rl-count2 {
+        animation: countFlash 0.6s ease 0.9s both;
+      }
+      .rl-count1 {
+        animation: countFlash 0.6s ease 1.5s both;
+      }
+
+      .anim-rocket.play .rl-count3 {
+        animation: countFlash 0.6s ease 0.3s both;
+      }
+      .anim-rocket.play .rl-count2 {
+        animation: countFlash 0.6s ease 0.9s both;
+      }
+      .anim-rocket.play .rl-count1 {
+        animation: countFlash 0.6s ease 1.5s both;
+      }
+      .rl-countdown {
+        animation: none;
+      }
+
+      @keyframes countFlash {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(1.5);
+        }
+        30% {
+          opacity: 1;
+          transform: translate(-50%, -50%) scale(1);
+        }
+        70% {
+          opacity: 1;
+          transform: translate(-50%, -50%) scale(1);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(0.5);
+        }
+      }
+
+      /* Launchpad */
+      .rl-pad {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 8px;
+        background: var(--coffee);
+        border-radius: 4px;
+        opacity: 0;
+      }
+      .anim-rocket.play .rl-pad {
+        animation: fadeIn 0.4s ease 0.2s forwards;
+      }
+
+      .rl-pad-leg {
+        position: absolute;
+        bottom: 28px;
+        width: 3px;
+        height: 16px;
+        background: var(--coffee);
+        border-radius: 2px;
+        opacity: 0;
+      }
+      .rl-pad-leg.l {
+        left: calc(50% - 16px);
+      }
+      .rl-pad-leg.r {
+        left: calc(50% + 13px);
+      }
+      .anim-rocket.play .rl-pad-leg.l {
+        animation: fadeIn 0.4s ease 0.25s forwards;
+      }
+      .anim-rocket.play .rl-pad-leg.r {
+        animation: fadeIn 0.4s ease 0.3s forwards;
+      }
+
+      /* Flame */
+      .rl-flame {
+        position: absolute;
+        bottom: 56px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 24px;
+        height: 0;
+        background: linear-gradient(to top, #ff6b00, var(--gold), #ffdd57);
+        border-radius: 0 0 12px 12px;
+        opacity: 0;
+        filter: blur(1px);
+      }
+      .anim-rocket.play .rl-flame {
+        animation: flameIgnite 0.5s ease 2.1s forwards;
+      }
+      @keyframes flameIgnite {
+        0% {
+          opacity: 0;
+          height: 0;
+        }
+        50% {
+          opacity: 1;
+          height: 30px;
+        }
+        100% {
+          opacity: 0.9;
+          height: 20px;
+        }
+      }
+
+      /* Rocket body */
+      .rl-rocket {
+        position: absolute;
+        bottom: 28px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 36px;
+        height: 70px;
+        opacity: 0;
+      }
+      .anim-rocket.play .rl-rocket {
+        animation: rocketLaunch 1.8s cubic-bezier(0.4, 0, 0.2, 1) 2.2s forwards;
+      }
+      @keyframes rocketLaunch {
+        0% {
+          opacity: 1;
+          bottom: 28px;
+        }
+        15% {
+          bottom: 20px;
+        }
+        100% {
+          opacity: 1;
+          bottom: 340px;
+        }
+      }
+
+      /* Trail particles after launch */
+      .rl-trail {
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        opacity: 0;
+      }
+      .rl-trail:nth-child(11) {
+        background: var(--gold);
+        left: calc(50% - 3px);
+        bottom: 200px;
+      }
+      .rl-trail:nth-child(12) {
+        background: #ff9d00;
+        left: calc(50% + 5px);
+        bottom: 170px;
+      }
+      .rl-trail:nth-child(13) {
+        background: var(--gold-light);
+        left: calc(50% - 8px);
+        bottom: 150px;
+      }
+      .rl-trail:nth-child(14) {
+        background: var(--gold);
+        left: calc(50% + 2px);
+        bottom: 130px;
+      }
+      .rl-trail:nth-child(15) {
+        background: #ffdd57;
+        left: calc(50% - 4px);
+        bottom: 110px;
+      }
+      .anim-rocket.play .rl-trail {
+        animation: trailFade 0.8s ease forwards;
+      }
+      .anim-rocket.play .rl-trail:nth-child(11) {
+        animation-delay: 2.8s !important;
+      }
+      .anim-rocket.play .rl-trail:nth-child(12) {
+        animation-delay: 3s !important;
+      }
+      .anim-rocket.play .rl-trail:nth-child(13) {
+        animation-delay: 3.2s !important;
+      }
+      .anim-rocket.play .rl-trail:nth-child(14) {
+        animation-delay: 3.4s !important;
+      }
+      .anim-rocket.play .rl-trail:nth-child(15) {
+        animation-delay: 3.6s !important;
+      }
+      @keyframes trailFade {
+        0% {
+          opacity: 0;
+          transform: scale(0.5);
+        }
+        40% {
+          opacity: 1;
+          transform: scale(1.2);
+        }
+        100% {
+          opacity: 0;
+          transform: scale(0.3) translateY(20px);
+        }
+      }
+
+      /* ======================================
+         4. PROGRESS MILESTONES
+      ====================================== */
+      .anim-progress {
+        position: relative;
+        width: 300px;
+        height: 200px;
+      }
+
+      /* Track */
+      .pm-track {
+        position: absolute;
+        top: 80px;
+        left: 20px;
+        right: 20px;
+        height: 10px;
+        background: var(--border);
+        border-radius: 5px;
+        overflow: hidden;
+      }
+
+      .pm-fill {
+        position: absolute;
+        inset: 0;
+        width: 0;
+        background: linear-gradient(90deg, var(--coffee), var(--gold));
+        border-radius: 5px;
+      }
+      .anim-progress.play .pm-fill {
+        animation: barFill 2.8s cubic-bezier(0.4, 0, 0.2, 1) 0.3s forwards;
+      }
+      @keyframes barFill {
+        0% {
+          width: 0%;
+        }
+        100% {
+          width: 100%;
+        }
+      }
+
+      /* Percentage label */
+      .pm-pct {
+        position: absolute;
+        top: 42px;
+        left: 20px;
+        font-size: 28px;
+        font-weight: 900;
+        color: var(--gold);
+        opacity: 0;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -1px;
+      }
+      .anim-progress.play .pm-pct {
+        animation: pctCount 2.8s ease 0.3s forwards;
+      }
+      @keyframes pctCount {
+        0% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+
+      /* Milestone markers */
+      .pm-marker {
+        position: absolute;
+        top: 72px;
+        width: 2px;
+        height: 26px;
+        background: var(--border);
+        border-radius: 1px;
+        transform: translateX(-50%);
+      }
+      .pm-marker:nth-child(3) {
+        left: calc(20px + 65px);
+      }
+      .pm-marker:nth-child(4) {
+        left: calc(20px + 130px);
+      }
+      .pm-marker:nth-child(5) {
+        left: calc(20px + 195px);
+      }
+      .pm-marker:nth-child(6) {
+        left: calc(20px + 260px);
+      }
+
+      /* Milestone flags */
+      .pm-flag {
+        position: absolute;
+        top: 30px;
+        transform: translateX(-50%) scale(0);
+        opacity: 0;
+      }
+      .pm-flag:nth-child(7) {
+        left: calc(20px + 65px);
+      }
+      .pm-flag:nth-child(8) {
+        left: calc(20px + 130px);
+      }
+      .pm-flag:nth-child(9) {
+        left: calc(20px + 195px);
+      }
+      .pm-flag:nth-child(10) {
+        left: calc(20px + 260px);
+      }
+
+      .anim-progress.play .pm-flag:nth-child(7) {
+        animation: flagPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1s forwards;
+      }
+      .anim-progress.play .pm-flag:nth-child(8) {
+        animation: flagPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1.7s forwards;
+      }
+      .anim-progress.play .pm-flag:nth-child(9) {
+        animation: flagPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 2.3s forwards;
+      }
+      .anim-progress.play .pm-flag:nth-child(10) {
+        animation: flagPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 3s forwards;
+      }
+      @keyframes flagPop {
+        0% {
+          opacity: 0;
+          transform: translateX(-50%) scale(0) translateY(10px);
+        }
+        70% {
+          transform: translateX(-50%) scale(1.2) translateY(-2px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(-50%) scale(1) translateY(0);
+        }
+      }
+
+      /* Bottom labels */
+      .pm-mlabel {
+        position: absolute;
+        top: 102px;
+        font-size: 9px;
+        font-weight: 700;
+        color: var(--text-muted);
+        transform: translateX(-50%);
+        opacity: 0;
+      }
+      .pm-mlabel:nth-child(11) {
+        left: calc(20px + 65px);
+      }
+      .pm-mlabel:nth-child(12) {
+        left: calc(20px + 130px);
+      }
+      .pm-mlabel:nth-child(13) {
+        left: calc(20px + 195px);
+      }
+      .pm-mlabel:nth-child(14) {
+        left: calc(20px + 260px);
+      }
+      .anim-progress.play .pm-mlabel:nth-child(11) {
+        animation: fadeIn 0.3s ease 0.4s forwards;
+      }
+      .anim-progress.play .pm-mlabel:nth-child(12) {
+        animation: fadeIn 0.3s ease 0.6s forwards;
+      }
+      .anim-progress.play .pm-mlabel:nth-child(13) {
+        animation: fadeIn 0.3s ease 0.8s forwards;
+      }
+      .anim-progress.play .pm-mlabel:nth-child(14) {
+        animation: fadeIn 0.3s ease 1s forwards;
+      }
+
+      /* ======================================
+         5. LEVEL UP
+      ====================================== */
+      .anim-levelup {
+        position: relative;
+        width: 240px;
+        height: 260px;
+      }
+
+      /* XP gauge background */
+      .lu-gauge-bg {
+        position: absolute;
+        bottom: 40px;
+        left: 20px;
+        right: 20px;
+        height: 22px;
+        background: var(--border);
+        border-radius: 11px;
+        overflow: hidden;
+      }
+
+      .lu-gauge-fill {
+        position: absolute;
+        inset: 0;
+        width: 0;
+        background: linear-gradient(90deg, var(--coffee), var(--gold));
+        border-radius: 11px;
+      }
+      .anim-levelup.play .lu-gauge-fill {
+        animation: gaugeFill 1.8s cubic-bezier(0.4, 0, 0.2, 1) 0.4s forwards;
+      }
+      @keyframes gaugeFill {
+        0% {
+          width: 0%;
+        }
+        85% {
+          width: 95%;
+        }
+        100% {
+          width: 100%;
+        }
+      }
+
+      /* XP label */
+      .lu-xp-label {
+        position: absolute;
+        bottom: 67px;
+        left: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text-muted);
+        opacity: 0;
+      }
+      .anim-levelup.play .lu-xp-label {
+        animation: fadeIn 0.4s ease 0.3s forwards;
+      }
+
+      .lu-xp-val {
+        position: absolute;
+        bottom: 67px;
+        right: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--gold);
+        opacity: 0;
+      }
+      .anim-levelup.play .lu-xp-val {
+        animation: fadeIn 0.4s ease 0.3s forwards;
+      }
+
+      /* Current level indicator */
+      .lu-lv-current {
+        position: absolute;
+        bottom: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-muted);
+        opacity: 0;
+        white-space: nowrap;
+      }
+      .anim-levelup.play .lu-lv-current {
+        animation: fadeIn 0.4s ease 0.2s forwards;
+      }
+
+      /* LEVEL UP badge */
+      .lu-badge {
+        position: absolute;
+        top: 30px;
+        left: 50%;
+        transform: translateX(-50%) scale(0);
+        opacity: 0;
+        background: linear-gradient(135deg, var(--gold-light), var(--gold));
+        border-radius: 16px;
+        padding: 14px 24px;
+        text-align: center;
+        box-shadow: 0 8px 24px rgba(176, 141, 62, 0.4);
+      }
+      .lu-badge-text {
+        font-size: 22px;
+        font-weight: 900;
+        color: #fff;
+        letter-spacing: 2px;
+        display: block;
+      }
+      .lu-badge-sub {
+        font-size: 11px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.85);
+        display: block;
+        margin-top: 2px;
+      }
+      .anim-levelup.play .lu-badge {
+        animation: badgeExplode 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 2.4s
+          forwards;
+      }
+      @keyframes badgeExplode {
+        0% {
+          opacity: 0;
+          transform: translateX(-50%) scale(0) rotate(-10deg);
+        }
+        60% {
+          opacity: 1;
+          transform: translateX(-50%) scale(1.12) rotate(2deg);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(-50%) scale(1) rotate(0deg);
+        }
+      }
+
+      /* Particles */
+      .lu-particle {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        opacity: 0;
+      }
+      .lu-particle:nth-child(1) {
+        background: var(--gold);
+        top: 60px;
+        left: 30px;
+      }
+      .lu-particle:nth-child(2) {
+        background: var(--gold-light);
+        top: 50px;
+        left: 190px;
+      }
+      .lu-particle:nth-child(3) {
+        background: var(--coffee);
+        top: 100px;
+        left: 20px;
+      }
+      .lu-particle:nth-child(4) {
+        background: var(--gold);
+        top: 100px;
+        left: 205px;
+      }
+      .lu-particle:nth-child(5) {
+        background: #ffdd57;
+        top: 40px;
+        left: 115px;
+      }
+      .lu-particle:nth-child(6) {
+        background: var(--gold-light);
+        top: 120px;
+        left: 60px;
+      }
+      .lu-particle:nth-child(7) {
+        background: var(--gold);
+        top: 120px;
+        left: 170px;
+      }
+      .lu-particle:nth-child(8) {
+        background: var(--coffee);
+        top: 30px;
+        left: 80px;
+      }
+
+      .anim-levelup.play .lu-particle {
+        animation: particleBurst 0.8s ease forwards;
+      }
+      .anim-levelup.play .lu-particle:nth-child(1) {
+        animation-delay: 2.45s !important;
+      }
+      .anim-levelup.play .lu-particle:nth-child(2) {
+        animation-delay: 2.5s !important;
+      }
+      .anim-levelup.play .lu-particle:nth-child(3) {
+        animation-delay: 2.55s !important;
+      }
+      .anim-levelup.play .lu-particle:nth-child(4) {
+        animation-delay: 2.6s !important;
+      }
+      .anim-levelup.play .lu-particle:nth-child(5) {
+        animation-delay: 2.4s !important;
+      }
+      .anim-levelup.play .lu-particle:nth-child(6) {
+        animation-delay: 2.65s !important;
+      }
+      .anim-levelup.play .lu-particle:nth-child(7) {
+        animation-delay: 2.7s !important;
+      }
+      .anim-levelup.play .lu-particle:nth-child(8) {
+        animation-delay: 2.42s !important;
+      }
+      @keyframes particleBurst {
+        0% {
+          opacity: 0;
+          transform: scale(0);
+        }
+        30% {
+          opacity: 1;
+          transform: scale(1.5);
+        }
+        100% {
+          opacity: 0;
+          transform: scale(0.3) translateY(-20px);
+        }
+      }
+
+      /* ======================================
+         6. PUZZLE ASSEMBLE
+      ====================================== */
+      .anim-puzzle-asm {
+        position: relative;
+        width: 200px;
+        height: 200px;
+      }
+
+      /* Using actual interlocking puzzle shapes via clip-path */
+      .pa-piece {
+        position: absolute;
+        width: 90px;
+        height: 90px;
+        opacity: 0;
+      }
+
+      .pa-piece.p1 {
+        top: 0;
+        left: 0;
+      }
+      .pa-piece.p2 {
+        top: 0;
+        right: 0;
+      }
+      .pa-piece.p3 {
+        bottom: 0;
+        left: 0;
+      }
+      .pa-piece.p4 {
+        bottom: 0;
+        right: 0;
+      }
+
+      .anim-puzzle-asm.play .pa-piece.p1 {
+        animation: pAsmP1 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s forwards;
+      }
+      .anim-puzzle-asm.play .pa-piece.p2 {
+        animation: pAsmP2 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.55s forwards;
+      }
+      .anim-puzzle-asm.play .pa-piece.p3 {
+        animation: pAsmP3 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.8s forwards;
+      }
+      .anim-puzzle-asm.play .pa-piece.p4 {
+        animation: pAsmP4 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 1.05s forwards;
+      }
+
+      @keyframes pAsmP1 {
+        0% {
+          opacity: 0;
+          transform: translate(-60px, -60px) rotate(-20deg);
+        }
+        100% {
+          opacity: 1;
+          transform: translate(0, 0) rotate(0);
+        }
+      }
+      @keyframes pAsmP2 {
+        0% {
+          opacity: 0;
+          transform: translate(60px, -60px) rotate(20deg);
+        }
+        100% {
+          opacity: 1;
+          transform: translate(0, 0) rotate(0);
+        }
+      }
+      @keyframes pAsmP3 {
+        0% {
+          opacity: 0;
+          transform: translate(-60px, 60px) rotate(20deg);
+        }
+        100% {
+          opacity: 1;
+          transform: translate(0, 0) rotate(0);
+        }
+      }
+      @keyframes pAsmP4 {
+        0% {
+          opacity: 0;
+          transform: translate(60px, 60px) rotate(-20deg);
+        }
+        100% {
+          opacity: 1;
+          transform: translate(0, 0) rotate(0);
+        }
+      }
+
+      /* Snap flash */
+      .pa-snap {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: var(--gold);
+        opacity: 0;
+        box-shadow: 0 0 20px var(--gold);
+      }
+      .anim-puzzle-asm.play .pa-snap {
+        animation: snapFlash 0.5s ease 1.85s forwards;
+      }
+      @keyframes snapFlash {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(0);
+        }
+        40% {
+          opacity: 0.9;
+          transform: translate(-50%, -50%) scale(2);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(3);
+        }
+      }
+
+      /* Check mark */
+      .pa-check {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+        width: 50px;
+        height: 50px;
+        background: var(--gold);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 16px rgba(176, 141, 62, 0.5);
+        z-index: 10;
+      }
+      .anim-puzzle-asm.play .pa-check {
+        animation: checkPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 2s forwards;
+      }
+
+      /* ======================================
+         7. BRIDGE BUILD
+      ====================================== */
+      .anim-bridge-build {
+        position: relative;
+        width: 300px;
+        height: 220px;
+      }
+
+      /* Water / ground */
+      .bb-water {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 28px;
+        background: linear-gradient(
+          180deg,
+          rgba(176, 141, 62, 0.12) 0%,
+          rgba(176, 141, 62, 0.06) 100%
+        );
+        border-radius: 0 0 8px 8px;
+        opacity: 0;
+      }
+      .anim-bridge-build.play .bb-water {
+        animation: fadeIn 0.5s ease 0.1s forwards;
+      }
+
+      /* Pillars */
+      .bb-pillar {
+        position: absolute;
+        bottom: 28px;
+        width: 18px;
+        height: 0;
+        border-radius: 3px 3px 0 0;
+        opacity: 0;
+        transform-origin: bottom center;
+      }
+      .bb-pillar.left {
+        left: 50px;
+        background: var(--coffee);
+      }
+      .bb-pillar.right {
+        right: 50px;
+        background: var(--gold);
+      }
+
+      .anim-bridge-build.play .bb-pillar.left {
+        animation: pillarRise 0.6s ease-out 0.3s forwards;
+      }
+      .anim-bridge-build.play .bb-pillar.right {
+        animation: pillarRise 0.6s ease-out 0.55s forwards;
+      }
+      @keyframes pillarRise {
+        from {
+          height: 0;
+          opacity: 0;
+        }
+        to {
+          height: 90px;
+          opacity: 1;
+        }
+      }
+
+      /* Pillar caps */
+      .bb-cap {
+        position: absolute;
+        width: 28px;
+        height: 8px;
+        border-radius: 3px;
+        opacity: 0;
+      }
+      .bb-cap.left {
+        left: 45px;
+        bottom: 118px;
+        background: var(--coffee);
+      }
+      .bb-cap.right {
+        right: 45px;
+        bottom: 118px;
+        background: var(--gold);
+      }
+      .anim-bridge-build.play .bb-cap.left {
+        animation: fadeIn 0.3s ease 0.9s forwards;
+      }
+      .anim-bridge-build.play .bb-cap.right {
+        animation: fadeIn 0.3s ease 1.1s forwards;
+      }
+
+      /* Bridge deck from left side */
+      .bb-deck-left {
+        position: absolute;
+        bottom: 118px;
+        left: 68px;
+        height: 8px;
+        width: 0;
+        background: var(--coffee);
+        border-radius: 2px;
+      }
+      .anim-bridge-build.play .bb-deck-left {
+        animation: deckGrowLeft 0.8s ease-out 1.3s forwards;
+      }
+      @keyframes deckGrowLeft {
+        from {
+          width: 0;
+        }
+        to {
+          width: 75px;
+        }
+      }
+
+      /* Bridge deck from right side */
+      .bb-deck-right {
+        position: absolute;
+        bottom: 118px;
+        right: 68px;
+        height: 8px;
+        width: 0;
+        background: var(--gold);
+        border-radius: 2px;
+      }
+      .anim-bridge-build.play .bb-deck-right {
+        animation: deckGrowRight 0.8s ease-out 1.5s forwards;
+      }
+      @keyframes deckGrowRight {
+        from {
+          width: 0;
+        }
+        to {
+          width: 75px;
+        }
+      }
+
+      /* Meet spark */
+      .bb-spark {
+        position: absolute;
+        bottom: 114px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 12px;
+        height: 12px;
+        background: var(--gold);
+        border-radius: 50%;
+        opacity: 0;
+        filter: blur(1px);
+        box-shadow:
+          0 0 12px var(--gold),
+          0 0 24px var(--gold-light);
+      }
+      .anim-bridge-build.play .bb-spark {
+        animation: sparkBurst 0.8s ease 2.2s forwards;
+      }
+      @keyframes sparkBurst {
+        0% {
+          opacity: 0;
+          transform: translateX(-50%) scale(0);
+        }
+        40% {
+          opacity: 1;
+          transform: translateX(-50%) scale(2.5);
+        }
+        100% {
+          opacity: 0;
+          transform: translateX(-50%) scale(0.5);
+        }
+      }
+
+      /* Labels */
+      .bb-label {
+        position: absolute;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text-muted);
+        opacity: 0;
+        bottom: 105px;
+      }
+      .bb-label.left {
+        left: 44px;
+      }
+      .bb-label.right {
+        right: 38px;
+      }
+      .anim-bridge-build.play .bb-label.left {
+        animation: fadeIn 0.3s ease 0.95s forwards;
+      }
+      .anim-bridge-build.play .bb-label.right {
+        animation: fadeIn 0.3s ease 1.15s forwards;
+      }
+
+      /* Connected badge */
+      .bb-badge {
+        position: absolute;
+        bottom: 140px;
+        left: 50%;
+        transform: translateX(-50%) scale(0);
+        opacity: 0;
+        background: var(--gold-pale);
+        border: 1.5px solid var(--gold-border);
+        border-radius: 20px;
+        padding: 4px 12px;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--gold);
+        white-space: nowrap;
+      }
+      .anim-bridge-build.play .bb-badge {
+        animation: badgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 2.8s forwards;
+      }
+      @keyframes badgePop {
+        0% {
+          opacity: 0;
+          transform: translateX(-50%) scale(0);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(-50%) scale(1);
+        }
+      }
+
+      /* ======================================
+         8. FLAG SUMMIT
+      ====================================== */
+      .anim-summit {
+        position: relative;
+        width: 280px;
+        height: 260px;
+      }
+
+      /* Mountain silhouette via SVG clip */
+      .fs-mountain {
+        position: absolute;
+        bottom: 20px;
+        left: 0;
+        right: 0;
+        opacity: 0;
+      }
+      .anim-summit.play .fs-mountain {
+        animation: mountainDraw 1s ease 0.2s forwards;
+      }
+      @keyframes mountainDraw {
+        0% {
+          opacity: 0;
+          clip-path: inset(100% 0 0 0);
+        }
+        100% {
+          opacity: 1;
+          clip-path: inset(0% 0 0 0);
+        }
+      }
+
+      /* Clouds */
+      .fs-cloud {
+        position: absolute;
+        border-radius: 50px;
+        background: rgba(176, 141, 62, 0.1);
+        opacity: 0;
+      }
+      .fs-cloud.c1 {
+        top: 40px;
+        left: 20px;
+        width: 60px;
+        height: 20px;
+      }
+      .fs-cloud.c2 {
+        top: 60px;
+        right: 25px;
+        width: 45px;
+        height: 16px;
+      }
+      .anim-summit.play .fs-cloud.c1 {
+        animation: cloudDrift 1.5s ease 0.5s forwards;
+      }
+      .anim-summit.play .fs-cloud.c2 {
+        animation: cloudDrift 1.5s ease 0.7s forwards;
+      }
+      @keyframes cloudDrift {
+        0% {
+          opacity: 0;
+          transform: translateX(-20px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      /* Climber figure on mountain side */
+      .fs-climber {
+        position: absolute;
+        opacity: 0;
+      }
+      .anim-summit.play .fs-climber {
+        animation: climbPath 2.5s ease 1.2s forwards;
+      }
+      @keyframes climbPath {
+        0% {
+          opacity: 1;
+          bottom: 90px;
+          left: 60px;
+        }
+        33% {
+          bottom: 130px;
+          left: 100px;
+        }
+        66% {
+          bottom: 160px;
+          left: 130px;
+        }
+        100% {
+          bottom: 185px;
+          left: 143px;
+          opacity: 1;
+        }
+      }
+
+      /* Flag */
+      .fs-flag {
+        position: absolute;
+        bottom: 198px;
+        left: 143px;
+        opacity: 0;
+      }
+      .anim-summit.play .fs-flag {
+        animation: flagPlant 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 3.9s
+          forwards;
+      }
+      @keyframes flagPlant {
+        0% {
+          opacity: 0;
+          transform: translateY(10px) scaleY(0.5);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0) scaleY(1);
+        }
+      }
+
+      /* Sun rise */
+      .fs-sun {
+        position: absolute;
+        top: 30px;
+        left: 50%;
+        transform: translateX(-50%) translateY(30px);
+        width: 44px;
+        height: 44px;
+        background: radial-gradient(
+          circle,
+          #ffdd57 40%,
+          rgba(176, 141, 62, 0.3) 70%,
+          transparent 100%
+        );
+        border-radius: 50%;
+        opacity: 0;
+      }
+      .anim-summit.play .fs-sun {
+        animation: sunRise 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) 4.2s forwards;
+      }
+      @keyframes sunRise {
+        0% {
+          opacity: 0;
+          transform: translateX(-50%) translateY(30px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(-50%) translateY(0);
+        }
+      }
+
+      /* Sun rays */
+      .fs-ray {
+        position: absolute;
+        top: 24px;
+        left: 50%;
+        width: 3px;
+        height: 12px;
+        background: var(--gold);
+        border-radius: 2px;
+        opacity: 0;
+        transform-origin: bottom center;
+      }
+      .fs-ray:nth-child(1) {
+        transform: translateX(-50%) rotate(0deg) translateY(-34px);
+      }
+      .fs-ray:nth-child(2) {
+        transform: translateX(-50%) rotate(45deg) translateY(-34px);
+      }
+      .fs-ray:nth-child(3) {
+        transform: translateX(-50%) rotate(90deg) translateY(-34px);
+      }
+      .fs-ray:nth-child(4) {
+        transform: translateX(-50%) rotate(135deg) translateY(-34px);
+      }
+      .fs-ray:nth-child(5) {
+        transform: translateX(-50%) rotate(180deg) translateY(-34px);
+      }
+      .fs-ray:nth-child(6) {
+        transform: translateX(-50%) rotate(225deg) translateY(-34px);
+      }
+      .fs-ray:nth-child(7) {
+        transform: translateX(-50%) rotate(270deg) translateY(-34px);
+      }
+      .fs-ray:nth-child(8) {
+        transform: translateX(-50%) rotate(315deg) translateY(-34px);
+      }
+      .anim-summit.play .fs-ray {
+        animation: rayShine 0.5s ease 5.1s forwards;
+      }
+
+      @keyframes rayShine {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 0.7;
+        }
+      }
+
+      /* ======================================
+         9. GEAR SYSTEM
+      ====================================== */
+      .anim-gears {
+        position: relative;
+        width: 280px;
+        height: 260px;
+      }
+
+      /* Gear containers — spin via rotation */
+      .gs-gear {
+        position: absolute;
+        opacity: 0;
+      }
+      .gs-gear.g1 {
+        top: 80px;
+        left: 50px;
+      }
+      .gs-gear.g2 {
+        top: 60px;
+        left: 148px;
+      }
+      .gs-gear.g3 {
+        top: 138px;
+        left: 140px;
+      }
+
+      .anim-gears.play .gs-gear.g1 {
+        animation:
+          gearAppear 0.5s ease 0.2s forwards,
+          gearSpinCCW 3s linear 0.9s infinite;
+      }
+      .anim-gears.play .gs-gear.g2 {
+        animation:
+          gearAppear 0.5s ease 0.45s forwards,
+          gearSpinCW 3s linear 0.9s infinite;
+      }
+      .anim-gears.play .gs-gear.g3 {
+        animation:
+          gearAppear 0.5s ease 0.7s forwards,
+          gearSpinCCW 2s linear 0.9s infinite;
+      }
+
+      @keyframes gearAppear {
+        0% {
+          opacity: 0;
+          transform: scale(0.3);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+      @keyframes gearSpinCW {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @keyframes gearSpinCCW {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(-360deg);
+        }
+      }
+
+      /* Efficiency spark */
+      .gs-spark {
+        position: absolute;
+        top: 70px;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+        font-size: 28px;
+        color: var(--gold);
+      }
+      .anim-gears.play .gs-spark {
+        animation: sparkGlow 1s ease 1.2s forwards;
+      }
+      @keyframes sparkGlow {
+        0% {
+          opacity: 0;
+          transform: translateX(-50%) scale(0.5);
+        }
+        50% {
+          opacity: 1;
+          transform: translateX(-50%) scale(1.3);
+        }
+        100% {
+          opacity: 0.8;
+          transform: translateX(-50%) scale(1);
+        }
+      }
+
+      /* System label */
+      .gs-label {
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-muted);
+        opacity: 0;
+        white-space: nowrap;
+      }
+      .anim-gears.play .gs-label {
+        animation: fadeIn 0.5s ease 1s forwards;
+      }
+
+      /* ======================================
+         10. BUTTERFLY TRANSFORM
+      ====================================== */
+      .anim-butterfly {
+        position: relative;
+        width: 220px;
+        height: 260px;
+      }
+
+      /* Branch */
+      .bt-branch {
+        position: absolute;
+        top: 60px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 6px;
+        background: var(--coffee);
+        border-radius: 3px;
+        opacity: 0;
+      }
+      .anim-butterfly.play .bt-branch {
+        animation: fadeIn 0.4s ease 0.2s forwards;
+      }
+
+      /* String */
+      .bt-string {
+        position: absolute;
+        top: 66px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 2px;
+        height: 0;
+        background: var(--coffee);
+        opacity: 0;
+      }
+      .anim-butterfly.play .bt-string {
+        animation: stringDrop 0.5s ease 0.6s forwards;
+      }
+      @keyframes stringDrop {
+        from {
+          height: 0;
+          opacity: 0;
+        }
+        to {
+          height: 24px;
+          opacity: 0.6;
+        }
+      }
+
+      /* Cocoon */
+      .bt-cocoon {
+        position: absolute;
+        top: 90px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 36px;
+        height: 52px;
+        background: linear-gradient(160deg, var(--coffee), #4a3728);
+        border-radius: 50% 50% 55% 55% / 40% 40% 60% 60%;
+        opacity: 0;
+        box-shadow: inset -4px -4px 8px rgba(0, 0, 0, 0.2);
+      }
+      .anim-butterfly.play .bt-cocoon {
+        animation:
+          cocoonHang 0.5s ease 1.1s forwards,
+          cocoonShake 0.3s ease 2.5s,
+          cocoonShake 0.3s ease 2.9s,
+          cocoonCrack 0.4s ease 3.3s forwards;
+      }
+      @keyframes cocoonHang {
+        from {
+          opacity: 0;
+          transform: translateX(-50%) scale(0.5);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(-50%) scale(1);
+        }
+      }
+      @keyframes cocoonShake {
+        0% {
+          transform: translateX(-50%) rotate(0deg);
+        }
+        25% {
+          transform: translateX(-50%) rotate(-8deg);
+        }
+        75% {
+          transform: translateX(-50%) rotate(8deg);
+        }
+        100% {
+          transform: translateX(-50%) rotate(0deg);
+        }
+      }
+      @keyframes cocoonCrack {
+        0% {
+          opacity: 1;
+          transform: translateX(-50%) scale(1);
+        }
+        50% {
+          opacity: 0.7;
+          transform: translateX(-50%) scale(1.1);
+        }
+        100% {
+          opacity: 0;
+          transform: translateX(-50%) scale(0.3);
+        }
+      }
+
+      /* Butterfly wings */
+      .bt-butterfly {
+        position: absolute;
+        top: 80px;
+        left: 50%;
+        transform: translateX(-50%) scale(0);
+        opacity: 0;
+        width: 120px;
+        height: 80px;
+      }
+      .anim-butterfly.play .bt-butterfly {
+        animation:
+          butterflyEmerge 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 3.7s forwards,
+          butterflyFly 2s ease 4.5s forwards;
+      }
+      @keyframes butterflyEmerge {
+        from {
+          opacity: 0;
+          transform: translateX(-50%) scale(0) rotate(-10deg);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(-50%) scale(1) rotate(0deg);
+        }
+      }
+      @keyframes butterflyFly {
+        0% {
+          top: 80px;
+          opacity: 1;
+        }
+        30% {
+          top: 40px;
+        }
+        60% {
+          top: 20px;
+        }
+        100% {
+          top: -30px;
+          opacity: 0;
+        }
+      }
+
+      /* Wing flap animation on the SVG paths */
+      .bt-wing-left {
+        transform-origin: right center;
+        animation: wingFlapL 0.4s ease-in-out infinite alternate;
+      }
+      .bt-wing-right {
+        transform-origin: left center;
+        animation: wingFlapR 0.4s ease-in-out infinite alternate;
+      }
+      @keyframes wingFlapL {
+        from {
+          transform: scaleX(1);
+        }
+        to {
+          transform: scaleX(0.5);
+        }
+      }
+      @keyframes wingFlapR {
+        from {
+          transform: scaleX(1);
+        }
+        to {
+          transform: scaleX(0.5);
+        }
+      }
+
+      /* Sparkles around emergence */
+      .bt-sparkle {
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--gold);
+        opacity: 0;
+      }
+      .bt-sparkle:nth-child(1) {
+        top: 78px;
+        left: 50px;
+      }
+      .bt-sparkle:nth-child(2) {
+        top: 60px;
+        left: 155px;
+      }
+      .bt-sparkle:nth-child(3) {
+        top: 100px;
+        left: 40px;
+      }
+      .bt-sparkle:nth-child(4) {
+        top: 95px;
+        left: 170px;
+      }
+      .bt-sparkle:nth-child(5) {
+        top: 45px;
+        left: 105px;
+      }
+      .anim-butterfly.play .bt-sparkle {
+        animation: sparkPop 0.6s ease forwards;
+      }
+      .anim-butterfly.play .bt-sparkle:nth-child(1) {
+        animation-delay: 3.8s !important;
+      }
+      .anim-butterfly.play .bt-sparkle:nth-child(2) {
+        animation-delay: 3.9s !important;
+      }
+      .anim-butterfly.play .bt-sparkle:nth-child(3) {
+        animation-delay: 4s !important;
+      }
+      .anim-butterfly.play .bt-sparkle:nth-child(4) {
+        animation-delay: 3.85s !important;
+      }
+      .anim-butterfly.play .bt-sparkle:nth-child(5) {
+        animation-delay: 3.95s !important;
+      }
+      @keyframes sparkPop {
+        0% {
+          opacity: 0;
+          transform: scale(0);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.5);
+        }
+        100% {
+          opacity: 0;
+          transform: scale(0) translateY(-12px);
+        }
+      }
+
+      /* ======================================
+         RESPONSIVE
+      ====================================== */
+      @media (max-width: 768px) {
+        .showcase-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-header">
+      <h1>Growth Animations</h1>
+      <p>성장 씬 10종 — 씨앗에서 변화까지의 여정</p>
+    </div>
+
+    <div class="showcase-grid">
+      <!-- 1. Seed to Tree -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-seed-tree play" id="anim1">
+            <div class="st-ground"></div>
+            <div class="st-soil"></div>
+            <div class="st-seed"></div>
+            <div class="st-sprout"></div>
+            <div class="st-leaf left"></div>
+            <div class="st-leaf right"></div>
+            <div class="st-trunk"></div>
+            <div class="st-branch bl"></div>
+            <div class="st-branch br"></div>
+            <div class="st-branch bl2"></div>
+            <div class="st-branch br2"></div>
+            <div class="st-canopy">
+              <svg viewBox="0 0 140 140" width="140" height="140">
+                <circle cx="70" cy="72" r="66" fill="#7a9e5b" opacity="0.18" />
+                <circle cx="70" cy="62" r="46" fill="#7a9e5b" opacity="0.22" />
+                <circle cx="45" cy="76" r="34" fill="#7a9e5b" opacity="0.20" />
+                <circle cx="95" cy="76" r="34" fill="#7a9e5b" opacity="0.20" />
+                <circle cx="70" cy="50" r="28" fill="#7a9e5b" opacity="0.18" />
+              </svg>
+            </div>
+            <!-- Fruits are inside canopy for correct positioning -->
+            <div
+              class="st-fruit"
+              style="position: absolute; top: 106px; left: 62px"
+            ></div>
+            <div
+              class="st-fruit"
+              style="position: absolute; top: 128px; left: 118px"
+            ></div>
+            <div
+              class="st-fruit"
+              style="position: absolute; top: 150px; left: 50px"
+            ></div>
+            <div
+              class="st-fruit"
+              style="position: absolute; top: 116px; left: 98px"
+            ></div>
+            <div
+              class="st-fruit"
+              style="position: absolute; top: 148px; left: 105px"
+            ></div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">1</div>
+          <h3>Seed to Tree</h3>
+          <div class="meaning">"씨앗에서 열매까지"</div>
+          <div class="desc">
+            씨앗이 떨어지고 싹이 트고 나무로 자라 황금 열매를 맺는 성장의 전
+            과정
+          </div>
+          <button class="replay-btn" onclick="replay('anim1')">
+            다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 2. Stair Climb -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-stair play" id="anim2">
+            <!-- Steps (tread) -->
+            <div class="sc-step"></div>
+            <div class="sc-step"></div>
+            <div class="sc-step"></div>
+            <div class="sc-step"></div>
+            <div class="sc-step"></div>
+            <!-- Risers -->
+            <div class="sc-riser"></div>
+            <div class="sc-riser"></div>
+            <div class="sc-riser"></div>
+            <div class="sc-riser"></div>
+            <div class="sc-riser"></div>
+            <!-- Figure (stick figure via SVG) -->
+            <svg class="sc-figure" viewBox="0 0 22 34" fill="none">
+              <circle cx="11" cy="5" r="4.5" fill="#b08d3e" />
+              <line
+                x1="11"
+                y1="9"
+                x2="11"
+                y2="22"
+                stroke="#b08d3e"
+                stroke-width="2.5"
+                stroke-linecap="round"
+              />
+              <line
+                x1="11"
+                y1="14"
+                x2="4"
+                y2="20"
+                stroke="#b08d3e"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+              <line
+                x1="11"
+                y1="14"
+                x2="18"
+                y2="20"
+                stroke="#b08d3e"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+              <line
+                x1="11"
+                y1="22"
+                x2="4"
+                y2="32"
+                stroke="#b08d3e"
+                stroke-width="2.5"
+                stroke-linecap="round"
+              />
+              <line
+                x1="11"
+                y1="22"
+                x2="18"
+                y2="32"
+                stroke="#b08d3e"
+                stroke-width="2.5"
+                stroke-linecap="round"
+              />
+            </svg>
+            <!-- Flag -->
+            <svg class="sc-flag" width="28" height="34" viewBox="0 0 28 34">
+              <line
+                x1="4"
+                y1="2"
+                x2="4"
+                y2="33"
+                stroke="#b08d3e"
+                stroke-width="2.5"
+                stroke-linecap="round"
+              />
+              <polygon points="4,2 24,10 4,18" fill="#b08d3e" />
+            </svg>
+            <!-- Step labels -->
+            <span class="sc-label">1</span>
+            <span class="sc-label">2</span>
+            <span class="sc-label">3</span>
+            <span class="sc-label">4</span>
+            <span class="sc-label">5</span>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">2</div>
+          <h3>Stair Climb</h3>
+          <div class="meaning">"단계적 성장"</div>
+          <div class="desc">
+            계단이 하나씩 생성되고 인물이 한 단계씩 올라 정상에 깃발을 꽂는다
+          </div>
+          <button class="replay-btn" onclick="replay('anim2')">
+            다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 3. Rocket Launch -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-rocket play" id="anim3">
+            <!-- Stars -->
+            <div class="rl-star"></div>
+            <div class="rl-star"></div>
+            <div class="rl-star"></div>
+            <div class="rl-star"></div>
+            <div class="rl-star"></div>
+            <div class="rl-star"></div>
+            <!-- Countdown -->
+            <div class="rl-countdown rl-count3">3</div>
+            <div class="rl-countdown rl-count2">2</div>
+            <div class="rl-countdown rl-count1">1</div>
+            <!-- Launch pad -->
+            <div class="rl-pad"></div>
+            <div class="rl-pad-leg l"></div>
+            <div class="rl-pad-leg r"></div>
+            <!-- Flame -->
+            <div class="rl-flame"></div>
+            <!-- Rocket body (SVG) -->
+            <svg class="rl-rocket" viewBox="0 0 36 70" fill="none">
+              <!-- Nose cone -->
+              <polygon points="18,0 32,30 4,30" fill="#b08d3e" />
+              <!-- Body -->
+              <rect x="6" y="28" width="24" height="28" rx="3" fill="#6b5344" />
+              <!-- Window -->
+              <circle
+                cx="18"
+                cy="38"
+                r="6"
+                fill="rgba(176,141,62,0.3)"
+                stroke="#b08d3e"
+                stroke-width="1.5"
+              />
+              <!-- Fins left -->
+              <polygon points="6,50 0,65 10,56" fill="#b08d3e" />
+              <!-- Fins right -->
+              <polygon points="30,50 36,65 26,56" fill="#b08d3e" />
+            </svg>
+            <!-- Trail particles -->
+            <div class="rl-trail"></div>
+            <div class="rl-trail"></div>
+            <div class="rl-trail"></div>
+            <div class="rl-trail"></div>
+            <div class="rl-trail"></div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">3</div>
+          <h3>Rocket Launch</h3>
+          <div class="meaning">"도약의 시작"</div>
+          <div class="desc">
+            카운트다운 3-2-1 후 불꽃 점화, 로켓이 하늘로 솟아오르며 궤적을
+            남긴다
+          </div>
+          <button class="replay-btn" onclick="replay('anim3')">
+            다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 4. Progress Milestones -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-progress play" id="anim4">
+            <!-- Percentage counter (CSS animated via counter trick) -->
+            <div class="pm-pct" id="pm-counter">0%</div>
+            <!-- Track -->
+            <div class="pm-track">
+              <div class="pm-fill"></div>
+            </div>
+            <!-- Milestone markers -->
+            <div class="pm-marker"></div>
+            <div class="pm-marker"></div>
+            <div class="pm-marker"></div>
+            <div class="pm-marker"></div>
+            <!-- Flags at 25/50/75/100 -->
+            <svg class="pm-flag" width="22" height="32" viewBox="0 0 22 32">
+              <line
+                x1="3"
+                y1="2"
+                x2="3"
+                y2="32"
+                stroke="#b08d3e"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+              <polygon points="3,2 20,9 3,17" fill="#b08d3e" />
+              <text x="6" y="13" font-size="5" font-weight="700" fill="white">
+                25
+              </text>
+            </svg>
+            <svg class="pm-flag" width="22" height="32" viewBox="0 0 22 32">
+              <line
+                x1="3"
+                y1="2"
+                x2="3"
+                y2="32"
+                stroke="#b08d3e"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+              <polygon points="3,2 20,9 3,17" fill="#b08d3e" />
+              <text x="6" y="13" font-size="5" font-weight="700" fill="white">
+                50
+              </text>
+            </svg>
+            <svg class="pm-flag" width="22" height="32" viewBox="0 0 22 32">
+              <line
+                x1="3"
+                y1="2"
+                x2="3"
+                y2="32"
+                stroke="#b08d3e"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+              <polygon points="3,2 20,9 3,17" fill="#b08d3e" />
+              <text x="6" y="13" font-size="5" font-weight="700" fill="white">
+                75
+              </text>
+            </svg>
+            <svg class="pm-flag" width="22" height="32" viewBox="0 0 22 32">
+              <line
+                x1="3"
+                y1="2"
+                x2="3"
+                y2="32"
+                stroke="#b08d3e"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+              <polygon points="3,2 20,9 3,17" fill="#c9a84c" />
+              <text x="4" y="13" font-size="4.5" font-weight="700" fill="white">
+                100
+              </text>
+            </svg>
+            <!-- Labels -->
+            <span class="pm-mlabel">25%</span>
+            <span class="pm-mlabel">50%</span>
+            <span class="pm-mlabel">75%</span>
+            <span class="pm-mlabel">100%</span>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">4</div>
+          <h3>Progress Milestones</h3>
+          <div class="meaning">"마일스톤 달성"</div>
+          <div class="desc">
+            진행 바가 채워지며 25·50·75·100% 지점마다 깃발이 튀어오른다
+          </div>
+          <button class="replay-btn" onclick="replay('anim4')">
+            다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 5. Level Up -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-levelup play" id="anim5">
+            <!-- Particles (declared first so z-index is below badge) -->
+            <div class="lu-particle"></div>
+            <div class="lu-particle"></div>
+            <div class="lu-particle"></div>
+            <div class="lu-particle"></div>
+            <div class="lu-particle"></div>
+            <div class="lu-particle"></div>
+            <div class="lu-particle"></div>
+            <div class="lu-particle"></div>
+            <!-- Current level label -->
+            <div class="lu-lv-current">Lv.4 &rarr; Lv.5</div>
+            <!-- XP labels -->
+            <div class="lu-xp-label">EXP</div>
+            <div class="lu-xp-val">MAX</div>
+            <!-- Gauge -->
+            <div class="lu-gauge-bg">
+              <div class="lu-gauge-fill"></div>
+            </div>
+            <!-- LEVEL UP badge -->
+            <div class="lu-badge">
+              <span class="lu-badge-text">LEVEL UP</span>
+              <span class="lu-badge-sub">다음 단계로 성장했습니다</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">5</div>
+          <h3>Level Up</h3>
+          <div class="meaning">"레벨업"</div>
+          <div class="desc">
+            경험치 게이지가 MAX까지 차오르면 LEVEL UP 배지가 파티클과 함께 폭발
+          </div>
+          <button class="replay-btn" onclick="replay('anim5')">
+            다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 6. Puzzle Assemble -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-puzzle-asm play" id="anim6">
+            <!-- 4 puzzle pieces as SVG with interlocking nub shapes -->
+            <!-- Top-left piece -->
+            <svg class="pa-piece p1" viewBox="0 0 90 90">
+              <path
+                d="M4,4 L44,4 L44,30 Q38,26 38,34 Q38,42 44,38 L44,86 L4,86 Z"
+                fill="#b08d3e"
+                opacity="0.2"
+                stroke="#b08d3e"
+                stroke-width="1.5"
+                fill-rule="evenodd"
+              />
+              <path
+                d="M4,4 L44,4 L44,30 Q38,26 38,34 Q38,42 44,38 L44,86 L4,86 Z"
+                fill="none"
+                stroke="#b08d3e"
+                stroke-width="1.5"
+              />
+              <text
+                x="18"
+                y="52"
+                font-size="12"
+                font-weight="800"
+                fill="#b08d3e"
+                font-family="Pretendard, sans-serif"
+              >
+                성장
+              </text>
+            </svg>
+            <!-- Top-right piece -->
+            <svg class="pa-piece p2" viewBox="0 0 90 90">
+              <path
+                d="M46,4 L86,4 L86,86 L46,86 L46,38 Q52,42 52,34 Q52,26 46,30 Z"
+                fill="#6b5344"
+                opacity="0.18"
+                stroke="#6b5344"
+                stroke-width="1.5"
+              />
+              <text
+                x="57"
+                y="52"
+                font-size="12"
+                font-weight="800"
+                fill="#6b5344"
+                font-family="Pretendard, sans-serif"
+              >
+                전략
+              </text>
+            </svg>
+            <!-- Bottom-left piece -->
+            <svg class="pa-piece p3" viewBox="0 0 90 90">
+              <path
+                d="M4,4 L44,4 L44,86 L30,86 Q26,80 18,80 Q10,80 6,86 L4,86 Z"
+                fill="#b08d3e"
+                opacity="0.15"
+                stroke="#b08d3e"
+                stroke-width="1.5"
+              />
+              <text
+                x="14"
+                y="46"
+                font-size="12"
+                font-weight="800"
+                fill="#b08d3e"
+                font-family="Pretendard, sans-serif"
+              >
+                실행
+              </text>
+            </svg>
+            <!-- Bottom-right piece -->
+            <svg class="pa-piece p4" viewBox="0 0 90 90">
+              <path
+                d="M46,4 L86,4 L86,86 L66,86 Q62,80 54,80 Q46,80 42,86 L46,86 Z"
+                fill="#6b5344"
+                opacity="0.15"
+                stroke="#6b5344"
+                stroke-width="1.5"
+              />
+              <text
+                x="56"
+                y="46"
+                font-size="12"
+                font-weight="800"
+                fill="#6b5344"
+                font-family="Pretendard, sans-serif"
+              >
+                결과
+              </text>
+            </svg>
+            <!-- Snap flash -->
+            <div class="pa-snap"></div>
+            <!-- Check -->
+            <div class="pa-check">
+              <svg
+                width="26"
+                height="26"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#fff"
+                stroke-width="2.5"
+              >
+                <polyline points="5 12 10 17 19 7"></polyline>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">6</div>
+          <h3>Puzzle Assemble</h3>
+          <div class="meaning">"퍼즐이 맞춰지다"</div>
+          <div class="desc">
+            네 모서리에서 날아온 퍼즐 조각이 중앙에서 딱 맞물리며 체크 마크가
+            등장
+          </div>
+          <button class="replay-btn" onclick="replay('anim6')">
+            다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 7. Bridge Build -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-bridge-build play" id="anim7">
+            <div class="bb-water"></div>
+            <!-- Left pillar -->
+            <div class="bb-pillar left"></div>
+            <!-- Right pillar -->
+            <div class="bb-pillar right"></div>
+            <!-- Pillar caps -->
+            <div class="bb-cap left"></div>
+            <div class="bb-cap right"></div>
+            <!-- Bridge decks growing from each side -->
+            <div class="bb-deck-left"></div>
+            <div class="bb-deck-right"></div>
+            <!-- Meeting spark -->
+            <div class="bb-spark"></div>
+            <!-- Labels -->
+            <span class="bb-label left">A</span>
+            <span class="bb-label right">B</span>
+            <!-- Connected badge -->
+            <div class="bb-badge">연결 완료</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">7</div>
+          <h3>Bridge Build</h3>
+          <div class="meaning">"연결의 순간"</div>
+          <div class="desc">
+            두 기둥이 솟고 다리가 양쪽에서 뻗어 중앙에서 만나 황금 불꽃이 튄다
+          </div>
+          <button class="replay-btn" onclick="replay('anim7')">
+            다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 8. Flag Summit -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-summit play" id="anim8">
+            <!-- Clouds -->
+            <div class="fs-cloud c1"></div>
+            <div class="fs-cloud c2"></div>
+            <!-- Mountain SVG -->
+            <svg
+              class="fs-mountain"
+              width="280"
+              height="200"
+              viewBox="0 0 280 200"
+            >
+              <!-- Back mountain (lighter) -->
+              <polygon
+                points="200,200 280,20 280,200"
+                fill="rgba(176,141,62,0.1)"
+              />
+              <!-- Main mountain -->
+              <polygon
+                points="0,200 140,30 280,200"
+                fill="rgba(107,83,68,0.18)"
+              />
+              <!-- Snow cap -->
+              <polygon
+                points="118,80 140,30 162,80 150,72 140,76 130,72"
+                fill="rgba(176,141,62,0.25)"
+              />
+              <!-- Ground line -->
+              <rect
+                x="0"
+                y="196"
+                width="280"
+                height="4"
+                rx="2"
+                fill="rgba(107,83,68,0.2)"
+              />
+            </svg>
+            <!-- Climber figure -->
+            <svg
+              class="fs-climber"
+              width="18"
+              height="28"
+              viewBox="0 0 18 28"
+              style="bottom: 90px; left: 60px"
+            >
+              <circle cx="9" cy="4" r="3.5" fill="#b08d3e" />
+              <line
+                x1="9"
+                y1="7"
+                x2="9"
+                y2="18"
+                stroke="#b08d3e"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+              <line
+                x1="9"
+                y1="11"
+                x2="3"
+                y2="16"
+                stroke="#b08d3e"
+                stroke-width="1.8"
+                stroke-linecap="round"
+              />
+              <line
+                x1="9"
+                y1="11"
+                x2="15"
+                y2="16"
+                stroke="#b08d3e"
+                stroke-width="1.8"
+                stroke-linecap="round"
+              />
+              <line
+                x1="9"
+                y1="18"
+                x2="3"
+                y2="26"
+                stroke="#b08d3e"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+              <line
+                x1="9"
+                y1="18"
+                x2="15"
+                y2="26"
+                stroke="#b08d3e"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+            <!-- Flag at summit -->
+            <svg
+              class="fs-flag"
+              width="24"
+              height="30"
+              viewBox="0 0 24 30"
+              style="bottom: 198px; left: 143px"
+            >
+              <line
+                x1="3"
+                y1="1"
+                x2="3"
+                y2="30"
+                stroke="#b08d3e"
+                stroke-width="2.5"
+                stroke-linecap="round"
+              />
+              <polygon points="3,1 22,9 3,17" fill="#b08d3e" />
+            </svg>
+            <!-- Sun -->
+            <div class="fs-sun"></div>
+            <!-- Sun rays -->
+            <div class="fs-ray"></div>
+            <div class="fs-ray"></div>
+            <div class="fs-ray"></div>
+            <div class="fs-ray"></div>
+            <div class="fs-ray"></div>
+            <div class="fs-ray"></div>
+            <div class="fs-ray"></div>
+            <div class="fs-ray"></div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">8</div>
+          <h3>Flag Summit</h3>
+          <div class="meaning">"정상 정복"</div>
+          <div class="desc">
+            산이 그려지고 인물이 올라 정상에 깃발을 꽂으면 태양이 떠오른다
+          </div>
+          <button class="replay-btn" onclick="replay('anim8')">
+            다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 9. Gear System -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-gears play" id="anim9">
+            <!-- Large gear (left) -->
+            <svg class="gs-gear g1" width="88" height="88" viewBox="0 0 88 88">
+              <g transform="translate(44,44)">
+                <!-- Gear teeth via polygon -->
+                <circle
+                  r="30"
+                  fill="none"
+                  stroke="#6b5344"
+                  stroke-width="3"
+                  opacity="0.3"
+                />
+                <circle
+                  r="22"
+                  fill="rgba(107,83,68,0.12)"
+                  stroke="#6b5344"
+                  stroke-width="2"
+                />
+                <circle r="8" fill="#6b5344" opacity="0.4" />
+                <!-- Teeth (12 teeth) -->
+                <g
+                  stroke="#6b5344"
+                  stroke-width="6"
+                  stroke-linecap="round"
+                  opacity="0.7"
+                >
+                  <line x1="0" y1="-22" x2="0" y2="-30" />
+                  <line x1="0" y1="22" x2="0" y2="30" />
+                  <line x1="-22" y1="0" x2="-30" y2="0" />
+                  <line x1="22" y1="0" x2="30" y2="0" />
+                  <line x1="-15.6" y1="-15.6" x2="-21.2" y2="-21.2" />
+                  <line x1="15.6" y1="-15.6" x2="21.2" y2="-21.2" />
+                  <line x1="-15.6" y1="15.6" x2="-21.2" y2="21.2" />
+                  <line x1="15.6" y1="15.6" x2="21.2" y2="21.2" />
+                </g>
+              </g>
+            </svg>
+            <!-- Medium gear (right top) -->
+            <svg class="gs-gear g2" width="68" height="68" viewBox="0 0 68 68">
+              <g transform="translate(34,34)">
+                <circle
+                  r="22"
+                  fill="none"
+                  stroke="#b08d3e"
+                  stroke-width="3"
+                  opacity="0.3"
+                />
+                <circle
+                  r="16"
+                  fill="rgba(176,141,62,0.15)"
+                  stroke="#b08d3e"
+                  stroke-width="2"
+                />
+                <circle r="6" fill="#b08d3e" opacity="0.4" />
+                <g
+                  stroke="#b08d3e"
+                  stroke-width="5"
+                  stroke-linecap="round"
+                  opacity="0.7"
+                >
+                  <line x1="0" y1="-16" x2="0" y2="-22" />
+                  <line x1="0" y1="16" x2="0" y2="22" />
+                  <line x1="-16" y1="0" x2="-22" y2="0" />
+                  <line x1="16" y1="0" x2="22" y2="0" />
+                  <line x1="-11.3" y1="-11.3" x2="-15.6" y2="-15.6" />
+                  <line x1="11.3" y1="-11.3" x2="15.6" y2="-15.6" />
+                  <line x1="-11.3" y1="11.3" x2="-15.6" y2="15.6" />
+                  <line x1="11.3" y1="11.3" x2="15.6" y2="15.6" />
+                </g>
+              </g>
+            </svg>
+            <!-- Small gear (right bottom) -->
+            <svg class="gs-gear g3" width="54" height="54" viewBox="0 0 54 54">
+              <g transform="translate(27,27)">
+                <circle
+                  r="16"
+                  fill="none"
+                  stroke="#b08d3e"
+                  stroke-width="2.5"
+                  opacity="0.35"
+                />
+                <circle
+                  r="11"
+                  fill="rgba(176,141,62,0.18)"
+                  stroke="#b08d3e"
+                  stroke-width="1.5"
+                />
+                <circle r="4" fill="#b08d3e" opacity="0.45" />
+                <g
+                  stroke="#b08d3e"
+                  stroke-width="4"
+                  stroke-linecap="round"
+                  opacity="0.7"
+                >
+                  <line x1="0" y1="-11" x2="0" y2="-16" />
+                  <line x1="0" y1="11" x2="0" y2="16" />
+                  <line x1="-11" y1="0" x2="-16" y2="0" />
+                  <line x1="11" y1="0" x2="16" y2="0" />
+                  <line x1="-7.8" y1="-7.8" x2="-11.3" y2="-11.3" />
+                  <line x1="7.8" y1="-7.8" x2="11.3" y2="-11.3" />
+                  <line x1="-7.8" y1="7.8" x2="-11.3" y2="11.3" />
+                  <line x1="7.8" y1="7.8" x2="11.3" y2="11.3" />
+                </g>
+              </g>
+            </svg>
+            <!-- Efficiency spark -->
+            <div class="gs-spark">&#9889;</div>
+            <!-- System label -->
+            <div class="gs-label">시스템이 맞물리다</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">9</div>
+          <h3>Gear System</h3>
+          <div class="meaning">"시스템이 맞물리다"</div>
+          <div class="desc">
+            3개의 톱니바퀴가 순서대로 등장하고 맞물려 함께 회전하며 효율의
+            불꽃이 튄다
+          </div>
+          <button class="replay-btn" onclick="replay('anim9')">
+            다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 10. Butterfly Transform -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-butterfly play" id="anim10">
+            <!-- Sparkles -->
+            <div class="bt-sparkle"></div>
+            <div class="bt-sparkle"></div>
+            <div class="bt-sparkle"></div>
+            <div class="bt-sparkle"></div>
+            <div class="bt-sparkle"></div>
+            <!-- Branch + string -->
+            <div class="bt-branch"></div>
+            <div class="bt-string"></div>
+            <!-- Cocoon -->
+            <div class="bt-cocoon"></div>
+            <!-- Butterfly -->
+            <svg class="bt-butterfly" viewBox="0 0 120 80" fill="none">
+              <!-- Left wings -->
+              <g class="bt-wing-left">
+                <!-- Upper left wing -->
+                <path
+                  d="M58,38 C44,10 8,6 4,28 C0,46 28,52 58,42 Z"
+                  fill="#b08d3e"
+                  opacity="0.75"
+                  stroke="#b08d3e"
+                  stroke-width="1"
+                />
+                <!-- Lower left wing -->
+                <path
+                  d="M58,44 C44,56 14,62 12,74 C10,82 34,80 58,60 Z"
+                  fill="#c9a84c"
+                  opacity="0.65"
+                  stroke="#b08d3e"
+                  stroke-width="1"
+                />
+                <!-- Wing detail patterns -->
+                <circle cx="30" cy="28" r="6" fill="rgba(255,255,255,0.25)" />
+                <circle cx="24" cy="44" r="4" fill="rgba(255,255,255,0.2)" />
+              </g>
+              <!-- Right wings -->
+              <g class="bt-wing-right">
+                <!-- Upper right wing -->
+                <path
+                  d="M62,38 C76,10 112,6 116,28 C120,46 92,52 62,42 Z"
+                  fill="#b08d3e"
+                  opacity="0.75"
+                  stroke="#b08d3e"
+                  stroke-width="1"
+                />
+                <!-- Lower right wing -->
+                <path
+                  d="M62,44 C76,56 106,62 108,74 C110,82 86,80 62,60 Z"
+                  fill="#c9a84c"
+                  opacity="0.65"
+                  stroke="#b08d3e"
+                  stroke-width="1"
+                />
+                <!-- Wing detail patterns -->
+                <circle cx="90" cy="28" r="6" fill="rgba(255,255,255,0.25)" />
+                <circle cx="96" cy="44" r="4" fill="rgba(255,255,255,0.2)" />
+              </g>
+              <!-- Body -->
+              <ellipse cx="60" cy="44" rx="3" ry="18" fill="#4a3728" />
+              <!-- Antennae -->
+              <line
+                x1="60"
+                y1="26"
+                x2="50"
+                y2="14"
+                stroke="#4a3728"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
+              <line
+                x1="60"
+                y1="26"
+                x2="70"
+                y2="14"
+                stroke="#4a3728"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
+              <circle cx="50" cy="14" r="2" fill="#b08d3e" />
+              <circle cx="70" cy="14" r="2" fill="#b08d3e" />
+            </svg>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">10</div>
+          <h3>Butterfly Transform</h3>
+          <div class="meaning">"변화와 성장"</div>
+          <div class="desc">
+            고치가 흔들리다 부화하면 나비가 날개를 펼치고 하늘로 날아오른다
+          </div>
+          <button class="replay-btn" onclick="replay('anim10')">
+            다시 보기
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function replay(id) {
+        const el = document.getElementById(id);
+        el.classList.remove("play");
+        // Force reflow to restart animations
+        void el.offsetWidth;
+        el.classList.add("play");
+
+        // Reset and re-run percentage counter for anim4
+        if (id === "anim4") {
+          const counter = document.getElementById("pm-counter");
+          if (counter) {
+            counter.textContent = "0%";
+            let pct = 0;
+            const duration = 2800;
+            const interval = 30;
+            const steps = duration / interval;
+            let step = 0;
+            const timer = setInterval(() => {
+              step++;
+              pct = Math.round((step / steps) * 100);
+              if (pct >= 100) {
+                pct = 100;
+                clearInterval(timer);
+              }
+              counter.textContent = pct + "%";
+            }, interval);
+            // Delay to match bar fill start delay (0.3s)
+            counter.textContent = "0%";
+          }
+        }
+      }
+
+      // Auto-start percentage counter on page load for anim4
+      window.addEventListener("DOMContentLoaded", () => {
+        const counter = document.getElementById("pm-counter");
+        if (counter) {
+          let pct = 0;
+          const duration = 2800;
+          const interval = 30;
+          const steps = duration / interval;
+          let step = 0;
+          // Delay matching CSS animation-delay: 0.3s
+          setTimeout(() => {
+            const timer = setInterval(() => {
+              step++;
+              pct = Math.round((step / steps) * 100);
+              if (pct >= 100) {
+                pct = 100;
+                clearInterval(timer);
+              }
+              counter.textContent = pct + "%";
+            }, interval);
+          }, 300);
+        }
+      });
+    </script>
+  </body>
+</html>

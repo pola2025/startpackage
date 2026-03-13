@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .compass-ring {
+      stroke-dasharray: 57;
+      stroke-dashoffset: 57;
+      animation: drawRing 3.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+    }
+    .needle {
+      animation: dampedSwing 3.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+      transform-origin: 12px 12px;
+    }
+    .tick-n, .tick-s, .tick-e, .tick-w {
+      animation: tickFade 3.5s ease-in-out infinite;
+      opacity: 0;
+    }
+    .tick-n { animation-delay: 0.6s; }
+    .tick-e { animation-delay: 0.7s; }
+    .tick-s { animation-delay: 0.8s; }
+    .tick-w { animation-delay: 0.9s; }
+    @keyframes drawRing {
+      0% { stroke-dashoffset: 57; }
+      25% { stroke-dashoffset: 0; }
+      85% { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: 0; }
+    }
+    @keyframes dampedSwing {
+      0% { transform: rotate(-90deg); }
+      15% { transform: rotate(45deg); }
+      28% { transform: rotate(-25deg); }
+      40% { transform: rotate(12deg); }
+      50% { transform: rotate(-5deg); }
+      58% { transform: rotate(2deg); }
+      65%, 85% { transform: rotate(0deg); }
+      100% { transform: rotate(0deg); }
+    }
+    @keyframes tickFade {
+      0% { opacity: 0; }
+      15% { opacity: 0.8; }
+      80% { opacity: 0.8; }
+      100% { opacity: 0; }
+    }
+  </style>
+  <circle class="compass-ring" cx="12" cy="12" r="9" />
+  <polygon class="needle" points="12,3.5 13.5,12 12,13 10.5,12" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="1" />
+  <polygon class="needle" points="12,20.5 10.5,12 12,11 13.5,12" stroke="currentColor" stroke-width="1" />
+  <line class="tick-n" x1="12" y1="3" x2="12" y2="5" stroke-width="1.5" />
+  <line class="tick-s" x1="12" y1="19" x2="12" y2="21" stroke-width="1.5" />
+  <line class="tick-e" x1="19" y1="12" x2="21" y2="12" stroke-width="1.5" />
+  <line class="tick-w" x1="3" y1="12" x2="5" y2="12" stroke-width="1.5" />
+</svg>

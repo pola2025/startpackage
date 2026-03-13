@@ -283,7 +283,7 @@ export default function WorkflowsPage() {
       </div>
 
       {/* 인쇄물 배송 안내 */}
-      <Alert className="bg-terra-50 border-2 border-terra-100 shadow-lg">
+      <Alert className="bg-terra-50 border border-terra-100 shadow-lg">
         <Truck className="h-5 w-5 text-terra-500" />
         <AlertDescription>
           <div className="space-y-2">
@@ -306,7 +306,7 @@ export default function WorkflowsPage() {
       </Alert>
 
       {/* 제작 소요 기간 안내 */}
-      <Alert className="bg-gradient-to-r from-gold-50 to-gold-100 border-2 border-gold-300 shadow-lg">
+      <Alert className="bg-white border border-gray-200 shadow-lg">
         <Info className="h-5 w-5 text-navy-700" />
         <AlertDescription>
           <div className="space-y-3 md:space-y-4">
@@ -318,7 +318,7 @@ export default function WorkflowsPage() {
                   (영업일 기준)
                 </span>
               </p>
-              <div className="inline-block bg-terra-100 border border-terra-500 md:border-2 px-2 py-1 md:px-4 md:py-2 rounded-lg">
+              <div className="inline-block bg-terra-100 border border-terra-500 px-2 py-1 md:px-4 md:py-2 rounded-lg">
                 <p className="text-terra-600 font-bold text-xs md:text-sm">
                   발주요청 후 제작기간입니다
                 </p>
@@ -327,10 +327,10 @@ export default function WorkflowsPage() {
             {/* 모바일: 세로 컴팩트, 데스크탑: 가로 그리드 */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4">
               {/* 명함/명찰 */}
-              <div className="flex items-center justify-between p-2.5 md:p-4 bg-white border border-gold-200 md:border-2 rounded-lg shadow-sm md:shadow-md md:flex-col md:items-start">
+              <div className="flex items-center justify-between p-2.5 md:p-4 bg-white border border-gray-200 rounded-lg shadow-sm md:shadow-md md:flex-col md:items-start">
                 <div className="flex items-center gap-2 md:gap-3 md:mb-2">
-                  <div className="w-7 h-7 md:w-10 md:h-10 rounded-full bg-gold-100 flex items-center justify-center flex-shrink-0">
-                    <Package className="w-3.5 h-3.5 md:w-5 md:h-5 text-gold-600" />
+                  <div className="w-7 h-7 md:w-10 md:h-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                    <Package className="w-3.5 h-3.5 md:w-5 md:h-5 text-gray-600" />
                   </div>
                   <h3 className="font-bold text-gray-900 text-xs md:text-lg whitespace-nowrap">
                     명함 / 명찰
@@ -344,10 +344,10 @@ export default function WorkflowsPage() {
               </div>
 
               {/* 대봉투 */}
-              <div className="flex items-center justify-between p-2.5 md:p-4 bg-white border border-terra-100 md:border-2 rounded-lg shadow-sm md:shadow-md md:flex-col md:items-start">
+              <div className="flex items-center justify-between p-2.5 md:p-4 bg-white border border-gray-200 rounded-lg shadow-sm md:shadow-md md:flex-col md:items-start">
                 <div className="flex items-center gap-2 md:gap-3 md:mb-2">
-                  <div className="w-7 h-7 md:w-10 md:h-10 rounded-full bg-terra-100 flex items-center justify-center flex-shrink-0">
-                    <Package className="w-3.5 h-3.5 md:w-5 md:h-5 text-terra-500" />
+                  <div className="w-7 h-7 md:w-10 md:h-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                    <Package className="w-3.5 h-3.5 md:w-5 md:h-5 text-gray-600" />
                   </div>
                   <h3 className="font-bold text-gray-900 text-xs md:text-lg whitespace-nowrap">
                     대봉투
@@ -361,10 +361,10 @@ export default function WorkflowsPage() {
               </div>
 
               {/* 자문계약서 내지 */}
-              <div className="flex items-center justify-between p-2.5 md:p-4 bg-white border border-ok-100 md:border-2 rounded-lg shadow-sm md:shadow-md md:flex-col md:items-start">
+              <div className="flex items-center justify-between p-2.5 md:p-4 bg-white border border-gray-200 rounded-lg shadow-sm md:shadow-md md:flex-col md:items-start">
                 <div className="flex items-center gap-2 md:gap-3 md:mb-2">
-                  <div className="w-7 h-7 md:w-10 md:h-10 rounded-full bg-ok-100 flex items-center justify-center flex-shrink-0">
-                    <FileText className="w-3.5 h-3.5 md:w-5 md:h-5 text-ok-600" />
+                  <div className="w-7 h-7 md:w-10 md:h-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                    <FileText className="w-3.5 h-3.5 md:w-5 md:h-5 text-gray-600" />
                   </div>
                   <h3 className="font-bold text-gray-900 text-xs md:text-lg whitespace-nowrap">
                     자문계약서 내지
@@ -377,7 +377,7 @@ export default function WorkflowsPage() {
                 </div>
               </div>
             </div>
-            <div className="flex items-start md:items-center gap-2 text-xs text-navy-800 bg-gold-100 px-2 py-1.5 md:px-3 md:py-2 rounded-md">
+            <div className="flex items-start md:items-center gap-2 text-xs text-navy-800 bg-gray-100 px-2 py-1.5 md:px-3 md:py-2 rounded-md">
               <AlertTriangle className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0 mt-0.5 md:mt-0" />
               <span className="font-medium leading-tight">
                 주말 및 공휴일은 제외되며, 실제 도착일은 제작 완료 후
@@ -389,7 +389,7 @@ export default function WorkflowsPage() {
       </Alert>
 
       {workflows.length === 0 ? (
-        <Card className="bg-white border-2 border-gray-200">
+        <Card className="bg-white">
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Package className="w-16 h-16 text-gray-400 mb-4" />
             <p className="text-gray-500">워크플로우가 없습니다.</p>
@@ -400,7 +400,7 @@ export default function WorkflowsPage() {
           {workflows.map((workflow) => (
             <Card
               key={workflow.id}
-              className="bg-white border border-gray-200 md:border-2 hover:border-gold-300 transition-all"
+              className="bg-white border border-gray-200 hover:border-gold-300 transition-all"
             >
               {/* 헤더 - 모바일에서 컴팩트하게 */}
               <CardHeader className="p-3 md:p-6 pb-2 md:pb-4">
@@ -449,8 +449,8 @@ export default function WorkflowsPage() {
                     </div>
                   )}
                   {workflow.예상도착일 && (
-                    <div className="flex items-center gap-1 md:gap-2 col-span-2 md:col-span-1 bg-gold-50 md:bg-transparent rounded px-1 md:px-0 py-0.5 md:py-0">
-                      <Calendar className="w-3 h-3 md:w-4 md:h-4 text-gold-600 flex-shrink-0" />
+                    <div className="flex items-center gap-1 md:gap-2 col-span-2 md:col-span-1 bg-white md:bg-transparent rounded px-1 md:px-0 py-0.5 md:py-0">
+                      <Calendar className="w-3 h-3 md:w-4 md:h-4 text-navy-600 flex-shrink-0" />
                       <span className="text-gray-600 text-[10px] md:text-sm">
                         {workflow.type === "홈페이지"
                           ? "완료예정:"
@@ -487,7 +487,7 @@ export default function WorkflowsPage() {
 
                 {/* 택배 정보 - 모바일에서 한 줄로 */}
                 {workflow.운송장번호 && (
-                  <div className="flex items-center gap-2 p-2 md:p-3 rounded-lg bg-gold-50 border border-gold-200 md:border-2">
+                  <div className="flex items-center gap-2 p-2 md:p-3 rounded-lg bg-white border border-gray-200">
                     <Truck className="w-3.5 h-3.5 md:w-4 md:h-4 text-gold-600 flex-shrink-0" />
                     <span className="text-[11px] md:text-sm text-navy-700 font-medium truncate">
                       {workflow.택배회사} {workflow.운송장번호}
@@ -544,7 +544,7 @@ export default function WorkflowsPage() {
                             시안확인
                           </Button>
                         </DialogTrigger>
-                        <DialogContent className="bg-white border-2 border-gray-200 max-w-3xl">
+                        <DialogContent className="bg-white border border-gray-200 max-w-3xl">
                           <DialogHeader>
                             <DialogTitle className="text-gray-900">
                               {workflow.type} 시안
@@ -556,7 +556,7 @@ export default function WorkflowsPage() {
                           <div className="space-y-3">
                             {workflow.시안URL &&
                               (workflow.type === "홈페이지" ? (
-                                <div className="border-2 border-gray-200 rounded-lg p-6 bg-gray-50">
+                                <div className="border border-gray-200 rounded-lg p-6 bg-gray-50">
                                   <div className="text-center space-y-4">
                                     <p className="text-sm text-gray-600">
                                       홈페이지가 완성되었습니다!
@@ -575,7 +575,7 @@ export default function WorkflowsPage() {
                                   </div>
                                 </div>
                               ) : (
-                                <div className="border-2 border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center max-h-[35vh]">
+                                <div className="border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center max-h-[35vh]">
                                   <img
                                     src={workflow.시안URL}
                                     alt={`${workflow.type} 시안`}
@@ -709,7 +709,7 @@ export default function WorkflowsPage() {
                             {workflow.type !== "홈페이지" &&
                               workflow.type !== "로고" &&
                               workflow.status === "발주대기" && (
-                                <div className="bg-terra-50 border border-terra-100 md:border-2 rounded-lg p-2.5 md:p-4">
+                                <div className="bg-terra-50 border border-terra-100 rounded-lg p-2.5 md:p-4">
                                   <div className="flex items-start gap-2">
                                     <AlertTriangle className="w-4 h-4 md:w-5 md:h-5 text-terra-500 mt-0.5 flex-shrink-0" />
                                     <div className="text-xs md:text-sm text-gray-800">
@@ -770,7 +770,7 @@ export default function WorkflowsPage() {
                             {/* 피드백 섹션 */}
                             <div className="space-y-1.5 md:space-y-2">
                               {workflow.feedback && (
-                                <div className="bg-gold-50 border border-gold-200 rounded-lg p-2 md:p-3">
+                                <div className="bg-white border border-gray-200 rounded-lg p-2 md:p-3">
                                   <p className="text-[11px] md:text-xs font-semibold text-navy-900 mb-0.5 md:mb-1">
                                     제출한 피드백:
                                   </p>
@@ -799,7 +799,7 @@ export default function WorkflowsPage() {
                                       setFeedbackText(e.target.value)
                                     }
                                     placeholder="예: 색상 변경"
-                                    className="w-full h-14 md:h-20 px-2 md:px-3 py-1.5 md:py-2 text-xs md:text-sm border border-gray-300 md:border-2 rounded-lg resize-none focus:outline-none focus:border-gold-500"
+                                    className="w-full h-14 md:h-20 px-2 md:px-3 py-1.5 md:py-2 text-xs md:text-sm border border-gray-300 rounded-lg resize-none focus:outline-none focus:border-gold-500"
                                   />
                                   {feedbackText.trim() && (
                                     <Button

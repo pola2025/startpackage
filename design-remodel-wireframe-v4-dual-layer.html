@@ -1,0 +1,1492 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>와이어프레임 v5 — Option C 투명도+프로그레스 링 + 시맨틱 폰트</title>
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <script>
+      tailwindcss.config = {
+        theme: {
+          extend: {
+            colors: {
+              navy: {
+                50: "#e8edf2",
+                100: "#c5cfd9",
+                200: "#9fafc0",
+                300: "#7990a7",
+                400: "#5a7893",
+                500: "#3b6080",
+                600: "#2d4d6b",
+                700: "#1f3044",
+                800: "#1b2838",
+                900: "#0d1b2a",
+              },
+              terra: {
+                50: "#faefed",
+                100: "#ecd0cc",
+                500: "#b85e52",
+                600: "#8b3f35",
+              },
+              ok: {
+                50: "#f0fdf4",
+                500: "#22c55e",
+                600: "#16a34a",
+                700: "#15803d",
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      /* ok/terra/navy 커스텀 컬러 CSS 폴백 (CDN 실패 시에도 렌더링) */
+      .text-ok-500 {
+        color: #22c55e !important;
+      }
+      .text-ok-600 {
+        color: #16a34a !important;
+      }
+      .text-ok-700 {
+        color: #15803d !important;
+      }
+      .bg-ok-50 {
+        background-color: #f0fdf4 !important;
+      }
+      .text-terra-500 {
+        color: #b85e52 !important;
+      }
+      .text-terra-600 {
+        color: #8b3f35 !important;
+      }
+      .bg-terra-50 {
+        background-color: #faefed !important;
+      }
+      .border-terra-100 {
+        border-color: #ecd0cc !important;
+      }
+      .text-navy-50 {
+        color: #e8edf2 !important;
+      }
+      .text-navy-100 {
+        color: #c5cfd9 !important;
+      }
+      .text-navy-200 {
+        color: #9fafc0 !important;
+      }
+      .text-navy-300 {
+        color: #7990a7 !important;
+      }
+      .text-navy-400 {
+        color: #5a7893 !important;
+      }
+      .text-navy-500 {
+        color: #3b6080 !important;
+      }
+      .text-navy-600 {
+        color: #2d4d6b !important;
+      }
+      .text-navy-700 {
+        color: #1f3044 !important;
+      }
+      .text-navy-800 {
+        color: #1b2838 !important;
+      }
+      .text-navy-900 {
+        color: #0d1b2a !important;
+      }
+      .bg-navy-50 {
+        background-color: #e8edf2 !important;
+      }
+      .bg-navy-100 {
+        background-color: #c5cfd9 !important;
+      }
+      .bg-navy-200 {
+        background-color: #9fafc0 !important;
+      }
+      .bg-navy-800 {
+        background-color: #1b2838 !important;
+      }
+      .bg-navy-900 {
+        background-color: #0d1b2a !important;
+      }
+      .border-navy-100 {
+        border-color: #c5cfd9 !important;
+      }
+      .border-navy-200 {
+        border-color: #9fafc0 !important;
+      }
+
+      body {
+        background: #f0f2f5;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      .wireframe-label {
+        position: absolute;
+        top: -10px;
+        left: 12px;
+        font-size: 10px;
+        font-weight: 700;
+        color: #fff;
+        background: #1f3044;
+        padding: 1px 8px;
+        border-radius: 4px;
+        z-index: 10;
+      }
+      .section-card {
+        position: relative;
+        border: 1px solid #c5cfd9;
+        border-radius: 12px;
+        overflow: visible;
+        margin-bottom: 12px;
+      }
+      .spec-note {
+        font-size: 10px;
+        color: #5a7893;
+        background: #e8edf2;
+        border: 1px solid #c5cfd9;
+        padding: 4px 8px;
+        border-radius: 4px;
+        margin-top: 4px;
+      }
+      .cs-card {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #c5cfd9;
+        padding: 14px;
+        margin-bottom: 10px;
+      }
+      .layer-tag {
+        font-size: 8px;
+        font-weight: 700;
+        padding: 1px 6px;
+        border-radius: 3px;
+        display: inline-block;
+        margin-right: 4px;
+      }
+    </style>
+  </head>
+  <body class="p-4 sm:p-8 max-w-3xl mx-auto">
+    <!-- ========== 문서 헤더 ========== -->
+    <div class="bg-white rounded-2xl p-6 mb-8 shadow-lg border border-navy-200">
+      <h1 class="text-2xl font-bold mb-1 text-navy-900">와이어프레임 v4</h1>
+      <p class="text-navy-400 font-medium mb-4">
+        이중 레이어: Navy 배경(구조) + 시맨틱 폰트(의미)
+      </p>
+      <div class="grid grid-cols-2 gap-3 text-sm">
+        <div class="bg-navy-50 rounded-lg p-4 border border-navy-200">
+          <p class="text-[10px] font-bold text-navy-400 mb-2">
+            Layer 1 — 배경 (구조적 위계)
+          </p>
+          <div class="flex gap-1 mb-2">
+            <div class="h-6 flex-1 rounded bg-navy-900"></div>
+            <div class="h-6 flex-1 rounded bg-navy-700"></div>
+            <div class="h-6 flex-1 rounded bg-navy-400"></div>
+            <div class="h-6 flex-1 rounded bg-navy-200"></div>
+            <div
+              class="h-6 flex-1 rounded bg-navy-50 border border-navy-100"
+            ></div>
+          </div>
+          <p class="text-[9px] text-navy-400">
+            카드 배경/보더/도트 → Navy 명도 = 진행 단계
+          </p>
+        </div>
+        <div class="bg-white rounded-lg p-4 border border-navy-200">
+          <p class="text-[10px] font-bold text-navy-400 mb-2">
+            Layer 2 — 폰트 (시맨틱 의미)
+          </p>
+          <div class="flex gap-2 mb-2 text-sm font-bold">
+            <span class="text-ok-600">✓ 완료</span>
+            <span class="text-terra-500">⚠ 필요</span>
+            <span class="text-navy-700">제작중</span>
+            <span class="text-navy-300">종료</span>
+          </div>
+          <p class="text-[9px] text-navy-400">
+            텍스트/이모지 색상 → 녹색=완료, 붉은색=주의, Navy=중립
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 이중 레이어 컨셉 설명 ========== -->
+    <h2 class="text-lg font-bold text-navy-900 mb-3 flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-navy-900"></span>
+      이중 레이어 시스템
+    </h2>
+    <div
+      class="bg-white rounded-xl p-4 mb-6 border border-navy-200 text-xs text-navy-600 leading-relaxed"
+    >
+      <strong class="text-navy-900">원칙:</strong>
+      배경(Navy 명도)으로 <strong>구조적 위계</strong>를 잡고, 폰트 색상으로
+      <strong>행동 신호</strong>를 보낸다.<br />
+      <span class="text-ok-600 font-bold">녹색 텍스트</span> = "완료, 안심" →
+      <span class="text-terra-500 font-bold">붉은 텍스트</span> = "확인 필요,
+      주의" → <span class="text-navy-700 font-bold">네이비 텍스트</span> =
+      "진행중, 중립" →
+      <span class="text-navy-300 font-bold">연한 텍스트</span> = "비활성"
+    </div>
+
+    <!-- ========== 폰트 컬러 팔레트 ========== -->
+    <div class="text-sm font-bold text-navy-900 mb-2 flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-navy-700"></span>
+      폰트 컬러 팔레트 (Layer 2)
+    </div>
+
+    <div class="grid grid-cols-2 gap-3 mb-8">
+      <!-- 완료 = Green -->
+      <div class="cs-card">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="layer-tag" style="background: #f0fdf4; color: #15803d"
+            >FONT</span
+          >
+          <span class="text-sm font-bold text-ok-700">완료 · 확정</span>
+        </div>
+        <div class="flex gap-3 items-center mb-2">
+          <div class="flex gap-1">
+            <div class="w-8 h-8 rounded" style="background: #22c55e"></div>
+            <div class="w-8 h-8 rounded" style="background: #16a34a"></div>
+            <div class="w-8 h-8 rounded" style="background: #15803d"></div>
+          </div>
+          <div class="text-[9px] font-mono text-navy-300">
+            ok-500 #22c55e<br />ok-600 #16a34a<br />ok-700 #15803d
+          </div>
+        </div>
+        <div class="flex gap-3 items-center text-xs">
+          <span class="text-ok-600 font-bold">✓ 완료</span>
+          <span class="text-ok-600 font-bold">발주완료</span>
+          <span class="text-ok-700 font-bold">최종확정</span>
+        </div>
+      </div>
+
+      <!-- 주의 = Terra (Red) -->
+      <div class="cs-card" style="border-color: #ecd0cc">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="layer-tag" style="background: #faefed; color: #8b3f35"
+            >FONT</span
+          >
+          <span class="text-sm font-bold text-terra-600"
+            >주의 · 필요 · 긴급</span
+          >
+        </div>
+        <div class="flex gap-3 items-center mb-2">
+          <div class="flex gap-1">
+            <div class="w-8 h-8 rounded" style="background: #b85e52"></div>
+            <div class="w-8 h-8 rounded" style="background: #8b3f35"></div>
+          </div>
+          <div class="text-[9px] font-mono text-navy-300">
+            terra-500 #b85e52<br />terra-600 #8b3f35
+          </div>
+        </div>
+        <div class="flex gap-3 items-center text-xs">
+          <span class="text-terra-500 font-bold">⚠ 필요</span>
+          <span class="text-terra-500 font-bold">시안확인</span>
+          <span class="text-terra-600 font-bold">수정요청</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 조합 매트릭스 ========== -->
+    <div class="text-sm font-bold text-navy-900 mb-2 flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-navy-700"></span>
+      배경 × 폰트 조합 매트릭스
+    </div>
+    <div
+      class="bg-white rounded-xl border border-navy-200 p-4 mb-8 text-xs overflow-x-auto"
+    >
+      <table class="w-full">
+        <thead>
+          <tr class="text-left text-navy-400 border-b border-navy-100">
+            <th class="py-2 pr-3">상태</th>
+            <th class="py-2 pr-3">배경 (Layer 1)</th>
+            <th class="py-2 pr-3">폰트 (Layer 2)</th>
+            <th class="py-2 pr-3">도트</th>
+            <th class="py-2">미리보기</th>
+          </tr>
+        </thead>
+        <tbody class="text-navy-900">
+          <tr class="border-b border-navy-50">
+            <td class="py-2.5 pr-3 font-medium">완료 / 확정</td>
+            <td class="py-2.5 pr-3">
+              <span class="font-mono text-navy-400">navy-50</span> bg
+            </td>
+            <td class="py-2.5 pr-3">
+              <span class="font-mono text-ok-600">ok-600</span> 녹색
+            </td>
+            <td class="py-2.5 pr-3">
+              <span
+                class="inline-block w-3 h-3 rounded-full bg-navy-900"
+              ></span>
+              900
+            </td>
+            <td class="py-2.5">
+              <span
+                class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-navy-50 border border-navy-200"
+              >
+                <span class="w-2 h-2 rounded-full bg-navy-900"></span>
+                <span class="font-medium text-navy-900">로고</span>
+                <span class="text-ok-600 font-bold">✓ 확정</span>
+              </span>
+            </td>
+          </tr>
+          <tr class="border-b border-navy-50">
+            <td class="py-2.5 pr-3 font-medium">발주완료</td>
+            <td class="py-2.5 pr-3">
+              <span class="font-mono text-navy-400">navy-50</span>
+            </td>
+            <td class="py-2.5 pr-3">
+              <span class="font-mono text-ok-600">ok-600</span> 녹색
+            </td>
+            <td class="py-2.5 pr-3">
+              <span
+                class="inline-block w-3 h-3 rounded-full bg-navy-800"
+              ></span>
+              800
+            </td>
+            <td class="py-2.5">
+              <span
+                class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-navy-50 border border-navy-200"
+              >
+                <span class="w-2 h-2 rounded-full bg-navy-800"></span>
+                <span class="font-medium text-navy-900">명함</span>
+                <span class="text-ok-600 font-bold">✓ 발주</span>
+              </span>
+            </td>
+          </tr>
+          <tr class="border-b border-navy-50">
+            <td class="py-2.5 pr-3 font-medium">제작중</td>
+            <td class="py-2.5 pr-3">
+              <span class="font-mono text-navy-400">navy-50</span>
+            </td>
+            <td class="py-2.5 pr-3">
+              <span class="font-mono text-navy-700">navy-700</span> 중립
+            </td>
+            <td class="py-2.5 pr-3">
+              <span
+                class="inline-block w-3 h-3 rounded-full bg-navy-700"
+              ></span>
+              700
+            </td>
+            <td class="py-2.5">
+              <span
+                class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-navy-50 border border-navy-100"
+              >
+                <span class="w-2 h-2 rounded-full bg-navy-700"></span>
+                <span class="font-medium text-navy-900">홈페이지</span>
+                <span class="text-navy-600 font-medium">제작중</span>
+              </span>
+            </td>
+          </tr>
+          <tr class="border-b border-navy-50">
+            <td class="py-2.5 pr-3 font-medium">발주대기</td>
+            <td class="py-2.5 pr-3">
+              <span class="font-mono text-navy-400">navy-50</span>
+            </td>
+            <td class="py-2.5 pr-3">
+              <span class="font-mono text-terra-500">terra-500</span> 붉은색
+            </td>
+            <td class="py-2.5 pr-3">
+              <span
+                class="inline-block w-3 h-3 rounded-full bg-navy-400"
+              ></span>
+              400
+            </td>
+            <td class="py-2.5">
+              <span
+                class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-navy-50 border border-navy-100"
+                style="border-style: dashed"
+              >
+                <span class="w-2 h-2 rounded-full bg-navy-400"></span>
+                <span class="font-medium text-navy-900">명찰</span>
+                <span class="text-terra-500 font-bold">⚠ 대기</span>
+              </span>
+            </td>
+          </tr>
+          <tr class="border-b border-navy-50">
+            <td class="py-2.5 pr-3 font-medium">시안확인 / 수정요청</td>
+            <td class="py-2.5 pr-3">
+              <span class="font-mono text-terra-500">terra-50</span> 붉은 bg
+            </td>
+            <td class="py-2.5 pr-3">
+              <span class="font-mono text-terra-500">terra-600</span> 진한
+              붉은색
+            </td>
+            <td class="py-2.5 pr-3">
+              <span
+                class="inline-block w-3 h-3 rounded-full"
+                style="background: #b85e52"
+              ></span>
+              terra
+            </td>
+            <td class="py-2.5">
+              <span
+                class="inline-flex items-center gap-1.5 px-2 py-1 rounded border"
+                style="background: #faefed; border-color: #ecd0cc"
+              >
+                <span
+                  class="w-2 h-2 rounded-full"
+                  style="background: #b85e52"
+                ></span>
+                <span class="font-medium" style="color: #8b3f35">명찰</span>
+                <span class="font-bold" style="color: #b85e52">수정요청</span>
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <td class="py-2.5 pr-3 font-medium">종료 / 비활성</td>
+            <td class="py-2.5 pr-3">
+              <span class="font-mono text-navy-400">navy-50</span>
+            </td>
+            <td class="py-2.5 pr-3">
+              <span class="font-mono text-navy-300">navy-300</span> 연한 중립
+            </td>
+            <td class="py-2.5 pr-3">
+              <span
+                class="inline-block w-3 h-3 rounded-full bg-navy-200"
+              ></span>
+              200
+            </td>
+            <td class="py-2.5">
+              <span
+                class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-navy-50 border border-navy-100"
+              >
+                <span class="w-2 h-2 rounded-full bg-navy-200"></span>
+                <span class="font-medium text-navy-300">대봉투</span>
+                <span class="text-navy-300">종료</span>
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ========== 데스크탑 와이어프레임 ========== -->
+    <h2 class="text-xl font-bold text-navy-900 mb-4 flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-navy-900"></span>
+      Desktop (1280px) — 이중 레이어 적용
+    </h2>
+
+    <div
+      class="bg-white rounded-2xl shadow-lg p-6 mb-12 border border-navy-200"
+    >
+      <div class="flex gap-4">
+        <!-- 사이드바 -->
+        <div
+          class="w-48 flex-shrink-0 bg-white border border-navy-100 rounded-xl p-3 hidden sm:block"
+          style="min-height: 700px"
+        >
+          <div class="flex items-center gap-2 mb-4">
+            <div
+              class="w-8 h-8 rounded-lg bg-navy-900 flex items-center justify-center"
+            >
+              <span class="text-white text-xs font-bold">SP</span>
+            </div>
+            <span class="text-sm font-bold text-navy-900">START PACKAGE</span>
+          </div>
+          <div class="space-y-1 text-xs">
+            <div
+              class="px-3 py-2 rounded-lg bg-navy-900 text-white font-medium"
+            >
+              대시보드
+            </div>
+            <div class="px-3 py-2 text-navy-400 hover:bg-navy-50 rounded-lg">
+              자료 제출
+            </div>
+            <div class="px-3 py-2 text-navy-400 hover:bg-navy-50 rounded-lg">
+              홈페이지 제작요청
+            </div>
+            <div class="px-3 py-2 text-navy-400 hover:bg-navy-50 rounded-lg">
+              제작 현황
+            </div>
+            <div class="px-3 py-2 text-navy-400 hover:bg-navy-50 rounded-lg">
+              가이드
+            </div>
+            <div class="px-3 py-2 text-navy-400 hover:bg-navy-50 rounded-lg">
+              Meta 광고
+            </div>
+            <div class="px-3 py-2 text-navy-400 hover:bg-navy-50 rounded-lg">
+              시안 확인
+            </div>
+            <div class="px-3 py-2 text-navy-400 hover:bg-navy-50 rounded-lg">
+              문의하기
+            </div>
+            <div class="px-3 py-2 text-navy-400 hover:bg-navy-50 rounded-lg">
+              마케팅 소식
+            </div>
+          </div>
+        </div>
+
+        <!-- 메인 콘텐츠 -->
+        <div class="flex-1 space-y-3">
+          <!-- ① 환영 헤더 -->
+          <div class="section-card bg-white p-3">
+            <span class="wireframe-label">① 환영 헤더</span>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <h1 class="text-lg font-bold text-navy-900">이재호님</h1>
+                <span
+                  class="text-xs text-navy-400 bg-navy-50 px-2 py-0.5 rounded"
+                  >19기 · 스타트패키지</span
+                >
+              </div>
+              <div class="flex gap-2">
+                <!-- D-day: 붉은 폰트 = 주의 -->
+                <span
+                  class="text-xs font-bold bg-navy-50 px-2.5 py-1 rounded-full border border-navy-100"
+                >
+                  <span class="text-terra-500">D-14</span>
+                  <span class="text-navy-600">마감</span>
+                </span>
+                <span
+                  class="text-xs font-bold bg-navy-50 px-2.5 py-1 rounded-full border border-navy-100"
+                >
+                  <span class="text-navy-400">D-34</span>
+                  <span class="text-navy-400">마케팅</span>
+                </span>
+              </div>
+            </div>
+            <div class="spec-note">
+              D-14: 임박 → terra 폰트. D-34: 여유 → navy 폰트. 배경은 동일
+              navy-50
+            </div>
+          </div>
+
+          <!-- ② 알림 (3건 캡) -->
+          <div class="section-card p-3 bg-white">
+            <span class="wireframe-label">② 알림 (3건 캡)</span>
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-1.5">
+                <span class="text-sm">🔔</span>
+                <span class="text-sm font-bold text-navy-900">알림</span>
+                <span class="text-[10px] text-navy-400">8건</span>
+              </div>
+            </div>
+            <div class="space-y-1">
+              <!-- 시안확인 = terra bg + terra font (긴급 이중 강조) -->
+              <div
+                class="flex items-center gap-2 p-2 bg-white rounded border text-xs"
+                style="border-color: #ecd0cc"
+              >
+                <span
+                  class="px-1.5 py-0.5 rounded text-[10px] font-bold"
+                  style="background: #b85e52; color: #fff"
+                  >시안확인</span
+                >
+                <span class="font-medium flex-1 text-terra-600"
+                  >명함 시안을 확인해주세요!</span
+                >
+                <span class="text-navy-200">→</span>
+              </div>
+              <!-- 필수 = navy bg + terra font (주의) -->
+              <div
+                class="flex items-center gap-2 p-2 bg-white rounded border border-navy-100 text-xs"
+              >
+                <span
+                  class="bg-navy-400 text-white px-1.5 py-0.5 rounded text-[10px] font-bold"
+                  >필수</span
+                >
+                <span class="font-medium flex-1 text-terra-500"
+                  >기본 정보를 입력해주세요</span
+                >
+                <span class="text-navy-200">→</span>
+              </div>
+              <!-- 자료입력 = navy bg + terra font (주의) -->
+              <div
+                class="flex items-center gap-2 p-2 bg-white rounded border border-navy-100 text-xs"
+              >
+                <span
+                  class="bg-navy-500 text-white px-1.5 py-0.5 rounded text-[10px] font-bold"
+                  >자료입력</span
+                >
+                <span class="font-medium flex-1 text-terra-500"
+                  >홈페이지 제작정보 선택이 필요합니다</span
+                >
+                <span class="text-navy-200">→</span>
+              </div>
+            </div>
+            <button
+              class="w-full text-center text-[11px] text-navy-400 font-medium mt-1.5 hover:underline"
+            >
+              + 5건 더보기
+            </button>
+            <div class="spec-note">
+              알림 텍스트: 전부
+              <span class="text-terra-500 font-bold">붉은 계열</span> (사용자
+              행동 필요). 긴급도=뱃지 색상 차이(terra vs navy)
+            </div>
+          </div>
+
+          <!-- ③ 자료 제출률 (인라인) -->
+          <div class="section-card bg-white p-3">
+            <span class="wireframe-label">③ 자료 제출률</span>
+            <div class="flex items-center gap-3">
+              <div
+                class="w-8 h-8 bg-navy-900 rounded-lg flex items-center justify-center flex-shrink-0"
+              >
+                <span class="text-white text-xs">📄</span>
+              </div>
+              <span
+                class="text-sm font-semibold text-navy-900 whitespace-nowrap"
+                >자료 제출</span
+              >
+              <span class="text-lg font-bold text-navy-700">50%</span>
+              <div class="flex-1 h-2.5 bg-navy-50 rounded-full overflow-hidden">
+                <div
+                  class="h-full bg-navy-700 rounded-full"
+                  style="width: 50%"
+                ></div>
+              </div>
+              <span class="text-xs text-navy-400 whitespace-nowrap">3/6개</span>
+            </div>
+          </div>
+
+          <!-- ④ 자료 제출 현황 (Option C: 투명도 + 프로그레스 링) -->
+          <div class="section-card bg-white p-3">
+            <span class="wireframe-label">④ 자료 제출 현황</span>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm font-bold text-navy-900"
+                >자료 제출 현황</span
+              >
+              <button
+                class="text-[10px] bg-navy-900 text-white px-3 py-1 rounded-lg font-medium"
+              >
+                제출 현황 확인
+              </button>
+            </div>
+            <div class="grid grid-cols-4 gap-1.5">
+              <!-- 완료 1: 사업자 (opacity 0.55 → 시선 약화) -->
+              <div
+                class="flex flex-col items-center p-2 rounded-lg bg-gray-50 border border-gray-200"
+                style="opacity: 0.55"
+              >
+                <div class="relative mb-1">
+                  <svg class="w-9 h-9" viewBox="0 0 48 48">
+                    <circle
+                      cx="24"
+                      cy="24"
+                      r="20"
+                      fill="none"
+                      stroke="#e5e7eb"
+                      stroke-width="3"
+                    />
+                    <circle
+                      cx="24"
+                      cy="24"
+                      r="20"
+                      fill="none"
+                      stroke="#16a34a"
+                      stroke-width="3"
+                      stroke-dasharray="125.6"
+                      stroke-dashoffset="0"
+                      transform="rotate(-90 24 24)"
+                    />
+                  </svg>
+                  <div
+                    class="absolute inset-0 flex items-center justify-center"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="#374151"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"
+                      />
+                      <polyline points="14 2 14 8 20 8" />
+                      <line x1="16" y1="13" x2="8" y2="13" />
+                      <line x1="16" y1="17" x2="8" y2="17" />
+                    </svg>
+                  </div>
+                </div>
+                <span class="text-[10px] font-semibold text-gray-900"
+                  >사업자</span
+                >
+                <span class="text-[9px] text-ok-600 font-bold">완료</span>
+              </div>
+              <!-- 완료 2: 프로필 (opacity 0.55) -->
+              <div
+                class="flex flex-col items-center p-2 rounded-lg bg-gray-50 border border-gray-200"
+                style="opacity: 0.55"
+              >
+                <div class="relative mb-1">
+                  <svg class="w-9 h-9" viewBox="0 0 48 48">
+                    <circle
+                      cx="24"
+                      cy="24"
+                      r="20"
+                      fill="none"
+                      stroke="#e5e7eb"
+                      stroke-width="3"
+                    />
+                    <circle
+                      cx="24"
+                      cy="24"
+                      r="20"
+                      fill="none"
+                      stroke="#16a34a"
+                      stroke-width="3"
+                      stroke-dasharray="125.6"
+                      stroke-dashoffset="0"
+                      transform="rotate(-90 24 24)"
+                    />
+                  </svg>
+                  <div
+                    class="absolute inset-0 flex items-center justify-center"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="#374151"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
+                  </div>
+                </div>
+                <span class="text-[10px] font-semibold text-gray-900"
+                  >프로필</span
+                >
+                <span class="text-[9px] text-ok-600 font-bold">완료</span>
+              </div>
+              <!-- 완료 3: 브랜드 (opacity 0.55) -->
+              <div
+                class="flex flex-col items-center p-2 rounded-lg bg-gray-50 border border-gray-200"
+                style="opacity: 0.55"
+              >
+                <div class="relative mb-1">
+                  <svg class="w-9 h-9" viewBox="0 0 48 48">
+                    <circle
+                      cx="24"
+                      cy="24"
+                      r="20"
+                      fill="none"
+                      stroke="#e5e7eb"
+                      stroke-width="3"
+                    />
+                    <circle
+                      cx="24"
+                      cy="24"
+                      r="20"
+                      fill="none"
+                      stroke="#16a34a"
+                      stroke-width="3"
+                      stroke-dasharray="125.6"
+                      stroke-dashoffset="0"
+                      transform="rotate(-90 24 24)"
+                    />
+                  </svg>
+                  <div
+                    class="absolute inset-0 flex items-center justify-center"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="#374151"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"
+                      />
+                      <line x1="7" y1="7" x2="7.01" y2="7" />
+                    </svg>
+                  </div>
+                </div>
+                <span class="text-[10px] font-semibold text-gray-900"
+                  >브랜드</span
+                >
+                <span class="text-[9px] text-ok-600 font-bold">완료</span>
+              </div>
+              <!-- 미완료: 명함 (full opacity → 시선 집중) -->
+              <div
+                class="flex flex-col items-center p-2 rounded-lg bg-gray-50 border border-gray-300"
+              >
+                <div class="relative mb-1">
+                  <svg class="w-9 h-9" viewBox="0 0 48 48">
+                    <circle
+                      cx="24"
+                      cy="24"
+                      r="20"
+                      fill="none"
+                      stroke="#e5e7eb"
+                      stroke-width="3"
+                    />
+                    <circle
+                      cx="24"
+                      cy="24"
+                      r="20"
+                      fill="none"
+                      stroke="#b85e52"
+                      stroke-width="3"
+                      stroke-dasharray="125.6"
+                      stroke-dashoffset="94.2"
+                      transform="rotate(-90 24 24)"
+                    />
+                  </svg>
+                  <div
+                    class="absolute inset-0 flex items-center justify-center"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="#6b7280"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                      <line x1="1" y1="10" x2="23" y2="10" />
+                    </svg>
+                  </div>
+                </div>
+                <span class="text-[10px] font-semibold text-gray-500"
+                  >명함</span
+                >
+                <span class="text-[9px] text-terra-500 font-bold">필요</span>
+              </div>
+            </div>
+            <div class="spec-note">
+              <strong>Option C 투명도+링:</strong>
+              완료 카드 opacity 0.55 → 미완에 시선 집중. 링:
+              <span class="text-ok-600 font-bold">녹색 full</span>(완료) vs
+              <span class="text-terra-500 font-bold">붉은 partial</span>(미완).
+              아이콘: SVG(Lucide). 카드 bg: gray-50 통일
+            </div>
+          </div>
+
+          <!-- ⑤ 제작 진행 현황 (2열 그리드) — 핵심 섹션 -->
+          <div class="section-card bg-white p-3">
+            <span class="wireframe-label">⑤ 제작 진행 현황</span>
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-sm">📦</span>
+              <span class="text-sm font-bold text-navy-900"
+                >제작 진행 현황</span
+              >
+            </div>
+            <div class="grid grid-cols-2 gap-1.5">
+              <!-- 최종확정: 흰 배경 (기본) + 녹색 텍스트 -->
+              <div
+                class="flex items-center gap-2 p-2 bg-white rounded border border-gray-200"
+              >
+                <span
+                  class="w-2 h-2 rounded-full bg-navy-900 flex-shrink-0"
+                ></span>
+                <span class="text-xs font-medium text-navy-900 flex-1"
+                  >로고</span
+                >
+                <span class="text-[10px] text-ok-600 font-bold">✓ 확정</span>
+              </div>
+              <!-- 발주완료: 흰 배경 (기본) + 녹색 텍스트 -->
+              <div
+                class="flex items-center gap-2 p-2 bg-white rounded border border-gray-200"
+              >
+                <span
+                  class="w-2 h-2 rounded-full bg-navy-800 flex-shrink-0"
+                ></span>
+                <span class="text-xs font-medium text-navy-900 flex-1"
+                  >명함</span
+                >
+                <span class="text-[10px] text-ok-600 font-bold">✓ 발주</span>
+              </div>
+              <!-- 발주대기: terra-50 배경 (행동 필요) + 붉은 텍스트 -->
+              <div
+                class="flex items-center gap-2 p-2 rounded border"
+                style="background: #faefed; border-color: #ecd0cc"
+              >
+                <span
+                  class="w-2 h-2 rounded-full bg-navy-400 flex-shrink-0"
+                ></span>
+                <span class="text-xs font-medium text-navy-900 flex-1"
+                  >명찰</span
+                >
+                <span class="text-[10px] text-terra-500 font-bold">⚠ 대기</span>
+              </div>
+              <!-- 제작중: 흰 배경 (기본) + 네이비 텍스트 (중립) -->
+              <div
+                class="flex items-center gap-2 p-2 bg-white rounded border border-gray-200"
+              >
+                <span
+                  class="w-2 h-2 rounded-full bg-navy-700 flex-shrink-0"
+                ></span>
+                <span class="text-xs font-medium text-navy-900 flex-1"
+                  >홈페이지</span
+                >
+                <span class="text-[10px] text-navy-600 font-medium"
+                  >제작중</span
+                >
+              </div>
+              <!-- 수정요청: terra-50 배경 (행동 필요) + 붉은 텍스트 -->
+              <div
+                class="flex items-center gap-2 p-2 rounded border"
+                style="background: #faefed; border-color: #ecd0cc"
+              >
+                <span
+                  class="w-2 h-2 rounded-full flex-shrink-0"
+                  style="background: #b85e52"
+                ></span>
+                <span class="text-xs font-medium flex-1 text-terra-600"
+                  >명찰</span
+                >
+                <span class="text-[10px] font-bold text-terra-500"
+                  >수정요청</span
+                >
+              </div>
+              <!-- 종료: 흰 배경 (기본) + 연한 텍스트 -->
+              <div
+                class="flex items-center gap-2 p-2 bg-white rounded border border-gray-100"
+              >
+                <span
+                  class="w-2 h-2 rounded-full bg-navy-200 flex-shrink-0"
+                ></span>
+                <span class="text-xs font-medium text-navy-300 flex-1"
+                  >대봉투</span
+                >
+                <span class="text-[10px] text-navy-300">종료</span>
+              </div>
+            </div>
+            <div class="spec-note">
+              <strong>배경색 규칙:</strong> 기본=<strong>white</strong> · 행동
+              필요=<strong style="color: #b85e52">terra-50</strong
+              >(대기/수정요청만).<br />
+              <span class="text-ok-600 font-bold">녹색</span>=완료(안심) ·
+              <span class="text-terra-500 font-bold">붉은색</span>=주의(행동
+              필요) ·
+              <span class="text-navy-600 font-bold">네이비</span>=진행중(중립) ·
+              <span class="text-navy-300">연한색</span>=종료(무시 가능)
+            </div>
+          </div>
+
+          <!-- ⑥ 마케팅 지원 (아코디언) -->
+          <div class="section-card bg-white p-3">
+            <span class="wireframe-label">⑥ 마케팅 지원 (아코디언)</span>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-sm">📢</span>
+                <span class="text-sm font-bold text-navy-900"
+                  >마케팅 지원 서비스</span
+                >
+                <span
+                  class="text-xs font-bold bg-navy-50 px-2 py-0.5 rounded-full border border-navy-100"
+                >
+                  <span class="text-navy-400">D-34</span>
+                </span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="flex gap-1">
+                  <span
+                    class="text-[10px] bg-navy-50 text-navy-600 px-1.5 py-0.5 rounded border border-navy-100"
+                    >Meta광고</span
+                  >
+                  <span
+                    class="text-[10px] bg-navy-50 text-navy-600 px-1.5 py-0.5 rounded border border-navy-100"
+                    >잠재고객</span
+                  >
+                  <span
+                    class="text-[10px] bg-navy-50 text-navy-300 px-1.5 py-0.5 rounded"
+                    >+3</span
+                  >
+                </div>
+                <span class="text-navy-300 text-xs">▼</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 모바일 (360px) ========== -->
+    <h2 class="text-xl font-bold text-navy-900 mb-4 flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-navy-700"></span>
+      Mobile (360px) — 이중 레이어 적용
+    </h2>
+
+    <div
+      class="bg-white rounded-2xl shadow-lg p-4 mb-12 border border-navy-200"
+      style="max-width: 360px; margin: 0 auto 3rem"
+    >
+      <div
+        class="flex items-center justify-between pb-3 mb-3 border-b border-navy-100"
+      >
+        <div class="flex items-center gap-2">
+          <div
+            class="w-7 h-7 rounded-lg bg-navy-900 flex items-center justify-center"
+          >
+            <span class="text-white text-[10px] font-bold">SP</span>
+          </div>
+          <span class="text-sm font-bold text-navy-900">START PACKAGE</span>
+        </div>
+        <span class="text-navy-300 text-lg">☰</span>
+      </div>
+
+      <div class="space-y-2.5">
+        <!-- ① 헤더 -->
+        <div class="section-card p-2.5 bg-white">
+          <span class="wireframe-label" style="font-size: 9px">① 헤더</span>
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="text-sm font-bold text-navy-900">이재호님</span>
+              <span class="text-[10px] text-navy-400 ml-1.5">19기</span>
+            </div>
+            <div class="flex gap-1">
+              <span
+                class="text-[9px] font-bold bg-navy-50 text-terra-500 px-1.5 py-0.5 rounded-full border border-navy-100"
+                >D-14</span
+              >
+              <span
+                class="text-[9px] font-bold bg-navy-50 text-navy-400 px-1.5 py-0.5 rounded-full border border-navy-100"
+                >D-34</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- ② 알림 -->
+        <div class="section-card p-2.5 bg-white">
+          <span class="wireframe-label" style="font-size: 9px">② 알림</span>
+          <div class="space-y-1">
+            <div
+              class="flex items-center gap-1.5 p-1.5 bg-white rounded border text-[10px]"
+              style="border-color: #ecd0cc"
+            >
+              <span
+                class="text-white px-1 py-0.5 rounded text-[9px] font-bold"
+                style="background: #b85e52"
+                >시안</span
+              >
+              <span class="font-medium flex-1 truncate text-terra-600"
+                >명함 시안을 확인해주세요!</span
+              >
+            </div>
+            <div
+              class="flex items-center gap-1.5 p-1.5 bg-white rounded border border-navy-100 text-[10px]"
+            >
+              <span
+                class="bg-navy-400 text-white px-1 py-0.5 rounded text-[9px] font-bold"
+                >필수</span
+              >
+              <span class="font-medium flex-1 truncate text-terra-500"
+                >기본 정보를 입력해주세요</span
+              >
+            </div>
+            <div
+              class="flex items-center gap-1.5 p-1.5 bg-white rounded border border-navy-100 text-[10px]"
+            >
+              <span
+                class="bg-navy-500 text-white px-1 py-0.5 rounded text-[9px] font-bold"
+                >입력</span
+              >
+              <span class="font-medium flex-1 truncate text-terra-500"
+                >홈페이지 제작정보 선택 필요</span
+              >
+            </div>
+          </div>
+          <button
+            class="w-full text-center text-[10px] text-navy-400 font-medium mt-1"
+          >
+            + 5건 더보기
+          </button>
+        </div>
+
+        <!-- ③ 제출률 -->
+        <div class="section-card p-2.5 bg-white">
+          <span class="wireframe-label" style="font-size: 9px">③ 제출률</span>
+          <div class="flex items-center gap-2">
+            <div
+              class="w-6 h-6 bg-navy-900 rounded flex items-center justify-center flex-shrink-0"
+            >
+              <span class="text-white text-[9px]">📄</span>
+            </div>
+            <span class="text-[11px] font-bold text-navy-700">50%</span>
+            <div class="flex-1 h-2 bg-navy-50 rounded-full overflow-hidden">
+              <div
+                class="h-full bg-navy-700 rounded-full"
+                style="width: 50%"
+              ></div>
+            </div>
+            <span class="text-[10px] text-navy-400">3/6</span>
+          </div>
+        </div>
+
+        <!-- ④ 제출현황 — Option C 투명도+프로그레스 링 -->
+        <div class="section-card p-2.5 bg-white">
+          <span class="wireframe-label" style="font-size: 9px">④ 제출현황</span>
+          <div class="grid grid-cols-4 gap-1">
+            <!-- 완료: opacity 0.55 + 녹색 링 -->
+            <div
+              class="flex flex-col items-center p-1.5 rounded bg-white border border-gray-200"
+              style="opacity: 0.55"
+            >
+              <div class="relative mb-0.5">
+                <svg class="w-7 h-7" viewBox="0 0 48 48">
+                  <circle
+                    cx="24"
+                    cy="24"
+                    r="20"
+                    fill="none"
+                    stroke="#e5e7eb"
+                    stroke-width="3"
+                  />
+                  <circle
+                    cx="24"
+                    cy="24"
+                    r="20"
+                    fill="none"
+                    stroke="#16a34a"
+                    stroke-width="3"
+                    stroke-dasharray="125.6"
+                    stroke-dashoffset="0"
+                    transform="rotate(-90 24 24)"
+                  />
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <svg
+                    class="w-3 h-3"
+                    fill="none"
+                    stroke="#374151"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"
+                    />
+                    <polyline points="14 2 14 8 20 8" />
+                  </svg>
+                </div>
+              </div>
+              <span class="text-[9px] font-medium text-gray-900">사업자</span>
+              <span class="text-[8px] text-ok-600 font-bold">완료</span>
+            </div>
+            <div
+              class="flex flex-col items-center p-1.5 rounded bg-white border border-gray-200"
+              style="opacity: 0.55"
+            >
+              <div class="relative mb-0.5">
+                <svg class="w-7 h-7" viewBox="0 0 48 48">
+                  <circle
+                    cx="24"
+                    cy="24"
+                    r="20"
+                    fill="none"
+                    stroke="#e5e7eb"
+                    stroke-width="3"
+                  />
+                  <circle
+                    cx="24"
+                    cy="24"
+                    r="20"
+                    fill="none"
+                    stroke="#16a34a"
+                    stroke-width="3"
+                    stroke-dasharray="125.6"
+                    stroke-dashoffset="0"
+                    transform="rotate(-90 24 24)"
+                  />
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <svg
+                    class="w-3 h-3"
+                    fill="none"
+                    stroke="#374151"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                </div>
+              </div>
+              <span class="text-[9px] font-medium text-gray-900">프로필</span>
+              <span class="text-[8px] text-ok-600 font-bold">완료</span>
+            </div>
+            <div
+              class="flex flex-col items-center p-1.5 rounded bg-white border border-gray-200"
+              style="opacity: 0.55"
+            >
+              <div class="relative mb-0.5">
+                <svg class="w-7 h-7" viewBox="0 0 48 48">
+                  <circle
+                    cx="24"
+                    cy="24"
+                    r="20"
+                    fill="none"
+                    stroke="#e5e7eb"
+                    stroke-width="3"
+                  />
+                  <circle
+                    cx="24"
+                    cy="24"
+                    r="20"
+                    fill="none"
+                    stroke="#16a34a"
+                    stroke-width="3"
+                    stroke-dasharray="125.6"
+                    stroke-dashoffset="0"
+                    transform="rotate(-90 24 24)"
+                  />
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <svg
+                    class="w-3 h-3"
+                    fill="none"
+                    stroke="#374151"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"
+                    />
+                    <line x1="7" y1="7" x2="7.01" y2="7" />
+                  </svg>
+                </div>
+              </div>
+              <span class="text-[9px] font-medium text-gray-900">브랜드</span>
+              <span class="text-[8px] text-ok-600 font-bold">완료</span>
+            </div>
+            <!-- 미완: full opacity + terra 링 -->
+            <div
+              class="flex flex-col items-center p-1.5 rounded bg-white border border-gray-300"
+            >
+              <div class="relative mb-0.5">
+                <svg class="w-7 h-7" viewBox="0 0 48 48">
+                  <circle
+                    cx="24"
+                    cy="24"
+                    r="20"
+                    fill="none"
+                    stroke="#e5e7eb"
+                    stroke-width="3"
+                  />
+                  <circle
+                    cx="24"
+                    cy="24"
+                    r="20"
+                    fill="none"
+                    stroke="#b85e52"
+                    stroke-width="3"
+                    stroke-dasharray="125.6"
+                    stroke-dashoffset="94.2"
+                    transform="rotate(-90 24 24)"
+                  />
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <svg
+                    class="w-3 h-3"
+                    fill="none"
+                    stroke="#6b7280"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                    <line x1="1" y1="10" x2="23" y2="10" />
+                  </svg>
+                </div>
+              </div>
+              <span class="text-[9px] font-medium text-gray-500">명함</span>
+              <span class="text-[8px] text-terra-500 font-bold">필요</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ⑤ 제작현황 — 배경 white 기본, 행동필요만 terra-50 -->
+        <div class="section-card p-2.5 bg-white">
+          <span class="wireframe-label" style="font-size: 9px">⑤ 제작현황</span>
+          <div class="grid grid-cols-2 gap-1">
+            <div
+              class="flex items-center gap-1.5 p-1.5 bg-white rounded border border-gray-200 text-[10px]"
+            >
+              <span class="w-1.5 h-1.5 rounded-full bg-navy-900"></span>
+              <span class="font-medium flex-1 text-navy-900">로고</span>
+              <span class="text-ok-600 font-bold text-[9px]">✓확정</span>
+            </div>
+            <div
+              class="flex items-center gap-1.5 p-1.5 bg-white rounded border border-gray-200 text-[10px]"
+            >
+              <span class="w-1.5 h-1.5 rounded-full bg-navy-800"></span>
+              <span class="font-medium flex-1 text-navy-900">명함</span>
+              <span class="text-ok-600 font-bold text-[9px]">✓발주</span>
+            </div>
+            <!-- 대기: terra-50 (행동 필요) -->
+            <div
+              class="flex items-center gap-1.5 p-1.5 rounded border text-[10px]"
+              style="background: #faefed; border-color: #ecd0cc"
+            >
+              <span class="w-1.5 h-1.5 rounded-full bg-navy-400"></span>
+              <span class="font-medium flex-1 text-navy-900">명찰</span>
+              <span class="text-terra-500 font-bold text-[9px]">⚠대기</span>
+            </div>
+            <!-- 수정요청: terra-50 (행동 필요) -->
+            <div
+              class="flex items-center gap-1.5 p-1.5 rounded border text-[10px]"
+              style="background: #faefed; border-color: #ecd0cc"
+            >
+              <span
+                class="w-1.5 h-1.5 rounded-full"
+                style="background: #b85e52"
+              ></span>
+              <span class="font-medium flex-1 text-terra-600">명찰</span>
+              <span class="text-terra-500 font-bold text-[9px]">수정</span>
+            </div>
+            <div
+              class="flex items-center gap-1.5 p-1.5 bg-white rounded border border-gray-200 text-[10px]"
+            >
+              <span class="w-1.5 h-1.5 rounded-full bg-navy-700"></span>
+              <span class="font-medium flex-1 text-navy-900">홈페이지</span>
+              <span class="text-navy-600 text-[9px]">제작중</span>
+            </div>
+            <div
+              class="flex items-center gap-1.5 p-1.5 bg-white rounded border border-gray-100 text-[10px]"
+            >
+              <span class="w-1.5 h-1.5 rounded-full bg-navy-200"></span>
+              <span class="font-medium flex-1 text-navy-300">대봉투</span>
+              <span class="text-navy-300 text-[9px]">종료</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ⑥ 마케팅 -->
+        <div class="section-card p-2.5 bg-white">
+          <span class="wireframe-label" style="font-size: 9px">⑥ 마케팅</span>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5">
+              <span class="text-xs">📢</span>
+              <span class="text-xs font-bold text-navy-900">마케팅 지원</span>
+              <span
+                class="text-[9px] font-bold bg-navy-50 text-navy-400 px-1.5 py-0.5 rounded-full border border-navy-100"
+                >D-34</span
+              >
+            </div>
+            <div class="flex items-center gap-1">
+              <span
+                class="text-[9px] bg-navy-50 text-navy-600 px-1 py-0.5 rounded border border-navy-100"
+                >Meta</span
+              >
+              <span
+                class="text-[9px] bg-navy-50 text-navy-300 px-1 py-0.5 rounded"
+                >+4</span
+              >
+              <span class="text-navy-300 text-[10px]">▼</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 하단 탭바 -->
+      <div
+        class="mt-4 pt-3 border-t border-navy-100 flex items-center justify-around"
+      >
+        <div class="flex flex-col items-center text-navy-900">
+          <span class="text-xs">🏠</span
+          ><span class="text-[9px] font-bold">홈</span>
+        </div>
+        <div class="flex flex-col items-center text-navy-300">
+          <span class="text-xs">📄</span
+          ><span class="text-[9px]">자료제출</span>
+        </div>
+        <div class="flex flex-col items-center text-navy-300">
+          <span class="text-xs">📦</span
+          ><span class="text-[9px]">제작현황</span>
+        </div>
+        <div class="flex flex-col items-center text-navy-300">
+          <span class="text-xs">🎨</span
+          ><span class="text-[9px]">시안확인</span>
+        </div>
+        <div class="flex flex-col items-center text-navy-300">
+          <span class="text-xs">☰</span><span class="text-[9px]">더보기</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 규칙 요약 ========== -->
+    <h2 class="text-lg font-bold text-navy-900 mb-3 flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-navy-700"></span>
+      이중 레이어 규칙 요약
+    </h2>
+    <div
+      class="bg-white rounded-xl border border-navy-200 p-4 mb-6 text-[11px] leading-relaxed text-navy-700"
+    >
+      <div class="space-y-3">
+        <div>
+          <strong class="text-navy-900">Layer 1 — 배경 (Navy 명도)</strong
+          ><br />
+          카드 bg, 보더, 도트 색상. 어두울수록 완료에 가깝고, 밝을수록
+          대기/비활성.<br />
+          <span class="font-mono text-navy-400"
+            >900(확정) → 800(발주) → 700(제작중) → 400(대기) → 200(종료)</span
+          ><br />
+          유일한 예외: <span style="color: #b85e52">terra-50 배경</span> =
+          긴급(수정요청/시안확인)
+        </div>
+        <div>
+          <strong class="text-navy-900">Layer 2 — 폰트 (시맨틱 색상)</strong
+          ><br />
+          상태 텍스트와 이모지에만 적용. 사용자에게 "행동 신호"를 보냄.<br />
+          <span class="text-ok-600 font-bold">녹색(ok-600)</span> = 완료, 안심,
+          체크마크 → 추가 행동 불필요<br />
+          <span class="text-terra-500 font-bold">붉은색(terra-500)</span> =
+          필요, 대기, 주의, 긴급 → 사용자 행동 필요<br />
+          <span class="text-navy-600 font-bold">네이비(navy-600)</span> =
+          제작중, 진행 → 대기 중(중립)<br />
+          <span class="text-navy-300">연한 네이비(navy-300)</span> = 종료,
+          비활성 → 무시 가능
+        </div>
+        <div>
+          <strong class="text-navy-900">핵심 원칙</strong><br />
+          • 카드 아이템명(로고, 명함 등)은 항상
+          <span class="font-bold text-navy-900">navy-900</span> (종료 시
+          navy-300)<br />
+          • 상태 텍스트(✓확정, ⚠대기)만 시맨틱 폰트 적용<br />
+          • 배경과 폰트가 동시에 강조되는 건
+          <span class="font-bold" style="color: #b85e52">긴급(수정요청)</span>뿐
+          → 이중 강조로 최고 주의 환기
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== tailwind 토큰 ========== -->
+    <h2 class="text-lg font-bold text-navy-900 mb-3 flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-navy-700"></span>
+      tailwind.config.ts 추가 토큰
+    </h2>
+    <div
+      class="bg-navy-900 text-navy-50 rounded-xl p-4 mb-8 font-mono text-[11px] leading-relaxed overflow-x-auto whitespace-pre"
+    >
+      <span style="color: #9fafc0"
+        >// 기존 navy 팔레트 유지 (배경 Layer 1)</span
+      >
+
+      <span style="color: #9fafc0">// 시맨틱 폰트 토큰 추가 (Layer 2)</span>
+      <span style="color: #22c55e">ok</span>: {
+      <span style="color: #c5cfd9"
+        >50: '#f0fdf4', // 완료 카드 강조 배경 (선택)</span
+      >
+      <span style="color: #c5cfd9">500: '#22c55e', // 완료 아이콘</span>
+      <span style="color: #c5cfd9">600: '#16a34a', // 완료 텍스트 (기본)</span>
+      <span style="color: #c5cfd9"
+        >700: '#15803d', // 완료 텍스트 (접근성)</span
+      >
+      },
+      <span style="color: #b85e52">terra</span>: {
+      <span style="color: #ecd0cc">50: '#faefed', // 긴급 카드 배경</span>
+      <span style="color: #ecd0cc">100: '#ecd0cc', // 긴급 보더</span>
+      <span style="color: #ecd0cc"
+        >500: '#b85e52', // 주의/필요 텍스트 (기본)</span
+      >
+      <span style="color: #ecd0cc">600: '#8b3f35', // 긴급 텍스트 (진한)</span>
+      },
+
+      <span style="color: #9fafc0">// gold 팔레트 삭제</span>
+      <span style="color: #9fafc0"
+        >// green/red/orange/purple/pink → ok + terra + navy로 대체</span
+      >
+    </div>
+
+    <div
+      class="text-center text-[10px] text-navy-300 pt-4 border-t border-navy-100"
+    >
+      와이어프레임 v4 — 이중 레이어: Navy 배경(구조) + 시맨틱 폰트(의미) │
+      2026-03-03
+    </div>
+  </body>
+</html>

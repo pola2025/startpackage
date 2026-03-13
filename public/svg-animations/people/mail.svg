@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .mail-body {
+      stroke-dasharray: 64;
+      stroke-dashoffset: 64;
+      animation: drawEnvelope 3.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+    }
+    .mail-flap {
+      stroke-dasharray: 24;
+      stroke-dashoffset: 24;
+      animation: drawFlap 3.5s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+      transform-origin: 12px 6px;
+    }
+    .mail-flap-move {
+      animation: flapOpen 3.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+      transform-origin: 12px 6px;
+    }
+    .mail-float {
+      animation: mailFloat 3.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+      transform-origin: 12px 13px;
+    }
+    .mail-shadow {
+      animation: shadowPulse 3.5s ease-in-out infinite;
+      transform-origin: 12px 22px;
+      opacity: 0;
+    }
+    @keyframes drawEnvelope {
+      0% { stroke-dashoffset: 64; }
+      30% { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: 0; }
+    }
+    @keyframes drawFlap {
+      0%, 25% { stroke-dashoffset: 24; }
+      45% { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: 0; }
+    }
+    @keyframes flapOpen {
+      0%, 45% { transform: scaleY(1); }
+      55% { transform: scaleY(-0.6); }
+      65% { transform: scaleY(-0.8); }
+      75% { transform: scaleY(1); }
+      100% { transform: scaleY(1); }
+    }
+    @keyframes mailFloat {
+      0% { transform: translateY(6px) scale(0.8); opacity: 0; }
+      15% { opacity: 1; }
+      25% { transform: translateY(0px) scale(1); }
+      50% { transform: translateY(-2px) scale(1); }
+      65% { transform: translateY(0px) scale(1); }
+      80% { transform: translateY(-1px); opacity: 1; }
+      95% { transform: translateY(0px); opacity: 0; }
+      100% { transform: translateY(6px) scale(0.8); opacity: 0; }
+    }
+  </style>
+  <g class="mail-float">
+    <rect class="mail-body" x="2" y="6" width="20" height="14" rx="2" />
+    <g class="mail-flap-move">
+      <polyline class="mail-flap" points="2 6 12 13 22 6" />
+    </g>
+  </g>
+</svg>

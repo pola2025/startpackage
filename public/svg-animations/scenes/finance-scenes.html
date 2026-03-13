@@ -1,0 +1,2863 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Finance Scenes - Animation Showcase</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
+    />
+    <style>
+      :root {
+        --bg: #faf8f5;
+        --bg-warm: #f5f0ea;
+        --surface: #ffffff;
+        --gold: #b08d3e;
+        --gold-light: #c9a84c;
+        --gold-pale: rgba(176, 141, 62, 0.08);
+        --gold-border: rgba(176, 141, 62, 0.2);
+        --coffee: #6b5344;
+        --text: #2c2420;
+        --text-sub: #5c5248;
+        --text-muted: #9c9088;
+        --border: #e8e0d8;
+        --border-light: #f0ebe5;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family:
+          "Pretendard",
+          -apple-system,
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.7;
+      }
+
+      .page-header {
+        text-align: center;
+        padding: 60px 24px 40px;
+        background: linear-gradient(180deg, var(--bg) 0%, var(--bg-warm) 100%);
+      }
+
+      .page-header h1 {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      .page-header p {
+        font-size: 15px;
+        color: var(--text-sub);
+      }
+
+      .showcase-grid {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 24px 80px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 32px;
+      }
+
+      .showcase-card {
+        background: var(--surface);
+        border: 1px solid var(--border-light);
+        border-radius: 20px;
+        overflow: hidden;
+        transition: box-shadow 0.3s ease;
+      }
+
+      .showcase-card:hover {
+        box-shadow: 0 8px 30px rgba(44, 36, 32, 0.1);
+      }
+
+      .anim-stage {
+        height: 320px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .card-info {
+        padding: 24px 28px;
+      }
+
+      .card-num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        background: var(--gold);
+        color: #fff;
+        border-radius: 50%;
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      .card-info h3 {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 6px;
+      }
+
+      .card-info .meaning {
+        font-size: 14px;
+        color: var(--gold);
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+
+      .card-info .desc {
+        font-size: 13px;
+        color: var(--text-muted);
+      }
+
+      .replay-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 12px;
+        padding: 6px 14px;
+        background: var(--gold-pale);
+        border: 1px solid var(--gold-border);
+        border-radius: 100px;
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--gold);
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .replay-btn:hover {
+        background: var(--gold);
+        color: #fff;
+      }
+
+      /* ========================================
+         SHARED KEYFRAMES
+         ======================================== */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes popIn {
+        0% {
+          opacity: 0;
+          transform: scale(0);
+        }
+        70% {
+          opacity: 1;
+          transform: scale(1.15);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* ========================================
+         1. Safe Unlock
+         ======================================== */
+      .anim-safe {
+        position: relative;
+        width: 220px;
+        height: 240px;
+      }
+
+      /* Vault body */
+      .safe-body {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 130px;
+        height: 110px;
+        background: var(--coffee);
+        border-radius: 12px;
+        box-shadow: 0 6px 20px rgba(107, 83, 68, 0.35);
+        opacity: 0;
+      }
+
+      .anim-safe.play .safe-body {
+        animation: slideUp 0.5s ease 0.1s forwards;
+      }
+
+      /* Door (left half, clips open) */
+      .safe-door {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 130px;
+        height: 110px;
+        border-radius: 12px;
+        overflow: hidden;
+        transform-origin: left center;
+        opacity: 0;
+      }
+
+      .anim-safe.play .safe-door {
+        animation:
+          doorReveal 0.4s ease 0.15s forwards,
+          doorSwing 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) 1.4s forwards;
+      }
+
+      @keyframes doorReveal {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes doorSwing {
+        0% {
+          transform: translateX(-50%) perspective(300px) rotateY(0deg);
+        }
+        100% {
+          transform: translateX(-50%) perspective(300px) rotateY(-55deg);
+        }
+      }
+
+      .safe-door-inner {
+        width: 100%;
+        height: 100%;
+        background: #5a4236;
+        border-radius: 12px;
+        border: 3px solid #7d6050;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      /* Dial on door */
+      .safe-dial {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 35%, #d4a843, var(--gold));
+        border: 3px solid #8a6b28;
+        box-shadow:
+          inset 0 2px 4px rgba(255, 255, 255, 0.2),
+          0 2px 6px rgba(0, 0, 0, 0.3);
+        position: relative;
+        animation: none;
+      }
+
+      .safe-dial::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 20px;
+        height: 3px;
+        background: #fff;
+        border-radius: 2px;
+        transform-origin: left center;
+        transform: translateY(-50%);
+      }
+
+      .anim-safe.play .safe-dial {
+        animation: dialSpin 1.2s cubic-bezier(0.4, 0, 0.2, 1) 0.5s forwards;
+      }
+
+      @keyframes dialSpin {
+        0% {
+          transform: rotate(0deg);
+        }
+        30% {
+          transform: rotate(-200deg);
+        }
+        60% {
+          transform: rotate(80deg);
+        }
+        100% {
+          transform: rotate(-360deg);
+        }
+      }
+
+      /* Door handle */
+      .safe-handle {
+        width: 16px;
+        height: 28px;
+        background: var(--gold);
+        border-radius: 8px;
+        border: 2px solid #8a6b28;
+      }
+
+      /* Coins spilling */
+      .safe-coins {
+        position: absolute;
+        bottom: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 180px;
+        pointer-events: none;
+      }
+
+      .safe-coin {
+        position: absolute;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 35%, #d4a843, var(--gold));
+        border: 2px solid var(--gold-light);
+        font-size: 9px;
+        color: #fff;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        box-shadow: 0 2px 6px rgba(176, 141, 62, 0.4);
+      }
+
+      .anim-safe.play .safe-coin {
+        animation: coinSpill 0.9s ease-out forwards;
+      }
+      .safe-coin:nth-child(1) {
+        left: 55px;
+        animation-delay: 2.1s !important;
+        --tx: -30px;
+        --ty: 30px;
+        --rot: -40deg;
+      }
+      .safe-coin:nth-child(2) {
+        left: 75px;
+        animation-delay: 2.2s !important;
+        --tx: 0px;
+        --ty: 40px;
+        --rot: 0deg;
+      }
+      .safe-coin:nth-child(3) {
+        left: 95px;
+        animation-delay: 2.3s !important;
+        --tx: 30px;
+        --ty: 35px;
+        --rot: 30deg;
+      }
+      .safe-coin:nth-child(4) {
+        left: 45px;
+        animation-delay: 2.35s !important;
+        --tx: -50px;
+        --ty: 55px;
+        --rot: -55deg;
+      }
+      .safe-coin:nth-child(5) {
+        left: 105px;
+        animation-delay: 2.25s !important;
+        --tx: 48px;
+        --ty: 50px;
+        --rot: 45deg;
+      }
+      .safe-coin:nth-child(6) {
+        left: 70px;
+        animation-delay: 2.45s !important;
+        --tx: -10px;
+        --ty: 65px;
+        --rot: -20deg;
+      }
+
+      @keyframes coinSpill {
+        0% {
+          opacity: 0;
+          transform: translate(0, 0) rotate(0) scale(0.5);
+        }
+        20% {
+          opacity: 1;
+          transform: translate(calc(var(--tx) * 0.3), calc(var(--ty) * 0.3))
+            rotate(calc(var(--rot) * 0.3)) scale(1.1);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(var(--tx), var(--ty)) rotate(var(--rot))
+            scale(0.8);
+        }
+      }
+
+      /* Glow behind vault */
+      .safe-glow {
+        position: absolute;
+        bottom: 60px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 160px;
+        height: 80px;
+        background: radial-gradient(
+          ellipse,
+          rgba(176, 141, 62, 0.2),
+          transparent 70%
+        );
+        border-radius: 50%;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .anim-safe.play .safe-glow {
+        animation: fadeIn 0.6s ease 1.2s forwards;
+      }
+
+      /* ========================================
+         2. Coin Stack
+         ======================================== */
+      .anim-coinstack {
+        position: relative;
+        width: 200px;
+        height: 240px;
+      }
+
+      .stack-platform {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 6px;
+        background: var(--border);
+        border-radius: 3px;
+        opacity: 0;
+      }
+
+      .anim-coinstack.play .stack-platform {
+        animation: fadeIn 0.3s ease 0.1s forwards;
+      }
+
+      .stack-coin {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 64px;
+        height: 14px;
+        border-radius: 50%;
+        background: linear-gradient(
+          180deg,
+          #d4a843 0%,
+          var(--gold) 50%,
+          #8a6b28 100%
+        );
+        border: 1.5px solid var(--gold-light);
+        box-shadow: 0 3px 6px rgba(176, 141, 62, 0.3);
+        opacity: 0;
+        transform-origin: center top;
+      }
+
+      /* each coin starts above and drops in */
+      .anim-coinstack.play .stack-coin {
+        animation: coinDrop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      }
+
+      .stack-coin:nth-child(2) {
+        bottom: 28px;
+        animation-delay: 0.3s !important;
+      }
+      .stack-coin:nth-child(3) {
+        bottom: 42px;
+        animation-delay: 0.55s !important;
+      }
+      .stack-coin:nth-child(4) {
+        bottom: 56px;
+        animation-delay: 0.8s !important;
+      }
+      .stack-coin:nth-child(5) {
+        bottom: 70px;
+        animation-delay: 1.05s !important;
+      }
+      .stack-coin:nth-child(6) {
+        bottom: 84px;
+        animation-delay: 1.3s !important;
+      }
+      .stack-coin:nth-child(7) {
+        bottom: 98px;
+        animation-delay: 1.55s !important;
+      }
+      .stack-coin:nth-child(8) {
+        bottom: 112px;
+        animation-delay: 1.8s !important;
+      }
+      .stack-coin:nth-child(9) {
+        bottom: 126px;
+        animation-delay: 2.05s !important;
+      }
+      .stack-coin:nth-child(10) {
+        bottom: 140px;
+        animation-delay: 2.3s !important;
+      }
+
+      @keyframes coinDrop {
+        0% {
+          opacity: 0;
+          transform: translateX(-50%) translateY(-60px) scaleY(0.4);
+        }
+        60% {
+          opacity: 1;
+          transform: translateX(-50%) translateY(4px) scaleY(1.05);
+        }
+        80% {
+          transform: translateX(-50%) translateY(-2px) scaleY(0.97);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(-50%) translateY(0) scaleY(1);
+        }
+      }
+
+      /* Sparkle on top of stack */
+      .stack-sparkle {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 154px;
+        font-size: 18px;
+        opacity: 0;
+      }
+
+      .anim-coinstack.play .stack-sparkle {
+        animation: sparkPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 2.7s forwards;
+      }
+
+      @keyframes sparkPop {
+        0% {
+          opacity: 0;
+          transform: translateX(-50%) scale(0) translateY(0);
+        }
+        60% {
+          opacity: 1;
+          transform: translateX(-50%) scale(1.4) translateY(-8px);
+        }
+        100% {
+          opacity: 0.8;
+          transform: translateX(-50%) scale(1) translateY(-12px);
+        }
+      }
+
+      /* value badge */
+      .stack-badge {
+        position: absolute;
+        right: 10px;
+        bottom: 80px;
+        background: var(--gold);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 100px;
+        opacity: 0;
+        white-space: nowrap;
+      }
+
+      .anim-coinstack.play .stack-badge {
+        animation: slideUp 0.4s ease 2.6s forwards;
+      }
+
+      /* ========================================
+         3. Card Payment
+         ======================================== */
+      .anim-card {
+        position: relative;
+        width: 240px;
+        height: 220px;
+      }
+
+      /* Card reader device */
+      .card-reader {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90px;
+        height: 70px;
+        background: var(--coffee);
+        border-radius: 10px;
+        box-shadow: 0 4px 14px rgba(107, 83, 68, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+      }
+
+      .anim-card.play .card-reader {
+        animation: slideUp 0.5s ease 0.1s forwards;
+      }
+
+      .card-reader-slot {
+        width: 70px;
+        height: 8px;
+        background: #3a2820;
+        border-radius: 4px;
+      }
+
+      /* The credit card */
+      .credit-card {
+        position: absolute;
+        width: 110px;
+        height: 72px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, var(--gold) 0%, #8a6b28 100%);
+        box-shadow: 0 6px 20px rgba(176, 141, 62, 0.45);
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%) rotate(-8deg);
+        opacity: 0;
+        overflow: hidden;
+      }
+
+      .credit-card::before {
+        content: "";
+        position: absolute;
+        top: 12px;
+        left: 14px;
+        width: 28px;
+        height: 22px;
+        background: rgba(255, 255, 255, 0.25);
+        border-radius: 4px;
+      }
+
+      .credit-card::after {
+        content: "";
+        position: absolute;
+        bottom: 12px;
+        left: 14px;
+        right: 14px;
+        height: 3px;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 2px;
+        box-shadow: 0 7px 0 rgba(255, 255, 255, 0.2);
+      }
+
+      .anim-card.play .credit-card {
+        animation: cardSwipe 1.4s cubic-bezier(0.4, 0, 0.2, 1) 0.5s forwards;
+      }
+
+      @keyframes cardSwipe {
+        0% {
+          opacity: 0;
+          transform: translateX(-50%) translateX(-60px) rotate(-8deg);
+        }
+        30% {
+          opacity: 1;
+          transform: translateX(-50%) translateX(0px) rotate(-8deg);
+        }
+        60% {
+          opacity: 1;
+          transform: translateX(-50%) translateX(40px) rotate(0deg)
+            translateY(20px);
+        }
+        80% {
+          opacity: 1;
+          transform: translateX(-50%) translateX(40px) rotate(0deg)
+            translateY(16px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(-50%) translateX(40px) rotate(0deg)
+            translateY(18px);
+        }
+      }
+
+      /* Reader screen glow */
+      .reader-screen {
+        position: absolute;
+        top: -1px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 24px;
+        background: #1a3a1a;
+        border-radius: 4px 4px 0 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        font-size: 9px;
+        font-weight: 700;
+        color: #4caf50;
+        letter-spacing: 0.5px;
+        overflow: hidden;
+      }
+
+      .anim-card.play .reader-screen {
+        animation: fadeIn 0.3s ease 0.1s forwards;
+      }
+
+      .reader-screen-text {
+        opacity: 0;
+      }
+
+      .anim-card.play .reader-screen-text {
+        animation: fadeIn 0.4s ease 2.2s forwards;
+      }
+
+      /* Checkmark badge */
+      .card-check {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 44px;
+        height: 44px;
+        background: #4caf50;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+        opacity: 0;
+        transform: scale(0);
+      }
+
+      .anim-card.play .card-check {
+        animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 2s forwards;
+      }
+
+      /* Approval label */
+      .card-approval {
+        position: absolute;
+        bottom: 5px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--gold);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 3px 14px;
+        border-radius: 100px;
+        opacity: 0;
+        white-space: nowrap;
+        letter-spacing: 1px;
+      }
+
+      .anim-card.play .card-approval {
+        animation: slideUp 0.4s ease 2.5s forwards;
+      }
+
+      /* ========================================
+         4. Money Growth
+         ======================================== */
+      .anim-growth {
+        position: relative;
+        width: 200px;
+        height: 260px;
+      }
+
+      .growth-soil {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 140px;
+        height: 28px;
+        background: linear-gradient(180deg, #8b6347 0%, #6b4a32 100%);
+        border-radius: 50% 50% 8px 8px / 14px 14px 8px 8px;
+        opacity: 0;
+      }
+
+      .anim-growth.play .growth-soil {
+        animation: slideUp 0.5s ease 0.1s forwards;
+      }
+
+      /* Coin in soil */
+      .growth-seed-coin {
+        position: absolute;
+        bottom: 32px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 35%, #d4a843, var(--gold));
+        border: 2px solid var(--gold-light);
+        font-size: 10px;
+        font-weight: 800;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(176, 141, 62, 0.5);
+        opacity: 0;
+      }
+
+      .anim-growth.play .growth-seed-coin {
+        animation: seedPlant 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s
+          forwards;
+      }
+
+      @keyframes seedPlant {
+        0% {
+          opacity: 0;
+          transform: translateX(-50%) translateY(-30px) scale(0.6);
+        }
+        70% {
+          opacity: 1;
+          transform: translateX(-50%) translateY(4px) scale(1.1);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(-50%) translateY(0) scale(1);
+        }
+      }
+
+      /* Stem */
+      .growth-stem {
+        position: absolute;
+        bottom: 50px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 5px;
+        height: 0;
+        background: linear-gradient(180deg, #5a8a3a, #3d6326);
+        border-radius: 3px;
+        transform-origin: bottom center;
+      }
+
+      .anim-growth.play .growth-stem {
+        animation: stemGrow 0.9s ease-out 1.2s forwards;
+      }
+
+      @keyframes stemGrow {
+        from {
+          height: 0;
+        }
+        to {
+          height: 100px;
+        }
+      }
+
+      /* Leaves */
+      .growth-leaf {
+        position: absolute;
+        width: 0;
+        height: 6px;
+        background: #5a8a3a;
+        border-radius: 4px;
+        opacity: 0;
+        transform-origin: left center;
+      }
+
+      .growth-leaf.left {
+        bottom: 110px;
+        left: calc(50% - 2px);
+        transform: rotate(-40deg);
+      }
+
+      .growth-leaf.right {
+        bottom: 130px;
+        left: 50%;
+        transform: rotate(40deg);
+        transform-origin: left center;
+      }
+
+      .anim-growth.play .growth-leaf.left {
+        animation: leafGrow 0.5s ease 2.1s forwards;
+      }
+
+      .anim-growth.play .growth-leaf.right {
+        animation: leafGrow 0.5s ease 2.3s forwards;
+      }
+
+      @keyframes leafGrow {
+        from {
+          width: 0;
+          opacity: 0;
+        }
+        to {
+          width: 32px;
+          opacity: 1;
+        }
+      }
+
+      /* Flower / coin bloom */
+      .growth-bloom {
+        position: absolute;
+        bottom: 150px;
+        left: 50%;
+        transform: translateX(-50%) scale(0);
+        width: 54px;
+        height: 54px;
+        opacity: 0;
+      }
+
+      .anim-growth.play .growth-bloom {
+        animation: bloomPop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 2.6s forwards;
+      }
+
+      @keyframes bloomPop {
+        0% {
+          opacity: 0;
+          transform: translateX(-50%) scale(0);
+        }
+        70% {
+          opacity: 1;
+          transform: translateX(-50%) scale(1.15);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(-50%) scale(1);
+        }
+      }
+
+      /* Shimmer particles */
+      .growth-particle {
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--gold);
+        opacity: 0;
+      }
+
+      .anim-growth.play .growth-particle {
+        animation: particleBurst 0.8s ease-out forwards;
+      }
+      .growth-particle:nth-child(1) {
+        bottom: 170px;
+        left: 60px;
+        animation-delay: 3.1s !important;
+        --tx: -20px;
+        --ty: -15px;
+      }
+      .growth-particle:nth-child(2) {
+        bottom: 175px;
+        left: 100px;
+        animation-delay: 3.15s !important;
+        --tx: 18px;
+        --ty: -20px;
+      }
+      .growth-particle:nth-child(3) {
+        bottom: 160px;
+        left: 45px;
+        animation-delay: 3.2s !important;
+        --tx: -25px;
+        --ty: 5px;
+      }
+      .growth-particle:nth-child(4) {
+        bottom: 160px;
+        left: 110px;
+        animation-delay: 3.1s !important;
+        --tx: 22px;
+        --ty: 8px;
+      }
+
+      @keyframes particleBurst {
+        0% {
+          opacity: 1;
+          transform: translate(0, 0) scale(1);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(var(--tx), var(--ty)) scale(0.3);
+        }
+      }
+
+      /* ========================================
+         5. Piggy Bank
+         ======================================== */
+      .anim-piggy {
+        position: relative;
+        width: 220px;
+        height: 240px;
+      }
+
+      /* Piggy bank SVG body */
+      .piggy-body {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+      }
+
+      .anim-piggy.play .piggy-body {
+        animation: slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s forwards;
+      }
+
+      /* Coin arc trajectory */
+      .piggy-coin {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 35%, #d4a843, var(--gold));
+        border: 2px solid var(--gold-light);
+        font-size: 9px;
+        font-weight: 800;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px rgba(176, 141, 62, 0.5);
+        top: 30px;
+        left: 20px;
+        opacity: 0;
+      }
+
+      .anim-piggy.play .piggy-coin {
+        animation: coinArc 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1.2s
+          forwards;
+      }
+
+      @keyframes coinArc {
+        0% {
+          opacity: 0;
+          transform: translate(0, 0) scale(0.8);
+        }
+        10% {
+          opacity: 1;
+        }
+        35% {
+          transform: translate(60px, -60px) scale(1.1) rotate(180deg);
+        }
+        70% {
+          transform: translate(105px, 10px) scale(0.9) rotate(330deg);
+        }
+        85% {
+          transform: translate(112px, 30px) scale(1) rotate(360deg);
+          opacity: 1;
+        }
+        100% {
+          transform: translate(112px, 45px) scale(0.5) rotate(380deg);
+          opacity: 0;
+        }
+      }
+
+      /* coin 2 */
+      .piggy-coin2 {
+        position: absolute;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 35%, #d4a843, var(--gold));
+        border: 2px solid var(--gold-light);
+        top: 50px;
+        left: 15px;
+        opacity: 0;
+      }
+
+      .anim-piggy.play .piggy-coin2 {
+        animation: coinArc2 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 2s
+          forwards;
+      }
+
+      @keyframes coinArc2 {
+        0% {
+          opacity: 0;
+          transform: translate(0, 0) scale(0.8);
+        }
+        10% {
+          opacity: 1;
+        }
+        35% {
+          transform: translate(50px, -75px) scale(1.05) rotate(-180deg);
+        }
+        70% {
+          transform: translate(105px, -5px) scale(0.9) rotate(-330deg);
+        }
+        100% {
+          transform: translate(115px, 38px) scale(0.4) rotate(-400deg);
+          opacity: 0;
+        }
+      }
+
+      /* Insert slot flash */
+      .piggy-slot-flash {
+        position: absolute;
+        bottom: 112px;
+        left: 50%;
+        transform: translateX(10px);
+        width: 24px;
+        height: 5px;
+        background: var(--gold);
+        border-radius: 3px;
+        opacity: 0;
+        box-shadow: 0 0 8px var(--gold);
+      }
+
+      .anim-piggy.play .piggy-slot-flash {
+        animation: slotFlash 0.3s ease 2.4s forwards;
+      }
+
+      @keyframes slotFlash {
+        0% {
+          opacity: 0;
+        }
+        50% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+
+      /* Amount badge */
+      .piggy-amount {
+        position: absolute;
+        bottom: 5px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--gold);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 12px;
+        border-radius: 100px;
+        opacity: 0;
+        white-space: nowrap;
+      }
+
+      .anim-piggy.play .piggy-amount {
+        animation: slideUp 0.4s ease 2.8s forwards;
+      }
+
+      /* ========================================
+         6. Invoice Stamp
+         ======================================== */
+      .anim-invoice {
+        position: relative;
+        width: 220px;
+        height: 240px;
+      }
+
+      /* Invoice doc */
+      .invoice-doc {
+        position: absolute;
+        width: 110px;
+        height: 140px;
+        background: var(--surface);
+        border: 1.5px solid var(--border);
+        border-radius: 8px;
+        left: 50%;
+        top: 30px;
+        transform: translateX(-55%) translateY(40px);
+        opacity: 0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        overflow: hidden;
+      }
+
+      .anim-invoice.play .invoice-doc {
+        animation: invoiceSlide 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s
+          forwards;
+      }
+
+      @keyframes invoiceSlide {
+        0% {
+          opacity: 0;
+          transform: translateX(-55%) translateY(40px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(-55%) translateY(0);
+        }
+      }
+
+      .invoice-header {
+        background: var(--coffee);
+        height: 22px;
+        display: flex;
+        align-items: center;
+        padding: 0 8px;
+      }
+
+      .invoice-header-text {
+        font-size: 8px;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.8);
+        letter-spacing: 0.5px;
+      }
+
+      .invoice-line {
+        margin: 8px 10px 0;
+        height: 3px;
+        background: var(--border-light);
+        border-radius: 2px;
+      }
+
+      .invoice-line.short {
+        width: 55%;
+      }
+      .invoice-line.med {
+        width: 75%;
+        margin-top: 5px;
+      }
+      .invoice-line.long {
+        width: 90%;
+        margin-top: 5px;
+      }
+
+      .invoice-amount {
+        margin: 10px 10px 0;
+        height: 12px;
+        background: var(--gold-pale);
+        border: 1px solid var(--gold-border);
+        border-radius: 3px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 0 5px;
+      }
+
+      .invoice-amount-text {
+        font-size: 7px;
+        font-weight: 700;
+        color: var(--gold);
+      }
+
+      /* Stamp element */
+      .stamp {
+        position: absolute;
+        top: 44px;
+        left: 52%;
+        transform: translateX(-20%) translateY(-120px) rotate(-15deg);
+        width: 70px;
+        height: 70px;
+        opacity: 0;
+      }
+
+      .anim-invoice.play .stamp {
+        animation: stampDown 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 1.2s
+          forwards;
+      }
+
+      @keyframes stampDown {
+        0% {
+          opacity: 0;
+          transform: translateX(-20%) translateY(-120px) rotate(-15deg);
+        }
+        50% {
+          opacity: 1;
+          transform: translateX(-20%) translateY(-20px) rotate(-15deg);
+        }
+        70% {
+          transform: translateX(-20%) translateY(8px) rotate(-15deg) scale(1.1);
+        }
+        85% {
+          transform: translateX(-20%) translateY(-3px) rotate(-15deg)
+            scale(0.97);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(-20%) translateY(0) rotate(-15deg) scale(1);
+        }
+      }
+
+      /* Impact wave on stamp */
+      .stamp-impact {
+        position: absolute;
+        top: 80px;
+        left: 50%;
+        transform: translateX(-50%) scale(0);
+        width: 80px;
+        height: 30px;
+        border: 2px solid rgba(176, 141, 62, 0.4);
+        border-radius: 50%;
+        opacity: 0;
+      }
+
+      .anim-invoice.play .stamp-impact {
+        animation: impactRing 0.5s ease-out 2s forwards;
+      }
+
+      @keyframes impactRing {
+        0% {
+          opacity: 0.8;
+          transform: translateX(-50%) scale(0.3);
+        }
+        100% {
+          opacity: 0;
+          transform: translateX(-50%) scale(1.5);
+        }
+      }
+
+      /* Approval badge pop */
+      .invoice-badge {
+        position: absolute;
+        bottom: 8px;
+        left: 50%;
+        transform: translateX(-50%) scale(0);
+        background: var(--gold);
+        color: #fff;
+        font-size: 13px;
+        font-weight: 800;
+        padding: 5px 18px;
+        border-radius: 100px;
+        opacity: 0;
+        letter-spacing: 1px;
+        box-shadow: 0 4px 12px rgba(176, 141, 62, 0.4);
+        white-space: nowrap;
+      }
+
+      .anim-invoice.play .invoice-badge {
+        animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 2.2s forwards;
+      }
+
+      /* ========================================
+         7. Budget Chart (Pie)
+         ======================================== */
+      .anim-pie {
+        position: relative;
+        width: 240px;
+        height: 260px;
+      }
+
+      .pie-wrapper {
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 160px;
+        height: 160px;
+      }
+
+      /* SVG pie segments drawn via stroke-dasharray on circle */
+      .pie-svg {
+        width: 160px;
+        height: 160px;
+        transform: rotate(-90deg);
+      }
+
+      .pie-track {
+        fill: none;
+        stroke: var(--border-light);
+        stroke-width: 28;
+      }
+
+      .pie-seg {
+        fill: none;
+        stroke-width: 28;
+        stroke-dasharray: 0 502;
+        stroke-linecap: butt;
+      }
+
+      /* r=80, circumference = 2*PI*80 = ~502 */
+      /* Seg1: 35% = 175.7, offset 0 */
+      .pie-seg.s1 {
+        stroke: var(--gold);
+      }
+      /* Seg2: 25% = 125.5, offset 175.7 */
+      .pie-seg.s2 {
+        stroke: #c9a84c;
+        stroke-dashoffset: -175.7;
+      }
+      /* Seg3: 20% = 100.4, offset 301.2 */
+      .pie-seg.s3 {
+        stroke: var(--coffee);
+        stroke-dashoffset: -301.2;
+      }
+      /* Seg4: 20% = 100.4, offset 401.6 */
+      .pie-seg.s4 {
+        stroke: #9c9088;
+        stroke-dashoffset: -401.6;
+      }
+
+      .anim-pie.play .pie-seg.s1 {
+        animation: pieFill1 0.8s ease 0.3s forwards;
+      }
+      .anim-pie.play .pie-seg.s2 {
+        animation: pieFill2 0.6s ease 1.1s forwards;
+      }
+      .anim-pie.play .pie-seg.s3 {
+        animation: pieFill3 0.5s ease 1.7s forwards;
+      }
+      .anim-pie.play .pie-seg.s4 {
+        animation: pieFill4 0.5s ease 2.2s forwards;
+      }
+
+      @keyframes pieFill1 {
+        from {
+          stroke-dasharray: 0 502;
+        }
+        to {
+          stroke-dasharray: 175.7 502;
+        }
+      }
+      @keyframes pieFill2 {
+        from {
+          stroke-dasharray: 0 502;
+        }
+        to {
+          stroke-dasharray: 125.5 502;
+        }
+      }
+      @keyframes pieFill3 {
+        from {
+          stroke-dasharray: 0 502;
+        }
+        to {
+          stroke-dasharray: 100.4 502;
+        }
+      }
+      @keyframes pieFill4 {
+        from {
+          stroke-dasharray: 0 502;
+        }
+        to {
+          stroke-dasharray: 100.4 502;
+        }
+      }
+
+      /* Pie center label */
+      .pie-center {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        pointer-events: none;
+      }
+
+      .pie-center-value {
+        font-size: 22px;
+        font-weight: 800;
+        color: var(--gold);
+        opacity: 0;
+        display: block;
+      }
+
+      .pie-center-label {
+        font-size: 9px;
+        color: var(--text-muted);
+        font-weight: 600;
+        opacity: 0;
+        display: block;
+      }
+
+      .anim-pie.play .pie-center-value {
+        animation: fadeIn 0.4s ease 2.7s forwards;
+      }
+      .anim-pie.play .pie-center-label {
+        animation: fadeIn 0.4s ease 2.9s forwards;
+      }
+
+      /* Legend */
+      .pie-legend {
+        position: absolute;
+        bottom: 14px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+        width: 220px;
+      }
+
+      .pie-legend-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 10px;
+        color: var(--text-sub);
+        font-weight: 600;
+        opacity: 0;
+      }
+
+      .pie-legend-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+
+      .anim-pie.play .pie-legend-item:nth-child(1) {
+        animation: slideUp 0.4s ease 1.1s forwards;
+      }
+      .anim-pie.play .pie-legend-item:nth-child(2) {
+        animation: slideUp 0.4s ease 1.7s forwards;
+      }
+      .anim-pie.play .pie-legend-item:nth-child(3) {
+        animation: slideUp 0.4s ease 2.2s forwards;
+      }
+      .anim-pie.play .pie-legend-item:nth-child(4) {
+        animation: slideUp 0.4s ease 2.7s forwards;
+      }
+
+      /* ========================================
+         8. Fund Transfer
+         ======================================== */
+      .anim-transfer {
+        position: relative;
+        width: 280px;
+        height: 200px;
+      }
+
+      /* Wallet left */
+      .wallet {
+        position: absolute;
+        bottom: 50px;
+        width: 64px;
+        height: 50px;
+        opacity: 0;
+      }
+
+      .wallet.left {
+        left: 10px;
+      }
+      .wallet.right {
+        right: 10px;
+      }
+
+      .anim-transfer.play .wallet.left {
+        animation: slideUp 0.5s ease 0.2s forwards;
+      }
+      .anim-transfer.play .wallet.right {
+        animation: slideUp 0.5s ease 0.5s forwards;
+      }
+
+      .wallet-body {
+        width: 100%;
+        height: 40px;
+        border-radius: 8px;
+        background: var(--coffee);
+        position: relative;
+        box-shadow: 0 3px 10px rgba(107, 83, 68, 0.3);
+      }
+
+      .wallet.right .wallet-body {
+        background: var(--gold);
+      }
+
+      .wallet-flap {
+        width: 100%;
+        height: 14px;
+        background: #8a6b55;
+        border-radius: 8px 8px 0 0;
+        margin-bottom: -2px;
+      }
+
+      .wallet.right .wallet-flap {
+        background: var(--gold-light);
+      }
+
+      .wallet-clasp {
+        position: absolute;
+        right: 6px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.25);
+        border: 1.5px solid rgba(255, 255, 255, 0.4);
+      }
+
+      .wallet-label {
+        text-align: center;
+        font-size: 9px;
+        font-weight: 700;
+        color: var(--text-muted);
+        margin-top: 4px;
+      }
+
+      /* Transfer arrow trail */
+      .transfer-trail {
+        position: absolute;
+        bottom: 70px;
+        left: 80px;
+        width: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--coffee), var(--gold));
+        border-radius: 2px;
+      }
+
+      .anim-transfer.play .transfer-trail {
+        animation: trailDraw 0.8s ease 1s forwards;
+      }
+
+      @keyframes trailDraw {
+        from {
+          width: 0;
+        }
+        to {
+          width: 120px;
+        }
+      }
+
+      /* Moving coin on trail */
+      .transfer-coin {
+        position: absolute;
+        bottom: 62px;
+        left: 80px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 35%, #d4a843, var(--gold));
+        border: 2px solid var(--gold-light);
+        box-shadow: 0 2px 6px rgba(176, 141, 62, 0.5);
+        font-size: 9px;
+        font-weight: 800;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+      }
+
+      .anim-transfer.play .transfer-coin {
+        animation: coinTravel 0.9s cubic-bezier(0.4, 0, 0.6, 1) 1s forwards;
+      }
+
+      @keyframes coinTravel {
+        0% {
+          opacity: 0;
+          left: 80px;
+        }
+        15% {
+          opacity: 1;
+        }
+        80% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+          left: 188px;
+        }
+      }
+
+      /* Dashed path line (decorative) */
+      .transfer-path-svg {
+        position: absolute;
+        bottom: 45px;
+        left: 74px;
+        opacity: 0;
+      }
+
+      .anim-transfer.play .transfer-path-svg {
+        animation: fadeIn 0.4s ease 0.8s forwards;
+      }
+
+      /* Success indicator */
+      .transfer-success {
+        position: absolute;
+        top: 18px;
+        left: 50%;
+        transform: translateX(-50%) scale(0);
+        opacity: 0;
+        background: var(--gold);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 4px 14px;
+        border-radius: 100px;
+        white-space: nowrap;
+      }
+
+      .anim-transfer.play .transfer-success {
+        animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 2.1s forwards;
+      }
+
+      /* Plus badge on right wallet */
+      .wallet-plus {
+        position: absolute;
+        top: -10px;
+        right: -6px;
+        width: 20px;
+        height: 20px;
+        background: #4caf50;
+        border-radius: 50%;
+        font-size: 14px;
+        font-weight: 800;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+        opacity: 0;
+        transform: scale(0);
+      }
+
+      .anim-transfer.play .wallet-plus {
+        animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 2s forwards;
+      }
+
+      /* ========================================
+         9. Interest Rate
+         ======================================== */
+      .anim-interest {
+        position: relative;
+        width: 240px;
+        height: 260px;
+      }
+
+      /* Counter display */
+      .interest-counter {
+        position: absolute;
+        top: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+        text-align: center;
+        opacity: 0;
+      }
+
+      .anim-interest.play .interest-counter {
+        animation: fadeIn 0.4s ease 0.2s forwards;
+      }
+
+      .interest-label {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text-muted);
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+      }
+
+      .interest-value {
+        font-size: 48px;
+        font-weight: 800;
+        color: var(--gold);
+        line-height: 1;
+        display: flex;
+        align-items: baseline;
+        justify-content: center;
+        gap: 1px;
+      }
+
+      .interest-pct {
+        font-size: 28px;
+      }
+
+      .interest-num {
+        animation: none;
+      }
+
+      .anim-interest.play .interest-num {
+        animation: countUp 2s ease-out 0.5s forwards;
+      }
+
+      @keyframes countUp {
+        0% {
+          content: "0";
+        }
+      }
+
+      /* We use a trick: clip successive spans */
+      .interest-digit {
+        display: inline-block;
+        overflow: hidden;
+        height: 1.1em;
+        vertical-align: bottom;
+      }
+
+      .interest-digit-inner {
+        display: flex;
+        flex-direction: column;
+        animation: none;
+        line-height: 1.1;
+      }
+
+      .anim-interest.play .interest-digit-inner {
+        animation: digitRoll 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.5s
+          forwards;
+      }
+
+      @keyframes digitRoll {
+        0% {
+          transform: translateY(0);
+        }
+        100% {
+          transform: translateY(calc(-100% + 1.1em));
+        }
+      }
+
+      /* Graph area */
+      .interest-graph {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 200px;
+        height: 120px;
+      }
+
+      .interest-graph-svg {
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+      }
+
+      /* Grid lines */
+      .graph-grid {
+        stroke: var(--border-light);
+        stroke-width: 1;
+      }
+
+      /* The rising line */
+      .graph-line {
+        fill: none;
+        stroke: var(--gold);
+        stroke-width: 2.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-dasharray: 300;
+        stroke-dashoffset: 300;
+      }
+
+      .anim-interest.play .graph-line {
+        animation: lineDraw 1.8s ease-out 0.8s forwards;
+      }
+
+      @keyframes lineDraw {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+
+      /* Area fill under the line */
+      .graph-area {
+        fill: url(#goldGrad);
+        opacity: 0;
+      }
+
+      .anim-interest.play .graph-area {
+        animation: fadeIn 0.6s ease 2.4s forwards;
+      }
+
+      /* Endpoint dot */
+      .graph-dot {
+        fill: var(--gold);
+        opacity: 0;
+        transform-origin: 175px 18px;
+        transform: scale(0);
+      }
+
+      .anim-interest.play .graph-dot {
+        animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 2.5s forwards;
+      }
+
+      /* End label */
+      .graph-end-label {
+        position: absolute;
+        top: 8px;
+        right: 0px;
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--gold);
+        opacity: 0;
+        background: var(--gold-pale);
+        padding: 2px 6px;
+        border-radius: 4px;
+        border: 1px solid var(--gold-border);
+        white-space: nowrap;
+      }
+
+      .anim-interest.play .graph-end-label {
+        animation: slideUp 0.4s ease 2.6s forwards;
+      }
+
+      /* ========================================
+         10. Loan Approval
+         ======================================== */
+      .anim-loan {
+        position: relative;
+        width: 220px;
+        height: 250px;
+      }
+
+      /* Document */
+      .loan-doc {
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%) translateY(30px);
+        opacity: 0;
+        width: 120px;
+        height: 155px;
+        background: var(--surface);
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07);
+        overflow: hidden;
+      }
+
+      .anim-loan.play .loan-doc {
+        animation: invoiceSlide 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s
+          forwards;
+      }
+
+      .loan-doc-header {
+        background: var(--coffee);
+        height: 26px;
+        display: flex;
+        align-items: center;
+        padding: 0 10px;
+        gap: 5px;
+      }
+
+      .loan-doc-title {
+        font-size: 8px;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.85);
+        letter-spacing: 0.5px;
+      }
+
+      .loan-line {
+        margin: 8px 10px 0;
+        height: 3px;
+        background: var(--border-light);
+        border-radius: 2px;
+      }
+
+      .loan-line.l1 {
+        width: 80%;
+      }
+      .loan-line.l2 {
+        width: 60%;
+        margin-top: 5px;
+      }
+      .loan-line.l3 {
+        width: 90%;
+        margin-top: 5px;
+      }
+      .loan-line.l4 {
+        width: 50%;
+        margin-top: 5px;
+      }
+      .loan-line.l5 {
+        width: 70%;
+        margin-top: 5px;
+      }
+
+      .loan-amount-box {
+        margin: 10px 10px 0;
+        height: 18px;
+        background: var(--gold-pale);
+        border: 1px solid var(--gold-border);
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 6px;
+      }
+
+      .loan-amount-label {
+        font-size: 7px;
+        color: var(--text-muted);
+        font-weight: 600;
+      }
+      .loan-amount-value {
+        font-size: 8px;
+        color: var(--gold);
+        font-weight: 800;
+      }
+
+      /* Magnifying glass */
+      .loan-mag {
+        position: absolute;
+        top: 30px;
+        right: 10px;
+        width: 48px;
+        height: 48px;
+        opacity: 0;
+        transform: scale(0.7) rotate(-20deg);
+      }
+
+      .anim-loan.play .loan-mag {
+        animation:
+          magAppear 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.9s forwards,
+          magScan 1.5s ease-in-out 1.4s forwards;
+      }
+
+      @keyframes magAppear {
+        0% {
+          opacity: 0;
+          transform: scale(0.7) rotate(-20deg);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1) rotate(0deg);
+        }
+      }
+
+      @keyframes magScan {
+        0% {
+          top: 30px;
+          right: 10px;
+        }
+        30% {
+          top: 60px;
+          right: 5px;
+        }
+        60% {
+          top: 80px;
+          right: 25px;
+        }
+        80% {
+          top: 50px;
+          right: 15px;
+        }
+        100% {
+          top: 40px;
+          right: 12px;
+        }
+      }
+
+      /* Scan highlight line moving */
+      .loan-scan-line {
+        position: absolute;
+        left: 12px;
+        right: 12px;
+        height: 2px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(176, 141, 62, 0.6),
+          transparent
+        );
+        top: 50px;
+        opacity: 0;
+        border-radius: 1px;
+      }
+
+      .anim-loan.play .loan-scan-line {
+        animation: scanMove 1.5s ease-in-out 1.4s forwards;
+      }
+
+      @keyframes scanMove {
+        0% {
+          opacity: 0;
+          top: 50px;
+        }
+        10% {
+          opacity: 1;
+        }
+        50% {
+          top: 130px;
+          opacity: 1;
+        }
+        90% {
+          top: 80px;
+          opacity: 0.5;
+        }
+        100% {
+          opacity: 0;
+          top: 60px;
+        }
+      }
+
+      /* Green seal stamp */
+      .loan-seal {
+        position: absolute;
+        top: 60px;
+        left: 50%;
+        transform: translateX(-50%) scale(0) rotate(-15deg);
+        opacity: 0;
+        width: 76px;
+        height: 76px;
+      }
+
+      .anim-loan.play .loan-seal {
+        animation: sealStamp 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 3s forwards;
+      }
+
+      @keyframes sealStamp {
+        0% {
+          opacity: 0;
+          transform: translateX(-50%) scale(0) rotate(-15deg);
+        }
+        60% {
+          opacity: 1;
+          transform: translateX(-50%) scale(1.2) rotate(-12deg);
+        }
+        80% {
+          transform: translateX(-50%) scale(0.95) rotate(-14deg);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(-50%) scale(1) rotate(-12deg);
+        }
+      }
+
+      /* Seal impact ripple */
+      .loan-ripple {
+        position: absolute;
+        top: 92px;
+        left: 50%;
+        transform: translateX(-50%) scale(0);
+        width: 100px;
+        height: 50px;
+        border: 2px solid rgba(76, 175, 80, 0.4);
+        border-radius: 50%;
+        opacity: 0;
+      }
+
+      .anim-loan.play .loan-ripple {
+        animation: impactRing 0.5s ease-out 3.6s forwards;
+      }
+
+      /* ========================================
+         Mobile
+         ======================================== */
+      @media (max-width: 768px) {
+        .showcase-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-header">
+      <h1>Finance Scenes</h1>
+      <p>금융 컨셉 애니메이션 10종 — 자금·결제·성장·승인</p>
+    </div>
+
+    <div class="showcase-grid">
+      <!-- 1. Safe Unlock -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-safe play" id="anim1">
+            <div class="safe-glow"></div>
+            <div class="safe-body"></div>
+            <div class="safe-door">
+              <div class="safe-door-inner">
+                <div class="safe-dial"></div>
+                <div class="safe-handle"></div>
+              </div>
+            </div>
+            <div class="safe-coins">
+              <div class="safe-coin">₩</div>
+              <div class="safe-coin">₩</div>
+              <div class="safe-coin">₩</div>
+              <div class="safe-coin">₩</div>
+              <div class="safe-coin">₩</div>
+              <div class="safe-coin">₩</div>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">1</div>
+          <h3>Safe Unlock</h3>
+          <div class="meaning">자금의 문을 열다</div>
+          <div class="desc">
+            금고 다이얼 회전 → 문 개방 → 금화 유출. 자금 조달 승인 순간 표현.
+          </div>
+          <button class="replay-btn" onclick="replay('anim1')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 2. Coin Stack -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-coinstack play" id="anim2">
+            <div class="stack-platform"></div>
+            <div class="stack-coin"></div>
+            <div class="stack-coin"></div>
+            <div class="stack-coin"></div>
+            <div class="stack-coin"></div>
+            <div class="stack-coin"></div>
+            <div class="stack-coin"></div>
+            <div class="stack-coin"></div>
+            <div class="stack-coin"></div>
+            <div class="stack-coin"></div>
+            <div class="stack-sparkle">✦</div>
+            <div class="stack-badge">+₩50,000,000</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">2</div>
+          <h3>Coin Stack</h3>
+          <div class="meaning">자금이 쌓여가는 과정</div>
+          <div class="desc">
+            코인 10개가 순차 낙하하며 탑을 쌓는다. 자금 누적·성장 표현.
+          </div>
+          <button class="replay-btn" onclick="replay('anim2')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 3. Card Payment -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-card play" id="anim3">
+            <div class="credit-card"></div>
+            <div class="card-reader">
+              <div class="reader-screen">
+                <span class="reader-screen-text">완 료</span>
+              </div>
+              <div class="card-reader-slot"></div>
+            </div>
+            <div class="card-check">
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#fff"
+                stroke-width="3"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="5 12 10 17 19 7"></polyline>
+              </svg>
+            </div>
+            <div class="card-approval">결제 승인</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">3</div>
+          <h3>Card Payment</h3>
+          <div class="meaning">결제 승인</div>
+          <div class="desc">
+            카드 슬라이드 → 단말기 처리 → 체크마크 팝 → 완료 배지.
+          </div>
+          <button class="replay-btn" onclick="replay('anim3')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 4. Money Growth -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-growth play" id="anim4">
+            <div class="growth-soil"></div>
+            <div class="growth-seed-coin">₩</div>
+            <div class="growth-stem"></div>
+            <div class="growth-leaf left"></div>
+            <div class="growth-leaf right"></div>
+            <div class="growth-bloom">
+              <svg viewBox="0 0 54 54" width="54" height="54">
+                <!-- Petals -->
+                <ellipse
+                  cx="27"
+                  cy="12"
+                  rx="7"
+                  ry="11"
+                  fill="#c9a84c"
+                  opacity="0.8"
+                />
+                <ellipse
+                  cx="27"
+                  cy="12"
+                  rx="7"
+                  ry="11"
+                  fill="#c9a84c"
+                  opacity="0.8"
+                  transform="rotate(60 27 27)"
+                />
+                <ellipse
+                  cx="27"
+                  cy="12"
+                  rx="7"
+                  ry="11"
+                  fill="#c9a84c"
+                  opacity="0.8"
+                  transform="rotate(120 27 27)"
+                />
+                <ellipse
+                  cx="27"
+                  cy="12"
+                  rx="7"
+                  ry="11"
+                  fill="#c9a84c"
+                  opacity="0.8"
+                  transform="rotate(180 27 27)"
+                />
+                <ellipse
+                  cx="27"
+                  cy="12"
+                  rx="7"
+                  ry="11"
+                  fill="#c9a84c"
+                  opacity="0.8"
+                  transform="rotate(240 27 27)"
+                />
+                <ellipse
+                  cx="27"
+                  cy="12"
+                  rx="7"
+                  ry="11"
+                  fill="#c9a84c"
+                  opacity="0.8"
+                  transform="rotate(300 27 27)"
+                />
+                <!-- Center coin -->
+                <circle cx="27" cy="27" r="12" fill="#b08d3e" />
+                <text
+                  x="27"
+                  y="31"
+                  text-anchor="middle"
+                  font-size="11"
+                  font-weight="800"
+                  fill="#fff"
+                >
+                  ₩
+                </text>
+              </svg>
+            </div>
+            <div class="growth-particle"></div>
+            <div class="growth-particle"></div>
+            <div class="growth-particle"></div>
+            <div class="growth-particle"></div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">4</div>
+          <h3>Money Growth</h3>
+          <div class="meaning">투자가 성장으로</div>
+          <div class="desc">
+            코인 씨앗 → 줄기 성장 → 잎 전개 → 황금 꽃 개화. 투자 수익 표현.
+          </div>
+          <button class="replay-btn" onclick="replay('anim4')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 5. Piggy Bank -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-piggy play" id="anim5">
+            <div class="piggy-body">
+              <svg width="120" height="100" viewBox="0 0 120 100">
+                <!-- Body -->
+                <ellipse cx="58" cy="58" rx="42" ry="36" fill="#d4a5a0" />
+                <!-- Head -->
+                <circle cx="96" cy="48" r="18" fill="#d4a5a0" />
+                <!-- Ear -->
+                <ellipse cx="93" cy="33" rx="7" ry="9" fill="#c4857f" />
+                <ellipse cx="93" cy="33" rx="4" ry="6" fill="#e8b5b0" />
+                <!-- Eye -->
+                <circle cx="103" cy="43" r="3" fill="#5c3428" />
+                <circle cx="104" cy="42" r="1" fill="#fff" />
+                <!-- Snout -->
+                <ellipse cx="112" cy="50" rx="8" ry="6" fill="#c4857f" />
+                <circle cx="110" cy="50" r="1.5" fill="#8a4a44" />
+                <circle cx="114" cy="50" r="1.5" fill="#8a4a44" />
+                <!-- Coin slot -->
+                <rect
+                  x="46"
+                  y="23"
+                  width="22"
+                  height="5"
+                  rx="2.5"
+                  fill="#8a4a44"
+                />
+                <!-- Legs -->
+                <rect
+                  x="26"
+                  y="86"
+                  width="12"
+                  height="14"
+                  rx="4"
+                  fill="#c4857f"
+                />
+                <rect
+                  x="42"
+                  y="88"
+                  width="12"
+                  height="12"
+                  rx="4"
+                  fill="#c4857f"
+                />
+                <rect
+                  x="62"
+                  y="88"
+                  width="12"
+                  height="12"
+                  rx="4"
+                  fill="#c4857f"
+                />
+                <rect
+                  x="78"
+                  y="86"
+                  width="12"
+                  height="14"
+                  rx="4"
+                  fill="#c4857f"
+                />
+                <!-- Tail -->
+                <path
+                  d="M18 55 Q8 50 12 42 Q16 34 10 30"
+                  fill="none"
+                  stroke="#c4857f"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                />
+                <!-- Cheek blush -->
+                <circle cx="80" cy="62" r="8" fill="#e8959080" />
+                <!-- Gold coin highlights on body -->
+                <text
+                  x="52"
+                  y="68"
+                  font-size="13"
+                  font-weight="800"
+                  fill="rgba(176,141,62,0.4)"
+                >
+                  ₩
+                </text>
+              </svg>
+            </div>
+            <div class="piggy-coin">₩</div>
+            <div class="piggy-coin2"></div>
+            <div class="piggy-slot-flash"></div>
+            <div class="piggy-amount">저축 완료 ✓</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">5</div>
+          <h3>Piggy Bank</h3>
+          <div class="meaning">저축과 준비</div>
+          <div class="desc">
+            코인이 포물선 궤적으로 저금통 슬롯에 투입. 저축·준비 개념 표현.
+          </div>
+          <button class="replay-btn" onclick="replay('anim5')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 6. Invoice Stamp -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-invoice play" id="anim6">
+            <div class="invoice-doc">
+              <div class="invoice-header">
+                <span class="invoice-header-text">INVOICE · 청구서</span>
+              </div>
+              <div class="invoice-line short"></div>
+              <div class="invoice-line med"></div>
+              <div class="invoice-line long"></div>
+              <div class="invoice-line short"></div>
+              <div class="invoice-line med"></div>
+              <div class="invoice-amount">
+                <span class="invoice-amount-text">₩ 50,000,000</span>
+              </div>
+              <div
+                class="invoice-line short"
+                style="margin-top: 8px; width: 40%"
+              ></div>
+            </div>
+            <div class="stamp">
+              <svg viewBox="0 0 70 70" width="70" height="70">
+                <!-- Stamp body -->
+                <rect
+                  x="5"
+                  y="42"
+                  width="60"
+                  height="18"
+                  rx="4"
+                  fill="#8a4a44"
+                />
+                <rect
+                  x="18"
+                  y="30"
+                  width="34"
+                  height="14"
+                  rx="3"
+                  fill="#7a3a34"
+                />
+                <rect
+                  x="22"
+                  y="16"
+                  width="26"
+                  height="16"
+                  rx="3"
+                  fill="#6a2a24"
+                />
+                <!-- Ink pad area -->
+                <rect
+                  x="8"
+                  y="42"
+                  width="54"
+                  height="4"
+                  rx="2"
+                  fill="rgba(255,255,255,0.15)"
+                />
+              </svg>
+            </div>
+            <div class="stamp-impact"></div>
+            <div class="invoice-badge">✓ 승인</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">6</div>
+          <h3>Invoice Stamp</h3>
+          <div class="meaning">자금 승인</div>
+          <div class="desc">
+            청구서 슬라이드 인 → 스탬프 낙하 → 충격파 → 승인 배지 팝업.
+          </div>
+          <button class="replay-btn" onclick="replay('anim6')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 7. Budget Chart (Pie) -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-pie play" id="anim7">
+            <div class="pie-wrapper">
+              <svg class="pie-svg" viewBox="0 0 160 160">
+                <defs>
+                  <radialGradient id="goldGrad" cx="50%" cy="50%" r="50%">
+                    <stop
+                      offset="0%"
+                      stop-color="#b08d3e"
+                      stop-opacity="0.15"
+                    />
+                    <stop offset="100%" stop-color="#b08d3e" stop-opacity="0" />
+                  </radialGradient>
+                </defs>
+                <circle class="pie-track" cx="80" cy="80" r="55" />
+                <circle class="pie-seg s1" cx="80" cy="80" r="55" />
+                <circle class="pie-seg s2" cx="80" cy="80" r="55" />
+                <circle class="pie-seg s3" cx="80" cy="80" r="55" />
+                <circle class="pie-seg s4" cx="80" cy="80" r="55" />
+                <!-- Center hole -->
+                <circle cx="80" cy="80" r="38" fill="#faf8f5" />
+              </svg>
+              <div class="pie-center">
+                <span class="pie-center-value">100%</span>
+                <span class="pie-center-label">배분 완료</span>
+              </div>
+            </div>
+            <div class="pie-legend">
+              <div class="pie-legend-item">
+                <div
+                  class="pie-legend-dot"
+                  style="background: var(--gold)"
+                ></div>
+                <span>운영비 35%</span>
+              </div>
+              <div class="pie-legend-item">
+                <div class="pie-legend-dot" style="background: #c9a84c"></div>
+                <span>개발비 25%</span>
+              </div>
+              <div class="pie-legend-item">
+                <div
+                  class="pie-legend-dot"
+                  style="background: var(--coffee)"
+                ></div>
+                <span>마케팅 20%</span>
+              </div>
+              <div class="pie-legend-item">
+                <div class="pie-legend-dot" style="background: #9c9088"></div>
+                <span>기타 20%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">7</div>
+          <h3>Budget Chart</h3>
+          <div class="meaning">자금 배분 계획</div>
+          <div class="desc">
+            파이 차트 섹터가 순서대로 채워지며 레전드 등장. 예산 배분 시각화.
+          </div>
+          <button class="replay-btn" onclick="replay('anim7')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 8. Fund Transfer -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-transfer play" id="anim8">
+            <div class="wallet left">
+              <div class="wallet-flap"></div>
+              <div class="wallet-body">
+                <div class="wallet-clasp"></div>
+              </div>
+              <div class="wallet-label">출금</div>
+            </div>
+            <div class="wallet right">
+              <div class="wallet-flap"></div>
+              <div class="wallet-body">
+                <div class="wallet-clasp"></div>
+                <div class="wallet-plus">+</div>
+              </div>
+              <div class="wallet-label">입금</div>
+            </div>
+            <svg
+              class="transfer-path-svg"
+              width="130"
+              height="30"
+              viewBox="0 0 130 30"
+            >
+              <path
+                d="M5 20 Q65 -5 125 20"
+                fill="none"
+                stroke="var(--border)"
+                stroke-width="1.5"
+                stroke-dasharray="4 4"
+              />
+              <!-- Arrow head -->
+              <polygon points="121,14 130,20 121,26" fill="var(--border)" />
+            </svg>
+            <div class="transfer-trail"></div>
+            <div class="transfer-coin">₩</div>
+            <div class="transfer-success">이체 완료 ✓</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">8</div>
+          <h3>Fund Transfer</h3>
+          <div class="meaning">자금 이동</div>
+          <div class="desc">
+            왼쪽 지갑 → 포물선 궤적 코인 이동 → 오른쪽 지갑 수신 → 완료 배지.
+          </div>
+          <button class="replay-btn" onclick="replay('anim8')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 9. Interest Rate -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-interest play" id="anim9">
+            <div class="interest-counter">
+              <div class="interest-label">연 금리 혜택</div>
+              <div class="interest-value">
+                <!-- Rolling digit trick using stacked spans -->
+                <div class="interest-digit" style="width: 0.6em">
+                  <div class="interest-digit-inner">
+                    <span>0</span><span>1</span><span>2</span><span>3</span>
+                  </div>
+                </div>
+                <div class="interest-digit" style="width: 0.6em">
+                  <div
+                    class="interest-digit-inner"
+                    style="animation-delay: 0.15s !important"
+                  >
+                    <span>0</span><span>1</span><span>2</span><span>3</span
+                    ><span>4</span><span>5</span>
+                  </div>
+                </div>
+                <span class="interest-pct">%</span>
+              </div>
+            </div>
+            <div class="interest-graph">
+              <svg class="interest-graph-svg" viewBox="0 0 200 120">
+                <!-- Grid -->
+                <line class="graph-grid" x1="0" y1="90" x2="200" y2="90" />
+                <line class="graph-grid" x1="0" y1="60" x2="200" y2="60" />
+                <line class="graph-grid" x1="0" y1="30" x2="200" y2="30" />
+                <!-- Y labels -->
+                <text
+                  x="0"
+                  y="93"
+                  font-size="8"
+                  fill="#9c9088"
+                  font-family="Pretendard, sans-serif"
+                >
+                  0%
+                </text>
+                <text
+                  x="0"
+                  y="63"
+                  font-size="8"
+                  fill="#9c9088"
+                  font-family="Pretendard, sans-serif"
+                >
+                  2%
+                </text>
+                <text
+                  x="0"
+                  y="33"
+                  font-size="8"
+                  fill="#9c9088"
+                  font-family="Pretendard, sans-serif"
+                >
+                  4%
+                </text>
+                <!-- Rising area fill (behind line) -->
+                <path
+                  class="graph-area"
+                  d="M20 90 C50 85, 80 75, 110 55 S150 30, 175 18 L175 90 Z"
+                />
+                <!-- Rising line -->
+                <path
+                  class="graph-line"
+                  d="M20 90 C50 85, 80 75, 110 55 S150 30, 175 18"
+                />
+                <!-- Endpoint highlight dot -->
+                <circle class="graph-dot" cx="175" cy="18" r="5" />
+              </svg>
+              <div class="graph-end-label">3.5% 달성</div>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">9</div>
+          <h3>Interest Rate</h3>
+          <div class="meaning">금리 혜택</div>
+          <div class="desc">
+            숫자 롤링 카운터 + 상승 꺾은선 그래프 드로잉. 금리 혜택 시각화.
+          </div>
+          <button class="replay-btn" onclick="replay('anim9')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 10. Loan Approval -->
+      <div class="showcase-card">
+        <div class="anim-stage">
+          <div class="anim-loan play" id="anim10">
+            <div class="loan-doc">
+              <div class="loan-doc-header">
+                <span class="loan-doc-title">대출 신청서</span>
+              </div>
+              <div class="loan-line l1"></div>
+              <div class="loan-line l2"></div>
+              <div class="loan-line l3"></div>
+              <div class="loan-line l4"></div>
+              <div class="loan-line l5"></div>
+              <div class="loan-amount-box">
+                <span class="loan-amount-label">신청금액</span>
+                <span class="loan-amount-value">₩100,000,000</span>
+              </div>
+              <div class="loan-line l2" style="margin-top: 8px"></div>
+              <div class="loan-line l4" style="margin-top: 4px"></div>
+            </div>
+            <div class="loan-scan-line"></div>
+            <div class="loan-mag">
+              <svg viewBox="0 0 48 48" width="48" height="48">
+                <circle
+                  cx="20"
+                  cy="20"
+                  r="14"
+                  fill="none"
+                  stroke="var(--coffee)"
+                  stroke-width="3"
+                />
+                <circle
+                  cx="20"
+                  cy="20"
+                  r="9"
+                  fill="rgba(176,141,62,0.1)"
+                  stroke="none"
+                />
+                <line
+                  x1="30"
+                  y1="30"
+                  x2="44"
+                  y2="44"
+                  stroke="var(--coffee)"
+                  stroke-width="3.5"
+                  stroke-linecap="round"
+                />
+                <!-- Lens reflection -->
+                <path
+                  d="M13 14 Q16 11 21 12"
+                  fill="none"
+                  stroke="rgba(255,255,255,0.5)"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </div>
+            <div class="loan-seal">
+              <svg viewBox="0 0 76 76" width="76" height="76">
+                <!-- Outer ring -->
+                <circle
+                  cx="38"
+                  cy="38"
+                  r="35"
+                  fill="none"
+                  stroke="#4caf50"
+                  stroke-width="3"
+                  stroke-dasharray="6 3"
+                />
+                <!-- Inner ring -->
+                <circle cx="38" cy="38" r="29" fill="rgba(76,175,80,0.12)" />
+                <!-- Star rays -->
+                <circle cx="38" cy="38" r="25" fill="rgba(76,175,80,0.18)" />
+                <!-- Text -->
+                <text
+                  x="38"
+                  y="35"
+                  text-anchor="middle"
+                  font-size="9"
+                  font-weight="800"
+                  fill="#2e7d32"
+                  font-family="Pretendard, sans-serif"
+                  letter-spacing="0.5"
+                >
+                  대출
+                </text>
+                <text
+                  x="38"
+                  y="47"
+                  text-anchor="middle"
+                  font-size="9"
+                  font-weight="800"
+                  fill="#2e7d32"
+                  font-family="Pretendard, sans-serif"
+                  letter-spacing="0.5"
+                >
+                  승인
+                </text>
+                <!-- Checkmark -->
+                <path
+                  d="M28 38 L35 45 L50 30"
+                  fill="none"
+                  stroke="#4caf50"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </div>
+            <div class="loan-ripple"></div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">10</div>
+          <h3>Loan Approval</h3>
+          <div class="meaning">대출 승인</div>
+          <div class="desc">
+            서류 등장 → 돋보기 스캔 → 초록 승인 씰 스탬프 → 충격파 확산.
+          </div>
+          <button class="replay-btn" onclick="replay('anim10')">
+            &#8635; 다시 보기
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function replay(id) {
+        const el = document.getElementById(id);
+        el.classList.remove("play");
+        void el.offsetWidth; // force reflow
+        el.classList.add("play");
+      }
+    </script>
+  </body>
+</html>

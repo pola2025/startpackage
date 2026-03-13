@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    @keyframes smile {
+      0%, 100% { d: path("M8 14s1.5 0 4 0 4 0 4 0"); }
+      50% { d: path("M8 14s1.5 2 4 2 4-2 4-2"); }
+    }
+    @keyframes smileFallback {
+      0%, 100% { transform: scaleY(0.3); }
+      50% { transform: scaleY(1); }
+    }
+    .mouth {
+      transform-origin: 12px 15px;
+      animation: smileFallback 2s ease-in-out infinite;
+    }
+  </style>
+  <circle cx="12" cy="12" r="10"/>
+  <line x1="9" y1="9" x2="9.01" y2="9"/>
+  <line x1="15" y1="9" x2="15.01" y2="9"/>
+  <path class="mouth" d="M8 14s1.5 2 4 2 4-2 4-2"/>
+</svg>

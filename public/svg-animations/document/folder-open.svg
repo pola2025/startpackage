@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .flap {
+      transform-origin: 12px 10px;
+      transform-box: fill-box;
+      animation: openLid 2s ease-in-out infinite;
+    }
+    @keyframes openLid {
+      0%, 35%, 100% { transform: rotate(-15deg); }
+      55% { transform: rotate(0deg); }
+    }
+  </style>
+  <path d="M3 10h18v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V10z"/>
+  <path class="flap" d="M3 10l9-5 9 5H3z"/>
+</svg>

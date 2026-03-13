@@ -147,7 +147,7 @@ export default function HomePage() {
       <div className="absolute inset-0 pattern-background opacity-30" />
 
       <div className="relative flex min-h-screen items-center justify-center p-4">
-        <Card className="w-full max-w-lg bg-white border-2 border-gray-200 shadow-xl">
+        <Card className="w-full max-w-lg bg-white border border-gray-200 shadow-xl">
           <CardHeader className="space-y-3 text-center">
             <div className="mx-auto w-16 h-16 rounded-full bg-navy-900 flex items-center justify-center shadow-md">
               <User className="w-8 h-8 text-white" />
@@ -189,7 +189,7 @@ export default function HomePage() {
                       setFormData({ ...formData, cohortId: value })
                     }
                   >
-                    <SelectTrigger className="bg-white border-2 border-gray-300 focus:border-gold-500 text-gray-900">
+                    <SelectTrigger className="bg-white border border-gray-300 focus:border-gold-500 text-gray-900">
                       <SelectValue placeholder="기수를 선택하세요" />
                     </SelectTrigger>
                     <SelectContent className="bg-white border-gray-200">
@@ -230,7 +230,7 @@ export default function HomePage() {
                       setFormData({ ...formData, 이름: e.target.value })
                     }
                     required
-                    className="bg-white border-2 border-gray-300 focus:border-gold-500 text-gray-900"
+                    className="bg-white border border-gray-300 focus:border-gold-500 text-gray-900"
                   />
                 </div>
 
@@ -254,7 +254,7 @@ export default function HomePage() {
                       })
                     }
                     required
-                    className="bg-white border-2 border-gray-300 focus:border-gold-500 text-gray-900"
+                    className="bg-white border border-gray-300 focus:border-gold-500 text-gray-900"
                   />
                   <p className="text-xs text-gray-600">
                     숫자만 입력 (하이픈은 자동 제거됩니다)
@@ -278,12 +278,12 @@ export default function HomePage() {
                       setFormData({ ...formData, 이메일: e.target.value })
                     }
                     required
-                    className="bg-white border-2 border-gray-300 focus:border-gold-500 text-gray-900"
+                    className="bg-white border border-gray-300 focus:border-gold-500 text-gray-900"
                   />
                 </div>
 
                 {error && (
-                  <div className="border-2 border-red-300 bg-red-50 rounded-md p-3 text-sm text-red-700">
+                  <div className="border border-red-300 bg-red-50 rounded-md p-3 text-sm text-red-700">
                     {error}
                   </div>
                 )}
@@ -301,7 +301,7 @@ export default function HomePage() {
 
             {step === 2 && (
               <form onSubmit={handleStep2Submit} className="space-y-5">
-                <div className="border-2 border-gold-300 rounded-lg p-4 space-y-2 bg-gold-50">
+                <div className="border border-gold-300 rounded-lg p-4 space-y-2 bg-gold-50">
                   <p className="text-sm font-medium text-navy-700 flex items-center gap-2">
                     <Check className="w-4 h-4" />
                     입력하신 정보
@@ -356,7 +356,7 @@ export default function HomePage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="bg-white border-2 border-gray-300 focus:border-gold-500 text-gray-900"
+                    className="bg-white border border-gray-300 focus:border-gold-500 text-gray-900"
                   />
                 </div>
 
@@ -375,12 +375,12 @@ export default function HomePage() {
                     value={passwordConfirm}
                     onChange={(e) => setPasswordConfirm(e.target.value)}
                     required
-                    className="bg-white border-2 border-gray-300 focus:border-gold-500 text-gray-900"
+                    className="bg-white border border-gray-300 focus:border-gold-500 text-gray-900"
                   />
                 </div>
 
                 {error && (
-                  <div className="border-2 border-red-300 bg-red-50 rounded-md p-3 text-sm text-red-700">
+                  <div className="border border-red-300 bg-red-50 rounded-md p-3 text-sm text-red-700">
                     {error}
                   </div>
                 )}

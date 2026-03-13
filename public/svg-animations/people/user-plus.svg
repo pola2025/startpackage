@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    @keyframes scaleInRotate {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      25% { transform: scale(1.2) rotate(90deg); }
+      50% { transform: scale(1) rotate(180deg); }
+      75% { transform: scale(1.2) rotate(270deg); }
+    }
+    .plus {
+      transform-origin: 20px 8.5px;
+      animation: scaleInRotate 2s ease-in-out infinite;
+    }
+  </style>
+  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+  <circle cx="8.5" cy="7" r="4"/>
+  <g class="plus">
+    <line x1="20" y1="5" x2="20" y2="12"/>
+    <line x1="16.5" y1="8.5" x2="23.5" y2="8.5"/>
+  </g>
+</svg>

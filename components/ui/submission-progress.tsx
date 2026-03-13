@@ -59,7 +59,7 @@ export function SubmissionProgress({
       {/* Status Badge */}
       <div
         className={cn(
-          "inline-flex items-center gap-2 px-4 py-2 rounded-full border-2",
+          "inline-flex items-center gap-2 px-4 py-2 rounded-full border",
           config.bgColor,
           config.borderColor,
         )}
@@ -74,7 +74,7 @@ export function SubmissionProgress({
       <div className="space-y-2">
         <div className="flex items-center justify-between text-sm">
           <span className="font-semibold text-gray-900">전체 진행률</span>
-          <span className="font-bold text-gold-600">{percentage}%</span>
+          <span className="font-bold text-navy-700">{percentage}%</span>
         </div>
         <Progress value={percentage} className="h-3" />
         <p className="text-xs text-gray-500">
@@ -90,7 +90,7 @@ export function SubmissionProgress({
             <div
               key={index}
               className={cn(
-                "flex items-center gap-3 p-3 rounded-lg border-2 transition-all",
+                "flex items-center gap-3 p-3 rounded-lg border transition-all",
                 field.completed
                   ? "bg-ok-50 border-ok-100"
                   : "bg-white border-gray-200 animate-pulse",

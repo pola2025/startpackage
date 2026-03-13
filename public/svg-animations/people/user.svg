@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .user-head {
+      stroke-dasharray: 26;
+      stroke-dashoffset: 26;
+      animation: drawHead 3.5s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+      transform-origin: 12px 7px;
+    }
+    .user-body {
+      stroke-dasharray: 40;
+      stroke-dashoffset: 40;
+      animation: drawBody 3.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+    }
+    .user-head-pop {
+      animation: headPop 3.5s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+      transform-origin: 12px 7px;
+    }
+    @keyframes drawHead {
+      0% { stroke-dashoffset: 26; }
+      25% { stroke-dashoffset: 0; }
+      80% { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: 0; }
+    }
+    @keyframes drawBody {
+      0%, 20% { stroke-dashoffset: 40; }
+      50% { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: 0; }
+    }
+    @keyframes headPop {
+      0% { transform: scale(0); opacity: 0; }
+      12% { transform: scale(1.2); opacity: 1; }
+      20% { transform: scale(0.9); }
+      28% { transform: scale(1.05); }
+      35%, 80% { transform: scale(1); opacity: 1; }
+      95% { opacity: 0; }
+      100% { transform: scale(0); opacity: 0; }
+    }
+  </style>
+  <g class="user-head-pop">
+    <circle class="user-head" cx="12" cy="7" r="4" />
+  </g>
+  <path class="user-body" d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+</svg>

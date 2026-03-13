@@ -21,7 +21,7 @@ export default function AdminLoginPage() {
   // 로딩 중
   if (status === "loading") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gold-50 via-white to-gold-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-gold-600">로딩 중...</div>
       </div>
     );
@@ -79,13 +79,13 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-gold-50 via-white to-gold-50 overflow-hidden">
+    <div className="relative min-h-screen bg-white overflow-hidden">
       <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.02]" />
 
       <div className="relative flex min-h-screen items-center justify-center p-4">
-        <Card className="w-full max-w-md bg-white shadow-xl border-gold-200">
-          <CardHeader className="space-y-4 text-center border-b border-gold-100 bg-gradient-to-b from-gold-50/30 to-transparent">
-            <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-navy-900 to-navy-800 flex items-center justify-center shadow-lg">
+        <Card className="w-full max-w-md bg-white shadow-xl border-gray-200">
+          <CardHeader className="space-y-4 text-center border-b border-gray-100 bg-white">
+            <div className="mx-auto w-20 h-20 rounded-full bg-navy-900 flex items-center justify-center shadow-lg">
               <Shield className="w-10 h-10 text-white" />
             </div>
             <div>
@@ -116,7 +116,7 @@ export default function AdminLoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={loading}
-                  className="bg-gold-50/50 border-gold-200 focus:border-gold-600 focus:ring-gold-600"
+                  className="bg-gold-50/50 border-gray-200 focus:border-gold-600 focus:ring-gold-600"
                 />
               </div>
 
@@ -140,7 +140,7 @@ export default function AdminLoginPage() {
                   maxLength={6}
                   required
                   disabled={loading}
-                  className="bg-gold-50/50 border-gold-200 focus:border-gold-600 focus:ring-gold-600 text-center text-2xl tracking-[0.5em] font-mono"
+                  className="bg-gold-50/50 border-gray-200 focus:border-gold-600 focus:ring-gold-600 text-center text-2xl tracking-[0.5em] font-mono"
                 />
                 <p className="text-xs text-gold-600">
                   Google Authenticator 앱에서 6자리 코드를 입력하세요
@@ -164,7 +164,7 @@ export default function AdminLoginPage() {
               </Button>
             </form>
 
-            <div className="border-t border-gold-100 pt-4 space-y-2">
+            <div className="border-t border-gray-100 pt-4 space-y-2">
               <p className="text-xs text-center text-gold-600">
                 계정이 없으신가요?{" "}
                 <button

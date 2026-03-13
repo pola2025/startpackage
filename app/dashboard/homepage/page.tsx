@@ -499,7 +499,7 @@ export default function HomepageSettingsPage() {
                 카드번호가 보이도록 촬영해주세요
               </p>
               {cardFrontUrl ? (
-                <div className="relative border-2 border-dashed border-green-400 rounded-lg p-2 bg-green-50">
+                <div className="relative border border-dashed border-green-400 rounded-lg p-2 bg-green-50">
                   {cardFrontUrl === "SLACK_ONLY" ? (
                     <div className="flex flex-col items-center justify-center h-32">
                       <CheckCircle2 className="w-10 h-10 text-green-500 mb-2" />
@@ -525,7 +525,7 @@ export default function HomepageSettingsPage() {
                   </button>
                 </div>
               ) : (
-                <label className="flex flex-col items-center justify-center h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                <label className="flex flex-col items-center justify-center h-32 border border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
                   {uploadingFront ? (
                     <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
                   ) : (
@@ -625,7 +625,7 @@ export default function HomepageSettingsPage() {
                 }}
               >
                 <div
-                  className={`rounded-lg border-2 transition-all overflow-hidden cursor-pointer ${
+                  className={`rounded-lg border transition-all overflow-hidden cursor-pointer ${
                     selectedWebsiteStyle === style.url
                       ? "border-green-600 ring-2 ring-green-300"
                       : "border-gray-300 hover:border-green-400"
@@ -678,7 +678,7 @@ export default function HomepageSettingsPage() {
                 </div>
 
                 {/* 큰 미리보기 Dialog */}
-                <DialogContent className="w-[96vw] sm:w-[90vw] max-w-5xl max-h-[92vh] overflow-y-auto bg-white border-2 border-gray-200 p-2 sm:p-4 md:p-6">
+                <DialogContent className="w-[96vw] sm:w-[90vw] max-w-5xl max-h-[92vh] overflow-y-auto bg-white border border-gray-200 p-2 sm:p-4 md:p-6">
                   <DialogHeader className="pb-2 space-y-1">
                     <DialogTitle className="text-gray-900 text-base sm:text-lg md:text-xl">
                       {style.name} 미리보기
@@ -687,7 +687,7 @@ export default function HomepageSettingsPage() {
                       웹사이트 미리보기
                     </DialogDescription>
                   </DialogHeader>
-                  <div className="w-full aspect-[16/9] overflow-hidden rounded-md border-2 border-gray-200 my-2 sm:my-3 md:my-4 bg-gray-100">
+                  <div className="w-full aspect-[16/9] overflow-hidden rounded-md border border-gray-200 my-2 sm:my-3 md:my-4 bg-gray-100">
                     <iframe
                       src={style.url}
                       className="w-[200%] h-[200%] origin-top-left"
@@ -731,7 +731,7 @@ export default function HomepageSettingsPage() {
           {/* 컬러 컨셉 선택 */}
           <div
             ref={colorSectionRef}
-            className="space-y-3 p-4 rounded-lg border-2 border-green-200 bg-green-50/50"
+            className="space-y-3 p-4 rounded-lg border border-gray-200 bg-white"
           >
             <Label className="text-sm sm:text-base font-semibold">
               선택한 스타일과 컬러 컨셉
@@ -789,7 +789,7 @@ export default function HomepageSettingsPage() {
                   type="color"
                   value={websiteColor}
                   onChange={(e) => setWebsiteColor(e.target.value)}
-                  className="w-20 h-20 rounded-lg border-2 border-gray-300 cursor-pointer"
+                  className="w-20 h-20 rounded-lg border border-gray-300 cursor-pointer"
                 />
                 <div className="flex-1 space-y-2">
                   <Input

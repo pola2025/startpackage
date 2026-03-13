@@ -18,16 +18,34 @@ import {
   X,
   Globe,
   Palette,
+  ChevronDown,
+  Hammer,
+  GraduationCap,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 interface SidebarProps {
   userName: string;
   isGraduated: boolean;
   unreadCount: number;
   pendingDesignCount: number;
+}
+
+interface MenuItem {
+  href: string;
+  icon: any;
+  label: string;
+  badge: number | null;
+}
+
+interface MenuGroup {
+  label: string;
+  icon: any;
+  defaultOpen: boolean;
+  items: MenuItem[];
 }
 
 export function Sidebar({
@@ -40,81 +58,162 @@ export function Sidebar({
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  // 제작진행 그룹의 하위 경로에 있으면 자동으로 열림
+  const isInProductionGroup = [
+    "/dashboard/submission",
+    "/dashboard/homepage",
+    "/dashboard/workflows",
+  ].some((p) => pathname.startsWith(p));
+
+  // 가이드 그룹의 하위 경로에 있으면 자동으로 열림
+  const isInGuideGroup = [
+    "/dashboard/guides",
+    "/dashboard/meta-ads",
+    "/dashboard/design-threads",
+    "/dashboard/announcements",
+    "/dashboard/content-tips",
+  ].some((p) => pathname.startsWith(p));
+
+  const [productionOpen, setProductionOpen] = useState(true);
+  const [guideOpen, setGuideOpen] = useState(isInGuideGroup);
+
   const handleLogout = async () => {
     await signOut({ redirect: false });
     router.push("/");
   };
 
-  const menuItems = [
-    // 일반 사용자 메뉴
-    ...(!isGraduated
-      ? [
-          {
-            href: "/dashboard",
-            icon: LayoutDashboard,
-            label: "대시보드",
-            badge: null,
-          },
-          {
-            href: "/dashboard/submission",
-            icon: FileText,
-            label: "자료 제출",
-            badge: null,
-          },
-          {
-            href: "/dashboard/homepage",
-            icon: Globe,
-            label: "홈페이지 제작요청",
-            badge: null,
-          },
-          {
-            href: "/dashboard/workflows",
-            icon: Workflow,
-            label: "제작 현황",
-            badge: pendingDesignCount > 0 ? pendingDesignCount : null,
-          },
-          {
-            href: "/dashboard/guides",
-            icon: BookOpen,
-            label: "가이드",
-            badge: null,
-          },
-          {
-            href: "/dashboard/meta-ads",
-            icon: Facebook,
-            label: "Meta 광고",
-            badge: null,
-          },
-          {
-            href: "/dashboard/design-threads",
-            icon: Palette,
-            label: "시안 확인",
-            badge: null,
-          },
-        ]
-      : []),
-    // 모든 사용자 메뉴
-    {
-      href: "/dashboard/communication",
-      icon: MessageSquare,
-      label: "문의하기",
-      badge: unreadCount > 0 ? unreadCount : null,
-    },
-    {
-      href: "/dashboard/announcements",
-      icon: Megaphone,
-      label: "마케팅 소식",
-      badge: null,
-    },
-    {
-      href: "/dashboard/content-tips",
-      icon: Lightbulb,
-      label: "콘텐츠 제작 Tip",
-      badge: null,
-    },
-  ];
+  // 제작진행 그룹
+  const productionGroup: MenuGroup = {
+    label: "제작진행",
+    icon: Hammer,
+    defaultOpen: true,
+    items: [
+      {
+        href: "/dashboard/submission",
+        icon: FileText,
+        label: "자료 제출",
+        badge: null,
+      },
+      {
+        href: "/dashboard/homepage",
+        icon: Globe,
+        label: "홈페이지 제작요청",
+        badge: null,
+      },
+      {
+        href: "/dashboard/workflows",
+        icon: Workflow,
+        label: "제작 현황",
+        badge: pendingDesignCount > 0 ? pendingDesignCount : null,
+      },
+    ],
+  };
 
-  const SidebarContent = () => (
+  // 가이드 그룹
+  const guideGroup: MenuGroup = {
+    label: "가이드",
+    icon: GraduationCap,
+    defaultOpen: false,
+    items: [
+      {
+        href: "/dashboard/guides",
+        icon: BookOpen,
+        label: "참고가이드",
+        badge: null,
+      },
+      {
+        href: "/dashboard/meta-ads",
+        icon: Facebook,
+        label: "Meta 광고",
+        badge: null,
+      },
+      {
+        href: "/dashboard/design-threads",
+        icon: Palette,
+        label: "시안 확인",
+        badge: null,
+      },
+      {
+        href: "/dashboard/announcements",
+        icon: Megaphone,
+        label: "마케팅 소식",
+        badge: null,
+      },
+      {
+        href: "/dashboard/content-tips",
+        icon: Lightbulb,
+        label: "콘텐츠 제작 Tip",
+        badge: null,
+      },
+    ],
+  };
+
+  const renderMenuItem = (item: MenuItem, closeMobile?: () => void) => {
+    const Icon = item.icon;
+    const isActive = pathname === item.href;
+
+    return (
+      <Link key={item.href} href={item.href} onClick={closeMobile}>
+        <Button
+          variant="ghost"
+          className={cn(
+            "w-full justify-start pl-10 h-9 text-sm",
+            isActive
+              ? "bg-gold-50 text-gold-600 font-semibold hover:bg-gold-100"
+              : "text-gray-600 hover:text-gray-900 hover:bg-gray-100",
+          )}
+        >
+          <Icon className="w-4 h-4 mr-2.5" />
+          {item.label}
+          {item.badge !== null && item.badge > 0 && (
+            <span className="ml-auto bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+              {item.badge > 9 ? "9+" : item.badge}
+            </span>
+          )}
+        </Button>
+      </Link>
+    );
+  };
+
+  const renderGroup = (
+    group: MenuGroup,
+    isOpen: boolean,
+    setIsOpen: (v: boolean) => void,
+    closeMobile?: () => void,
+  ) => {
+    const GroupIcon = group.icon;
+    const hasActiveBadge = group.items.some(
+      (item) => item.badge !== null && item.badge > 0,
+    );
+
+    return (
+      <div key={group.label}>
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors"
+        >
+          <GroupIcon className="w-4 h-4" />
+          <span className="flex-1 text-left">{group.label}</span>
+          {!isOpen && hasActiveBadge && (
+            <span className="w-2 h-2 rounded-full bg-red-500" />
+          )}
+          <ChevronDown
+            className={cn(
+              "w-4 h-4 transition-transform duration-200",
+              isOpen ? "rotate-0" : "-rotate-90",
+            )}
+          />
+        </button>
+        {isOpen && (
+          <div className="space-y-0.5 pb-1">
+            {group.items.map((item) => renderMenuItem(item, closeMobile))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const SidebarContent = ({ closeMobile }: { closeMobile?: () => void }) => (
     <>
       {/* 로고 */}
       <div className="p-6 border-b border-gray-200">
@@ -127,36 +226,61 @@ export function Sidebar({
       </div>
 
       {/* 네비게이션 */}
-      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = pathname === item.href;
+      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+        {/* 대시보드 - 독립 항목 */}
+        <Link href="/dashboard" onClick={closeMobile}>
+          <Button
+            variant="ghost"
+            className={cn(
+              "w-full justify-start h-9",
+              pathname === "/dashboard"
+                ? "bg-gold-50 text-gold-600 font-semibold hover:bg-gold-100"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100",
+            )}
+          >
+            <LayoutDashboard className="w-5 h-5 mr-3" />
+            대시보드
+          </Button>
+        </Link>
 
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              <Button
-                variant="ghost"
-                className={`w-full justify-start relative ${
-                  isActive
-                    ? "bg-gold-50 text-gold-600 font-semibold hover:bg-gold-100"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                }`}
-              >
-                <Icon className="w-5 h-5 mr-3" />
-                {item.label}
-                {item.badge !== null && item.badge > 0 && (
-                  <span className="ml-auto bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                    {item.badge > 9 ? "9+" : item.badge}
-                  </span>
-                )}
-              </Button>
-            </Link>
-          );
-        })}
+        {/* 제작진행 그룹 - 일반 사용자만 */}
+        {!isGraduated &&
+          renderGroup(
+            productionGroup,
+            productionOpen || isInProductionGroup,
+            setProductionOpen,
+            closeMobile,
+          )}
+
+        {/* 문의하기 - 독립 항목 */}
+        <Link href="/dashboard/communication" onClick={closeMobile}>
+          <Button
+            variant="ghost"
+            className={cn(
+              "w-full justify-start h-9",
+              pathname === "/dashboard/communication"
+                ? "bg-gold-50 text-gold-600 font-semibold hover:bg-gold-100"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100",
+            )}
+          >
+            <MessageSquare className="w-5 h-5 mr-3" />
+            문의하기
+            {unreadCount > 0 && (
+              <span className="ml-auto bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
+            )}
+          </Button>
+        </Link>
+
+        {/* 가이드 그룹 */}
+        {!isGraduated &&
+          renderGroup(
+            guideGroup,
+            guideOpen || isInGuideGroup,
+            setGuideOpen,
+            closeMobile,
+          )}
       </nav>
 
       {/* 사용자 정보 + 로그아웃 */}
@@ -213,7 +337,7 @@ export function Sidebar({
         </div>
       </header>
 
-      {/* Mobile Sidebar */}
+      {/* Mobile Sidebar Drawer */}
       {isMobileMenuOpen && (
         <>
           {/* Overlay */}
@@ -223,8 +347,8 @@ export function Sidebar({
           />
 
           {/* Slide Menu */}
-          <aside className="lg:hidden fixed inset-y-0 right-0 w-64 bg-white shadow-xl z-50 flex flex-col">
-            <SidebarContent />
+          <aside className="lg:hidden fixed inset-y-0 right-0 w-72 bg-white shadow-xl z-50 flex flex-col animate-in slide-in-from-right duration-200">
+            <SidebarContent closeMobile={() => setIsMobileMenuOpen(false)} />
           </aside>
         </>
       )}

@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .br-swing {
+      transform-origin: 12px 3px;
+      animation: brDamped 3s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+    }
+    .br-wave1 {
+      stroke-dasharray: 12;
+      stroke-dashoffset: 12;
+      animation: brWave1 3s ease-out infinite;
+      opacity: 0;
+    }
+    .br-wave2 {
+      stroke-dasharray: 18;
+      stroke-dashoffset: 18;
+      animation: brWave2 3s ease-out infinite;
+      opacity: 0;
+    }
+    .br-wave3 {
+      stroke-dasharray: 12;
+      stroke-dashoffset: 12;
+      animation: brWave3 3s ease-out infinite;
+      opacity: 0;
+    }
+    .br-wave4 {
+      stroke-dasharray: 18;
+      stroke-dashoffset: 18;
+      animation: brWave4 3s ease-out infinite;
+      opacity: 0;
+    }
+    @keyframes brDamped {
+      0% { transform: rotate(0deg); }
+      6% { transform: rotate(-18deg); }
+      12% { transform: rotate(16deg); }
+      18% { transform: rotate(-14deg); }
+      24% { transform: rotate(10deg); }
+      30% { transform: rotate(-7deg); }
+      36% { transform: rotate(4deg); }
+      42% { transform: rotate(-2deg); }
+      48%, 80% { transform: rotate(0deg); }
+      100% { transform: rotate(0deg); }
+    }
+    @keyframes brWave1 {
+      0%, 5% { stroke-dashoffset: 12; opacity: 0; }
+      15% { stroke-dashoffset: 0; opacity: 0.8; }
+      30% { opacity: 0; }
+      100% { opacity: 0; }
+    }
+    @keyframes brWave2 {
+      0%, 10% { stroke-dashoffset: 18; opacity: 0; }
+      22% { stroke-dashoffset: 0; opacity: 0.6; }
+      40% { opacity: 0; }
+      100% { opacity: 0; }
+    }
+    @keyframes brWave3 {
+      0%, 5% { stroke-dashoffset: -12; opacity: 0; }
+      15% { stroke-dashoffset: 0; opacity: 0.8; }
+      30% { opacity: 0; }
+      100% { opacity: 0; }
+    }
+    @keyframes brWave4 {
+      0%, 10% { stroke-dashoffset: -18; opacity: 0; }
+      22% { stroke-dashoffset: 0; opacity: 0.6; }
+      40% { opacity: 0; }
+      100% { opacity: 0; }
+    }
+  </style>
+  <g class="br-swing">
+    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+  </g>
+  <path class="br-wave1" d="M2 8a4 4 0 0 1 0-5" stroke-width="1.5" />
+  <path class="br-wave2" d="M0.5 9.5a6.5 6.5 0 0 1 0-8" stroke-width="1.5" />
+  <path class="br-wave3" d="M22 3a4 4 0 0 1 0 5" stroke-width="1.5" />
+  <path class="br-wave4" d="M23.5 1.5a6.5 6.5 0 0 1 0 8" stroke-width="1.5" />
+</svg>

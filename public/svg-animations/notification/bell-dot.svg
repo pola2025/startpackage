@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .swing { transform-origin: 12px 3px; transform-box: fill-box; animation: bellSwing 2s ease-in-out infinite; }
+    .dot { transform-box: fill-box; transform-origin: 18.5px 4px; animation: dotPulse 2s ease-in-out infinite; }
+    @keyframes bellSwing {
+      0%,100% { transform: rotate(-8deg); }
+      50% { transform: rotate(8deg); }
+    }
+    @keyframes dotPulse {
+      0%,100% { transform: scale(0.8); opacity: .75; }
+      50% { transform: scale(1.2); opacity: 1; }
+    }
+  </style>
+  <g class="swing">
+    <path d="M12 3a6 6 0 0 0-6 6v6l-1.4 2h14.8L18 9V9a6 6 0 0 0-6-6z"/>
+    <path d="M9 20h6"/>
+    <path d="M10 20a2 2 0 0 0 4 0"/>
+  </g>
+  <circle class="dot" cx="18.5" cy="4.2" r="1.4"/>
+</svg>

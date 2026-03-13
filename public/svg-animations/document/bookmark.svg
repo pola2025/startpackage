@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .bookmark {
+      transform-origin: 12px 12px;
+      transform-box: fill-box;
+      animation: sway 2s ease-in-out infinite;
+    }
+    @keyframes sway {
+      0%, 100% { transform: rotate(-2deg); }
+      50% { transform: rotate(2deg); }
+    }
+  </style>
+  <path class="bookmark" d="M7 3h10a2 2 0 0 1 2 2v16l-7-3.5L7 21V5a2 2 0 0 1 2-2z"/>
+</svg>
