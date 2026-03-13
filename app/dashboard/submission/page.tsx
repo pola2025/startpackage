@@ -1073,7 +1073,7 @@ export default function SubmissionPage() {
               <form
                 key={`logo-${submission?.로고선호스타일}-${isEditingLogo}`}
                 onSubmit={(e) => handleSubmit(e, "logo")}
-                className="space-y-5 max-w-2xl mx-auto"
+                className="space-y-5"
               >
                 {/* Step 1: 로고 파일 업로드 */}
                 <div>
@@ -1539,7 +1539,7 @@ export default function SubmissionPage() {
 
         {/* 인쇄물 */}
         <TabsContent value="print">
-          <div className="space-y-5 max-w-2xl mx-auto">
+          <div className="space-y-5">
             {/* Layer 2: 안내 (약한 존재감) */}
             <div className="bg-gray-50 rounded-md p-2.5 text-xs text-gray-500">
               📋 인쇄물 디자인 안내: 기본 디자인에서 일부 변경만 가능합니다.
