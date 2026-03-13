@@ -1,0 +1,1833 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>자료제출 로고/인쇄물 탭 — 정보 계층 개선 와이어프레임</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              gold: {
+                50: "#fefce8",
+                100: "#fef9c3",
+                500: "#eab308",
+                600: "#ca8a04",
+              },
+              navy: { 800: "#1e3a5f", 900: "#1a2744" },
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      details > summary {
+        cursor: pointer;
+        list-style: none;
+      }
+      details > summary::-webkit-details-marker {
+        display: none;
+      }
+      details[open] > summary .chevron {
+        transform: rotate(180deg);
+      }
+
+      .tab-btn.active {
+        background: #1a2744;
+        color: white;
+      }
+      .tab-content {
+        display: none;
+      }
+      .tab-content.active {
+        display: block;
+      }
+      .view-btn.active {
+        background: #1e293b;
+        color: white;
+      }
+
+      /* Step indicator */
+      .step-indicator {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      .step-number {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: #1a2744;
+        color: white;
+        font-size: 12px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .step-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: #111827;
+      }
+      .step-optional {
+        font-size: 11px;
+        color: #9ca3af;
+        margin-left: 4px;
+      }
+
+      /* Layer styles */
+      .layer-input {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 16px;
+      }
+      .layer-guide {
+        background: #f9fafb;
+        border-radius: 6px;
+        padding: 10px 14px;
+        font-size: 12px;
+        color: #6b7280;
+      }
+      .layer-warning {
+        background: #fef2f2;
+        border: 1px solid #fca5a5;
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-size: 12px;
+        color: #991b1b;
+      }
+      .layer-info {
+        background: #fffbeb;
+        border-left: 3px solid #f59e0b;
+        border-radius: 0 6px 6px 0;
+        padding: 8px 12px;
+        font-size: 12px;
+        color: #92400e;
+      }
+
+      /* Selection card */
+      .select-card {
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 12px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .select-card:hover {
+        border-color: #ca8a04;
+        background: #fefce8;
+      }
+      .select-card.selected {
+        border-color: #ca8a04;
+        background: #fefce8;
+        box-shadow: 0 0 0 2px rgba(202, 138, 4, 0.2);
+      }
+
+      /* Required badge */
+      .badge-required {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        padding: 1px 6px;
+        border-radius: 9999px;
+        background: #fef2f2;
+        color: #dc2626;
+        font-size: 10px;
+        font-weight: 600;
+        border: 1px solid #fecaca;
+      }
+      .badge-optional {
+        display: inline-flex;
+        padding: 1px 6px;
+        border-radius: 9999px;
+        background: #f3f4f6;
+        color: #9ca3af;
+        font-size: 10px;
+      }
+
+      /* Upload zone */
+      .upload-zone {
+        border: 2px dashed #d1d5db;
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        color: #9ca3af;
+        transition: all 0.15s;
+      }
+      .upload-zone:hover {
+        border-color: #ca8a04;
+        background: #fefce8;
+      }
+      .upload-done {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        border-radius: 8px;
+        padding: 10px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      /* Comparison */
+      .compare-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+      @media (max-width: 768px) {
+        .compare-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* Mobile preview */
+      .mobile-frame {
+        width: 375px;
+        max-height: 700px;
+        overflow-y: auto;
+        border: 2px solid #d1d5db;
+        border-radius: 20px;
+        margin: 0 auto;
+        background: white;
+        padding: 0;
+      }
+      .mobile-frame .select-card {
+        padding: 8px;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 min-h-screen">
+    <!-- Header -->
+    <div class="fixed top-0 left-0 right-0 z-50 bg-white border-b shadow-sm">
+      <div
+        class="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between"
+      >
+        <div>
+          <h1 class="text-sm font-bold text-gray-700">
+            자료제출 로고/인쇄물 — 정보 계층 개선 와이어프레임
+          </h1>
+          <p class="text-[10px] text-gray-400">
+            Claude + Codex 공동 설계 · 3-Layer 계층 + Step 기반 섹션
+          </p>
+        </div>
+        <div class="flex gap-1">
+          <button
+            onclick="showView('compare')"
+            class="view-btn active px-3 py-1 text-xs rounded border"
+            id="btn-compare"
+          >
+            비교
+          </button>
+          <button
+            onclick="showView('logo')"
+            class="view-btn px-3 py-1 text-xs rounded border"
+            id="btn-logo"
+          >
+            로고 탭
+          </button>
+          <button
+            onclick="showView('print')"
+            class="view-btn px-3 py-1 text-xs rounded border"
+            id="btn-print"
+          >
+            인쇄물 탭
+          </button>
+          <button
+            onclick="showView('mobile')"
+            class="view-btn px-3 py-1 text-xs rounded border"
+            id="btn-mobile"
+          >
+            모바일
+          </button>
+          <button
+            onclick="showView('spec')"
+            class="view-btn px-3 py-1 text-xs rounded border"
+            id="btn-spec"
+          >
+            설계 스펙
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="pt-14 pb-16 max-w-6xl mx-auto px-4">
+      <!-- ====== 비교 뷰 ====== -->
+      <div id="view-compare" class="view-section">
+        <h2 class="text-lg font-bold text-gray-800 mb-4 mt-4">
+          Before vs After 비교
+        </h2>
+
+        <!-- 로고 탭 비교 -->
+        <h3 class="text-sm font-semibold text-gray-600 mb-2">로고 탭</h3>
+        <div class="compare-grid mb-8">
+          <!-- Before -->
+          <div class="bg-white rounded-lg border p-4">
+            <div class="text-xs font-bold text-red-600 mb-3 uppercase">
+              Before (현재)
+            </div>
+            <div class="space-y-3">
+              <div class="border rounded p-3">
+                <div class="text-sm font-medium">로고 파일 (있는 경우)</div>
+                <div class="text-xs text-gray-400 italic">
+                  이미지 파일(JPG, PNG 등) 또는 ZIP 파일을 업로드할 수 있습니다
+                </div>
+                <div class="upload-zone mt-2 py-3 text-xs">
+                  로고 파일 업로드
+                </div>
+              </div>
+              <div class="border rounded p-3">
+                <div class="flex gap-2 items-start">
+                  <div class="text-sm font-medium">로고 선호 스타일</div>
+                  <div class="text-xs text-red-600">
+                    ※ 로고 선택 후 시안은 심볼형, 워드마크형 중 선택한
+                    사항으로만 구성 가능합니다...
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2 mt-2">
+                  <div
+                    class="border rounded p-2 text-center text-xs bg-gray-50 h-16 flex items-center justify-center"
+                  >
+                    심볼형
+                  </div>
+                  <div
+                    class="border rounded p-2 text-center text-xs bg-gray-50 h-16 flex items-center justify-center"
+                  >
+                    워드마크형
+                  </div>
+                </div>
+              </div>
+              <div class="border rounded p-3">
+                <div class="text-sm font-medium">로고 선호 폰트</div>
+                <div class="text-xs text-gray-500">
+                  무료 폰트만 사용 가능합니다...
+                </div>
+                <div class="grid grid-cols-4 gap-1 mt-2">
+                  <div class="border rounded p-1 text-center text-[10px]">
+                    고딕체
+                  </div>
+                  <div class="border rounded p-1 text-center text-[10px]">
+                    명조체
+                  </div>
+                  <div class="border rounded p-1 text-center text-[10px]">
+                    손글씨
+                  </div>
+                  <div class="border rounded p-1 text-center text-[10px]">
+                    모던
+                  </div>
+                </div>
+              </div>
+              <div class="border rounded p-3">
+                <div class="text-sm font-medium">로고 선호 색상</div>
+                <div class="bg-gray-100 rounded h-10 mt-2"></div>
+              </div>
+              <div class="bg-orange-50 border border-orange-300 rounded p-3">
+                <div class="text-sm font-semibold text-orange-900">
+                  명함에 사용할 정확한 색상 코드 *
+                </div>
+                <div class="text-xs text-orange-700">
+                  위에서 선택한 색상 계열을 기반으로...
+                </div>
+                <div class="flex gap-2 mt-2">
+                  <div class="w-12 h-12 rounded bg-blue-500"></div>
+                  <div class="flex-1 bg-white border rounded p-1 text-xs">
+                    #3B82F6
+                  </div>
+                </div>
+                <div
+                  class="bg-orange-100 border border-orange-300 rounded p-1.5 mt-2 text-[10px] font-bold text-orange-900"
+                >
+                  ⚠️ 필수! 색상 선택 후 저장하기 버튼을 눌러주세요!
+                </div>
+              </div>
+              <div class="bg-orange-50 border border-orange-200 rounded p-3">
+                <div class="text-sm font-semibold text-orange-900">
+                  상세 제작 요청사항 *
+                </div>
+                <div
+                  class="bg-red-50 border border-red-400 rounded p-2 mt-2 text-[10px] text-red-900 font-bold"
+                >
+                  ⚠️ 필수: 심볼형 OR 워드마크형 중 한 가지만 선택 가능
+                </div>
+                <div class="border rounded p-2 mt-2 text-[10px] text-gray-500">
+                  📝 작성 가이드 & 예시 보기 (아코디언)
+                </div>
+                <div class="bg-white border rounded mt-2 h-24"></div>
+              </div>
+              <button
+                class="w-full bg-gray-800 text-white rounded py-2 text-sm"
+              >
+                저장하기
+              </button>
+            </div>
+            <div class="mt-3 text-[10px] text-red-500 space-y-1">
+              <p>문제 1: 모든 요소가 동일한 visual weight</p>
+              <p>문제 2: orange 박스 2개가 경쟁 → 어느 것이 더 중요?</p>
+              <p>문제 3: 안내/경고/입력이 같은 계층</p>
+              <p>문제 4: 스크롤 길이 과다</p>
+            </div>
+          </div>
+
+          <!-- After -->
+          <div class="bg-white rounded-lg border-2 border-green-300 p-4">
+            <div class="text-xs font-bold text-green-600 mb-3 uppercase">
+              After (개선안)
+            </div>
+            <div class="space-y-4">
+              <!-- Step 1 -->
+              <div>
+                <div class="step-indicator">
+                  <span class="step-number">1</span>
+                  <span class="step-title">로고 파일 업로드</span>
+                  <span class="badge-optional">선택</span>
+                </div>
+                <div class="layer-input">
+                  <div class="upload-zone py-3 text-xs">
+                    기존 로고 파일 업로드 (JPG, PNG, ZIP)
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 2 -->
+              <div>
+                <div class="step-indicator">
+                  <span class="step-number">2</span>
+                  <span class="step-title">디자인 선호도</span>
+                </div>
+                <div class="layer-input space-y-3">
+                  <div>
+                    <div class="text-xs font-medium text-gray-700 mb-1.5">
+                      스타일
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                      <div
+                        class="select-card selected text-center text-xs h-14 flex items-center justify-center"
+                      >
+                        심볼형
+                      </div>
+                      <div
+                        class="select-card text-center text-xs h-14 flex items-center justify-center"
+                      >
+                        워드마크형
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="text-xs font-medium text-gray-700 mb-1.5">
+                      폰트
+                      <a href="#" class="text-gold-600 text-[10px] ml-1"
+                        >폰트 찾기 →</a
+                      >
+                    </div>
+                    <div class="grid grid-cols-4 gap-1">
+                      <div class="select-card text-center text-[10px] py-1">
+                        고딕체
+                      </div>
+                      <div
+                        class="select-card selected text-center text-[10px] py-1"
+                      >
+                        명조체
+                      </div>
+                      <div class="select-card text-center text-[10px] py-1">
+                        손글씨
+                      </div>
+                      <div class="select-card text-center text-[10px] py-1">
+                        모던
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="text-xs font-medium text-gray-700 mb-1.5">
+                      색상 계열
+                    </div>
+                    <div class="bg-gray-100 rounded h-8"></div>
+                  </div>
+                  <div class="layer-guide">
+                    💡 무료 폰트만 사용 가능합니다. 유료 폰트는 직접 구매 후
+                    파일 전달 필요.
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 3 -->
+              <div>
+                <div class="step-indicator">
+                  <span class="step-number">3</span>
+                  <span class="step-title">명함 색상 코드</span>
+                  <span class="badge-required">필수</span>
+                </div>
+                <div class="layer-input">
+                  <div class="text-xs text-gray-500 mb-2">
+                    명함 인쇄에 사용할 정확한 색상을 선택해주세요
+                  </div>
+                  <div class="flex gap-2 items-center">
+                    <div class="w-10 h-10 rounded bg-blue-500 border"></div>
+                    <div
+                      class="flex-1 bg-white border rounded p-1.5 text-xs font-mono"
+                    >
+                      #3B82F6
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 4 -->
+              <div>
+                <div class="step-indicator">
+                  <span class="step-number">4</span>
+                  <span class="step-title">상세 제작 요청</span>
+                  <span class="badge-required">필수</span>
+                </div>
+                <div class="layer-input">
+                  <div class="layer-warning mb-2">
+                    ⚠️ 심볼형 또는 워드마크형 중 한 가지만 선택 가능합니다.
+                  </div>
+                  <div class="bg-white border rounded h-20 mb-2"></div>
+                  <details class="layer-guide">
+                    <summary class="flex items-center gap-1 font-medium">
+                      <span>📝 작성 가이드 & 예시 보기</span>
+                      <span class="chevron text-[10px]">▼</span>
+                    </summary>
+                    <div class="mt-2 text-[10px] text-gray-500">
+                      좋은 예시 / 나쁜 예시 / 작성 팁...
+                    </div>
+                  </details>
+                </div>
+              </div>
+
+              <button
+                class="w-full bg-gray-800 text-white rounded py-2 text-sm"
+              >
+                저장하기
+              </button>
+            </div>
+            <div class="mt-3 text-[10px] text-green-600 space-y-1">
+              <p>개선 1: Step 기반 → 진행 순서 명확</p>
+              <p>개선 2: 입력(흰)/안내(회)/경고(빨) 3-Layer</p>
+              <p>개선 3: 디자인 선호도를 한 섹션으로 그룹핑</p>
+              <p>개선 4: 경고 1개로 축소, Badge 패턴 통일</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 인쇄물 탭 비교 -->
+        <h3 class="text-sm font-semibold text-gray-600 mb-2">인쇄물 탭</h3>
+        <div class="compare-grid">
+          <!-- Before -->
+          <div class="bg-white rounded-lg border p-4">
+            <div class="text-xs font-bold text-red-600 mb-3 uppercase">
+              Before (현재)
+            </div>
+            <div class="space-y-3">
+              <div
+                class="bg-gray-50 border-l-4 border-amber-400 rounded-r p-2 text-xs text-gray-600"
+              >
+                📋 인쇄물 디자인 안내: 기본 디자인에서 일부 변경만 가능합니다...
+              </div>
+              <div class="border rounded p-3">
+                <div class="text-base font-semibold mb-2">필수 서류</div>
+                <div class="text-xs text-gray-500 mb-2">
+                  사업자등록증과 프로필 사진을 업로드해주세요
+                </div>
+                <div class="space-y-2">
+                  <div class="upload-zone py-2 text-xs">사업자등록증 *</div>
+                  <div class="upload-zone py-2 text-xs">
+                    프로필사진 * (1000px 이하)
+                  </div>
+                </div>
+              </div>
+              <div class="border rounded p-3">
+                <div class="text-base font-semibold mb-2">명함 스타일</div>
+                <div class="text-xs text-gray-500 mb-2">
+                  명함 스타일을 선택해주세요
+                </div>
+                <div class="grid grid-cols-2 gap-2 mb-3">
+                  <div
+                    class="border rounded p-2 bg-gray-50 h-20 flex items-center justify-center text-[10px]"
+                  >
+                    스타일 1
+                  </div>
+                  <div
+                    class="border rounded p-2 bg-gray-50 h-20 flex items-center justify-center text-[10px]"
+                  >
+                    스타일 2
+                  </div>
+                  <div
+                    class="border rounded p-2 bg-gray-50 h-20 flex items-center justify-center text-[10px]"
+                  >
+                    스타일 3
+                  </div>
+                  <div
+                    class="border rounded p-2 bg-gray-50 h-20 flex items-center justify-center text-[10px]"
+                  >
+                    스타일 4
+                  </div>
+                  <div
+                    class="border rounded p-2 bg-gray-50 h-20 flex items-center justify-center text-[10px]"
+                  >
+                    스타일 5
+                  </div>
+                  <div
+                    class="border rounded p-2 bg-gray-50 h-20 flex items-center justify-center text-[10px]"
+                  >
+                    스타일 6
+                  </div>
+                </div>
+                <div class="border-t pt-3 mt-3">
+                  <div class="text-sm font-medium mb-2">
+                    자문계약서 스타일 (2종 중 1개)
+                  </div>
+                  <div class="grid grid-cols-2 gap-2">
+                    <div
+                      class="border rounded p-2 bg-gray-50 h-16 flex items-center justify-center text-[10px]"
+                    >
+                      스타일 1
+                    </div>
+                    <div
+                      class="border rounded p-2 bg-gray-50 h-16 flex items-center justify-center text-[10px]"
+                    >
+                      스타일 2
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <button
+                class="w-full bg-gray-800 text-white rounded py-2 text-sm"
+              >
+                저장하기
+              </button>
+            </div>
+            <div class="mt-3 text-[10px] text-red-500 space-y-1">
+              <p>문제 1: 명함 6개 이미지가 공간 독점 → 계약서 묻힘</p>
+              <p>
+                문제 2: 필수 서류와 스타일 선택이 별개 Card인데 스텝 구분 없음
+              </p>
+              <p>문제 3: 두 작업(업로드 vs 선택)의 성격이 다른데 같은 무게</p>
+            </div>
+          </div>
+
+          <!-- After -->
+          <div class="bg-white rounded-lg border-2 border-green-300 p-4">
+            <div class="text-xs font-bold text-green-600 mb-3 uppercase">
+              After (개선안)
+            </div>
+            <div class="space-y-4">
+              <!-- 상단 안내 -->
+              <div class="layer-guide text-[11px]">
+                📋 기본 디자인에서 일부 변경만 가능합니다. 신규 디자인 제작 및
+                레이아웃 변형 불가.
+              </div>
+
+              <!-- Step 1 -->
+              <div>
+                <div class="step-indicator">
+                  <span class="step-number">1</span>
+                  <span class="step-title">필수 서류 업로드</span>
+                  <span class="badge-required">필수</span>
+                </div>
+                <div class="layer-input space-y-2">
+                  <div>
+                    <div class="text-xs font-medium text-gray-700 mb-1">
+                      사업자등록증
+                    </div>
+                    <div class="upload-done">
+                      <span
+                        class="text-xs text-green-700 flex items-center gap-1"
+                        >✅ 업로드 완료</span
+                      >
+                      <span class="text-xs text-gold-600">파일 보기</span>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="text-xs font-medium text-gray-700 mb-1">
+                      프로필사진
+                      <span class="text-[10px] text-gray-400"
+                        >(1000px 이하)</span
+                      >
+                    </div>
+                    <div class="upload-zone py-2 text-xs">
+                      클릭하여 파일 업로드
+                    </div>
+                  </div>
+                  <div
+                    class="flex items-center gap-2 text-[10px] text-gray-400"
+                  >
+                    <span
+                      class="inline-block w-3 h-3 rounded-full bg-green-400"
+                    ></span>
+                    1/2 완료
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 2 -->
+              <div>
+                <div class="step-indicator">
+                  <span class="step-number">2</span>
+                  <span class="step-title">명함 스타일 선택</span>
+                  <span class="text-[10px] text-gray-400">6종 중 1개</span>
+                </div>
+                <div class="layer-input">
+                  <div class="grid grid-cols-3 gap-2">
+                    <div
+                      class="select-card selected text-center text-[10px] py-2"
+                    >
+                      <div class="bg-gray-100 rounded h-12 mb-1"></div>
+                      스타일 1
+                    </div>
+                    <div class="select-card text-center text-[10px] py-2">
+                      <div class="bg-gray-100 rounded h-12 mb-1"></div>
+                      스타일 2
+                    </div>
+                    <div class="select-card text-center text-[10px] py-2">
+                      <div class="bg-gray-100 rounded h-12 mb-1"></div>
+                      스타일 3
+                    </div>
+                    <div class="select-card text-center text-[10px] py-2">
+                      <div class="bg-gray-100 rounded h-12 mb-1"></div>
+                      스타일 4
+                    </div>
+                    <div class="select-card text-center text-[10px] py-2">
+                      <div class="bg-gray-100 rounded h-12 mb-1"></div>
+                      스타일 5
+                    </div>
+                    <div class="select-card text-center text-[10px] py-2">
+                      <div class="bg-gray-100 rounded h-12 mb-1"></div>
+                      스타일 6
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 3 -->
+              <div>
+                <div class="step-indicator">
+                  <span class="step-number">3</span>
+                  <span class="step-title">계약서 스타일 선택</span>
+                  <span class="text-[10px] text-gray-400">2종 중 1개</span>
+                </div>
+                <div class="layer-input">
+                  <div class="grid grid-cols-2 gap-2">
+                    <div
+                      class="select-card selected text-center text-[10px] py-2"
+                    >
+                      <div class="grid grid-cols-2 gap-1 mb-1">
+                        <div class="bg-gray-100 rounded h-10"></div>
+                        <div class="bg-gray-100 rounded h-10"></div>
+                      </div>
+                      스타일 1
+                    </div>
+                    <div class="select-card text-center text-[10px] py-2">
+                      <div class="grid grid-cols-2 gap-1 mb-1">
+                        <div class="bg-gray-100 rounded h-10"></div>
+                        <div class="bg-gray-100 rounded h-10"></div>
+                      </div>
+                      스타일 2
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                class="w-full bg-gray-800 text-white rounded py-2 text-sm"
+              >
+                저장하기
+              </button>
+            </div>
+            <div class="mt-3 text-[10px] text-green-600 space-y-1">
+              <p>개선 1: 3 Step으로 명확한 진행 순서</p>
+              <p>개선 2: 업로드(Step 1)와 선택(Step 2-3) 분리</p>
+              <p>개선 3: 명함 3열 → 공간 절약, 계약서 별도 섹션</p>
+              <p>개선 4: 완료 상태 인라인 피드백 (1/2 완료)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== 로고 탭 상세 뷰 ====== -->
+      <div id="view-logo" class="view-section" style="display: none">
+        <h2 class="text-lg font-bold text-gray-800 mb-4 mt-4">
+          로고 탭 — 개선안 상세
+        </h2>
+        <div class="max-w-2xl mx-auto bg-white rounded-xl border p-6 space-y-5">
+          <!-- Tab header -->
+          <div class="flex items-center gap-3">
+            <h3 class="text-base font-bold text-gray-900">로고 디자인 정보</h3>
+            <span class="text-xs text-gray-500"
+              >로고 파일이 있으면 업로드하거나, 선호하는 스타일과 색상을
+              선택해주세요</span
+            >
+          </div>
+
+          <!-- Step 1: 로고 파일 업로드 -->
+          <div>
+            <div class="step-indicator">
+              <span class="step-number">1</span>
+              <span class="step-title">로고 파일 업로드</span>
+              <span class="badge-optional">선택</span>
+            </div>
+            <div class="layer-input">
+              <div class="text-xs text-gray-500 mb-2">
+                기존에 사용 중인 로고가 있으면 업로드해주세요 (JPG, PNG, ZIP)
+              </div>
+              <div class="upload-zone py-6">
+                <div class="text-sm text-gray-400">
+                  📁 클릭하여 로고 파일 업로드
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: 디자인 선호도 -->
+          <div>
+            <div class="step-indicator">
+              <span class="step-number">2</span>
+              <span class="step-title">디자인 선호도</span>
+            </div>
+            <div class="layer-input space-y-4">
+              <!-- 스타일 -->
+              <div>
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="text-sm font-medium text-gray-800">스타일</span>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div class="select-card selected">
+                    <div class="flex flex-col items-center gap-2">
+                      <div
+                        class="bg-gray-100 rounded-lg h-20 w-full flex items-center justify-center text-gray-400 text-xs"
+                      >
+                        [심볼 예시 이미지]
+                      </div>
+                      <div class="text-center">
+                        <div class="font-semibold text-sm">
+                          심볼형 (도형기반)
+                        </div>
+                        <div class="text-xs text-gray-500">
+                          도형과 심볼을 활용한 로고
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="select-card">
+                    <div class="flex flex-col items-center gap-2">
+                      <div
+                        class="bg-gray-100 rounded-lg h-20 w-full flex items-center justify-center text-gray-400 text-xs"
+                      >
+                        [워드마크 예시 이미지]
+                      </div>
+                      <div class="text-center">
+                        <div class="font-semibold text-sm">
+                          워드마크형 (텍스트)
+                        </div>
+                        <div class="text-xs text-gray-500">
+                          브랜드명 텍스트 중심 로고
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 폰트 -->
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-sm font-medium text-gray-800">폰트</span>
+                  <a href="#" class="text-xs text-gold-600 hover:underline"
+                    >폰트 찾기 (눈누) →</a
+                  >
+                </div>
+                <div class="grid grid-cols-4 gap-2">
+                  <div class="select-card text-center py-2">
+                    <div class="font-sans text-xs font-semibold">고딕체</div>
+                    <div class="font-sans text-lg mt-1">Aa</div>
+                  </div>
+                  <div class="select-card selected text-center py-2">
+                    <div class="font-serif text-xs font-semibold">명조체</div>
+                    <div class="font-serif text-lg mt-1">Aa</div>
+                  </div>
+                  <div class="select-card text-center py-2">
+                    <div
+                      class="text-xs font-semibold"
+                      style="font-family: cursive"
+                    >
+                      손글씨
+                    </div>
+                    <div class="text-lg mt-1" style="font-family: cursive">
+                      Aa
+                    </div>
+                  </div>
+                  <div class="select-card text-center py-2">
+                    <div class="font-mono text-xs font-semibold">모던</div>
+                    <div class="font-mono text-lg mt-1">Aa</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 색상 -->
+              <div>
+                <div class="text-sm font-medium text-gray-800 mb-2">
+                  색상 계열
+                </div>
+                <div class="flex gap-2">
+                  <div
+                    class="w-8 h-8 rounded-full bg-red-500 border-2 border-transparent cursor-pointer hover:ring-2 ring-red-200"
+                  ></div>
+                  <div
+                    class="w-8 h-8 rounded-full bg-blue-500 border-2 border-gold-500 ring-2 ring-gold-200 cursor-pointer"
+                  ></div>
+                  <div
+                    class="w-8 h-8 rounded-full bg-green-500 border-2 border-transparent cursor-pointer hover:ring-2 ring-green-200"
+                  ></div>
+                  <div
+                    class="w-8 h-8 rounded-full bg-purple-500 border-2 border-transparent cursor-pointer hover:ring-2 ring-purple-200"
+                  ></div>
+                  <div
+                    class="w-8 h-8 rounded-full bg-yellow-500 border-2 border-transparent cursor-pointer hover:ring-2 ring-yellow-200"
+                  ></div>
+                  <div
+                    class="w-8 h-8 rounded-full bg-gray-800 border-2 border-transparent cursor-pointer hover:ring-2 ring-gray-400"
+                  ></div>
+                </div>
+              </div>
+
+              <!-- 안내 (Layer 2) -->
+              <div class="layer-guide">
+                💡 무료 폰트만 사용 가능합니다. 유료 폰트는 직접 구매 후 파일
+                전달 필요.
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: 명함 색상 코드 -->
+          <div>
+            <div class="step-indicator">
+              <span class="step-number">3</span>
+              <span class="step-title">명함 색상 코드</span>
+              <span class="badge-required">필수</span>
+            </div>
+            <div class="layer-input">
+              <p class="text-xs text-gray-500 mb-3">
+                위에서 선택한 색상 계열을 기반으로, 명함 인쇄에 사용할 정확한
+                색상을 선택해주세요.
+              </p>
+              <div class="flex gap-3 items-center">
+                <div
+                  class="w-16 h-16 rounded-lg bg-blue-500 border cursor-pointer"
+                ></div>
+                <div class="flex-1 space-y-1">
+                  <input
+                    type="text"
+                    value="#3B82F6"
+                    class="w-full border rounded px-3 py-2 font-mono text-sm"
+                    readonly
+                  />
+                  <p class="text-[10px] text-gray-400">
+                    컬러피커에서 선택하거나 직접 16진수 색상값을 입력하세요
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4: 상세 제작 요청 -->
+          <div>
+            <div class="step-indicator">
+              <span class="step-number">4</span>
+              <span class="step-title">상세 제작 요청사항</span>
+              <span class="badge-required">필수</span>
+            </div>
+            <div class="layer-input">
+              <!-- 유일한 경고 (Layer 3) -->
+              <div class="layer-warning mb-3">
+                ⚠️ 로고 제작은
+                <span class="font-bold underline"
+                  >심볼형 OR 워드마크형 중 한 가지만</span
+                >
+                선택 가능합니다.
+              </div>
+
+              <p class="text-xs text-gray-500 mb-2">
+                이 항목을 작성해야 로고 제작이 시작됩니다.
+              </p>
+
+              <textarea
+                rows="6"
+                placeholder="여기에 구체적인 요청사항을 작성해주세요..."
+                class="w-full border rounded-lg p-3 text-sm resize-none placeholder:text-gray-400"
+              ></textarea>
+
+              <!-- 가이드 아코디언 (Layer 2) -->
+              <details class="mt-3 layer-guide">
+                <summary
+                  class="flex items-center gap-2 font-medium cursor-pointer select-none"
+                >
+                  <span>📝</span>
+                  <span>작성 가이드 & 예시 보기</span>
+                  <span class="chevron text-[10px] transition-transform"
+                    >▼</span
+                  >
+                </summary>
+                <div class="mt-3 space-y-3">
+                  <div class="grid grid-cols-2 gap-3">
+                    <div>
+                      <p class="text-xs font-bold text-green-700 mb-1">
+                        ✅ 좋은 예시
+                      </p>
+                      <ul
+                        class="text-[10px] space-y-1 bg-green-50 p-2 rounded border border-green-200"
+                      >
+                        <li>1. 심볼형 - 원형 프레임 안에 클라우드 아이콘</li>
+                        <li>2. 메인 컬러 파란색 계열(#2563EB)</li>
+                        <li>3. 폰트는 산세리프체, 가독성 우선</li>
+                        <li>4. 그라데이션 지양, 단색 인쇄 가능</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <p class="text-xs font-bold text-red-700 mb-1">
+                        ❌ 나쁜 예시
+                      </p>
+                      <ul
+                        class="text-[10px] space-y-1 bg-red-50 p-2 rounded border border-red-200"
+                      >
+                        <li class="line-through">'예쁘게 해주세요'</li>
+                        <li class="line-through">'멋진 로고 부탁드립니다'</li>
+                        <li class="line-through">'고급스럽게 해주세요'</li>
+                        <li class="line-through">'깔끔하게 만들어주세요'</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div
+                    class="bg-white/80 p-2 rounded border-l-2 border-amber-400"
+                  >
+                    <p class="text-[10px] font-semibold mb-1">💡 작성 Tip</p>
+                    <ul class="text-[10px] space-y-0.5 list-disc ml-3">
+                      <li>브랜드 컨셉: 어떤 이미지를 주고 싶으신가요?</li>
+                      <li>포함 요소: 로고에 꼭 들어가야 할 것은?</li>
+                      <li>피하고 싶은 것: 구체적으로 어떤 스타일?</li>
+                    </ul>
+                  </div>
+                </div>
+              </details>
+            </div>
+          </div>
+
+          <!-- Save -->
+          <button
+            class="w-full bg-gray-800 text-white rounded-lg py-2.5 text-sm font-medium hover:bg-gray-900 transition"
+          >
+            ✓ 저장하기
+          </button>
+        </div>
+      </div>
+
+      <!-- ====== 인쇄물 탭 상세 뷰 ====== -->
+      <div id="view-print" class="view-section" style="display: none">
+        <h2 class="text-lg font-bold text-gray-800 mb-4 mt-4">
+          인쇄물 탭 — 개선안 상세
+        </h2>
+        <div class="max-w-2xl mx-auto bg-white rounded-xl border p-6 space-y-5">
+          <!-- 상단 안내 (Layer 2 - 약한 존재감) -->
+          <div class="layer-guide text-[11px]">
+            📋 인쇄물 디자인 안내: 기본 디자인에서 일부 변경만 가능합니다. 신규
+            디자인 제작 및 레이아웃 변형 불가.
+          </div>
+
+          <!-- Step 1: 필수 서류 -->
+          <div>
+            <div class="step-indicator">
+              <span class="step-number">1</span>
+              <span class="step-title">필수 서류 업로드</span>
+              <span class="badge-required">필수</span>
+              <span class="text-[10px] text-green-600 ml-auto">1/2 완료</span>
+            </div>
+            <div class="layer-input space-y-3">
+              <!-- 사업자등록증 - 완료 상태 -->
+              <div>
+                <div class="text-xs font-medium text-gray-700 mb-1.5">
+                  사업자등록증
+                </div>
+                <div class="upload-done">
+                  <div class="flex items-center gap-2">
+                    <span class="text-green-600">✅</span>
+                    <span class="text-sm text-green-700">업로드 완료</span>
+                  </div>
+                  <div class="flex gap-2">
+                    <a href="#" class="text-xs text-gold-600 hover:underline"
+                      >파일 보기</a
+                    >
+                    <button class="text-xs text-gray-400 hover:text-gray-600">
+                      변경
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 프로필사진 - 미완료 -->
+              <div>
+                <div class="flex items-center gap-2 mb-1.5">
+                  <span class="text-xs font-medium text-gray-700"
+                    >프로필사진</span
+                  >
+                  <span class="text-[10px] text-gray-400">(1000px 이하)</span>
+                </div>
+                <div class="upload-zone py-4">
+                  <div class="text-sm text-gray-400">
+                    📷 클릭하여 파일 업로드
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: 명함 스타일 -->
+          <div>
+            <div class="step-indicator">
+              <span class="step-number">2</span>
+              <span class="step-title">명함 스타일 선택</span>
+              <span class="text-[10px] text-gray-400">6종 중 1개</span>
+            </div>
+            <div class="layer-input">
+              <div class="grid grid-cols-3 gap-3">
+                <div class="select-card selected text-center">
+                  <div
+                    class="bg-gray-100 rounded h-20 mb-1 flex items-center justify-center text-gray-400 text-xs"
+                  >
+                    [명함 1]
+                  </div>
+                  <div class="text-xs font-medium">스타일 1</div>
+                  <button class="text-[10px] text-gold-600 mt-1">
+                    자세히 보기
+                  </button>
+                </div>
+                <div class="select-card text-center">
+                  <div
+                    class="bg-gray-100 rounded h-20 mb-1 flex items-center justify-center text-gray-400 text-xs"
+                  >
+                    [명함 2]
+                  </div>
+                  <div class="text-xs font-medium">스타일 2</div>
+                  <button class="text-[10px] text-gray-400 mt-1">
+                    자세히 보기
+                  </button>
+                </div>
+                <div class="select-card text-center">
+                  <div
+                    class="bg-gray-100 rounded h-20 mb-1 flex items-center justify-center text-gray-400 text-xs"
+                  >
+                    [명함 3]
+                  </div>
+                  <div class="text-xs font-medium">스타일 3</div>
+                  <button class="text-[10px] text-gray-400 mt-1">
+                    자세히 보기
+                  </button>
+                </div>
+                <div class="select-card text-center">
+                  <div
+                    class="bg-gray-100 rounded h-20 mb-1 flex items-center justify-center text-gray-400 text-xs"
+                  >
+                    [명함 4]
+                  </div>
+                  <div class="text-xs font-medium">스타일 4</div>
+                  <button class="text-[10px] text-gray-400 mt-1">
+                    자세히 보기
+                  </button>
+                </div>
+                <div class="select-card text-center">
+                  <div
+                    class="bg-gray-100 rounded h-20 mb-1 flex items-center justify-center text-gray-400 text-xs"
+                  >
+                    [명함 5]
+                  </div>
+                  <div class="text-xs font-medium">스타일 5</div>
+                  <button class="text-[10px] text-gray-400 mt-1">
+                    자세히 보기
+                  </button>
+                </div>
+                <div class="select-card text-center">
+                  <div
+                    class="bg-gray-100 rounded h-20 mb-1 flex items-center justify-center text-gray-400 text-xs"
+                  >
+                    [명함 6]
+                  </div>
+                  <div class="text-xs font-medium">스타일 6</div>
+                  <button class="text-[10px] text-gray-400 mt-1">
+                    자세히 보기
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: 계약서 스타일 -->
+          <div>
+            <div class="step-indicator">
+              <span class="step-number">3</span>
+              <span class="step-title">자문계약서 스타일 선택</span>
+              <span class="text-[10px] text-gray-400">2종 중 1개</span>
+            </div>
+            <div class="layer-input">
+              <div class="grid grid-cols-2 gap-3">
+                <div class="select-card selected text-center">
+                  <div class="grid grid-cols-2 gap-1 mb-2">
+                    <div>
+                      <p class="text-[9px] text-gray-400 mb-0.5">표지</p>
+                      <div
+                        class="bg-gray-100 rounded h-16 flex items-center justify-center text-gray-400 text-[10px]"
+                      >
+                        [표지]
+                      </div>
+                    </div>
+                    <div>
+                      <p class="text-[9px] text-gray-400 mb-0.5">내지</p>
+                      <div
+                        class="bg-gray-100 rounded h-16 flex items-center justify-center text-gray-400 text-[10px]"
+                      >
+                        [내지]
+                      </div>
+                    </div>
+                  </div>
+                  <div class="text-xs font-medium">스타일 1</div>
+                  <button class="text-[10px] text-gold-600 mt-1">
+                    자세히 보기
+                  </button>
+                </div>
+                <div class="select-card text-center">
+                  <div class="grid grid-cols-2 gap-1 mb-2">
+                    <div>
+                      <p class="text-[9px] text-gray-400 mb-0.5">표지</p>
+                      <div
+                        class="bg-gray-100 rounded h-16 flex items-center justify-center text-gray-400 text-[10px]"
+                      >
+                        [표지]
+                      </div>
+                    </div>
+                    <div>
+                      <p class="text-[9px] text-gray-400 mb-0.5">내지</p>
+                      <div
+                        class="bg-gray-100 rounded h-16 flex items-center justify-center text-gray-400 text-[10px]"
+                      >
+                        [내지]
+                      </div>
+                    </div>
+                  </div>
+                  <div class="text-xs font-medium">스타일 2</div>
+                  <button class="text-[10px] text-gray-400 mt-1">
+                    자세히 보기
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Save -->
+          <button
+            class="w-full bg-gray-800 text-white rounded-lg py-2.5 text-sm font-medium hover:bg-gray-900 transition"
+          >
+            ✓ 저장하기
+          </button>
+        </div>
+      </div>
+
+      <!-- ====== 모바일 뷰 ====== -->
+      <div id="view-mobile" class="view-section" style="display: none">
+        <h2 class="text-lg font-bold text-gray-800 mb-4 mt-4">
+          모바일 프리뷰 (375px)
+        </h2>
+        <div class="flex gap-6 justify-center flex-wrap">
+          <!-- 로고 탭 모바일 -->
+          <div>
+            <p class="text-xs font-semibold text-gray-500 mb-2 text-center">
+              로고 탭
+            </p>
+            <div class="mobile-frame">
+              <div class="p-4 space-y-4">
+                <div class="flex items-center gap-2">
+                  <h3 class="text-sm font-bold text-gray-900">
+                    로고 디자인 정보
+                  </h3>
+                </div>
+
+                <!-- Step 1 -->
+                <div>
+                  <div class="step-indicator">
+                    <span
+                      class="step-number"
+                      style="width: 20px; height: 20px; font-size: 10px"
+                      >1</span
+                    >
+                    <span class="step-title" style="font-size: 13px"
+                      >로고 파일</span
+                    >
+                    <span class="badge-optional">선택</span>
+                  </div>
+                  <div class="layer-input" style="padding: 12px">
+                    <div class="upload-zone py-3 text-xs">📁 파일 업로드</div>
+                  </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div>
+                  <div class="step-indicator">
+                    <span
+                      class="step-number"
+                      style="width: 20px; height: 20px; font-size: 10px"
+                      >2</span
+                    >
+                    <span class="step-title" style="font-size: 13px"
+                      >디자인 선호도</span
+                    >
+                  </div>
+                  <div class="layer-input space-y-3" style="padding: 12px">
+                    <div>
+                      <div class="text-[11px] font-medium text-gray-700 mb-1">
+                        스타일
+                      </div>
+                      <div class="grid grid-cols-2 gap-2">
+                        <div
+                          class="select-card selected text-center text-[10px] py-2"
+                          style="padding: 6px"
+                        >
+                          <div class="bg-gray-100 rounded h-10 mb-1"></div>
+                          심볼형
+                        </div>
+                        <div
+                          class="select-card text-center text-[10px] py-2"
+                          style="padding: 6px"
+                        >
+                          <div class="bg-gray-100 rounded h-10 mb-1"></div>
+                          워드마크형
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <div class="text-[11px] font-medium text-gray-700 mb-1">
+                        폰트
+                      </div>
+                      <div class="grid grid-cols-2 gap-1">
+                        <div
+                          class="select-card text-center text-[10px] py-1"
+                          style="padding: 4px"
+                        >
+                          고딕체
+                        </div>
+                        <div
+                          class="select-card selected text-center text-[10px] py-1"
+                          style="padding: 4px"
+                        >
+                          명조체
+                        </div>
+                        <div
+                          class="select-card text-center text-[10px] py-1"
+                          style="padding: 4px"
+                        >
+                          손글씨
+                        </div>
+                        <div
+                          class="select-card text-center text-[10px] py-1"
+                          style="padding: 4px"
+                        >
+                          모던
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <div class="text-[11px] font-medium text-gray-700 mb-1">
+                        색상
+                      </div>
+                      <div class="flex gap-1.5">
+                        <div class="w-6 h-6 rounded-full bg-red-500"></div>
+                        <div
+                          class="w-6 h-6 rounded-full bg-blue-500 ring-2 ring-gold-300"
+                        ></div>
+                        <div class="w-6 h-6 rounded-full bg-green-500"></div>
+                        <div class="w-6 h-6 rounded-full bg-purple-500"></div>
+                        <div class="w-6 h-6 rounded-full bg-yellow-500"></div>
+                        <div class="w-6 h-6 rounded-full bg-gray-800"></div>
+                      </div>
+                    </div>
+                    <div
+                      class="layer-guide"
+                      style="padding: 6px 8px; font-size: 10px"
+                    >
+                      💡 무료 폰트만 사용 가능
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div>
+                  <div class="step-indicator">
+                    <span
+                      class="step-number"
+                      style="width: 20px; height: 20px; font-size: 10px"
+                      >3</span
+                    >
+                    <span class="step-title" style="font-size: 13px"
+                      >명함 색상</span
+                    >
+                    <span class="badge-required">필수</span>
+                  </div>
+                  <div class="layer-input" style="padding: 12px">
+                    <div class="flex gap-2 items-center">
+                      <div
+                        class="w-10 h-10 rounded bg-blue-500 border flex-shrink-0"
+                      ></div>
+                      <input
+                        type="text"
+                        value="#3B82F6"
+                        class="flex-1 border rounded px-2 py-1.5 font-mono text-xs"
+                        readonly
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div>
+                  <div class="step-indicator">
+                    <span
+                      class="step-number"
+                      style="width: 20px; height: 20px; font-size: 10px"
+                      >4</span
+                    >
+                    <span class="step-title" style="font-size: 13px"
+                      >상세 요청</span
+                    >
+                    <span class="badge-required">필수</span>
+                  </div>
+                  <div class="layer-input" style="padding: 12px">
+                    <div
+                      class="layer-warning mb-2"
+                      style="font-size: 10px; padding: 6px 8px"
+                    >
+                      ⚠️ 심볼형 OR 워드마크형 중 한 가지만
+                    </div>
+                    <textarea
+                      rows="4"
+                      placeholder="요청사항을 작성해주세요..."
+                      class="w-full border rounded p-2 text-xs resize-none"
+                    ></textarea>
+                    <details
+                      class="mt-2 layer-guide"
+                      style="padding: 6px 8px; font-size: 10px"
+                    >
+                      <summary class="font-medium">📝 작성 가이드 보기</summary>
+                    </details>
+                  </div>
+                </div>
+
+                <button
+                  class="w-full bg-gray-800 text-white rounded-lg py-2 text-xs font-medium"
+                >
+                  ✓ 저장하기
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 인쇄물 탭 모바일 -->
+          <div>
+            <p class="text-xs font-semibold text-gray-500 mb-2 text-center">
+              인쇄물 탭
+            </p>
+            <div class="mobile-frame">
+              <div class="p-4 space-y-4">
+                <div
+                  class="layer-guide"
+                  style="padding: 6px 8px; font-size: 10px"
+                >
+                  📋 기본 디자인 일부 변경만 가능
+                </div>
+
+                <!-- Step 1 -->
+                <div>
+                  <div class="step-indicator">
+                    <span
+                      class="step-number"
+                      style="width: 20px; height: 20px; font-size: 10px"
+                      >1</span
+                    >
+                    <span class="step-title" style="font-size: 13px"
+                      >필수 서류</span
+                    >
+                    <span class="badge-required">필수</span>
+                  </div>
+                  <div class="layer-input space-y-2" style="padding: 12px">
+                    <div>
+                      <div class="text-[10px] font-medium text-gray-700 mb-1">
+                        사업자등록증
+                      </div>
+                      <div class="upload-done" style="padding: 6px 10px">
+                        <span class="text-[10px] text-green-700">✅ 완료</span>
+                        <span class="text-[10px] text-gold-600">보기</span>
+                      </div>
+                    </div>
+                    <div>
+                      <div class="text-[10px] font-medium text-gray-700 mb-1">
+                        프로필사진
+                      </div>
+                      <div class="upload-zone py-2 text-[10px]">📷 업로드</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div>
+                  <div class="step-indicator">
+                    <span
+                      class="step-number"
+                      style="width: 20px; height: 20px; font-size: 10px"
+                      >2</span
+                    >
+                    <span class="step-title" style="font-size: 13px"
+                      >명함 스타일</span
+                    >
+                  </div>
+                  <div class="layer-input" style="padding: 12px">
+                    <div class="grid grid-cols-2 gap-2">
+                      <div
+                        class="select-card selected text-center"
+                        style="padding: 6px"
+                      >
+                        <div class="bg-gray-100 rounded h-14 mb-1"></div>
+                        <div class="text-[10px]">스타일 1</div>
+                      </div>
+                      <div class="select-card text-center" style="padding: 6px">
+                        <div class="bg-gray-100 rounded h-14 mb-1"></div>
+                        <div class="text-[10px]">스타일 2</div>
+                      </div>
+                      <div class="select-card text-center" style="padding: 6px">
+                        <div class="bg-gray-100 rounded h-14 mb-1"></div>
+                        <div class="text-[10px]">스타일 3</div>
+                      </div>
+                      <div class="select-card text-center" style="padding: 6px">
+                        <div class="bg-gray-100 rounded h-14 mb-1"></div>
+                        <div class="text-[10px]">스타일 4</div>
+                      </div>
+                      <div class="select-card text-center" style="padding: 6px">
+                        <div class="bg-gray-100 rounded h-14 mb-1"></div>
+                        <div class="text-[10px]">스타일 5</div>
+                      </div>
+                      <div class="select-card text-center" style="padding: 6px">
+                        <div class="bg-gray-100 rounded h-14 mb-1"></div>
+                        <div class="text-[10px]">스타일 6</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div>
+                  <div class="step-indicator">
+                    <span
+                      class="step-number"
+                      style="width: 20px; height: 20px; font-size: 10px"
+                      >3</span
+                    >
+                    <span class="step-title" style="font-size: 13px"
+                      >계약서 스타일</span
+                    >
+                  </div>
+                  <div class="layer-input" style="padding: 12px">
+                    <div class="grid grid-cols-2 gap-2">
+                      <div
+                        class="select-card selected text-center"
+                        style="padding: 6px"
+                      >
+                        <div class="bg-gray-100 rounded h-12 mb-1"></div>
+                        <div class="text-[10px]">스타일 1</div>
+                      </div>
+                      <div class="select-card text-center" style="padding: 6px">
+                        <div class="bg-gray-100 rounded h-12 mb-1"></div>
+                        <div class="text-[10px]">스타일 2</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  class="w-full bg-gray-800 text-white rounded-lg py-2 text-xs font-medium"
+                >
+                  ✓ 저장하기
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== 설계 스펙 뷰 ====== -->
+      <div id="view-spec" class="view-section" style="display: none">
+        <h2 class="text-lg font-bold text-gray-800 mb-4 mt-4">
+          설계 스펙 — Claude + Codex 합의
+        </h2>
+        <div class="max-w-3xl mx-auto space-y-6">
+          <!-- 협의 결과 -->
+          <div class="bg-white rounded-xl border p-5">
+            <h3 class="font-bold text-gray-800 mb-3">Codex 협의 결과 요약</h3>
+            <div class="space-y-4 text-sm text-gray-700">
+              <div>
+                <h4 class="font-semibold text-gray-900 mb-1">
+                  1. 3-Layer 접근법 평가
+                </h4>
+                <ul class="list-disc ml-5 space-y-1 text-xs">
+                  <li>
+                    <strong>Codex 동의:</strong> 3-Layer 모델은 정확하며 즉시
+                    스캔 가능성을 개선할 것
+                  </li>
+                  <li>
+                    Layer 1 (입력): 페이지를 지배해야 함 — 강한 테두리, 흰 카드,
+                    전체 불투명도
+                  </li>
+                  <li>
+                    Layer 2 (안내): 시각적으로 종속적 — muted gray 밴드, 접힌
+                    팁, 인라인 캡션
+                  </li>
+                  <li>
+                    Layer 3 (경고): 절제하여 사용 — 현재 경고끼리 경쟁 중 → 진짜
+                    blocker만
+                  </li>
+                  <li>
+                    <strong>규칙:</strong> 입력 그룹당 1 primary card + 1 muted
+                    guidance + error만 alert 스타일
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <h4 class="font-semibold text-gray-900 mb-1">
+                  2. 로고 탭 — Step 기반 그룹핑
+                </h4>
+                <ul class="list-disc ml-5 space-y-1 text-xs">
+                  <li>
+                    <strong>Step 1:</strong> 로고 파일 업로드 (선택 사항 명시)
+                  </li>
+                  <li>
+                    <strong>Step 2:</strong> 디자인 선호도 — 스타일+폰트+색상을
+                    하나의 "Design Preferences" 섹션으로
+                  </li>
+                  <li>
+                    <strong>Step 3:</strong> 명함 색상 코드 — Required badge로,
+                    큰 orange 박스 제거
+                  </li>
+                  <li>
+                    <strong>Step 4:</strong> 상세 요청 — textarea가 주인공,
+                    가이드는 접힌 아코디언으로
+                  </li>
+                  <li>
+                    라벨 16px semibold / 가이드 12-13px regular muted — 크기
+                    차로 계층 표현
+                  </li>
+                  <li>경고 색상 1개로 통일 (orange 2개 → warning 1개)</li>
+                </ul>
+              </div>
+
+              <div>
+                <h4 class="font-semibold text-gray-900 mb-1">
+                  3. 인쇄물 탭 — Step 분리
+                </h4>
+                <ul class="list-disc ml-5 space-y-1 text-xs">
+                  <li>
+                    <strong>Step 1:</strong> 필수 서류 업로드 — 완료 상태 인라인
+                    피드백
+                  </li>
+                  <li>
+                    <strong>Step 2:</strong> 명함 스타일 — 3열 그리드
+                    (데스크톱), 2열 (모바일)
+                  </li>
+                  <li>
+                    <strong>Step 3:</strong> 계약서 스타일 — 별도 섹션으로 분리
+                    (현재 같은 Card에 묻힘)
+                  </li>
+                  <li>섹션 헤더에 넘버링 + 완료 상태 표시</li>
+                </ul>
+              </div>
+
+              <div>
+                <h4 class="font-semibold text-gray-900 mb-1">
+                  4. 추가 UX 패턴
+                </h4>
+                <ul class="list-disc ml-5 space-y-1 text-xs">
+                  <li>
+                    <strong>Progressive Disclosure:</strong> 예시/가이드를
+                    아코디언 뒤로
+                  </li>
+                  <li>
+                    <strong>Completion Feedback:</strong> 섹션별 체크 상태 (1/2
+                    완료)
+                  </li>
+                  <li>
+                    <strong>Inline Validation:</strong> 반복 배너 대신 필드 근처
+                    검증
+                  </li>
+                  <li>
+                    <strong>Required Summary:</strong> 탭 상단에 "필수 항목 3개
+                    남음" 표시가 다중 경고 박스보다 효과적
+                  </li>
+                  <li>
+                    <strong>일관된 Field Anatomy:</strong> Label → helper →
+                    input → error (혼합 금지)
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <h4 class="font-semibold text-gray-900 mb-1">
+                  5. 모바일 고려사항
+                </h4>
+                <ul class="list-disc ml-5 space-y-1 text-xs">
+                  <li>도움말 기본 접힘 — 필수 한 줄 가이드만 표시</li>
+                  <li>4열/6카드 레이아웃 금지 → 1-2열 또는 가로 스크롤</li>
+                  <li>필수 Badge를 라벨 옆에 (별도 alert 박스 대신)</li>
+                  <li>저장 버튼 sticky bottom 고려</li>
+                  <li>반복 배너 축소 — 모바일에서 입력을 fold 아래로 밀어냄</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- 구현 가이드 -->
+          <div class="bg-white rounded-xl border p-5">
+            <h3 class="font-bold text-gray-800 mb-3">
+              구현 시 CSS 클래스 가이드
+            </h3>
+            <div class="space-y-3 text-xs font-mono">
+              <div class="bg-gray-50 rounded p-3">
+                <p class="font-sans text-xs font-semibold text-gray-600 mb-1">
+                  Layer 1: 입력 영역
+                </p>
+                <code>bg-white border border-gray-200 rounded-lg p-4</code>
+              </div>
+              <div class="bg-gray-50 rounded p-3">
+                <p class="font-sans text-xs font-semibold text-gray-600 mb-1">
+                  Layer 2: 맥락 안내
+                </p>
+                <code>bg-gray-50 rounded-md p-2.5 text-xs text-gray-500</code>
+              </div>
+              <div class="bg-gray-50 rounded p-3">
+                <p class="font-sans text-xs font-semibold text-gray-600 mb-1">
+                  Layer 3: 경고/필수
+                </p>
+                <code
+                  >bg-red-50 border border-red-300 rounded-md p-2 text-xs
+                  text-red-900</code
+                >
+              </div>
+              <div class="bg-gray-50 rounded p-3">
+                <p class="font-sans text-xs font-semibold text-gray-600 mb-1">
+                  Step Indicator
+                </p>
+                <code>flex items-center gap-2 mb-3</code><br />
+                <code
+                  >Number: w-6 h-6 rounded-full bg-navy-900 text-white text-xs
+                  font-bold flex items-center justify-center</code
+                >
+              </div>
+              <div class="bg-gray-50 rounded p-3">
+                <p class="font-sans text-xs font-semibold text-gray-600 mb-1">
+                  Required Badge
+                </p>
+                <code
+                  >px-1.5 py-0.5 rounded-full bg-red-50 text-red-600 text-[10px]
+                  font-semibold border border-red-200</code
+                >
+              </div>
+              <div class="bg-gray-50 rounded p-3">
+                <p class="font-sans text-xs font-semibold text-gray-600 mb-1">
+                  Selection Card (selected)
+                </p>
+                <code
+                  >border-2 border-gold-600 bg-gold-50 ring-2
+                  ring-gold-200</code
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- 변경 범위 -->
+          <div class="bg-white rounded-xl border p-5">
+            <h3 class="font-bold text-gray-800 mb-3">변경 범위 & 영향도</h3>
+            <table class="w-full text-xs">
+              <thead>
+                <tr class="border-b">
+                  <th class="text-left py-2 text-gray-600">대상</th>
+                  <th class="text-left py-2 text-gray-600">파일</th>
+                  <th class="text-left py-2 text-gray-600">변경 내용</th>
+                  <th class="text-left py-2 text-gray-600">영향도</th>
+                </tr>
+              </thead>
+              <tbody class="text-gray-700">
+                <tr class="border-b">
+                  <td class="py-2">로고 탭</td>
+                  <td class="py-2 font-mono text-[10px]">
+                    submission/page.tsx:1052~1690
+                  </td>
+                  <td class="py-2">
+                    Step 기반 그룹핑, 3-Layer 적용, orange 박스 2→1
+                  </td>
+                  <td class="py-2">
+                    <span
+                      class="px-1.5 py-0.5 bg-amber-100 text-amber-800 rounded text-[10px]"
+                      >중간</span
+                    >
+                  </td>
+                </tr>
+                <tr class="border-b">
+                  <td class="py-2">인쇄물 탭</td>
+                  <td class="py-2 font-mono text-[10px]">
+                    submission/page.tsx:1693~2073
+                  </td>
+                  <td class="py-2">3 Step 분리, 명함 3열, 계약서 별도 섹션</td>
+                  <td class="py-2">
+                    <span
+                      class="px-1.5 py-0.5 bg-amber-100 text-amber-800 rounded text-[10px]"
+                      >중간</span
+                    >
+                  </td>
+                </tr>
+                <tr>
+                  <td class="py-2">기능 변경</td>
+                  <td class="py-2 font-mono text-[10px]">-</td>
+                  <td class="py-2">없음 (순수 UI/레이아웃 변경)</td>
+                  <td class="py-2">
+                    <span
+                      class="px-1.5 py-0.5 bg-green-100 text-green-800 rounded text-[10px]"
+                      >낮음</span
+                    >
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function showView(name) {
+        document
+          .querySelectorAll(".view-section")
+          .forEach((el) => (el.style.display = "none"));
+        document
+          .querySelectorAll(".view-btn")
+          .forEach((el) => el.classList.remove("active"));
+        document.getElementById("view-" + name).style.display = "block";
+        document.getElementById("btn-" + name).classList.add("active");
+      }
+
+      // Selection card interaction
+      document.querySelectorAll(".select-card").forEach((card) => {
+        card.addEventListener("click", function () {
+          const siblings = this.parentElement.querySelectorAll(".select-card");
+          siblings.forEach((s) => s.classList.remove("selected"));
+          this.classList.add("selected");
+        });
+      });
+    </script>
+  </body>
+</html>

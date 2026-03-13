@@ -1073,35 +1073,66 @@ export default function SubmissionPage() {
               <form
                 key={`logo-${submission?.로고선호스타일}-${isEditingLogo}`}
                 onSubmit={(e) => handleSubmit(e, "logo")}
-                className="space-y-4"
+                className="space-y-5"
               >
-                {/* 로고 파일 업로드 */}
-                <div id="logo-section" className="space-y-2">
-                  <Label className="text-sm sm:text-base">
-                    로고 파일 (있는 경우)
-                  </Label>
-                  <p className="text-xs text-gray-400 italic">
-                    이미지 파일(JPG, PNG 등) 또는 ZIP 파일을 업로드할 수
-                    있습니다
-                  </p>
-                  {submission?.로고URL ? (
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 border border-green-200">
-                        <div className="flex items-center gap-2">
-                          <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-700" />
-                          <span className="text-green-700 text-sm sm:text-base">
-                            업로드 완료
-                          </span>
+                {/* Step 1: 로고 파일 업로드 */}
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="w-6 h-6 rounded-full bg-navy-900 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">
+                      1
+                    </span>
+                    <span className="text-sm font-semibold text-gray-900">
+                      로고 파일 업로드
+                    </span>
+                    <span className="px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-400 text-[10px]">
+                      선택
+                    </span>
+                  </div>
+                  <div
+                    id="logo-section"
+                    className="bg-white border border-gray-200 rounded-lg p-4"
+                  >
+                    <p className="text-xs text-gray-500 mb-2">
+                      기존에 사용 중인 로고가 있으면 업로드해주세요 (JPG, PNG,
+                      ZIP)
+                    </p>
+                    {submission?.로고URL ? (
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between p-2.5 rounded-lg bg-green-50 border border-green-200">
+                          <div className="flex items-center gap-2">
+                            <CheckCircle2 className="w-4 h-4 text-green-700" />
+                            <span className="text-green-700 text-sm">
+                              업로드 완료
+                            </span>
+                          </div>
+                          <a
+                            href={submission.로고URL}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-gold-600 hover:underline"
+                          >
+                            파일 보기
+                          </a>
                         </div>
-                        <a
-                          href={submission.로고URL}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-gold-600 hover:underline"
-                        >
-                          파일 보기
-                        </a>
+                        <label className="block">
+                          <input
+                            type="file"
+                            accept="image/*,.zip"
+                            className="hidden"
+                            onChange={(e) => {
+                              if (e.target.files?.[0]) {
+                                handleFileUpload("로고URL", e.target.files[0]);
+                              }
+                            }}
+                            disabled={uploading}
+                          />
+                          <div className="flex items-center justify-center gap-2 p-2 rounded-lg border border-gray-300 hover:border-gold-500 hover:bg-gold-50 cursor-pointer transition-all text-sm">
+                            <Upload className="w-4 h-4" />
+                            <span>파일 변경</span>
+                          </div>
+                        </label>
                       </div>
+                    ) : (
                       <label className="block">
                         <input
                           type="file"
@@ -1114,552 +1145,365 @@ export default function SubmissionPage() {
                           }}
                           disabled={uploading}
                         />
-                        <div className="flex items-center justify-center gap-2 p-2 rounded-lg border border-gray-300 hover:border-gold-500 hover:bg-gold-50 cursor-pointer transition-all">
-                          <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
-                          <span className="text-sm sm:text-base">
-                            파일 변경
+                        <div className="flex items-center justify-center gap-2 p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-gold-500 hover:bg-gold-50 cursor-pointer transition-all">
+                          <Upload className="w-4 h-4 text-gray-400" />
+                          <span className="text-sm text-gray-400">
+                            클릭하여 로고 파일 업로드
                           </span>
                         </div>
                       </label>
-                    </div>
-                  ) : (
-                    <label className="block">
-                      <input
-                        type="file"
-                        accept="image/*,.zip"
-                        className="hidden"
-                        onChange={(e) => {
-                          if (e.target.files?.[0]) {
-                            handleFileUpload("로고URL", e.target.files[0]);
-                          }
-                        }}
-                        disabled={uploading}
-                      />
-                      <div className="flex items-center justify-center gap-2 p-4 rounded-lg border border-dashed border-gray-300 hover:border-gold-500 cursor-pointer transition-all">
-                        <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
-                        <span className="text-sm sm:text-base">
-                          로고 파일 업로드
-                        </span>
-                      </div>
-                    </label>
-                  )}
-                </div>
-
-                {/* 로고 선호 스타일 */}
-                <div className="space-y-3">
-                  <div className="flex items-start gap-2">
-                    <Label className="text-sm sm:text-base">
-                      로고 선호 스타일
-                    </Label>
-                    <p className="text-xs text-red-600 font-medium mt-0.5">
-                      ※ 로고 선택 후 시안은 심볼형, 워드마크형 중 선택한
-                      사항으로만 구성 가능합니다.
-                      <br />
-                      (심볼형 시안 요청 시 워드마크형 시안 요청 불가)
-                    </p>
-                  </div>
-                  <input
-                    type="hidden"
-                    name="로고선호스타일"
-                    value={selectedStyle}
-                  />
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {[
-                      {
-                        name: "심볼형 (도형기반)",
-                        description: "도형과 심볼을 활용한 로고",
-                        image: "/logo-examples/symbol.png",
-                      },
-                      {
-                        name: "워드마크형 (텍스트)",
-                        description: "브랜드명 텍스트 중심 로고",
-                        images: [
-                          "/logo-examples/wordmark1.png",
-                          "/logo-examples/wordmark2.png",
-                        ],
-                      },
-                    ].map((style) => (
-                      <button
-                        key={style.name}
-                        type="button"
-                        onClick={() => setSelectedStyle(style.name)}
-                        disabled={submission?.isComplete || !isEditingLogo}
-                        className={`p-4 rounded-lg border transition-all ${
-                          selectedStyle === style.name
-                            ? "border-gold-600 bg-gold-50"
-                            : "border-gray-300 hover:border-gold-400 hover:bg-white"
-                        } ${submission?.isComplete || !isEditingLogo ? "opacity-60 cursor-not-allowed" : ""}`}
-                      >
-                        <div className="flex flex-col items-center gap-3">
-                          <div className="flex gap-2 items-center justify-center h-24">
-                            {style.image ? (
-                              <img
-                                src={style.image}
-                                alt={style.name}
-                                className="h-20 w-auto object-contain"
-                              />
-                            ) : (
-                              style.images?.map((img, idx) => (
-                                <img
-                                  key={idx}
-                                  src={img}
-                                  alt={`${style.name} ${idx + 1}`}
-                                  className="h-16 w-auto object-contain"
-                                />
-                              ))
-                            )}
-                          </div>
-                          <div className="text-center">
-                            <div className="font-semibold text-sm">
-                              {style.name}
-                            </div>
-                            <div className="text-xs text-gray-500 mt-1">
-                              {style.description}
-                            </div>
-                          </div>
-                        </div>
-                      </button>
-                    ))}
+                    )}
                   </div>
                 </div>
 
-                {/* 로고 선호 폰트 */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-sm sm:text-base">
-                      로고 선호 폰트
-                    </Label>
-                    <a
-                      href="https://noonnu.cc/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs sm:text-sm text-gold-600 hover:text-navy-700 hover:underline font-medium flex items-center gap-1"
-                    >
-                      <span>폰트 찾기 (눈누)</span>
-                      <svg
-                        className="w-3 h-3"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                        />
-                      </svg>
-                    </a>
-                  </div>
-
-                  <p className="text-xs text-gray-500">
-                    <span className="font-medium text-gray-500">
-                      무료 폰트만 사용 가능
+                {/* Step 2: 디자인 선호도 (스타일+폰트+색상 그룹핑) */}
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="w-6 h-6 rounded-full bg-navy-900 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">
+                      2
                     </span>
-                    합니다. 유료 폰트는 직접 구매 후 파일 전달 필요.
-                  </p>
+                    <span className="text-sm font-semibold text-gray-900">
+                      디자인 선호도
+                    </span>
+                  </div>
+                  <div className="bg-white border border-gray-200 rounded-lg p-4 space-y-4">
+                    {/* 스타일 */}
+                    <div>
+                      <span className="text-sm font-medium text-gray-800 mb-2 block">
+                        스타일
+                      </span>
+                      <input
+                        type="hidden"
+                        name="로고선호스타일"
+                        value={selectedStyle}
+                      />
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {[
+                          {
+                            name: "심볼형 (도형기반)",
+                            description: "도형과 심볼을 활용한 로고",
+                            image: "/logo-examples/symbol.png",
+                          },
+                          {
+                            name: "워드마크형 (텍스트)",
+                            description: "브랜드명 텍스트 중심 로고",
+                            images: [
+                              "/logo-examples/wordmark1.png",
+                              "/logo-examples/wordmark2.png",
+                            ],
+                          },
+                        ].map((style) => (
+                          <button
+                            key={style.name}
+                            type="button"
+                            onClick={() => setSelectedStyle(style.name)}
+                            disabled={submission?.isComplete || !isEditingLogo}
+                            className={`p-3 rounded-lg border-2 transition-all ${
+                              selectedStyle === style.name
+                                ? "border-gold-600 bg-gold-50 ring-2 ring-gold-200"
+                                : "border-gray-200 hover:border-gold-400 hover:bg-white"
+                            } ${submission?.isComplete || !isEditingLogo ? "opacity-60 cursor-not-allowed" : ""}`}
+                          >
+                            <div className="flex flex-col items-center gap-2">
+                              <div className="flex gap-2 items-center justify-center h-20">
+                                {style.image ? (
+                                  <img
+                                    src={style.image}
+                                    alt={style.name}
+                                    className="h-16 w-auto object-contain"
+                                  />
+                                ) : (
+                                  style.images?.map((img, idx) => (
+                                    <img
+                                      key={idx}
+                                      src={img}
+                                      alt={`${style.name} ${idx + 1}`}
+                                      className="h-14 w-auto object-contain"
+                                    />
+                                  ))
+                                )}
+                              </div>
+                              <div className="text-center">
+                                <div className="font-semibold text-sm">
+                                  {style.name}
+                                </div>
+                                <div className="text-xs text-gray-500 mt-0.5">
+                                  {style.description}
+                                </div>
+                              </div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
 
-                  <input
-                    type="hidden"
-                    name="로고선호폰트"
-                    value={selectedFont}
-                  />
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    {[
-                      { name: "고딕체 (깔끔한)", style: "font-sans" },
-                      { name: "명조체 (전통적인)", style: "font-serif" },
-                      { name: "손글씨 (감성적인)", style: "font-cursive" },
-                      { name: "모던 (기하학적)", style: "font-mono" },
-                    ].map((fontOption) => (
-                      <button
-                        key={fontOption.name}
-                        type="button"
-                        onClick={() => setSelectedFont(fontOption.name)}
-                        disabled={submission?.isComplete || !isEditingLogo}
-                        className={`p-2 rounded-lg border transition-all text-center ${
-                          selectedFont === fontOption.name
-                            ? "border-gold-600 bg-gold-50"
-                            : "border-gray-300 hover:border-gold-400 hover:bg-white"
-                        } ${submission?.isComplete || !isEditingLogo ? "opacity-60 cursor-not-allowed" : ""}`}
-                      >
-                        <div
-                          className={`font-semibold text-xs ${fontOption.style}`}
+                    {/* 폰트 */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-gray-800">
+                          폰트
+                        </span>
+                        <a
+                          href="https://noonnu.cc/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-gold-600 hover:underline"
                         >
-                          {fontOption.name}
-                        </div>
-                        <div className={`text-xl mt-1 ${fontOption.style}`}>
-                          Aa
-                        </div>
-                      </button>
-                    ))}
+                          폰트 찾기 (눈누) →
+                        </a>
+                      </div>
+                      <input
+                        type="hidden"
+                        name="로고선호폰트"
+                        value={selectedFont}
+                      />
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {[
+                          { name: "고딕체 (깔끔한)", style: "font-sans" },
+                          { name: "명조체 (전통적인)", style: "font-serif" },
+                          { name: "손글씨 (감성적인)", style: "font-cursive" },
+                          { name: "모던 (기하학적)", style: "font-mono" },
+                        ].map((fontOption) => (
+                          <button
+                            key={fontOption.name}
+                            type="button"
+                            onClick={() => setSelectedFont(fontOption.name)}
+                            disabled={submission?.isComplete || !isEditingLogo}
+                            className={`p-2 rounded-lg border-2 transition-all text-center ${
+                              selectedFont === fontOption.name
+                                ? "border-gold-600 bg-gold-50 ring-2 ring-gold-200"
+                                : "border-gray-200 hover:border-gold-400 hover:bg-white"
+                            } ${submission?.isComplete || !isEditingLogo ? "opacity-60 cursor-not-allowed" : ""}`}
+                          >
+                            <div
+                              className={`font-semibold text-xs ${fontOption.style}`}
+                            >
+                              {fontOption.name}
+                            </div>
+                            <div className={`text-xl mt-1 ${fontOption.style}`}>
+                              Aa
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* 색상 */}
+                    <div>
+                      <input
+                        type="hidden"
+                        name="로고선호색상"
+                        value={logoPreferenceColor}
+                      />
+                      <LogoColorSelector
+                        value={logoPreferenceColor}
+                        onChange={setLogoPreferenceColor}
+                        disabled={submission?.isComplete || !isEditingLogo}
+                      />
+                    </div>
+
+                    {/* Layer 2: 안내 */}
+                    <div className="bg-gray-50 rounded-md p-2.5 text-xs text-gray-500">
+                      💡 무료 폰트만 사용 가능합니다. 유료 폰트는 직접 구매 후
+                      파일 전달 필요.
+                    </div>
                   </div>
                 </div>
 
-                {/* 로고 선호 색상 선택 - PRD D-3 비주얼 선택 UI */}
-                <div className="space-y-3">
-                  <input
-                    type="hidden"
-                    name="로고선호색상"
-                    value={logoPreferenceColor}
-                  />
-                  <LogoColorSelector
-                    value={logoPreferenceColor}
-                    onChange={setLogoPreferenceColor}
-                    disabled={submission?.isComplete || !isEditingLogo}
-                  />
-                </div>
-
-                {/* 명함 색상 선택 (16진수) */}
-                <div className="space-y-3 p-4 rounded-lg border border-orange-300 bg-orange-50/50">
-                  <div className="flex items-start gap-2">
-                    <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
-                    <Label
-                      htmlFor="명함색상"
-                      className="text-sm sm:text-base font-semibold text-orange-900"
-                    >
-                      명함에 사용할 정확한 색상 코드 *
-                    </Label>
+                {/* Step 3: 명함 색상 코드 */}
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="w-6 h-6 rounded-full bg-navy-900 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">
+                      3
+                    </span>
+                    <span className="text-sm font-semibold text-gray-900">
+                      명함 색상 코드
+                    </span>
+                    <span className="px-1.5 py-0.5 rounded-full bg-red-50 text-red-600 text-[10px] font-semibold border border-red-200">
+                      필수
+                    </span>
                   </div>
-                  <p className="text-xs text-orange-700">
-                    위에서 선택한 색상 계열을 기반으로, 명함에 사용할 정확한
-                    색상을 선택해주세요.
-                  </p>
-                  <div className="flex gap-3 items-center">
-                    <input
-                      type="color"
-                      value={businessCardColor}
-                      onChange={(e) => setBusinessCardColor(e.target.value)}
-                      disabled={submission?.isComplete || !isEditingLogo}
-                      className="w-20 h-20 rounded-lg border border-orange-400 cursor-pointer disabled:opacity-50"
-                    />
-                    <div className="flex-1 space-y-2">
-                      <Input
-                        id="명함색상"
-                        name="명함색상"
+                  <div className="bg-white border border-gray-200 rounded-lg p-4">
+                    <p className="text-xs text-gray-500 mb-3">
+                      위에서 선택한 색상 계열을 기반으로, 명함 인쇄에 사용할
+                      정확한 색상을 선택해주세요.
+                    </p>
+                    <div className="flex gap-3 items-center">
+                      <input
+                        type="color"
                         value={businessCardColor}
                         onChange={(e) => setBusinessCardColor(e.target.value)}
-                        placeholder="#3B82F6"
                         disabled={submission?.isComplete || !isEditingLogo}
-                        className="font-mono bg-white border-orange-300"
-                        required
+                        className="w-14 h-14 rounded-lg border border-gray-300 cursor-pointer disabled:opacity-50"
                       />
-                      <p className="text-xs text-orange-700 font-medium">
-                        컬러피커에서 선택하거나 직접 16진수 색상값을 입력하세요
-                        (예: #FF5733)
-                      </p>
-                      <div className="bg-orange-100 border border-orange-300 rounded-md p-2">
-                        <p className="text-xs sm:text-sm font-bold text-orange-900 flex items-center gap-1">
-                          <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5" />
-                          필수! 색상을 반드시 선택한 후 &quot;저장하기&quot;
-                          버튼을 눌러주세요!
+                      <div className="flex-1 space-y-1">
+                        <Input
+                          id="명함색상"
+                          name="명함색상"
+                          value={businessCardColor}
+                          onChange={(e) => setBusinessCardColor(e.target.value)}
+                          placeholder="#3B82F6"
+                          disabled={submission?.isComplete || !isEditingLogo}
+                          className="font-mono bg-white"
+                          required
+                        />
+                        <p className="text-[10px] text-gray-400">
+                          컬러피커에서 선택하거나 직접 16진수 색상값을
+                          입력하세요 (예: #FF5733)
                         </p>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* 상세 제작 요청사항 (필수) */}
-                <div className="space-y-3 p-4 rounded-lg border border-orange-200 bg-orange-50/50">
-                  <div className="flex items-start gap-2">
-                    <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
-                    <div className="flex-1">
-                      <Label
-                        htmlFor="로고제작요청사항"
-                        className="text-sm sm:text-base font-semibold text-orange-900"
-                      >
-                        상세 제작 요청사항 *
-                      </Label>
-                      <p className="text-xs text-orange-700 mt-1">
-                        이 항목을 작성해야 로고 제작이 시작됩니다. 임시저장은
-                        가능하지만, 최종 제출하려면 반드시 작성해주세요.
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* 최우선 강조사항 - 한 줄 압축 */}
-                  <div className="flex items-center gap-2 p-2.5 bg-red-50 rounded-lg border border-red-400">
-                    <span className="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0 font-bold text-xs">
-                      !
+                {/* Step 4: 상세 제작 요청사항 */}
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="w-6 h-6 rounded-full bg-navy-900 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">
+                      4
                     </span>
-                    <p className="text-xs font-bold text-red-900">
-                      ⚠️ 필수: 로고 제작은{" "}
-                      <span className="underline decoration-red-500">
+                    <span className="text-sm font-semibold text-gray-900">
+                      상세 제작 요청사항
+                    </span>
+                    <span className="px-1.5 py-0.5 rounded-full bg-red-50 text-red-600 text-[10px] font-semibold border border-red-200">
+                      필수
+                    </span>
+                  </div>
+                  <div className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
+                    {/* Layer 3: 경고 (유일한 1개) */}
+                    <div className="bg-red-50 border border-red-300 rounded-md p-2.5 text-xs text-red-900">
+                      ⚠️ 로고 제작은{" "}
+                      <span className="font-bold underline">
                         심볼형 OR 워드마크형 중 한 가지만
                       </span>{" "}
-                      선택 가능합니다. (심볼형 선택 시 워드마크형 불가)
-                    </p>
-                  </div>
-
-                  {/* 작성 가이드 - details 접기 */}
-                  <details className="rounded-lg border border-gray-200">
-                    <summary className="cursor-pointer px-4 py-2.5 bg-white rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 select-none list-none flex items-center gap-2">
-                      <span>📝</span>
-                      <span>작성 가이드 &amp; 예시 보기</span>
-                    </summary>
-                    <div className="space-y-3 p-4 bg-white rounded-lg border-t border-gray-200">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* 좋은 예시 */}
-                        <div className="space-y-2">
-                          <p className="text-sm font-bold text-green-700 flex items-center gap-1">
-                            ✅ 좋은 예시 (구체적이고 명확한 표현)
-                          </p>
-                          <ul className="text-xs text-gray-800 space-y-1.5 bg-green-50 p-3 rounded-lg border border-green-200 max-h-[400px] overflow-y-auto">
-                            <li className="flex items-start gap-2">
-                              <span className="text-green-600 font-bold mt-0.5">
-                                1.
-                              </span>
-                              <span>
-                                <span className="font-bold text-red-700">
-                                  로고 형태:
-                                </span>{" "}
-                                심볼형 선택 - 원형 프레임 안에 클라우드 아이콘
-                                배치
-                              </span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-green-600 font-bold mt-0.5">
-                                2.
-                              </span>
-                              <span>
-                                메인 컬러는 파란색 계열(#2563EB), 흰색 배경에서
-                                명확히 보이게
-                              </span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-green-600 font-bold mt-0.5">
-                                3.
-                              </span>
-                              <span>
-                                폰트는 산세리프체(고딕체) 사용, 가독성 우선
-                              </span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-green-600 font-bold mt-0.5">
-                                4.
-                              </span>
-                              <span>
-                                심볼은 업종과 연관된 아이콘 (예: IT 기업 -
-                                클라우드/데이터 모티브)
-                              </span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-green-600 font-bold mt-0.5">
-                                5.
-                              </span>
-                              <span>
-                                장식 요소 최소화, 선의 굵기는 균일하게 2-3px
-                                유지
-                              </span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-green-600 font-bold mt-0.5">
-                                6.
-                              </span>
-                              <span>
-                                그라데이션 지양, 단색으로 인쇄 가능한 디자인
-                              </span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-green-600 font-bold mt-0.5">
-                                7.
-                              </span>
-                              <span>
-                                참고 브랜드: 삼성 (블루 계열), 네이버
-                                (심볼+텍스트 조합)
-                              </span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-green-600 font-bold mt-0.5">
-                                8.
-                              </span>
-                              <span>
-                                제외 요소: 빨강/노랑 색상, 세리프체, 손글씨체,
-                                3D 효과
-                              </span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-green-600 font-bold mt-0.5">
-                                9.
-                              </span>
-                              <span>
-                                타겟: 30-40대 전문직, B2B 고객 대상, 신뢰감 중시
-                              </span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-green-600 font-bold mt-0.5">
-                                10.
-                              </span>
-                              <span>
-                                로고 변형: 가로형/세로형/아이콘형 3가지 버전
-                                필요
-                              </span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-green-600 font-bold mt-0.5">
-                                11.
-                              </span>
-                              <span>
-                                사용처: 웹사이트 헤더(150x50px), 명함(3x3cm),
-                                SNS 프로필(500x500px)
-                              </span>
-                            </li>
-                          </ul>
-                        </div>
-
-                        {/* 나쁜 예시 */}
-                        <div className="space-y-2">
-                          <p className="text-sm font-bold text-red-700 flex items-center gap-1">
-                            ❌ 나쁜 예시 (모호한 표현)
-                          </p>
-                          <ul className="text-xs text-gray-800 space-y-1.5 bg-red-50 p-3 rounded-lg border border-red-200">
-                            <li className="flex items-start gap-2">
-                              <span className="text-red-600 font-bold mt-0.5">
-                                ✗
-                              </span>
-                              <span className="line-through">
-                                &apos;예쁘게 해주세요&apos;
-                              </span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-red-600 font-bold mt-0.5">
-                                ✗
-                              </span>
-                              <span className="line-through">
-                                &apos;멋진 로고 부탁드립니다&apos;
-                              </span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-red-600 font-bold mt-0.5">
-                                ✗
-                              </span>
-                              <span className="line-through">
-                                &apos;고급스럽게 해주세요&apos;
-                              </span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-red-600 font-bold mt-0.5">
-                                ✗
-                              </span>
-                              <span className="line-through">
-                                &apos;깔끔하게 만들어주세요&apos;
-                              </span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-red-600 font-bold mt-0.5">
-                                ✗
-                              </span>
-                              <span className="line-through">
-                                &apos;심플하게 해주세요&apos;
-                              </span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-red-600 font-bold mt-0.5">
-                                ✗
-                              </span>
-                              <span className="line-through">
-                                &apos;디자인 요소 추가해주세요&apos;
-                              </span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-red-600 font-bold mt-0.5">
-                                ✗
-                              </span>
-                              <span className="line-through">
-                                &apos;디자인해주세요&apos;
-                              </span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-red-600 font-bold mt-0.5">
-                                ✗
-                              </span>
-                              <span className="line-through">
-                                &apos;세련되게 만들어주세요&apos;
-                              </span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-red-600 font-bold mt-0.5">
-                                ✗
-                              </span>
-                              <span className="line-through">
-                                &apos;트렌디하게 해주세요&apos;
-                              </span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-red-600 font-bold mt-0.5">
-                                ✗
-                              </span>
-                              <span className="line-through">
-                                &apos;감각적으로 부탁드립니다&apos;
-                              </span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-red-600 font-bold mt-0.5">
-                                ✗
-                              </span>
-                              <span className="line-through">
-                                &apos;센스있게 해주세요&apos;
-                              </span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-red-600 font-bold mt-0.5">
-                                ✗
-                              </span>
-                              <span className="line-through">
-                                &apos;잘 부탁드립니다&apos;
-                              </span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-red-600 font-bold mt-0.5">
-                                ✗
-                              </span>
-                              <span className="line-through">
-                                &apos;아무거나 괜찮아요&apos;
-                              </span>
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-
-                      <div className="bg-gray-50 p-3 rounded-lg border-l-4 border-l-amber-400 border-y-0 border-r-0">
-                        <p className="text-xs text-gray-600 font-semibold mb-2">
-                          💡 작성 Tip
-                        </p>
-                        <ul className="text-xs text-gray-600 space-y-1 ml-4 list-disc">
-                          <li>
-                            <span className="font-semibold">브랜드 컨셉:</span>{" "}
-                            어떤 이미지를 주고 싶으신가요? (예: 신뢰감, 역동성,
-                            전문성)
-                          </li>
-                          <li>
-                            <span className="font-semibold">원하는 느낌:</span>{" "}
-                            어떤 분위기를 원하시나요? (예: 모던한, 클래식한,
-                            친근한)
-                          </li>
-                          <li>
-                            <span className="font-semibold">포함 요소:</span>{" "}
-                            로고에 꼭 들어가야 할 것은? (예: 브랜드명, 특정
-                            심볼)
-                          </li>
-                          <li>
-                            <span className="font-semibold">
-                              피하고 싶은 것:
-                            </span>{" "}
-                            구체적으로 어떤 스타일을 피하고 싶으신가요?
-                          </li>
-                        </ul>
-                      </div>
+                      선택 가능합니다.
                     </div>
-                  </details>
 
-                  <textarea
-                    id="로고제작요청사항"
-                    name="로고제작요청사항"
-                    rows={8}
-                    defaultValue={submission?.로고제작요청사항}
-                    disabled={submission?.isComplete || !isEditingLogo}
-                    placeholder="여기에 구체적인 요청사항을 작성해주세요..."
-                    className="w-full p-4 rounded-lg border border-orange-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 resize-none disabled:opacity-50 disabled:cursor-not-allowed text-sm placeholder:text-gray-500"
-                  />
+                    <p className="text-xs text-gray-500">
+                      이 항목을 작성해야 로고 제작이 시작됩니다.
+                    </p>
+
+                    <textarea
+                      id="로고제작요청사항"
+                      name="로고제작요청사항"
+                      rows={6}
+                      defaultValue={submission?.로고제작요청사항}
+                      disabled={submission?.isComplete || !isEditingLogo}
+                      placeholder="여기에 구체적인 요청사항을 작성해주세요..."
+                      className="w-full p-3 rounded-lg border border-gray-300 focus:border-gold-500 focus:ring-2 focus:ring-gold-200 resize-none disabled:opacity-50 disabled:cursor-not-allowed text-sm placeholder:text-gray-400"
+                    />
+
+                    {/* Layer 2: 작성 가이드 아코디언 */}
+                    <details className="bg-gray-50 rounded-md">
+                      <summary className="cursor-pointer px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-100 rounded-md select-none list-none flex items-center gap-2">
+                        <span>📝</span>
+                        <span>작성 가이드 &amp; 예시 보기</span>
+                      </summary>
+                      <div className="space-y-3 p-3 border-t border-gray-200">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {/* 좋은 예시 */}
+                          <div>
+                            <p className="text-xs font-bold text-green-700 mb-1">
+                              ✅ 좋은 예시
+                            </p>
+                            <ul className="text-[10px] text-gray-800 space-y-1 bg-green-50 p-2.5 rounded border border-green-200 max-h-[300px] overflow-y-auto">
+                              <li>
+                                1. 심볼형 선택 - 원형 프레임 안에 클라우드
+                                아이콘 배치
+                              </li>
+                              <li>
+                                2. 메인 컬러는 파란색 계열(#2563EB), 흰색
+                                배경에서 명확히 보이게
+                              </li>
+                              <li>
+                                3. 폰트는 산세리프체(고딕체) 사용, 가독성 우선
+                              </li>
+                              <li>
+                                4. 심볼은 업종과 연관된 아이콘 (예: IT -
+                                클라우드/데이터)
+                              </li>
+                              <li>5. 장식 최소화, 선 굵기 균일하게 2-3px</li>
+                              <li>
+                                6. 그라데이션 지양, 단색 인쇄 가능한 디자인
+                              </li>
+                              <li>
+                                7. 참고: 삼성 (블루), 네이버 (심볼+텍스트)
+                              </li>
+                              <li>
+                                8. 제외: 빨강/노랑, 세리프체, 손글씨, 3D 효과
+                              </li>
+                              <li>9. 타겟: 30-40대 전문직, B2B, 신뢰감 중시</li>
+                              <li>
+                                10. 변형: 가로형/세로형/아이콘형 3가지 버전
+                              </li>
+                              <li>
+                                11. 사용처: 웹 헤더(150x50px), 명함(3x3cm),
+                                SNS(500x500px)
+                              </li>
+                            </ul>
+                          </div>
+                          {/* 나쁜 예시 */}
+                          <div>
+                            <p className="text-xs font-bold text-red-700 mb-1">
+                              ❌ 나쁜 예시
+                            </p>
+                            <ul className="text-[10px] text-gray-800 space-y-1 bg-red-50 p-2.5 rounded border border-red-200">
+                              <li className="line-through">
+                                &apos;예쁘게 해주세요&apos;
+                              </li>
+                              <li className="line-through">
+                                &apos;멋진 로고 부탁드립니다&apos;
+                              </li>
+                              <li className="line-through">
+                                &apos;고급스럽게 해주세요&apos;
+                              </li>
+                              <li className="line-through">
+                                &apos;깔끔하게 만들어주세요&apos;
+                              </li>
+                              <li className="line-through">
+                                &apos;심플하게 해주세요&apos;
+                              </li>
+                              <li className="line-through">
+                                &apos;디자인 요소 추가해주세요&apos;
+                              </li>
+                              <li className="line-through">
+                                &apos;세련되게 만들어주세요&apos;
+                              </li>
+                              <li className="line-through">
+                                &apos;트렌디하게 해주세요&apos;
+                              </li>
+                              <li className="line-through">
+                                &apos;감각적으로 부탁드립니다&apos;
+                              </li>
+                              <li className="line-through">
+                                &apos;센스있게 해주세요&apos;
+                              </li>
+                              <li className="line-through">
+                                &apos;아무거나 괜찮아요&apos;
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                        <div className="bg-white/80 p-2.5 rounded border-l-2 border-amber-400">
+                          <p className="text-[10px] text-gray-600 font-semibold mb-1">
+                            💡 작성 Tip
+                          </p>
+                          <ul className="text-[10px] text-gray-600 space-y-0.5 ml-3 list-disc">
+                            <li>
+                              브랜드 컨셉: 어떤 이미지를 주고 싶으신가요? (예:
+                              신뢰감, 역동성)
+                            </li>
+                            <li>원하는 느낌: 모던한, 클래식한, 친근한?</li>
+                            <li>
+                              포함 요소: 꼭 들어가야 할 것은? (브랜드명, 특정
+                              심볼)
+                            </li>
+                            <li>피하고 싶은 것: 구체적으로 어떤 스타일?</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </details>
+                  </div>
                 </div>
 
                 {!submission?.isComplete && (
@@ -1695,15 +1539,11 @@ export default function SubmissionPage() {
 
         {/* 인쇄물 */}
         <TabsContent value="print">
-          <div className="space-y-4">
-            {/* 인쇄물 디자인 제한 안내 - 한 줄 압축 */}
-            <div className="flex items-center gap-2 p-2.5 bg-gray-50 border-l-4 border-l-amber-400 border-y-0 border-r-0 rounded-r-lg">
-              <AlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0" />
-              <p className="text-gray-600 text-xs">
-                <span className="font-semibold">📋 인쇄물 디자인 안내:</span>{" "}
-                기본 디자인에서 일부 변경만 가능합니다. 신규 디자인 제작 및
-                레이아웃 변형 불가.
-              </p>
+          <div className="space-y-5">
+            {/* Layer 2: 안내 (약한 존재감) */}
+            <div className="bg-gray-50 rounded-md p-2.5 text-xs text-gray-500">
+              📋 인쇄물 디자인 안내: 기본 디자인에서 일부 변경만 가능합니다.
+              신규 디자인 제작 및 레이아웃 변형 불가.
             </div>
 
             {!isBasicInfoComplete() && (
@@ -1717,59 +1557,70 @@ export default function SubmissionPage() {
                 </p>
               </div>
             )}
-            <Card className="glass border-white/10">
-              <CardHeader className="p-4">
-                <CardTitle className="text-gray-900 text-base">
-                  필수 서류
-                </CardTitle>
-                <CardDescription className="text-gray-500 text-xs">
-                  사업자등록증과 프로필 사진을 업로드해주세요
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
+
+            {/* Step 1: 필수 서류 업로드 */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="w-6 h-6 rounded-full bg-navy-900 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">
+                  1
+                </span>
+                <span className="text-sm font-semibold text-gray-900">
+                  필수 서류 업로드
+                </span>
+                <span className="px-1.5 py-0.5 rounded-full bg-red-50 text-red-600 text-[10px] font-semibold border border-red-200">
+                  필수
+                </span>
+                <span className="text-[10px] text-gray-400 ml-auto">
+                  {
+                    [
+                      submission?.사업자등록증URL,
+                      submission?.프로필사진URL,
+                    ].filter(Boolean).length
+                  }
+                  /2 완료
+                </span>
+              </div>
+              <div className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
                 {/* 사업자등록증 */}
-                <div id="business-license-section" className="space-y-2">
-                  <Label className="text-sm sm:text-base">사업자등록증 *</Label>
+                <div id="business-license-section">
+                  <span className="text-xs font-medium text-gray-700 mb-1.5 block">
+                    사업자등록증
+                  </span>
                   {submission?.사업자등록증URL ? (
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 border border-green-200">
-                        <div className="flex items-center gap-2">
-                          <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-700" />
-                          <span className="text-green-700 text-sm sm:text-base">
-                            업로드 완료
-                          </span>
-                        </div>
+                    <div className="flex items-center justify-between p-2.5 rounded-lg bg-green-50 border border-green-200">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-700" />
+                        <span className="text-green-700 text-sm">
+                          업로드 완료
+                        </span>
+                      </div>
+                      <div className="flex gap-2 items-center">
                         <a
                           href={submission.사업자등록증URL}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-gold-600 hover:underline"
+                          className="text-xs text-gold-600 hover:underline"
                         >
                           파일 보기
                         </a>
+                        <label className="cursor-pointer text-xs text-gray-400 hover:text-gray-600">
+                          <input
+                            type="file"
+                            accept="image/*,application/pdf"
+                            className="hidden"
+                            onChange={(e) => {
+                              if (e.target.files?.[0]) {
+                                handleFileUpload(
+                                  "사업자등록증URL",
+                                  e.target.files[0],
+                                );
+                              }
+                            }}
+                            disabled={uploading}
+                          />
+                          변경
+                        </label>
                       </div>
-                      <label className="block">
-                        <input
-                          type="file"
-                          accept="image/*,application/pdf"
-                          className="hidden"
-                          onChange={(e) => {
-                            if (e.target.files?.[0]) {
-                              handleFileUpload(
-                                "사업자등록증URL",
-                                e.target.files[0],
-                              );
-                            }
-                          }}
-                          disabled={uploading}
-                        />
-                        <div className="flex items-center justify-center gap-2 p-2 rounded-lg border border-gray-300 hover:border-gold-500 hover:bg-gold-50 cursor-pointer transition-all">
-                          <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
-                          <span className="text-sm sm:text-base">
-                            파일 변경
-                          </span>
-                        </div>
-                      </label>
                     </div>
                   ) : (
                     <label className="block">
@@ -1787,9 +1638,9 @@ export default function SubmissionPage() {
                         }}
                         disabled={uploading}
                       />
-                      <div className="flex items-center justify-center gap-2 p-4 rounded-lg border border-dashed border-gray-300 hover:border-gold-500 cursor-pointer transition-all">
-                        <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
-                        <span className="text-sm sm:text-base">
+                      <div className="flex items-center justify-center gap-2 p-3 rounded-lg border-2 border-dashed border-gray-300 hover:border-gold-500 hover:bg-gold-50 cursor-pointer transition-all">
+                        <Upload className="w-4 h-4 text-gray-400" />
+                        <span className="text-sm text-gray-400">
                           클릭하여 파일 업로드
                         </span>
                       </div>
@@ -1798,50 +1649,50 @@ export default function SubmissionPage() {
                 </div>
 
                 {/* 프로필사진 */}
-                <div id="profile-photo-section" className="space-y-2">
-                  <Label className="text-sm sm:text-base break-words">
-                    프로필사진 * (1000px 이하)
-                  </Label>
+                <div id="profile-photo-section">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="text-xs font-medium text-gray-700">
+                      프로필사진
+                    </span>
+                    <span className="text-[10px] text-gray-400">
+                      (1000px 이하)
+                    </span>
+                  </div>
                   {submission?.프로필사진URL ? (
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 border border-green-200">
-                        <div className="flex items-center gap-2">
-                          <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-700" />
-                          <span className="text-green-700 text-sm sm:text-base">
-                            업로드 완료
-                          </span>
-                        </div>
+                    <div className="flex items-center justify-between p-2.5 rounded-lg bg-green-50 border border-green-200">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-700" />
+                        <span className="text-green-700 text-sm">
+                          업로드 완료
+                        </span>
+                      </div>
+                      <div className="flex gap-2 items-center">
                         <a
                           href={submission.프로필사진URL}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-gold-600 hover:underline text-sm sm:text-base"
+                          className="text-xs text-gold-600 hover:underline"
                         >
                           파일 보기
                         </a>
+                        <label className="cursor-pointer text-xs text-gray-400 hover:text-gray-600">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              if (e.target.files?.[0]) {
+                                handleFileUpload(
+                                  "프로필사진URL",
+                                  e.target.files[0],
+                                );
+                              }
+                            }}
+                            disabled={uploading}
+                          />
+                          변경
+                        </label>
                       </div>
-                      <label className="block">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={(e) => {
-                            if (e.target.files?.[0]) {
-                              handleFileUpload(
-                                "프로필사진URL",
-                                e.target.files[0],
-                              );
-                            }
-                          }}
-                          disabled={uploading}
-                        />
-                        <div className="flex items-center justify-center gap-2 p-2 rounded-lg border border-gray-300 hover:border-gold-500 hover:bg-gold-50 cursor-pointer transition-all">
-                          <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
-                          <span className="text-sm sm:text-base">
-                            파일 변경
-                          </span>
-                        </div>
-                      </label>
                     </div>
                   ) : (
                     <label className="block">
@@ -1859,193 +1710,197 @@ export default function SubmissionPage() {
                         }}
                         disabled={uploading}
                       />
-                      <div className="flex items-center justify-center gap-2 p-4 rounded-lg border border-dashed border-gray-300 hover:border-gold-500 cursor-pointer transition-all">
-                        <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
-                        <span className="text-sm sm:text-base">
+                      <div className="flex items-center justify-center gap-2 p-3 rounded-lg border-2 border-dashed border-gray-300 hover:border-gold-500 hover:bg-gold-50 cursor-pointer transition-all">
+                        <Upload className="w-4 h-4 text-gray-400" />
+                        <span className="text-sm text-gray-400">
                           클릭하여 파일 업로드
                         </span>
                       </div>
                     </label>
                   )}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            {/* 명함 정보 */}
-            <Card id="namecard-section" className="glass border-white/10">
-              <CardHeader className="p-4">
-                <CardTitle className="text-gray-900 text-base">
-                  명함 스타일
-                </CardTitle>
-                <CardDescription className="text-gray-500 text-xs">
-                  명함 스타일을 선택해주세요
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form
-                  key={`namecard-${submission?.명함시안}-${isEditingNamecard}`}
-                  onSubmit={(e) => handleSubmit(e, "namecard")}
-                  className="space-y-4"
-                >
-                  {/* 명함 스타일 선택 */}
-                  <div className="space-y-3">
-                    <Label className="text-sm sm:text-base break-words">
-                      명함 스타일 선택 (6종 중 1개 선택)
-                    </Label>
-                    <input
-                      type="hidden"
-                      name="명함시안"
-                      value={selectedNamecard}
-                    />
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {[1, 2, 3, 4, 5, 6].map((num) => (
-                        <div
-                          key={num}
-                          onClick={() => {
-                            if (!submission?.isComplete && isEditingNamecard) {
-                              setSelectedNamecard(`스타일 ${num}`);
-                            }
-                          }}
-                          className={`relative p-3 rounded-lg border transition-all ${
-                            selectedNamecard === `스타일 ${num}`
-                              ? "border-gold-600 ring-2 ring-gold-200 bg-gold-50"
-                              : "border-gray-300 hover:border-gold-400"
-                          } ${submission?.isComplete || !isEditingNamecard ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
-                        >
-                          <div className="flex flex-col items-center gap-2">
-                            <img
-                              src={`/namecard/namecard_${num}.jpg`}
-                              alt={`명함 스타일 ${num}`}
-                              className="w-full h-auto object-contain rounded"
-                            />
-                            <div className="text-center font-semibold text-sm">
-                              스타일 {num}
-                            </div>
+            {/* Step 2 & 3: 명함/계약서 스타일 */}
+            <form
+              key={`namecard-${submission?.명함시안}-${isEditingNamecard}`}
+              onSubmit={(e) => handleSubmit(e, "namecard")}
+              className="space-y-5"
+            >
+              {/* Step 2: 명함 스타일 */}
+              <div id="namecard-section">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="w-6 h-6 rounded-full bg-navy-900 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">
+                    2
+                  </span>
+                  <span className="text-sm font-semibold text-gray-900">
+                    명함 스타일 선택
+                  </span>
+                  <span className="text-[10px] text-gray-400">6종 중 1개</span>
+                </div>
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <input
+                    type="hidden"
+                    name="명함시안"
+                    value={selectedNamecard}
+                  />
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {[1, 2, 3, 4, 5, 6].map((num) => (
+                      <div
+                        key={num}
+                        onClick={() => {
+                          if (!submission?.isComplete && isEditingNamecard) {
+                            setSelectedNamecard(`스타일 ${num}`);
+                          }
+                        }}
+                        className={`relative p-2 rounded-lg border-2 transition-all ${
+                          selectedNamecard === `스타일 ${num}`
+                            ? "border-gold-600 ring-2 ring-gold-200 bg-gold-50"
+                            : "border-gray-200 hover:border-gold-400"
+                        } ${submission?.isComplete || !isEditingNamecard ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
+                      >
+                        <div className="flex flex-col items-center gap-1.5">
+                          <img
+                            src={`/namecard/namecard_${num}.jpg`}
+                            alt={`명함 스타일 ${num}`}
+                            className="w-full h-auto object-contain rounded"
+                          />
+                          <div className="text-center font-medium text-xs">
+                            스타일 {num}
                           </div>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setPreviewImage(`/namecard/namecard_${num}.jpg`);
-                            }}
-                            className="absolute top-2 right-2 bg-white/90 hover:bg-white px-2 py-1 rounded text-xs font-medium shadow-md transition-all"
-                          >
-                            자세히 보기
-                          </button>
                         </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* 계약서 스타일 선택 */}
-                  <div className="space-y-3 pt-6 border-t border-gray-200">
-                    <Label className="text-sm sm:text-base break-words">
-                      자문계약서 스타일 선택 (2종 중 1개 선택)
-                    </Label>
-                    <input
-                      type="hidden"
-                      name="계약서시안"
-                      value={selectedContract}
-                    />
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {[
-                        {
-                          id: "스타일 1",
-                          label: "스타일 1",
-                          cover: "/guides/print/contract_cover.jpg",
-                          inner: "/guides/print/contract_inner.jpg",
-                        },
-                        {
-                          id: "스타일 2",
-                          label: "스타일 2",
-                          cover: "/guides/print/contract_cover_2.jpg",
-                          inner: "/guides/print/contract_inner_2.jpg",
-                        },
-                      ].map((style) => (
-                        <div
-                          key={style.id}
-                          onClick={() => {
-                            if (!submission?.isComplete && isEditingNamecard) {
-                              setSelectedContract(style.id);
-                            }
-                          }}
-                          className={`relative p-3 rounded-lg border transition-all ${
-                            selectedContract === style.id
-                              ? "border-indigo-600 ring-2 ring-indigo-200 bg-indigo-50"
-                              : "border-gray-300 hover:border-indigo-400"
-                          } ${submission?.isComplete || !isEditingNamecard ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
-                        >
-                          <div className="flex flex-col items-center gap-2">
-                            <div className="grid grid-cols-2 gap-1 w-full">
-                              <div>
-                                <p className="text-[10px] text-gray-500 mb-0.5">
-                                  표지
-                                </p>
-                                <img
-                                  src={style.cover}
-                                  alt={`계약서 ${style.label} 표지`}
-                                  className="w-full h-auto object-contain rounded"
-                                />
-                              </div>
-                              <div>
-                                <p className="text-[10px] text-gray-500 mb-0.5">
-                                  내지
-                                </p>
-                                <img
-                                  src={style.inner}
-                                  alt={`계약서 ${style.label} 내지`}
-                                  className="w-full h-auto object-contain rounded"
-                                />
-                              </div>
-                            </div>
-                            <div className="text-center font-semibold text-sm">
-                              {style.label}
-                            </div>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setPreviewImage(style.cover);
-                            }}
-                            className="absolute top-2 right-2 bg-white/90 hover:bg-white px-2 py-1 rounded text-xs font-medium shadow-md transition-all"
-                          >
-                            자세히 보기
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {!submission?.isComplete && (
-                    <div className="flex gap-2">
-                      {hasNamecardInfo() && !isEditingNamecard ? (
-                        <Button
+                        <button
                           type="button"
-                          onClick={() => setIsEditingNamecard(true)}
-                          className="bg-amber-600 text-white hover:bg-amber-700 text-sm sm:text-base"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPreviewImage(`/namecard/namecard_${num}.jpg`);
+                          }}
+                          className="absolute top-1.5 right-1.5 bg-white/90 hover:bg-white px-1.5 py-0.5 rounded text-[10px] font-medium shadow-md transition-all"
                         >
-                          수정하기
-                        </Button>
+                          자세히 보기
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Step 3: 계약서 스타일 */}
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="w-6 h-6 rounded-full bg-navy-900 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">
+                    3
+                  </span>
+                  <span className="text-sm font-semibold text-gray-900">
+                    자문계약서 스타일 선택
+                  </span>
+                  <span className="text-[10px] text-gray-400">2종 중 1개</span>
+                </div>
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <input
+                    type="hidden"
+                    name="계약서시안"
+                    value={selectedContract}
+                  />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {[
+                      {
+                        id: "스타일 1",
+                        label: "스타일 1",
+                        cover: "/guides/print/contract_cover.jpg",
+                        inner: "/guides/print/contract_inner.jpg",
+                      },
+                      {
+                        id: "스타일 2",
+                        label: "스타일 2",
+                        cover: "/guides/print/contract_cover_2.jpg",
+                        inner: "/guides/print/contract_inner_2.jpg",
+                      },
+                    ].map((style) => (
+                      <div
+                        key={style.id}
+                        onClick={() => {
+                          if (!submission?.isComplete && isEditingNamecard) {
+                            setSelectedContract(style.id);
+                          }
+                        }}
+                        className={`relative p-3 rounded-lg border-2 transition-all ${
+                          selectedContract === style.id
+                            ? "border-gold-600 ring-2 ring-gold-200 bg-gold-50"
+                            : "border-gray-200 hover:border-gold-400"
+                        } ${submission?.isComplete || !isEditingNamecard ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
+                      >
+                        <div className="flex flex-col items-center gap-2">
+                          <div className="grid grid-cols-2 gap-1 w-full">
+                            <div>
+                              <p className="text-[10px] text-gray-400 mb-0.5">
+                                표지
+                              </p>
+                              <img
+                                src={style.cover}
+                                alt={`계약서 ${style.label} 표지`}
+                                className="w-full h-auto object-contain rounded"
+                              />
+                            </div>
+                            <div>
+                              <p className="text-[10px] text-gray-400 mb-0.5">
+                                내지
+                              </p>
+                              <img
+                                src={style.inner}
+                                alt={`계약서 ${style.label} 내지`}
+                                className="w-full h-auto object-contain rounded"
+                              />
+                            </div>
+                          </div>
+                          <div className="text-center font-medium text-xs">
+                            {style.label}
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPreviewImage(style.cover);
+                          }}
+                          className="absolute top-1.5 right-1.5 bg-white/90 hover:bg-white px-1.5 py-0.5 rounded text-[10px] font-medium shadow-md transition-all"
+                        >
+                          자세히 보기
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {!submission?.isComplete && (
+                <div className="flex gap-2">
+                  {hasNamecardInfo() && !isEditingNamecard ? (
+                    <Button
+                      type="button"
+                      onClick={() => setIsEditingNamecard(true)}
+                      className="bg-amber-600 text-white hover:bg-amber-700 text-sm sm:text-base"
+                    >
+                      수정하기
+                    </Button>
+                  ) : (
+                    <Button
+                      type="submit"
+                      disabled={loading}
+                      className="bg-navy-900 text-white hover:bg-navy-800 text-sm sm:text-base"
+                    >
+                      {loading ? (
+                        <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" />
                       ) : (
-                        <Button
-                          type="submit"
-                          disabled={loading}
-                          className="bg-navy-900 text-white hover:bg-navy-800 text-sm sm:text-base"
-                        >
-                          {loading ? (
-                            <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" />
-                          ) : (
-                            <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                          )}
-                          저장하기
-                        </Button>
+                        <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                       )}
-                    </div>
+                      저장하기
+                    </Button>
                   )}
-                </form>
-              </CardContent>
-            </Card>
+                </div>
+              )}
+            </form>
 
             {/* 이미지 미리보기 모달 */}
             {previewImage && (
