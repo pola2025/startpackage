@@ -845,7 +845,7 @@ export default function SubmissionPage() {
                 <CardTitle className="text-gray-900 text-base">
                   기본 정보
                 </CardTitle>
-                <CardDescription className="text-gray-400 text-xs">
+                <CardDescription className="text-gray-500 text-xs">
                   인쇄물에 들어갈 기본 정보를 입력해주세요
                 </CardDescription>
                 {!submission?.isComplete && !isBasicInfoComplete() && (
@@ -909,7 +909,7 @@ export default function SubmissionPage() {
                       disabled={submission?.isComplete || !isEditingBasicInfo}
                       className="bg-white border-gray-200"
                     />
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-400 italic">
                       로그인 시 사용하는 전화번호입니다
                     </p>
                   </div>
@@ -1057,7 +1057,7 @@ export default function SubmissionPage() {
                 <CardTitle className="text-gray-900 text-base">
                   로고 디자인 정보
                 </CardTitle>
-                <CardDescription className="text-gray-400 text-xs">
+                <CardDescription className="text-gray-500 text-xs">
                   로고 파일이 있으면 업로드하거나, 선호하는 스타일과 색상을
                   선택해주세요
                 </CardDescription>
@@ -1080,7 +1080,7 @@ export default function SubmissionPage() {
                   <Label className="text-sm sm:text-base">
                     로고 파일 (있는 경우)
                   </Label>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-400 italic">
                     이미지 파일(JPG, PNG 등) 또는 ZIP 파일을 업로드할 수
                     있습니다
                   </p>
@@ -1253,7 +1253,7 @@ export default function SubmissionPage() {
                   </div>
 
                   <p className="text-xs text-gray-500">
-                    <span className="font-medium text-amber-700">
+                    <span className="font-medium text-gray-500">
                       무료 폰트만 사용 가능
                     </span>
                     합니다. 유료 폰트는 직접 구매 후 파일 전달 필요.
@@ -1620,11 +1620,11 @@ export default function SubmissionPage() {
                         </div>
                       </div>
 
-                      <div className="bg-gold-50 p-3 rounded-lg border border-gold-200">
-                        <p className="text-xs text-navy-900 font-semibold mb-2">
+                      <div className="bg-gray-50 p-3 rounded-lg border-l-4 border-l-amber-400 border-y-0 border-r-0">
+                        <p className="text-xs text-gray-600 font-semibold mb-2">
                           💡 작성 Tip
                         </p>
-                        <ul className="text-xs text-navy-800 space-y-1 ml-4 list-disc">
+                        <ul className="text-xs text-gray-600 space-y-1 ml-4 list-disc">
                           <li>
                             <span className="font-semibold">브랜드 컨셉:</span>{" "}
                             어떤 이미지를 주고 싶으신가요? (예: 신뢰감, 역동성,
@@ -1697,9 +1697,9 @@ export default function SubmissionPage() {
         <TabsContent value="print">
           <div className="space-y-4">
             {/* 인쇄물 디자인 제한 안내 - 한 줄 압축 */}
-            <div className="flex items-center gap-2 p-2.5 bg-gold-50 border border-gray-200 rounded-lg">
-              <AlertCircle className="w-4 h-4 text-gold-600 flex-shrink-0" />
-              <p className="text-navy-800 text-xs">
+            <div className="flex items-center gap-2 p-2.5 bg-gray-50 border-l-4 border-l-amber-400 border-y-0 border-r-0 rounded-r-lg">
+              <AlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0" />
+              <p className="text-gray-600 text-xs">
                 <span className="font-semibold">📋 인쇄물 디자인 안내:</span>{" "}
                 기본 디자인에서 일부 변경만 가능합니다. 신규 디자인 제작 및
                 레이아웃 변형 불가.
@@ -1722,7 +1722,7 @@ export default function SubmissionPage() {
                 <CardTitle className="text-gray-900 text-base">
                   필수 서류
                 </CardTitle>
-                <CardDescription className="text-gray-400 text-xs">
+                <CardDescription className="text-gray-500 text-xs">
                   사업자등록증과 프로필 사진을 업로드해주세요
                 </CardDescription>
               </CardHeader>
@@ -1877,7 +1877,7 @@ export default function SubmissionPage() {
                 <CardTitle className="text-gray-900 text-base">
                   명함 스타일
                 </CardTitle>
-                <CardDescription className="text-gray-400 text-xs">
+                <CardDescription className="text-gray-500 text-xs">
                   명함 스타일을 선택해주세요
                 </CardDescription>
               </CardHeader>
@@ -2120,7 +2120,7 @@ export default function SubmissionPage() {
                     </span>
                   </summary>
                   <div className="px-4 pb-4 pt-2 space-y-3 border-t border-gray-100">
-                    <p className="text-xs text-gold-700">
+                    <p className="text-xs text-gray-500 bg-gray-50 border-l-2 border-l-gray-300 pl-2 py-1">
                       <a
                         href="https://ads.naver.com/"
                         target="_blank"
@@ -2195,7 +2195,7 @@ export default function SubmissionPage() {
                     </span>
                   </summary>
                   <div className="px-4 pb-4 pt-2 space-y-3 border-t border-gray-100">
-                    <p className="text-xs text-gold-700">
+                    <p className="text-xs text-gray-500 bg-gray-50 border-l-2 border-l-gray-300 pl-2 py-1">
                       <a
                         href="https://www.ncloud.com/"
                         target="_blank"
@@ -2373,7 +2373,7 @@ export default function SubmissionPage() {
                   DB 자동화 적용 시 고객 자동 안내 문자 발송
                 </span>
               </div>
-              <div className="flex items-center gap-2 mt-2 p-2.5 bg-amber-50 border border-amber-200 rounded-lg">
+              <div className="flex items-center gap-2 mt-2 p-2.5 bg-amber-50/50 border-l-4 border-l-amber-400 border-y-0 border-r-0 rounded-r-lg">
                 <Shield className="w-4 h-4 text-amber-600 flex-shrink-0" />
                 <p className="text-xs text-amber-700">
                   아래 파일들은 보안을 위해{" "}
