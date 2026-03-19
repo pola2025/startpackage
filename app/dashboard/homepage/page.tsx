@@ -343,6 +343,11 @@ export default function HomepageSettingsPage() {
                   예: www.mybrand.co.kr &nbsp;|&nbsp; mybrand.com &nbsp;|&nbsp;
                   mybrand.kr
                 </span>
+                <br />
+                <span className="text-red-500 font-medium">
+                  ※ 한글도메인은 사용할 수 없습니다 (예: 마이브랜드.kr,
+                  마이브랜드.한국)
+                </span>
               </p>
               <Input
                 id="domainAddress"
@@ -398,6 +403,76 @@ export default function HomepageSettingsPage() {
 
           {/* Layer 2: 안내 (details) */}
           <div className="space-y-2 pt-1">
+            <details>
+              <summary className="cursor-pointer text-sm font-medium text-gray-700 p-3 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors">
+                ⚠️ 왜 한글도메인이 안 되나요?
+              </summary>
+              <div className="p-4 bg-red-50 border border-red-200 border-t-0 rounded-b-lg">
+                <ul className="text-xs text-gray-700 space-y-2.5">
+                  <li className="flex items-start gap-2">
+                    <span className="text-red-400 mt-0.5 flex-shrink-0">✕</span>
+                    <div>
+                      <strong className="text-gray-800">URL 공유 불가</strong>
+                      <p className="text-gray-500 mt-0.5">
+                        복사 시{" "}
+                        <code className="bg-white px-1 py-0.5 rounded text-[11px]">
+                          xn--2o2bq2qmwcnqt.com
+                        </code>{" "}
+                        같은 알 수 없는 코드로 변환됩니다
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-red-400 mt-0.5 flex-shrink-0">✕</span>
+                    <div>
+                      <strong className="text-gray-800">
+                        기업 이메일 사용 불가
+                      </strong>
+                      <p className="text-gray-500 mt-0.5">
+                        메일 발송 시 퓨니코드로 변환되어 스팸으로 오인됩니다
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-red-400 mt-0.5 flex-shrink-0">✕</span>
+                    <div>
+                      <strong className="text-gray-800">
+                        광고 플랫폼 비호환
+                      </strong>
+                      <p className="text-gray-500 mt-0.5">
+                        Google Ads, Meta 광고 등 해외 광고 플랫폼에서 등록이
+                        거절됩니다
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-red-400 mt-0.5 flex-shrink-0">✕</span>
+                    <div>
+                      <strong className="text-gray-800">
+                        SSL 인증서 호환 문제
+                      </strong>
+                      <p className="text-gray-500 mt-0.5">
+                        일부 SSL 인증서 발급 시 퓨니코드 변환이 필요하며 호환성
+                        이슈가 있습니다
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-red-400 mt-0.5 flex-shrink-0">✕</span>
+                    <div>
+                      <strong className="text-gray-800">
+                        나중에 바꾸면 손해
+                      </strong>
+                      <p className="text-gray-500 mt-0.5">
+                        사업 확장 시 영문 도메인으로 교체하면 기존 SEO와
+                        트래픽을 모두 잃습니다
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </details>
+
             <details>
               <summary className="cursor-pointer text-sm font-medium text-gray-700 p-3 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
                 도메인 구매 안내
