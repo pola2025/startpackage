@@ -35,6 +35,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Users,
   Mail,
@@ -86,6 +87,7 @@ interface UsersClientProps {
 
 export default function UsersClient({ users, cohorts }: UsersClientProps) {
   const [sortMode, setSortMode] = useState<"name" | "cohort">("name");
+  const [activeYearTab, setActiveYearTab] = useState("2026");
   const [selectedCohortId, setSelectedCohortId] = useState<string | null>(null);
   const [checkedUserIds, setCheckedUserIds] = useState<Set<string>>(new Set());
   const [bulkSmsOpen, setBulkSmsOpen] = useState(false);
@@ -107,10 +109,39 @@ export default function UsersClient({ users, cohorts }: UsersClientProps) {
     return cohorts.filter((c) => cohortIdsWithUsers.has(c.id));
   }, [users, cohorts]);
 
+  // 기수를 연도별로 그룹화
+  const cohortsByYear = useMemo(() => {
+    const groups: Record<string, Cohort[]> = {};
+    for (const cohort of activeCohorts) {
+      const year = new Date(cohort.교육시작일).getFullYear().toString();
+      if (!groups[year]) groups[year] = [];
+      groups[year].push(cohort);
+    }
+    return groups;
+  }, [activeCohorts]);
+
+  // 연도 탭 목록 (내림차순 — 최신 연도가 먼저)
+  const yearTabs = useMemo(
+    () => Object.keys(cohortsByYear).sort((a, b) => Number(b) - Number(a)),
+    [cohortsByYear],
+  );
+
+  // 현재 탭의 기수 ID 집합
+  const currentYearCohortIds = useMemo(() => {
+    const cohortsInYear = cohortsByYear[activeYearTab] || [];
+    return new Set(cohortsInYear.map((c) => c.id));
+  }, [cohortsByYear, activeYearTab]);
+
+  // 현재 탭에 해당하는 기수 목록
+  const currentYearCohorts = useMemo(
+    () => cohortsByYear[activeYearTab] || [],
+    [cohortsByYear, activeYearTab],
+  );
+
   const filteredUsers = useMemo(() => {
     let result = selectedCohortId
       ? users.filter((u) => u.cohortId === selectedCohortId)
-      : users;
+      : users.filter((u) => currentYearCohortIds.has(u.cohortId));
 
     if (sortMode === "name") {
       return [...result].sort((a, b) =>
@@ -128,7 +159,14 @@ export default function UsersClient({ users, cohorts }: UsersClientProps) {
         return koreanCollator.compare(a.이름.trim(), b.이름.trim());
       });
     }
-  }, [users, cohorts, selectedCohortId, sortMode, koreanCollator]);
+  }, [
+    users,
+    cohorts,
+    selectedCohortId,
+    currentYearCohortIds,
+    sortMode,
+    koreanCollator,
+  ]);
 
   const allFilteredIds = filteredUsers.map((u) => u.id);
   const isAllChecked =
@@ -269,32 +307,67 @@ export default function UsersClient({ users, cohorts }: UsersClientProps) {
         </div>
       </div>
 
-      {/* 기수 필터 드롭다운 */}
-      <div className="flex items-center gap-2">
-        <Select
-          value={selectedCohortId ?? "all"}
-          onValueChange={(val) =>
-            setSelectedCohortId(val === "all" ? null : val)
-          }
-        >
-          <SelectTrigger className="w-48 h-9">
-            <SelectValue placeholder="기수 선택" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">전체 ({users.length}명)</SelectItem>
-            {activeCohorts.map((cohort) => {
-              const count = users.filter(
-                (u) => u.cohortId === cohort.id,
-              ).length;
-              return (
-                <SelectItem key={cohort.id} value={cohort.id}>
-                  {cohort.name} ({count}명)
-                </SelectItem>
-              );
-            })}
-          </SelectContent>
-        </Select>
-      </div>
+      {/* 연도 탭 + 기수 필터 */}
+      {yearTabs.length > 0 && (
+        <div className="flex items-center gap-3">
+          <Tabs
+            value={activeYearTab}
+            onValueChange={(val) => {
+              setActiveYearTab(val);
+              setSelectedCohortId(null);
+              setCheckedUserIds(new Set());
+            }}
+          >
+            <TabsList>
+              {yearTabs.map((year) => {
+                const count = users.filter((u) => {
+                  const cohort = cohorts.find((c) => c.id === u.cohortId);
+                  return (
+                    cohort &&
+                    new Date(cohort.교육시작일).getFullYear().toString() ===
+                      year
+                  );
+                }).length;
+                return (
+                  <TabsTrigger key={year} value={year}>
+                    {year}기수 ({count}명)
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
+          </Tabs>
+          <Select
+            value={selectedCohortId ?? "all"}
+            onValueChange={(val) =>
+              setSelectedCohortId(val === "all" ? null : val)
+            }
+          >
+            <SelectTrigger className="w-44 h-9">
+              <SelectValue placeholder="기수 선택" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">
+                전체 (
+                {
+                  users.filter((u) => currentYearCohortIds.has(u.cohortId))
+                    .length
+                }
+                명)
+              </SelectItem>
+              {currentYearCohorts.map((cohort) => {
+                const count = users.filter(
+                  (u) => u.cohortId === cohort.id,
+                ).length;
+                return (
+                  <SelectItem key={cohort.id} value={cohort.id}>
+                    {cohort.name} ({count}명)
+                  </SelectItem>
+                );
+              })}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       {/* 모바일: 카드 레이아웃 */}
       <div className="lg:hidden space-y-3">
