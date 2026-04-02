@@ -39,7 +39,7 @@ export function CohortAnnouncementPopup() {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="p-0 overflow-hidden sm:max-w-[460px] gap-0">
+      <DialogContent className="p-0 overflow-hidden sm:max-w-[460px] gap-0 bg-white [&>button]:text-white [&>button]:hover:text-white/80">
         {/* 헤더 */}
         <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-5 text-white">
           <div className="flex items-center justify-between">
