@@ -77,7 +77,7 @@ export default function SubmissionPage() {
   const [isEditingFiles, setIsEditingFiles] = useState(false);
   const [isEditingLogo, setIsEditingLogo] = useState(false);
   const [isEditingNamecard, setIsEditingNamecard] = useState(false);
-  const [isEditingMarketing, setIsEditingMarketing] = useState(false);
+  const [isEditingMarketing, setIsEditingMarketing] = useState(true);
 
   // 로고 선택 상태
   const [selectedStyle, setSelectedStyle] = useState<string>("");
