@@ -278,7 +278,7 @@ export default function SubmissionPage() {
           setIsEditingFiles(true); // 파일은 항상 편집 가능
           setIsEditingLogo(!hasLogo);
           setIsEditingNamecard(!hasNamecard);
-          setIsEditingMarketing(!hasMarketing);
+          setIsEditingMarketing(true); // 마케팅은 항상 편집 가능
         } else {
           // 데이터가 없으면 모두 편집 모드로 (true = 편집 모드)
           setIsEditingBasicInfo(true);
@@ -541,7 +541,7 @@ export default function SubmissionPage() {
             setIsEditingNamecard(false);
             break;
           case "marketing":
-            setIsEditingMarketing(false);
+            // 마케팅은 항상 편집 가능 상태 유지
             break;
         }
 
