@@ -21,8 +21,14 @@ const sendMessageSchema = z.object({
   channel: z.enum(["SMS", "EMAIL"], {
     errorMap: () => ({ message: "SMS 또는 EMAIL을 선택해주세요." }),
   }),
-  title: z.string().min(1, "제목을 입력해주세요.").max(100, "제목은 100자 이내로 입력해주세요."),
-  message: z.string().min(1, "메시지를 입력해주세요.").max(1000, "메시지는 1000자 이내로 입력해주세요."),
+  title: z
+    .string()
+    .min(1, "제목을 입력해주세요.")
+    .max(100, "제목은 100자 이내로 입력해주세요."),
+  message: z
+    .string()
+    .min(1, "메시지를 입력해주세요.")
+    .max(1000, "메시지는 1000자 이내로 입력해주세요."),
   attachments: z.array(attachmentSchema).optional(),
 });
 
@@ -32,10 +38,7 @@ export async function POST(request: Request) {
     const adminRole = (session?.user as any)?.role;
 
     if (!session || !["super", "designer", "operator"].includes(adminRole)) {
-      return NextResponse.json(
-        { error: "권한이 없습니다." },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: "권한이 없습니다." }, { status: 403 });
     }
 
     const body = await request.json();
@@ -47,7 +50,7 @@ export async function POST(request: Request) {
           error: "입력값이 유효하지 않습니다.",
           details: validation.error.errors,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -69,7 +72,7 @@ export async function POST(request: Request) {
     if (!user) {
       return NextResponse.json(
         { error: "사용자를 찾을 수 없습니다." },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -77,14 +80,14 @@ export async function POST(request: Request) {
     if (channel === "SMS" && !user.SMS수신동의) {
       return NextResponse.json(
         { error: `${user.이름} 사용자가 SMS 수신에 동의하지 않았습니다.` },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (channel === "EMAIL" && !user.이메일수신동의) {
       return NextResponse.json(
         { error: `${user.이름} 사용자가 이메일 수신에 동의하지 않았습니다.` },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -108,8 +111,14 @@ export async function POST(request: Request) {
     if (channel === "SMS") {
       // SMS 발송
       try {
-        const { sendSMS } = await import("@/lib/sms/ncpSensClient");
-        await sendSMS(user.연락처, `[${title}]\n\n${message}`);
+        const { sendSMS, getSenderPhoneByAdmin } =
+          await import("@/lib/sms/ncpSensClient");
+        const adminFrom = getSenderPhoneByAdmin(session.user?.email);
+        await sendSMS(
+          user.연락처,
+          `[${title}]\n\n${message}`,
+          adminFrom ? { from: adminFrom } : undefined,
+        );
         sendResult.success = true;
       } catch (error: any) {
         console.error("❌ SMS 발송 실패:", error);
@@ -118,12 +127,13 @@ export async function POST(request: Request) {
     } else {
       // 이메일 발송
       try {
-        const { sendEmailWithAttachments } = await import("@/lib/email/emailClient");
+        const { sendEmailWithAttachments } =
+          await import("@/lib/email/emailClient");
         await sendEmailWithAttachments({
           to: user.email,
           subject: title,
           html: message.replace(/\n/g, "<br>"),
-          attachments: attachments?.map(att => ({
+          attachments: attachments?.map((att) => ({
             filename: att.filename,
             path: att.url,
           })),
@@ -145,10 +155,7 @@ export async function POST(request: Request) {
     });
 
     if (!sendResult.success) {
-      return NextResponse.json(
-        { error: sendResult.error },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: sendResult.error }, { status: 500 });
     }
 
     return NextResponse.json({
@@ -164,7 +171,7 @@ export async function POST(request: Request) {
     console.error("❌ 개별 메시지 발송 실패:", error);
     return NextResponse.json(
       { error: "메시지 발송 중 오류가 발생했습니다." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

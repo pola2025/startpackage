@@ -5,7 +5,7 @@ import prisma from "@/lib/prisma";
 // POST: 마케팅 지원 연장 신청 승인
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await auth();
@@ -37,14 +37,14 @@ export async function POST(
     if (!extensionRequest) {
       return NextResponse.json(
         { error: "신청을 찾을 수 없습니다" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     if (extensionRequest.status !== "pending") {
       return NextResponse.json(
         { error: "이미 처리된 신청입니다" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -94,10 +94,13 @@ export async function POST(
 
       // SMS 발송
       if (extensionRequest.user.연락처) {
-        const { sendSMS } = await import("@/lib/sms/ncpSensClient");
+        const { sendSMS, getSenderPhoneByAdmin } =
+          await import("@/lib/sms/ncpSensClient");
+        const adminFrom = getSenderPhoneByAdmin(session.user?.email);
         await sendSMS(
           extensionRequest.user.연락처,
-          `[스타트패키지] 마케팅 지원 연장이 승인되었습니다.\n\n새로운 종료일: ${extensionRequest.newEndDate.toLocaleDateString("ko-KR")}\n\n결제 정보: 우리은행 1005-302-954803 폴라애드(이재호) / 66만원(VAT포함)`
+          `[스타트패키지] 마케팅 지원 연장이 승인되었습니다.\n\n새로운 종료일: ${extensionRequest.newEndDate.toLocaleDateString("ko-KR")}\n\n결제 정보: 우리은행 1005-302-954803 폴라애드(이재호) / 66만원(VAT포함)`,
+          adminFrom ? { from: adminFrom } : undefined,
         );
       }
     } catch (error) {
@@ -109,10 +112,13 @@ export async function POST(
       message: "연장 신청이 승인되었습니다",
     });
   } catch (error) {
-    console.error("POST /api/admin/marketing-extension/[id]/approve error:", error);
+    console.error(
+      "POST /api/admin/marketing-extension/[id]/approve error:",
+      error,
+    );
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
-import { getSMSClient } from "@/lib/sms/ncpSensClient";
+import { getSMSClient, getSenderPhoneByAdmin } from "@/lib/sms/ncpSensClient";
 
 interface SendData {
   userId: string;
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     if (!data || !Array.isArray(data) || data.length === 0) {
       return NextResponse.json(
         { error: "발송 데이터가 필요합니다." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -111,7 +111,13 @@ export async function POST(request: NextRequest) {
         }
 
         // LMS 발송 (장문)
-        await smsClient.sendSMS(user.연락처, message, "LMS");
+        const adminFrom = getSenderPhoneByAdmin(session.user?.email);
+        await smsClient.sendSMS(
+          user.연락처,
+          message,
+          "LMS",
+          adminFrom ? { from: adminFrom } : undefined,
+        );
 
         // Notification 로그 생성
         await prisma.notification.create({
@@ -135,7 +141,7 @@ export async function POST(request: NextRequest) {
         });
 
         console.log(
-          `✅ 시안 완료 LMS 발송 성공: ${user.이름} (${types.join(", ")})`
+          `✅ 시안 완료 LMS 발송 성공: ${user.이름} (${types.join(", ")})`,
         );
       } catch (error: any) {
         failedCount++;
@@ -150,7 +156,7 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(
-      `📊 시안 SMS 일괄 발송 완료: 성공 ${successCount}건, 실패 ${failedCount}건`
+      `📊 시안 SMS 일괄 발송 완료: 성공 ${successCount}건, 실패 ${failedCount}건`,
     );
 
     return NextResponse.json({
@@ -162,7 +168,7 @@ export async function POST(request: NextRequest) {
     console.error("SMS 일괄 발송 에러:", error);
     return NextResponse.json(
       { error: "SMS 발송 중 오류가 발생했습니다." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

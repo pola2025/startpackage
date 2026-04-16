@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
-import { sendSMS } from "@/lib/sms/ncpSensClient";
+import { sendSMS, getSenderPhoneByAdmin } from "@/lib/sms/ncpSensClient";
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     if (!userId) {
       return NextResponse.json(
         { error: "사용자 ID가 필요합니다." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     if (workflows.length === 0) {
       return NextResponse.json(
         { error: "발주완료 상태인 워크플로우가 없습니다." },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -93,7 +93,12 @@ export async function POST(request: NextRequest) {
       message += "\n제작이 진행됩니다. 제작 완료 시 다시 안내드리겠습니다.";
 
       try {
-        await sendSMS(user.연락처, message);
+        const adminFrom = getSenderPhoneByAdmin(session.user?.email);
+        await sendSMS(
+          user.연락처,
+          message,
+          adminFrom ? { from: adminFrom } : undefined,
+        );
 
         // 각 워크플로우에 대한 알림 기록 생성
         await Promise.all(
@@ -109,14 +114,14 @@ export async function POST(request: NextRequest) {
                 sentBy: (session.user as any).id,
                 sentByName: (session.user as any).name || "관리자",
               },
-            })
-          )
+            }),
+          ),
         );
       } catch (smsError: any) {
         console.error("SMS 발송 실패:", smsError);
         return NextResponse.json(
           { error: `SMS 발송 실패: ${smsError.message}` },
-          { status: 500 }
+          { status: 500 },
         );
       }
     }
@@ -133,7 +138,7 @@ export async function POST(request: NextRequest) {
     console.error("발주완료 알림 발송 에러:", error);
     return NextResponse.json(
       { error: "발주완료 알림 발송 중 오류가 발생했습니다." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

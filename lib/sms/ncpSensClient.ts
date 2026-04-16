@@ -47,7 +47,8 @@ export class NCPSensClient {
     this.serviceId = process.env.NCP_SERVICE_ID || "";
     this.accessKey = process.env.NCP_ACCESS_KEY || "";
     this.secretKey = process.env.NCP_SECRET_KEY || "";
-    this.senderPhone = process.env.NCP_SENDER_PHONE || process.env.NCP_PHONE_NUMBER || "";
+    this.senderPhone =
+      process.env.NCP_SENDER_PHONE || process.env.NCP_PHONE_NUMBER || "";
     this.baseUrl = "https://sens.apigw.ntruss.com";
 
     // 환경변수 체크는 실제 발송 시점에 수행
@@ -55,7 +56,10 @@ export class NCPSensClient {
     console.log("  SERVICE_ID:", this.serviceId ? "✅ 설정됨" : "❌ 없음");
     console.log("  ACCESS_KEY:", this.accessKey ? "✅ 설정됨" : "❌ 없음");
     console.log("  SECRET_KEY:", this.secretKey ? "✅ 설정됨" : "❌ 없음");
-    console.log("  SENDER_PHONE:", this.senderPhone ? `✅ ${this.senderPhone}` : "❌ 없음");
+    console.log(
+      "  SENDER_PHONE:",
+      this.senderPhone ? `✅ ${this.senderPhone}` : "❌ 없음",
+    );
   }
 
   /**
@@ -65,7 +69,7 @@ export class NCPSensClient {
     if (!this.serviceId || !this.accessKey || !this.secretKey) {
       throw new Error(
         "NCP SENS 환경변수가 설정되지 않았습니다. .env 파일을 확인하세요.\n" +
-        "필요한 환경변수: NCP_SERVICE_ID, NCP_ACCESS_KEY, NCP_SECRET_KEY, NCP_SENDER_PHONE"
+          "필요한 환경변수: NCP_SERVICE_ID, NCP_ACCESS_KEY, NCP_SECRET_KEY, NCP_SENDER_PHONE",
       );
     }
   }
@@ -73,14 +77,24 @@ export class NCPSensClient {
   /**
    * HMAC SHA256 서명 생성
    */
-  private makeSignature(timestamp: string, method: string, url: string): string {
+  private makeSignature(
+    timestamp: string,
+    method: string,
+    url: string,
+  ): string {
     const space = " ";
     const newLine = "\n";
 
     const hmac = crypto.createHmac("sha256", this.secretKey);
-    const message = [method, space, url, newLine, timestamp, newLine, this.accessKey].join(
-      ""
-    );
+    const message = [
+      method,
+      space,
+      url,
+      newLine,
+      timestamp,
+      newLine,
+      this.accessKey,
+    ].join("");
 
     const signature = hmac.update(message).digest("base64");
     return signature;
@@ -96,14 +110,15 @@ export class NCPSensClient {
   async sendSMS(
     to: string,
     content: string,
-    type: "SMS" | "LMS" = "LMS"
+    type: "SMS" | "LMS" = "LMS",
+    options?: { from?: string },
   ): Promise<SMSResponse> {
     // 하이픈 제거
     const cleanPhone = to.replace(/-/g, "");
 
     const request: SMSRequest = {
       type,
-      from: this.senderPhone,
+      from: options?.from || this.senderPhone,
       content, // 기본 내용
       messages: [
         {
@@ -121,7 +136,7 @@ export class NCPSensClient {
    */
   async sendBulkSMS(
     messages: SMSMessage[],
-    type: "SMS" | "LMS" = "LMS"
+    type: "SMS" | "LMS" = "LMS",
   ): Promise<SMSResponse> {
     const request: SMSRequest = {
       type,
@@ -172,7 +187,9 @@ export class NCPSensClient {
 
       if (!response.ok) {
         console.error("❌ SMS 발송 실패:", data);
-        throw new Error(`SMS 발송 실패: ${data.statusName || response.statusText}`);
+        throw new Error(
+          `SMS 발송 실패: ${data.statusName || response.statusText}`,
+        );
       }
 
       console.log("✅ SMS 발송 성공:", data);
@@ -187,14 +204,18 @@ export class NCPSensClient {
   /**
    * 메시지 길이에 따라 자동으로 SMS/LMS 선택
    */
-  async sendAuto(to: string, content: string): Promise<SMSResponse> {
+  async sendAuto(
+    to: string,
+    content: string,
+    options?: { from?: string },
+  ): Promise<SMSResponse> {
     // SMS: 한글 45자(90byte), 영문 80자
     // LMS: 한글 1000자(2000byte), 영문 2000자
     const byteLength = Buffer.byteLength(content, "utf-8");
 
     const type = byteLength <= 90 ? "SMS" : "LMS";
 
-    return this.sendSMS(to, content, type);
+    return this.sendSMS(to, content, type, options);
   }
 }
 
@@ -217,23 +238,44 @@ export function getSMSClient(): NCPSensClient {
 
 /**
  * SMS 간편 발송
+ * @param options.from - 발신번호 오버라이드 (NCP SENS에 등록된 번호여야 함)
  */
 export async function sendSMS(
   to: string,
-  content: string
+  content: string,
+  options?: { from?: string },
 ): Promise<SMSResponse> {
   const client = getSMSClient();
-  return client.sendAuto(to, content);
+  return client.sendAuto(to, content, options);
 }
 
 /**
  * 대량 SMS 발송
  */
 export async function sendBulkSMS(
-  messages: SMSMessage[]
+  messages: SMSMessage[],
 ): Promise<SMSResponse> {
   const client = getSMSClient();
   return client.sendBulkSMS(messages);
+}
+
+// ============================================
+// 관리자별 발신번호 매핑
+// ============================================
+
+const ADMIN_SENDER_MAP: Record<string, string> = {
+  "contact@polarad.co.kr": "01066246615",
+};
+
+/**
+ * 관리자 이메일에 따른 발신번호 반환
+ * 매핑이 없으면 undefined (기본 발신번호 사용)
+ */
+export function getSenderPhoneByAdmin(
+  adminEmail?: string | null,
+): string | undefined {
+  if (!adminEmail) return undefined;
+  return ADMIN_SENDER_MAP[adminEmail];
 }
 
 // ============================================

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
-import { sendSMS } from "@/lib/sms/ncpSensClient";
+import { sendSMS, getSenderPhoneByAdmin } from "@/lib/sms/ncpSensClient";
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,10 +16,14 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { workflowIds } = body;
 
-    if (!workflowIds || !Array.isArray(workflowIds) || workflowIds.length === 0) {
+    if (
+      !workflowIds ||
+      !Array.isArray(workflowIds) ||
+      workflowIds.length === 0
+    ) {
       return NextResponse.json(
         { error: "워크플로우 ID 목록이 필요합니다." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -61,7 +65,12 @@ export async function POST(request: NextRequest) {
         }
 
         // Send SMS
-        await sendSMS(workflow.user.연락처, message);
+        const adminFrom = getSenderPhoneByAdmin(session.user?.email);
+        await sendSMS(
+          workflow.user.연락처,
+          message,
+          adminFrom ? { from: adminFrom } : undefined,
+        );
 
         // Log notification
         await prisma.notification.create({
@@ -86,7 +95,9 @@ export async function POST(request: NextRequest) {
           success: true,
         });
 
-        console.log(`✅ 시안 완료 SMS 발송 성공: ${workflow.user.이름} (${workflow.type})`);
+        console.log(
+          `✅ 시안 완료 SMS 발송 성공: ${workflow.user.이름} (${workflow.type})`,
+        );
       } catch (error: any) {
         failedCount++;
         results.push({
@@ -99,7 +110,9 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log(`📊 SMS 일괄 발송 완료: 성공 ${successCount}건, 실패 ${failedCount}건`);
+    console.log(
+      `📊 SMS 일괄 발송 완료: 성공 ${successCount}건, 실패 ${failedCount}건`,
+    );
 
     return NextResponse.json({
       success: successCount,
@@ -110,7 +123,7 @@ export async function POST(request: NextRequest) {
     console.error("SMS 일괄 발송 에러:", error);
     return NextResponse.json(
       { error: "SMS 발송 중 오류가 발생했습니다." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

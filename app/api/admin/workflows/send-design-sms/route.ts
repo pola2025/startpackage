@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
-import { sendSMS } from "@/lib/sms/ncpSensClient";
+import { sendSMS, getSenderPhoneByAdmin } from "@/lib/sms/ncpSensClient";
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     if (!workflowId) {
       return NextResponse.json(
         { error: "워크플로우 ID가 필요합니다." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -40,28 +40,33 @@ export async function POST(request: NextRequest) {
     if (!workflow) {
       return NextResponse.json(
         { error: "워크플로우를 찾을 수 없습니다." },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     if (!workflow.시안URL) {
       return NextResponse.json(
         { error: "시안이 업로드되지 않았습니다." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!workflow.user.연락처) {
       return NextResponse.json(
         { error: "사용자 연락처가 없습니다." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Send SMS
     const message = `[스타트패키지]\n\n디자인 시안이 업로드되었습니다.\n확인 부탁드립니다.`;
 
-    await sendSMS(workflow.user.연락처, message);
+    const adminFrom = getSenderPhoneByAdmin(session.user?.email);
+    await sendSMS(
+      workflow.user.연락처,
+      message,
+      adminFrom ? { from: adminFrom } : undefined,
+    );
 
     // Log notification
     await prisma.notification.create({
@@ -89,7 +94,7 @@ export async function POST(request: NextRequest) {
     console.error("SMS 발송 에러:", error);
     return NextResponse.json(
       { error: "SMS 발송 중 오류가 발생했습니다." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

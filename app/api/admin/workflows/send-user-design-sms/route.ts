@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
-import { sendSMS } from "@/lib/sms/ncpSensClient";
-import { sendEmail, getDesignCompleteEmailHTML } from "@/lib/email/resendClient";
+import { sendSMS, getSenderPhoneByAdmin } from "@/lib/sms/ncpSensClient";
+import {
+  sendEmail,
+  getDesignCompleteEmailHTML,
+} from "@/lib/email/resendClient";
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,7 +23,7 @@ export async function POST(request: NextRequest) {
     if (!userId) {
       return NextResponse.json(
         { error: "사용자 ID가 필요합니다." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -38,14 +41,14 @@ export async function POST(request: NextRequest) {
     if (!user) {
       return NextResponse.json(
         { error: "사용자를 찾을 수 없습니다." },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     if (!user.연락처) {
       return NextResponse.json(
         { error: "사용자 연락처가 없습니다." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -60,14 +63,19 @@ export async function POST(request: NextRequest) {
     if (workflows.length === 0) {
       return NextResponse.json(
         { error: "시안이 업로드된 워크플로우가 없습니다." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Send SMS
     const smsMessage = `[스타트패키지]\n\n디자인 시안이 업로드되었습니다.\n확인 부탁드립니다.`;
 
-    await sendSMS(user.연락처, smsMessage);
+    const adminFrom = getSenderPhoneByAdmin(session.user?.email);
+    await sendSMS(
+      user.연락처,
+      smsMessage,
+      adminFrom ? { from: adminFrom } : undefined,
+    );
 
     // Send Email
     if (user.email) {
@@ -99,7 +107,9 @@ export async function POST(request: NextRequest) {
 
     // 텔레그램은 발송하지 않음 (사용자는 SMS와 이메일로만 알림 받음)
 
-    console.log(`✅ ${user.이름}님에게 시안 완료 SMS${user.email ? ' & 이메일' : ''} 발송 완료 (${workflows.length}개)`);
+    console.log(
+      `✅ ${user.이름}님에게 시안 완료 SMS${user.email ? " & 이메일" : ""} 발송 완료 (${workflows.length}개)`,
+    );
 
     return NextResponse.json({
       success: true,
@@ -110,7 +120,7 @@ export async function POST(request: NextRequest) {
     console.error("SMS 발송 에러:", error);
     return NextResponse.json(
       { error: "SMS 발송 중 오류가 발생했습니다." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
