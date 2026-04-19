@@ -1,7 +1,11 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
-import { verify as otpVerify, NobleCryptoPlugin, ScureBase32Plugin } from "otplib";
+import {
+  verify as otpVerify,
+  NobleCryptoPlugin,
+  ScureBase32Plugin,
+} from "otplib";
 import prisma from "./lib/prisma";
 import { userCredentialsProvider } from "./lib/auth/providers/user-credentials";
 import { adminCredentialsProvider } from "./lib/auth/providers/admin-credentials";
@@ -13,7 +17,10 @@ const otpBase32 = new ScureBase32Plugin();
 const USE_NEW_PROVIDER = process.env.NEXT_PUBLIC_USE_NEW_PROVIDER === "true";
 
 console.log("[AUTH] USE_NEW_PROVIDER:", USE_NEW_PROVIDER);
-console.log("[AUTH] NEXT_PUBLIC_USE_NEW_PROVIDER env:", process.env.NEXT_PUBLIC_USE_NEW_PROVIDER);
+console.log(
+  "[AUTH] NEXT_PUBLIC_USE_NEW_PROVIDER env:",
+  process.env.NEXT_PUBLIC_USE_NEW_PROVIDER,
+);
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: USE_NEW_PROVIDER
@@ -38,28 +45,30 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             const password = credentials.password as string;
 
             // 전화번호 형식인지 확인 (숫자만 10-11자리)
-            const isPhone = /^[0-9]{10,11}$/.test(emailOrPhone.replace(/-/g, ""));
+            const isPhone = /^[0-9]{10,11}$/.test(
+              emailOrPhone.replace(/-/g, ""),
+            );
 
             if (isPhone) {
               // 전화번호로 사용자 찾기
               const cleanPhone = emailOrPhone.replace(/-/g, "");
               // 하이픈 포함/미포함 형식 모두 검색 (DB 데이터 불일치 대응)
-              const formattedPhone = cleanPhone.replace(/(\d{3})(\d{3,4})(\d{4})/, "$1-$2-$3");
+              const formattedPhone = cleanPhone.replace(
+                /(\d{3})(\d{3,4})(\d{4})/,
+                "$1-$2-$3",
+              );
 
               const user = await prisma.user.findFirst({
                 where: {
-                  OR: [
-                    { 연락처: cleanPhone },
-                    { 연락처: formattedPhone },
-                  ],
+                  OR: [{ 연락처: cleanPhone }, { 연락처: formattedPhone }],
                 },
                 include: {
                   cohort: {
                     select: {
                       id: true,
                       name: true,
-                    }
-                  }
+                    },
+                  },
                 },
               });
 
@@ -71,7 +80,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     id: user.id,
                     email: user.email,
                     name: user.이름,
-                    role: user.role as "user" | "super" | "designer" | "operator",
+                    role: user.role as
+                      | "user"
+                      | "super"
+                      | "designer"
+                      | "operator",
                     cohortId: user.cohortId,
                     cohortName: user.cohort?.name,
                     status: user.status,
@@ -88,8 +101,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     select: {
                       id: true,
                       name: true,
-                    }
-                  }
+                    },
+                  },
                 },
               });
 
@@ -101,7 +114,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     id: user.id,
                     email: user.email,
                     name: user.이름,
-                    role: user.role as "user" | "super" | "designer" | "operator",
+                    role: user.role as
+                      | "user"
+                      | "super"
+                      | "designer"
+                      | "operator",
                     cohortId: user.cohortId,
                     cohortName: user.cohort?.name,
                     status: user.status,
@@ -124,7 +141,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               if (admin) {
                 // 2FA 미설정 관리자는 로그인 거부
                 if (!admin.twoFactorEnabled || !admin.twoFactorSecret) {
-                  console.log("[AUTH DEBUG] Admin 2FA not set up:", emailOrPhone);
+                  console.log(
+                    "[AUTH DEBUG] Admin 2FA not set up:",
+                    emailOrPhone,
+                  );
                   throw new Error("2FA_NOT_SETUP");
                 }
 
@@ -152,7 +172,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     id: admin.id,
                     email: admin.email,
                     name: admin.name,
-                    role: admin.role as "user" | "super" | "designer" | "operator",
+                    role: admin.role as
+                      | "user"
+                      | "super"
+                      | "designer"
+                      | "operator",
                   };
                 }
               }
@@ -184,7 +208,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        session.user.role = token.role as "user" | "super" | "designer" | "operator";
+        session.user.role = token.role as
+          | "user"
+          | "super"
+          | "designer"
+          | "operator";
         session.user.userType = token.userType as "user" | "admin" | undefined;
         session.user.cohortId = token.cohortId as string | undefined;
         session.user.cohortName = token.cohortName as string | undefined;
@@ -196,5 +224,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   pages: {
     signIn: "/login",
+  },
+  session: {
+    strategy: "jwt",
+    // 7일 유지 (기존 기본값 30일에서 단축) — 관리자 디바이스 탈취 시 위험도 ↓
+    maxAge: 7 * 24 * 60 * 60,
+    // 하루 단위로 토큰 갱신 (활성 사용자는 계속 로그인 유지)
+    updateAge: 24 * 60 * 60,
   },
 });

@@ -1,24 +1,47 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { notificationManager } from "@/lib/notifications/notification-manager";
+import { timingSafeEqual } from "crypto";
 
 const WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET || "";
 
 // 텔레그램에서 답변 등록 (Cloudflare Worker에서 호출)
 export async function POST(request: Request) {
   try {
-    // 시크릿 키 검증 (Cloudflare Worker에서 호출 시)
-    const apiSecret = request.headers.get("X-API-Secret");
-    if (WEBHOOK_SECRET && apiSecret !== WEBHOOK_SECRET) {
+    // 서버 misconfiguration 방어 — SECRET 미설정 시 강제 500 (인증 우회 차단)
+    if (!WEBHOOK_SECRET) {
+      console.error(
+        "[TELEGRAM-REPLY] 서버 misconfiguration: TELEGRAM_WEBHOOK_SECRET 미설정",
+      );
+      return NextResponse.json(
+        { success: false, error: "Server misconfiguration" },
+        { status: 500 },
+      );
+    }
+
+    // 시크릿 키 검증 (Cloudflare Worker에서 호출 시) — timing-safe 비교
+    const apiSecret = request.headers.get("X-API-Secret") || "";
+    const expected = Buffer.from(WEBHOOK_SECRET);
+    const received = Buffer.from(apiSecret);
+    const authOk =
+      expected.length === received.length &&
+      timingSafeEqual(expected, received);
+    if (!authOk) {
       console.log("[TELEGRAM-REPLY] 인증 실패: 잘못된 API Secret");
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
 
     const body = await request.json();
     const { threadId, content } = body;
 
     if (!threadId || !content) {
-      return NextResponse.json({ success: false, error: "threadId와 content 필요" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: "threadId와 content 필요" },
+        { status: 400 },
+      );
     }
 
     // 스레드 확인
@@ -26,13 +49,21 @@ export async function POST(request: Request) {
       where: { id: threadId },
       include: {
         user: {
-          select: { id: true, 이름: true, telegramChatId: true, slackChannelId: true },
+          select: {
+            id: true,
+            이름: true,
+            telegramChatId: true,
+            slackChannelId: true,
+          },
         },
       },
     });
 
     if (!thread) {
-      return NextResponse.json({ success: false, error: "스레드를 찾을 수 없음" }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: "스레드를 찾을 수 없음" },
+        { status: 404 },
+      );
     }
 
     // 관리자 메시지 생성
@@ -71,7 +102,10 @@ export async function POST(request: Request) {
       try {
         const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_INQUIRY_BOT_TOKEN || "";
         const escapeHtml = (text: string) =>
-          text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+          text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
 
         await fetch(
           `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
@@ -83,7 +117,7 @@ export async function POST(request: Request) {
               text: `💬 <b>관리자 답변</b>\n\n<b>제목:</b> ${escapeHtml(thread.title)}\n\n<b>내용:</b>\n${escapeHtml(content)}`,
               parse_mode: "HTML",
             }),
-          }
+          },
         );
       } catch (error) {
         console.error("사용자 텔레그램 알림 실패:", error);
@@ -147,6 +181,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, message });
   } catch (error) {
     console.error("[TELEGRAM-REPLY] 에러:", error);
-    return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
