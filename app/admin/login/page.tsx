@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Shield, Mail, KeyRound } from "lucide-react";
+import { Shield, Mail, KeyRound, Loader2 } from "lucide-react";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -18,18 +18,25 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
   const totpInputRef = useRef<HTMLInputElement>(null);
 
-  // 로딩 중
-  if (status === "loading") {
+  // 이미 로그인된 상태면 어드민 대시보드로 리다이렉트
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.replace("/admin");
+    }
+  }, [status, router]);
+
+  // 로딩 중 또는 인증됨 (리다이렉트 대기) → 로딩 화면 표시
+  if (status === "loading" || status === "authenticated") {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-gold-600">로딩 중...</div>
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-3">
+        <Loader2 className="w-8 h-8 text-gold-600 animate-spin" />
+        <div className="text-gold-600 text-sm">
+          {status === "authenticated"
+            ? "관리자 페이지로 이동 중..."
+            : "로딩 중..."}
+        </div>
       </div>
     );
-  }
-
-  // Middleware에서 리다이렉트 처리하므로 여기서는 렌더링만
-  if (status === "authenticated") {
-    return null;
   }
 
   const handleTotpChange = (e: React.ChangeEvent<HTMLInputElement>) => {

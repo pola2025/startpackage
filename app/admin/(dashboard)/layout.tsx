@@ -24,6 +24,7 @@ import {
   Palette,
   BellRing,
   ExternalLink,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -169,24 +170,38 @@ export default function AdminLayout({
   // 로딩 중
   if (status === "loading") {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-900 animate-pulse">로딩 중...</div>
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center gap-3">
+        <Loader2 className="w-8 h-8 text-gold-600 animate-spin" />
+        <div className="text-gray-900 text-sm">로딩 중...</div>
       </div>
     );
   }
 
-  // 인증되지 않았거나 권한이 없는 경우
+  // 인증되지 않은 경우 (로그인 페이지로 리다이렉트 대기)
   if (status === "unauthenticated") {
-    return null;
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center gap-3">
+        <Loader2 className="w-8 h-8 text-gold-600 animate-spin" />
+        <div className="text-gray-900 text-sm">로그인 페이지로 이동 중...</div>
+      </div>
+    );
   }
 
+  // 권한이 없는 경우 (메인으로 리다이렉트 대기)
   const userRole = session?.user?.role;
   if (
     session &&
     userRole &&
     !["super", "designer", "operator"].includes(userRole)
   ) {
-    return null;
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center gap-3">
+        <Loader2 className="w-8 h-8 text-gold-600 animate-spin" />
+        <div className="text-gray-900 text-sm">
+          접근 권한이 없습니다. 이동 중...
+        </div>
+      </div>
+    );
   }
 
   return (
