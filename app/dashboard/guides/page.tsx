@@ -816,9 +816,190 @@ export default function GuidesPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3 md:space-y-4 p-3 md:p-4 pt-0 md:pt-0">
+              {/* 핵심 정책 (최상단 강조) */}
+              <div className="bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-300 rounded-xl p-4 md:p-5">
+                <div className="flex items-start gap-3 mb-3 md:mb-4">
+                  <div className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0">
+                    <span className="text-white text-base md:text-lg font-bold">
+                      !
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="text-base md:text-lg font-bold text-red-900 mb-0.5">
+                      로고 제작 핵심 정책
+                    </h3>
+                    <p className="text-xs md:text-sm text-red-700">
+                      아래 정책은 모든 고객에게 동일하게 적용됩니다
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid gap-2 md:gap-2.5">
+                  <div className="bg-white rounded-lg p-3 border-l-4 border-red-500 flex items-start gap-3">
+                    <span className="text-red-500 font-bold text-sm md:text-base mt-0.5">
+                      1
+                    </span>
+                    <div className="flex-1">
+                      <p className="text-sm md:text-base font-semibold text-gray-900">
+                        시안 수정은 총 <span className="text-red-600">2회</span>
+                        까지만 제공됩니다
+                      </p>
+                      <p className="text-[11px] md:text-xs text-gray-600 mt-0.5">
+                        2차 수정안 수신 후 확정 처리되며, 이후 변경은 불가합니다
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="bg-white rounded-lg p-3 border-l-4 border-red-500 flex items-start gap-3">
+                    <span className="text-red-500 font-bold text-sm md:text-base mt-0.5">
+                      2
+                    </span>
+                    <div className="flex-1">
+                      <p className="text-sm md:text-base font-semibold text-gray-900">
+                        2회 수정 이후 추가 수정 시{" "}
+                        <span className="text-red-600">건당 22,000원</span> (VAT
+                        포함)
+                      </p>
+                      <p className="text-[11px] md:text-xs text-gray-600 mt-0.5">
+                        추가 수정 요청 시 별도 결제 후 진행됩니다
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="bg-white rounded-lg p-3 border-l-4 border-red-500 flex items-start gap-3">
+                    <span className="text-red-500 font-bold text-sm md:text-base mt-0.5">
+                      3
+                    </span>
+                    <div className="flex-1">
+                      <p className="text-sm md:text-base font-semibold text-gray-900">
+                        2회 수정 후에도 만족하지 못하시면{" "}
+                        <span className="text-red-600">
+                          외부 제작 후 파일 전달
+                        </span>
+                        로 안내드립니다
+                      </p>
+                      <p className="text-[11px] md:text-xs text-gray-600 mt-0.5">
+                        추천 AI 로고 생성 사이트에서 직접 제작 후 파일로
+                        전달해주세요
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 불가 / 가능 요청 대비 */}
+              <div className="grid md:grid-cols-2 gap-2.5 md:gap-3">
+                {/* 불가 */}
+                <div className="bg-white border-2 border-red-200 rounded-xl p-3 md:p-4">
+                  <div className="flex items-center gap-2 mb-2.5 pb-2 border-b border-red-100">
+                    <span className="w-6 h-6 md:w-7 md:h-7 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xs md:text-sm font-bold">
+                      ✕
+                    </span>
+                    <h4 className="text-sm md:text-base font-bold text-red-700">
+                      이런 요청은 불가합니다
+                    </h4>
+                  </div>
+                  <ul className="space-y-2 md:space-y-2.5 text-xs md:text-sm text-gray-700">
+                    <li className="flex items-start gap-2">
+                      <span className="text-red-500 mt-0.5 flex-shrink-0">
+                        •
+                      </span>
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          여러 개의 시안 동시 요청
+                        </p>
+                        <p className="text-[11px] md:text-xs text-gray-500 mt-0.5">
+                          &quot;3~4개 시안 보여주세요&quot; 등
+                        </p>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-red-500 mt-0.5 flex-shrink-0">
+                        •
+                      </span>
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          구체성 없는 추상적 요청
+                        </p>
+                        <p className="text-[11px] md:text-xs text-gray-500 mt-0.5">
+                          &quot;예쁘게, 고급스럽게, 깔끔하게&quot; 등
+                        </p>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-red-500 mt-0.5 flex-shrink-0">
+                        •
+                      </span>
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          요청대로 제작했으나 재요청
+                        </p>
+                        <p className="text-[11px] md:text-xs text-gray-500 mt-0.5">
+                          요청사항과 다른 방향으로 변경 요구
+                        </p>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* 가능 */}
+                <div className="bg-white border-2 border-green-200 rounded-xl p-3 md:p-4">
+                  <div className="flex items-center gap-2 mb-2.5 pb-2 border-b border-green-100">
+                    <span className="w-6 h-6 md:w-7 md:h-7 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xs md:text-sm font-bold">
+                      ✓
+                    </span>
+                    <h4 className="text-sm md:text-base font-bold text-green-700">
+                      이렇게 요청해주세요
+                    </h4>
+                  </div>
+                  <ul className="space-y-2 md:space-y-2.5 text-xs md:text-sm text-gray-700">
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-500 mt-0.5 flex-shrink-0">
+                        •
+                      </span>
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          구체적 시안 전달
+                        </p>
+                        <p className="text-[11px] md:text-xs text-gray-500 mt-0.5">
+                          원하는 로고 이미지 직접 전달 → 디자인화
+                        </p>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-500 mt-0.5 flex-shrink-0">
+                        •
+                      </span>
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          요청사항 + 참고자료
+                        </p>
+                        <p className="text-[11px] md:text-xs text-gray-500 mt-0.5">
+                          구체적 요청 + 레퍼런스 이미지 포함
+                        </p>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-500 mt-0.5 flex-shrink-0">
+                        •
+                      </span>
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          세부 조건 명시
+                        </p>
+                        <p className="text-[11px] md:text-xs text-gray-500 mt-0.5">
+                          유형 / 색상 / 폰트 / 분위기 구체 작성
+                        </p>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* 요청 방법 (요약) */}
               <div>
                 <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-2 md:mb-3">
-                  📋 로고 제작 방법
+                  📋 로고 제작 요청 방법
                 </h3>
                 <div className="space-y-2 md:space-y-3">
                   <div className="p-3 md:p-4 bg-white border border-gray-200 rounded-lg">
@@ -874,19 +1055,14 @@ export default function GuidesPage() {
                 </div>
               </div>
 
+              {/* 로고 없이 진행 안내 */}
               <div className="bg-white border border-gray-200 rounded-lg p-3 md:p-4">
-                <h4 className="text-sm md:text-base font-semibold text-orange-700 mb-1.5 md:mb-2">
-                  📌 중요 안내
-                </h4>
-                <ul className="text-xs md:text-sm text-gray-700 space-y-0.5 md:space-y-1">
-                  <li>
-                    • 로고 제작 디자인이 만족스럽지 않은 경우, 본인이 개별
-                    제작해서 전달 필요
-                  </li>
-                  <li>• 로고 없이도 인쇄물 및 홈페이지 제작 가능</li>
-                </ul>
+                <p className="text-xs md:text-sm text-gray-700">
+                  ℹ️ 로고 없이도 인쇄물 및 홈페이지 제작은 정상 진행됩니다.
+                </p>
               </div>
 
+              {/* 추천 사이트 */}
               <div>
                 <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-2 md:mb-3">
                   🌐 로고 생성 추천 사이트

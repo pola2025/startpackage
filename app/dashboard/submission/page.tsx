@@ -1070,6 +1070,53 @@ export default function SubmissionPage() {
               </div>
             </CardHeader>
             <CardContent>
+              {/* 로고 제작 핵심 정책 (A안 컴팩트) */}
+              <div className="bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-300 rounded-xl p-3 md:p-4 mb-4">
+                <div className="flex items-start gap-2.5 mb-3">
+                  <div className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0">
+                    <span className="text-white text-sm font-bold">!</span>
+                  </div>
+                  <div>
+                    <h4 className="text-sm md:text-base font-bold text-red-900 leading-tight">
+                      로고 제작 핵심 정책
+                    </h4>
+                    <p className="text-[11px] md:text-xs text-red-700 mt-0.5">
+                      시안 요청 전 반드시 확인해주세요
+                    </p>
+                  </div>
+                </div>
+                <div className="grid gap-1.5 md:gap-2">
+                  <div className="bg-white rounded-lg p-2.5 border-l-4 border-red-500 text-xs md:text-sm">
+                    <span className="text-red-500 font-bold mr-1.5">1</span>
+                    <span className="text-gray-900">
+                      시안 수정은 총{" "}
+                      <span className="font-bold text-red-600">2회</span>까지만
+                      제공 · 2차 수정안 수신 후{" "}
+                      <span className="font-bold">자동 확정</span>
+                    </span>
+                  </div>
+                  <div className="bg-white rounded-lg p-2.5 border-l-4 border-red-500 text-xs md:text-sm">
+                    <span className="text-red-500 font-bold mr-1.5">2</span>
+                    <span className="text-gray-900">
+                      2회 초과 추가 수정 시{" "}
+                      <span className="font-bold text-red-600">
+                        건당 22,000원
+                      </span>{" "}
+                      (VAT 포함) 결제 후 진행
+                    </span>
+                  </div>
+                  <div className="bg-white rounded-lg p-2.5 border-l-4 border-red-500 text-xs md:text-sm">
+                    <span className="text-red-500 font-bold mr-1.5">3</span>
+                    <span className="text-gray-900">
+                      <span className="font-bold">3~4개 시안 요구 불가</span> ·
+                      구체적 요청사항 필수 · 2회 후 미만족 시{" "}
+                      <span className="font-bold">외부 제작 파일 전달</span>로
+                      안내
+                    </span>
+                  </div>
+                </div>
+              </div>
+
               <form
                 key={`logo-${submission?.로고선호스타일}-${isEditingLogo}`}
                 onSubmit={(e) => handleSubmit(e, "logo")}
@@ -2140,56 +2187,6 @@ export default function SubmissionPage() {
                   </div>
                 </details>
 
-                {/* Gmail (메일발신용) */}
-                <details
-                  className="rounded-lg border border-purple-200"
-                  open={!!(submission?.GmailID || submission?.GmailPW)}
-                >
-                  <summary className="cursor-pointer px-4 py-2.5 flex items-center justify-between select-none list-none hover:bg-purple-50 rounded-lg">
-                    <span className="text-sm font-semibold text-gray-800">
-                      Gmail (메일발신용)
-                    </span>
-                    <span
-                      className={`text-xs px-2 py-0.5 rounded-full ${submission?.GmailID ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}
-                    >
-                      {submission?.GmailID ? "입력됨" : "미입력"}
-                    </span>
-                  </summary>
-                  <div className="px-4 pb-4 pt-2 space-y-3 border-t border-purple-100">
-                    <p className="text-xs text-gray-600">
-                      신규 개설한 Gmail 계정 ID/PW를 입력해주세요
-                    </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div className="space-y-1">
-                        <Label htmlFor="GmailID" className="text-xs">
-                          ID
-                        </Label>
-                        <Input
-                          id="GmailID"
-                          name="GmailID"
-                          defaultValue={submission?.GmailID}
-                          placeholder="example@gmail.com"
-                          disabled={!isEditingMarketing}
-                          className="h-8 text-sm"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <Label htmlFor="GmailPW" className="text-xs">
-                          비밀번호
-                        </Label>
-                        <Input
-                          id="GmailPW"
-                          name="GmailPW"
-                          type="password"
-                          defaultValue={submission?.GmailPW}
-                          placeholder="비밀번호"
-                          disabled={!isEditingMarketing}
-                          className="h-8 text-sm"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </details>
                 <div className="flex gap-2">
                   {hasMarketingInfo() && !isEditingMarketing ? (
                     <Button

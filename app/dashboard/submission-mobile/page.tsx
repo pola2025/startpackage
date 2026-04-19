@@ -589,6 +589,52 @@ export default function MobileSubmissionPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-3 pt-0 space-y-3">
+                {/* 로고 제작 핵심 정책 (A안 컴팩트) */}
+                <div className="bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-300 rounded-xl p-3">
+                  <div className="flex items-start gap-2 mb-2.5">
+                    <div className="w-7 h-7 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0">
+                      <span className="text-white text-xs font-bold">!</span>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-red-900 leading-tight">
+                        로고 제작 핵심 정책
+                      </h4>
+                      <p className="text-[10px] text-red-700 mt-0.5">
+                        시안 요청 전 반드시 확인
+                      </p>
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <div className="bg-white rounded-md p-2 border-l-4 border-red-500 text-[11px] leading-snug">
+                      <span className="text-red-500 font-bold mr-1">1</span>
+                      <span className="text-gray-900">
+                        시안 수정은 총{" "}
+                        <span className="font-bold text-red-600">2회</span>
+                        까지만 제공 · 2차 수정안 수신 후{" "}
+                        <span className="font-bold">자동 확정</span>
+                      </span>
+                    </div>
+                    <div className="bg-white rounded-md p-2 border-l-4 border-red-500 text-[11px] leading-snug">
+                      <span className="text-red-500 font-bold mr-1">2</span>
+                      <span className="text-gray-900">
+                        2회 초과 추가 수정 시{" "}
+                        <span className="font-bold text-red-600">
+                          건당 22,000원
+                        </span>{" "}
+                        (VAT 포함)
+                      </span>
+                    </div>
+                    <div className="bg-white rounded-md p-2 border-l-4 border-red-500 text-[11px] leading-snug">
+                      <span className="text-red-500 font-bold mr-1">3</span>
+                      <span className="text-gray-900">
+                        <span className="font-bold">3~4개 시안 요구 불가</span>{" "}
+                        · 구체적 요청사항 필수 · 2회 후 미만족 시{" "}
+                        <span className="font-bold">외부 제작 파일 전달</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
                 <MobileFileUpload
                   label="로고 파일 (있는 경우)"
                   accept="image/*"
