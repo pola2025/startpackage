@@ -232,4 +232,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     // 하루 단위로 토큰 갱신 (활성 사용자는 계속 로그인 유지)
     updateAge: 24 * 60 * 60,
   },
+  // 프로덕션에서 강제로 Secure 쿠키 사용 (설정 drift 방지)
+  useSecureCookies: process.env.NODE_ENV === "production",
 });

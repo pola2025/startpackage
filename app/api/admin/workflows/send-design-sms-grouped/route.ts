@@ -149,9 +149,11 @@ export async function POST(request: NextRequest) {
           userName: "처리 중 오류",
           types: [],
           success: false,
-          error: error.message,
+          error: "LMS 발송 실패",
         });
-        console.error(`❌ LMS 발송 실패:`, error);
+        console.error(
+          `❌ LMS 발송 실패: ${String(error?.message || error).slice(0, 200)}`,
+        );
       }
     }
 

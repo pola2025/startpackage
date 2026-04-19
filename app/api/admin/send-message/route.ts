@@ -108,6 +108,9 @@ export async function POST(request: Request) {
     // 실제 발송 (비동기)
     let sendResult = { success: false, error: "" };
 
+    // 내부 로그/DB 기록용 원본 에러 (클라이언트 노출 금지)
+    let internalError = "";
+
     if (channel === "SMS") {
       // SMS 발송
       try {
@@ -122,7 +125,8 @@ export async function POST(request: Request) {
         sendResult.success = true;
       } catch (error: any) {
         console.error("❌ SMS 발송 실패:", error);
-        sendResult.error = error.message || "SMS 발송에 실패했습니다.";
+        internalError = String(error?.message || error).slice(0, 300);
+        sendResult.error = "SMS 발송에 실패했습니다.";
       }
     } else {
       // 이메일 발송
@@ -141,16 +145,17 @@ export async function POST(request: Request) {
         sendResult.success = true;
       } catch (error: any) {
         console.error("❌ 이메일 발송 실패:", error);
-        sendResult.error = error.message || "이메일 발송에 실패했습니다.";
+        internalError = String(error?.message || error).slice(0, 300);
+        sendResult.error = "이메일 발송에 실패했습니다.";
       }
     }
 
-    // 알림 상태 업데이트
+    // 알림 상태 업데이트 (DB에는 내부 원본 에러 저장)
     await prisma.notification.update({
       where: { id: notification.id },
       data: {
         status: sendResult.success ? "성공" : "실패",
-        errorMessage: sendResult.error || null,
+        errorMessage: internalError || null,
       },
     });
 

@@ -104,9 +104,13 @@ export async function POST(request: NextRequest) {
           workflowId: workflow.id,
           userName: workflow.user.이름,
           success: false,
-          error: error.message,
+          error: "SMS 발송 실패",
         });
-        console.error(`❌ SMS 발송 실패: ${workflow.user.이름}`, error);
+        console.error(
+          `❌ SMS 발송 실패: ${workflow.user.이름} / ${String(
+            error?.message || error,
+          ).slice(0, 200)}`,
+        );
       }
     }
 
