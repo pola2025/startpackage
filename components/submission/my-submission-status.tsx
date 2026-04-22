@@ -607,34 +607,13 @@ export function MySubmissionStatus({
           defaultOpen={false}
         >
           <div className="bg-white rounded-lg p-4 mt-3">
-            <InfoRow label="제작 방식" value={submission.홈페이지제작방식} />
-            {submission.홈페이지제작방식 === "아임웹" && (
-              <>
-                <InfoRow label="아임웹 ID" value={submission.아임웹ID} />
-                <InfoRow label="아임웹 PW" value={submission.아임웹PW} />
-                <InfoRow
-                  label="아임웹 관리자 PW"
-                  value={submission.아임웹관리자PW}
-                />
-              </>
-            )}
-            {submission.홈페이지제작방식 === "외부서비스" && (
-              <>
-                <InfoRow label="도메인 주소" value={submission.도메인주소} />
-                <InfoRow
-                  label="도메인 관리 사이트"
-                  value={submission.도메인관리사이트}
-                />
-                <InfoRow
-                  label="도메인 관리 ID"
-                  value={submission.도메인관리ID}
-                />
-                <InfoRow
-                  label="도메인 관리 PW"
-                  value={submission.도메인관리PW}
-                />
-              </>
-            )}
+            <InfoRow label="도메인 주소" value={submission.도메인주소} />
+            <InfoRow
+              label="도메인 관리 사이트"
+              value={submission.도메인관리사이트}
+            />
+            <InfoRow label="도메인 관리 ID" value={submission.도메인관리ID} />
+            <InfoRow label="도메인 관리 PW" value={submission.도메인관리PW} />
             <button
               onClick={() => onNavigateToSection("basic", "homepage")}
               className="w-full mt-3 text-sm text-gold-600 hover:text-gold-700 font-medium flex items-center justify-center gap-1"

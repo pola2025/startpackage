@@ -56,10 +56,7 @@ const EMAIL_TEMPLATES = [
 https://www.polaai.co.kr/dashboard/guides
 
 텔레그램 채팅방
-https://t.me/+TH1D9UVrEXBhMWI1
-
-아임웹 결제 안내
-https://www.polaai.co.kr/dashboard/guides#imweb`,
+https://t.me/+TH1D9UVrEXBhMWI1`,
   },
   {
     id: "card-complete",

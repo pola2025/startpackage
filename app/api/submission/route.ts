@@ -344,9 +344,6 @@ export async function POST(request: Request) {
           { key: "GmailPW", label: "Gmail 비밀번호" },
           { key: "홈페이지스타일", label: "홈페이지 스타일" },
           { key: "홈페이지컬러컨셉", label: "홈페이지 컬러" },
-          { key: "아임웹ID", label: "아임웹 ID" },
-          { key: "아임웹PW", label: "아임웹 비밀번호" },
-          { key: "아임웹관리자PW", label: "아임웹 관리자 비밀번호" },
         ];
 
       const changedTextFields: Array<{

@@ -3,18 +3,6 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
-// 아임웹 제작 스키마
-const imwebSchema = z.object({
-  홈페이지제작방식: z.literal("아임웹"),
-  아임웹ID: z.string().min(1, "아임웹 ID를 입력해주세요"),
-  아임웹PW: z.string().min(1, "아임웹 비밀번호를 입력해주세요"),
-  아임웹관리자PW: z.string().min(1, "아임웹 관리자 비밀번호를 입력해주세요"),
-  홈페이지스타일: z.string().optional(),
-  홈페이지컬러컨셉: z.string().optional(),
-  GmailID: z.string().min(1, "Gmail ID를 입력해주세요"),
-  GmailPW: z.string().min(1, "Gmail 비밀번호를 입력해주세요"),
-});
-
 // 외부 서비스 제작 스키마
 const externalSchema = z.object({
   홈페이지제작방식: z.literal("외부서비스"),
@@ -49,9 +37,6 @@ export async function GET() {
         홈페이지제작방식: true,
         홈페이지스타일: true,
         홈페이지컬러컨셉: true,
-        아임웹ID: true,
-        아임웹PW: true,
-        아임웹관리자PW: true,
         도메인주소: true,
         도메인관리사이트: true,
         도메인관리ID: true,
@@ -87,29 +72,18 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { 홈페이지제작방식 } = body;
 
-    // 제작 방식에 따른 검증
-    let validatedData;
-    if (홈페이지제작방식 === "아임웹") {
-      const result = imwebSchema.safeParse(body);
-      if (!result.success) {
-        return NextResponse.json(
-          { error: result.error.errors[0].message },
-          { status: 400 },
-        );
-      }
-      validatedData = result.data;
-    } else if (홈페이지제작방식 === "외부서비스") {
-      const result = externalSchema.safeParse(body);
-      if (!result.success) {
-        return NextResponse.json(
-          { error: result.error.errors[0].message },
-          { status: 400 },
-        );
-      }
-      validatedData = result.data;
-    } else {
+    // 외부서비스 방식만 지원
+    if (홈페이지제작방식 !== "외부서비스") {
       return NextResponse.json(
         { error: "유효하지 않은 제작 방식입니다" },
+        { status: 400 },
+      );
+    }
+
+    const result = externalSchema.safeParse(body);
+    if (!result.success) {
+      return NextResponse.json(
+        { error: result.error.errors[0].message },
         { status: 400 },
       );
     }
@@ -126,34 +100,15 @@ export async function POST(request: NextRequest) {
       홈페이지컬러컨셉: body.홈페이지컬러컨셉 || null,
       GmailID: body.GmailID || null,
       GmailPW: body.GmailPW || null,
+      도메인주소: body.도메인주소,
+      도메인관리사이트: body.도메인관리사이트,
+      도메인관리ID: body.도메인관리ID,
+      도메인관리PW: body.도메인관리PW,
+      해외결제카드앞면URL: body.해외결제카드앞면URL,
+      해외결제카드뒷면URL: body.해외결제카드뒷면URL || null,
+      해외결제카드유효기간: body.해외결제카드유효기간,
+      해외결제카드CVC: body.해외결제카드CVC,
     };
-
-    if (홈페이지제작방식 === "아임웹") {
-      updateData.아임웹ID = body.아임웹ID;
-      updateData.아임웹PW = body.아임웹PW;
-      updateData.아임웹관리자PW = body.아임웹관리자PW;
-      // 외부 서비스 정보 초기화
-      updateData.도메인관리사이트 = null;
-      updateData.도메인관리ID = null;
-      updateData.도메인관리PW = null;
-      updateData.해외결제카드앞면URL = null;
-      updateData.해외결제카드뒷면URL = null;
-      updateData.해외결제카드유효기간 = null;
-      updateData.해외결제카드CVC = null;
-    } else {
-      updateData.도메인주소 = body.도메인주소;
-      updateData.도메인관리사이트 = body.도메인관리사이트;
-      updateData.도메인관리ID = body.도메인관리ID;
-      updateData.도메인관리PW = body.도메인관리PW;
-      updateData.해외결제카드앞면URL = body.해외결제카드앞면URL;
-      updateData.해외결제카드뒷면URL = body.해외결제카드뒷면URL || null;
-      updateData.해외결제카드유효기간 = body.해외결제카드유효기간;
-      updateData.해외결제카드CVC = body.해외결제카드CVC;
-      // 아임웹 정보 초기화
-      updateData.아임웹ID = null;
-      updateData.아임웹PW = null;
-      updateData.아임웹관리자PW = null;
-    }
 
     if (existingSubmission) {
       // 기존 데이터 업데이트
@@ -184,7 +139,7 @@ export async function POST(request: NextRequest) {
 
       const brandName = user?.submission?.브랜드명 || "미지정";
 
-      // 스타일 이름 매핑
+      // 스타일 이름 매핑 (미리보기 샘플 URL)
       const styleNames: Record<string, string> = {
         "https://www.jnipartners.co.kr": "스타일 1",
         "https://mjgood.imweb.me/": "스타일 2",
@@ -205,20 +160,13 @@ export async function POST(request: NextRequest) {
         message += `━━━━━━━━━━━━━━━━━━━━\n`;
         message += `*제작 방식:* ${홈페이지제작방식}\n`;
 
-        if (홈페이지제작방식 === "아임웹") {
-          message += `\n*아임웹 계정 정보*\n`;
-          message += `• ID: ${body.아임웹ID}\n`;
-          message += `• PW: ${body.아임웹PW}\n`;
-          message += `• 관리자 PW: ${body.아임웹관리자PW}\n`;
-        } else {
-          message += `\n*도메인 정보*\n`;
-          message += `• 도메인 주소: ${body.도메인주소}\n`;
-          message += `• 관리 사이트: ${body.도메인관리사이트}\n`;
-          message += `• ID: ${body.도메인관리ID}\n`;
-          message += `• PW: ${body.도메인관리PW}\n`;
-          message += `• 카드 유효기간: ${body.해외결제카드유효기간}\n`;
-          message += `• 카드 CVC: ${body.해외결제카드CVC}\n`;
-        }
+        message += `\n*도메인 정보*\n`;
+        message += `• 도메인 주소: ${body.도메인주소}\n`;
+        message += `• 관리 사이트: ${body.도메인관리사이트}\n`;
+        message += `• ID: ${body.도메인관리ID}\n`;
+        message += `• PW: ${body.도메인관리PW}\n`;
+        message += `• 카드 유효기간: ${body.해외결제카드유효기간}\n`;
+        message += `• 카드 CVC: ${body.해외결제카드CVC}\n`;
 
         if (body.홈페이지스타일) {
           const styleName =
@@ -253,12 +201,7 @@ export async function POST(request: NextRequest) {
       }
       telegramMsg += `\n🏢 브랜드: ${brandName}`;
       telegramMsg += `\n📋 제작 방식: ${홈페이지제작방식}\n`;
-
-      if (홈페이지제작방식 === "아임웹") {
-        telegramMsg += `\n📧 아임웹 ID: ${body.아임웹ID}\n`;
-      } else {
-        telegramMsg += `\n🌍 도메인: ${body.도메인관리사이트}\n`;
-      }
+      telegramMsg += `\n🌍 도메인: ${body.도메인관리사이트}\n`;
 
       if (body.홈페이지스타일) {
         telegramMsg += `🎨 스타일: ${styleNames[body.홈페이지스타일] || "선택됨"}\n`;

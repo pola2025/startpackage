@@ -71,9 +71,6 @@ export const submissionSchema = z.object({
   InstagramPW: z.string().optional(),
   GmailID: z.string().optional(),
   GmailPW: z.string().optional(),
-  아임웹ID: z.string().optional(),
-  아임웹PW: z.string().optional(),
-  아임웹관리자PW: z.string().optional(),
 
   // 제출 완료 상태
   isComplete: z.boolean().optional(),
