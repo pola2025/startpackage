@@ -46,6 +46,8 @@ interface HomepageData {
   해외결제카드앞면URL: string | null;
   해외결제카드유효기간: string | null;
   해외결제카드CVC: string | null;
+  GmailID: string | null;
+  GmailPW: string | null;
 }
 
 export default function HomepageSettingsPage() {
@@ -61,6 +63,10 @@ export default function HomepageSettingsPage() {
   const [cardFrontUrl, setCardFrontUrl] = useState("");
   const [cardExpiry, setCardExpiry] = useState("");
   const [cardCvc, setCardCvc] = useState("");
+
+  // Gmail 상태
+  const [gmailId, setGmailId] = useState("");
+  const [gmailPw, setGmailPw] = useState("");
 
   // 이미지 업로드 상태
   const [uploadingFront, setUploadingFront] = useState(false);
@@ -106,6 +112,8 @@ export default function HomepageSettingsPage() {
         if (result.해외결제카드유효기간)
           setCardExpiry(result.해외결제카드유효기간);
         if (result.해외결제카드CVC) setCardCvc(result.해외결제카드CVC);
+        if (result.GmailID) setGmailId(result.GmailID);
+        if (result.GmailPW) setGmailPw(result.GmailPW);
         if (result.홈페이지스타일)
           setSelectedWebsiteStyle(result.홈페이지스타일);
         if (result.홈페이지컬러컨셉) setWebsiteColor(result.홈페이지컬러컨셉);
@@ -137,6 +145,8 @@ export default function HomepageSettingsPage() {
     domainSite.trim() &&
     domainId.trim() &&
     domainPw.trim() &&
+    gmailId.trim() &&
+    gmailPw.trim() &&
     cardFrontUrl.trim() &&
     /^\d{2}\/\d{2}$/.test(cardExpiry) &&
     /^\d{3}$/.test(cardCvc);
@@ -213,6 +223,8 @@ export default function HomepageSettingsPage() {
         해외결제카드앞면URL: cardFrontUrl,
         해외결제카드유효기간: cardExpiry,
         해외결제카드CVC: cardCvc,
+        GmailID: gmailId || "",
+        GmailPW: gmailPw || "",
       };
 
       // 스타일 정보 추가
@@ -327,6 +339,52 @@ export default function HomepageSettingsPage() {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* 🚨 최상단 경고: 도메인 구매/가용성 확인 필수 (인쇄물 교체 불가) */}
+          <div className="rounded-xl border-2 border-red-500 bg-red-50 p-4 md:p-5 shadow-sm">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0 w-9 h-9 rounded-full bg-red-500 flex items-center justify-center">
+                <AlertCircle className="w-5 h-5 text-white" />
+              </div>
+              <div className="flex-1">
+                <p className="text-red-700 font-bold text-base md:text-lg leading-tight">
+                  반드시 도메인을 <u>구매</u>하거나 <u>사용 가능</u>한지 확인 후
+                  신청해주세요
+                </p>
+                <p className="text-red-600 text-sm mt-2 leading-relaxed">
+                  도메인 검증 없이 신청하면 인쇄물(명함·전단 등)에 들어간
+                  도메인을{" "}
+                  <strong className="bg-red-100 px-1">
+                    이미 누군가 사용 중이거나 구매 불가
+                  </strong>
+                  한 경우가 생길 수 있습니다.
+                </p>
+                <div className="mt-3 bg-white border border-red-200 rounded-lg p-3">
+                  <p className="text-sm text-red-800 font-semibold flex items-start gap-1.5">
+                    <span className="text-red-500 flex-shrink-0">⚠️</span>
+                    <span>
+                      인쇄물은 이미 <u>제작 완료된 상태</u>라서 도메인을 나중에
+                      바꿀 수 없습니다.
+                    </span>
+                  </p>
+                </div>
+                <div className="mt-3 flex flex-col sm:flex-row gap-2">
+                  <a
+                    href="https://www.whois.co.kr"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg transition-colors"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    후이즈에서 도메인 확인/구매
+                  </a>
+                  <span className="inline-flex items-center text-xs text-red-600 font-medium px-2">
+                    검색 → 사용 가능 확인 → 결제 완료 후 신청
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Layer 1: 입력 폼 */}
           <div className="space-y-4">
             <div>
@@ -473,7 +531,7 @@ export default function HomepageSettingsPage() {
               </div>
             </details>
 
-            <details>
+            <details open>
               <summary className="cursor-pointer text-sm font-medium text-gray-700 p-3 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
                 도메인 구매 안내
               </summary>
@@ -502,7 +560,7 @@ export default function HomepageSettingsPage() {
               </div>
             </details>
 
-            <details>
+            <details open>
               <summary className="cursor-pointer text-sm font-medium text-gray-700 p-3 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
                 도메인 구매 가이드
               </summary>
@@ -558,12 +616,72 @@ export default function HomepageSettingsPage() {
         </CardContent>
       </Card>
 
-      {/* Step 2: 해외결제 카드 정보 */}
+      {/* Step 2: Gmail 계정 */}
       <Card className="border-gray-200">
         <CardHeader className="pb-3">
           <div className="flex items-center gap-3 flex-wrap">
             <span className="w-6 h-6 rounded-full bg-navy-900 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">
               2
+            </span>
+            <CardTitle className="text-gray-900 text-base flex items-center gap-2">
+              Gmail (메일발신용)
+            </CardTitle>
+            <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">
+              필수
+            </span>
+            {gmailId.trim() ? (
+              <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                입력됨
+              </span>
+            ) : null}
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-xs text-gray-600">
+            신규 개설한 Gmail 계정 ID/PW를 입력해주세요
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <Label
+                htmlFor="gmailId"
+                className="text-sm flex items-center gap-1"
+              >
+                Gmail ID <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="gmailId"
+                value={gmailId}
+                onChange={(e) => setGmailId(e.target.value)}
+                placeholder="example@gmail.com"
+                className="mt-1"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label
+                htmlFor="gmailPw"
+                className="text-sm flex items-center gap-1"
+              >
+                비밀번호 <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="gmailPw"
+                type="password"
+                value={gmailPw}
+                onChange={(e) => setGmailPw(e.target.value)}
+                placeholder="비밀번호"
+                className="mt-1"
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Step 3: 해외결제 카드 정보 */}
+      <Card className="border-gray-200">
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className="w-6 h-6 rounded-full bg-navy-900 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">
+              3
             </span>
             <CardTitle className="text-gray-900 text-base flex items-center gap-2">
               <CreditCard className="w-4 h-4 text-gray-600" />
@@ -695,12 +813,12 @@ export default function HomepageSettingsPage() {
         </CardContent>
       </Card>
 
-      {/* Step 3: 홈페이지 스타일 */}
+      {/* Step 4: 홈페이지 스타일 */}
       <Card className="border-gray-200">
         <CardHeader className="pb-3">
           <div className="flex items-center gap-3 flex-wrap">
             <span className="w-6 h-6 rounded-full bg-navy-900 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">
-              3
+              4
             </span>
             <CardTitle className="text-gray-900 text-base flex items-center gap-2">
               <Globe className="w-4 h-4 text-gray-600" />

@@ -126,8 +126,8 @@ export default function UserLayout({
   // 일반 사용자 레이아웃
   return (
     <div className="relative min-h-screen bg-gray-50">
-      {/* 26-3기 안내 팝업 */}
-      <CohortAnnouncementPopup />
+      {/* 26-3기 안내 팝업 - 비활성화 */}
+      {/* <CohortAnnouncementPopup /> */}
 
       {/* 시스템 알림 모달 - 모든 사용자 */}
       <SystemAlertModal />

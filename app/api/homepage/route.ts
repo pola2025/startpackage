@@ -11,6 +11,8 @@ const imwebSchema = z.object({
   아임웹관리자PW: z.string().min(1, "아임웹 관리자 비밀번호를 입력해주세요"),
   홈페이지스타일: z.string().optional(),
   홈페이지컬러컨셉: z.string().optional(),
+  GmailID: z.string().min(1, "Gmail ID를 입력해주세요"),
+  GmailPW: z.string().min(1, "Gmail 비밀번호를 입력해주세요"),
 });
 
 // 외부 서비스 제작 스키마
@@ -28,6 +30,8 @@ const externalSchema = z.object({
   해외결제카드CVC: z.string().regex(/^\d{3}$/, "CVC 번호는 3자리 숫자입니다"),
   홈페이지스타일: z.string().optional(),
   홈페이지컬러컨셉: z.string().optional(),
+  GmailID: z.string().min(1, "Gmail ID를 입력해주세요"),
+  GmailPW: z.string().min(1, "Gmail 비밀번호를 입력해주세요"),
 });
 
 // GET: 현재 사용자의 홈페이지 정보 조회
@@ -56,6 +60,8 @@ export async function GET() {
         해외결제카드뒷면URL: true,
         해외결제카드유효기간: true,
         해외결제카드CVC: true,
+        GmailID: true,
+        GmailPW: true,
       },
     });
 
@@ -118,6 +124,8 @@ export async function POST(request: NextRequest) {
       홈페이지제작방식: 홈페이지제작방식,
       홈페이지스타일: body.홈페이지스타일 || null,
       홈페이지컬러컨셉: body.홈페이지컬러컨셉 || null,
+      GmailID: body.GmailID || null,
+      GmailPW: body.GmailPW || null,
     };
 
     if (홈페이지제작방식 === "아임웹") {
