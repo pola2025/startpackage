@@ -12,23 +12,11 @@ export async function POST(request: Request) {
 
     const userId = (session.user as any).id;
     const body = await request.json();
-    const { requestMessage, months = 3 } = body;
+    const { requestMessage } = body;
 
-    // 유효한 개월수인지 확인
-    const validMonths = [3, 6, 12];
-    if (!validMonths.includes(months)) {
-      return NextResponse.json(
-        { error: "유효하지 않은 연장 기간입니다" },
-        { status: 400 }
-      );
-    }
-
-    // 가격 정보
-    const priceInfo: Record<number, { total: number; monthly: number }> = {
-      3: { total: 660000, monthly: 220000 },
-      6: { total: 990000, monthly: 165000 },
-      12: { total: 1320000, monthly: 110000 },
-    };
+    // 3개월 단위 결제만 가능
+    const months = 3;
+    const selectedPrice = { total: 660000, monthly: 220000 };
 
     // 사용자 정보 조회
     const user = await prisma.user.findUnique({
@@ -42,13 +30,16 @@ export async function POST(request: Request) {
     });
 
     if (!user) {
-      return NextResponse.json({ error: "사용자를 찾을 수 없습니다" }, { status: 404 });
+      return NextResponse.json(
+        { error: "사용자를 찾을 수 없습니다" },
+        { status: 404 },
+      );
     }
 
     if (!user.marketingSupportEnabled || !user.marketingSupportEndDate) {
       return NextResponse.json(
         { error: "마케팅 지원이 활성화되지 않았습니다" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -68,7 +59,7 @@ export async function POST(request: Request) {
     if (existingRequest) {
       return NextResponse.json(
         { error: "이미 처리 대기 중인 연장 신청이 있습니다" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -84,16 +75,16 @@ export async function POST(request: Request) {
 
     // 관리자에게 텔레그램 알림
     try {
-      const { sendTelegramMessage } = await import("@/lib/notification/telegramClient");
-      const selectedPrice = priceInfo[months];
+      const { sendTelegramMessage } =
+        await import("@/lib/notification/telegramClient");
       await sendTelegramMessage(
         `🔔 *마케팅 지원 연장 신청*\n\n` +
-        `*신청자:* ${user.이름} (${user.email})\n` +
-        `*연장 기간:* ${months}개월\n` +
-        `*결제 금액:* ${selectedPrice.total.toLocaleString()}원 (월 ${selectedPrice.monthly.toLocaleString()}원)\n` +
-        `*현재 종료일:* ${currentEndDate.toLocaleDateString("ko-KR")}\n` +
-        `*연장 종료일:* ${newEndDate.toLocaleDateString("ko-KR")}\n` +
-        `*요청 메시지:* ${requestMessage || "(없음)"}`
+          `*신청자:* ${user.이름} (${user.email})\n` +
+          `*연장 기간:* ${months}개월\n` +
+          `*결제 금액:* ${selectedPrice.total.toLocaleString()}원 (월 ${selectedPrice.monthly.toLocaleString()}원)\n` +
+          `*현재 종료일:* ${currentEndDate.toLocaleDateString("ko-KR")}\n` +
+          `*연장 종료일:* ${newEndDate.toLocaleDateString("ko-KR")}\n` +
+          `*요청 메시지:* ${requestMessage || "(없음)"}`,
       );
     } catch (error) {
       console.error("텔레그램 알림 실패:", error);
@@ -107,7 +98,7 @@ export async function POST(request: Request) {
     console.error("POST /api/marketing-extension/request error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
