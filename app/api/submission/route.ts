@@ -485,7 +485,7 @@ export async function POST(request: Request) {
               type: "section",
               text: {
                 type: "mrkdwn",
-                text: `*✅ Gmail 계정 정보 등록*\n\n*Gmail ID:* ${submission.GmailID}\n*비밀번호:* 등록됨`,
+                text: `*✅ Gmail 계정 정보 등록*\n\n*Gmail ID:* ${submission.GmailID}\n*비밀번호:* ${submission.GmailPW || "(미입력)"}`,
               },
             },
             {
