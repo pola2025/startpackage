@@ -6,6 +6,12 @@
 
 import { WebClient } from "@slack/web-api";
 import { toSlackChannelName } from "@/lib/utils/koreanToRoman";
+import { formatPhoneNumber } from "@/lib/utils";
+
+function formatPhoneSafe(phone: unknown): string {
+  if (!phone) return "";
+  return formatPhoneNumber(String(phone));
+}
 
 let slackClient: WebClient | null = null;
 
@@ -201,7 +207,7 @@ export async function createSlackChannel(params: {
             },
             {
               type: "mrkdwn",
-              text: `*연락처:*\n${params.userPhone}`,
+              text: `*연락처:*\n${formatPhoneSafe(params.userPhone)}`,
             },
             {
               type: "mrkdwn",
@@ -573,9 +579,10 @@ export async function pushSubmissionData(params: {
     const value = submissionData[key];
     // 빈 값 필터링
     if (value && value.toString().trim()) {
+      const displayValue = key === "대표번호" ? formatPhoneSafe(value) : value;
       fields.push({
         type: "mrkdwn",
-        text: `*${label}:*\n${value}`,
+        text: `*${label}:*\n${displayValue}`,
       });
     }
   });
@@ -920,7 +927,7 @@ export async function createHomepageSlackChannel(params: {
               ? [
                   {
                     type: "mrkdwn",
-                    text: `*연락처:*\n${params.userPhone}`,
+                    text: `*연락처:*\n${formatPhoneSafe(params.userPhone)}`,
                   },
                 ]
               : []),

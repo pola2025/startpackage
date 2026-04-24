@@ -8,6 +8,12 @@ import {
 } from "@/lib/utils/dateCalculator";
 import { submissionPartialSchema } from "@/lib/schemas/submission.schema";
 import { ZodError } from "zod";
+import { formatPhoneNumber } from "@/lib/utils";
+
+function formatPhoneSafe(phone: unknown): string {
+  if (!phone) return "";
+  return formatPhoneNumber(String(phone));
+}
 
 // GET: 사용자 제출 데이터 조회
 export async function GET() {
@@ -421,12 +427,17 @@ export async function POST(request: Request) {
       // 변경된 텍스트 필드가 있으면 슬랙에 메시지 전송
       if (changedTextFields.length > 0) {
         const fields = changedTextFields.map(
-          ({ label, oldValue, newValue, isNew }) => ({
-            type: "mrkdwn",
-            text: isNew
-              ? `*${label}:*\n✨ *${newValue}* (새로 추가됨)`
-              : `*${label}:*\n~${oldValue}~ → *${newValue}*`,
-          }),
+          ({ label, oldValue, newValue, isNew }) => {
+            const isPhone = label === "대표번호";
+            const displayNew = isPhone ? formatPhoneSafe(newValue) : newValue;
+            const displayOld = isPhone ? formatPhoneSafe(oldValue) : oldValue;
+            return {
+              type: "mrkdwn",
+              text: isNew
+                ? `*${label}:*\n✨ *${displayNew}* (새로 추가됨)`
+                : `*${label}:*\n~${displayOld}~ → *${displayNew}*`,
+            };
+          },
         );
 
         const hasNewFields = changedTextFields.some((f) => f.isNew);
