@@ -1,6 +1,33 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
+// ============================================================
+// 보안 헤더 — 외부 노출 0 정책 (수강생 전용 사이트)
+// ============================================================
+const SECURITY_HEADERS = [
+  // 검색엔진 / 봇 색인 완전 차단
+  {
+    key: "X-Robots-Tag",
+    value: "noindex, nofollow, noarchive, nosnippet, noimageindex",
+  },
+  // 외부 사이트로 referrer 누출 차단
+  { key: "Referrer-Policy", value: "no-referrer" },
+  // MIME 스니핑 차단
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  // iframe 임베드 차단 (clickjacking 방어)
+  { key: "X-Frame-Options", value: "DENY" },
+  // HTTPS 강제 + 프리로드
+  {
+    key: "Strict-Transport-Security",
+    value: "max-age=63072000; includeSubDomains; preload",
+  },
+  // 카메라·마이크·위치 등 권한 차단 (불필요)
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(), geolocation=(), payment=()",
+  },
+];
+
 const nextConfig: NextConfig = {
   /* config options here */
   experimental: {
@@ -15,6 +42,14 @@ const nextConfig: NextConfig = {
         hostname: "**",
       },
     ],
+  },
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: SECURITY_HEADERS,
+      },
+    ];
   },
 };
 
@@ -33,4 +68,6 @@ const sentryConfig = {
 };
 
 // Sentry가 활성화된 경우에만 withSentryConfig 적용
-export default process.env.SENTRY_DSN ? withSentryConfig(nextConfig, sentryConfig) : nextConfig;
+export default process.env.SENTRY_DSN
+  ? withSentryConfig(nextConfig, sentryConfig)
+  : nextConfig;

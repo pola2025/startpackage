@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { hash } from "bcryptjs";
 import prisma from "@/lib/prisma";
+import { notifyAdmin } from "@/lib/notification/telegramClient";
 
 // 임시 비밀번호 생성 (4자리 숫자)
 function generateTempPassword(): string {
@@ -63,6 +64,30 @@ export async function POST(request: NextRequest) {
         { status: 400 },
       );
     }
+
+    // [Layer 4] 허니팟 봇 트랩 - 채워져 있으면 fake 200 (실제 처리 X)
+    if ((body as Record<string, unknown>)._hp) {
+      return NextResponse.json({
+        success: true,
+        message: "임시 비밀번호가 발송되었습니다.",
+      });
+    }
+
+    // [Layer 5] 타임스탬프 봇 감지 - 폼 로드부터 3초 미만 차단
+    const ts = (body as Record<string, unknown>)._ts;
+    if (typeof ts === "number") {
+      const elapsed = Date.now() - ts;
+      if (elapsed < 3000) {
+        return NextResponse.json(
+          {
+            error:
+              "요청 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
+          },
+          { status: 429 },
+        );
+      }
+    }
+
     const { 연락처 } = body;
 
     if (!연락처 || typeof 연락처 !== "string" || 연락처.length > 20) {
@@ -166,6 +191,24 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: any) {
     console.error("비밀번호 재발급 에러:", error);
+
+    // 500 에러 관리자 알림 ([startpackage/reset-password] 네임태그)
+    try {
+      const errMsg =
+        error instanceof Error ? error.message.slice(0, 200) : "Unknown error";
+      const ip = getClientIp(request);
+      await notifyAdmin({
+        title: "[startpackage/reset-password] 500 에러",
+        message: errMsg,
+        details: {
+          IP: ip,
+          시각: new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" }),
+        },
+      });
+    } catch {
+      // 알림 실패해도 응답은 진행
+    }
+
     return NextResponse.json(
       { error: "비밀번호 재발급 중 오류가 발생했습니다." },
       { status: 500 },

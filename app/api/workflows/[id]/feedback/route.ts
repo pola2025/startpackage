@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 // POST: 시안 피드백 제출
 export async function POST(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await auth();
@@ -20,7 +20,7 @@ export async function POST(
     if (!feedback || feedback.trim() === "") {
       return NextResponse.json(
         { error: "피드백 내용을 입력해주세요" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -37,27 +37,47 @@ export async function POST(
     });
 
     if (!workflow) {
-      return NextResponse.json({ error: "Workflow not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Workflow not found" },
+        { status: 404 },
+      );
     }
 
     if (workflow.userId !== userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    // 피드백 저장
+    // 시안 수정 2회 제한 (기획서 결정사항)
+    // 정책: 시안 수정 요청은 총 2회까지만 가능 / 여러 개 제안 불가
+    const REVISION_LIMIT = 2;
+    const currentCount = workflow.수정횟수 ?? 0;
+    if (currentCount >= REVISION_LIMIT) {
+      return NextResponse.json(
+        {
+          error: `시안 수정은 ${REVISION_LIMIT}회까지만 가능합니다. 추가 수정이 필요하시면 고객지원센터로 문의해주세요.`,
+          revisionCount: currentCount,
+          revisionLimit: REVISION_LIMIT,
+        },
+        { status: 403 },
+      );
+    }
+
+    // 피드백 저장 + 수정횟수 increment
     const updated = await prisma.workflow.update({
       where: { id: workflowId },
       data: {
         feedback,
         feedbackDate: new Date(),
+        수정횟수: currentCount + 1,
       },
     });
 
     // 텔레그램 알림 (관리자에게)
     try {
-      const { sendTelegramMessage } = await import("@/lib/notification/telegramClient");
+      const { sendTelegramMessage } =
+        await import("@/lib/notification/telegramClient");
       await sendTelegramMessage(
-        `📝 *시안 피드백 접수*\n\n*사용자:* ${workflow.user.이름} (${workflow.user.cohort?.name || "기수 미정"})\n*제작물:* ${workflow.type}\n*피드백:*\n${feedback}\n\n*시간:* ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`
+        `📝 *시안 피드백 접수*\n\n*사용자:* ${workflow.user.이름} (${workflow.user.cohort?.name || "기수 미정"})\n*제작물:* ${workflow.type}\n*피드백:*\n${feedback}\n\n*시간:* ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`,
       );
     } catch (err) {
       console.error("텔레그램 알림 실패:", err);
@@ -97,10 +117,10 @@ export async function POST(
     // 문의 스레드 자동 생성
     try {
       const workflowTypeMap: Record<string, string> = {
-        "로고": "로고",
-        "명함": "일반",
-        "홈페이지": "홈페이지",
-        "인쇄물": "인쇄물",
+        로고: "로고",
+        명함: "일반",
+        홈페이지: "홈페이지",
+        인쇄물: "인쇄물",
       };
 
       const category = workflowTypeMap[workflow.type] || "일반";
@@ -172,7 +192,7 @@ export async function POST(
     console.error("POST /api/workflows/[id]/feedback error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

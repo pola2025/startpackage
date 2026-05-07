@@ -884,12 +884,32 @@ export default function WorkflowsPage() {
                                                             ?.toLowerCase() ||
                                                           "png";
                                                         const filename = `${workflow.type}_시안_${new Date().toLocaleDateString("ko-KR")}.${fileExtension}`;
-                                                        const downloadUrl = `/api/workflows/download?url=${encodeURIComponent(workflow.시안URL!)}&filename=${encodeURIComponent(filename)}`;
+                                                        const downloadUrl = `/api/workflows/download?workflowId=${encodeURIComponent(workflow.id)}&url=${encodeURIComponent(workflow.시안URL!)}&filename=${encodeURIComponent(filename)}`;
+                                                        const res =
+                                                          await fetch(
+                                                            downloadUrl,
+                                                          );
+                                                        if (!res.ok) {
+                                                          const data = await res
+                                                            .json()
+                                                            .catch(() => ({}));
+                                                          alert(
+                                                            data?.error ||
+                                                              "다운로드에 실패했습니다.",
+                                                          );
+                                                          return;
+                                                        }
+                                                        const blob =
+                                                          await res.blob();
+                                                        const blobUrl =
+                                                          URL.createObjectURL(
+                                                            blob,
+                                                          );
                                                         const link =
                                                           document.createElement(
                                                             "a",
                                                           );
-                                                        link.href = downloadUrl;
+                                                        link.href = blobUrl;
                                                         link.download =
                                                           filename;
                                                         document.body.appendChild(
@@ -898,6 +918,9 @@ export default function WorkflowsPage() {
                                                         link.click();
                                                         document.body.removeChild(
                                                           link,
+                                                        );
+                                                        URL.revokeObjectURL(
+                                                          blobUrl,
                                                         );
                                                       } catch (error) {
                                                         console.error(

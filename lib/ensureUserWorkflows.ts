@@ -6,16 +6,18 @@
  * 누락된 워크플로우가 있으면 자동으로 생성합니다.
  */
 
-import prisma from './prisma';
+import prisma from "./prisma";
 
 // 표준 워크플로우 타입 (신규 가입자가 가져야 할 워크플로우)
+// "로고" = 모든 인쇄물·홈페이지의 게이트 (선행 필수)
 const STANDARD_WORKFLOWS = [
+  "로고",
   "명함",
   "명찰",
   "대봉투",
   "자문계약서 표지",
   "자문계약서 내지",
-  "홈페이지"
+  "홈페이지",
 ] as const;
 
 /**
@@ -29,7 +31,7 @@ export async function ensureUserWorkflows(userId: string): Promise<number> {
     // 사용자 정보 조회
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      include: { workflows: true }
+      include: { workflows: true },
     });
 
     if (!user) {
@@ -38,16 +40,16 @@ export async function ensureUserWorkflows(userId: string): Promise<number> {
     }
 
     // 수료생은 워크플로우 체크 건너뜀
-    if (user.status === 'graduated' || user.status === 'inactive') {
+    if (user.status === "graduated" || user.status === "inactive") {
       return 0;
     }
 
     // 현재 가지고 있는 워크플로우 타입
-    const currentWorkflowTypes = user.workflows.map(w => w.type);
+    const currentWorkflowTypes = user.workflows.map((w) => w.type);
 
     // 누락된 워크플로우 타입 찾기
     const missingTypes = STANDARD_WORKFLOWS.filter(
-      type => !currentWorkflowTypes.includes(type)
+      (type) => !currentWorkflowTypes.includes(type),
     );
 
     // 누락된 워크플로우가 없으면 종료
@@ -55,23 +57,28 @@ export async function ensureUserWorkflows(userId: string): Promise<number> {
       return 0;
     }
 
-    console.log(`[ensureUserWorkflows] ${user.이름}님 워크플로우 누락 발견:`, missingTypes);
+    console.log(
+      `[ensureUserWorkflows] ${user.이름}님 워크플로우 누락 발견:`,
+      missingTypes,
+    );
 
     // 누락된 워크플로우 생성
     await prisma.workflow.createMany({
-      data: missingTypes.map(type => ({
+      data: missingTypes.map((type) => ({
         userId: user.id,
         type,
-        status: '대기'
+        status: "대기",
       })),
-      skipDuplicates: true // 중복 생성 방지
+      skipDuplicates: true, // 중복 생성 방지
     });
 
-    console.log(`[ensureUserWorkflows] ${user.이름}님 워크플로우 ${missingTypes.length}개 생성 완료`);
+    console.log(
+      `[ensureUserWorkflows] ${user.이름}님 워크플로우 ${missingTypes.length}개 생성 완료`,
+    );
 
     return missingTypes.length;
   } catch (error) {
-    console.error('[ensureUserWorkflows] 워크플로우 생성 실패:', error);
+    console.error("[ensureUserWorkflows] 워크플로우 생성 실패:", error);
     return 0;
   }
 }
@@ -82,7 +89,9 @@ export async function ensureUserWorkflows(userId: string): Promise<number> {
  * @param userIds - 사용자 ID 배열
  * @returns 총 생성된 워크플로우 개수
  */
-export async function ensureMultipleUserWorkflows(userIds: string[]): Promise<number> {
+export async function ensureMultipleUserWorkflows(
+  userIds: string[],
+): Promise<number> {
   let totalCreated = 0;
 
   for (const userId of userIds) {

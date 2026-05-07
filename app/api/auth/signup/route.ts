@@ -86,6 +86,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // [Layer 4] 허니팟 봇 트랩 - 채워져 있으면 fake 200 (봇 기만, 실제 가입 X)
+    if ((body as Record<string, unknown>)._hp) {
+      return NextResponse.json({
+        success: true,
+        message: "가입이 완료되었습니다.",
+      });
+    }
+
+    // [Layer 5] 타임스탬프 봇 감지 - 폼 로드부터 3초 미만 제출 차단
+    const ts = (body as Record<string, unknown>)._ts;
+    if (typeof ts === "number") {
+      const elapsed = Date.now() - ts;
+      if (elapsed < 3000) {
+        return NextResponse.json(
+          {
+            error:
+              "요청 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
+          },
+          { status: 429 },
+        );
+      }
+    }
+
     // Zod 스키마로 입력값 검증
     const validationResult = signupSchema.safeParse(body);
 
@@ -169,9 +192,11 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      // 기본 워크플로우 생성 (명함, 명찰, 대봉투, 자문계약서 표지, 자문계약서 내지, 홈페이지)
+      // 기본 워크플로우 생성 (로고 + 인쇄물 5종 + 홈페이지)
+      // 로고: 모든 인쇄물·홈페이지·광고의 출발점 (게이트)
       await tx.workflow.createMany({
         data: [
+          { userId: newUser.id, type: "로고", status: "대기" },
           { userId: newUser.id, type: "명함", status: "대기" },
           { userId: newUser.id, type: "명찰", status: "대기" },
           { userId: newUser.id, type: "대봉투", status: "대기" },
@@ -189,7 +214,7 @@ export async function POST(request: NextRequest) {
       });
 
       console.log(
-        `✅ 사용자 생성 완료: ${newUser.이름} (워크플로우 6개, submission 1개)`,
+        `✅ 사용자 생성 완료: ${newUser.이름} (워크플로우 7개, submission 1개)`,
       );
 
       return newUser;
@@ -221,6 +246,24 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("회원가입 에러:", error);
+
+    // 500 에러 관리자 알림 (글로벌 규칙: [프로젝트/라우트] + IP + 에러 요약)
+    try {
+      const errMsg =
+        error instanceof Error ? error.message.slice(0, 200) : "Unknown error";
+      const ip = getClientIp(request);
+      await notifyAdmin({
+        title: "[startpackage/signup] 500 에러",
+        message: errMsg,
+        details: {
+          IP: ip,
+          시각: new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" }),
+        },
+      });
+    } catch {
+      // 알림 실패해도 응답은 진행
+    }
+
     return NextResponse.json(
       { error: "가입 중 오류가 발생했습니다." },
       { status: 500 },

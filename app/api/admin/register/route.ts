@@ -59,6 +59,32 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
+
+    // [Layer 4] 허니팟 봇 트랩 - 채워져 있으면 fake 200 (봇 기만)
+    if (body._hp) {
+      return NextResponse.json(
+        {
+          message:
+            "가입 신청이 완료되었습니다. 관리자 승인 후 이메일로 안내드립니다.",
+        },
+        { status: 200 },
+      );
+    }
+
+    // [Layer 5] 타임스탬프 봇 감지 - 폼 로드부터 3초 미만 제출 차단
+    if (body._ts && typeof body._ts === "number") {
+      const elapsed = Date.now() - body._ts;
+      if (elapsed < 3000) {
+        return NextResponse.json(
+          {
+            error:
+              "요청 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
+          },
+          { status: 429 },
+        );
+      }
+    }
+
     const { name, email, phone, password } = body;
 
     // 입력 검증
@@ -173,6 +199,24 @@ export async function POST(request: Request) {
     );
   } catch (error) {
     console.error("관리자 가입 신청 오류:", error);
+
+    // 500 에러 관리자 알림 (글로벌 규칙: [프로젝트/라우트] 네임태그 + IP + 에러 요약)
+    try {
+      const errMsg =
+        error instanceof Error ? error.message.slice(0, 200) : "Unknown error";
+      const ip = getClientIp(request);
+      await notifyAdmin({
+        title: "[startpackage/admin-register] 500 에러",
+        message: errMsg,
+        details: {
+          IP: ip,
+          시각: new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" }),
+        },
+      });
+    } catch {
+      // 알림 실패해도 응답은 진행
+    }
+
     return NextResponse.json(
       { error: "가입 신청 처리 중 오류가 발생했습니다." },
       { status: 500 },

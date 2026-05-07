@@ -261,7 +261,11 @@ model Workflow {
   운송장번호 String?
 
   // === 수정 이력 ===
-  수정횟수 Int @default(0)
+  수정횟수 Int @default(0) // 시안 수정 요청 횟수 (정책: 최대 2회)
+
+  // === 다운로드 이력 ===
+  다운로드횟수 Int @default(0) // 시안/결과물 파일 다운로드 횟수 (정책: 최대 100회, 인쇄 리소스 보호)
+
   시안이력 Json? // [{ version: 1, url: "...", uploadedAt: "2024-01-01T00:00:00Z", uploadedBy: "admin" }]
 
   // === 피드백 ===
