@@ -579,10 +579,13 @@ export default function StatusDashboardPage() {
                                       : `수정 요청하기 (${revCount}/${REVISION_LIMIT}회 사용)`}
                                 </Button>
                                 {limitReached && (
-                                  <p className="text-xs text-gray-500 text-center">
-                                    추가 수정이 필요하시면 고객지원으로
-                                    문의해주세요.
-                                  </p>
+                                  <a
+                                    href="/dashboard/communication"
+                                    className="block text-xs text-center text-navy-700 underline hover:text-navy-900"
+                                  >
+                                    추가 수정이 필요하시면 관리자에게 변경
+                                    요청하기 →
+                                  </a>
                                 )}
                               </div>
                             );
@@ -717,10 +720,13 @@ export default function StatusDashboardPage() {
                                       : `수정 요청하기 (${revCount}/${REVISION_LIMIT}회 사용)`}
                                 </Button>
                                 {limitReached && (
-                                  <p className="text-xs text-gray-500 text-center">
-                                    추가 수정이 필요하시면 고객지원으로
-                                    문의해주세요.
-                                  </p>
+                                  <a
+                                    href="/dashboard/communication"
+                                    className="block text-xs text-center text-navy-700 underline hover:text-navy-900"
+                                  >
+                                    추가 수정이 필요하시면 관리자에게 변경
+                                    요청하기 →
+                                  </a>
                                 )}
                               </div>
                             );

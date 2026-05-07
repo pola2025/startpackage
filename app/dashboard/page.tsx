@@ -376,49 +376,138 @@ export default async function UserDashboard() {
   // 우선순위에 따라 정렬
   notifications.sort((a, b) => a.priority - b.priority);
 
+  // 카테고리별 카운트 (와이어프레임 To-do 분류)
+  const todoCounts = {
+    urgent: notifications.filter((n) => n.type === "urgent").length,
+    confirm: notifications.filter((n) => n.type === "warning").length,
+    waiting: notifications.filter((n) => n.type === "info").length,
+    completed: notifications.filter((n) => n.type === "success").length,
+  };
+
+  // 전체 진행률 계산 (자료제출 30% + 워크플로우 진행 70% 가중)
+  const workflowProgressMap: Record<string, number> = {
+    대기: 0,
+    시안중: 30,
+    시안제작중: 30,
+    시안컨펌요청: 55,
+    시안확정: 70,
+    발주요청: 75,
+    발주대기: 75,
+    발주완료: 85,
+    제작완료: 92,
+    "제작 진행 중": 60,
+    "제작 완료": 95,
+    발송완료: 100,
+    최종확정: 100,
+  };
+  const wfPercents = user.workflows.map(
+    (w) => workflowProgressMap[w.status] ?? 0,
+  );
+  const wfAvg =
+    wfPercents.length > 0
+      ? Math.round(wfPercents.reduce((a, b) => a + b, 0) / wfPercents.length)
+      : 0;
+  const overallProgress = Math.round(completionPercent * 0.3 + wfAvg * 0.7);
+
   return (
     <div className="space-y-4">
-      {/* Compact Header: 이름 + 기수 + D-Day 한 줄 */}
-      <div className="flex flex-wrap items-center gap-2 md:gap-3">
-        <h1 className="text-lg md:text-xl font-bold text-gray-900">
-          {user.이름}님
-        </h1>
-        {user.cohort && (
-          <span className="text-xs md:text-sm text-gray-500 font-medium">
-            {user.cohort.name}
-          </span>
-        )}
-        {user.cohort && dday && (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gold-50 border border-gold-200 rounded-full text-xs font-semibold text-gold-700">
-            <Calendar className="w-3 h-3" />
-            마감 {dday}
-          </span>
-        )}
-        {marketingEndDate &&
-          (() => {
-            const now = new Date();
-            const daysRemaining = Math.ceil(
-              (marketingEndDate.getTime() - now.getTime()) /
-                (1000 * 60 * 60 * 24),
-            );
-            const isExpired = daysRemaining <= 0;
-            const isUrgent = daysRemaining <= 7;
-            return (
-              <span
-                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold border ${
-                  isExpired
-                    ? "bg-gray-50 border-gray-200 text-gray-500"
-                    : isUrgent
-                      ? "bg-terra-50 border-terra-100 text-terra-600"
-                      : "bg-navy-50 border-navy-200 text-navy-600"
-                }`}
-              >
-                <Megaphone className="w-3 h-3" />
-                마케팅 {isExpired ? "종료" : `D-${daysRemaining}`}
-              </span>
-            );
-          })()}
+      {/* 진행 현황 헤더: 좌측 사용자 정보 + 우측 전체 진행률 */}
+      <div className="flex items-start justify-between gap-3 px-4 py-3 bg-white border border-gray-200 rounded-lg">
+        <div className="flex flex-wrap items-center gap-2 flex-1 min-w-0">
+          <div className="w-full">
+            <div className="text-[11px] text-gray-500 font-medium">
+              {user.이름}님
+            </div>
+            <h1 className="text-base md:text-lg font-bold text-navy-900">
+              스타트패키지 진행 현황
+            </h1>
+          </div>
+          {user.cohort && (
+            <span className="text-xs text-gray-500 font-medium">
+              {user.cohort.name}
+            </span>
+          )}
+          {user.cohort && dday && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gold-50 border border-gold-200 rounded-full text-xs font-semibold text-gold-700">
+              <Calendar className="w-3 h-3" />
+              마감 {dday}
+            </span>
+          )}
+          {marketingEndDate &&
+            (() => {
+              const now = new Date();
+              const daysRemaining = Math.ceil(
+                (marketingEndDate.getTime() - now.getTime()) /
+                  (1000 * 60 * 60 * 24),
+              );
+              const isExpired = daysRemaining <= 0;
+              const isUrgent = daysRemaining <= 7;
+              return (
+                <span
+                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold border ${
+                    isExpired
+                      ? "bg-gray-50 border-gray-200 text-gray-500"
+                      : isUrgent
+                        ? "bg-terra-50 border-terra-100 text-terra-600"
+                        : "bg-navy-50 border-navy-200 text-navy-600"
+                  }`}
+                >
+                  <Megaphone className="w-3 h-3" />
+                  마케팅 {isExpired ? "종료" : `D-${daysRemaining}`}
+                </span>
+              );
+            })()}
+        </div>
+        <div className="text-right flex-shrink-0">
+          <div className="text-[11px] text-gray-500 font-medium">전체 진행</div>
+          <div className="text-2xl md:text-3xl font-bold text-navy-700">
+            {overallProgress}
+            <span className="text-base md:text-lg">%</span>
+          </div>
+        </div>
       </div>
+
+      {/* 마케팅 지원 임박/만료 강조 배너 (D-7 이하 또는 종료) */}
+      {marketingEndDate &&
+        (() => {
+          const daysRemaining = Math.ceil(
+            (marketingEndDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+          );
+          if (daysRemaining > 7) return null;
+          const isExpired = daysRemaining <= 0;
+          return (
+            <div
+              className={`flex flex-wrap items-center gap-3 px-4 py-3 rounded-lg border-2 ${
+                isExpired
+                  ? "bg-gray-50 border-gray-300"
+                  : "bg-terra-50 border-terra-200"
+              }`}
+            >
+              <Megaphone
+                className={`w-5 h-5 flex-shrink-0 ${
+                  isExpired ? "text-gray-500" : "text-terra-600"
+                }`}
+              />
+              <div className="flex-1 min-w-0">
+                <div
+                  className={`text-sm font-bold ${
+                    isExpired ? "text-gray-700" : "text-terra-700"
+                  }`}
+                >
+                  {isExpired
+                    ? "마케팅 지원 기간이 종료되었습니다"
+                    : `마케팅 지원 종료까지 ${daysRemaining}일 남았습니다`}
+                </div>
+                <div className="text-xs text-gray-600 mt-0.5">
+                  {isExpired
+                    ? "지속적인 광고 운영을 위해 연장을 신청해주세요."
+                    : "지원 종료 전 연장을 신청하시면 운영이 중단되지 않습니다."}
+                </div>
+              </div>
+              <MarketingExtensionDialog currentEndDate={marketingEndDate} />
+            </div>
+          );
+        })()}
 
       {/* 인라인 제출률 */}
       <div className="flex items-center gap-3 px-3 py-2 bg-white border border-gray-200 rounded-lg">
@@ -433,17 +522,38 @@ export default async function UserDashboard() {
         </span>
       </div>
 
-      {/* 알림 리스트 */}
+      {/* 내가 처리해야 할 것 (To-do 패널) */}
       {notifications.length > 0 && (
-        <Card className="bg-white border border-gray-200">
+        <Card className="bg-white border-2 border-rose-100">
           <CardHeader className="p-3 md:p-4 pb-1 md:pb-2">
-            <CardTitle className="text-sm md:text-base text-gray-900 flex items-center gap-2">
-              <Bell className="w-4 h-4 text-gold-600" />
-              알림
-              <span className="text-xs font-normal text-gray-500 ml-auto">
-                {notifications.length}건
-              </span>
-            </CardTitle>
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <CardTitle className="text-sm md:text-base text-gray-900 flex items-center gap-2">
+                <span className="text-rose-600">⚠️</span>
+                내가 처리해야 할 것
+              </CardTitle>
+              <div className="flex items-center gap-1.5 text-[11px] md:text-xs">
+                {todoCounts.urgent > 0 && (
+                  <span className="px-2 py-0.5 bg-rose-50 text-rose-700 font-bold rounded border border-rose-200">
+                    미입력 {todoCounts.urgent}
+                  </span>
+                )}
+                {todoCounts.confirm > 0 && (
+                  <span className="px-2 py-0.5 bg-amber-50 text-amber-700 font-bold rounded border border-amber-200">
+                    컨펌 {todoCounts.confirm}
+                  </span>
+                )}
+                {todoCounts.waiting > 0 && (
+                  <span className="px-2 py-0.5 bg-slate-50 text-slate-600 font-bold rounded border border-slate-200">
+                    대기 {todoCounts.waiting}
+                  </span>
+                )}
+                {todoCounts.completed > 0 && (
+                  <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 font-bold rounded border border-emerald-200">
+                    완료 {todoCounts.completed}
+                  </span>
+                )}
+              </div>
+            </div>
           </CardHeader>
           <CardContent className="p-3 md:p-4 pt-0">
             <div className="space-y-1">
