@@ -14,7 +14,6 @@ import { formatDate, formatDday } from "@/lib/utils";
 import PrintRequestButton from "./print-request-button";
 import MarketingExtensionDialog from "./marketing-extension-dialog";
 import { ensureUserWorkflows } from "@/lib/ensureUserWorkflows";
-import { FloatingActionButton } from "@/components/ui/floating-action-button";
 import ProgressVisualization from "@/components/dashboard/progress-visualization";
 
 // Temporary Progress component
@@ -463,6 +462,28 @@ export default async function UserDashboard() {
       : 0;
   const overallProgress = Math.round(completionPercent * 0.3 + wfAvg * 0.7);
 
+  // 자료 제출 마감 = 교육시작일 + 4주 (28일). 모든 기수 공통 정책.
+  // 마감 후에는 추가 입력/진행 불가 → 관리자 별도 문의로 유도
+  let submissionDeadline: Date | null = null;
+  let submissionDaysRemaining: number | null = null;
+  let submissionExpired = false;
+  if (user.cohort?.교육시작일) {
+    submissionDeadline = new Date(user.cohort.교육시작일);
+    submissionDeadline.setDate(submissionDeadline.getDate() + 28);
+    submissionDaysRemaining = Math.ceil(
+      (submissionDeadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+    );
+    submissionExpired = submissionDaysRemaining <= 0;
+  }
+
+  // 마케팅 D-Day (Meta 광고 카드 통합용)
+  let marketingDaysRemaining: number | null = null;
+  if (marketingEndDate) {
+    marketingDaysRemaining = Math.ceil(
+      (marketingEndDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+    );
+  }
+
   return (
     <div className="space-y-4">
       {/* 진행 현황 헤더: 좌측 사용자 정보 + 우측 전체 진행률 */}
@@ -475,6 +496,34 @@ export default async function UserDashboard() {
             <h1 className="text-base md:text-lg font-bold text-navy-900">
               스타트패키지 진행 현황
             </h1>
+            {submissionDeadline && (
+              <p
+                className={`text-[11px] mt-0.5 font-medium ${
+                  submissionExpired
+                    ? "text-rose-600"
+                    : submissionDaysRemaining !== null &&
+                        submissionDaysRemaining <= 7
+                      ? "text-rose-600"
+                      : "text-gray-500"
+                }`}
+              >
+                {submissionExpired ? (
+                  <>
+                    자료 제출 기간 종료 — 추가 진행은{" "}
+                    <a
+                      href="/dashboard/communication"
+                      className="underline font-semibold"
+                    >
+                      관리자 문의
+                    </a>
+                  </>
+                ) : (
+                  <>
+                    자료 제출 마감 D-{submissionDaysRemaining} (교육시작 + 4주)
+                  </>
+                )}
+              </p>
+            )}
           </div>
           {user.cohort && (
             <span className="text-xs text-gray-500 font-medium">
@@ -533,62 +582,8 @@ export default async function UserDashboard() {
         printTotal={printTotal}
         webFilled={webFilled}
         webTotal={webTotal}
+        marketingDaysRemaining={marketingDaysRemaining}
       />
-
-      {/* 마케팅 지원 임박/만료 강조 배너 (D-7 이하 또는 종료) */}
-      {marketingEndDate &&
-        (() => {
-          const daysRemaining = Math.ceil(
-            (marketingEndDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24),
-          );
-          if (daysRemaining > 7) return null;
-          const isExpired = daysRemaining <= 0;
-          return (
-            <div
-              className={`flex flex-wrap items-center gap-3 px-4 py-3 rounded-lg border-2 ${
-                isExpired
-                  ? "bg-gray-50 border-gray-300"
-                  : "bg-terra-50 border-terra-200"
-              }`}
-            >
-              <Megaphone
-                className={`w-5 h-5 flex-shrink-0 ${
-                  isExpired ? "text-gray-500" : "text-terra-600"
-                }`}
-              />
-              <div className="flex-1 min-w-0">
-                <div
-                  className={`text-sm font-bold ${
-                    isExpired ? "text-gray-700" : "text-terra-700"
-                  }`}
-                >
-                  {isExpired
-                    ? "마케팅 지원 기간이 종료되었습니다"
-                    : `마케팅 지원 종료까지 ${daysRemaining}일 남았습니다`}
-                </div>
-                <div className="text-xs text-gray-600 mt-0.5">
-                  {isExpired
-                    ? "지속적인 광고 운영을 위해 연장을 신청해주세요."
-                    : "지원 종료 전 연장을 신청하시면 운영이 중단되지 않습니다."}
-                </div>
-              </div>
-              <MarketingExtensionDialog currentEndDate={marketingEndDate} />
-            </div>
-          );
-        })()}
-
-      {/* 인라인 제출률 */}
-      <div className="flex items-center gap-3 px-3 py-2 bg-white border border-gray-200 rounded-lg">
-        <FileText className="w-4 h-4 text-navy-700 flex-shrink-0" />
-        <span className="text-sm font-medium text-gray-700">자료 제출</span>
-        <span className="text-sm font-bold text-navy-700">
-          {completionPercent}%
-        </span>
-        <Progress value={completionPercent} className="flex-1 h-1.5" />
-        <span className="text-xs text-gray-500">
-          {completedFields}/{totalFields}
-        </span>
-      </div>
 
       {/* 내가 처리해야 할 것 (To-do 패널) */}
       {notifications.length > 0 && (
@@ -944,9 +939,6 @@ export default async function UserDashboard() {
           </div>
         </details>
       )}
-
-      {/* 모바일 플로팅 액션 버튼 - 자료 제출 바로가기 */}
-      <FloatingActionButton href="/dashboard/submission" />
     </div>
   );
 }

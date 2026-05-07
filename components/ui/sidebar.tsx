@@ -82,18 +82,12 @@ export function Sidebar({
     router.push("/");
   };
 
-  // 제작진행 그룹
+  // 제작진행 그룹 (자료 제출은 위자드 모달로 대체되어 메뉴에서 숨김)
   const productionGroup: MenuGroup = {
     label: "제작진행",
     icon: Hammer,
     defaultOpen: true,
     items: [
-      {
-        href: "/dashboard/submission",
-        icon: FileText,
-        label: "자료 제출",
-        badge: null,
-      },
       {
         href: "/dashboard/homepage",
         icon: Globe,

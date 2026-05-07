@@ -11,6 +11,8 @@ interface ProgressVisualizationProps {
   printTotal: number;
   webFilled: number;
   webTotal: number;
+  /** 마케팅 무료지원 종료까지 남은 일수. 양수=남음, 0=오늘, 음수=종료. null=비활성 */
+  marketingDaysRemaining?: number | null;
 }
 
 const LOGO_STATUS_TEXT: Record<
@@ -41,7 +43,22 @@ export default function ProgressVisualization({
   printTotal,
   webFilled,
   webTotal,
+  marketingDaysRemaining,
 }: ProgressVisualizationProps) {
+  const adDDay =
+    marketingDaysRemaining == null
+      ? null
+      : marketingDaysRemaining <= 0
+        ? "지원 종료"
+        : `D-${marketingDaysRemaining}`;
+  const adDDayColor =
+    marketingDaysRemaining == null
+      ? "#64748b"
+      : marketingDaysRemaining <= 0
+        ? "#dc2626"
+        : marketingDaysRemaining <= 7
+          ? "#dc2626"
+          : "#1e3a5f";
   const wrapperClasses = [
     `state-${logoStatus}`,
     printConnected && "connect-print",
@@ -790,6 +807,30 @@ export default function ProgressVisualization({
             <text x="20" y="98" fill="#475569" fontSize="12">
               직접 신청 → 관리자 승인 → 라인 연결
             </text>
+            {adDDay && (
+              <>
+                <text
+                  x="400"
+                  y="38"
+                  textAnchor="end"
+                  fill={adDDayColor}
+                  fontSize="20"
+                  fontWeight="800"
+                >
+                  {adDDay}
+                </text>
+                <text
+                  x="400"
+                  y="55"
+                  textAnchor="end"
+                  fill="#94a3b8"
+                  fontSize="10"
+                  fontWeight="600"
+                >
+                  무료지원 마감
+                </text>
+              </>
+            )}
           </g>
           <g className="tease-ad">
             <circle
@@ -810,6 +851,21 @@ export default function ProgressVisualization({
             />
           </g>
         </svg>
+
+        {/* 모바일: 로고 상태 라벨을 SVG 위에 배치 (데스크탑보다 가까이) */}
+        <div className="lg:hidden flex justify-center mb-3">
+          <div
+            className="px-4 py-2 rounded-xl text-center text-white shadow-md"
+            style={{ background: LOGO_STATUS_COLOR[logoStatus], minWidth: 180 }}
+          >
+            <div className="text-[10px] opacity-90 font-semibold tracking-wide">
+              로고 제작 상태
+            </div>
+            <div className="text-sm font-bold mt-0.5">
+              {LOGO_STATUS_TEXT[logoStatus]}
+            </div>
+          </div>
+        </div>
 
         {/* 모바일 SVG (단순화) */}
         <svg viewBox="0 0 360 700" className="w-full lg:hidden">
@@ -1060,13 +1116,13 @@ export default function ProgressVisualization({
               fill="#dc2626"
               fontWeight="700"
             >
-              직접 신청
+              {adDDay ?? "직접 신청"}
             </text>
           </g>
           <g className="tease-print">
             <circle
-              cx="180"
-              cy="215"
+              cx="165"
+              cy="222"
               r="4"
               fill="#10b981"
               className="tease-circle"
@@ -1075,7 +1131,7 @@ export default function ProgressVisualization({
           <g className="tease-web">
             <circle
               cx="180"
-              cy="215"
+              cy="225"
               r="4"
               fill="#10b981"
               className="tease-circle"
@@ -1084,8 +1140,8 @@ export default function ProgressVisualization({
           </g>
           <g className="tease-ad">
             <circle
-              cx="180"
-              cy="215"
+              cx="195"
+              cy="222"
               r="4"
               fill="#10b981"
               className="tease-circle"
@@ -1094,8 +1150,8 @@ export default function ProgressVisualization({
           </g>
         </svg>
 
-        {/* 로고 상태 라벨 */}
-        <div className="mt-4 lg:mt-5 flex justify-start">
+        {/* 로고 상태 라벨 — 모바일은 SVG 위, 데스크탑은 아래 (위치 다르게) */}
+        <div className="hidden lg:flex mt-5 justify-start">
           <div
             className="px-5 py-3 rounded-xl text-center text-white shadow-md"
             style={{ background: LOGO_STATUS_COLOR[logoStatus], minWidth: 200 }}
@@ -1108,11 +1164,6 @@ export default function ProgressVisualization({
             </div>
           </div>
         </div>
-
-        <p className="text-[11px] lg:text-xs text-slate-500 mt-3">
-          로고 = 동력원 · 결과물 입구의 깔짝거리는 에너지 = 정보 채우면 이쪽으로
-          연결
-        </p>
       </div>
     </section>
   );
