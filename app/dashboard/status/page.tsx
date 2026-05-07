@@ -50,7 +50,12 @@ interface Workflow {
   발송일?: Date;
   feedback?: string;
   feedbackDate?: Date;
+  수정횟수?: number;
+  다운로드횟수?: number;
 }
+
+const REVISION_LIMIT = 2;
+const DOWNLOAD_LIMIT = 100;
 
 export default function StatusDashboardPage() {
   const { data: session } = useSession();
@@ -547,25 +552,41 @@ export default function StatusDashboardPage() {
                         {((workflow.type === "로고" &&
                           workflow.status !== "최종확정") ||
                           (workflow.type === "홈페이지" &&
-                            !workflow.발주승인일)) && (
-                          <Button
-                            variant="outline"
-                            className="w-full h-9 md:h-10 border border-terra-100 text-terra-500 hover:bg-terra-50 font-semibold"
-                            size="lg"
-                            onClick={() => {
-                              setFeedbackModal({
-                                open: true,
-                                workflowId: workflow.id,
-                              });
-                              setFeedbackText(workflow.feedback || "");
-                            }}
-                          >
-                            <MessageSquare className="w-5 h-5 mr-2" />
-                            {workflow.feedback
-                              ? "피드백 수정하기"
-                              : "수정 요청하기"}
-                          </Button>
-                        )}
+                            !workflow.발주승인일)) &&
+                          (() => {
+                            const revCount = workflow.수정횟수 ?? 0;
+                            const limitReached = revCount >= REVISION_LIMIT;
+                            return (
+                              <div className="space-y-1.5">
+                                <Button
+                                  variant="outline"
+                                  disabled={limitReached}
+                                  className="w-full h-9 md:h-10 border border-terra-100 text-terra-500 hover:bg-terra-50 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                                  size="lg"
+                                  onClick={() => {
+                                    setFeedbackModal({
+                                      open: true,
+                                      workflowId: workflow.id,
+                                    });
+                                    setFeedbackText(workflow.feedback || "");
+                                  }}
+                                >
+                                  <MessageSquare className="w-5 h-5 mr-2" />
+                                  {limitReached
+                                    ? `수정 한도 도달 (${revCount}/${REVISION_LIMIT}회)`
+                                    : workflow.feedback
+                                      ? `피드백 수정하기 (${revCount}/${REVISION_LIMIT}회 사용)`
+                                      : `수정 요청하기 (${revCount}/${REVISION_LIMIT}회 사용)`}
+                                </Button>
+                                {limitReached && (
+                                  <p className="text-xs text-gray-500 text-center">
+                                    추가 수정이 필요하시면 고객지원으로
+                                    문의해주세요.
+                                  </p>
+                                )}
+                              </div>
+                            );
+                          })()}
 
                         {/* 기존 피드백 표시 */}
                         {workflow.feedback && (
@@ -669,25 +690,41 @@ export default function StatusDashboardPage() {
                         </a>
 
                         {/* 피드백 버튼 (발주 전에만 표시) */}
-                        {!workflow.발주승인일 && (
-                          <Button
-                            variant="outline"
-                            className="w-full h-9 md:h-10 border border-terra-100 text-terra-500 hover:bg-terra-50 font-semibold"
-                            size="lg"
-                            onClick={() => {
-                              setFeedbackModal({
-                                open: true,
-                                workflowId: workflow.id,
-                              });
-                              setFeedbackText(workflow.feedback || "");
-                            }}
-                          >
-                            <MessageSquare className="w-5 h-5 mr-2" />
-                            {workflow.feedback
-                              ? "피드백 수정하기"
-                              : "수정 요청하기"}
-                          </Button>
-                        )}
+                        {!workflow.발주승인일 &&
+                          (() => {
+                            const revCount = workflow.수정횟수 ?? 0;
+                            const limitReached = revCount >= REVISION_LIMIT;
+                            return (
+                              <div className="space-y-1.5">
+                                <Button
+                                  variant="outline"
+                                  disabled={limitReached}
+                                  className="w-full h-9 md:h-10 border border-terra-100 text-terra-500 hover:bg-terra-50 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                                  size="lg"
+                                  onClick={() => {
+                                    setFeedbackModal({
+                                      open: true,
+                                      workflowId: workflow.id,
+                                    });
+                                    setFeedbackText(workflow.feedback || "");
+                                  }}
+                                >
+                                  <MessageSquare className="w-5 h-5 mr-2" />
+                                  {limitReached
+                                    ? `수정 한도 도달 (${revCount}/${REVISION_LIMIT}회)`
+                                    : workflow.feedback
+                                      ? `피드백 수정하기 (${revCount}/${REVISION_LIMIT}회 사용)`
+                                      : `수정 요청하기 (${revCount}/${REVISION_LIMIT}회 사용)`}
+                                </Button>
+                                {limitReached && (
+                                  <p className="text-xs text-gray-500 text-center">
+                                    추가 수정이 필요하시면 고객지원으로
+                                    문의해주세요.
+                                  </p>
+                                )}
+                              </div>
+                            );
+                          })()}
 
                         {/* 기존 피드백 표시 */}
                         {workflow.feedback && (

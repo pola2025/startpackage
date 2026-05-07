@@ -56,9 +56,12 @@ interface Workflow {
   택배회사?: string | null;
   운송장번호?: string | null;
   수정횟수: number;
+  다운로드횟수?: number;
   feedback?: string | null;
   feedbackDate?: Date | null;
 }
+
+const DOWNLOAD_LIMIT = 100;
 
 export default function WorkflowsPage() {
   const { data: session } = useSession();
@@ -874,7 +877,12 @@ export default function WorkflowsPage() {
                                                   <Button
                                                     variant="outline"
                                                     size="sm"
-                                                    className="flex-1 h-8 md:h-10 text-xs md:text-sm"
+                                                    disabled={
+                                                      (workflow.다운로드횟수 ??
+                                                        0) >= DOWNLOAD_LIMIT
+                                                    }
+                                                    className="flex-1 h-8 md:h-10 text-xs md:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    title={`다운로드 ${workflow.다운로드횟수 ?? 0}/${DOWNLOAD_LIMIT}회`}
                                                     onClick={async () => {
                                                       try {
                                                         const fileExtension =
@@ -933,7 +941,10 @@ export default function WorkflowsPage() {
                                                       }
                                                     }}
                                                   >
-                                                    다운로드
+                                                    {(workflow.다운로드횟수 ??
+                                                      0) >= DOWNLOAD_LIMIT
+                                                      ? "다운로드 한도 도달"
+                                                      : `다운로드 (${workflow.다운로드횟수 ?? 0}/${DOWNLOAD_LIMIT})`}
                                                   </Button>
                                                 </div>
 
