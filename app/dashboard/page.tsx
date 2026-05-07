@@ -15,6 +15,7 @@ import PrintRequestButton from "./print-request-button";
 import MarketingExtensionDialog from "./marketing-extension-dialog";
 import { ensureUserWorkflows } from "@/lib/ensureUserWorkflows";
 import { FloatingActionButton } from "@/components/ui/floating-action-button";
+import ProgressVisualization from "@/components/dashboard/progress-visualization";
 
 // Temporary Progress component
 function Progress({ value, className }: { value: number; className?: string }) {
@@ -376,6 +377,59 @@ export default async function UserDashboard() {
   // 우선순위에 따라 정렬
   notifications.sort((a, b) => a.priority - b.priority);
 
+  // === 와이어프레임 v4 시각화용 데이터 매핑 ===
+  // 로고 상태 매핑
+  const logoWorkflow = user.workflows.find((w) => w.type === "로고");
+  const logoStatusKey: "idle" | "working" | "ready" = (() => {
+    const s = logoWorkflow?.status ?? "대기";
+    if (s === "시안중" || s === "시안제작중") return "working";
+    if (
+      s === "시안컨펌요청" ||
+      s === "시안확정" ||
+      s === "최종확정" ||
+      s === "발주완료" ||
+      s === "제작완료" ||
+      s === "발송완료"
+    )
+      return "ready";
+    return "idle";
+  })();
+
+  // 인쇄물 정보 (5종 인쇄물 자료에 필요한 필드)
+  const printFields = [
+    user.submission?.브랜드명,
+    user.submission?.사업자등록증URL,
+    user.submission?.프로필사진URL,
+    user.submission?.업종,
+    user.submission?.주소,
+    user.submission?.대표번호,
+    user.submission?.이메일,
+    user.submission?.명함시안,
+  ];
+  const printFilled = printFields.filter(Boolean).length;
+  const printTotal = printFields.length;
+  const printPercent = Math.round((printFilled / printTotal) * 100);
+  const printConnected = printPercent >= 100;
+
+  // 홈페이지 정보
+  const webFields = [
+    user.submission?.브랜드명,
+    user.submission?.업종,
+    user.submission?.홈페이지스타일,
+    user.submission?.홈페이지컬러컨셉,
+    user.submission?.도메인주소,
+    user.submission?.로고URL,
+  ];
+  const webFilled = webFields.filter(Boolean).length;
+  const webTotal = webFields.length;
+  const webPercent = Math.round((webFilled / webTotal) * 100);
+  const webConnected = webPercent >= 100;
+
+  // 광고 연결: 마케팅 정보 + 광고 활성화
+  const adConnected = !!(
+    user.submission?.네이버검색광고ID || user.submission?.InstagramID
+  );
+
   // 카테고리별 카운트 (와이어프레임 To-do 분류)
   const todoCounts = {
     urgent: notifications.filter((n) => n.type === "urgent").length,
@@ -466,6 +520,20 @@ export default async function UserDashboard() {
           </div>
         </div>
       </div>
+
+      {/* 메인 시각화: 로고 동력원 + 결과물 박스 (와이어프레임 v4) */}
+      <ProgressVisualization
+        logoStatus={logoStatusKey}
+        printConnected={printConnected}
+        webConnected={webConnected}
+        adConnected={adConnected}
+        printPercent={printPercent}
+        webPercent={webPercent}
+        printFilled={printFilled}
+        printTotal={printTotal}
+        webFilled={webFilled}
+        webTotal={webTotal}
+      />
 
       {/* 마케팅 지원 임박/만료 강조 배너 (D-7 이하 또는 종료) */}
       {marketingEndDate &&
