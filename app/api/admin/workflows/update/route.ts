@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
-import { handleStateChange, handleProductionComplete, logProgress } from "@/lib/notification/notificationService";
+import {
+  handleStateChange,
+  handleProductionComplete,
+  logProgress,
+} from "@/lib/notification/notificationService";
 import { calculateExpectedArrival } from "@/lib/utils/businessDays";
 
 export async function POST(request: NextRequest) {
@@ -15,12 +19,13 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { workflowId, status, 택배회사, 운송장번호, 시안URL, feedbackRead } = body;
+    const { workflowId, status, 택배회사, 운송장번호, 시안URL, feedbackRead } =
+      body;
 
     if (!workflowId) {
       return NextResponse.json(
         { error: "워크플로우 ID가 필요합니다." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -32,7 +37,7 @@ export async function POST(request: NextRequest) {
     if (!currentWorkflow) {
       return NextResponse.json(
         { error: "워크플로우를 찾을 수 없습니다." },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -77,19 +82,18 @@ export async function POST(request: NextRequest) {
         });
 
         if (user?.slackChannelId) {
-          const { uploadFileToSlack } = await import("@/lib/notification/slackClient");
+          const { uploadFileToSlack } =
+            await import("@/lib/notification/slackClient");
           await uploadFileToSlack({
             channelId: user.slackChannelId,
             filePath: 시안URL,
             fileName: `${currentWorkflow.type}_${version}차시안.jpg`,
             title: `${currentWorkflow.type} ${version}차시안`,
-          }).catch(err => console.error("시안 파일 슬랙 업로드 실패:", err));
+          }).catch((err) => console.error("시안 파일 슬랙 업로드 실패:", err));
         }
 
-        // 시안이 이미 있었다면 수정으로 간주 (첫 업로드는 제외)
-        if (currentWorkflow.시안URL) {
-          updateData.수정횟수 = (currentWorkflow.수정횟수 || 0) + 1;
-        }
+        // 수정횟수는 사용자 피드백 시점에서만 +1 (feedback/route.ts).
+        // 관리자 시안 재업로드는 designHistory.version으로 추적 — 이중 카운팅 방지.
       }
     }
 
@@ -114,8 +118,14 @@ export async function POST(request: NextRequest) {
       updateData.발주승인일 = now;
 
       // 예상 도착일 자동 계산 (홈페이지는 제외 - 인쇄물이 아님)
-      if (currentWorkflow.type !== "홈페이지" && currentWorkflow.type !== "로고") {
-        const expectedArrival = calculateExpectedArrival(now, currentWorkflow.type);
+      if (
+        currentWorkflow.type !== "홈페이지" &&
+        currentWorkflow.type !== "로고"
+      ) {
+        const expectedArrival = calculateExpectedArrival(
+          now,
+          currentWorkflow.type,
+        );
         if (expectedArrival) {
           updateData.예상도착일 = expectedArrival;
         }
@@ -354,7 +364,7 @@ export async function POST(request: NextRequest) {
     console.error("워크플로우 업데이트 에러:", error);
     return NextResponse.json(
       { error: "워크플로우 업데이트 중 오류가 발생했습니다." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
