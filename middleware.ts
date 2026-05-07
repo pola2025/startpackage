@@ -16,12 +16,13 @@ export function middleware(request: NextRequest) {
   // 1. 호스트 분기 (도메인 분리 단계적 활성화)
   // ============================================================
   if (DOMAIN_SPLIT_ENABLED) {
-    // admin 서브도메인: 모든 진입을 /admin/* 로 매핑
+    // admin 서브도메인: 페이지 라우트만 /admin/* 로 rewrite
+    // /api/* 는 절대 rewrite 금지 (admin 페이지에서 /api/admin/*, /api/workflows/* 등 호출)
     if (host.startsWith("admin.")) {
       if (
         !pathname.startsWith("/admin") &&
+        !pathname.startsWith("/api/") && // API는 원본 경로 유지
         !pathname.startsWith("/_next") &&
-        !pathname.startsWith("/api/auth") &&
         !pathname.match(/\.[a-z0-9]+$/i) // 정적 파일 제외
       ) {
         const url = request.nextUrl.clone();
