@@ -207,7 +207,7 @@ export default function PrintDeliverableCards({
             카드를 눌러 필요한 정보를 입력하세요
           </span>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-3 auto-rows-fr">
           {visibleDeliverables.map((d) => {
             const filled = d.fields.filter((f) =>
               fieldFilled(f.key, submission, workflows),
@@ -235,17 +235,17 @@ export default function PrintDeliverableCards({
                 key={d.title}
                 type="button"
                 onClick={handleClick}
-                className={`group text-left rounded-xl border-2 p-3 md:p-3.5 transition-all hover:shadow-md ${
+                className={`group flex flex-col h-full text-left rounded-xl border-2 p-3 md:p-3.5 transition-all hover:shadow-md ${
                   complete
                     ? "border-emerald-200 bg-emerald-50/40 hover:bg-emerald-50"
                     : "border-gray-200 bg-white hover:border-navy-300 hover:bg-navy-50/30"
                 }`}
               >
-                {/* 헤더 */}
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
+                {/* 헤더 — 고정 높이 (아이콘 + 타이틀 + 부제 2줄 영역 reserve) */}
+                <div className="flex items-start justify-between gap-2 mb-2 min-h-[3.25rem]">
+                  <div className="flex items-start gap-2 flex-1 min-w-0">
                     <span
-                      className={`flex items-center justify-center w-8 h-8 rounded-lg ${
+                      className={`flex items-center justify-center w-8 h-8 rounded-lg flex-shrink-0 ${
                         complete
                           ? "bg-emerald-100 text-emerald-700"
                           : "bg-navy-100 text-navy-700"
@@ -253,21 +253,21 @@ export default function PrintDeliverableCards({
                     >
                       {d.icon}
                     </span>
-                    <div>
-                      <h3 className="text-sm font-bold text-gray-900 leading-tight">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-bold text-gray-900 leading-tight truncate">
                         {d.title}
                       </h3>
-                      <p className="text-[10px] text-gray-500 leading-tight mt-0.5">
+                      <p className="text-[10px] text-gray-500 leading-snug mt-0.5 line-clamp-2 min-h-[1.7rem]">
                         {d.subtitle}
                       </p>
                     </div>
                   </div>
                   {complete ? (
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 border border-emerald-200">
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 border border-emerald-200 flex-shrink-0">
                       완료
                     </span>
                   ) : (
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-navy-50 text-navy-700 border border-navy-200">
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-navy-50 text-navy-700 border border-navy-200 flex-shrink-0">
                       {filled}/{total}
                     </span>
                   )}
@@ -283,8 +283,8 @@ export default function PrintDeliverableCards({
                   />
                 </div>
 
-                {/* 필요 항목 리스트 */}
-                <ul className="space-y-0.5 mb-2">
+                {/* 필요 항목 리스트 — flex-1로 남은 공간 흡수 → 푸터를 카드 바닥에 고정 */}
+                <ul className="flex-1 space-y-0.5 mb-2">
                   {d.fields.map((f) => {
                     const has = fieldFilled(f.key, submission, workflows);
                     return (
@@ -316,10 +316,10 @@ export default function PrintDeliverableCards({
                   })}
                 </ul>
 
-                {/* 액션 안내 */}
-                <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                {/* 액션 안내 — 항상 카드 바닥에 고정 (mt-auto로 잡아줌) */}
+                <div className="mt-auto flex items-center justify-between gap-2 pt-2 border-t border-gray-100">
                   <span
-                    className={`text-[11px] font-medium ${
+                    className={`flex-1 min-w-0 text-[11px] font-medium truncate ${
                       complete
                         ? "text-emerald-700"
                         : userMissing.length > 0
@@ -333,10 +333,10 @@ export default function PrintDeliverableCards({
                         ? "기본 정보 먼저 입력"
                         : userMissing.length > 0
                           ? `${userMissing.map((f) => f.label).join(" · ")} 입력`
-                          : "프로필사진·로고 등 자동 항목 채워주세요"}
+                          : "프로필·로고 등 자동 항목 채워주세요"}
                   </span>
                   <ChevronRight
-                    className={`w-4 h-4 transition-transform group-hover:translate-x-0.5 ${
+                    className={`w-4 h-4 flex-shrink-0 transition-transform group-hover:translate-x-0.5 ${
                       complete ? "text-emerald-600" : "text-navy-600"
                     }`}
                   />
