@@ -50,6 +50,7 @@ export const submissionSchema = z.object({
   // 계좌 정보
   은행명: z.string().optional(),
   계좌번호: z.string().optional(),
+  계좌명의자명: z.string().optional(), // 사업자 대표와 다를 경우 입력
 
   // SMS 발신 등록용 서류
   대표자생년월일: z.string().optional(),

@@ -201,23 +201,48 @@ export default async function UserDashboard() {
     });
   });
 
-  // 4. 로고 확정 후 인쇄물 자료 제출 요청
+  // 4. 인쇄물 type별 자료 입력 알림 (로고 확정 + 기본정보 입력 후)
   const logoConfirmed = user.workflows.some(
     (w) => w.type === "로고" && w.status === "시안확정",
   );
-  const hasPrintWorkflows = user.workflows.some(
-    (w) => w.type !== "로고" && w.type !== "홈페이지",
+
+  // 4-1. 명함/대봉투: 명함시안 + 명함색상 (둘이 한 묶음, 한쪽 입력하면 양쪽 ✓)
+  const hasNamecardOrEnvelope = user.workflows.some(
+    (w) => w.type === "명함" || w.type === "대봉투",
   );
-  if (logoConfirmed && !hasPrintWorkflows && hasBasicInfo) {
+  const namecardComplete =
+    !!user.submission?.명함시안 && !!user.submission?.명함색상;
+  if (
+    logoConfirmed &&
+    hasBasicInfo &&
+    hasNamecardOrEnvelope &&
+    !namecardComplete
+  ) {
     notifications.push({
-      id: "print-submit",
+      id: "namecard-envelope-info",
       priority: 2,
       type: "warning",
-      message: "인쇄물 자료 제출 바랍니다",
+      message: "명함·대봉투 정보 입력이 필요합니다",
       link: "/dashboard/submission#namecard",
-      badge: "자료제출",
+      badge: "자료입력",
     });
   }
+
+  // 4-2. 자문계약서: 은행명 + 계좌번호 (필수)
+  const hasContract = user.workflows.some((w) => w.type === "자문계약서");
+  const contractComplete =
+    !!user.submission?.은행명 && !!user.submission?.계좌번호;
+  if (logoConfirmed && hasBasicInfo && hasContract && !contractComplete) {
+    notifications.push({
+      id: "contract-info",
+      priority: 2,
+      type: "warning",
+      message: "자문계약서 계좌 정보 입력이 필요합니다",
+      link: "/dashboard/submission#contract",
+      badge: "자료입력",
+    });
+  }
+  // 4-3. 명찰: 프로필사진 필요 — 기본정보(BASIC_INFO_STEPS)에 이미 포함되어 있으므로 별도 알림 불필요
 
   // 5. 로고 확정 후 홈페이지 정보 입력
   const hasWebsiteInfo =
@@ -591,6 +616,7 @@ export default async function UserDashboard() {
         notifications={notifications}
         todoCounts={todoCounts}
         submission={user.submission as Record<string, unknown> | null}
+        representativeName={user.이름}
       />
 
       {/* 자료 제출 현황 */}

@@ -8,6 +8,8 @@ import QuestWizardDialog, {
   LOGO_INFO_STEPS,
   HOMEPAGE_INFO_STEPS,
   MARKETING_INFO_STEPS,
+  NAMECARD_ENVELOPE_STEPS,
+  CONTRACT_STEPS,
   type QuestStep,
 } from "@/components/dashboard/quest-wizard-dialog";
 
@@ -31,6 +33,8 @@ interface Props {
   notifications: AlertNotification[];
   todoCounts: TodoCounts;
   submission: Record<string, unknown> | null;
+  /** 사업자 대표명 (account-holder step에 표시) */
+  representativeName?: string;
 }
 
 const QUEST_MAP: Record<
@@ -58,6 +62,18 @@ const QUEST_MAP: Record<
     description: "이미 운영 중인 광고 ID가 있으면 입력해주세요.",
     steps: MARKETING_INFO_STEPS,
   },
+  "namecard-envelope-info": {
+    title: "명함·대봉투 정보",
+    description:
+      "명함과 대봉투에 공통으로 적용될 스타일과 색상을 선택합니다. 둘 중 한쪽만 입력해도 양쪽 모두 반영됩니다.",
+    steps: NAMECARD_ENVELOPE_STEPS,
+  },
+  "contract-info": {
+    title: "자문계약서 계좌 정보",
+    description:
+      "자문계약서에 기재될 입금 계좌 정보를 입력합니다. 그 외 정보는 기본정보에서 자동으로 가져옵니다.",
+    steps: CONTRACT_STEPS,
+  },
 };
 
 const COLORS: Record<AlertNotification["type"], string> = {
@@ -78,6 +94,7 @@ export default function DashboardAlertsClient({
   notifications,
   todoCounts,
   submission,
+  representativeName,
 }: Props) {
   const [questId, setQuestId] = useState<string | null>(null);
 
@@ -170,6 +187,7 @@ export default function DashboardAlertsClient({
           initialValues={
             (submission as Record<string, string | null | undefined>) ?? {}
           }
+          representativeName={representativeName}
         />
       )}
     </>

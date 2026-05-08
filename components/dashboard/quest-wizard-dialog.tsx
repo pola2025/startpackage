@@ -27,12 +27,21 @@ export interface QuestStep {
   field: string;
   label: string;
   description?: string;
-  type: "text" | "textarea" | "tel" | "email" | "select" | "file";
+  type:
+    | "text"
+    | "textarea"
+    | "tel"
+    | "email"
+    | "select"
+    | "file"
+    | "account-holder";
   placeholder?: string;
   required?: boolean;
   options?: { value: string; label: string }[];
   /** file step accept (예: "image/*,application/pdf") */
   accept?: string;
+  /** account-holder step에서 사용: 사업자대표명 (체크박스 라벨에 표시) */
+  representativeName?: string;
   /** 검증 함수 — 반환값이 string이면 에러 메시지 */
   validate?: (value: string) => string | null;
 }
@@ -48,6 +57,8 @@ interface QuestWizardDialogProps {
   steps: QuestStep[];
   /** 현재 저장된 값 (있으면 prefill) */
   initialValues?: Record<string, string | null | undefined>;
+  /** account-holder step에 표시할 사업자대표명 (선택) */
+  representativeName?: string;
   /** 모달 완료 시 호출 */
   onComplete?: () => void;
 }
@@ -59,12 +70,15 @@ export default function QuestWizardDialog({
   description,
   steps,
   initialValues,
+  representativeName,
   onComplete,
 }: QuestWizardDialogProps) {
   const router = useRouter();
   const [currentIdx, setCurrentIdx] = useState(0);
   const [values, setValues] = useState<Record<string, string>>({});
   const [pendingFiles, setPendingFiles] = useState<Record<string, File>>({});
+  /** account-holder step의 "사업자대표와 동일" 체크박스 상태 */
+  const [holderSame, setHolderSame] = useState<Record<string, boolean>>({});
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -73,12 +87,18 @@ export default function QuestWizardDialog({
   useEffect(() => {
     if (open) {
       const init: Record<string, string> = {};
+      const holderInit: Record<string, boolean> = {};
       steps.forEach((s) => {
         const v = initialValues?.[s.field];
         if (v) init[s.field] = String(v);
+        if (s.type === "account-holder") {
+          // 값이 비어있으면 "대표와 동일"(체크) 기본, 값이 있으면 "다름"(체크 해제)
+          holderInit[s.field] = !v;
+        }
       });
       setValues(init);
       setPendingFiles({});
+      setHolderSame(holderInit);
       setCurrentIdx(0);
       setError(null);
     }
@@ -119,6 +139,15 @@ export default function QuestWizardDialog({
       }
       return true;
     }
+    if (step.type === "account-holder") {
+      // 체크박스가 체크되어 있으면 "대표와 동일" — 통과
+      // 체크 해제 상태면 명의자명 입력값이 있어야 함
+      if (!holderSame[step.field] && !currentValue.trim()) {
+        setError("계좌명의자명을 입력해주세요.");
+        return false;
+      }
+      return true;
+    }
     if (step.required && !currentValue.trim()) {
       setError("필수 입력 항목입니다.");
       return false;
@@ -151,6 +180,11 @@ export default function QuestWizardDialog({
     setSaving(true);
     try {
       let valueToSave = currentValue;
+
+      // account-holder step: 체크 시 빈 문자열, 해제 시 입력값 저장
+      if (step.type === "account-holder") {
+        valueToSave = holderSame[step.field] ? "" : currentValue.trim();
+      }
 
       // file step: 새 파일이 선택된 경우 업로드 → URL(또는 SLACK_ONLY 마커) 받기
       if (step.type === "file") {
@@ -273,6 +307,45 @@ export default function QuestWizardDialog({
                 </option>
               ))}
             </select>
+          ) : step.type === "account-holder" ? (
+            <div className="space-y-2">
+              <label className="flex items-start gap-2 p-3 rounded-lg border border-gray-200 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={holderSame[step.field] ?? true}
+                  onChange={(e) =>
+                    setHolderSame((prev) => ({
+                      ...prev,
+                      [step.field]: e.target.checked,
+                    }))
+                  }
+                  className="mt-0.5 w-4 h-4 accent-navy-600"
+                />
+                <div className="flex-1 text-sm">
+                  <div className="font-medium text-gray-900">
+                    계좌명의자가 사업자 대표와 동일합니다
+                    {(step.representativeName || representativeName) && (
+                      <span className="text-gray-500 font-normal ml-1">
+                        ({step.representativeName || representativeName})
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-0.5">
+                    체크 해제하면 명의자명을 직접 입력할 수 있습니다.
+                  </div>
+                </div>
+              </label>
+              {!(holderSame[step.field] ?? true) && (
+                <Input
+                  id={step.field}
+                  type="text"
+                  value={currentValue}
+                  onChange={(e) => setValue(e.target.value)}
+                  placeholder="예) 홍길동"
+                  autoFocus
+                />
+              )}
+            </div>
           ) : step.type === "file" ? (
             <div className="space-y-2">
               <input
@@ -450,6 +523,65 @@ export const BASIC_INFO_STEPS: QuestStep[] = [
     type: "tel",
     placeholder: "예) 02-0000-0000",
     required: true,
+  },
+];
+
+export const NAMECARD_ENVELOPE_STEPS: QuestStep[] = [
+  {
+    field: "명함시안",
+    label: "명함 스타일",
+    description:
+      "기본 정보(브랜드명·업종·주소·대표번호)는 자동으로 반영됩니다. 6종 중 1개를 선택해주세요. 선택한 스타일이 명함과 대봉투에 동일하게 적용됩니다.",
+    type: "select",
+    required: true,
+    options: [
+      { value: "스타일 1", label: "스타일 1" },
+      { value: "스타일 2", label: "스타일 2" },
+      { value: "스타일 3", label: "스타일 3" },
+      { value: "스타일 4", label: "스타일 4" },
+      { value: "스타일 5", label: "스타일 5" },
+      { value: "스타일 6", label: "스타일 6" },
+    ],
+  },
+  {
+    field: "명함색상",
+    label: "명함 메인 색상",
+    description:
+      "명함에 사용할 메인 색상을 16진수 코드(#RRGGBB)로 입력해주세요. 예: #1e3a5f",
+    type: "text",
+    placeholder: "#1e3a5f",
+    required: true,
+    validate: (v) =>
+      /^#[0-9A-Fa-f]{6}$/.test(v)
+        ? null
+        : "올바른 컬러 코드(예: #1e3a5f)를 입력하세요.",
+  },
+];
+
+export const CONTRACT_STEPS: QuestStep[] = [
+  {
+    field: "은행명",
+    label: "은행명",
+    description: "자문계약서에 기재될 입금 계좌의 은행명을 입력해주세요.",
+    type: "text",
+    placeholder: "예) 국민은행",
+    required: true,
+  },
+  {
+    field: "계좌번호",
+    label: "계좌번호",
+    description: "자문계약서에 기재될 입금 계좌번호를 입력해주세요.",
+    type: "text",
+    placeholder: "예) 123-456-7890123",
+    required: true,
+  },
+  {
+    field: "계좌명의자명",
+    label: "계좌 명의자",
+    description:
+      "사업자 대표와 동일하면 그대로 다음으로, 다르면 체크 해제 후 명의자명을 입력해주세요.",
+    type: "account-holder",
+    required: false,
   },
 ];
 
