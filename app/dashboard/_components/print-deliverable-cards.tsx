@@ -344,12 +344,12 @@ export default function PrintDeliverableCards({
                 key={d.title}
                 type="button"
                 onClick={handleClick}
-                className={`group flex flex-col h-full text-left rounded-xl border-2 p-3 md:p-3.5 transition-all hover:shadow-md ${
+                className={`group flex flex-col h-full text-left rounded-xl border-2 p-3 md:p-3.5 transition-all hover:shadow-md hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-navy-400 ${
                   complete
-                    ? "border-emerald-200 bg-emerald-50/40 hover:bg-emerald-50"
+                    ? "border-emerald-300 bg-emerald-50/60 hover:border-emerald-400 hover:bg-emerald-50 hover:shadow-emerald-100"
                     : d.optional
-                      ? "border-gray-200 bg-gray-50/60 hover:border-gray-300 hover:bg-gray-100/50"
-                      : "border-gray-200 bg-white hover:border-navy-300 hover:bg-navy-50/30"
+                      ? "border-gray-200 bg-gray-50/60 hover:border-gray-400 hover:bg-gray-100/60"
+                      : "border-gray-200 bg-white hover:border-navy-400 hover:bg-navy-50/40"
                 }`}
               >
                 {/* 헤더 — 고정 높이 (아이콘 + 타이틀 + 부제 2줄 영역 reserve) */}
@@ -374,7 +374,8 @@ export default function PrintDeliverableCards({
                     </div>
                   </div>
                   {complete ? (
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 border border-emerald-200 flex-shrink-0">
+                    <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500 text-white border border-emerald-600 flex-shrink-0 shadow-sm">
+                      <CheckCircle2 className="w-3 h-3" strokeWidth={3} />
                       완료
                     </span>
                   ) : d.optional ? (
@@ -458,9 +459,11 @@ export default function PrintDeliverableCards({
                           ? userMissing.length > 0
                             ? "운영 중인 채널이 있으면 입력"
                             : "확인 / 수정"
-                          : userMissing.length > 0
-                            ? `${userMissing.map((f) => f.label).join(" · ")} 입력`
-                            : "프로필·로고 등 자동 항목 채워주세요"}
+                          : userMissing.length === 0
+                            ? "프로필·로고 등 자동 항목 채워주세요"
+                            : userMissing.length <= 2
+                              ? `${userMissing.map((f) => f.label).join(" · ")} 입력`
+                              : `${userMissing[0].label} 외 ${userMissing.length - 1}건 입력`}
                   </span>
                   <ChevronRight
                     className={`w-4 h-4 flex-shrink-0 transition-transform group-hover:translate-x-0.5 ${
