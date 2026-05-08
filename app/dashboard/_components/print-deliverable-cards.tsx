@@ -8,6 +8,8 @@ import {
   IdCard,
   FileText,
   Globe,
+  Briefcase,
+  Megaphone,
   CheckCircle2,
   Circle,
   ChevronRight,
@@ -16,6 +18,7 @@ import QuestWizardDialog, {
   BASIC_INFO_STEPS,
   LOGO_INFO_STEPS,
   HOMEPAGE_INFO_STEPS,
+  MARKETING_INFO_STEPS,
   NAMECARD_ENVELOPE_STEPS,
   CONTRACT_STEPS,
   type QuestStep,
@@ -38,16 +41,19 @@ interface FieldSpec {
 }
 
 interface DeliverableSpec {
-  /** 모달에 사용할 wizard ID — null이면 기본정보 위자드로 폴백 */
+  /** 모달에 사용할 wizard ID */
   wizardId:
     | "logo-info"
     | "namecard-envelope-info"
     | "contract-info"
     | "website-info"
-    | "basic-info";
+    | "basic-info"
+    | "marketing-info";
   title: string;
   /** 매칭되는 workflow.type 배열 (한쪽이라도 보유 시 카드 표시) */
   workflowTypes: string[];
+  /** true면 워크플로우 매칭 없이도 항상 카드 노출 (기본 정보·마케팅 같은 공통 카드) */
+  alwaysShow?: boolean;
   icon: ReactNode;
   /** 이 인쇄물을 만들기 위한 모든 필요 항목 (자동 + 직접 입력) */
   fields: FieldSpec[];
@@ -56,6 +62,22 @@ interface DeliverableSpec {
 }
 
 const DELIVERABLES: DeliverableSpec[] = [
+  {
+    wizardId: "basic-info",
+    title: "기본 정보",
+    subtitle: "모든 인쇄물·홈페이지의 공통 기반 정보",
+    workflowTypes: [],
+    alwaysShow: true,
+    icon: <Briefcase className="w-5 h-5" />,
+    fields: [
+      { key: "사업자등록증URL", label: "사업자등록증" },
+      { key: "프로필사진URL", label: "프로필 사진" },
+      { key: "브랜드명", label: "브랜드명" },
+      { key: "업종", label: "업종" },
+      { key: "주소", label: "사업장 주소" },
+      { key: "대표번호", label: "대표 연락처" },
+    ],
+  },
   {
     wizardId: "logo-info",
     title: "로고",
@@ -125,6 +147,18 @@ const DELIVERABLES: DeliverableSpec[] = [
       { key: "도메인주소", label: "도메인 (선택)" },
     ],
   },
+  {
+    wizardId: "marketing-info",
+    title: "마케팅 정보",
+    subtitle: "이미 운영 중인 채널이 있으면 입력 (선택)",
+    workflowTypes: [],
+    alwaysShow: true,
+    icon: <Megaphone className="w-5 h-5" />,
+    fields: [
+      { key: "네이버검색광고ID", label: "네이버 검색광고 ID" },
+      { key: "InstagramID", label: "인스타그램 ID" },
+    ],
+  },
 ];
 
 const QUEST_MAP: Record<
@@ -157,6 +191,11 @@ const QUEST_MAP: Record<
     description: "자문계약서에 기재될 입금 계좌 정보를 입력합니다.",
     steps: CONTRACT_STEPS,
   },
+  "marketing-info": {
+    title: "마케팅 채널 정보",
+    description: "이미 운영 중인 광고 ID가 있으면 입력해주세요. (선택)",
+    steps: MARKETING_INFO_STEPS,
+  },
 };
 
 function fieldFilled(
@@ -187,9 +226,11 @@ export default function PrintDeliverableCards({
 }: Props) {
   const [questId, setQuestId] = useState<string | null>(null);
 
-  // 사용자가 보유한 워크플로우 type만 카드로 노출
-  const visibleDeliverables = DELIVERABLES.filter((d) =>
-    d.workflowTypes.some((t) => workflows.some((w) => w.type === t)),
+  // 항상 노출(alwaysShow) 또는 사용자가 보유한 워크플로우 type 매칭 시 카드 노출
+  const visibleDeliverables = DELIVERABLES.filter(
+    (d) =>
+      d.alwaysShow ||
+      d.workflowTypes.some((t) => workflows.some((w) => w.type === t)),
   );
 
   if (visibleDeliverables.length === 0) return null;
