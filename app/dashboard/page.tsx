@@ -596,6 +596,7 @@ export default async function UserDashboard() {
         printTotal={printTotal}
         webFilled={webFilled}
         webTotal={webTotal}
+        submissionDaysRemaining={submissionDaysRemaining}
         marketingDaysRemaining={marketingDaysRemaining}
       />
 

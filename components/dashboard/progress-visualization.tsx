@@ -11,6 +11,8 @@ interface ProgressVisualizationProps {
   printTotal: number;
   webFilled: number;
   webTotal: number;
+  /** 자료 제출 마감일까지 남은 일수. 양수=남음, 0=오늘, 음수=종료. null=비활성 */
+  submissionDaysRemaining?: number | null;
   /** 마케팅 무료지원 종료까지 남은 일수. 양수=남음, 0=오늘, 음수=종료. null=비활성 */
   marketingDaysRemaining?: number | null;
 }
@@ -43,22 +45,36 @@ export default function ProgressVisualization({
   printTotal,
   webFilled,
   webTotal,
+  submissionDaysRemaining,
   marketingDaysRemaining,
 }: ProgressVisualizationProps) {
+  // D-Day 박스 색상 헬퍼: 평소=gov-blue, 7일 이하=amber, 종료=slate
+  const ddayColor = (days: number | null | undefined) =>
+    days == null
+      ? "#94a3b8"
+      : days <= 0
+        ? "#64748b"
+        : days <= 7
+          ? "#d97706"
+          : "#003876";
+
+  // 자료 제출 마감 D-Day
+  const submissionDDay =
+    submissionDaysRemaining == null
+      ? null
+      : submissionDaysRemaining <= 0
+        ? "기간 종료"
+        : `D-${submissionDaysRemaining}`;
+  const submissionColor = ddayColor(submissionDaysRemaining);
+
+  // 마케팅 지원 종료 D-Day
   const adDDay =
     marketingDaysRemaining == null
       ? null
       : marketingDaysRemaining <= 0
         ? "지원 종료"
         : `D-${marketingDaysRemaining}`;
-  const adDDayColor =
-    marketingDaysRemaining == null
-      ? "#64748b"
-      : marketingDaysRemaining <= 0
-        ? "#dc2626"
-        : marketingDaysRemaining <= 7
-          ? "#dc2626"
-          : "#1e3a5f";
+  const adDDayColor = ddayColor(marketingDaysRemaining);
   const wrapperClasses = [
     `state-${logoStatus}`,
     printConnected && "connect-print",
@@ -805,7 +821,7 @@ export default function ProgressVisualization({
               📞 전화·문자·문의로 직접 신청 필수
             </text>
             <text x="20" y="98" fill="#475569" fontSize="12">
-              직접 신청 → 관리자 승인 → 라인 연결
+              직접 신청 → 관리자 승인
             </text>
             {adDDay && (
               <>
@@ -852,11 +868,11 @@ export default function ProgressVisualization({
           </g>
         </svg>
 
-        {/* 모바일: 로고 상태 라벨을 SVG 위에 배치 (데스크탑보다 가까이) */}
-        <div className="lg:hidden flex justify-center mb-3">
+        {/* 모바일: 상태 박스 3종 (로고 + 제출 마감 + 마케팅 종료) */}
+        <div className="lg:hidden flex flex-wrap justify-center gap-2 mb-3">
           <div
-            className="px-4 py-2 rounded-xl text-center text-white shadow-md"
-            style={{ background: LOGO_STATUS_COLOR[logoStatus], minWidth: 180 }}
+            className="flex-1 min-w-[100px] px-3 py-2 rounded-xl text-center text-white shadow-md"
+            style={{ background: LOGO_STATUS_COLOR[logoStatus] }}
           >
             <div className="text-[10px] opacity-90 font-semibold tracking-wide">
               로고 제작 상태
@@ -865,6 +881,28 @@ export default function ProgressVisualization({
               {LOGO_STATUS_TEXT[logoStatus]}
             </div>
           </div>
+          {submissionDDay && (
+            <div
+              className="flex-1 min-w-[100px] px-3 py-2 rounded-xl text-center text-white shadow-md"
+              style={{ background: submissionColor }}
+            >
+              <div className="text-[10px] opacity-90 font-semibold tracking-wide">
+                자료 제출 마감
+              </div>
+              <div className="text-sm font-bold mt-0.5">{submissionDDay}</div>
+            </div>
+          )}
+          {adDDay && (
+            <div
+              className="flex-1 min-w-[100px] px-3 py-2 rounded-xl text-center text-white shadow-md"
+              style={{ background: adDDayColor }}
+            >
+              <div className="text-[10px] opacity-90 font-semibold tracking-wide">
+                마케팅 지원 종료
+              </div>
+              <div className="text-sm font-bold mt-0.5">{adDDay}</div>
+            </div>
+          )}
         </div>
 
         {/* 모바일 SVG (단순화) */}
@@ -1150,8 +1188,8 @@ export default function ProgressVisualization({
           </g>
         </svg>
 
-        {/* 로고 상태 라벨 — 모바일은 SVG 위, 데스크탑은 아래 (위치 다르게) */}
-        <div className="hidden lg:flex mt-5 justify-start">
+        {/* 데스크탑: 상태 박스 3종 (로고 + 제출 마감 + 마케팅 종료) — 동일 사이즈 */}
+        <div className="hidden lg:flex mt-5 justify-start gap-3 flex-wrap">
           <div
             className="px-5 py-3 rounded-xl text-center text-white shadow-md"
             style={{ background: LOGO_STATUS_COLOR[logoStatus], minWidth: 200 }}
@@ -1163,6 +1201,32 @@ export default function ProgressVisualization({
               {LOGO_STATUS_TEXT[logoStatus]}
             </div>
           </div>
+          {submissionDDay && (
+            <div
+              className="px-5 py-3 rounded-xl text-center text-white shadow-md"
+              style={{ background: submissionColor, minWidth: 200 }}
+            >
+              <div className="text-[11px] opacity-90 font-semibold tracking-wide">
+                자료 제출 마감
+              </div>
+              <div className="text-base lg:text-lg font-bold mt-0.5">
+                {submissionDDay}
+              </div>
+            </div>
+          )}
+          {adDDay && (
+            <div
+              className="px-5 py-3 rounded-xl text-center text-white shadow-md"
+              style={{ background: adDDayColor, minWidth: 200 }}
+            >
+              <div className="text-[11px] opacity-90 font-semibold tracking-wide">
+                마케팅 지원 종료
+              </div>
+              <div className="text-base lg:text-lg font-bold mt-0.5">
+                {adDDay}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </section>
