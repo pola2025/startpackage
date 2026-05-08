@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   Dialog,
@@ -13,17 +13,26 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, ChevronLeft, ChevronRight, Check } from "lucide-react";
+import {
+  Loader2,
+  ChevronLeft,
+  ChevronRight,
+  Check,
+  Upload,
+  FileCheck2,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface QuestStep {
   field: string;
   label: string;
   description?: string;
-  type: "text" | "textarea" | "tel" | "email" | "select";
+  type: "text" | "textarea" | "tel" | "email" | "select" | "file";
   placeholder?: string;
   required?: boolean;
   options?: { value: string; label: string }[];
+  /** file step accept (예: "image/*,application/pdf") */
+  accept?: string;
   /** 검증 함수 — 반환값이 string이면 에러 메시지 */
   validate?: (value: string) => string | null;
 }
@@ -55,8 +64,10 @@ export default function QuestWizardDialog({
   const router = useRouter();
   const [currentIdx, setCurrentIdx] = useState(0);
   const [values, setValues] = useState<Record<string, string>>({});
+  const [pendingFiles, setPendingFiles] = useState<Record<string, File>>({});
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 모달 열릴 때 초기값 세팅
   useEffect(() => {
@@ -67,6 +78,7 @@ export default function QuestWizardDialog({
         if (v) init[s.field] = String(v);
       });
       setValues(init);
+      setPendingFiles({});
       setCurrentIdx(0);
       setError(null);
     }
@@ -76,6 +88,7 @@ export default function QuestWizardDialog({
 
   const step = steps[currentIdx];
   const currentValue = values[step.field] ?? "";
+  const pendingFile = pendingFiles[step.field];
   const isLast = currentIdx === steps.length - 1;
   const isFirst = currentIdx === 0;
   const progress = ((currentIdx + 1) / steps.length) * 100;
@@ -85,7 +98,27 @@ export default function QuestWizardDialog({
     setError(null);
   };
 
+  const setFile = (file: File | null) => {
+    setPendingFiles((prev) => {
+      const next = { ...prev };
+      if (file) next[step.field] = file;
+      else delete next[step.field];
+      return next;
+    });
+    setError(null);
+  };
+
   const validate = (): boolean => {
+    if (step.type === "file") {
+      // 이미 업로드되어 있거나, 새 파일을 선택한 경우 통과
+      const hasExisting = !!currentValue;
+      const hasPending = !!pendingFile;
+      if (step.required && !hasExisting && !hasPending) {
+        setError("파일을 업로드해주세요.");
+        return false;
+      }
+      return true;
+    }
     if (step.required && !currentValue.trim()) {
       setError("필수 입력 항목입니다.");
       return false;
@@ -100,13 +133,48 @@ export default function QuestWizardDialog({
     return true;
   };
 
+  const uploadFile = async (file: File): Promise<string | null> => {
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("field", step.field);
+    const res = await fetch("/api/upload", { method: "POST", body: fd });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setError(data?.error || "업로드에 실패했습니다.");
+      return null;
+    }
+    const data = await res.json().catch(() => ({}));
+    return data?.url ?? null;
+  };
+
   const saveCurrent = async (): Promise<boolean> => {
     setSaving(true);
     try {
+      let valueToSave = currentValue;
+
+      // file step: 새 파일이 선택된 경우 업로드 → URL(또는 SLACK_ONLY 마커) 받기
+      if (step.type === "file") {
+        if (pendingFile) {
+          const url = await uploadFile(pendingFile);
+          if (!url) return false;
+          valueToSave = url;
+          setValues((prev) => ({ ...prev, [step.field]: url }));
+          setPendingFiles((prev) => {
+            const next = { ...prev };
+            delete next[step.field];
+            return next;
+          });
+          // SLACK_ONLY 마커도 submission에 저장 (필드 non-null 처리)
+        } else {
+          // 기존 값 유지 — 저장 호출 불필요
+          return true;
+        }
+      }
+
       const res = await fetch("/api/submission", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ [step.field]: currentValue }),
+        body: JSON.stringify({ [step.field]: valueToSave }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -205,6 +273,66 @@ export default function QuestWizardDialog({
                 </option>
               ))}
             </select>
+          ) : step.type === "file" ? (
+            <div className="space-y-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept={step.accept}
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0] ?? null;
+                  setFile(f);
+                }}
+              />
+              {pendingFile ? (
+                <div className="flex items-center justify-between gap-2 p-3 rounded-lg border border-navy-300 bg-navy-50">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <FileCheck2 className="w-4 h-4 text-navy-700 flex-shrink-0" />
+                    <span className="text-xs text-navy-700 truncate">
+                      {pendingFile.name}
+                    </span>
+                    <span className="text-[10px] text-gray-500 flex-shrink-0">
+                      {(pendingFile.size / 1024).toFixed(0)}KB
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setFile(null)}
+                    className="text-xs text-gray-500 hover:text-rose-600"
+                  >
+                    제거
+                  </button>
+                </div>
+              ) : currentValue ? (
+                <div className="flex items-center justify-between gap-2 p-3 rounded-lg border border-emerald-200 bg-emerald-50">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Check className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                    <span className="text-xs text-emerald-700">
+                      이미 업로드됨
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="text-xs text-emerald-700 hover:underline"
+                  >
+                    변경
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full flex flex-col items-center justify-center gap-2 p-5 rounded-lg border-2 border-dashed border-gray-300 hover:border-navy-400 hover:bg-navy-50/30 transition-colors"
+                >
+                  <Upload className="w-5 h-5 text-gray-400" />
+                  <span className="text-xs text-gray-600">
+                    파일 선택 (이미지 또는 PDF, 최대 10MB)
+                  </span>
+                </button>
+              )}
+            </div>
           ) : (
             <Input
               id={step.field}
@@ -274,6 +402,24 @@ export default function QuestWizardDialog({
 
 export const BASIC_INFO_STEPS: QuestStep[] = [
   {
+    field: "사업자등록증URL",
+    label: "사업자등록증",
+    description:
+      "사업자등록증 사본(이미지 또는 PDF)을 업로드해주세요. 보안 처리되어 슬랙으로만 전달됩니다.",
+    type: "file",
+    accept: "image/*,application/pdf",
+    required: true,
+  },
+  {
+    field: "프로필사진URL",
+    label: "프로필 사진",
+    description:
+      "홈페이지·명함에 사용될 대표 프로필 사진을 업로드해주세요. (선명한 정면 사진 권장)",
+    type: "file",
+    accept: "image/*",
+    required: true,
+  },
+  {
     field: "브랜드명",
     label: "브랜드명",
     description: "사업장에서 사용하는 정식 브랜드명을 입력해주세요.",
@@ -304,6 +450,55 @@ export const BASIC_INFO_STEPS: QuestStep[] = [
     type: "tel",
     placeholder: "예) 02-0000-0000",
     required: true,
+  },
+];
+
+export const LOGO_INFO_STEPS: QuestStep[] = [
+  {
+    field: "로고선호스타일",
+    label: "로고 스타일",
+    description: "원하는 로고 스타일을 선택해주세요.",
+    type: "select",
+    required: true,
+    options: [
+      { value: "심볼형 (도형기반)", label: "심볼형 (도형 기반)" },
+      { value: "워드마크형 (텍스트)", label: "워드마크형 (텍스트 중심)" },
+    ],
+  },
+  {
+    field: "로고선호폰트",
+    label: "선호 폰트 느낌",
+    description: "로고에 사용할 폰트 스타일을 선택해주세요.",
+    type: "select",
+    required: true,
+    options: [
+      { value: "고딕체 (깔끔한)", label: "고딕체 (깔끔한)" },
+      { value: "명조체 (전통적인)", label: "명조체 (전통적인)" },
+      { value: "손글씨 (감성적인)", label: "손글씨 (감성적인)" },
+      { value: "모던 (기하학적)", label: "모던 (기하학적)" },
+    ],
+  },
+  {
+    field: "로고선호색상",
+    label: "선호 색상",
+    description:
+      "원하시는 메인 컬러를 16진수 코드(#RRGGBB)로 입력해주세요. 예: #1e3a5f",
+    type: "text",
+    placeholder: "#1e3a5f",
+    required: true,
+    validate: (v) =>
+      /^#[0-9A-Fa-f]{6}$/.test(v)
+        ? null
+        : "올바른 컬러 코드(예: #1e3a5f)를 입력하세요.",
+  },
+  {
+    field: "로고제작요청사항",
+    label: "추가 요청사항",
+    description:
+      "로고에 반영하고 싶은 키워드, 분위기, 참고 사례 등을 자유롭게 적어주세요.",
+    type: "textarea",
+    placeholder: "예) 신뢰감 + 전문성 강조, 참고: 폴라애드 로고",
+    required: false,
   },
 ];
 

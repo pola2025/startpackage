@@ -15,6 +15,7 @@ import PrintRequestButton from "./print-request-button";
 import MarketingExtensionDialog from "./marketing-extension-dialog";
 import { ensureUserWorkflows } from "@/lib/ensureUserWorkflows";
 import ProgressVisualization from "@/components/dashboard/progress-visualization";
+import DashboardAlertsClient from "./_components/dashboard-alerts-client";
 
 // Temporary Progress component
 function Progress({ value, className }: { value: number; className?: string }) {
@@ -585,77 +586,12 @@ export default async function UserDashboard() {
         marketingDaysRemaining={marketingDaysRemaining}
       />
 
-      {/* 내가 처리해야 할 것 (To-do 패널) */}
-      {notifications.length > 0 && (
-        <Card className="bg-white border-2 border-rose-100">
-          <CardHeader className="p-3 md:p-4 pb-1 md:pb-2">
-            <div className="flex items-center justify-between flex-wrap gap-2">
-              <CardTitle className="text-sm md:text-base text-gray-900 flex items-center gap-2">
-                <span className="text-rose-600">⚠️</span>
-                내가 처리해야 할 것
-              </CardTitle>
-              <div className="flex items-center gap-1.5 text-[11px] md:text-xs">
-                {todoCounts.urgent > 0 && (
-                  <span className="px-2 py-0.5 bg-rose-50 text-rose-700 font-bold rounded border border-rose-200">
-                    미입력 {todoCounts.urgent}
-                  </span>
-                )}
-                {todoCounts.confirm > 0 && (
-                  <span className="px-2 py-0.5 bg-amber-50 text-amber-700 font-bold rounded border border-amber-200">
-                    컨펌 {todoCounts.confirm}
-                  </span>
-                )}
-                {todoCounts.waiting > 0 && (
-                  <span className="px-2 py-0.5 bg-slate-50 text-slate-600 font-bold rounded border border-slate-200">
-                    대기 {todoCounts.waiting}
-                  </span>
-                )}
-                {todoCounts.completed > 0 && (
-                  <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 font-bold rounded border border-emerald-200">
-                    완료 {todoCounts.completed}
-                  </span>
-                )}
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="p-3 md:p-4 pt-0">
-            <div className="space-y-1">
-              {notifications.map((notification) => {
-                const colors = {
-                  urgent: "text-terra-600 hover:bg-terra-50 border-terra-100",
-                  warning: "text-terra-500 hover:bg-terra-50 border-terra-100",
-                  info: "text-navy-600 hover:bg-navy-50 border-navy-200",
-                  success: "text-ok-700 hover:bg-ok-50 border-ok-100",
-                };
-
-                const badgeColors = {
-                  urgent: "bg-terra-50 text-terra-600 border-terra-100",
-                  warning: "bg-terra-50 text-terra-500 border-terra-100",
-                  info: "bg-navy-50 text-navy-600 border-navy-200",
-                  success: "bg-ok-50 text-ok-700 border-ok-100",
-                };
-
-                return (
-                  <Link
-                    key={notification.id}
-                    href={notification.link}
-                    className={`flex items-center gap-2 p-2 md:p-2.5 rounded-lg border bg-white ${colors[notification.type]} transition-all cursor-pointer group`}
-                  >
-                    <span
-                      className={`text-[10px] md:text-xs font-bold px-1.5 py-0.5 rounded border whitespace-nowrap ${badgeColors[notification.type]}`}
-                    >
-                      {notification.badge}
-                    </span>
-                    <span className="flex-1 text-xs md:text-sm font-medium line-clamp-1">
-                      {notification.message}
-                    </span>
-                  </Link>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* 내가 처리해야 할 것 (To-do 패널) — 알림 클릭 시 위자드 모달 */}
+      <DashboardAlertsClient
+        notifications={notifications}
+        todoCounts={todoCounts}
+        submission={user.submission as Record<string, unknown> | null}
+      />
 
       {/* 자료 제출 현황 */}
       <Card className="bg-white border border-gray-200">
