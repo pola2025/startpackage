@@ -844,9 +844,9 @@ export default function HomepageSettingsPage() {
               { url: "https://www.jnipartners.co.kr", name: "스타일 1" },
               { url: "https://bizcoaching.co.kr/", name: "스타일 2" },
               { url: "https://jmbiz.imweb.me/", name: "스타일 3" },
-              { url: "https://ksupport-center.imweb.me/", name: "스타일 4" },
+              { url: "https://biznuri.co.kr/", name: "스타일 4" },
               { url: "https://www.wiztion.com/", name: "스타일 5" },
-              { url: "https://www.k-eai.kr/index.html", name: "스타일 6" },
+              { url: "https://www.k-eai.kr/", name: "스타일 6" },
             ].map((style) => (
               <Dialog
                 key={style.url}
@@ -989,12 +989,12 @@ export default function HomepageSettingsPage() {
                       { url: "https://bizcoaching.co.kr/", name: "스타일 2" },
                       { url: "https://jmbiz.imweb.me/", name: "스타일 3" },
                       {
-                        url: "https://ksupport-center.imweb.me/",
+                        url: "https://biznuri.co.kr/",
                         name: "스타일 4",
                       },
                       { url: "https://www.wiztion.com/", name: "스타일 5" },
                       {
-                        url: "https://www.k-eai.kr/index.html",
+                        url: "https://www.k-eai.kr/",
                         name: "스타일 6",
                       },
                     ];
