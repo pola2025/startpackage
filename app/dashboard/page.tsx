@@ -1,14 +1,7 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import Link from "next/link";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatDate, formatDday } from "@/lib/utils";
 import PrintRequestButton from "./print-request-button";
@@ -16,6 +9,7 @@ import MarketingExtensionDialog from "./marketing-extension-dialog";
 import { ensureUserWorkflows } from "@/lib/ensureUserWorkflows";
 import ProgressVisualization from "@/components/dashboard/progress-visualization";
 import DashboardAlertsClient from "./_components/dashboard-alerts-client";
+import PrintDeliverableCards from "./_components/print-deliverable-cards";
 
 // Temporary Progress component
 function Progress({ value, className }: { value: number; className?: string }) {
@@ -33,17 +27,9 @@ function Progress({ value, className }: { value: number; className?: string }) {
 import {
   Calendar,
   Clock,
-  FileText,
   Package,
-  Truck,
-  CheckCircle2,
   AlertCircle,
-  User,
-  Mail,
-  Phone,
-  Globe,
   Megaphone,
-  TrendingUp,
   Database,
   Bell,
   MessageSquare,
@@ -228,8 +214,10 @@ export default async function UserDashboard() {
     });
   }
 
-  // 4-2. 자문계약서: 은행명 + 계좌번호 (필수)
-  const hasContract = user.workflows.some((w) => w.type === "자문계약서");
+  // 4-2. 자문계약서: 은행명 + 계좌번호 (필수). 워크플로우는 표지/내지 2종.
+  const hasContract = user.workflows.some(
+    (w) => w.type === "자문계약서 표지" || w.type === "자문계약서 내지",
+  );
   const contractComplete =
     !!user.submission?.은행명 && !!user.submission?.계좌번호;
   if (logoConfirmed && hasBasicInfo && hasContract && !contractComplete) {
@@ -619,136 +607,28 @@ export default async function UserDashboard() {
         representativeName={user.이름}
       />
 
-      {/* 자료 제출 현황 */}
-      <Card className="bg-white border border-gray-200">
-        <CardHeader className="p-3 md:p-4 pb-1 md:pb-2">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-sm md:text-base text-gray-900 font-bold">
-              자료 제출 현황
-            </CardTitle>
-            <PrintRequestButton
-              completionRate={completionPercent}
-              hasWorkflows={user.workflows.length > 0}
-            />
-          </div>
-        </CardHeader>
-        <CardContent className="p-3 md:p-4 pt-1">
-          {user.submission ? (
-            <div className="grid grid-cols-4 md:grid-cols-4 lg:grid-cols-7 gap-1.5 md:gap-2">
-              {[
-                {
-                  label: "사업자등록증",
-                  shortLabel: "사업자",
-                  value: user.submission.사업자등록증URL,
-                  tab: "print",
-                  icon: FileText,
-                },
-                {
-                  label: "프로필사진",
-                  shortLabel: "프로필",
-                  value: user.submission.프로필사진URL,
-                  tab: "print",
-                  icon: User,
-                },
-                {
-                  label: "브랜드명",
-                  shortLabel: "브랜드",
-                  value: user.submission.브랜드명,
-                  tab: "basic",
-                  icon: Package,
-                },
-                {
-                  label: "업종",
-                  shortLabel: "업종",
-                  value: user.submission.업종,
-                  tab: "basic",
-                  icon: Package,
-                },
-                {
-                  label: "주소",
-                  shortLabel: "주소",
-                  value: user.submission.주소,
-                  tab: "basic",
-                  icon: Package,
-                },
-                {
-                  label: "명함스타일 선택",
-                  shortLabel: "명함",
-                  value: user.submission.명함시안,
-                  tab: "print",
-                  icon: FileText,
-                },
-                {
-                  label: "홈페이지 컬러",
-                  shortLabel: "홈페이지",
-                  value: user.submission.홈페이지컬러컨셉,
-                  tab: "website",
-                  icon: Globe,
-                },
-              ].map((item, idx) => {
-                const Icon = item.icon;
-                const sharedClassName = `group flex flex-col items-center p-1.5 md:p-2 rounded-lg ${
-                  item.value
-                    ? "bg-white border border-gray-200"
-                    : "bg-gray-50 border border-gray-200 hover:bg-navy-50 hover:border-navy-200 cursor-pointer"
-                } transition-all`;
+      {/* 인쇄물별 필요 정보 카드 — outcome 중심 (이걸 만들려면 이런 게 필요해요) */}
+      <PrintDeliverableCards
+        submission={user.submission as Record<string, unknown> | null}
+        workflows={user.workflows.map((w) => ({
+          type: w.type,
+          status: w.status,
+        }))}
+        representativeName={user.이름}
+        basicMissing={
+          !user.submission?.브랜드명 ||
+          !user.submission?.사업자등록증URL ||
+          !user.submission?.프로필사진URL
+        }
+      />
 
-                const content = (
-                  <>
-                    <div
-                      className={`flex items-center justify-center w-6 h-6 md:w-8 md:h-8 rounded-lg mb-1 ${
-                        item.value
-                          ? "bg-navy-800"
-                          : "bg-navy-300 group-hover:bg-navy-900"
-                      } transition-colors`}
-                    >
-                      <Icon className="w-3 h-3 md:w-4 md:h-4 text-white" />
-                    </div>
-                    <p className="text-[9px] md:text-xs font-semibold text-gray-900 text-center line-clamp-1">
-                      {item.shortLabel}
-                    </p>
-                    {item.value ? (
-                      <CheckCircle2 className="w-3 h-3 text-ok-600 mt-0.5" />
-                    ) : (
-                      <AlertCircle className="w-3 h-3 text-terra-500 mt-0.5" />
-                    )}
-                  </>
-                );
-
-                return item.value ? (
-                  <div
-                    key={idx}
-                    className={sharedClassName}
-                    style={{ opacity: 0.55 }}
-                  >
-                    {content}
-                  </div>
-                ) : (
-                  <Link
-                    key={idx}
-                    href={`/dashboard/submission?tab=${item.tab}`}
-                    className={sharedClassName}
-                  >
-                    {content}
-                  </Link>
-                );
-              })}
-            </div>
-          ) : (
-            <Link href="/dashboard/submission?tab=basic" className="block">
-              <div className="text-center py-6 px-4 bg-white rounded-lg border border-gray-200 hover:border-gold-400 transition-all cursor-pointer group">
-                <AlertCircle className="w-8 h-8 text-navy-600 mx-auto mb-2" />
-                <p className="text-sm font-semibold text-gray-900 mb-1">
-                  자료를 아직 제출하지 않으셨어요
-                </p>
-                <p className="text-xs text-gold-600 font-medium">
-                  클릭하여 지금 제출하기 →
-                </p>
-              </div>
-            </Link>
-          )}
-        </CardContent>
-      </Card>
+      {/* 제작요청 버튼 (자료 100% 입력 시 활성화) */}
+      <div className="flex justify-end">
+        <PrintRequestButton
+          completionRate={completionPercent}
+          hasWorkflows={user.workflows.length > 0}
+        />
+      </div>
 
       {/* Workflow Status — 2열 미니 그리드 */}
       <Card className="bg-white border border-gray-200">
