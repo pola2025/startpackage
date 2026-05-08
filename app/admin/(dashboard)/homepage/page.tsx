@@ -92,7 +92,7 @@ const STYLE_NAMES: Record<string, string> = {
   "https://jmbiz.imweb.me/": "스타일 3",
   "https://biznuri.co.kr/": "스타일 4",
   "https://www.wiztion.com/": "스타일 5",
-  "https://www.k-eai.kr/": "스타일 6",
+  "https://brpartners.kr/": "스타일 6",
   // 레거시 URL 지원
   "https://mjgood.imweb.me/": "스타일 2",
   "https://fpbiz.imweb.me/": "스타일 6",

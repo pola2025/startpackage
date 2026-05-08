@@ -846,7 +846,7 @@ export default function HomepageSettingsPage() {
               { url: "https://jmbiz.imweb.me/", name: "스타일 3" },
               { url: "https://biznuri.co.kr/", name: "스타일 4" },
               { url: "https://www.wiztion.com/", name: "스타일 5" },
-              { url: "https://www.k-eai.kr/", name: "스타일 6" },
+              { url: "https://brpartners.kr/", name: "스타일 6" },
             ].map((style) => (
               <Dialog
                 key={style.url}
@@ -994,7 +994,7 @@ export default function HomepageSettingsPage() {
                       },
                       { url: "https://www.wiztion.com/", name: "스타일 5" },
                       {
-                        url: "https://www.k-eai.kr/",
+                        url: "https://brpartners.kr/",
                         name: "스타일 6",
                       },
                     ];

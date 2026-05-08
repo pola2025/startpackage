@@ -315,7 +315,7 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
                                 name: "스타일 5",
                               },
                               {
-                                url: "https://www.k-eai.kr/",
+                                url: "https://brpartners.kr/",
                                 name: "스타일 6",
                               },
                             ];
