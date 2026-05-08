@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, useMemo, type ReactNode } from "react";
 import { Card } from "@/components/ui/card";
 import {
   Sparkles,
@@ -13,6 +13,7 @@ import {
   CheckCircle2,
   Circle,
   ChevronRight,
+  X,
 } from "lucide-react";
 import QuestWizardDialog, {
   BASIC_INFO_STEPS,
@@ -54,6 +55,8 @@ interface DeliverableSpec {
   workflowTypes: string[];
   /** true면 워크플로우 매칭 없이도 항상 카드 노출 (기본 정보·마케팅 같은 공통 카드) */
   alwaysShow?: boolean;
+  /** true면 미입력 시 미완료로 표시하지 않고 "선택"으로 표시 (마케팅처럼 운영 채널이 없으면 비워둬도 됨) */
+  optional?: boolean;
   icon: ReactNode;
   /** 이 인쇄물을 만들기 위한 모든 필요 항목 (자동 + 직접 입력) */
   fields: FieldSpec[];
@@ -150,9 +153,10 @@ const DELIVERABLES: DeliverableSpec[] = [
   {
     wizardId: "marketing-info",
     title: "마케팅 정보",
-    subtitle: "이미 운영 중인 채널이 있으면 입력 (선택)",
+    subtitle: "이미 운영 중인 채널이 있으면 입력 (없으면 비워두셔도 됩니다)",
     workflowTypes: [],
     alwaysShow: true,
+    optional: true,
     icon: <Megaphone className="w-5 h-5" />,
     fields: [
       { key: "네이버검색광고ID", label: "네이버 검색광고 ID" },
@@ -225,6 +229,15 @@ export default function PrintDeliverableCards({
   basicMissing,
 }: Props) {
   const [questId, setQuestId] = useState<string | null>(null);
+  /** 직전에 완료한 wizardId (완료 banner 표시용) */
+  const [justCompleted, setJustCompleted] = useState<string | null>(null);
+
+  // 5초 후 banner 자동 숨김
+  useEffect(() => {
+    if (!justCompleted) return;
+    const t = setTimeout(() => setJustCompleted(null), 5000);
+    return () => clearTimeout(t);
+  }, [justCompleted]);
 
   // 항상 노출(alwaysShow) 또는 사용자가 보유한 워크플로우 type 매칭 시 카드 노출
   const visibleDeliverables = DELIVERABLES.filter(
@@ -233,6 +246,23 @@ export default function PrintDeliverableCards({
       d.workflowTypes.some((t) => workflows.some((w) => w.type === t)),
   );
 
+  // 직전 완료 카드의 정보 + 다음 추천 카드 (미완성 첫 번째)
+  const completionBanner = useMemo(() => {
+    if (!justCompleted) return null;
+    const justCompletedDeliv = visibleDeliverables.find(
+      (d) => d.wizardId === justCompleted,
+    );
+    if (!justCompletedDeliv) return null;
+    const next = visibleDeliverables.find((d) => {
+      if (d.wizardId === justCompleted) return false;
+      const filled = d.fields.filter((f) =>
+        fieldFilled(f.key, submission, workflows),
+      ).length;
+      return filled < d.fields.length;
+    });
+    return { just: justCompletedDeliv, next };
+  }, [justCompleted, visibleDeliverables, submission, workflows]);
+
   if (visibleDeliverables.length === 0) return null;
 
   const quest = questId ? QUEST_MAP[questId] : null;
@@ -240,6 +270,45 @@ export default function PrintDeliverableCards({
   return (
     <>
       <div className="space-y-2">
+        {/* 완료 banner — 5초 자동 사라짐 + 다음 카드 CTA */}
+        {completionBanner && (
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900 animate-in fade-in slide-in-from-top-1 duration-300">
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+            <div className="flex-1 min-w-0 text-sm">
+              <span className="font-semibold">
+                «{completionBanner.just.title}» 입력 완료!
+              </span>
+              {completionBanner.next && (
+                <span className="text-emerald-700 ml-1">
+                  다음은 «{completionBanner.next.title}» 어떠세요?
+                </span>
+              )}
+              {!completionBanner.next && (
+                <span className="text-emerald-700 ml-1">
+                  모든 정보 입력이 완료되었습니다 🎉
+                </span>
+              )}
+            </div>
+            {completionBanner.next && (
+              <button
+                type="button"
+                onClick={() => setQuestId(completionBanner.next!.wizardId)}
+                className="flex-shrink-0 px-2.5 py-1 text-xs font-semibold rounded bg-emerald-600 text-white hover:bg-emerald-700 transition-colors"
+              >
+                바로 입력
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => setJustCompleted(null)}
+              className="flex-shrink-0 text-emerald-700/60 hover:text-emerald-900"
+              aria-label="안내 닫기"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
         <div className="flex items-baseline justify-between px-1">
           <h2 className="text-sm md:text-base font-bold text-navy-900">
             인쇄물별 필요 정보
@@ -254,7 +323,6 @@ export default function PrintDeliverableCards({
               fieldFilled(f.key, submission, workflows),
             ).length;
             const total = d.fields.length;
-            const remaining = total - filled;
             const complete = filled === total;
             const percent = Math.round((filled / total) * 100);
 
@@ -279,7 +347,9 @@ export default function PrintDeliverableCards({
                 className={`group flex flex-col h-full text-left rounded-xl border-2 p-3 md:p-3.5 transition-all hover:shadow-md ${
                   complete
                     ? "border-emerald-200 bg-emerald-50/40 hover:bg-emerald-50"
-                    : "border-gray-200 bg-white hover:border-navy-300 hover:bg-navy-50/30"
+                    : d.optional
+                      ? "border-gray-200 bg-gray-50/60 hover:border-gray-300 hover:bg-gray-100/50"
+                      : "border-gray-200 bg-white hover:border-navy-300 hover:bg-navy-50/30"
                 }`}
               >
                 {/* 헤더 — 고정 높이 (아이콘 + 타이틀 + 부제 2줄 영역 reserve) */}
@@ -307,6 +377,10 @@ export default function PrintDeliverableCards({
                     <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 border border-emerald-200 flex-shrink-0">
                       완료
                     </span>
+                  ) : d.optional ? (
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 border border-gray-200 flex-shrink-0">
+                      선택
+                    </span>
                   ) : (
                     <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-navy-50 text-navy-700 border border-navy-200 flex-shrink-0">
                       {filled}/{total}
@@ -332,11 +406,17 @@ export default function PrintDeliverableCards({
                       <li
                         key={f.key}
                         className={`flex items-center gap-1.5 text-[11px] ${
-                          has ? "text-gray-500" : "text-gray-900 font-medium"
+                          has
+                            ? "text-gray-500"
+                            : d.optional
+                              ? "text-gray-500"
+                              : "text-gray-900 font-medium"
                         }`}
                       >
                         {has ? (
                           <CheckCircle2 className="w-3 h-3 text-emerald-500 flex-shrink-0" />
+                        ) : d.optional ? (
+                          <Circle className="w-3 h-3 text-gray-300 flex-shrink-0" />
                         ) : (
                           <Circle className="w-3 h-3 text-rose-400 flex-shrink-0" />
                         )}
@@ -363,18 +443,24 @@ export default function PrintDeliverableCards({
                     className={`flex-1 min-w-0 text-[11px] font-medium truncate ${
                       complete
                         ? "text-emerald-700"
-                        : userMissing.length > 0
-                          ? "text-navy-700"
-                          : "text-gray-500"
+                        : d.optional
+                          ? "text-gray-500"
+                          : userMissing.length > 0
+                            ? "text-navy-700"
+                            : "text-gray-500"
                     }`}
                   >
                     {complete
                       ? "확인 / 수정"
                       : basicMissing && d.wizardId !== "basic-info"
                         ? "기본 정보 먼저 입력"
-                        : userMissing.length > 0
-                          ? `${userMissing.map((f) => f.label).join(" · ")} 입력`
-                          : "프로필·로고 등 자동 항목 채워주세요"}
+                        : d.optional
+                          ? userMissing.length > 0
+                            ? "운영 중인 채널이 있으면 입력"
+                            : "확인 / 수정"
+                          : userMissing.length > 0
+                            ? `${userMissing.map((f) => f.label).join(" · ")} 입력`
+                            : "프로필·로고 등 자동 항목 채워주세요"}
                   </span>
                   <ChevronRight
                     className={`w-4 h-4 flex-shrink-0 transition-transform group-hover:translate-x-0.5 ${
@@ -392,6 +478,10 @@ export default function PrintDeliverableCards({
         <QuestWizardDialog
           open
           onClose={() => setQuestId(null)}
+          onComplete={() => {
+            // questId는 onComplete 직후 onClose에서 null로 바뀌므로 여기서 미리 캡처
+            if (questId) setJustCompleted(questId);
+          }}
           title={quest.title}
           description={quest.description}
           steps={quest.steps}
