@@ -303,7 +303,7 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
                                 name: "스타일 2",
                               },
                               {
-                                url: "https://jmbiz.imweb.me/",
+                                url: "https://yjbiz.co.kr/",
                                 name: "스타일 3",
                               },
                               {
