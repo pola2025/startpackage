@@ -88,7 +88,7 @@ interface Cohort {
 // 스타일 이름 매핑
 const STYLE_NAMES: Record<string, string> = {
   "https://www.jnipartners.co.kr": "스타일 1",
-  "https://bizen.co.kr/": "스타일 2",
+  "https://bizcoaching.co.kr/": "스타일 2",
   "https://jmbiz.imweb.me/": "스타일 3",
   "https://ksupport-center.imweb.me/": "스타일 4",
   "https://www.wiztion.com/": "스타일 5",

@@ -842,7 +842,7 @@ export default function HomepageSettingsPage() {
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4">
             {[
               { url: "https://www.jnipartners.co.kr", name: "스타일 1" },
-              { url: "https://bizen.co.kr/", name: "스타일 2" },
+              { url: "https://bizcoaching.co.kr/", name: "스타일 2" },
               { url: "https://jmbiz.imweb.me/", name: "스타일 3" },
               { url: "https://ksupport-center.imweb.me/", name: "스타일 4" },
               { url: "https://www.wiztion.com/", name: "스타일 5" },
@@ -986,7 +986,7 @@ export default function HomepageSettingsPage() {
                         url: "https://www.jnipartners.co.kr",
                         name: "스타일 1",
                       },
-                      { url: "https://bizen.co.kr/", name: "스타일 2" },
+                      { url: "https://bizcoaching.co.kr/", name: "스타일 2" },
                       { url: "https://jmbiz.imweb.me/", name: "스타일 3" },
                       {
                         url: "https://ksupport-center.imweb.me/",

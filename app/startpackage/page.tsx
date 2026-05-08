@@ -614,7 +614,7 @@ export default function StartPackagePage() {
           {(() => {
             const styles = [
               { url: "https://www.jnipartners.co.kr", name: "스타일 1" },
-              { url: "https://bizen.co.kr/", name: "스타일 2" },
+              { url: "https://bizcoaching.co.kr/", name: "스타일 2" },
               { url: "https://jmbiz.imweb.me/", name: "스타일 3" },
               { url: "https://ksupport-center.imweb.me/", name: "스타일 4" },
               { url: "https://www.wiztion.com/", name: "스타일 5" },
