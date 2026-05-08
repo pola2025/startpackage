@@ -388,11 +388,17 @@ export default function SubmissionViewButton({
                           {(() => {
                             const styles: Record<string, string> = {
                               "https://www.jnipartners.co.kr": "스타일 1",
-                              "https://mjgood.imweb.me/": "스타일 2",
+                              "https://bizcoaching.co.kr/": "스타일 2",
                               "https://jmbiz.imweb.me/": "스타일 3",
-                              "https://ksupport-center.imweb.me/": "스타일 4",
+                              "https://biznuri.co.kr/": "스타일 4",
                               "https://www.wiztion.com/": "스타일 5",
+                              "https://www.k-eai.kr/": "스타일 6",
+                              // 레거시 (이전 데이터 호환용)
+                              "https://mjgood.imweb.me/": "스타일 2",
+                              "https://bizen.co.kr/": "스타일 2",
+                              "https://ksupport-center.imweb.me/": "스타일 4",
                               "https://fpbiz.imweb.me/": "스타일 6",
+                              "https://www.k-eai.kr/index.html": "스타일 6",
                             };
                             return (
                               styles[submission.홈페이지스타일] ||

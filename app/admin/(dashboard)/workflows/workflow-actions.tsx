@@ -299,7 +299,7 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
                                 name: "스타일 1",
                               },
                               {
-                                url: "https://mjgood.imweb.me/",
+                                url: "https://bizcoaching.co.kr/",
                                 name: "스타일 2",
                               },
                               {
@@ -307,7 +307,7 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
                                 name: "스타일 3",
                               },
                               {
-                                url: "https://ksupport-center.imweb.me/",
+                                url: "https://biznuri.co.kr/",
                                 name: "스타일 4",
                               },
                               {
@@ -315,7 +315,7 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
                                 name: "스타일 5",
                               },
                               {
-                                url: "https://fpbiz.imweb.me/",
+                                url: "https://www.k-eai.kr/",
                                 name: "스타일 6",
                               },
                             ];
