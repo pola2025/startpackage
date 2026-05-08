@@ -196,8 +196,9 @@ model Submission {
   계약서시안 String?
 
   // 계좌 정보
-  은행명   String?
-  계좌번호 String?
+  은행명         String?
+  계좌번호       String?
+  계좌명의자명   String? // 사업자 대표와 다를 경우 입력 (비어있으면 사업자대표명 = 명의자)
 
   // SMS 발신 등록용 서류
   대표자생년월일          String?

@@ -1,20 +1,15 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import Link from "next/link";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatDate, formatDday } from "@/lib/utils";
 import PrintRequestButton from "./print-request-button";
 import MarketingExtensionDialog from "./marketing-extension-dialog";
 import { ensureUserWorkflows } from "@/lib/ensureUserWorkflows";
-import { FloatingActionButton } from "@/components/ui/floating-action-button";
+import ProgressVisualization from "@/components/dashboard/progress-visualization";
+import DashboardAlertsClient from "./_components/dashboard-alerts-client";
+import PrintDeliverableCards from "./_components/print-deliverable-cards";
 
 // Temporary Progress component
 function Progress({ value, className }: { value: number; className?: string }) {
@@ -32,17 +27,9 @@ function Progress({ value, className }: { value: number; className?: string }) {
 import {
   Calendar,
   Clock,
-  FileText,
   Package,
-  Truck,
-  CheckCircle2,
   AlertCircle,
-  User,
-  Mail,
-  Phone,
-  Globe,
   Megaphone,
-  TrendingUp,
   Database,
   Bell,
   MessageSquare,
@@ -200,23 +187,50 @@ export default async function UserDashboard() {
     });
   });
 
-  // 4. 로고 확정 후 인쇄물 자료 제출 요청
+  // 4. 인쇄물 type별 자료 입력 알림 (로고 확정 + 기본정보 입력 후)
   const logoConfirmed = user.workflows.some(
     (w) => w.type === "로고" && w.status === "시안확정",
   );
-  const hasPrintWorkflows = user.workflows.some(
-    (w) => w.type !== "로고" && w.type !== "홈페이지",
+
+  // 4-1. 명함/대봉투: 명함시안 + 명함색상 (둘이 한 묶음, 한쪽 입력하면 양쪽 ✓)
+  const hasNamecardOrEnvelope = user.workflows.some(
+    (w) => w.type === "명함" || w.type === "대봉투",
   );
-  if (logoConfirmed && !hasPrintWorkflows && hasBasicInfo) {
+  const namecardComplete =
+    !!user.submission?.명함시안 && !!user.submission?.명함색상;
+  if (
+    logoConfirmed &&
+    hasBasicInfo &&
+    hasNamecardOrEnvelope &&
+    !namecardComplete
+  ) {
     notifications.push({
-      id: "print-submit",
+      id: "namecard-envelope-info",
       priority: 2,
       type: "warning",
-      message: "인쇄물 자료 제출 바랍니다",
+      message: "명함·대봉투 정보 입력이 필요합니다",
       link: "/dashboard/submission#namecard",
-      badge: "자료제출",
+      badge: "자료입력",
     });
   }
+
+  // 4-2. 자문계약서: 은행명 + 계좌번호 (필수). 워크플로우는 표지/내지 2종.
+  const hasContract = user.workflows.some(
+    (w) => w.type === "자문계약서 표지" || w.type === "자문계약서 내지",
+  );
+  const contractComplete =
+    !!user.submission?.은행명 && !!user.submission?.계좌번호;
+  if (logoConfirmed && hasBasicInfo && hasContract && !contractComplete) {
+    notifications.push({
+      id: "contract-info",
+      priority: 2,
+      type: "warning",
+      message: "자문계약서 계좌 정보 입력이 필요합니다",
+      link: "/dashboard/submission#contract",
+      badge: "자료입력",
+    });
+  }
+  // 4-3. 명찰: 프로필사진 필요 — 기본정보(BASIC_INFO_STEPS)에 이미 포함되어 있으므로 별도 알림 불필요
 
   // 5. 로고 확정 후 홈페이지 정보 입력
   const hasWebsiteInfo =
@@ -376,244 +390,245 @@ export default async function UserDashboard() {
   // 우선순위에 따라 정렬
   notifications.sort((a, b) => a.priority - b.priority);
 
+  // === 와이어프레임 v4 시각화용 데이터 매핑 ===
+  // 로고 상태 매핑
+  const logoWorkflow = user.workflows.find((w) => w.type === "로고");
+  const logoStatusKey: "idle" | "working" | "ready" = (() => {
+    const s = logoWorkflow?.status ?? "대기";
+    if (s === "시안중" || s === "시안제작중") return "working";
+    if (
+      s === "시안컨펌요청" ||
+      s === "시안확정" ||
+      s === "최종확정" ||
+      s === "발주완료" ||
+      s === "제작완료" ||
+      s === "발송완료"
+    )
+      return "ready";
+    return "idle";
+  })();
+
+  // 인쇄물 정보 (5종 인쇄물 자료에 필요한 필드)
+  const printFields = [
+    user.submission?.브랜드명,
+    user.submission?.사업자등록증URL,
+    user.submission?.프로필사진URL,
+    user.submission?.업종,
+    user.submission?.주소,
+    user.submission?.대표번호,
+    user.submission?.이메일,
+    user.submission?.명함시안,
+  ];
+  const printFilled = printFields.filter(Boolean).length;
+  const printTotal = printFields.length;
+  const printPercent = Math.round((printFilled / printTotal) * 100);
+  const printConnected = printPercent >= 100;
+
+  // 홈페이지 정보
+  const webFields = [
+    user.submission?.브랜드명,
+    user.submission?.업종,
+    user.submission?.홈페이지스타일,
+    user.submission?.홈페이지컬러컨셉,
+    user.submission?.도메인주소,
+    user.submission?.로고URL,
+  ];
+  const webFilled = webFields.filter(Boolean).length;
+  const webTotal = webFields.length;
+  const webPercent = Math.round((webFilled / webTotal) * 100);
+  const webConnected = webPercent >= 100;
+
+  // 광고 연결: 마케팅 정보 + 광고 활성화
+  const adConnected = !!(
+    user.submission?.네이버검색광고ID || user.submission?.InstagramID
+  );
+
+  // 카테고리별 카운트 (와이어프레임 To-do 분류)
+  const todoCounts = {
+    urgent: notifications.filter((n) => n.type === "urgent").length,
+    confirm: notifications.filter((n) => n.type === "warning").length,
+    waiting: notifications.filter((n) => n.type === "info").length,
+    completed: notifications.filter((n) => n.type === "success").length,
+  };
+
+  // 전체 진행률 계산 (자료제출 30% + 워크플로우 진행 70% 가중)
+  const workflowProgressMap: Record<string, number> = {
+    대기: 0,
+    시안중: 30,
+    시안제작중: 30,
+    시안컨펌요청: 55,
+    시안확정: 70,
+    발주요청: 75,
+    발주대기: 75,
+    발주완료: 85,
+    제작완료: 92,
+    "제작 진행 중": 60,
+    "제작 완료": 95,
+    발송완료: 100,
+    최종확정: 100,
+  };
+  const wfPercents = user.workflows.map(
+    (w) => workflowProgressMap[w.status] ?? 0,
+  );
+  const wfAvg =
+    wfPercents.length > 0
+      ? Math.round(wfPercents.reduce((a, b) => a + b, 0) / wfPercents.length)
+      : 0;
+  const overallProgress = Math.round(completionPercent * 0.3 + wfAvg * 0.7);
+
+  // 자료 제출 마감 = 교육시작일 + 4주 (28일). 모든 기수 공통 정책.
+  // 마감 후에는 추가 입력/진행 불가 → 관리자 별도 문의로 유도
+  let submissionDeadline: Date | null = null;
+  let submissionDaysRemaining: number | null = null;
+  let submissionExpired = false;
+  if (user.cohort?.교육시작일) {
+    submissionDeadline = new Date(user.cohort.교육시작일);
+    submissionDeadline.setDate(submissionDeadline.getDate() + 28);
+    submissionDaysRemaining = Math.ceil(
+      (submissionDeadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+    );
+    submissionExpired = submissionDaysRemaining <= 0;
+  }
+
+  // 마케팅 D-Day (Meta 광고 카드 통합용)
+  let marketingDaysRemaining: number | null = null;
+  if (marketingEndDate) {
+    marketingDaysRemaining = Math.ceil(
+      (marketingEndDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+    );
+  }
+
   return (
     <div className="space-y-4">
-      {/* Compact Header: 이름 + 기수 + D-Day 한 줄 */}
-      <div className="flex flex-wrap items-center gap-2 md:gap-3">
-        <h1 className="text-lg md:text-xl font-bold text-gray-900">
-          {user.이름}님
-        </h1>
-        {user.cohort && (
-          <span className="text-xs md:text-sm text-gray-500 font-medium">
-            {user.cohort.name}
-          </span>
-        )}
-        {user.cohort && dday && (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gold-50 border border-gold-200 rounded-full text-xs font-semibold text-gold-700">
-            <Calendar className="w-3 h-3" />
-            마감 {dday}
-          </span>
-        )}
-        {marketingEndDate &&
-          (() => {
-            const now = new Date();
-            const daysRemaining = Math.ceil(
-              (marketingEndDate.getTime() - now.getTime()) /
-                (1000 * 60 * 60 * 24),
-            );
-            const isExpired = daysRemaining <= 0;
-            const isUrgent = daysRemaining <= 7;
-            return (
-              <span
-                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold border ${
-                  isExpired
-                    ? "bg-gray-50 border-gray-200 text-gray-500"
-                    : isUrgent
-                      ? "bg-terra-50 border-terra-100 text-terra-600"
-                      : "bg-navy-50 border-navy-200 text-navy-600"
+      {/* 진행 현황 헤더: 좌측 사용자 정보 + 우측 전체 진행률 */}
+      <div className="flex items-start justify-between gap-3 px-4 py-3 bg-white border border-gray-200 rounded-lg">
+        <div className="flex flex-wrap items-center gap-2 flex-1 min-w-0">
+          <div className="w-full">
+            <div className="text-[11px] text-gray-500 font-medium">
+              {user.이름}님
+            </div>
+            <h1 className="text-base md:text-lg font-bold text-navy-900">
+              스타트패키지 진행 현황
+            </h1>
+            {submissionDeadline && (
+              <p
+                className={`text-[11px] mt-0.5 font-medium ${
+                  submissionExpired
+                    ? "text-rose-600"
+                    : submissionDaysRemaining !== null &&
+                        submissionDaysRemaining <= 7
+                      ? "text-rose-600"
+                      : "text-gray-500"
                 }`}
               >
-                <Megaphone className="w-3 h-3" />
-                마케팅 {isExpired ? "종료" : `D-${daysRemaining}`}
-              </span>
-            );
-          })()}
-      </div>
-
-      {/* 인라인 제출률 */}
-      <div className="flex items-center gap-3 px-3 py-2 bg-white border border-gray-200 rounded-lg">
-        <FileText className="w-4 h-4 text-navy-700 flex-shrink-0" />
-        <span className="text-sm font-medium text-gray-700">자료 제출</span>
-        <span className="text-sm font-bold text-navy-700">
-          {completionPercent}%
-        </span>
-        <Progress value={completionPercent} className="flex-1 h-1.5" />
-        <span className="text-xs text-gray-500">
-          {completedFields}/{totalFields}
-        </span>
-      </div>
-
-      {/* 알림 리스트 */}
-      {notifications.length > 0 && (
-        <Card className="bg-white border border-gray-200">
-          <CardHeader className="p-3 md:p-4 pb-1 md:pb-2">
-            <CardTitle className="text-sm md:text-base text-gray-900 flex items-center gap-2">
-              <Bell className="w-4 h-4 text-gold-600" />
-              알림
-              <span className="text-xs font-normal text-gray-500 ml-auto">
-                {notifications.length}건
-              </span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-3 md:p-4 pt-0">
-            <div className="space-y-1">
-              {notifications.map((notification) => {
-                const colors = {
-                  urgent: "text-terra-600 hover:bg-terra-50 border-terra-100",
-                  warning: "text-terra-500 hover:bg-terra-50 border-terra-100",
-                  info: "text-navy-600 hover:bg-navy-50 border-navy-200",
-                  success: "text-ok-700 hover:bg-ok-50 border-ok-100",
-                };
-
-                const badgeColors = {
-                  urgent: "bg-terra-50 text-terra-600 border-terra-100",
-                  warning: "bg-terra-50 text-terra-500 border-terra-100",
-                  info: "bg-navy-50 text-navy-600 border-navy-200",
-                  success: "bg-ok-50 text-ok-700 border-ok-100",
-                };
-
-                return (
-                  <Link
-                    key={notification.id}
-                    href={notification.link}
-                    className={`flex items-center gap-2 p-2 md:p-2.5 rounded-lg border bg-white ${colors[notification.type]} transition-all cursor-pointer group`}
-                  >
-                    <span
-                      className={`text-[10px] md:text-xs font-bold px-1.5 py-0.5 rounded border whitespace-nowrap ${badgeColors[notification.type]}`}
-                    >
-                      {notification.badge}
-                    </span>
-                    <span className="flex-1 text-xs md:text-sm font-medium line-clamp-1">
-                      {notification.message}
-                    </span>
-                  </Link>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* 자료 제출 현황 */}
-      <Card className="bg-white border border-gray-200">
-        <CardHeader className="p-3 md:p-4 pb-1 md:pb-2">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-sm md:text-base text-gray-900 font-bold">
-              자료 제출 현황
-            </CardTitle>
-            <PrintRequestButton
-              completionRate={completionPercent}
-              hasWorkflows={user.workflows.length > 0}
-            />
-          </div>
-        </CardHeader>
-        <CardContent className="p-3 md:p-4 pt-1">
-          {user.submission ? (
-            <div className="grid grid-cols-4 md:grid-cols-4 lg:grid-cols-7 gap-1.5 md:gap-2">
-              {[
-                {
-                  label: "사업자등록증",
-                  shortLabel: "사업자",
-                  value: user.submission.사업자등록증URL,
-                  tab: "print",
-                  icon: FileText,
-                },
-                {
-                  label: "프로필사진",
-                  shortLabel: "프로필",
-                  value: user.submission.프로필사진URL,
-                  tab: "print",
-                  icon: User,
-                },
-                {
-                  label: "브랜드명",
-                  shortLabel: "브랜드",
-                  value: user.submission.브랜드명,
-                  tab: "basic",
-                  icon: Package,
-                },
-                {
-                  label: "업종",
-                  shortLabel: "업종",
-                  value: user.submission.업종,
-                  tab: "basic",
-                  icon: Package,
-                },
-                {
-                  label: "주소",
-                  shortLabel: "주소",
-                  value: user.submission.주소,
-                  tab: "basic",
-                  icon: Package,
-                },
-                {
-                  label: "명함스타일 선택",
-                  shortLabel: "명함",
-                  value: user.submission.명함시안,
-                  tab: "print",
-                  icon: FileText,
-                },
-                {
-                  label: "홈페이지 컬러",
-                  shortLabel: "홈페이지",
-                  value: user.submission.홈페이지컬러컨셉,
-                  tab: "website",
-                  icon: Globe,
-                },
-              ].map((item, idx) => {
-                const Icon = item.icon;
-                const sharedClassName = `group flex flex-col items-center p-1.5 md:p-2 rounded-lg ${
-                  item.value
-                    ? "bg-white border border-gray-200"
-                    : "bg-gray-50 border border-gray-200 hover:bg-navy-50 hover:border-navy-200 cursor-pointer"
-                } transition-all`;
-
-                const content = (
+                {submissionExpired ? (
                   <>
-                    <div
-                      className={`flex items-center justify-center w-6 h-6 md:w-8 md:h-8 rounded-lg mb-1 ${
-                        item.value
-                          ? "bg-navy-800"
-                          : "bg-navy-300 group-hover:bg-navy-900"
-                      } transition-colors`}
+                    자료 제출 기간 종료 — 추가 진행은{" "}
+                    <a
+                      href="/dashboard/communication"
+                      className="underline font-semibold"
                     >
-                      <Icon className="w-3 h-3 md:w-4 md:h-4 text-white" />
-                    </div>
-                    <p className="text-[9px] md:text-xs font-semibold text-gray-900 text-center line-clamp-1">
-                      {item.shortLabel}
-                    </p>
-                    {item.value ? (
-                      <CheckCircle2 className="w-3 h-3 text-ok-600 mt-0.5" />
-                    ) : (
-                      <AlertCircle className="w-3 h-3 text-terra-500 mt-0.5" />
-                    )}
+                      관리자 문의
+                    </a>
                   </>
-                );
-
-                return item.value ? (
-                  <div
-                    key={idx}
-                    className={sharedClassName}
-                    style={{ opacity: 0.55 }}
-                  >
-                    {content}
-                  </div>
                 ) : (
-                  <Link
-                    key={idx}
-                    href={`/dashboard/submission?tab=${item.tab}`}
-                    className={sharedClassName}
-                  >
-                    {content}
-                  </Link>
-                );
-              })}
-            </div>
-          ) : (
-            <Link href="/dashboard/submission?tab=basic" className="block">
-              <div className="text-center py-6 px-4 bg-white rounded-lg border border-gray-200 hover:border-gold-400 transition-all cursor-pointer group">
-                <AlertCircle className="w-8 h-8 text-navy-600 mx-auto mb-2" />
-                <p className="text-sm font-semibold text-gray-900 mb-1">
-                  자료를 아직 제출하지 않으셨어요
-                </p>
-                <p className="text-xs text-gold-600 font-medium">
-                  클릭하여 지금 제출하기 →
-                </p>
-              </div>
-            </Link>
+                  <>
+                    자료 제출 마감 D-{submissionDaysRemaining} (교육시작 + 4주)
+                  </>
+                )}
+              </p>
+            )}
+          </div>
+          {user.cohort && (
+            <span className="text-xs text-gray-500 font-medium">
+              {user.cohort.name}
+            </span>
           )}
-        </CardContent>
-      </Card>
+          {user.cohort && dday && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gold-50 border border-gold-200 rounded-full text-xs font-semibold text-gold-700">
+              <Calendar className="w-3 h-3" />
+              마감 {dday}
+            </span>
+          )}
+          {marketingEndDate &&
+            (() => {
+              const now = new Date();
+              const daysRemaining = Math.ceil(
+                (marketingEndDate.getTime() - now.getTime()) /
+                  (1000 * 60 * 60 * 24),
+              );
+              const isExpired = daysRemaining <= 0;
+              const isUrgent = daysRemaining <= 7;
+              return (
+                <span
+                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold border ${
+                    isExpired
+                      ? "bg-gray-50 border-gray-200 text-gray-500"
+                      : isUrgent
+                        ? "bg-terra-50 border-terra-100 text-terra-600"
+                        : "bg-navy-50 border-navy-200 text-navy-600"
+                  }`}
+                >
+                  <Megaphone className="w-3 h-3" />
+                  마케팅 {isExpired ? "종료" : `D-${daysRemaining}`}
+                </span>
+              );
+            })()}
+        </div>
+        <div className="text-right flex-shrink-0">
+          <div className="text-[11px] text-gray-500 font-medium">전체 진행</div>
+          <div className="text-2xl md:text-3xl font-bold text-navy-700">
+            {overallProgress}
+            <span className="text-base md:text-lg">%</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 메인 시각화: 로고 동력원 + 결과물 박스 (와이어프레임 v4) */}
+      <ProgressVisualization
+        logoStatus={logoStatusKey}
+        printConnected={printConnected}
+        webConnected={webConnected}
+        adConnected={adConnected}
+        printPercent={printPercent}
+        webPercent={webPercent}
+        printFilled={printFilled}
+        printTotal={printTotal}
+        webFilled={webFilled}
+        webTotal={webTotal}
+        marketingDaysRemaining={marketingDaysRemaining}
+      />
+
+      {/* 내가 처리해야 할 것 (To-do 패널) — 알림 클릭 시 위자드 모달 */}
+      <DashboardAlertsClient
+        notifications={notifications}
+        todoCounts={todoCounts}
+        submission={user.submission as Record<string, unknown> | null}
+        representativeName={user.이름}
+      />
+
+      {/* 인쇄물별 필요 정보 카드 — outcome 중심 (이걸 만들려면 이런 게 필요해요) */}
+      <PrintDeliverableCards
+        submission={user.submission as Record<string, unknown> | null}
+        workflows={user.workflows.map((w) => ({
+          type: w.type,
+          status: w.status,
+        }))}
+        representativeName={user.이름}
+        basicMissing={
+          !user.submission?.브랜드명 ||
+          !user.submission?.사업자등록증URL ||
+          !user.submission?.프로필사진URL
+        }
+      />
+
+      {/* 제작요청 버튼 (자료 100% 입력 시 활성화) */}
+      <div className="flex justify-end">
+        <PrintRequestButton
+          completionRate={completionPercent}
+          hasWorkflows={user.workflows.length > 0}
+        />
+      </div>
 
       {/* Workflow Status — 2열 미니 그리드 */}
       <Card className="bg-white border border-gray-200">
@@ -766,9 +781,6 @@ export default async function UserDashboard() {
           </div>
         </details>
       )}
-
-      {/* 모바일 플로팅 액션 버튼 - 자료 제출 바로가기 */}
-      <FloatingActionButton href="/dashboard/submission" />
     </div>
   );
 }

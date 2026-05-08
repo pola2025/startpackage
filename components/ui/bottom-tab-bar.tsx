@@ -24,12 +24,6 @@ const tabs = [
     exact: true,
   },
   {
-    href: "/dashboard/submission",
-    icon: FileText,
-    label: "자료제출",
-    exact: false,
-  },
-  {
     href: "/dashboard/workflows",
     icon: Workflow,
     label: "제작현황",

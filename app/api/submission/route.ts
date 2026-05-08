@@ -350,6 +350,9 @@ export async function POST(request: Request) {
           { key: "GmailPW", label: "Gmail 비밀번호" },
           { key: "홈페이지스타일", label: "홈페이지 스타일" },
           { key: "홈페이지컬러컨셉", label: "홈페이지 컬러" },
+          { key: "은행명", label: "은행명" },
+          { key: "계좌번호", label: "계좌번호" },
+          { key: "계좌명의자명", label: "계좌명의자 (대표와 다른 경우)" },
         ];
 
       const changedTextFields: Array<{

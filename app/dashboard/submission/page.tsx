@@ -45,7 +45,6 @@ import {
   SecurityNotice,
   DataUsageNotice,
 } from "@/components/submission/security-notice";
-import { Celebration, useCelebration } from "@/components/ui/celebration";
 import {
   useAutoFocus,
   useKeyboardNavigation,
@@ -114,14 +113,6 @@ export default function SubmissionPage() {
   });
   useKeyboardNavigation();
 
-  // Sprint 2: 축하 애니메이션
-  const {
-    showCelebration,
-    celebrationMessage,
-    checkSectionCompletion,
-    closeCelebration,
-  } = useCelebration();
-
   // 탭 변경 함수 - URL 쿼리 파라미터 업데이트
   const handleTabChange = (tab: string) => {
     router.push(`/dashboard/submission?tab=${tab}`);
@@ -158,19 +149,6 @@ export default function SubmissionPage() {
     fetchWorkflows();
     fetchDeadline();
   }, []);
-
-  // Sprint 2: 섹션 완료 시 축하 애니메이션 트리거
-  // 무한 루프 방지: sections 배열의 isComplete 값만 직렬화하여 비교
-  const sectionsKey = useMemo(() => {
-    if (!progress?.sections) return "";
-    return progress.sections.map((s) => `${s.name}:${s.isComplete}`).join(",");
-  }, [progress?.sections]);
-
-  useEffect(() => {
-    if (progress?.sections && sectionsKey) {
-      checkSectionCompletion(progress.sections);
-    }
-  }, [sectionsKey, checkSectionCompletion, progress?.sections]);
 
   const fetchWorkflows = async () => {
     try {
@@ -2567,13 +2545,6 @@ export default function SubmissionPage() {
           }}
         />
       )}
-
-      {/* Sprint 2: 섹션 완료 축하 애니메이션 */}
-      <Celebration
-        show={showCelebration}
-        message={celebrationMessage}
-        onComplete={closeCelebration}
-      />
     </div>
   );
 }
