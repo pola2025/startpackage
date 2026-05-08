@@ -76,18 +76,19 @@ const QUEST_MAP: Record<
   },
 };
 
+// 관공서 톤: 미입력=amber(주의), 컨펌=gov-blue(처리 중), 정보=slate, 완료=emerald
 const COLORS: Record<AlertNotification["type"], string> = {
-  urgent: "text-terra-600 hover:bg-terra-50 border-terra-100",
-  warning: "text-terra-500 hover:bg-terra-50 border-terra-100",
-  info: "text-navy-600 hover:bg-navy-50 border-navy-200",
-  success: "text-ok-700 hover:bg-ok-50 border-ok-100",
+  urgent: "text-slate-900 hover:bg-amber-50 border-amber-200",
+  warning: "text-slate-900 hover:bg-amber-50 border-amber-100",
+  info: "text-slate-900 hover:bg-gov-blue-50 border-slate-200",
+  success: "text-slate-900 hover:bg-emerald-50 border-emerald-100",
 };
 
 const BADGE_COLORS: Record<AlertNotification["type"], string> = {
-  urgent: "bg-terra-50 text-terra-600 border-terra-100",
-  warning: "bg-terra-50 text-terra-500 border-terra-100",
-  info: "bg-navy-50 text-navy-600 border-navy-200",
-  success: "bg-ok-50 text-ok-700 border-ok-100",
+  urgent: "bg-amber-50 text-amber-700 border-amber-200",
+  warning: "bg-amber-50 text-amber-600 border-amber-100",
+  info: "bg-gov-blue-50 text-gov-blue border-gov-blue-100",
+  success: "bg-emerald-50 text-emerald-700 border-emerald-200",
 };
 
 export default function DashboardAlertsClient({
@@ -104,16 +105,19 @@ export default function DashboardAlertsClient({
 
   return (
     <>
-      <Card className="bg-white border-2 border-rose-100">
-        <CardHeader className="p-3 md:p-4 pb-1 md:pb-2">
+      {/* 처리 사항 패널 — 관공서 양식: 좌측 단색 액센트 + 차분한 헤더 */}
+      <Card className="bg-white border border-slate-200 rounded-lg shadow-sm">
+        <CardHeader className="p-3 md:p-4 pb-1 md:pb-2 border-b border-slate-100">
           <div className="flex items-center justify-between flex-wrap gap-2">
-            <CardTitle className="text-sm md:text-base text-gray-900 flex items-center gap-2">
-              <span className="text-rose-600">⚠️</span>
-              내가 처리해야 할 것
+            <CardTitle className="text-sm md:text-base text-slate-900 font-bold flex items-center gap-2">
+              <span className="inline-flex items-center justify-center w-5 h-5 rounded-sm bg-amber-500 text-white text-[10px] font-bold">
+                !
+              </span>
+              처리 사항 안내
             </CardTitle>
             <div className="flex items-center gap-1.5 text-[11px] md:text-xs">
               {todoCounts.urgent > 0 && (
-                <span className="px-2 py-0.5 bg-rose-50 text-rose-700 font-bold rounded border border-rose-200">
+                <span className="px-2 py-0.5 bg-amber-50 text-amber-700 font-bold rounded border border-amber-200">
                   미입력 {todoCounts.urgent}
                 </span>
               )}
@@ -123,8 +127,8 @@ export default function DashboardAlertsClient({
                 </span>
               )}
               {todoCounts.waiting > 0 && (
-                <span className="px-2 py-0.5 bg-slate-50 text-slate-600 font-bold rounded border border-slate-200">
-                  대기 {todoCounts.waiting}
+                <span className="px-2 py-0.5 bg-gov-blue-50 text-gov-blue font-bold rounded border border-gov-blue-100">
+                  처리 중 {todoCounts.waiting}
                 </span>
               )}
               {todoCounts.completed > 0 && (
@@ -135,11 +139,11 @@ export default function DashboardAlertsClient({
             </div>
           </div>
         </CardHeader>
-        <CardContent className="p-3 md:p-4 pt-0">
+        <CardContent className="p-3 md:p-4 pt-2">
           <div className="space-y-1">
             {notifications.map((n) => {
               const isQuest = n.id in QUEST_MAP;
-              const className = `flex items-center gap-2 p-2 md:p-2.5 rounded-lg border bg-white ${COLORS[n.type]} transition-all cursor-pointer group w-full text-left`;
+              const className = `flex items-center gap-2 p-2 md:p-2.5 rounded border border-slate-200 bg-white ${COLORS[n.type]} transition-all cursor-pointer group w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gov-blue`;
 
               const inner = (
                 <>

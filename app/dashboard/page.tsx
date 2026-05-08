@@ -18,7 +18,7 @@ function Progress({ value, className }: { value: number; className?: string }) {
       className={`relative h-2 w-full overflow-hidden rounded-full bg-gray-200 ${className || ""}`}
     >
       <div
-        className="h-full bg-navy-700 transition-all"
+        className="h-full bg-gov-blue transition-all"
         style={{ width: `${value}%` }}
       />
     </div>
@@ -507,17 +507,17 @@ export default async function UserDashboard() {
             <div className="text-[11px] text-gray-500 font-medium">
               {user.이름}님
             </div>
-            <h1 className="text-base md:text-lg font-bold text-navy-900">
+            <h1 className="text-base md:text-lg font-bold text-slate-900">
               스타트패키지 진행 현황
             </h1>
             {submissionDeadline && (
               <p
                 className={`text-[11px] mt-0.5 font-medium ${
                   submissionExpired
-                    ? "text-rose-600"
+                    ? "text-amber-700"
                     : submissionDaysRemaining !== null &&
                         submissionDaysRemaining <= 7
-                      ? "text-rose-600"
+                      ? "text-amber-700"
                       : "text-gray-500"
                 }`}
               >
@@ -565,8 +565,8 @@ export default async function UserDashboard() {
                     isExpired
                       ? "bg-gray-50 border-gray-200 text-gray-500"
                       : isUrgent
-                        ? "bg-terra-50 border-terra-100 text-terra-600"
-                        : "bg-navy-50 border-navy-200 text-navy-600"
+                        ? "bg-amber-50 border-amber-200 text-amber-700"
+                        : "bg-gov-blue-50 border-gov-blue-100 text-gov-blue"
                   }`}
                 >
                   <Megaphone className="w-3 h-3" />
@@ -577,7 +577,7 @@ export default async function UserDashboard() {
         </div>
         <div className="text-right flex-shrink-0">
           <div className="text-[11px] text-gray-500 font-medium">전체 진행</div>
-          <div className="text-2xl md:text-3xl font-bold text-navy-700">
+          <div className="text-2xl md:text-3xl font-bold text-gov-blue">
             {overallProgress}
             <span className="text-base md:text-lg">%</span>
           </div>
@@ -642,30 +642,51 @@ export default async function UserDashboard() {
           {user.workflows.length > 0 ? (
             <div className="grid grid-cols-2 gap-1.5 md:gap-2">
               {user.workflows.map((workflow) => {
-                const statusColor =
-                  workflow.status === "완료"
-                    ? "ok-600"
-                    : workflow.status === "진행중"
-                      ? "navy-600"
-                      : "navy-300";
+                const isComplete =
+                  workflow.status === "완료" ||
+                  workflow.status === "최종확정" ||
+                  workflow.status === "발송완료";
+                const isInProgress =
+                  workflow.status === "진행중" ||
+                  workflow.status === "시안중" ||
+                  workflow.status === "시안제작중" ||
+                  workflow.status === "시안컨펌요청" ||
+                  workflow.status === "발주요청" ||
+                  workflow.status === "발주대기" ||
+                  workflow.status === "발주완료" ||
+                  workflow.status === "제작완료" ||
+                  workflow.status === "제작 진행 중" ||
+                  workflow.status === "제작 완료" ||
+                  workflow.status === "시안확정";
 
                 return (
                   <div
                     key={workflow.id}
-                    className="flex items-center gap-2 p-2 md:p-2.5 rounded-lg bg-gray-50 border border-gray-200"
+                    className="flex items-center gap-2 p-2 md:p-2.5 rounded border border-slate-200 bg-white"
                   >
                     <div
-                      className={`w-2 h-2 rounded-full bg-${statusColor} flex-shrink-0`}
+                      className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                        isComplete
+                          ? "bg-emerald-500"
+                          : isInProgress
+                            ? "bg-amber-500"
+                            : "bg-slate-300"
+                      }`}
                     />
-                    <span className="text-xs md:text-sm font-medium text-gray-900 truncate">
+                    <span className="text-xs md:text-sm font-medium text-slate-900 truncate">
                       {workflow.type}
                     </span>
-                    <Badge
-                      variant="outline"
-                      className={`ml-auto text-[10px] md:text-xs px-1.5 py-0 border-${statusColor === "ok-600" ? "ok-100" : statusColor === "navy-600" ? "navy-200" : "gray-200"} text-${statusColor} flex-shrink-0`}
+                    <span
+                      className={`ml-auto text-[10px] md:text-xs px-2 py-0.5 rounded border font-bold flex-shrink-0 ${
+                        isComplete
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                          : isInProgress
+                            ? "bg-amber-50 text-amber-700 border-amber-200"
+                            : "bg-slate-50 text-slate-500 border-slate-200"
+                      }`}
                     >
                       {workflow.status}
-                    </Badge>
+                    </span>
                   </div>
                 );
               })}
@@ -685,7 +706,7 @@ export default async function UserDashboard() {
       {marketingStartDate && marketingEndDate && (
         <details className="bg-white border border-gray-200 rounded-lg">
           <summary className="flex items-center gap-2 p-3 md:p-4 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
-            <Megaphone className="w-4 h-4 text-navy-600" />
+            <Megaphone className="w-4 h-4 text-gov-blue" />
             <span className="text-sm md:text-base font-bold text-gray-900 flex-1">
               마케팅 지원 서비스
             </span>
@@ -697,7 +718,7 @@ export default async function UserDashboard() {
               );
               return (
                 <span
-                  className={`text-xs font-semibold px-2 py-0.5 rounded-full ${daysRemaining <= 0 ? "bg-gray-100 text-gray-500" : daysRemaining <= 7 ? "bg-terra-50 text-terra-600" : "bg-navy-50 text-navy-600"}`}
+                  className={`text-xs font-semibold px-2 py-0.5 rounded-full ${daysRemaining <= 0 ? "bg-gray-100 text-gray-500" : daysRemaining <= 7 ? "bg-amber-50 text-amber-700" : "bg-gov-blue-50 text-gov-blue"}`}
                 >
                   {daysRemaining <= 0 ? "종료" : `D-${daysRemaining}`}
                 </span>
@@ -716,7 +737,7 @@ export default async function UserDashboard() {
               </span>
               <span>
                 종료:{" "}
-                <strong className="text-navy-700">
+                <strong className="text-gov-blue">
                   {marketingEndDate.toLocaleDateString("ko-KR")}
                 </strong>
               </span>
@@ -765,11 +786,11 @@ export default async function UserDashboard() {
               }
 
               return (
-                <div className="flex items-center justify-between p-2 bg-navy-50 rounded-lg border border-navy-200">
+                <div className="flex items-center justify-between p-2 bg-gov-blue-50 rounded border border-gov-blue-100">
                   <div className="text-xs">
                     <span className="text-gray-600">남은 기간: </span>
                     <span
-                      className={`font-bold ${daysRemaining <= 7 ? "text-terra-500" : "text-navy-600"}`}
+                      className={`font-bold ${daysRemaining <= 7 ? "text-amber-600" : "text-gov-blue"}`}
                     >
                       {daysRemaining > 0 ? `${daysRemaining}일` : "종료됨"}
                     </span>

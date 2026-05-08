@@ -270,22 +270,25 @@ export default function PrintDeliverableCards({
   return (
     <>
       <div className="space-y-2">
-        {/* 완료 banner — 5초 자동 사라짐 + 다음 카드 CTA */}
+        {/* 완료 banner — 5초 자동 사라짐 + 다음 카드 CTA (관공서 톤: 정부24식 안내 박스) */}
         {completionBanner && (
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900 animate-in fade-in slide-in-from-top-1 duration-300">
-            <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+          <div className="flex items-center gap-3 p-3 rounded bg-emerald-50 border border-emerald-200 text-slate-900 animate-in fade-in slide-in-from-top-1 duration-300">
+            <CheckCircle2
+              className="w-5 h-5 text-emerald-600 flex-shrink-0"
+              strokeWidth={2.5}
+            />
             <div className="flex-1 min-w-0 text-sm">
               <span className="font-semibold">
-                «{completionBanner.just.title}» 입력 완료!
+                «{completionBanner.just.title}» 입력 완료
               </span>
               {completionBanner.next && (
-                <span className="text-emerald-700 ml-1">
-                  다음은 «{completionBanner.next.title}» 어떠세요?
+                <span className="text-slate-700 ml-1">
+                  · 다음 처리 사항: «{completionBanner.next.title}»
                 </span>
               )}
               {!completionBanner.next && (
-                <span className="text-emerald-700 ml-1">
-                  모든 정보 입력이 완료되었습니다 🎉
+                <span className="text-slate-700 ml-1">
+                  · 모든 정보 입력이 완료되었습니다
                 </span>
               )}
             </div>
@@ -293,15 +296,15 @@ export default function PrintDeliverableCards({
               <button
                 type="button"
                 onClick={() => setQuestId(completionBanner.next!.wizardId)}
-                className="flex-shrink-0 px-2.5 py-1 text-xs font-semibold rounded bg-emerald-600 text-white hover:bg-emerald-700 transition-colors"
+                className="flex-shrink-0 px-3 py-1.5 text-xs font-bold rounded bg-gov-blue text-white hover:bg-gov-blue-700 transition-colors"
               >
-                바로 입력
+                바로 처리
               </button>
             )}
             <button
               type="button"
               onClick={() => setJustCompleted(null)}
-              className="flex-shrink-0 text-emerald-700/60 hover:text-emerald-900"
+              className="flex-shrink-0 text-slate-400 hover:text-slate-700"
               aria-label="안내 닫기"
             >
               <X className="w-4 h-4" />
@@ -309,12 +312,13 @@ export default function PrintDeliverableCards({
           </div>
         )}
 
-        <div className="flex items-baseline justify-between px-1">
-          <h2 className="text-sm md:text-base font-bold text-navy-900">
-            인쇄물별 필요 정보
+        {/* 섹션 헤더 — 관공서 양식 헤더 톤 */}
+        <div className="flex items-baseline justify-between px-1 pt-1">
+          <h2 className="text-sm md:text-base font-bold text-slate-900">
+            신청 항목별 필요 정보
           </h2>
-          <span className="text-[11px] text-gray-500">
-            카드를 눌러 필요한 정보를 입력하세요
+          <span className="text-[11px] text-slate-500">
+            항목을 눌러 필요한 정보를 입력하세요
           </span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-3 auto-rows-fr">
@@ -344,56 +348,62 @@ export default function PrintDeliverableCards({
                 key={d.title}
                 type="button"
                 onClick={handleClick}
-                className={`group flex flex-col h-full text-left rounded-xl border-2 p-3 md:p-3.5 transition-all hover:shadow-md hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-navy-400 ${
+                className={`group flex flex-col h-full text-left rounded-lg border p-3 md:p-3.5 transition-all hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gov-blue ${
                   complete
-                    ? "border-emerald-300 bg-emerald-50/60 hover:border-emerald-400 hover:bg-emerald-50 hover:shadow-emerald-100"
+                    ? "border-emerald-300 bg-white hover:border-emerald-400"
                     : d.optional
-                      ? "border-gray-200 bg-gray-50/60 hover:border-gray-400 hover:bg-gray-100/60"
-                      : "border-gray-200 bg-white hover:border-navy-400 hover:bg-navy-50/40"
+                      ? "border-slate-200 bg-slate-50 hover:border-slate-400 hover:bg-white"
+                      : "border-slate-200 bg-white hover:border-gov-blue"
                 }`}
               >
                 {/* 헤더 — 고정 높이 (아이콘 + 타이틀 + 부제 2줄 영역 reserve) */}
                 <div className="flex items-start justify-between gap-2 mb-2 min-h-[3.25rem]">
                   <div className="flex items-start gap-2 flex-1 min-w-0">
                     <span
-                      className={`flex items-center justify-center w-8 h-8 rounded-lg flex-shrink-0 ${
+                      className={`flex items-center justify-center w-8 h-8 rounded flex-shrink-0 ${
                         complete
-                          ? "bg-emerald-100 text-emerald-700"
-                          : "bg-navy-100 text-navy-700"
+                          ? "bg-emerald-50 text-emerald-700"
+                          : d.optional
+                            ? "bg-slate-100 text-slate-500"
+                            : "bg-slate-100 text-gov-blue"
                       }`}
                     >
                       {d.icon}
                     </span>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-bold text-gray-900 leading-tight truncate">
+                      <h3 className="text-sm font-bold text-slate-900 leading-tight truncate">
                         {d.title}
                       </h3>
-                      <p className="text-[10px] text-gray-500 leading-snug mt-0.5 line-clamp-2 min-h-[1.7rem]">
+                      <p className="text-[10px] text-slate-500 leading-snug mt-0.5 line-clamp-2 min-h-[1.7rem]">
                         {d.subtitle}
                       </p>
                     </div>
                   </div>
                   {complete ? (
-                    <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500 text-white border border-emerald-600 flex-shrink-0 shadow-sm">
+                    <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 flex-shrink-0">
                       <CheckCircle2 className="w-3 h-3" strokeWidth={3} />
                       완료
                     </span>
                   ) : d.optional ? (
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 border border-gray-200 flex-shrink-0">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-500 border border-slate-200 flex-shrink-0">
                       선택
                     </span>
                   ) : (
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-navy-50 text-navy-700 border border-navy-200 flex-shrink-0">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-gov-blue-50 text-gov-blue border border-gov-blue-100 flex-shrink-0">
                       {filled}/{total}
                     </span>
                   )}
                 </div>
 
-                {/* 진행률 바 */}
-                <div className="h-1 bg-gray-100 rounded-full overflow-hidden mb-2">
+                {/* 진행률 바 — 관공서 톤 */}
+                <div className="h-1 bg-slate-100 rounded-sm overflow-hidden mb-2">
                   <div
-                    className={`h-full rounded-full transition-all ${
-                      complete ? "bg-emerald-500" : "bg-navy-500"
+                    className={`h-full rounded-sm transition-all ${
+                      complete
+                        ? "bg-emerald-500"
+                        : d.optional
+                          ? "bg-slate-400"
+                          : "bg-gov-blue"
                     }`}
                     style={{ width: `${percent}%` }}
                   />
@@ -408,28 +418,28 @@ export default function PrintDeliverableCards({
                         key={f.key}
                         className={`flex items-center gap-1.5 text-[11px] ${
                           has
-                            ? "text-gray-500"
+                            ? "text-slate-500"
                             : d.optional
-                              ? "text-gray-500"
-                              : "text-gray-900 font-medium"
+                              ? "text-slate-500"
+                              : "text-slate-900 font-medium"
                         }`}
                       >
                         {has ? (
-                          <CheckCircle2 className="w-3 h-3 text-emerald-500 flex-shrink-0" />
+                          <CheckCircle2 className="w-3 h-3 text-emerald-600 flex-shrink-0" />
                         ) : d.optional ? (
-                          <Circle className="w-3 h-3 text-gray-300 flex-shrink-0" />
+                          <Circle className="w-3 h-3 text-slate-300 flex-shrink-0" />
                         ) : (
-                          <Circle className="w-3 h-3 text-rose-400 flex-shrink-0" />
+                          <Circle className="w-3 h-3 text-amber-500 flex-shrink-0" />
                         )}
                         <span
                           className={
-                            has ? "line-through decoration-gray-300" : ""
+                            has ? "line-through decoration-slate-300" : ""
                           }
                         >
                           {f.label}
                         </span>
                         {f.auto && (
-                          <span className="text-[9px] text-gray-400 ml-auto whitespace-nowrap">
+                          <span className="text-[9px] text-slate-400 ml-auto whitespace-nowrap">
                             자동
                           </span>
                         )}
@@ -439,16 +449,16 @@ export default function PrintDeliverableCards({
                 </ul>
 
                 {/* 액션 안내 — 항상 카드 바닥에 고정 (mt-auto로 잡아줌) */}
-                <div className="mt-auto flex items-center justify-between gap-2 pt-2 border-t border-gray-100">
+                <div className="mt-auto flex items-center justify-between gap-2 pt-2 border-t border-slate-100">
                   <span
                     className={`flex-1 min-w-0 text-[11px] font-medium truncate ${
                       complete
                         ? "text-emerald-700"
                         : d.optional
-                          ? "text-gray-500"
+                          ? "text-slate-500"
                           : userMissing.length > 0
-                            ? "text-navy-700"
-                            : "text-gray-500"
+                            ? "text-gov-blue"
+                            : "text-slate-500"
                     }`}
                   >
                     {complete
@@ -467,7 +477,11 @@ export default function PrintDeliverableCards({
                   </span>
                   <ChevronRight
                     className={`w-4 h-4 flex-shrink-0 transition-transform group-hover:translate-x-0.5 ${
-                      complete ? "text-emerald-600" : "text-navy-600"
+                      complete
+                        ? "text-emerald-600"
+                        : d.optional
+                          ? "text-slate-400"
+                          : "text-gov-blue"
                     }`}
                   />
                 </div>

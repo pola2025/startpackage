@@ -259,14 +259,14 @@ export default function QuestWizardDialog({
         {/* 진행 표시 */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-xs">
-            <span className="font-medium text-navy-700">
+            <span className="font-medium text-gov-blue">
               {currentIdx + 1} / {steps.length} 단계
             </span>
             <span className="text-gray-500">{Math.round(progress)}%</span>
           </div>
           <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
             <div
-              className="h-full bg-navy-600 rounded-full transition-all duration-300"
+              className="h-full bg-gov-blue rounded-full transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -319,7 +319,7 @@ export default function QuestWizardDialog({
                       [step.field]: e.target.checked,
                     }))
                   }
-                  className="mt-0.5 w-4 h-4 accent-navy-600"
+                  className="mt-0.5 w-4 h-4 accent-gov-blue"
                 />
                 <div className="flex-1 text-sm">
                   <div className="font-medium text-gray-900">
@@ -359,10 +359,10 @@ export default function QuestWizardDialog({
                 }}
               />
               {pendingFile ? (
-                <div className="flex items-center justify-between gap-2 p-3 rounded-lg border border-navy-300 bg-navy-50">
+                <div className="flex items-center justify-between gap-2 p-3 rounded-lg border border-gov-blue-200 bg-gov-blue-50">
                   <div className="flex items-center gap-2 min-w-0">
-                    <FileCheck2 className="w-4 h-4 text-navy-700 flex-shrink-0" />
-                    <span className="text-xs text-navy-700 truncate">
+                    <FileCheck2 className="w-4 h-4 text-gov-blue flex-shrink-0" />
+                    <span className="text-xs text-gov-blue truncate">
                       {pendingFile.name}
                     </span>
                     <span className="text-[10px] text-gray-500 flex-shrink-0">
@@ -397,7 +397,7 @@ export default function QuestWizardDialog({
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full flex flex-col items-center justify-center gap-2 p-5 rounded-lg border-2 border-dashed border-gray-300 hover:border-navy-400 hover:bg-navy-50/30 transition-colors"
+                  className="w-full flex flex-col items-center justify-center gap-2 p-5 rounded-lg border-2 border-dashed border-gray-300 hover:border-gov-blue hover:bg-gov-blue-50/30 transition-colors"
                 >
                   <Upload className="w-5 h-5 text-gray-400" />
                   <span className="text-xs text-gray-600">
@@ -439,9 +439,9 @@ export default function QuestWizardDialog({
                 className={cn(
                   "w-1.5 h-1.5 rounded-full transition-colors",
                   idx < currentIdx
-                    ? "bg-navy-600"
+                    ? "bg-gov-blue"
                     : idx === currentIdx
-                      ? "bg-navy-400"
+                      ? "bg-gov-blue-300"
                       : "bg-gray-200",
                 )}
               />
@@ -451,7 +451,7 @@ export default function QuestWizardDialog({
             size="sm"
             onClick={handleNext}
             disabled={saving}
-            className="gap-1 bg-navy-700 hover:bg-navy-800"
+            className="gap-1 bg-gov-blue hover:bg-gov-blue-700"
           >
             {saving ? (
               <Loader2 className="w-4 h-4 animate-spin" />
