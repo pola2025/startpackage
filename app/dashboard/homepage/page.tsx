@@ -847,6 +847,15 @@ export default function HomepageSettingsPage() {
               { url: "https://biznuri.co.kr/", name: "스타일 4" },
               { url: "https://www.wiztion.com/", name: "스타일 5" },
               { url: "https://brpartners.kr/", name: "스타일 6" },
+              { url: "https://startpackagedemo.vercel.app/", name: "스타일 7" },
+              {
+                url: "https://startpackage-demo2.vercel.app/",
+                name: "스타일 8",
+              },
+              {
+                url: "https://startpackage-demo3.vercel.app/",
+                name: "스타일 9",
+              },
             ].map((style) => (
               <Dialog
                 key={style.url}
@@ -996,6 +1005,18 @@ export default function HomepageSettingsPage() {
                       {
                         url: "https://brpartners.kr/",
                         name: "스타일 6",
+                      },
+                      {
+                        url: "https://startpackagedemo.vercel.app/",
+                        name: "스타일 7",
+                      },
+                      {
+                        url: "https://startpackage-demo2.vercel.app/",
+                        name: "스타일 8",
+                      },
+                      {
+                        url: "https://startpackage-demo3.vercel.app/",
+                        name: "스타일 9",
                       },
                     ];
                     return (

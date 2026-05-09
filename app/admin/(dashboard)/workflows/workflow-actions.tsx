@@ -318,6 +318,18 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
                                 url: "https://brpartners.kr/",
                                 name: "스타일 6",
                               },
+                              {
+                                url: "https://startpackagedemo.vercel.app/",
+                                name: "스타일 7",
+                              },
+                              {
+                                url: "https://startpackage-demo2.vercel.app/",
+                                name: "스타일 8",
+                              },
+                              {
+                                url: "https://startpackage-demo3.vercel.app/",
+                                name: "스타일 9",
+                              },
                             ];
                             return (
                               styles.find(

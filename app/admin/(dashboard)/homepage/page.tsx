@@ -93,6 +93,9 @@ const STYLE_NAMES: Record<string, string> = {
   "https://biznuri.co.kr/": "스타일 4",
   "https://www.wiztion.com/": "스타일 5",
   "https://brpartners.kr/": "스타일 6",
+  "https://startpackagedemo.vercel.app/": "스타일 7",
+  "https://startpackage-demo2.vercel.app/": "스타일 8",
+  "https://startpackage-demo3.vercel.app/": "스타일 9",
   // 레거시 URL 지원
   "https://mjgood.imweb.me/": "스타일 2",
   "https://fpbiz.imweb.me/": "스타일 6",

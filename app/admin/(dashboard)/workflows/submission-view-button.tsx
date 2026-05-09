@@ -395,6 +395,12 @@ export default function SubmissionViewButton({
                               "https://biznuri.co.kr/": "스타일 4",
                               "https://www.wiztion.com/": "스타일 5",
                               "https://brpartners.kr/": "스타일 6",
+                              "https://startpackagedemo.vercel.app/":
+                                "스타일 7",
+                              "https://startpackage-demo2.vercel.app/":
+                                "스타일 8",
+                              "https://startpackage-demo3.vercel.app/":
+                                "스타일 9",
                               // 레거시 (이전 데이터 호환용)
                               "https://mjgood.imweb.me/": "스타일 2",
                               "https://bizen.co.kr/": "스타일 2",
