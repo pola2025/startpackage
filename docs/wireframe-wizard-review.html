@@ -1,0 +1,926 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>위자드 폼 검수 미리보기 — 시작패키지</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              navy: {
+                50: "#eff3fb",
+                100: "#d6e0f3",
+                200: "#a7bfe6",
+                300: "#6e92cf",
+                400: "#3f6cba",
+                500: "#2952ff",
+                600: "#1f3da6",
+                700: "#1e3a8a",
+                800: "#172554",
+                900: "#0f172a",
+              },
+              gold: {
+                50: "#fdf8e7",
+                100: "#fcecb1",
+                200: "#f9d967",
+                300: "#e6b923",
+                400: "#c99513",
+                500: "#a47008",
+                600: "#7c540a",
+                700: "#604010",
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", "Pretendard",
+          "Noto Sans KR", sans-serif;
+      }
+      .step-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      }
+      .change-badge {
+        background: #fef3c7;
+        color: #92400e;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+      .new-badge {
+        background: #d1fae5;
+        color: #065f46;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 pb-20">
+    <header
+      class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-gray-200"
+    >
+      <div class="max-w-5xl mx-auto px-4 py-4">
+        <h1 class="text-xl sm:text-2xl font-bold text-gray-900">
+          위자드 폼 검수 미리보기
+        </h1>
+        <p class="text-sm text-gray-600 mt-1">
+          변경된 부분 7곳을 단계별로 모두 펼쳐 놓았습니다 · 배포 전 확인용
+        </p>
+      </div>
+    </header>
+
+    <div class="max-w-5xl mx-auto px-4 py-6 space-y-6">
+      <!-- 변경 요약 -->
+      <div
+        class="bg-gradient-to-br from-navy-50 to-gold-50 border-2 border-navy-200 rounded-2xl p-5"
+      >
+        <h2 class="text-lg font-bold text-navy-900 mb-3">
+          📋 이번 작업 변경사항
+        </h2>
+        <ol class="space-y-1.5 text-sm text-gray-800 list-decimal list-inside">
+          <li>
+            <strong>[Step 4 로고]</strong> 로고 색상 = 무지개 컬러바 클릭 →
+            컬러피커로 직접 선택 (프리셋 6종 카드 제거)
+          </li>
+          <li>
+            <strong>[Step 4 로고]</strong> 참고 로고파일 첨부 (최대 2장 +
+            mkt@polarad.co.kr 안내)
+          </li>
+          <li>
+            <strong>[Step 5 인쇄물]</strong> 명함 6종 시안 미리보기 + 클릭하면
+            확대 (실제 등록 시안 사용)
+          </li>
+          <li>
+            <strong>[Step 5 인쇄물]</strong> 자문계약서 2종 표지+내지 미리보기 +
+            확대
+          </li>
+          <li>
+            <strong>[Step 5 인쇄물]</strong> 확대 모달에 시안 이름 표시 ("명함
+            스타일 · 스타일 1" 등)
+          </li>
+          <li>
+            <strong>[Step 5 인쇄물]</strong> "시안 검수는 PC/노트북 권장" 안내
+            박스 (상단, 노란색 강조)
+          </li>
+          <li>
+            <strong>[전체]</strong> 위자드는 7단계 그대로 (홈페이지/도메인
+            정보는 별도 /dashboard/homepage 페이지 분리 유지)
+          </li>
+        </ol>
+      </div>
+
+      <!-- ============ STEP 1 ============ -->
+      <section>
+        <div class="flex items-center gap-3 mb-3">
+          <div
+            class="w-9 h-9 rounded-full bg-navy-700 text-white font-bold flex items-center justify-center"
+          >
+            1
+          </div>
+          <h2 class="text-lg font-bold text-gray-900">
+            브랜드 기본 정보
+            <span class="text-xs text-red-500 font-medium ml-2">필수</span>
+          </h2>
+          <span class="text-xs text-gray-500">변경 없음</span>
+        </div>
+        <div class="step-card space-y-4">
+          <div>
+            <label class="text-sm font-medium text-gray-700"
+              >브랜드명 <span class="text-red-500">*</span></label
+            >
+            <p class="text-xs text-gray-400 mb-1">
+              홈페이지, 명함 등에 표시될 이름
+            </p>
+            <input
+              class="w-full h-12 px-3 border rounded-lg"
+              placeholder="예: 행복한마을식품"
+            />
+          </div>
+          <div>
+            <label class="text-sm font-medium text-gray-700"
+              >업종 <span class="text-red-500">*</span></label
+            >
+            <p class="text-xs text-gray-400 mb-1">
+              예: 건강식품 판매, IT 컨설팅
+            </p>
+            <input
+              class="w-full h-12 px-3 border rounded-lg"
+              placeholder="어떤 사업을 하시나요?"
+            />
+          </div>
+          <div>
+            <label class="text-sm font-medium text-gray-700"
+              >사업장 주소 <span class="text-red-500">*</span></label
+            >
+            <p class="text-xs text-gray-400 mb-1">
+              명함과 홈페이지에 표시됩니다
+            </p>
+            <input
+              class="w-full h-12 px-3 border rounded-lg"
+              placeholder="예: 서울시 강남구 테헤란로 123"
+            />
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ STEP 2 ============ -->
+      <section>
+        <div class="flex items-center gap-3 mb-3">
+          <div
+            class="w-9 h-9 rounded-full bg-navy-700 text-white font-bold flex items-center justify-center"
+          >
+            2
+          </div>
+          <h2 class="text-lg font-bold text-gray-900">
+            연락처와 계좌 정보
+            <span class="text-xs text-gray-500 font-medium ml-2">선택</span>
+          </h2>
+          <span class="text-xs text-gray-500">변경 없음</span>
+        </div>
+        <div class="step-card grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="text-sm font-medium text-gray-700">대표번호</label
+            ><input
+              class="w-full h-12 px-3 border rounded-lg mt-1"
+              placeholder="010-0000-0000"
+            />
+          </div>
+          <div>
+            <label class="text-sm font-medium text-gray-700">이메일</label
+            ><input
+              class="w-full h-12 px-3 border rounded-lg mt-1"
+              placeholder="email@example.com"
+            />
+          </div>
+          <div>
+            <label class="text-sm font-medium text-gray-700">은행명</label
+            ><input class="w-full h-12 px-3 border rounded-lg mt-1" />
+          </div>
+          <div>
+            <label class="text-sm font-medium text-gray-700">계좌번호</label
+            ><input class="w-full h-12 px-3 border rounded-lg mt-1" />
+          </div>
+          <div class="sm:col-span-2">
+            <label class="text-sm font-medium text-gray-700"
+              >인쇄물 받을 주소</label
+            ><input
+              class="w-full h-12 px-3 border rounded-lg mt-1"
+              placeholder="명함/계약서 배송 주소"
+            />
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ STEP 3 ============ -->
+      <section>
+        <div class="flex items-center gap-3 mb-3">
+          <div
+            class="w-9 h-9 rounded-full bg-navy-700 text-white font-bold flex items-center justify-center"
+          >
+            3
+          </div>
+          <h2 class="text-lg font-bold text-gray-900">
+            사업자등록증 업로드
+            <span class="text-xs text-red-500 font-medium ml-2">필수</span>
+          </h2>
+          <span class="text-xs text-gray-500">변경 없음</span>
+        </div>
+        <div class="step-card">
+          <div
+            class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center"
+          >
+            <p class="text-3xl mb-2">📄</p>
+            <p class="text-sm font-semibold text-gray-700">
+              사업자등록증 업로드
+            </p>
+            <p class="text-xs text-gray-500 mt-1">
+              JPG, PNG, PDF (10MB 이하) · 카메라 촬영 가능
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ STEP 4 (변경) ============ -->
+      <section>
+        <div class="flex items-center gap-3 mb-3">
+          <div
+            class="w-9 h-9 rounded-full bg-gold-500 text-white font-bold flex items-center justify-center"
+          >
+            4
+          </div>
+          <h2 class="text-lg font-bold text-gray-900">
+            로고 제작 정보
+            <span class="text-xs text-red-500 font-medium ml-2">필수</span>
+          </h2>
+          <span class="change-badge">2곳 변경</span>
+        </div>
+        <div class="step-card space-y-6">
+          <!-- 변경 1: 로고 색상 무지개 바 -->
+          <div class="space-y-3">
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-semibold text-gray-900"
+                >원하시는 로고 색상을 선택해주세요</span
+              >
+              <span class="new-badge">변경</span>
+            </div>
+            <div
+              class="rounded-xl border border-gray-200 bg-white p-4 space-y-3"
+            >
+              <p class="text-xs sm:text-sm text-gray-600">
+                아래 무지개 바를 누르면 컬러피커가 열려요. 원하는 색을 자유롭게
+                골라주세요.
+              </p>
+              <button
+                class="relative block w-full h-14 rounded-xl overflow-hidden border-2 border-gray-300 shadow-inner cursor-pointer"
+                style="
+                  background: linear-gradient(
+                    to right,
+                    #ff0000 0%,
+                    #ff7f00 14%,
+                    #ffd000 28%,
+                    #00d26a 43%,
+                    #00b4ff 57%,
+                    #2952ff 71%,
+                    #8b5cf6 85%,
+                    #ff00aa 100%
+                  );
+                "
+              >
+                <div
+                  class="absolute inset-0 flex items-center justify-center pointer-events-none"
+                >
+                  <span
+                    class="text-xs sm:text-sm font-bold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]"
+                    >여기를 눌러 색상 고르기</span
+                  >
+                </div>
+              </button>
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-14 h-14 rounded-lg border-2 border-dashed border-gray-200 flex items-center justify-center text-[10px] text-gray-400 text-center leading-tight px-1"
+                >
+                  선택 전
+                </div>
+                <div class="flex-1">
+                  <p class="text-xs text-gray-500">선택한 색상</p>
+                  <p class="font-mono text-base font-semibold text-gray-900">
+                    —
+                  </p>
+                </div>
+              </div>
+            </div>
+            <p class="text-[11px] text-gray-400">
+              ▶ 이전 6개 프리셋 카드(파란/초록/검정/주황/보라/빨강)는
+              제거되었고, 무지개 바 클릭 → 시스템 컬러피커에서 직접 HEX 색상을
+              고르도록 변경.
+            </p>
+          </div>
+
+          <!-- 일반 입력 -->
+          <div>
+            <label class="text-sm font-medium text-gray-700"
+              >로고 선호 스타일</label
+            ><input
+              class="w-full h-12 px-3 border rounded-lg mt-1"
+              placeholder="예: 심플하고 모던한 느낌"
+            />
+          </div>
+          <div>
+            <label class="text-sm font-medium text-gray-700"
+              >로고 선호 폰트</label
+            ><input
+              class="w-full h-12 px-3 border rounded-lg mt-1"
+              placeholder="예: 깔끔한 고딕체"
+            />
+          </div>
+          <div>
+            <label class="text-sm font-medium text-gray-700"
+              >로고 제작 요청사항 <span class="text-red-500">*</span></label
+            >
+            <textarea
+              class="w-full px-3 py-2 border rounded-lg mt-1 min-h-[100px]"
+              placeholder="구체적으로 적어주시면 원하시는 디자인에 더 가까워요"
+            ></textarea>
+          </div>
+          <div>
+            <label class="text-sm font-medium text-gray-700">명함 색상</label
+            ><input
+              class="w-full h-12 px-3 border rounded-lg mt-1"
+              placeholder="예: 로고 색상과 동일"
+            />
+          </div>
+
+          <!-- 변경 2: 참고 로고파일 첨부 -->
+          <div
+            class="space-y-3 rounded-2xl border border-gray-200 bg-gray-50/60 p-4"
+          >
+            <div class="flex items-center gap-2">
+              <span class="text-base font-semibold text-gray-900"
+                >참고 로고파일을 첨부해주세요</span
+              >
+              <span
+                class="text-xs text-gray-500 bg-white border border-gray-200 px-2 py-0.5 rounded-full"
+                >선택</span
+              >
+              <span class="new-badge">신규</span>
+            </div>
+            <p class="text-sm text-gray-600">
+              강제는 아니에요. 다만 첨부해주시면 원하시는 스타일을 참고해서
+              디자인하기 훨씬 좋아요. (최대 2장)
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div
+                class="border-2 border-dashed border-gray-300 rounded-xl p-6 bg-white text-center"
+              >
+                <p class="text-2xl mb-1">🖼️</p>
+                <p class="text-sm font-semibold">참고 로고 1</p>
+                <p class="text-xs text-gray-500 mt-1">
+                  JPG, PNG, PDF (10MB 이하)
+                </p>
+              </div>
+              <div
+                class="border-2 border-dashed border-gray-300 rounded-xl p-6 bg-white text-center"
+              >
+                <p class="text-2xl mb-1">🖼️</p>
+                <p class="text-sm font-semibold">참고 로고 2</p>
+                <p class="text-xs text-gray-500 mt-1">
+                  JPG, PNG, PDF (10MB 이하)
+                </p>
+              </div>
+            </div>
+            <div
+              class="flex items-start gap-2 rounded-lg bg-white border border-gray-200 px-3 py-2.5"
+            >
+              <span class="text-gold-500">✉️</span>
+              <p class="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                2장 넘게 보내주고 싶으시면
+                <a
+                  href="mailto:mkt@polarad.co.kr"
+                  class="font-semibold text-navy-700 underline"
+                  >mkt@polarad.co.kr</a
+                >
+                로 메일 부탁드려요!
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ STEP 5 (대대적 변경) ============ -->
+      <section>
+        <div class="flex items-center gap-3 mb-3">
+          <div
+            class="w-9 h-9 rounded-full bg-gold-500 text-white font-bold flex items-center justify-center"
+          >
+            5
+          </div>
+          <h2 class="text-lg font-bold text-gray-900">
+            인쇄물 디자인 선택
+            <span class="text-xs text-gray-500 font-medium ml-2">선택</span>
+          </h2>
+          <span class="change-badge">전면 개편</span>
+        </div>
+        <div class="step-card space-y-6">
+          <!-- PC 권장 안내 -->
+          <div
+            class="rounded-xl border-2 border-amber-300 bg-amber-50 p-3 sm:p-4"
+          >
+            <div class="flex items-start gap-2.5">
+              <span class="text-xl">🖥️</span>
+              <div class="space-y-1">
+                <p class="text-sm sm:text-base font-bold text-amber-900">
+                  시안 선택 및 검수는 PC/노트북에서 권장드려요
+                </p>
+                <p class="text-xs sm:text-sm text-amber-800">
+                  모바일에서는 시안 디테일이 작게 보일 수 있어요. 큰 화면에서
+                  꼼꼼히 확인 후 선택해주세요. (이미지를 누르면 확대해서 볼 수
+                  있어요)
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 명함 6종 -->
+          <div class="space-y-3">
+            <h3
+              class="text-base font-bold text-gray-900 flex items-center gap-2"
+            >
+              <span>💳</span> 명함 스타일
+              <span class="text-xs font-normal text-gray-500"
+                >(6종 중 1개 선택)</span
+              >
+            </h3>
+            <p class="text-xs text-gray-500">
+              명함 한 장 = 앞면(정보 多) + 뒷면(로고 中心) 합본. 카드 썸네일은
+              합본 이미지를 원본 비율 그대로 표시 (37:10). 클릭하면 원본 그대로
+              크게 보입니다.
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- 6장의 명함 미리보기 카드 -->
+              <div
+                class="rounded-xl border-2 border-gray-200 bg-white p-3 hover:border-gold-300 transition"
+              >
+                <div
+                  class="relative aspect-[37/10] bg-gray-100 rounded-lg overflow-hidden"
+                >
+                  <img
+                    src="../public/namecard/namecard_1.jpg"
+                    class="w-full h-full object-contain"
+                    onerror="this.style.display = 'none'"
+                  />
+                  <div
+                    class="absolute bottom-1.5 right-1.5 bg-black/60 text-white rounded-full p-1.5 text-xs"
+                  >
+                    🔍
+                  </div>
+                </div>
+                <button
+                  class="mt-3 w-full rounded-lg py-2 text-sm font-semibold border border-gray-200 hover:bg-gray-50"
+                >
+                  이 스타일 선택
+                </button>
+                <p class="mt-1.5 text-xs text-gray-500 text-center">
+                  스타일 1 · 클래식 디자인
+                </p>
+              </div>
+              <div
+                class="rounded-xl border-2 border-gold-500 bg-gold-50 p-3 shadow-md relative"
+              >
+                <div
+                  class="absolute top-2 right-2 w-6 h-6 bg-gold-500 rounded-full flex items-center justify-center text-white text-xs font-bold shadow"
+                >
+                  ✓
+                </div>
+                <div
+                  class="relative aspect-[37/10] bg-gray-100 rounded-lg overflow-hidden"
+                >
+                  <img
+                    src="../public/namecard/namecard_2.jpg"
+                    class="w-full h-full object-contain"
+                    onerror="this.style.display = 'none'"
+                  />
+                  <div
+                    class="absolute bottom-1.5 right-1.5 bg-black/60 text-white rounded-full p-1.5 text-xs"
+                  >
+                    🔍
+                  </div>
+                </div>
+                <button
+                  class="mt-3 w-full rounded-lg py-2 text-sm font-semibold bg-gold-500 text-white"
+                >
+                  ✓ 선택됨
+                </button>
+                <p class="mt-1.5 text-xs text-gray-500 text-center">
+                  스타일 2 · 모던 디자인
+                </p>
+              </div>
+              <div class="rounded-xl border-2 border-gray-200 bg-white p-3">
+                <div
+                  class="relative aspect-[37/10] bg-gray-100 rounded-lg overflow-hidden"
+                >
+                  <img
+                    src="../public/namecard/namecard_3.jpg"
+                    class="w-full h-full object-contain"
+                    onerror="this.style.display = 'none'"
+                  />
+                  <div
+                    class="absolute bottom-1.5 right-1.5 bg-black/60 text-white rounded-full p-1.5 text-xs"
+                  >
+                    🔍
+                  </div>
+                </div>
+                <button
+                  class="mt-3 w-full rounded-lg py-2 text-sm font-semibold border border-gray-200"
+                >
+                  이 스타일 선택
+                </button>
+                <p class="mt-1.5 text-xs text-gray-500 text-center">
+                  스타일 3 · 크리에이티브
+                </p>
+              </div>
+              <div class="rounded-xl border-2 border-gray-200 bg-white p-3">
+                <div
+                  class="relative aspect-[37/10] bg-gray-100 rounded-lg overflow-hidden"
+                >
+                  <img
+                    src="../public/namecard/namecard_4.jpg"
+                    class="w-full h-full object-contain"
+                    onerror="this.style.display = 'none'"
+                  />
+                  <div
+                    class="absolute bottom-1.5 right-1.5 bg-black/60 text-white rounded-full p-1.5 text-xs"
+                  >
+                    🔍
+                  </div>
+                </div>
+                <button
+                  class="mt-3 w-full rounded-lg py-2 text-sm font-semibold border border-gray-200"
+                >
+                  이 스타일 선택
+                </button>
+                <p class="mt-1.5 text-xs text-gray-500 text-center">
+                  스타일 4 · 미니멀
+                </p>
+              </div>
+              <div class="rounded-xl border-2 border-gray-200 bg-white p-3">
+                <div
+                  class="relative aspect-[37/10] bg-gray-100 rounded-lg overflow-hidden"
+                >
+                  <img
+                    src="../public/namecard/namecard_5.jpg"
+                    class="w-full h-full object-contain"
+                    onerror="this.style.display = 'none'"
+                  />
+                  <div
+                    class="absolute bottom-1.5 right-1.5 bg-black/60 text-white rounded-full p-1.5 text-xs"
+                  >
+                    🔍
+                  </div>
+                </div>
+                <button
+                  class="mt-3 w-full rounded-lg py-2 text-sm font-semibold border border-gray-200"
+                >
+                  이 스타일 선택
+                </button>
+                <p class="mt-1.5 text-xs text-gray-500 text-center">
+                  스타일 5 · 2026 신규
+                </p>
+              </div>
+              <div class="rounded-xl border-2 border-gray-200 bg-white p-3">
+                <div
+                  class="relative aspect-[37/10] bg-gray-100 rounded-lg overflow-hidden"
+                >
+                  <img
+                    src="../public/namecard/namecard_6.jpg"
+                    class="w-full h-full object-contain"
+                    onerror="this.style.display = 'none'"
+                  />
+                  <div
+                    class="absolute bottom-1.5 right-1.5 bg-black/60 text-white rounded-full p-1.5 text-xs"
+                  >
+                    🔍
+                  </div>
+                </div>
+                <button
+                  class="mt-3 w-full rounded-lg py-2 text-sm font-semibold border border-gray-200"
+                >
+                  이 스타일 선택
+                </button>
+                <p class="mt-1.5 text-xs text-gray-500 text-center">
+                  스타일 6 · 2026 신규
+                </p>
+              </div>
+            </div>
+            <p class="text-xs text-gray-400 text-center">
+              선택한 스타일에 브랜드명, 연락처가 들어갑니다
+            </p>
+          </div>
+
+          <hr class="border-gray-200" />
+
+          <!-- 자문계약서 2종 -->
+          <div class="space-y-3">
+            <h3
+              class="text-base font-bold text-gray-900 flex items-center gap-2"
+            >
+              <span>📄</span> 자문계약서 스타일
+              <span class="text-xs font-normal text-gray-500"
+                >(2종 중 1개 선택)</span
+              >
+            </h3>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="rounded-xl border-2 border-gray-200 bg-white p-3">
+                <div class="space-y-1.5">
+                  <div
+                    class="relative aspect-[1/1.414] bg-gray-100 rounded-lg overflow-hidden"
+                  >
+                    <img
+                      src="../public/guides/print/contract_cover.jpg"
+                      class="w-full h-full object-contain"
+                      onerror="this.style.display = 'none'"
+                    />
+                    <div
+                      class="absolute top-1.5 left-1.5 bg-black/60 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                    >
+                      표지
+                    </div>
+                    <div
+                      class="absolute bottom-1.5 right-1.5 bg-black/60 text-white rounded-full p-1.5 text-xs"
+                    >
+                      🔍
+                    </div>
+                  </div>
+                  <div
+                    class="relative aspect-[1/1.414] bg-gray-100 rounded-lg overflow-hidden"
+                  >
+                    <img
+                      src="../public/guides/print/contract_inner.jpg"
+                      class="w-full h-full object-contain"
+                      onerror="this.style.display = 'none'"
+                    />
+                    <div
+                      class="absolute top-1.5 left-1.5 bg-black/60 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                    >
+                      내지
+                    </div>
+                  </div>
+                </div>
+                <button
+                  class="mt-3 w-full rounded-lg py-2 text-sm font-semibold border border-gray-200"
+                >
+                  이 스타일 선택
+                </button>
+                <p class="mt-1.5 text-xs text-gray-500 text-center">
+                  스타일 1 · 기본 디자인
+                </p>
+              </div>
+              <div class="rounded-xl border-2 border-gray-200 bg-white p-3">
+                <div class="space-y-1.5">
+                  <div
+                    class="relative aspect-[1/1.414] bg-gray-100 rounded-lg overflow-hidden"
+                  >
+                    <img
+                      src="../public/guides/print/contract_cover_2.jpg"
+                      class="w-full h-full object-contain"
+                      onerror="this.style.display = 'none'"
+                    />
+                    <div
+                      class="absolute top-1.5 left-1.5 bg-black/60 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                    >
+                      표지
+                    </div>
+                    <div
+                      class="absolute bottom-1.5 right-1.5 bg-black/60 text-white rounded-full p-1.5 text-xs"
+                    >
+                      🔍
+                    </div>
+                  </div>
+                  <div
+                    class="relative aspect-[1/1.414] bg-gray-100 rounded-lg overflow-hidden"
+                  >
+                    <img
+                      src="../public/guides/print/contract_inner_2.jpg"
+                      class="w-full h-full object-contain"
+                      onerror="this.style.display = 'none'"
+                    />
+                    <div
+                      class="absolute top-1.5 left-1.5 bg-black/60 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                    >
+                      내지
+                    </div>
+                  </div>
+                </div>
+                <button
+                  class="mt-3 w-full rounded-lg py-2 text-sm font-semibold border border-gray-200"
+                >
+                  이 스타일 선택
+                </button>
+                <p class="mt-1.5 text-xs text-gray-500 text-center">
+                  스타일 2 · 2026 신규
+                </p>
+              </div>
+            </div>
+            <p class="text-xs text-gray-400 text-center">
+              표지와 내지 디자인이 세트로 적용됩니다
+            </p>
+          </div>
+
+          <p class="text-[11px] text-gray-400 italic">
+            ▶ 대봉투는 시안이 없어 섹션 자체가 제거되었습니다. (DB 컬럼·코드
+            모두 삭제 완료)<br />▶ 이미지를 클릭하면 확대 모달이 뜨고, 모달
+            상단에 "명함 스타일 · 스타일 2"처럼 시안 이름이 표시됩니다.
+            표지/내지는 좌상단에 라벨로 구분.
+          </p>
+        </div>
+      </section>
+
+      <!-- ============ STEP 6 ============ -->
+      <section>
+        <div class="flex items-center gap-3 mb-3">
+          <div
+            class="w-9 h-9 rounded-full bg-navy-700 text-white font-bold flex items-center justify-center"
+          >
+            6
+          </div>
+          <h2 class="text-lg font-bold text-gray-900">
+            프로필 사진 업로드
+            <span class="text-xs text-gray-500 font-medium ml-2">선택</span>
+          </h2>
+          <span class="text-xs text-gray-500">변경 없음</span>
+        </div>
+        <div class="step-card">
+          <div
+            class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center"
+          >
+            <p class="text-3xl mb-2">📸</p>
+            <p class="text-sm font-semibold">프로필 사진</p>
+            <p class="text-xs text-gray-500 mt-1">
+              정사각형 또는 상반신 사진 (1000px 이하)
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ STEP 7 ============ -->
+      <section>
+        <div class="flex items-center gap-3 mb-3">
+          <div
+            class="w-9 h-9 rounded-full bg-navy-700 text-white font-bold flex items-center justify-center"
+          >
+            7
+          </div>
+          <h2 class="text-lg font-bold text-gray-900">
+            마케팅 계정 정보
+            <span class="text-xs text-gray-500 font-medium ml-2">선택</span>
+          </h2>
+          <span class="text-xs text-gray-500">변경 없음</span>
+        </div>
+        <div class="step-card space-y-4">
+          <p class="text-sm font-semibold text-gray-700">
+            📷 인스타그램 / 🔍 네이버 검색광고 / ☁️ 네이버 클라우드 / ✉️ Gmail
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <input class="h-12 px-3 border rounded-lg" placeholder="ID" />
+            <input
+              class="h-12 px-3 border rounded-lg"
+              placeholder="비밀번호"
+              type="password"
+            />
+          </div>
+          <p class="text-xs text-gray-500">
+            ※ 각 계정별 ID/PW 4쌍 입력 (마케팅 대행 사용 시에만)
+          </p>
+        </div>
+      </section>
+
+      <!-- ============ 슬랙 알림 매핑 ============ -->
+      <section class="mt-10">
+        <h2 class="text-lg font-bold text-gray-900 mb-3">
+          📬 슬랙 알림 매핑 (변경 후)
+        </h2>
+        <div class="step-card">
+          <table class="w-full text-sm">
+            <thead class="bg-gray-50 text-gray-700">
+              <tr>
+                <th class="text-left px-3 py-2">필드</th>
+                <th class="text-left px-3 py-2">알림 타입</th>
+                <th class="text-left px-3 py-2">전송 시점</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              <tr>
+                <td class="px-3 py-2">로고선호색상 (HEX)</td>
+                <td class="px-3 py-2">텍스트 알림</td>
+                <td class="px-3 py-2">변경 시</td>
+              </tr>
+              <tr class="bg-green-50">
+                <td class="px-3 py-2 font-semibold">
+                  로고예시디자인URL · 2URL
+                  <span class="new-badge ml-1">신규</span>
+                </td>
+                <td class="px-3 py-2">파일 업로드</td>
+                <td class="px-3 py-2">최종 제출 시 슬랙으로 파일 첨부</td>
+              </tr>
+              <tr>
+                <td class="px-3 py-2">명함시안</td>
+                <td class="px-3 py-2">텍스트 알림</td>
+                <td class="px-3 py-2">선택 변경 시</td>
+              </tr>
+              <tr>
+                <td class="px-3 py-2">계약서시안</td>
+                <td class="px-3 py-2">텍스트 알림</td>
+                <td class="px-3 py-2">선택 변경 시</td>
+              </tr>
+              <tr class="bg-red-50">
+                <td class="px-3 py-2 line-through text-gray-400">대봉투시안</td>
+                <td class="px-3 py-2 text-gray-400">제거됨</td>
+                <td class="px-3 py-2 text-gray-400">DB 컬럼·코드 모두 삭제</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============ 누락 체크 결과 ============ -->
+      <section>
+        <h2 class="text-lg font-bold text-gray-900 mb-3">✅ 누락 체크 결과</h2>
+        <div class="step-card space-y-3">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+              <p class="font-semibold text-green-900 mb-1">✓ 시각 미리보기</p>
+              <ul class="text-xs text-green-800 space-y-0.5">
+                <li>• 명함 6종 실제 시안 이미지</li>
+                <li>• 자문계약서 표지+내지 세트 2종</li>
+                <li>• 클릭 → 확대 모달 + 시안 이름 표시</li>
+                <li>• 키보드 ←→ 이동, ESC 닫기, 다운로드</li>
+              </ul>
+            </div>
+            <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+              <p class="font-semibold text-green-900 mb-1">✓ 파일 업로드</p>
+              <ul class="text-xs text-green-800 space-y-0.5">
+                <li>• 사업자등록증 (Step 3)</li>
+                <li>• 참고 로고파일 1, 2 (Step 4) — 신규</li>
+                <li>• 프로필 사진 (Step 6)</li>
+                <li>• 모두 슬랙 채널로 자동 전송</li>
+              </ul>
+            </div>
+            <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+              <p class="font-semibold text-green-900 mb-1">✓ DB / API 동기화</p>
+              <ul class="text-xs text-green-800 space-y-0.5">
+                <li>• Prisma 스키마 (로고예시디자인2URL 추가)</li>
+                <li>• Zod 스키마 검증</li>
+                <li>• Autosave ALLOWED_FIELDS</li>
+                <li>• Slack notification fileFields/textFields</li>
+              </ul>
+            </div>
+            <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+              <p class="font-semibold text-green-900 mb-1">
+                ✓ Admin 화면 동기화
+              </p>
+              <ul class="text-xs text-green-800 space-y-0.5">
+                <li>• 워크플로우 → 제출정보 다이얼로그</li>
+                <li>• 참고 로고 1, 2 링크 모두 노출</li>
+              </ul>
+            </div>
+          </div>
+
+          <div
+            class="bg-amber-50 border border-amber-300 rounded-lg p-3 text-sm"
+          >
+            <p class="font-semibold text-amber-900 mb-1">
+              ⚠️ 위자드 범위 외 (별도 페이지에서 입력)
+            </p>
+            <p class="text-xs text-amber-800 leading-relaxed">
+              홈페이지 제작 정보(홈페이지스타일/도메인/해외결제카드/Gmail) 및
+              SMS 발신등록
+              서류(대표자신분증/통신서비스이용증명원/신용카드앞면)는 위자드
+              7단계에 포함되지 않으며, 각각
+              <code class="bg-white px-1 rounded">/dashboard/homepage</code>,
+              <code class="bg-white px-1 rounded">/dashboard/sms</code> (또는
+              별도 가이드 페이지)에서 입력받습니다. 위자드 흐름은 그대로 두는
+              것이 사용자 의도와 일치.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 푸터 -->
+      <footer class="text-center text-xs text-gray-400 pt-8">
+        검수 후 OK 회신 주시면 배포 진행하겠습니다 · 시작패키지 / 2026-05-10
+      </footer>
+    </div>
+  </body>
+</html>

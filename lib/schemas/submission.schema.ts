@@ -58,6 +58,7 @@ export const submissionSchema = z.object({
   통신서비스이용증명원URL: z.string().optional(),
   신용카드앞면URL: z.string().optional(),
   로고예시디자인URL: z.string().optional(),
+  로고예시디자인2URL: z.string().optional(),
 
   // 배송 정보
   인쇄물받을주소: z.string().optional(),

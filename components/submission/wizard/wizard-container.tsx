@@ -136,6 +136,7 @@ function WizardInner({
           <StepLogo
             formData={formData}
             onChange={onInputChange}
+            onFileUpload={onFileUpload}
             errors={errors}
           />
         );

@@ -2,6 +2,7 @@
 
 import { StyleCardSelector, type StyleOption } from "./style-card-selector";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 /**
  * 로고 선호 스타일 옵션
@@ -54,7 +55,9 @@ export function LogoStyleSelector({
   return (
     <div className="space-y-3">
       <div className="flex items-start gap-2">
-        <Label className="text-sm sm:text-base">원하시는 로고 느낌을 선택해주세요</Label>
+        <Label className="text-sm sm:text-base">
+          원하시는 로고 느낌을 선택해주세요
+        </Label>
         {multiple && (
           <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
             여러 개 선택 가능
@@ -121,25 +124,84 @@ interface LogoColorSelectorProps {
   disabled?: boolean;
 }
 
+const HEX_PATTERN = /^#[0-9A-Fa-f]{6}$/;
+
 /**
  * 로고 선호 색상 선택 컴포넌트
+ * 가로 무지개 바를 클릭해 컬러피커에서 직접 색을 고름
  */
 export function LogoColorSelector({
   value,
   onChange,
   disabled = false,
 }: LogoColorSelectorProps) {
+  const isHex = typeof value === "string" && HEX_PATTERN.test(value);
+  const pickerValue = isHex ? value : "#1E40AF";
+
   return (
     <div className="space-y-3">
-      <Label className="text-sm sm:text-base">원하시는 로고 색상을 선택해주세요</Label>
-      <StyleCardSelector
-        options={LOGO_COLOR_OPTIONS}
-        value={value}
-        onChange={(v) => onChange(Array.isArray(v) ? v.join(", ") : v)}
-        multiple={false}
-        columns={3}
-        disabled={disabled}
-      />
+      <Label className="text-sm sm:text-base">
+        원하시는 로고 색상을 선택해주세요
+      </Label>
+
+      <div className="rounded-xl border border-gray-200 bg-white p-4 space-y-3">
+        <p className="text-xs sm:text-sm text-gray-600">
+          아래 무지개 바를 누르면 컬러피커가 열려요. 원하는 색을 자유롭게
+          골라주세요.
+        </p>
+
+        {/* 가로 무지개 컬러바 (클릭 시 시스템 컬러피커 열림) */}
+        <label
+          className={cn(
+            "relative block w-full h-14 rounded-xl overflow-hidden border-2 shadow-inner transition-all",
+            isHex
+              ? "border-navy-700 ring-2 ring-navy-200"
+              : "border-gray-300 hover:border-gray-400",
+            disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer",
+          )}
+          style={{
+            background:
+              "linear-gradient(to right, #ff0000 0%, #ff7f00 14%, #ffd000 28%, #00d26a 43%, #00b4ff 57%, #2952ff 71%, #8b5cf6 85%, #ff00aa 100%)",
+          }}
+        >
+          <input
+            type="color"
+            value={pickerValue}
+            onChange={(e) => onChange(e.target.value.toUpperCase())}
+            disabled={disabled}
+            aria-label="색상 직접 선택"
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+          />
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <span className="text-xs sm:text-sm font-bold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]">
+              여기를 눌러 색상 고르기
+            </span>
+          </div>
+        </label>
+
+        {/* 선택된 색상 표시 */}
+        <div className="flex items-center gap-3">
+          <div
+            className={cn(
+              "w-14 h-14 rounded-lg border-2 shadow-sm flex-shrink-0",
+              isHex ? "border-navy-700" : "border-gray-200 border-dashed",
+            )}
+            style={isHex ? { backgroundColor: value } : undefined}
+          >
+            {!isHex && (
+              <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-400 text-center leading-tight px-1">
+                선택 전
+              </div>
+            )}
+          </div>
+          <div className="flex-1">
+            <p className="text-xs text-gray-500">선택한 색상</p>
+            <p className="font-mono text-base font-semibold text-gray-900 tabular-nums">
+              {isHex ? value : "—"}
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

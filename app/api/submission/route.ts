@@ -344,6 +344,7 @@ export async function POST(request: Request) {
           { key: "대표번호", label: "대표번호" },
           { key: "이메일", label: "이메일" },
           { key: "로고선호스타일", label: "로고 선호 스타일" },
+          { key: "로고선호색상", label: "로고 선호 색상 (HEX)" },
           { key: "로고선호폰트", label: "로고 선호 폰트" },
           { key: "명함색상", label: "로고/명함 색상" },
           { key: "명함시안", label: "명함 스타일" },
@@ -556,6 +557,11 @@ export async function POST(request: Request) {
           key: "로고예시디자인URL",
           label: "로고예시디자인",
           fileName: "로고예시디자인.jpg",
+        },
+        {
+          key: "로고예시디자인2URL",
+          label: "로고예시디자인2",
+          fileName: "로고예시디자인2.jpg",
         },
       ] as const;
 

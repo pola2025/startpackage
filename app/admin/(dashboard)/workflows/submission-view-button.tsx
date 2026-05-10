@@ -268,7 +268,9 @@ export default function SubmissionViewButton({
                 </div>
 
                 {/* 로고 파일 */}
-                {(submission.로고URL || submission.로고예시디자인URL) && (
+                {(submission.로고URL ||
+                  submission.로고예시디자인URL ||
+                  submission.로고예시디자인2URL) && (
                   <div className="space-y-3 p-4 bg-purple-50 rounded-lg border border-purple-200">
                     <h3 className="font-semibold text-gray-900">업로드 파일</h3>
                     <div className="space-y-2 text-sm">
@@ -287,11 +289,22 @@ export default function SubmissionViewButton({
                       )}
                       {submission.로고예시디자인URL && (
                         <div>
-                          <span className="text-gray-600">
-                            로고 예시 디자인:
-                          </span>
+                          <span className="text-gray-600">참고 로고 1:</span>
                           <a
                             href={submission.로고예시디자인URL}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-gold-600 hover:underline flex items-center gap-1 mt-1"
+                          >
+                            파일 보기 <ExternalLink className="w-3 h-3" />
+                          </a>
+                        </div>
+                      )}
+                      {submission.로고예시디자인2URL && (
+                        <div>
+                          <span className="text-gray-600">참고 로고 2:</span>
+                          <a
+                            href={submission.로고예시디자인2URL}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-gold-600 hover:underline flex items-center gap-1 mt-1"

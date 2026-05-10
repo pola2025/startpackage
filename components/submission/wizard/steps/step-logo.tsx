@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useWizard } from "../wizard-context";
 import { StepCard, StepHeader, StepField, RequiredBadge } from "../wizard-step";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { LogoColorSelector } from "@/components/submission/logo-style-selector";
+import { MobileFileUpload } from "@/components/ui/mobile-file-upload";
+import { Mail } from "lucide-react";
 
 /**
  * Step 4: 로고 제작 정보 (필수)
@@ -16,16 +18,34 @@ import { LogoColorSelector } from "@/components/submission/logo-style-selector";
  * - 로고선호폰트 (선택)
  * - 로고제작요청사항 (필수)
  * - 명함색상 (선택)
+ * - 로고예시디자인URL / 로고예시디자인2URL (선택, 최대 2장)
  */
 
 interface StepLogoProps {
   formData: any;
   onChange: (field: string, value: string) => void;
+  onFileUpload?: (field: string, file: File) => Promise<void>;
   errors?: Record<string, string>;
 }
 
-export function StepLogo({ formData, onChange, errors = {} }: StepLogoProps) {
+export function StepLogo({
+  formData,
+  onChange,
+  onFileUpload,
+  errors = {},
+}: StepLogoProps) {
   const { setCanProceed, markStepComplete, currentStep } = useWizard();
+  const [uploadingField, setUploadingField] = useState<string | null>(null);
+
+  const handleReferenceUpload = async (field: string, file: File) => {
+    if (!onFileUpload) return;
+    setUploadingField(field);
+    try {
+      await onFileUpload(field, file);
+    } finally {
+      setUploadingField(null);
+    }
+  };
 
   // 필수 필드 검증
   useEffect(() => {
@@ -38,7 +58,13 @@ export function StepLogo({ formData, onChange, errors = {} }: StepLogoProps) {
     if (isValid) {
       markStepComplete(currentStep.id);
     }
-  }, [formData.로고선호색상, formData.로고제작요청사항, setCanProceed, markStepComplete, currentStep.id]);
+  }, [
+    formData.로고선호색상,
+    formData.로고제작요청사항,
+    setCanProceed,
+    markStepComplete,
+    currentStep.id,
+  ]);
 
   return (
     <StepCard>
@@ -122,6 +148,61 @@ export function StepLogo({ formData, onChange, errors = {} }: StepLogoProps) {
             className="h-12 text-base"
           />
         </StepField>
+
+        {/* 참고 로고파일 첨부 (선택, 최대 2장) */}
+        <div className="space-y-3 rounded-2xl border border-gray-200 bg-gray-50/60 p-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="text-base font-semibold text-gray-900">
+                참고 로고파일을 첨부해주세요
+              </span>
+              <span className="text-xs text-gray-500 bg-white border border-gray-200 px-2 py-0.5 rounded-full">
+                선택
+              </span>
+            </div>
+            <p className="text-sm text-gray-600">
+              강제는 아니에요. 다만 첨부해주시면 원하시는 스타일을 참고해서
+              디자인하기 훨씬 좋아요. (최대 2장)
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <MobileFileUpload
+              label="참고 로고 1"
+              accept="image/*,application/pdf"
+              currentFileUrl={formData.로고예시디자인URL}
+              onUpload={(file) =>
+                handleReferenceUpload("로고예시디자인URL", file)
+              }
+              helpText="JPG, PNG, PDF (10MB 이하)"
+              allowCamera
+            />
+            <MobileFileUpload
+              label="참고 로고 2"
+              accept="image/*,application/pdf"
+              currentFileUrl={formData.로고예시디자인2URL}
+              onUpload={(file) =>
+                handleReferenceUpload("로고예시디자인2URL", file)
+              }
+              helpText="JPG, PNG, PDF (10MB 이하)"
+              allowCamera
+            />
+          </div>
+
+          <div className="flex items-start gap-2 rounded-lg bg-white border border-gray-200 px-3 py-2.5">
+            <Mail className="w-4 h-4 text-gold-500 flex-shrink-0 mt-0.5" />
+            <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+              2장 넘게 보내주고 싶으시면{" "}
+              <a
+                href="mailto:mkt@polarad.co.kr"
+                className="font-semibold text-navy-700 underline underline-offset-2"
+              >
+                mkt@polarad.co.kr
+              </a>{" "}
+              로 메일 부탁드려요!
+            </p>
+          </div>
+        </div>
       </div>
     </StepCard>
   );
