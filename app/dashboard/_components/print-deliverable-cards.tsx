@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import {
   Sparkles,
@@ -228,6 +229,7 @@ export default function PrintDeliverableCards({
   representativeName,
   basicMissing,
 }: Props) {
+  const router = useRouter();
   const [questId, setQuestId] = useState<string | null>(null);
   /** 직전에 완료한 wizardId (완료 banner 표시용) */
   const [justCompleted, setJustCompleted] = useState<string | null>(null);
@@ -295,7 +297,14 @@ export default function PrintDeliverableCards({
             {completionBanner.next && (
               <button
                 type="button"
-                onClick={() => setQuestId(completionBanner.next!.wizardId)}
+                onClick={() => {
+                  const nextId = completionBanner.next!.wizardId;
+                  if (nextId === "website-info") {
+                    router.push("/dashboard/homepage");
+                  } else {
+                    setQuestId(nextId);
+                  }
+                }}
                 className="flex-shrink-0 px-3 py-1.5 text-xs font-bold rounded bg-gov-blue text-white hover:bg-gov-blue-700 transition-colors"
               >
                 바로 처리
@@ -336,6 +345,11 @@ export default function PrintDeliverableCards({
             );
 
             const handleClick = () => {
+              // 홈페이지 카드 = 위자드 다이얼로그가 아닌 전용 페이지로 이동
+              if (d.wizardId === "website-info") {
+                router.push("/dashboard/homepage");
+                return;
+              }
               if (basicMissing && d.wizardId !== "basic-info") {
                 setQuestId("basic-info");
               } else {
