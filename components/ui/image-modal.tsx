@@ -2,7 +2,9 @@
 
 import { X, ChevronLeft, ChevronRight, Download } from "lucide-react";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
 
 interface ImageModalProps {
   images: string[];
@@ -15,6 +17,8 @@ interface ImageModalProps {
    * "compare" — 모든 이미지를 한 화면에 좌우(또는 상하)로 나란히 표시
    */
   mode?: "carousel" | "compare";
+  /** 다른 Dialog 위에 띄울 때 z-index override (기본 50). Radix Dialog는 z-50이라 그 위에 띄우려면 60+ 필요 */
+  zIndex?: number;
 }
 
 export function ImageModal({
@@ -24,13 +28,25 @@ export function ImageModal({
   captions,
   title,
   mode = "carousel",
+  zIndex,
 }: ImageModalProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const [mounted, setMounted] = useState(false);
   const isCompare = mode === "compare" && images.length > 1;
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") {
+        // 부모 Dialog(예: 위자드)가 같이 닫히지 않도록 전파 중단
+        e.stopPropagation();
+        e.preventDefault();
+        onClose();
+        return;
+      }
       if (isCompare) return; // compare 모드는 화살표 비활성
       if (e.key === "ArrowLeft" && currentIndex > 0)
         setCurrentIndex(currentIndex - 1);
@@ -38,8 +54,9 @@ export function ImageModal({
         setCurrentIndex(currentIndex + 1);
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    // capture: true → 부모 핸들러(Radix Dialog)보다 먼저 잡음
+    window.addEventListener("keydown", handleKeyDown, true);
+    return () => window.removeEventListener("keydown", handleKeyDown, true);
   }, [currentIndex, images.length, onClose, isCompare]);
 
   const handleDownload = () => {
@@ -65,9 +82,15 @@ export function ImageModal({
     }
   };
 
-  return (
+  if (!mounted) return null;
+
+  const overlay = (
     <div
-      className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center"
+      className={cn(
+        "fixed inset-0 bg-black/90 flex items-center justify-center",
+        zIndex == null && "z-50",
+      )}
+      style={zIndex != null ? { zIndex } : undefined}
       onClick={onClose}
     >
       {/* 닫기 버튼 */}
@@ -177,4 +200,7 @@ export function ImageModal({
       )}
     </div>
   );
+
+  // body 직접 마운트 → Radix Dialog의 stacking context를 벗어나 위에 뜸
+  return createPortal(overlay, document.body);
 }

@@ -542,7 +542,16 @@ export default function QuestWizardDialog({
   return (
     <>
       <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-        <DialogContent className="sm:max-w-[640px]">
+        <DialogContent
+          className="sm:max-w-[640px]"
+          onPointerDownOutside={(e) => {
+            // 시안 미리보기 모달이 떠 있을 땐 위자드를 닫지 않음
+            if (previewState) e.preventDefault();
+          }}
+          onEscapeKeyDown={(e) => {
+            if (previewState) e.preventDefault();
+          }}
+        >
           <DialogHeader>
             <DialogTitle className="text-lg">{title}</DialogTitle>
             {description && (
@@ -816,7 +825,7 @@ export default function QuestWizardDialog({
         </DialogContent>
       </Dialog>
 
-      {/* 시안 확대 모달 */}
+      {/* 시안 확대 모달 — 위자드(Radix Dialog z-50) 위에 띄움 */}
       {previewState && (
         <ImageModal
           images={previewState.images}
@@ -824,6 +833,7 @@ export default function QuestWizardDialog({
           title={previewState.title}
           initialIndex={0}
           mode={previewState.mode}
+          zIndex={100}
           onClose={() => setPreviewState(null)}
         />
       )}
