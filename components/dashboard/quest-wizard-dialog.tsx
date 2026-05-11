@@ -541,11 +541,20 @@ export default function QuestWizardDialog({
 
   return (
     <>
-      <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <Dialog
+        open={open}
+        onOpenChange={(v) => !v && onClose()}
+        // 시안 미리보기가 떠 있을 때는 modal=false로 풀어서
+        // ImageModal 안의 X/배경 클릭 등 외부 pointer 이벤트가 통과되게 함
+        modal={!previewState}
+      >
         <DialogContent
           className="sm:max-w-[640px]"
           onPointerDownOutside={(e) => {
             // 시안 미리보기 모달이 떠 있을 땐 위자드를 닫지 않음
+            if (previewState) e.preventDefault();
+          }}
+          onInteractOutside={(e) => {
             if (previewState) e.preventDefault();
           }}
           onEscapeKeyDown={(e) => {

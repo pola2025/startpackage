@@ -91,11 +91,20 @@ export function ImageModal({
         zIndex == null && "z-50",
       )}
       style={zIndex != null ? { zIndex } : undefined}
-      onClick={onClose}
+      // capture phase: 부모(Radix DismissableLayer)가 잡기 전에 차단
+      onPointerDownCapture={(e) => e.stopPropagation()}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClose();
+      }}
     >
       {/* 닫기 버튼 */}
       <button
-        onClick={onClose}
+        onPointerDownCapture={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation();
+          onClose();
+        }}
         className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors z-10"
       >
         <X className="w-6 h-6 text-white" />
