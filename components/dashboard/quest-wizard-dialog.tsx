@@ -20,8 +20,28 @@ import {
   Check,
   Upload,
   FileCheck2,
+  Monitor,
+  ZoomIn,
+  Mail,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { LogoColorSelector } from "@/components/submission/logo-style-selector";
+import { ImageModal } from "@/components/ui/image-modal";
+
+/** 인쇄물 시안 옵션 (명함 6종 / 자문계약서 2종) */
+export interface PrintStyleOption {
+  id: string;
+  name: string;
+  description: string;
+  thumbnails: string[];
+  fullImages: string[];
+  /** "37/10"(명함 합본) | "1/1.414"(A4) */
+  thumbAspect: string;
+  /** 모달에서 좌우 비교 모드로 보여줄지 (자문계약서 표지+내지) */
+  compareInModal?: boolean;
+  /** 카드 썸네일에 부위 라벨(표지/내지) 표시 */
+  showPartLabel?: boolean;
+}
 
 export interface QuestStep {
   field: string;
@@ -34,7 +54,9 @@ export interface QuestStep {
     | "email"
     | "select"
     | "file"
-    | "account-holder";
+    | "account-holder"
+    | "color-picker"
+    | "style-grid";
   placeholder?: string;
   required?: boolean;
   options?: { value: string; label: string }[];
@@ -44,6 +66,258 @@ export interface QuestStep {
   representativeName?: string;
   /** 검증 함수 — 반환값이 string이면 에러 메시지 */
   validate?: (value: string) => string | null;
+  /** style-grid step용 시안 옵션 목록 */
+  styleOptions?: PrintStyleOption[];
+  /** style-grid step용 강조 컬러 (gold | indigo) */
+  accentColor?: "gold" | "indigo";
+  /** PC 권장 안내 박스 표시 여부 (시안 선택 step) */
+  showPcRecommendation?: boolean;
+  /** mkt@polarad.co.kr 메일 안내 박스 표시 여부 (파일 첨부 step) */
+  showMailHint?: boolean;
+}
+
+const HEX_PATTERN = /^#[0-9A-Fa-f]{6}$/;
+
+/** 명함 6종 (합본 앞+뒤, 37:10 비율) */
+const NAMECARD_THUMB_ASPECT = "37/10";
+const NAMECARD_STYLES: PrintStyleOption[] = [
+  {
+    id: "style1",
+    name: "스타일 1",
+    description: "클래식 디자인",
+    thumbnails: ["/namecard/namecard_1.jpg"],
+    fullImages: ["/namecard/namecard_1.jpg"],
+    thumbAspect: NAMECARD_THUMB_ASPECT,
+  },
+  {
+    id: "style2",
+    name: "스타일 2",
+    description: "모던 디자인",
+    thumbnails: ["/namecard/namecard_2.jpg"],
+    fullImages: ["/namecard/namecard_2.jpg"],
+    thumbAspect: NAMECARD_THUMB_ASPECT,
+  },
+  {
+    id: "style3",
+    name: "스타일 3",
+    description: "크리에이티브 디자인",
+    thumbnails: ["/namecard/namecard_3.jpg"],
+    fullImages: ["/namecard/namecard_3.jpg"],
+    thumbAspect: NAMECARD_THUMB_ASPECT,
+  },
+  {
+    id: "style4",
+    name: "스타일 4",
+    description: "미니멀 디자인",
+    thumbnails: ["/namecard/namecard_4.jpg"],
+    fullImages: ["/namecard/namecard_4.jpg"],
+    thumbAspect: NAMECARD_THUMB_ASPECT,
+  },
+  {
+    id: "style5",
+    name: "스타일 5",
+    description: "2026 신규 디자인",
+    thumbnails: ["/namecard/namecard_5.jpg"],
+    fullImages: ["/namecard/namecard_5.jpg"],
+    thumbAspect: NAMECARD_THUMB_ASPECT,
+  },
+  {
+    id: "style6",
+    name: "스타일 6",
+    description: "2026 신규 디자인",
+    thumbnails: ["/namecard/namecard_6.jpg"],
+    fullImages: ["/namecard/namecard_6.jpg"],
+    thumbAspect: NAMECARD_THUMB_ASPECT,
+  },
+];
+
+/** 자문계약서 2종 (표지+내지, A4 비율, compare 모달) */
+const CONTRACT_THUMB_ASPECT = "1/1.414";
+const CONTRACT_STYLES: PrintStyleOption[] = [
+  {
+    id: "style1",
+    name: "스타일 1",
+    description: "기본 디자인 (표지+내지 세트)",
+    thumbnails: [
+      "/guides/print/contract_cover.jpg",
+      "/guides/print/contract_inner.jpg",
+    ],
+    fullImages: [
+      "/guides/print/contract_cover.jpg",
+      "/guides/print/contract_inner.jpg",
+    ],
+    thumbAspect: CONTRACT_THUMB_ASPECT,
+    compareInModal: true,
+    showPartLabel: true,
+  },
+  {
+    id: "style2",
+    name: "스타일 2",
+    description: "2026 신규 디자인 (표지+내지 세트)",
+    thumbnails: [
+      "/guides/print/contract_cover_2.jpg",
+      "/guides/print/contract_inner_2.jpg",
+    ],
+    fullImages: [
+      "/guides/print/contract_cover_2.jpg",
+      "/guides/print/contract_inner_2.jpg",
+    ],
+    thumbAspect: CONTRACT_THUMB_ASPECT,
+    compareInModal: true,
+    showPartLabel: true,
+  },
+];
+
+const ACCENT_CLASS = {
+  gold: {
+    border: "border-gold-500",
+    bg: "bg-gold-50",
+    ring: "focus:ring-gold-500",
+    hover: "hover:border-gold-300",
+    badge: "bg-gold-500",
+  },
+  indigo: {
+    border: "border-indigo-500",
+    bg: "bg-indigo-50",
+    ring: "focus:ring-indigo-500",
+    hover: "hover:border-indigo-300",
+    badge: "bg-indigo-500",
+  },
+} as const;
+
+interface StyleGridProps {
+  styles: PrintStyleOption[];
+  selectedId: string | undefined;
+  onSelect: (id: string) => void;
+  onPreview: (
+    images: string[],
+    captions: string[],
+    title: string,
+    mode: "carousel" | "compare",
+  ) => void;
+  accentColor: "gold" | "indigo";
+  title: string;
+}
+
+function StyleGrid({
+  styles,
+  selectedId,
+  onSelect,
+  onPreview,
+  accentColor,
+  title,
+}: StyleGridProps) {
+  const accent = ACCENT_CLASS[accentColor];
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {styles.map((style) => {
+        const isSelected = selectedId === style.id;
+        const isMulti = style.thumbnails.length > 1;
+        const buildCaptions = () =>
+          style.fullImages.map((_, idx) => {
+            if (!isMulti) return `${title} · ${style.name} (앞면 + 뒷면)`;
+            const partLabel = idx === 0 ? "표지" : "내지";
+            return `${title} · ${style.name} - ${partLabel}`;
+          });
+
+        return (
+          <div
+            key={style.id}
+            className={cn(
+              "relative rounded-xl border-2 p-2.5 transition-all bg-white",
+              accent.hover,
+              isSelected
+                ? cn(accent.border, accent.bg, "shadow-md")
+                : "border-gray-200",
+            )}
+          >
+            <button
+              type="button"
+              onClick={() =>
+                onPreview(
+                  style.fullImages,
+                  buildCaptions(),
+                  `${title} · ${style.name}`,
+                  style.compareInModal ? "compare" : "carousel",
+                )
+              }
+              className="block w-full focus:outline-none rounded-lg"
+              aria-label={`${style.name} 크게 보기`}
+            >
+              <div className={isMulti ? "space-y-1.5" : ""}>
+                {style.thumbnails.map((src, idx) => {
+                  const partLabel = style.showPartLabel
+                    ? idx === 0
+                      ? "표지"
+                      : "내지"
+                    : null;
+                  return (
+                    <div
+                      key={src}
+                      className="relative bg-white border border-gray-100 rounded-lg overflow-hidden shadow-sm"
+                      style={{ aspectRatio: style.thumbAspect }}
+                    >
+                      <img
+                        src={src}
+                        alt={`${style.name}${partLabel ? ` ${partLabel}` : ""}`}
+                        className="w-full h-full object-contain"
+                        loading="lazy"
+                      />
+                      {partLabel && (
+                        <div className="absolute top-1 left-1 bg-black/60 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
+                          {partLabel}
+                        </div>
+                      )}
+                      {!isMulti && style.fullImages.length === 1 && (
+                        <>
+                          <div className="absolute top-1 left-[3%] bg-black/60 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
+                            앞면
+                          </div>
+                          <div className="absolute top-1 right-[3%] bg-black/40 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
+                            뒷면
+                          </div>
+                        </>
+                      )}
+                      <div className="absolute bottom-1 right-1 bg-black/60 text-white rounded-full p-1 opacity-90">
+                        <ZoomIn className="w-3 h-3" />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => onSelect(style.id)}
+              className={cn(
+                "mt-2 w-full rounded-md py-1.5 text-xs font-semibold transition-all border",
+                isSelected
+                  ? cn(accent.badge, "border-transparent text-white")
+                  : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50",
+              )}
+            >
+              {isSelected ? "✓ 선택됨" : "이 스타일 선택"}
+            </button>
+            <p className="mt-1 text-[11px] text-gray-500 text-center line-clamp-1">
+              {style.description}
+            </p>
+
+            {isSelected && (
+              <div
+                className={cn(
+                  "absolute top-1.5 right-1.5 w-5 h-5 rounded-full flex items-center justify-center shadow",
+                  accent.badge,
+                )}
+              >
+                <span className="text-white text-[10px] font-bold">✓</span>
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 interface QuestWizardDialogProps {
@@ -82,6 +356,13 @@ export default function QuestWizardDialog({
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  /** 시안 확대 모달 상태 (style-grid step) */
+  const [previewState, setPreviewState] = useState<{
+    images: string[];
+    captions: string[];
+    title: string;
+    mode: "carousel" | "compare";
+  } | null>(null);
 
   // 모달 열릴 때 초기값 세팅
   useEffect(() => {
@@ -144,6 +425,20 @@ export default function QuestWizardDialog({
       // 체크 해제 상태면 명의자명 입력값이 있어야 함
       if (!holderSame[step.field] && !currentValue.trim()) {
         setError("계좌명의자명을 입력해주세요.");
+        return false;
+      }
+      return true;
+    }
+    if (step.type === "color-picker") {
+      if (step.required && !HEX_PATTERN.test(currentValue)) {
+        setError("색상을 선택해주세요.");
+        return false;
+      }
+      return true;
+    }
+    if (step.type === "style-grid") {
+      if (step.required && !currentValue) {
+        setError("스타일을 선택해주세요.");
         return false;
       }
       return true;
@@ -245,229 +540,294 @@ export default function QuestWizardDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="sm:max-w-[520px]">
-        <DialogHeader>
-          <DialogTitle className="text-lg">{title}</DialogTitle>
-          {description && (
-            <DialogDescription className="text-xs text-gray-600">
-              {description}
-            </DialogDescription>
-          )}
-        </DialogHeader>
+    <>
+      <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+        <DialogContent className="sm:max-w-[640px]">
+          <DialogHeader>
+            <DialogTitle className="text-lg">{title}</DialogTitle>
+            {description && (
+              <DialogDescription className="text-xs text-gray-600">
+                {description}
+              </DialogDescription>
+            )}
+          </DialogHeader>
 
-        {/* 진행 표시 */}
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between text-xs">
-            <span className="font-medium text-gov-blue">
-              {currentIdx + 1} / {steps.length} 단계
-            </span>
-            <span className="text-gray-500">{Math.round(progress)}%</span>
-          </div>
-          <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gov-blue rounded-full transition-all duration-300"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-        </div>
-
-        {/* 입력 영역 */}
-        <div className="space-y-3 py-2">
-          <Label htmlFor={step.field} className="text-sm font-semibold">
-            {step.label}
-            {step.required && <span className="text-rose-500 ml-1">*</span>}
-          </Label>
-          {step.description && (
-            <p className="text-xs text-gray-600 -mt-1.5">{step.description}</p>
-          )}
-
-          {step.type === "textarea" ? (
-            <Textarea
-              id={step.field}
-              value={currentValue}
-              onChange={(e) => setValue(e.target.value)}
-              placeholder={step.placeholder}
-              rows={4}
-              className="resize-none"
-              autoFocus
-            />
-          ) : step.type === "select" ? (
-            <select
-              id={step.field}
-              value={currentValue}
-              onChange={(e) => setValue(e.target.value)}
-              className="w-full h-10 px-3 border border-gray-300 rounded-md bg-white text-sm"
-              autoFocus
-            >
-              <option value="">선택해주세요</option>
-              {step.options?.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          ) : step.type === "account-holder" ? (
-            <div className="space-y-2">
-              <label className="flex items-start gap-2 p-3 rounded-lg border border-gray-200 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors">
-                <input
-                  type="checkbox"
-                  checked={holderSame[step.field] ?? true}
-                  onChange={(e) =>
-                    setHolderSame((prev) => ({
-                      ...prev,
-                      [step.field]: e.target.checked,
-                    }))
-                  }
-                  className="mt-0.5 w-4 h-4 accent-gov-blue"
-                />
-                <div className="flex-1 text-sm">
-                  <div className="font-medium text-gray-900">
-                    계좌명의자가 사업자 대표와 동일합니다
-                    {(step.representativeName || representativeName) && (
-                      <span className="text-gray-500 font-normal ml-1">
-                        ({step.representativeName || representativeName})
-                      </span>
-                    )}
-                  </div>
-                  <div className="text-xs text-gray-500 mt-0.5">
-                    체크 해제하면 명의자명을 직접 입력할 수 있습니다.
-                  </div>
-                </div>
-              </label>
-              {!(holderSame[step.field] ?? true) && (
-                <Input
-                  id={step.field}
-                  type="text"
-                  value={currentValue}
-                  onChange={(e) => setValue(e.target.value)}
-                  placeholder="예) 홍길동"
-                  autoFocus
-                />
-              )}
+          {/* 진행 표시 */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-medium text-gov-blue">
+                {currentIdx + 1} / {steps.length} 단계
+              </span>
+              <span className="text-gray-500">{Math.round(progress)}%</span>
             </div>
-          ) : step.type === "file" ? (
-            <div className="space-y-2">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept={step.accept}
-                className="hidden"
-                onChange={(e) => {
-                  const f = e.target.files?.[0] ?? null;
-                  setFile(f);
-                }}
+            <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gov-blue rounded-full transition-all duration-300"
+                style={{ width: `${progress}%` }}
               />
-              {pendingFile ? (
-                <div className="flex items-center justify-between gap-2 p-3 rounded-lg border border-gov-blue-200 bg-gov-blue-50">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <FileCheck2 className="w-4 h-4 text-gov-blue flex-shrink-0" />
-                    <span className="text-xs text-gov-blue truncate">
-                      {pendingFile.name}
-                    </span>
-                    <span className="text-[10px] text-gray-500 flex-shrink-0">
-                      {(pendingFile.size / 1024).toFixed(0)}KB
-                    </span>
+            </div>
+          </div>
+
+          {/* 입력 영역 */}
+          <div className="space-y-3 py-2 max-h-[60vh] overflow-y-auto">
+            <Label htmlFor={step.field} className="text-sm font-semibold">
+              {step.label}
+              {step.required && <span className="text-rose-500 ml-1">*</span>}
+            </Label>
+            {step.description && (
+              <p className="text-xs text-gray-600 -mt-1.5">
+                {step.description}
+              </p>
+            )}
+
+            {/* 시안 선택 step: PC 권장 안내 */}
+            {step.showPcRecommendation && (
+              <div className="rounded-lg border border-amber-300 bg-amber-50 p-2.5">
+                <div className="flex items-start gap-2">
+                  <Monitor className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <div className="space-y-0.5">
+                    <p className="text-xs font-bold text-amber-900">
+                      시안 검수는 PC/노트북에서 권장드려요
+                    </p>
+                    <p className="text-[11px] text-amber-800 leading-relaxed">
+                      이미지를 누르면 크게 확인하실 수 있어요.
+                    </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setFile(null)}
-                    className="text-xs text-gray-500 hover:text-rose-600"
-                  >
-                    제거
-                  </button>
                 </div>
-              ) : currentValue ? (
-                <div className="flex items-center justify-between gap-2 p-3 rounded-lg border border-emerald-200 bg-emerald-50">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <Check className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                    <span className="text-xs text-emerald-700">
-                      이미 업로드됨
-                    </span>
+              </div>
+            )}
+
+            {step.type === "color-picker" ? (
+              <LogoColorSelector
+                value={currentValue}
+                onChange={(v) => setValue(v)}
+              />
+            ) : step.type === "style-grid" ? (
+              <StyleGrid
+                styles={step.styleOptions || []}
+                selectedId={currentValue || undefined}
+                onSelect={(id) => setValue(id)}
+                onPreview={(images, captions, title, mode) =>
+                  setPreviewState({ images, captions, title, mode })
+                }
+                accentColor={step.accentColor || "gold"}
+                title={step.label}
+              />
+            ) : step.type === "textarea" ? (
+              <Textarea
+                id={step.field}
+                value={currentValue}
+                onChange={(e) => setValue(e.target.value)}
+                placeholder={step.placeholder}
+                rows={4}
+                className="resize-none"
+                autoFocus
+              />
+            ) : step.type === "select" ? (
+              <select
+                id={step.field}
+                value={currentValue}
+                onChange={(e) => setValue(e.target.value)}
+                className="w-full h-10 px-3 border border-gray-300 rounded-md bg-white text-sm"
+                autoFocus
+              >
+                <option value="">선택해주세요</option>
+                {step.options?.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            ) : step.type === "account-holder" ? (
+              <div className="space-y-2">
+                <label className="flex items-start gap-2 p-3 rounded-lg border border-gray-200 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={holderSame[step.field] ?? true}
+                    onChange={(e) =>
+                      setHolderSame((prev) => ({
+                        ...prev,
+                        [step.field]: e.target.checked,
+                      }))
+                    }
+                    className="mt-0.5 w-4 h-4 accent-gov-blue"
+                  />
+                  <div className="flex-1 text-sm">
+                    <div className="font-medium text-gray-900">
+                      계좌명의자가 사업자 대표와 동일합니다
+                      {(step.representativeName || representativeName) && (
+                        <span className="text-gray-500 font-normal ml-1">
+                          ({step.representativeName || representativeName})
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-0.5">
+                      체크 해제하면 명의자명을 직접 입력할 수 있습니다.
+                    </div>
                   </div>
+                </label>
+                {!(holderSame[step.field] ?? true) && (
+                  <Input
+                    id={step.field}
+                    type="text"
+                    value={currentValue}
+                    onChange={(e) => setValue(e.target.value)}
+                    placeholder="예) 홍길동"
+                    autoFocus
+                  />
+                )}
+              </div>
+            ) : step.type === "file" ? (
+              <div className="space-y-2">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept={step.accept}
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0] ?? null;
+                    setFile(f);
+                  }}
+                />
+                {pendingFile ? (
+                  <div className="flex items-center justify-between gap-2 p-3 rounded-lg border border-gov-blue-200 bg-gov-blue-50">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <FileCheck2 className="w-4 h-4 text-gov-blue flex-shrink-0" />
+                      <span className="text-xs text-gov-blue truncate">
+                        {pendingFile.name}
+                      </span>
+                      <span className="text-[10px] text-gray-500 flex-shrink-0">
+                        {(pendingFile.size / 1024).toFixed(0)}KB
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setFile(null)}
+                      className="text-xs text-gray-500 hover:text-rose-600"
+                    >
+                      제거
+                    </button>
+                  </div>
+                ) : currentValue ? (
+                  <div className="flex items-center justify-between gap-2 p-3 rounded-lg border border-emerald-200 bg-emerald-50">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Check className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                      <span className="text-xs text-emerald-700">
+                        이미 업로드됨
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="text-xs text-emerald-700 hover:underline"
+                    >
+                      변경
+                    </button>
+                  </div>
+                ) : (
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="text-xs text-emerald-700 hover:underline"
+                    className="w-full flex flex-col items-center justify-center gap-2 p-5 rounded-lg border-2 border-dashed border-gray-300 hover:border-gov-blue hover:bg-gov-blue-50/30 transition-colors"
                   >
-                    변경
+                    <Upload className="w-5 h-5 text-gray-400" />
+                    <span className="text-xs text-gray-600">
+                      파일 선택 (이미지 또는 PDF, 최대 10MB)
+                    </span>
                   </button>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="w-full flex flex-col items-center justify-center gap-2 p-5 rounded-lg border-2 border-dashed border-gray-300 hover:border-gov-blue hover:bg-gov-blue-50/30 transition-colors"
-                >
-                  <Upload className="w-5 h-5 text-gray-400" />
-                  <span className="text-xs text-gray-600">
-                    파일 선택 (이미지 또는 PDF, 최대 10MB)
-                  </span>
-                </button>
-              )}
-            </div>
-          ) : (
-            <Input
-              id={step.field}
-              type={step.type}
-              value={currentValue}
-              onChange={(e) => setValue(e.target.value)}
-              placeholder={step.placeholder}
-              autoFocus
-            />
-          )}
-
-          {error && <p className="text-xs text-rose-600 mt-1">⚠ {error}</p>}
-        </div>
-
-        {/* 네비게이션 */}
-        <div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-100">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handlePrev}
-            disabled={isFirst || saving}
-            className="gap-1"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            이전
-          </Button>
-          <div className="flex items-center gap-1.5">
-            {steps.map((_, idx) => (
-              <span
-                key={idx}
-                className={cn(
-                  "w-1.5 h-1.5 rounded-full transition-colors",
-                  idx < currentIdx
-                    ? "bg-gov-blue"
-                    : idx === currentIdx
-                      ? "bg-gov-blue-300"
-                      : "bg-gray-200",
                 )}
-              />
-            ))}
-          </div>
-          <Button
-            size="sm"
-            onClick={handleNext}
-            disabled={saving}
-            className="gap-1 bg-gov-blue hover:bg-gov-blue-700"
-          >
-            {saving ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : isLast ? (
-              <>
-                완료 <Check className="w-4 h-4" />
-              </>
+
+                {step.showMailHint && (
+                  <div className="flex items-start gap-2 rounded-lg bg-white border border-gray-200 px-3 py-2">
+                    <Mail className="w-4 h-4 text-gov-blue flex-shrink-0 mt-0.5" />
+                    <p className="text-[11px] text-gray-600 leading-relaxed">
+                      2장 넘게 보내주고 싶으시면{" "}
+                      <a
+                        href="mailto:mkt@polarad.co.kr"
+                        className="font-semibold text-gov-blue underline underline-offset-2"
+                      >
+                        mkt@polarad.co.kr
+                      </a>{" "}
+                      로 메일 부탁드려요!
+                    </p>
+                  </div>
+                )}
+              </div>
             ) : (
-              <>
-                다음 <ChevronRight className="w-4 h-4" />
-              </>
+              <Input
+                id={step.field}
+                type={step.type}
+                value={currentValue}
+                onChange={(e) => setValue(e.target.value)}
+                placeholder={step.placeholder}
+                autoFocus
+              />
             )}
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+
+            {error && <p className="text-xs text-rose-600 mt-1">⚠ {error}</p>}
+          </div>
+
+          {/* 네비게이션 */}
+          <div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-100">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handlePrev}
+              disabled={isFirst || saving}
+              className="gap-1"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              이전
+            </Button>
+            <div className="flex items-center gap-1.5">
+              {steps.map((_, idx) => (
+                <span
+                  key={idx}
+                  className={cn(
+                    "w-1.5 h-1.5 rounded-full transition-colors",
+                    idx < currentIdx
+                      ? "bg-gov-blue"
+                      : idx === currentIdx
+                        ? "bg-gov-blue-300"
+                        : "bg-gray-200",
+                  )}
+                />
+              ))}
+            </div>
+            <Button
+              size="sm"
+              onClick={handleNext}
+              disabled={saving}
+              className="gap-1 bg-gov-blue hover:bg-gov-blue-700"
+            >
+              {saving ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : isLast ? (
+                <>
+                  완료 <Check className="w-4 h-4" />
+                </>
+              ) : (
+                <>
+                  다음 <ChevronRight className="w-4 h-4" />
+                </>
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* 시안 확대 모달 */}
+      {previewState && (
+        <ImageModal
+          images={previewState.images}
+          captions={previewState.captions}
+          title={previewState.title}
+          initialIndex={0}
+          mode={previewState.mode}
+          onClose={() => setPreviewState(null)}
+        />
+      )}
+    </>
   );
 }
 
@@ -531,34 +891,34 @@ export const NAMECARD_ENVELOPE_STEPS: QuestStep[] = [
     field: "명함시안",
     label: "명함 스타일",
     description:
-      "기본 정보(브랜드명·업종·주소·대표번호)는 자동으로 반영됩니다. 6종 중 1개를 선택해주세요. 선택한 스타일이 명함과 대봉투에 동일하게 적용됩니다.",
-    type: "select",
+      "6종 중 1개를 선택해주세요. 카드 이미지를 누르면 크게 보실 수 있어요. 선택한 스타일이 명함과 대봉투에 동일하게 적용됩니다.",
+    type: "style-grid",
     required: true,
-    options: [
-      { value: "스타일 1", label: "스타일 1" },
-      { value: "스타일 2", label: "스타일 2" },
-      { value: "스타일 3", label: "스타일 3" },
-      { value: "스타일 4", label: "스타일 4" },
-      { value: "스타일 5", label: "스타일 5" },
-      { value: "스타일 6", label: "스타일 6" },
-    ],
+    styleOptions: NAMECARD_STYLES,
+    accentColor: "gold",
+    showPcRecommendation: true,
   },
   {
     field: "명함색상",
     label: "명함 메인 색상",
-    description:
-      "명함에 사용할 메인 색상을 16진수 코드(#RRGGBB)로 입력해주세요. 예: #1e3a5f",
-    type: "text",
-    placeholder: "#1e3a5f",
+    description: "아래 무지개 바를 눌러 명함에 사용할 메인 색상을 골라주세요.",
+    type: "color-picker",
     required: true,
-    validate: (v) =>
-      /^#[0-9A-Fa-f]{6}$/.test(v)
-        ? null
-        : "올바른 컬러 코드(예: #1e3a5f)를 입력하세요.",
   },
 ];
 
 export const CONTRACT_STEPS: QuestStep[] = [
+  {
+    field: "계약서시안",
+    label: "자문계약서 스타일",
+    description:
+      "2종 중 1개를 선택해주세요. 카드를 누르면 표지·내지를 좌우 나란히 크게 확인하실 수 있어요.",
+    type: "style-grid",
+    required: true,
+    styleOptions: CONTRACT_STYLES,
+    accentColor: "indigo",
+    showPcRecommendation: true,
+  },
   {
     field: "은행명",
     label: "은행명",
@@ -613,15 +973,9 @@ export const LOGO_INFO_STEPS: QuestStep[] = [
   {
     field: "로고선호색상",
     label: "선호 색상",
-    description:
-      "원하시는 메인 컬러를 16진수 코드(#RRGGBB)로 입력해주세요. 예: #1e3a5f",
-    type: "text",
-    placeholder: "#1e3a5f",
+    description: "아래 무지개 바를 눌러 원하시는 색을 자유롭게 골라주세요.",
+    type: "color-picker",
     required: true,
-    validate: (v) =>
-      /^#[0-9A-Fa-f]{6}$/.test(v)
-        ? null
-        : "올바른 컬러 코드(예: #1e3a5f)를 입력하세요.",
   },
   {
     field: "로고제작요청사항",
@@ -631,6 +985,24 @@ export const LOGO_INFO_STEPS: QuestStep[] = [
     type: "textarea",
     placeholder: "예) 신뢰감 + 전문성 강조, 참고: 폴라애드 로고",
     required: false,
+  },
+  {
+    field: "로고예시디자인URL",
+    label: "참고 로고 1 (선택)",
+    description:
+      "강제는 아니에요. 마음에 드는 참고 로고 이미지를 첨부해주시면 디자인 방향 잡는 데 큰 도움이 됩니다.",
+    type: "file",
+    accept: "image/*,application/pdf",
+    required: false,
+  },
+  {
+    field: "로고예시디자인2URL",
+    label: "참고 로고 2 (선택)",
+    description: "추가로 첨부하고 싶은 참고 로고가 있으면 한 장 더 올려주세요.",
+    type: "file",
+    accept: "image/*,application/pdf",
+    required: false,
+    showMailHint: true,
   },
 ];
 
