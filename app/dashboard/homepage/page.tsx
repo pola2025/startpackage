@@ -1007,6 +1007,15 @@ export default function HomepageSettingsPage() {
             })}
           </div>
 
+          {/* 유료옵션 안내 */}
+          <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-50 border border-amber-200 text-sm text-amber-900">
+            <Info className="w-4 h-4 mt-0.5 flex-shrink-0 text-amber-600" />
+            <div>
+              <span className="font-semibold">유료옵션</span> 온라인마케팅
+              대행상품 이용 시 선택 가능 (월 22만원, VAT 포함)
+            </div>
+          </div>
+
           {/* 컬러 컨셉 선택 */}
           <div
             ref={colorSectionRef}
