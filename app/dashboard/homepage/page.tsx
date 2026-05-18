@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, Fragment } from "react";
 import {
   Card,
   CardContent,
@@ -35,6 +35,11 @@ import {
 import Image from "next/image";
 import { useRef } from "react";
 import imageCompression from "browser-image-compression";
+import {
+  HOMEPAGE_STYLE_OPTIONS,
+  getHomepageStyleName,
+  isPaidHomepageStyle,
+} from "@/lib/homepage-styles";
 
 interface HomepageData {
   홈페이지스타일: string | null;
@@ -75,6 +80,7 @@ export default function HomepageSettingsPage() {
   const [selectedWebsiteStyle, setSelectedWebsiteStyle] = useState("");
   const [websiteColor, setWebsiteColor] = useState("#3B82F6");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [previewStyleUrl, setPreviewStyleUrl] = useState<string | null>(null);
   const colorSectionRef = useRef<HTMLDivElement>(null);
 
   // 홈페이지 스타일 스크롤 상태
@@ -114,8 +120,13 @@ export default function HomepageSettingsPage() {
         if (result.해외결제카드CVC) setCardCvc(result.해외결제카드CVC);
         if (result.GmailID) setGmailId(result.GmailID);
         if (result.GmailPW) setGmailPw(result.GmailPW);
-        if (result.홈페이지스타일)
-          setSelectedWebsiteStyle(result.홈페이지스타일);
+        if (result.홈페이지스타일) {
+          setSelectedWebsiteStyle(
+            isPaidHomepageStyle(result.홈페이지스타일)
+              ? ""
+              : result.홈페이지스타일,
+          );
+        }
         if (result.홈페이지컬러컨셉) setWebsiteColor(result.홈페이지컬러컨셉);
       }
     } catch (error) {
@@ -211,6 +222,12 @@ export default function HomepageSettingsPage() {
   // 저장 핸들러
   const handleSave = async () => {
     if (!canSave) return;
+    if (isPaidHomepageStyle(selectedWebsiteStyle)) {
+      alert(
+        "유료옵션은 개별문의가 필요하여 신청 화면에서 바로 선택할 수 없습니다.",
+      );
+      return;
+    }
 
     setSaving(true);
     try {
@@ -277,7 +294,8 @@ export default function HomepageSettingsPage() {
     cardFrontUrl.trim() &&
     /^\d{2}\/\d{2}$/.test(cardExpiry) &&
     /^\d{3}$/.test(cardCvc);
-  const step3Done = !!selectedWebsiteStyle;
+  const step3Done =
+    !!selectedWebsiteStyle && !isPaidHomepageStyle(selectedWebsiteStyle);
   const completedSteps = [step1Done, step2Done, step3Done].filter(
     Boolean,
   ).length;
@@ -840,132 +858,153 @@ export default function HomepageSettingsPage() {
         <CardContent className="space-y-4 md:space-y-6">
           {/* Layer 1: 스타일 선택 그리드 + 컬러피커 */}
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4">
-            {[
-              { url: "https://www.jnipartners.co.kr", name: "스타일 1" },
-              { url: "https://bizcoaching.co.kr/", name: "스타일 2" },
-              { url: "https://yjbiz.co.kr/", name: "스타일 3" },
-              { url: "https://biznuri.co.kr/", name: "스타일 4" },
-              { url: "https://www.wiztion.com/", name: "스타일 5" },
-              { url: "https://brpartners.kr/", name: "스타일 6" },
-              { url: "https://startpackagedemo.vercel.app/", name: "스타일 7" },
-              {
-                url: "https://startpackage-demo2.vercel.app/",
-                name: "스타일 8",
-              },
-              {
-                url: "https://startpackage-demo3.vercel.app/",
-                name: "스타일 9",
-              },
-            ].map((style) => (
-              <Dialog
-                key={style.url}
-                open={dialogOpen && selectedWebsiteStyle === style.url}
-                onOpenChange={(open) => {
-                  setDialogOpen(open);
-                }}
-              >
-                <div
-                  className={`rounded-lg border transition-all overflow-hidden cursor-pointer ${
-                    selectedWebsiteStyle === style.url
-                      ? "border-green-600 ring-2 ring-green-300"
-                      : "border-gray-300 hover:border-green-400"
-                  }`}
-                >
-                  {/* 썸네일 */}
-                  <DialogTrigger asChild>
-                    <div
-                      className="relative group"
-                      onClick={() => {
-                        setSelectedWebsiteStyle(style.url);
-                        setDialogOpen(true);
-                      }}
-                    >
-                      <div
-                        className="aspect-[4/3] overflow-hidden bg-gray-100 cursor-ns-resize"
-                        onWheel={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          handleStyleScroll(style.url, e.deltaY);
-                        }}
-                      >
-                        <iframe
-                          src={style.url}
-                          className="w-full h-full origin-top-left pointer-events-none"
-                          style={{
-                            width: "300%",
-                            height: "300%",
-                            transform: `scale(0.33) translateY(-${styleScrolls[style.url] || 0}px)`,
-                          }}
-                          title={style.name}
-                        />
+            {HOMEPAGE_STYLE_OPTIONS.map((style, idx) => {
+              const firstPaidIdx = HOMEPAGE_STYLE_OPTIONS.findIndex(
+                (s) => s.paid,
+              );
+              return (
+                <Fragment key={style.url}>
+                  {idx === firstPaidIdx && firstPaidIdx > 0 ? (
+                    <div className="col-span-2 lg:col-span-3 flex items-center gap-3 my-2">
+                      <div className="flex-1 h-px bg-amber-200" />
+                      <div className="px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-xs font-semibold text-amber-700 whitespace-nowrap">
+                        유료옵션 · 개별문의
                       </div>
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all flex items-center justify-center">
-                        <div className="opacity-0 group-hover:opacity-100 bg-white/90 px-3 py-1.5 rounded-lg text-xs font-semibold">
-                          클릭하여 크게 보기
+                      <div className="flex-1 h-px bg-amber-200" />
+                    </div>
+                  ) : null}
+                  <Dialog
+                    open={dialogOpen && previewStyleUrl === style.url}
+                    onOpenChange={(open) => {
+                      setDialogOpen(open);
+                      setPreviewStyleUrl(open ? style.url : null);
+                    }}
+                  >
+                    <div
+                      className={`rounded-lg border transition-all overflow-hidden cursor-pointer ${
+                        selectedWebsiteStyle === style.url
+                          ? "border-green-600 ring-2 ring-green-300"
+                          : style.paid
+                            ? "border-amber-300 hover:border-amber-400"
+                            : "border-gray-300 hover:border-green-400"
+                      }`}
+                    >
+                      {/* 썸네일 */}
+                      <DialogTrigger asChild>
+                        <div
+                          className="relative group"
+                          onClick={() => {
+                            if (!style.paid) {
+                              setSelectedWebsiteStyle(style.url);
+                            }
+                            setPreviewStyleUrl(style.url);
+                            setDialogOpen(true);
+                          }}
+                        >
+                          <div
+                            className="aspect-[4/3] overflow-hidden bg-gray-100 cursor-ns-resize"
+                            onWheel={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleStyleScroll(style.url, e.deltaY);
+                            }}
+                          >
+                            <iframe
+                              src={style.url}
+                              className="w-full h-full origin-top-left pointer-events-none"
+                              style={{
+                                width: "300%",
+                                height: "300%",
+                                transform: `scale(0.33) translateY(-${styleScrolls[style.url] || 0}px)`,
+                              }}
+                              title={`${style.name} 미리보기`}
+                              loading="lazy"
+                              referrerPolicy="no-referrer"
+                            />
+                          </div>
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all flex items-center justify-center">
+                            <div className="opacity-0 group-hover:opacity-100 bg-white/90 px-3 py-1.5 rounded-lg text-xs font-semibold">
+                              클릭하여 크게 보기
+                            </div>
+                          </div>
                         </div>
+                      </DialogTrigger>
+                      {/* 스타일 이름 */}
+                      <div className="p-2 text-center">
+                        <div className="font-semibold text-sm">
+                          {style.name}
+                        </div>
+                        {style.paid ? (
+                          <span className="text-xs text-amber-700 font-medium">
+                            선택 불가 · 개별문의
+                          </span>
+                        ) : selectedWebsiteStyle === style.url ? (
+                          <span className="text-xs text-green-600 font-medium">
+                            ✓ 선택됨
+                          </span>
+                        ) : null}
                       </div>
                     </div>
-                  </DialogTrigger>
-                  {/* 스타일 이름 */}
-                  <div className="p-2 text-center">
-                    <div className="font-semibold text-sm">{style.name}</div>
-                    {selectedWebsiteStyle === style.url && (
-                      <span className="text-xs text-green-600 font-medium">
-                        ✓ 선택됨
-                      </span>
-                    )}
-                  </div>
-                </div>
 
-                {/* 큰 미리보기 Dialog */}
-                <DialogContent className="w-[96vw] sm:w-[90vw] max-w-5xl max-h-[92vh] overflow-y-auto bg-white border border-gray-200 p-2 sm:p-4 md:p-6">
-                  <DialogHeader className="pb-2 space-y-1">
-                    <DialogTitle className="text-gray-900 text-base sm:text-lg md:text-xl">
-                      {style.name} 미리보기
-                    </DialogTitle>
-                    <DialogDescription className="text-gray-600 text-xs sm:text-sm">
-                      웹사이트 미리보기
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="w-full aspect-[16/9] overflow-hidden rounded-md border border-gray-200 my-2 sm:my-3 md:my-4 bg-gray-100">
-                    <iframe
-                      src={style.url}
-                      className="w-[200%] h-[200%] origin-top-left"
-                      style={{ transform: "scale(0.5)" }}
-                      title={`${style.name} 전체보기`}
-                    />
-                  </div>
-                  <p className="text-xs text-gray-500 text-center">
-                    미리보기 위에서 스크롤하여 페이지를 탐색할 수 있습니다
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-2 pt-2">
-                    <Button
-                      variant="outline"
-                      onClick={() => window.open(style.url, "_blank")}
-                      className="flex-1 text-xs sm:text-sm h-9 sm:h-10"
-                    >
-                      새 탭에서 열기
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        setSelectedWebsiteStyle(style.url);
-                        setDialogOpen(false);
-                        // 컬러 선택 섹션으로 스크롤
-                        setTimeout(() => {
-                          colorSectionRef.current?.scrollIntoView({
-                            behavior: "smooth",
-                            block: "center",
-                          });
-                        }, 100);
-                      }}
-                      className="flex-1 bg-green-600 hover:bg-green-700 text-xs sm:text-sm h-9 sm:h-10"
-                    >
-                      스타일 선택하기
-                    </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            ))}
+                    {/* 큰 미리보기 Dialog */}
+                    <DialogContent className="w-[96vw] sm:w-[90vw] max-w-5xl max-h-[92vh] overflow-y-auto bg-white border border-gray-200 p-2 sm:p-4 md:p-6">
+                      <DialogHeader className="pb-2 space-y-1">
+                        <DialogTitle className="text-gray-900 text-base sm:text-lg md:text-xl">
+                          {style.name} 미리보기
+                        </DialogTitle>
+                        <DialogDescription className="text-gray-600 text-xs sm:text-sm">
+                          웹사이트 미리보기
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="w-full aspect-[16/9] overflow-hidden rounded-md border border-gray-200 my-2 sm:my-3 md:my-4 bg-gray-100">
+                        <iframe
+                          src={style.url}
+                          className="w-[200%] h-[200%] origin-top-left"
+                          style={{ transform: "scale(0.5)" }}
+                          title={`${style.name} 전체보기`}
+                          referrerPolicy="no-referrer"
+                        />
+                      </div>
+                      <p className="text-xs text-gray-500 text-center">
+                        미리보기 위에서 스크롤하여 페이지를 탐색할 수 있습니다
+                      </p>
+                      <div className="flex flex-col sm:flex-row gap-2 pt-2">
+                        <Button
+                          variant="outline"
+                          onClick={() => window.open(style.url, "_blank")}
+                          className="flex-1 text-xs sm:text-sm h-9 sm:h-10"
+                        >
+                          새 탭에서 열기
+                        </Button>
+                        {style.paid ? (
+                          <div className="flex-1 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-center text-xs sm:text-sm font-semibold text-amber-800">
+                            선택 불가 · 개별문의
+                          </div>
+                        ) : (
+                          <Button
+                            onClick={() => {
+                              setSelectedWebsiteStyle(style.url);
+                              setPreviewStyleUrl(null);
+                              setDialogOpen(false);
+                              // 컬러 선택 섹션으로 스크롤
+                              setTimeout(() => {
+                                colorSectionRef.current?.scrollIntoView({
+                                  behavior: "smooth",
+                                  block: "center",
+                                });
+                              }, 100);
+                            }}
+                            className="flex-1 bg-green-600 hover:bg-green-700 text-xs sm:text-sm h-9 sm:h-10"
+                          >
+                            스타일 선택하기
+                          </Button>
+                        )}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </Fragment>
+              );
+            })}
           </div>
 
           {/* 컬러 컨셉 선택 */}
@@ -989,41 +1028,7 @@ export default function HomepageSettingsPage() {
                   rel="noopener noreferrer"
                   className="text-green-600 hover:underline text-sm"
                 >
-                  {(() => {
-                    const styles = [
-                      {
-                        url: "https://www.jnipartners.co.kr",
-                        name: "스타일 1",
-                      },
-                      { url: "https://bizcoaching.co.kr/", name: "스타일 2" },
-                      { url: "https://yjbiz.co.kr/", name: "스타일 3" },
-                      {
-                        url: "https://biznuri.co.kr/",
-                        name: "스타일 4",
-                      },
-                      { url: "https://www.wiztion.com/", name: "스타일 5" },
-                      {
-                        url: "https://brpartners.kr/",
-                        name: "스타일 6",
-                      },
-                      {
-                        url: "https://startpackagedemo.vercel.app/",
-                        name: "스타일 7",
-                      },
-                      {
-                        url: "https://startpackage-demo2.vercel.app/",
-                        name: "스타일 8",
-                      },
-                      {
-                        url: "https://startpackage-demo3.vercel.app/",
-                        name: "스타일 9",
-                      },
-                    ];
-                    return (
-                      styles.find((s) => s.url === selectedWebsiteStyle)
-                        ?.name || "선택됨"
-                    );
-                  })()}
+                  {getHomepageStyleName(selectedWebsiteStyle) || "선택됨"}
                 </a>
               </div>
             )}
