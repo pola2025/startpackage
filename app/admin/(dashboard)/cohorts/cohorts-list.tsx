@@ -27,6 +27,10 @@ import {
   ChevronUp,
 } from "lucide-react";
 import CohortActions from "./cohort-actions";
+import {
+  calculateMarketingSupportEndDate,
+  getMarketingSupportDurationLabel,
+} from "@/lib/marketing-support";
 
 interface Cohort {
   id: string;
@@ -51,8 +55,10 @@ export default function CohortsList({ cohorts }: CohortsListProps) {
   const inactiveCohorts = cohorts.filter((c) => !c.isActive);
 
   const renderCohortCard = (cohort: Cohort) => {
-    const endDate = cohort.교육시작일 ? new Date(cohort.교육시작일) : null;
-    if (endDate) endDate.setMonth(endDate.getMonth() + 3);
+    const endDate = cohort.교육시작일
+      ? calculateMarketingSupportEndDate(cohort.교육시작일, cohort.name)
+      : null;
+    const durationLabel = getMarketingSupportDurationLabel(cohort.name);
     const now = new Date();
     const isExpired = endDate ? now > endDate : false;
     const daysLeft = endDate
@@ -133,7 +139,7 @@ export default function CohortsList({ cohorts }: CohortsListProps) {
           <div className="flex items-center gap-2 text-xs">
             <span className="text-gray-500">마케팅 지원:</span>
             <span className="text-gray-600">
-              ~{endDate.toLocaleDateString("ko-KR")}
+              ~{endDate.toLocaleDateString("ko-KR")} ({durationLabel})
             </span>
             {isExpired ? (
               <Badge
@@ -236,8 +242,13 @@ export default function CohortsList({ cohorts }: CohortsListProps) {
         <TableCell className="text-sm">
           {cohort.교육시작일 ? (
             (() => {
-              const endDate = new Date(cohort.교육시작일);
-              endDate.setMonth(endDate.getMonth() + 3);
+              const endDate = calculateMarketingSupportEndDate(
+                cohort.교육시작일,
+                cohort.name,
+              );
+              const durationLabel = getMarketingSupportDurationLabel(
+                cohort.name,
+              );
               const now = new Date();
               const isExpired = now > endDate;
               const daysLeft = Math.ceil(
@@ -250,7 +261,9 @@ export default function CohortsList({ cohorts }: CohortsListProps) {
                     className={`flex items-center gap-1 ${cohort.isActive ? "text-gray-600" : "text-gray-400"}`}
                   >
                     <Calendar className="w-3 h-3" />
-                    <span>~{endDate.toLocaleDateString("ko-KR")}</span>
+                    <span>
+                      ~{endDate.toLocaleDateString("ko-KR")} ({durationLabel})
+                    </span>
                   </div>
                   {isExpired ? (
                     <Badge

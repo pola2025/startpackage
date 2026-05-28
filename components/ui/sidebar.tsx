@@ -246,6 +246,24 @@ export function Sidebar({
             closeMobile,
           )}
 
+        {/* 온라인마케팅 - 독립 항목 */}
+        {!isGraduated && (
+          <Link href="/dashboard/online-marketing" onClick={closeMobile}>
+            <Button
+              variant="ghost"
+              className={cn(
+                "w-full justify-start h-9",
+                pathname.startsWith("/dashboard/online-marketing")
+                  ? "bg-gold-50 text-gold-600 font-semibold hover:bg-gold-100"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100",
+              )}
+            >
+              <Megaphone className="w-5 h-5 mr-3" />
+              온라인마케팅(유료)
+            </Button>
+          </Link>
+        )}
+
         {/* 문의하기 - 독립 항목 */}
         <Link href="/dashboard/communication" onClick={closeMobile}>
           <Button

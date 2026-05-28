@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
+import {
+  ONLINE_MARKETING_BILLING_MONTHS,
+  ONLINE_MARKETING_MONTHLY_PRICE,
+  ONLINE_MARKETING_TOTAL_PRICE,
+  formatManwon,
+  formatWon,
+} from "@/lib/marketing-pricing";
 
 // POST: 마케팅 지원 연장 신청 승인
 export async function POST(
@@ -85,8 +92,8 @@ export async function POST(
           <ul>
             <li>계좌번호: 우리은행 1005-302-954803</li>
             <li>예금주: 폴라애드(이재호)</li>
-            <li>금액: 660,000원 (VAT 포함, 3개월분)</li>
-            <li>월 220,000원 (VAT 포함)</li>
+            <li>금액: ${formatWon(ONLINE_MARKETING_TOTAL_PRICE)}원 (VAT 포함, ${ONLINE_MARKETING_BILLING_MONTHS}개월분)</li>
+            <li>월 ${formatWon(ONLINE_MARKETING_MONTHLY_PRICE)}원 (VAT 포함)</li>
           </ul>
           <p>결제 후 확인 부탁드립니다.</p>
         `,
@@ -99,7 +106,7 @@ export async function POST(
         const adminFrom = getSenderPhoneByAdmin(session.user?.email);
         await sendSMS(
           extensionRequest.user.연락처,
-          `[스타트패키지] 마케팅 지원 연장이 승인되었습니다.\n\n새로운 종료일: ${extensionRequest.newEndDate.toLocaleDateString("ko-KR")}\n\n결제 정보: 우리은행 1005-302-954803 폴라애드(이재호) / 66만원(VAT포함)`,
+          `[스타트패키지] 마케팅 지원 연장이 승인되었습니다.\n\n새로운 종료일: ${extensionRequest.newEndDate.toLocaleDateString("ko-KR")}\n\n결제 정보: 우리은행 1005-302-954803 폴라애드(이재호) / ${formatManwon(ONLINE_MARKETING_TOTAL_PRICE)}(VAT포함)`,
           adminFrom ? { from: adminFrom } : undefined,
         );
       }

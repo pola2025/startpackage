@@ -173,6 +173,14 @@ export function MobileMoreMenu({
             </div>
           )}
 
+          {!isGraduated &&
+            renderLink({
+              href: "/dashboard/online-marketing",
+              icon: Megaphone,
+              label: "온라인마케팅(유료)",
+              badge: null,
+            })}
+
           {/* 문의하기 */}
           {renderLink({
             href: "/dashboard/communication",

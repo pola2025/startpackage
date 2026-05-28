@@ -1,5 +1,10 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
+import {
+  ONLINE_MARKETING_BILLING_MONTHS,
+  ONLINE_MARKETING_MONTHLY_PRICE,
+  ONLINE_MARKETING_TOTAL_PRICE,
+} from "@/lib/marketing-pricing";
 import { NextResponse } from "next/server";
 
 // POST: 마케팅 지원 연장 신청
@@ -15,8 +20,11 @@ export async function POST(request: Request) {
     const { requestMessage } = body;
 
     // 3개월 단위 결제만 가능
-    const months = 3;
-    const selectedPrice = { total: 660000, monthly: 220000 };
+    const months = ONLINE_MARKETING_BILLING_MONTHS;
+    const selectedPrice = {
+      total: ONLINE_MARKETING_TOTAL_PRICE,
+      monthly: ONLINE_MARKETING_MONTHLY_PRICE,
+    };
 
     // 사용자 정보 조회
     const user = await prisma.user.findUnique({

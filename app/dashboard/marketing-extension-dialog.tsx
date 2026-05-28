@@ -13,10 +13,14 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Loader2, ExternalLink } from "lucide-react";
+import {
+  ONLINE_MARKETING_BILLING_MONTHS,
+  ONLINE_MARKETING_MONTHLY_PRICE,
+  ONLINE_MARKETING_TOTAL_PRICE,
+  formatManwon,
+  formatWon,
+} from "@/lib/marketing-pricing";
 
-const EXTENSION_MONTHS = 3;
-const MONTHLY_PRICE = 220000;
-const TOTAL_PRICE = MONTHLY_PRICE * EXTENSION_MONTHS;
 const BANK_ACCOUNT =
   process.env.NEXT_PUBLIC_BANK_ACCOUNT ||
   "우리은행 1005-302-954803 / 폴라애드(이재호)";
@@ -34,9 +38,11 @@ export default function MarketingExtensionDialog({
   const [requestMessage, setRequestMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 연장 후 종료일 계산 (3개월 고정)
+  // 연장 후 종료일 계산 (결제 단위 기준)
   const calculatedEndDate = new Date(currentEndDate);
-  calculatedEndDate.setMonth(calculatedEndDate.getMonth() + EXTENSION_MONTHS);
+  calculatedEndDate.setMonth(
+    calculatedEndDate.getMonth() + ONLINE_MARKETING_BILLING_MONTHS,
+  );
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
@@ -47,7 +53,10 @@ export default function MarketingExtensionDialog({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ requestMessage, months: EXTENSION_MONTHS }),
+        body: JSON.stringify({
+          requestMessage,
+          months: ONLINE_MARKETING_BILLING_MONTHS,
+        }),
       });
 
       const data = await response.json();
@@ -79,7 +88,8 @@ export default function MarketingExtensionDialog({
         <DialogHeader>
           <DialogTitle className="text-xl">마케팅 지원 연장 신청</DialogTitle>
           <DialogDescription className="text-sm">
-            마케팅 지원은 3개월 단위로 연장됩니다.
+            마케팅 지원은 {ONLINE_MARKETING_BILLING_MONTHS}개월 단위로
+            연장됩니다.
           </DialogDescription>
         </DialogHeader>
 
@@ -88,17 +98,17 @@ export default function MarketingExtensionDialog({
           <div className="rounded-lg border-2 border-gold-500 bg-gold-50 p-4">
             <div className="flex items-baseline justify-between">
               <div className="text-base font-semibold text-navy-900">
-                3개월 연장
+                {ONLINE_MARKETING_BILLING_MONTHS}개월 연장
               </div>
               <div className="text-right">
                 <div className="text-lg font-bold text-navy-900">
-                  월 {(MONTHLY_PRICE / 10000).toFixed(0)}만원
+                  월 {formatManwon(ONLINE_MARKETING_MONTHLY_PRICE)}
                 </div>
                 <div className="text-xs text-gray-600">VAT 포함</div>
               </div>
             </div>
             <p className="mt-2 text-xs text-gray-600">
-              3개월 단위 결제만 가능합니다.
+              {ONLINE_MARKETING_BILLING_MONTHS}개월 단위 결제만 가능합니다.
             </p>
           </div>
 
@@ -146,12 +156,13 @@ export default function MarketingExtensionDialog({
               <p>
                 금액:{" "}
                 <span className="font-semibold text-gold-600">
-                  {TOTAL_PRICE.toLocaleString()}원 (VAT 포함, 3개월분)
+                  {formatWon(ONLINE_MARKETING_TOTAL_PRICE)}원 (VAT 포함,{" "}
+                  {ONLINE_MARKETING_BILLING_MONTHS}개월분)
                 </span>
               </p>
               <p className="text-xs text-gray-600 mt-2">
-                월 {MONTHLY_PRICE.toLocaleString()}원 (VAT 포함) · 입금자명에
-                상호 또는 신청자명을 기재해 주세요.
+                월 {formatWon(ONLINE_MARKETING_MONTHLY_PRICE)}원 (VAT 포함) ·
+                입금자명에 상호 또는 신청자명을 기재해 주세요.
               </p>
             </div>
           </div>

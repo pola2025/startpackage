@@ -22,6 +22,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { Megaphone, CheckCircle, XCircle, Clock, User, Mail, Phone, Calendar } from "lucide-react";
+import {
+  ONLINE_MARKETING_BILLING_MONTHS,
+  ONLINE_MARKETING_MONTHLY_PRICE,
+  ONLINE_MARKETING_TOTAL_PRICE,
+  formatWon,
+} from "@/lib/marketing-pricing";
 
 interface MarketingExtensionRequest {
   id: string;
@@ -367,8 +373,13 @@ export default function MarketingExtensionsPage() {
                   <div className="space-y-1 text-xs text-gray-400">
                     <p>계좌번호: 우리은행 1005-302-954803</p>
                     <p>예금주: 폴라애드(이재호)</p>
-                    <p>금액: 660,000원 (VAT 포함, 3개월분)</p>
-                    <p className="text-xs text-gray-500 mt-1">월 220,000원 (VAT 포함)</p>
+                    <p>
+                      금액: {formatWon(ONLINE_MARKETING_TOTAL_PRICE)}원 (VAT 포함,{" "}
+                      {ONLINE_MARKETING_BILLING_MONTHS}개월분)
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      월 {formatWon(ONLINE_MARKETING_MONTHLY_PRICE)}원 (VAT 포함)
+                    </p>
                   </div>
                 </div>
               )}
@@ -442,8 +453,13 @@ export default function MarketingExtensionsPage() {
                   <div className="space-y-1 text-xs text-gray-400">
                     <p>계좌번호: 우리은행 1005-302-954803</p>
                     <p>예금주: 폴라애드(이재호)</p>
-                    <p>금액: 660,000원 (VAT 포함, 3개월분)</p>
-                    <p className="text-xs text-gray-500 mt-1">월 220,000원 (VAT 포함)</p>
+                    <p>
+                      금액: {formatWon(ONLINE_MARKETING_TOTAL_PRICE)}원 (VAT 포함,{" "}
+                      {ONLINE_MARKETING_BILLING_MONTHS}개월분)
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      월 {formatWon(ONLINE_MARKETING_MONTHLY_PRICE)}원 (VAT 포함)
+                    </p>
                   </div>
                 </div>
               )}

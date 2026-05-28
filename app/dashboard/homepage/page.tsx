@@ -40,6 +40,10 @@ import {
   getHomepageStyleName,
   isPaidHomepageStyle,
 } from "@/lib/homepage-styles";
+import {
+  ONLINE_MARKETING_MONTHLY_PRICE,
+  formatManwon,
+} from "@/lib/marketing-pricing";
 
 interface HomepageData {
   홈페이지스타일: string | null;
@@ -1012,7 +1016,8 @@ export default function HomepageSettingsPage() {
             <Info className="w-4 h-4 mt-0.5 flex-shrink-0 text-amber-600" />
             <div>
               <span className="font-semibold">유료옵션</span> 온라인마케팅
-              대행상품 이용 시 선택 가능 (월 22만원, VAT 포함)
+              대행상품 이용 시 선택 가능 (월{" "}
+              {formatManwon(ONLINE_MARKETING_MONTHLY_PRICE)}, VAT 포함)
             </div>
           </div>
 

@@ -10,6 +10,10 @@ import { ensureUserWorkflows } from "@/lib/ensureUserWorkflows";
 import ProgressVisualization from "@/components/dashboard/progress-visualization";
 import DashboardAlertsClient from "./_components/dashboard-alerts-client";
 import PrintDeliverableCards from "./_components/print-deliverable-cards";
+import {
+  calculateMarketingSupportEndDate,
+  getMarketingSupportDurationLabel,
+} from "@/lib/marketing-support";
 
 // Temporary Progress component
 function Progress({ value, className }: { value: number; className?: string }) {
@@ -108,9 +112,12 @@ export default async function UserDashboard() {
   const totalFields = submissionFields.length;
   const completionPercent = Math.round((completedFields / totalFields) * 100);
 
-  // 마케팅 지원 기간 계산 (교육시작일 기준)
+  // 마케팅 지원 기간 계산 (26-5기부터 8주, 이전 기수는 3개월)
   let marketingStartDate: Date | null = null;
   let marketingEndDate: Date | null = null;
+  const marketingSupportDurationLabel = getMarketingSupportDurationLabel(
+    user.cohort?.name,
+  );
 
   if (
     user.marketingSupportEnabled &&
@@ -123,8 +130,10 @@ export default async function UserDashboard() {
   } else if (user.cohort?.교육시작일) {
     // 교육시작일 기준으로 자동 계산
     marketingStartDate = new Date(user.cohort.교육시작일);
-    marketingEndDate = new Date(user.cohort.교육시작일);
-    marketingEndDate.setMonth(marketingEndDate.getMonth() + 3);
+    marketingEndDate = calculateMarketingSupportEndDate(
+      user.cohort.교육시작일,
+      user.cohort.name,
+    );
   }
 
   // === 알림 시스템 ===
@@ -710,6 +719,9 @@ export default async function UserDashboard() {
             <Megaphone className="w-4 h-4 text-gov-blue" />
             <span className="text-sm md:text-base font-bold text-gray-900 flex-1">
               마케팅 지원 서비스
+            </span>
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+              {marketingSupportDurationLabel}
             </span>
             {(() => {
               const now = new Date();
