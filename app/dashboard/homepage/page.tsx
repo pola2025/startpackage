@@ -646,7 +646,7 @@ export default function HomepageSettingsPage() {
               2
             </span>
             <CardTitle className="text-gray-900 text-base flex items-center gap-2">
-              Gmail (메일발신용)
+              Gmail (서비스 인프라 연결용)
             </CardTitle>
             <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">
               필수
@@ -660,7 +660,8 @@ export default function HomepageSettingsPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-xs text-gray-600">
-            신규 개설한 Gmail 계정 ID/PW를 입력해주세요
+            메일 발신용이 아니라 홈페이지·서비스 인프라 연결에 사용됩니다.
+            사용하시는 Gmail 계정 ID/PW를 입력해주세요.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
