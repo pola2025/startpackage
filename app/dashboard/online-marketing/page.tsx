@@ -1,29 +1,22 @@
 import Link from "next/link";
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  BarChart3,
-  Bot,
-  CalendarDays,
+  AlertTriangle,
   CheckCircle2,
-  Clock3,
   FileText,
+  Film,
   Gift,
+  Globe,
+  Images,
   Megaphone,
   MessageSquare,
+  Package,
   ShieldCheck,
   Sparkles,
+  StopCircle,
 } from "lucide-react";
 import {
   CONTENT_AUTOMATION_OPTION_MONTHLY_PRICE,
@@ -31,7 +24,6 @@ import {
   ONLINE_MARKETING_MONTHLY_PRICE,
   ONLINE_MARKETING_TOTAL_PRICE,
   formatManwon,
-  formatWon,
 } from "@/lib/marketing-pricing";
 
 const baseServices = [
@@ -42,18 +34,20 @@ const baseServices = [
   "광고 성과 및 운영 이슈 안내",
 ];
 
-const automationItems = [
-  "기업마당 동기화",
-  "홈페이지 게시글 매일 작성",
-  "네이버 블로그 매일 작성",
-  "인스타그램 게시글 매일 작성",
-  "릴스 매일 작성",
+const contentDeliverables = [
+  { icon: FileText, label: "네이버 블로그" },
+  { icon: Images, label: "인스타 캐러셀" },
+  { icon: Film, label: "인스타 릴스" },
+  { icon: Globe, label: "홈페이지 게시글" },
 ];
+
+const MONTHLY_CONTENT_COUNT = contentDeliverables.length * 30;
 
 const notes = [
   "Meta 광고비는 상품 비용과 별도이며 대표님 계정에서 직접 결제됩니다.",
   "광고 소재와 기본 방향은 대표님 확인을 기준으로 운영합니다.",
-  "네이버 블로그 자동화는 2단계 인증이 꺼져 있어야 진행할 수 있습니다.",
+  "네이버 블로그 발행은 2단계 인증이 꺼져 있어야 진행할 수 있습니다.",
+  "콘텐츠 대행 종료 시 콘텐츠 배포가 함께 종료됩니다.",
 ];
 
 export default function OnlineMarketingPage() {
@@ -69,7 +63,7 @@ export default function OnlineMarketingPage() {
             온라인마케팅
           </h1>
           <p className="mt-1 text-sm text-gray-600 md:text-base">
-            BAS 수강생을 위한 Meta 광고 운영과 콘텐츠 자동화 안내입니다.
+            BAS 수강생을 위한 광고운영대행과 콘텐츠 대행 안내입니다.
           </p>
         </div>
 
@@ -81,117 +75,185 @@ export default function OnlineMarketingPage() {
         </Button>
       </div>
 
+      {/* 수강생 혜택 배너 */}
       <Card className="border-gold-200 bg-gold-50 shadow-sm">
         <CardContent className="p-4 md:p-6">
-          <div className="grid gap-4 md:grid-cols-[1.2fr_0.8fr] md:items-center">
-            <div>
-              <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-gold-700">
-                <Sparkles className="h-4 w-4" />
-                BAS 수강생 이용 혜택
-              </div>
-              <h2 className="text-lg font-bold text-navy-900 md:text-2xl">
-                운영형 온라인마케팅 월{" "}
-                {formatWon(ONLINE_MARKETING_MONTHLY_PRICE)}원
-              </h2>
-              <p className="mt-2 text-sm leading-relaxed text-gray-700">
-                기존 운영형 상품의 핵심 구성은 유지하고, BAS 수강생 전용
-                혜택으로 1개월 콘텐츠 자동화를 함께 제공합니다.
-              </p>
-            </div>
-
-            <div className="rounded-lg border border-gold-200 bg-white p-4">
-              <div className="flex items-baseline gap-1">
-                <span className="text-sm text-gray-500">월</span>
-                <span className="text-3xl font-bold text-navy-900">
-                  {formatManwon(ONLINE_MARKETING_MONTHLY_PRICE)}
-                </span>
-              </div>
-              <p className="mt-1 text-xs text-gray-500">VAT 포함</p>
-              <div className="mt-3 rounded-md bg-gray-50 p-3 text-sm text-gray-700">
-                <div className="flex items-center gap-2">
-                  <CalendarDays className="h-4 w-4 text-gold-600" />
-                  {ONLINE_MARKETING_BILLING_MONTHS}개월 단위 결제
-                </div>
-                <div className="mt-1 text-xs text-gray-500">
-                  {ONLINE_MARKETING_BILLING_MONTHS}개월 총액{" "}
-                  {formatWon(ONLINE_MARKETING_TOTAL_PRICE)}원
-                </div>
-              </div>
-            </div>
+          <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-gold-700">
+            <Sparkles className="h-4 w-4" />
+            BAS 수강생 전용가
           </div>
+          <h2 className="text-lg font-bold text-navy-900 md:text-2xl">
+            광고운영대행을 수강생 특별가로 제공합니다
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-gray-700">
+            BAS 수강생은 광고운영대행을 월{" "}
+            {formatManwon(ONLINE_MARKETING_MONTHLY_PRICE)}으로 이용하실 수
+            있습니다. 콘텐츠 대행은 월{" "}
+            {formatManwon(CONTENT_AUTOMATION_OPTION_MONTHLY_PRICE)}으로 함께
+            진행할 수 있습니다.
+          </p>
         </CardContent>
       </Card>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card className="border-gray-200 shadow-sm">
-          <CardHeader className="p-4 md:p-6">
-            <CardTitle className="flex items-center gap-2 text-base text-gray-900 md:text-lg">
-              <BarChart3 className="h-5 w-5 text-gold-600" />
-              기본 운영 항목
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
-            <ul className="space-y-2 text-sm text-gray-700">
-              {baseServices.map((item) => (
-                <li key={item} className="flex items-start gap-2">
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-600" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
+      {/* 상품 구성 */}
+      <div>
+        <div className="mb-2 flex items-center gap-2">
+          <Package className="h-5 w-5 text-gold-600" />
+          <h3 className="text-base font-bold text-gray-900 md:text-lg">
+            상품 구성
+          </h3>
+        </div>
 
-        <Card className="border-gray-200 shadow-sm">
-          <CardHeader className="p-4 md:p-6">
-            <CardTitle className="flex items-center gap-2 text-base text-gray-900 md:text-lg">
-              <Gift className="h-5 w-5 text-gold-600" />
-              1개월 제공 혜택
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 p-4 pt-0 md:p-6 md:pt-0">
-            <div className="rounded-lg border border-green-200 bg-green-50 p-3">
-              <div className="flex items-center gap-2 text-sm font-semibold text-green-800">
-                <Bot className="h-4 w-4" />
-                콘텐츠 자동화 1개월 제공
+        <div className="grid gap-4 md:grid-cols-2">
+          {/* 상품 A: 광고운영대행 */}
+          <Card className="flex flex-col border-2 border-navy-900 shadow-sm">
+            <CardHeader className="p-4 md:p-5">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2 text-base text-gray-900 md:text-lg">
+                  <Badge className="bg-navy-900 text-white">광고</Badge>
+                  광고운영대행
+                </CardTitle>
+                <Badge className="border border-gold-200 bg-gold-50 text-gold-700">
+                  수강생가
+                </Badge>
               </div>
-              <p className="mt-1 text-xs leading-relaxed text-green-700">
-                1개월 이후에는 유료옵션으로 전환되며 월{" "}
-                {formatWon(CONTENT_AUTOMATION_OPTION_MONTHLY_PRICE)}원(VAT 포함)
-                입니다.
-              </p>
-            </div>
-            <div className="rounded-lg border border-gray-200 bg-white p-3">
-              <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-900">
-                <Clock3 className="h-4 w-4 text-gold-600" />
-                제공 기간 이후
-              </div>
+            </CardHeader>
+            <CardContent className="flex flex-1 flex-col p-4 pt-0 md:p-5 md:pt-0">
               <p className="text-xs leading-relaxed text-gray-600">
-                콘텐츠 자동화 유지 여부는 1개월 사용 후 선택할 수 있습니다.
+                대표님 광고 계정에 캠페인을 세팅하고 소재·메시지·접수 흐름을
+                운영합니다.
               </p>
-            </div>
-          </CardContent>
-        </Card>
+
+              <div className="mt-3 rounded-lg bg-gray-50 p-3">
+                <div className="flex items-baseline gap-1">
+                  <span className="text-sm text-gray-500">월</span>
+                  <span className="text-3xl font-bold text-navy-900">
+                    {formatManwon(ONLINE_MARKETING_MONTHLY_PRICE)}
+                  </span>
+                </div>
+                <p className="mt-1 text-xs text-gray-500">
+                  VAT 포함 · {ONLINE_MARKETING_BILLING_MONTHS}개월 단위 결제
+                </p>
+                <p className="mt-0.5 text-xs text-gray-500">
+                  {ONLINE_MARKETING_BILLING_MONTHS}개월 총액{" "}
+                  {formatManwon(ONLINE_MARKETING_TOTAL_PRICE)}
+                </p>
+              </div>
+
+              <ul className="mt-4 flex-1 space-y-2 text-sm text-gray-700">
+                {baseServices.map((item) => (
+                  <li key={item} className="flex items-start gap-2">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-600" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="mt-4 flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 p-2.5 text-xs leading-relaxed text-amber-800">
+                <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
+                <span>
+                  매체 광고비는 대행료와 별도이며, 대표님 광고 계정에서 직접
+                  결제됩니다.
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* 상품 B: 콘텐츠 대행 */}
+          <Card className="flex flex-col border-2 border-green-500 shadow-sm">
+            <CardHeader className="p-4 md:p-5">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2 text-base text-gray-900 md:text-lg">
+                  <Badge className="bg-green-600 text-white">콘텐츠</Badge>
+                  콘텐츠 대행
+                </CardTitle>
+                <Badge className="border border-green-200 bg-green-50 text-green-700">
+                  매일 발행
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="flex flex-1 flex-col p-4 pt-0 md:p-5 md:pt-0">
+              <p className="text-xs leading-relaxed text-gray-600">
+                블로그·카드뉴스·숏폼을 매일 제작·배포해 검색·SNS·상담 전 신뢰를
+                쌓습니다.
+              </p>
+
+              <div className="mt-3 rounded-lg bg-green-50 p-3">
+                <div className="flex items-baseline gap-1">
+                  <span className="text-sm text-gray-500">월</span>
+                  <span className="text-3xl font-bold text-navy-900">
+                    {formatManwon(CONTENT_AUTOMATION_OPTION_MONTHLY_PRICE)}
+                  </span>
+                </div>
+                <p className="mt-1 text-xs text-gray-500">
+                  VAT 포함 · 1개월 단위 연장
+                </p>
+                <p className="mt-0.5 text-xs font-semibold text-green-700">
+                  월 기준 +{MONTHLY_CONTENT_COUNT}개 발행
+                </p>
+              </div>
+
+              <div className="mt-4 flex-1">
+                <p className="mb-2 text-xs font-semibold text-gray-500">
+                  매일 발행 콘텐츠 (하루 {contentDeliverables.length}종)
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  {contentDeliverables.map(({ icon: Icon, label }) => (
+                    <div
+                      key={label}
+                      className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 p-2.5 text-sm text-gray-800"
+                    >
+                      <Icon className="h-4 w-4 flex-shrink-0 text-green-600" />
+                      <div className="flex flex-col leading-tight">
+                        <span>{label}</span>
+                        <span className="text-[11px] text-gray-500">
+                          1개 / 일
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-2 flex items-center justify-center gap-2 rounded-lg border border-dashed border-green-300 bg-green-50 p-2.5 text-sm font-medium text-green-800">
+                  <Sparkles className="h-4 w-4" />
+                  기업마당 연동 리라이팅 세팅
+                </div>
+              </div>
+
+              <div className="mt-4 flex items-start gap-2 rounded-md border border-gray-200 bg-gray-50 p-2.5 text-xs leading-relaxed text-gray-600">
+                <StopCircle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
+                <span>콘텐츠 대행 종료 시 콘텐츠 배포가 함께 종료됩니다.</span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
-      <Card className="border-gray-200 shadow-sm">
-        <CardHeader className="p-4 md:p-6">
-          <CardTitle className="flex items-center gap-2 text-base text-gray-900 md:text-lg">
-            <FileText className="h-5 w-5 text-gold-600" />
-            콘텐츠 자동화 항목
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
-          <div className="grid gap-2 sm:grid-cols-2">
-            {automationItems.map((item) => (
-              <div
-                key={item}
-                className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-800"
-              >
-                <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-gold-600" />
-                <span>{item}</span>
+      {/* 홈페이지 제작 전 시작 혜택 */}
+      <Card className="border-gold-200 bg-gradient-to-r from-gold-50 to-green-50 shadow-sm">
+        <CardContent className="p-4 md:p-5">
+          <div className="flex items-start gap-3">
+            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-gold-200 bg-white text-gold-600">
+              <Gift className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="text-base font-bold text-navy-900">
+                  홈페이지 제작 전 시작 혜택
+                </h3>
+                <Badge className="bg-green-600 text-white">
+                  콘텐츠 대행 1개월 무료
+                </Badge>
               </div>
-            ))}
+              <p className="mt-1.5 text-sm leading-relaxed text-gray-700">
+                홈페이지 제작 전에 광고운영대행을 시작하시면, 콘텐츠 대행 첫
+                1개월을 무료로 제공합니다. 무료 기간 이후에는 월{" "}
+                {formatManwon(CONTENT_AUTOMATION_OPTION_MONTHLY_PRICE)}으로
+                동일하게 이용하실 수 있습니다.
+              </p>
+              <p className="mt-2 text-xs text-gray-500">
+                ※ 콘텐츠 대행 1개월 무료 혜택은 홈페이지 제작 전에만 제공됩니다.
+              </p>
+            </div>
           </div>
         </CardContent>
       </Card>
