@@ -339,6 +339,8 @@ interface QuestWizardDialogProps {
   representativeName?: string;
   /** 모달 완료 시 호출 */
   onComplete?: () => void;
+  /** 열 때 특정 항목(field)의 스텝으로 바로 진입 (없으면 첫 스텝) */
+  initialField?: string | null;
 }
 
 export default function QuestWizardDialog({
@@ -350,6 +352,7 @@ export default function QuestWizardDialog({
   initialValues,
   representativeName,
   onComplete,
+  initialField,
 }: QuestWizardDialogProps) {
   const router = useRouter();
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -384,10 +387,14 @@ export default function QuestWizardDialog({
       setValues(init);
       setPendingFiles({});
       setHolderSame(holderInit);
-      setCurrentIdx(0);
+      // 특정 항목으로 진입 요청이 있으면 해당 스텝부터, 없으면 첫 스텝
+      const startIdx = initialField
+        ? steps.findIndex((s) => s.field === initialField)
+        : -1;
+      setCurrentIdx(startIdx >= 0 ? startIdx : 0);
       setError(null);
     }
-  }, [open, steps, initialValues]);
+  }, [open, steps, initialValues, initialField]);
 
   if (steps.length === 0) return null;
 

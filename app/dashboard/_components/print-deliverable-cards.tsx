@@ -231,6 +231,8 @@ export default function PrintDeliverableCards({
 }: Props) {
   const router = useRouter();
   const [questId, setQuestId] = useState<string | null>(null);
+  // 위자드 열 때 바로 진입할 항목(field). null이면 첫(또는 첫 미완료) 스텝
+  const [initialField, setInitialField] = useState<string | null>(null);
   /** 직전에 완료한 wizardId (완료 banner 표시용) */
   const [justCompleted, setJustCompleted] = useState<string | null>(null);
 
@@ -303,6 +305,7 @@ export default function PrintDeliverableCards({
                     router.push("/dashboard/homepage");
                   } else {
                     setQuestId(nextId);
+                    setInitialField(null);
                   }
                 }}
                 className="flex-shrink-0 px-3 py-1.5 text-xs font-bold rounded bg-gov-blue text-white hover:bg-gov-blue-700 transition-colors"
@@ -344,18 +347,23 @@ export default function PrintDeliverableCards({
               (f) => !f.auto && !fieldFilled(f.key, submission, workflows),
             );
 
-            const handleClick = () => {
+            const openField = (field: string | null) => {
               // 홈페이지 카드 = 위자드 다이얼로그가 아닌 전용 페이지로 이동
               if (d.wizardId === "website-info") {
                 router.push("/dashboard/homepage");
                 return;
               }
               if (basicMissing && d.wizardId !== "basic-info") {
+                // 기본 정보 미완성 → 기본 정보부터 유도
                 setQuestId("basic-info");
-              } else {
-                setQuestId(d.wizardId);
+                setInitialField(null);
+                return;
               }
+              setQuestId(d.wizardId);
+              setInitialField(field);
             };
+            // 카드 여백 클릭 = 첫 미완료 항목으로 진입 (없으면 첫 스텝)
+            const handleClick = () => openField(userMissing[0]?.key ?? null);
 
             return (
               <button
@@ -430,7 +438,20 @@ export default function PrintDeliverableCards({
                     return (
                       <li
                         key={f.key}
+                        onClick={
+                          f.auto
+                            ? undefined
+                            : (e) => {
+                                e.stopPropagation();
+                                openField(f.key);
+                              }
+                        }
+                        title={f.auto ? undefined : `${f.label} 확인 / 변경`}
                         className={`flex items-center gap-1.5 text-[11px] ${
+                          !f.auto
+                            ? "cursor-pointer rounded px-1 -mx-1 hover:bg-gov-blue-50 hover:text-gov-blue"
+                            : ""
+                        } ${
                           has
                             ? "text-slate-500"
                             : d.optional
@@ -508,7 +529,11 @@ export default function PrintDeliverableCards({
       {quest && (
         <QuestWizardDialog
           open
-          onClose={() => setQuestId(null)}
+          onClose={() => {
+            setQuestId(null);
+            setInitialField(null);
+          }}
+          initialField={initialField}
           onComplete={() => {
             // questId는 onComplete 직후 onClose에서 null로 바뀌므로 여기서 미리 캡처
             if (questId) setJustCompleted(questId);
