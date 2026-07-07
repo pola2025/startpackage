@@ -1,4 +1,10 @@
-import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand, DeleteObjectsCommand } from "@aws-sdk/client-s3";
+import {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+  DeleteObjectCommand,
+  DeleteObjectsCommand,
+} from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 // Cloudflare R2 클라이언트 설정
@@ -21,7 +27,7 @@ export async function uploadToR2(
   fileBuffer: Buffer,
   fileName: string,
   contentType: string,
-  userId: string
+  userId: string,
 ): Promise<{ url: string; key: string }> {
   const key = `${userId}/${fileName}`;
 
@@ -47,7 +53,7 @@ export async function uploadToR2(
  */
 export async function getSignedDownloadUrl(
   key: string,
-  expiresIn: number = 3600
+  expiresIn: number = 3600,
 ): Promise<string> {
   const command = new GetObjectCommand({
     Bucket: BUCKET_NAME,
@@ -59,11 +65,48 @@ export async function getSignedDownloadUrl(
 }
 
 /**
+ * R2 직접 업로드용 Signed URL 생성 (브라우저 → R2 직접 PUT)
+ * - Vercel 함수 body 제한(4.5MB) 우회용
+ * - 브라우저는 이 URL로 PUT 요청 (Content-Type 헤더 필수, R2 CORS 허용 필요)
+ * @param key 저장할 키
+ * @param contentType 파일 MIME 타입 (서명에 포함되므로 PUT 시 동일 헤더 전송 필수)
+ * @param expiresIn 유효 시간 (초) - 기본 5분
+ */
+export async function getSignedUploadUrl(
+  key: string,
+  contentType: string,
+  expiresIn: number = 300,
+): Promise<string> {
+  const command = new PutObjectCommand({
+    Bucket: BUCKET_NAME,
+    Key: key,
+    ContentType: contentType,
+  });
+
+  return getSignedUrl(r2Client, command, { expiresIn });
+}
+
+/**
+ * R2 객체를 버퍼로 읽기 (서버에서 원본 재처리용)
+ * @param key 파일 키
+ */
+export async function getObjectBuffer(key: string): Promise<Buffer> {
+  const command = new GetObjectCommand({
+    Bucket: BUCKET_NAME,
+    Key: key,
+  });
+
+  const response = await r2Client.send(command);
+  const bytes = await response.Body!.transformToByteArray();
+  return Buffer.from(bytes);
+}
+
+/**
  * 파일명 생성 (중복 방지)
  */
 export function generateFileName(
   fieldName: string,
-  originalFileName: string
+  originalFileName: string,
 ): string {
   const timestamp = Date.now();
   const extension = originalFileName.split(".").pop() || "bin";
@@ -172,7 +215,7 @@ export function validateR2Config(): void {
   if (missing.length > 0) {
     throw new Error(
       `Missing R2 environment variables: ${missing.join(", ")}\n` +
-        `Please check your .env file and add the required variables.`
+        `Please check your .env file and add the required variables.`,
     );
   }
 }

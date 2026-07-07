@@ -445,6 +445,53 @@ export async function uploadSensitiveFileToSlack(params: {
 }
 
 /**
+ * 프로필 사진 원본을 버퍼에서 직접 슬랙으로 업로드
+ * - 디자인 작업에는 원본 해상도가 필요하므로 압축 없이 원본 전송
+ * - R2에는 별도로 webp 압축본이 저장됨 (표시용)
+ * @param buffer 원본 파일 버퍼 (압축 전)
+ * @param channelId 슬랙 채널 ID
+ * @param fileName 파일명
+ * @param userName 사용자 이름 (선택)
+ */
+export async function uploadProfilePhotoToSlack(params: {
+  channelId: string;
+  buffer: Buffer;
+  fileName: string;
+  userName?: string;
+}): Promise<boolean> {
+  try {
+    const client = initSlackClient();
+    if (!client) {
+      console.error("📸 [Slack] 프로필 원본 업로드 실패: 클라이언트 미초기화");
+      return false;
+    }
+
+    console.log(
+      `📸 [Slack] 프로필 원본 업로드 시작: ${params.fileName} (${params.buffer.length} bytes)`,
+    );
+
+    const result = await client.files.uploadV2({
+      channel_id: params.channelId,
+      file: params.buffer,
+      filename: params.fileName,
+      title: "프로필 사진 (원본)",
+      initial_comment: `📸 *프로필 사진 원본*${params.userName ? ` - ${params.userName}` : ""}\n_디자인 작업용 원본 해상도입니다_`,
+    });
+
+    if (result.ok) {
+      console.log(`✅ [Slack] 프로필 원본 업로드 성공`);
+      return true;
+    } else {
+      console.error(`❌ [Slack] 프로필 원본 업로드 실패:`, result);
+      return false;
+    }
+  } catch (error) {
+    console.error(`❌ [Slack] 프로필 원본 업로드 오류:`, error);
+    return false;
+  }
+}
+
+/**
  * 슬랙에 파일 업로드
  */
 export async function uploadFileToSlack(params: {

@@ -1,8 +1,16 @@
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 import { fileTypeFromBuffer } from "file-type";
-import { uploadToR2, generateFileName, validateR2Config } from "@/lib/storage/r2Client";
-import { isSensitiveField, SENSITIVE_FIELD_LABELS, SLACK_ONLY_MARKER } from "@/lib/constants/sensitiveFields";
+import {
+  uploadToR2,
+  generateFileName,
+  validateR2Config,
+} from "@/lib/storage/r2Client";
+import {
+  isSensitiveField,
+  SENSITIVE_FIELD_LABELS,
+  SLACK_ONLY_MARKER,
+} from "@/lib/constants/sensitiveFields";
 import { uploadSensitiveFileToSlack } from "@/lib/notification/slackClient";
 import prisma from "@/lib/prisma";
 
@@ -40,20 +48,26 @@ export async function POST(request: Request) {
       console.error("[Upload API] R2 설정 오류:", configError.message);
       return NextResponse.json(
         { error: "스토리지 설정 오류", details: configError.message },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     const session = await auth();
     if (!session?.user) {
       console.log("[Upload API] 인증 실패: 세션 없음");
-      return NextResponse.json({ error: "로그인이 필요합니다" }, { status: 401 });
+      return NextResponse.json(
+        { error: "로그인이 필요합니다" },
+        { status: 401 },
+      );
     }
 
     const userId = session.user.id;
     if (!userId) {
       console.log("[Upload API] User ID 없음");
-      return NextResponse.json({ error: "사용자 정보를 찾을 수 없습니다" }, { status: 400 });
+      return NextResponse.json(
+        { error: "사용자 정보를 찾을 수 없습니다" },
+        { status: 400 },
+      );
     }
 
     console.log("[Upload API] 사용자:", userId);
@@ -62,11 +76,21 @@ export async function POST(request: Request) {
     const file = formData.get("file") as File;
     const field = formData.get("field") as string;
 
-    console.log("[Upload API] 필드:", field, "파일명:", file?.name, "파일 크기:", file?.size);
+    console.log(
+      "[Upload API] 필드:",
+      field,
+      "파일명:",
+      file?.name,
+      "파일 크기:",
+      file?.size,
+    );
 
     if (!file) {
       console.log("[Upload API] 파일 없음");
-      return NextResponse.json({ error: "파일이 제공되지 않았습니다" }, { status: 400 });
+      return NextResponse.json(
+        { error: "파일이 제공되지 않았습니다" },
+        { status: 400 },
+      );
     }
 
     // 파일 크기 체크 (10MB)
@@ -74,7 +98,7 @@ export async function POST(request: Request) {
       console.log("[Upload API] 파일 크기 초과:", file.size);
       return NextResponse.json(
         { error: "파일 크기는 10MB 이하여야 합니다" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -99,13 +123,14 @@ export async function POST(request: Request) {
       } else {
         return NextResponse.json(
           { error: "파일 형식을 확인할 수 없습니다" },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
 
     // 허용된 MIME 타입 확인
-    const allowedTypes = ALLOWED_MIME_TYPES[field] || ALLOWED_MIME_TYPES.default;
+    const allowedTypes =
+      ALLOWED_MIME_TYPES[field] || ALLOWED_MIME_TYPES.default;
     console.log("[Upload API] 허용 타입:", allowedTypes);
 
     // MIME 타입 검증 (감지된 타입이 있으면 사용, 없으면 브라우저 타입 사용)
@@ -118,7 +143,7 @@ export async function POST(request: Request) {
         {
           error: `허용되지 않는 파일 형식입니다. 허용 형식: ${allowedTypes.join(", ")}`,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -135,13 +160,17 @@ export async function POST(request: Request) {
       if (!user?.slackChannelId) {
         console.log("[Upload API] 슬랙 채널 없음 - 기본 정보 먼저 제출 필요");
         return NextResponse.json(
-          { error: "슬랙 채널이 생성되지 않았습니다. 기본 정보(브랜드명, 업종, 주소)를 먼저 제출해주세요." },
-          { status: 400 }
+          {
+            error:
+              "슬랙 채널이 생성되지 않았습니다. 기본 정보(브랜드명, 업종, 주소)를 먼저 제출해주세요.",
+          },
+          { status: 400 },
         );
       }
 
       // 메모리에서 바로 슬랙으로 전송
-      const label = SENSITIVE_FIELD_LABELS[field as keyof typeof SENSITIVE_FIELD_LABELS];
+      const label =
+        SENSITIVE_FIELD_LABELS[field as keyof typeof SENSITIVE_FIELD_LABELS];
       const extension = file.name.split(".").pop() || "file";
       const slackFileName = `${label}_${Date.now()}.${extension}`;
 
@@ -159,7 +188,7 @@ export async function POST(request: Request) {
         console.error("[Upload API] 슬랙 전송 실패");
         return NextResponse.json(
           { error: "슬랙 전송에 실패했습니다. 다시 시도해주세요." },
-          { status: 500 }
+          { status: 500 },
         );
       }
 
@@ -171,9 +200,13 @@ export async function POST(request: Request) {
         filename: file.name,
         mimeType: actualMimeType,
         sensitive: true,
-        message: "파일이 슬랙으로 안전하게 전송되었습니다. 서버에는 저장되지 않습니다.",
+        message:
+          "파일이 슬랙으로 안전하게 전송되었습니다. 서버에는 저장되지 않습니다.",
       });
     }
+
+    // 📸 프로필 사진은 presigned 직접 업로드 경로(/api/upload/presign → /api/upload/profile-finalize)로 처리됨
+    //    (원본 20MB까지 Vercel 함수를 우회해 R2에 직접 업로드하기 위함)
 
     // 일반 파일: R2에 업로드
     console.log("[Upload API] R2 업로드 시작");
@@ -183,7 +216,7 @@ export async function POST(request: Request) {
       buffer,
       filename,
       actualMimeType,
-      userId
+      userId,
     );
 
     console.log("[Upload API] R2 업로드 완료");
@@ -194,7 +227,7 @@ export async function POST(request: Request) {
       url,
       filename,
       mimeType: actualMimeType,
-      key
+      key,
     });
   } catch (error: any) {
     console.error("[Upload API] 치명적 오류:", error);
@@ -202,9 +235,9 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         error: "파일 업로드에 실패했습니다",
-        details: error?.message || "알 수 없는 오류"
+        details: error?.message || "알 수 없는 오류",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

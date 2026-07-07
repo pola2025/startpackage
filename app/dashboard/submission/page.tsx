@@ -27,6 +27,10 @@ import {
 } from "lucide-react";
 import { SLACK_ONLY_MARKER } from "@/lib/constants/sensitiveFields";
 import imageCompression from "browser-image-compression";
+import {
+  uploadProfilePhoto,
+  toUploadMessage,
+} from "@/lib/submission/uploadProfile";
 // ProgressBar removed - progress integrated into tab triggers
 import {
   calculateProgress,
@@ -324,9 +328,28 @@ export default function SubmissionPage() {
   const handleFileUpload = async (field: string, file: File) => {
     setUploading(true);
 
-    // 사업자등록증URL 또는 프로필사진URL 필드이고 이미지인 경우 자동 압축
+    // 프로필 사진: presigned 직접 업로드 (원본→슬랙, webp 200KB→R2, 최대 20MB)
+    if (field === "프로필사진URL") {
+      try {
+        const url = await uploadProfilePhoto(file);
+        const success = await updateSubmission(field, url);
+        if (success) {
+          alert("프로필 사진이 업로드되었습니다!");
+        } else {
+          alert("업로드는 되었지만 저장에 실패했습니다.");
+        }
+      } catch (err) {
+        alert(toUploadMessage(err));
+      } finally {
+        setUploading(false);
+      }
+      return;
+    }
+
+    // 사업자등록증URL 이미지는 자동 압축
+    // (프로필사진URL은 원본을 슬랙으로 전송해야 하므로 압축하지 않음 — 서버에서 webp 압축본을 별도 생성)
     if (
-      (field === "사업자등록증URL" || field === "프로필사진URL") &&
+      field === "사업자등록증URL" &&
       file.type.startsWith("image/") &&
       file.type !== "image/gif"
     ) {

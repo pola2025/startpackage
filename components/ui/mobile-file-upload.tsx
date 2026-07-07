@@ -74,8 +74,14 @@ export function MobileFileUpload({
     errorType?: "SIZE_EXCEEDED" | "UNSUPPORTED_FORMAT";
   }> => {
     // 먼저 통합 파일 검증 유틸 사용 (이메일 안내 대상 체크)
+    // 단, maxSize 이내의 큰 파일(예: 프로필 20MB)은 SIZE_EXCEEDED 이메일 안내를 건너뜀
+    const withinMaxSize = file.size <= maxSize * 1024 * 1024;
     const utilResult = validateFileUtil(file);
-    if (!utilResult.isValid && utilResult.error?.showEmailGuide) {
+    if (
+      !utilResult.isValid &&
+      utilResult.error?.showEmailGuide &&
+      !(withinMaxSize && utilResult.error.type === "SIZE_EXCEEDED")
+    ) {
       return {
         valid: false,
         error: utilResult.error.message,

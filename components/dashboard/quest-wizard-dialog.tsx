@@ -25,6 +25,10 @@ import {
   Mail,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  uploadProfilePhoto,
+  toUploadMessage,
+} from "@/lib/submission/uploadProfile";
 import { LogoColorSelector } from "@/components/submission/logo-style-selector";
 import { ImageModal } from "@/components/ui/image-modal";
 
@@ -458,6 +462,16 @@ export default function QuestWizardDialog({
   };
 
   const uploadFile = async (file: File): Promise<string | null> => {
+    // 프로필 사진: presigned 직접 업로드 (원본→슬랙, webp 200KB→R2, 최대 20MB)
+    if (step.field === "프로필사진URL") {
+      try {
+        return await uploadProfilePhoto(file);
+      } catch (err) {
+        setError(toUploadMessage(err));
+        return null;
+      }
+    }
+
     const fd = new FormData();
     fd.append("file", file);
     fd.append("field", step.field);
@@ -750,7 +764,8 @@ export default function QuestWizardDialog({
                   >
                     <Upload className="w-5 h-5 text-gray-400" />
                     <span className="text-xs text-gray-600">
-                      파일 선택 (이미지 또는 PDF, 최대 10MB)
+                      파일 선택 (이미지 또는 PDF, 최대{" "}
+                      {step.field === "프로필사진URL" ? "20" : "10"}MB)
                     </span>
                   </button>
                 )}

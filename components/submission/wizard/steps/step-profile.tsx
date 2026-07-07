@@ -69,10 +69,9 @@ export function StepProfile({
           accept="image/*"
           currentFileUrl={formData.프로필사진URL}
           onUpload={handleUpload}
-          helpText="정사각형 또는 상반신 사진 (1000px 이하)"
+          helpText="정사각형 또는 상반신 사진 (최대 20MB)"
           allowCamera
-          validateImage
-          maxImageDimension={1000}
+          maxSize={20}
         />
 
         {/* 프로필 사진 사용처 안내 */}

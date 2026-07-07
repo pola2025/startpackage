@@ -25,6 +25,10 @@ import {
 import { useAutoSave } from "@/lib/hooks/useAutoSave";
 import { cn } from "@/lib/utils";
 import {
+  uploadProfilePhoto,
+  toUploadMessage,
+} from "@/lib/submission/uploadProfile";
+import {
   OnboardingDialog,
   shouldShowOnboarding,
 } from "@/components/submission/onboarding-dialog";
@@ -122,6 +126,20 @@ export default function MobileSubmissionPage() {
 
   const handleFileUpload = async (field: string, file: File) => {
     setUploading(true);
+
+    // 프로필 사진: presigned 직접 업로드 (원본→슬랙, webp 200KB→R2, 최대 20MB)
+    if (field === "프로필사진URL") {
+      try {
+        const url = await uploadProfilePhoto(file);
+        await updateSubmission(field, url);
+      } catch (err) {
+        alert(toUploadMessage(err));
+      } finally {
+        setUploading(false);
+      }
+      return;
+    }
+
     const formData = new FormData();
     formData.append("file", file);
     formData.append("field", field);
@@ -552,10 +570,9 @@ export default function MobileSubmissionPage() {
                   currentFileUrl={submission?.프로필사진URL}
                   onUpload={(file) => handleFileUpload("프로필사진URL", file)}
                   required
-                  helpText="1000px 이하"
+                  helpText="정면 사진 권장 (최대 20MB)"
                   allowCamera
-                  validateImage
-                  maxImageDimension={1000}
+                  maxSize={20}
                 />
               </CardContent>
             </Card>
