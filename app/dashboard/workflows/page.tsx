@@ -309,8 +309,9 @@ export default function WorkflowsPage() {
 
   // 액션이 필요한 상태(기본 펼침 대상)
   const needsAction = (workflow: Workflow) =>
-    workflow.status === "발주대기" ||
-    workflow.status === "시안컨펌요청" ||
+    (workflow.type !== "홈페이지" &&
+      (workflow.status === "발주대기" ||
+        workflow.status === "시안컨펌요청")) ||
     workflow.id === autoOpenId;
 
   // Step 넘버 컴포넌트
@@ -483,16 +484,22 @@ export default function WorkflowsPage() {
                                   setDialogOpen(true);
                                 }}
                               >
-                                시안확인
+                                {workflow.type === "홈페이지"
+                                  ? "홈페이지 보기"
+                                  : "시안확인"}
                               </Button>
                             </DialogTrigger>
                             <DialogContent className="bg-white border border-gray-200 max-w-3xl">
                               <DialogHeader>
                                 <DialogTitle className="text-gray-900">
-                                  {workflow.type} 시안
+                                  {workflow.type === "홈페이지"
+                                    ? "홈페이지 제작 완료"
+                                    : `${workflow.type} 시안`}
                                 </DialogTitle>
                                 <DialogDescription className="text-gray-600">
-                                  시안을 확인하고 발주를 진행해주세요
+                                  {workflow.type === "홈페이지"
+                                    ? "제작 완료된 홈페이지 주소를 확인해주세요"
+                                    : "시안을 확인하고 발주를 진행해주세요"}
                                 </DialogDescription>
                               </DialogHeader>
                               <div className="space-y-3">
@@ -527,9 +534,8 @@ export default function WorkflowsPage() {
                                   ))}
 
                                 <div className="flex flex-col gap-1.5 md:gap-2">
-                                  {/* 로고와 홈페이지: 시안 확정 버튼 */}
-                                  {(workflow.type === "로고" ||
-                                    workflow.type === "홈페이지") &&
+                                  {/* 로고: 시안 확정 버튼 */}
+                                  {workflow.type === "로고" &&
                                     workflow.status !== "최종확정" && (
                                       <Button
                                         size="sm"
@@ -610,8 +616,7 @@ export default function WorkflowsPage() {
                                       </p>
                                     </div>
                                   )}
-                                  {(workflow.type === "로고" ||
-                                    workflow.type === "홈페이지") &&
+                                  {workflow.type === "로고" &&
                                     workflow.status !== "최종확정" && (
                                       <div className="space-y-1">
                                         <label className="text-[11px] md:text-xs font-semibold text-gray-700">

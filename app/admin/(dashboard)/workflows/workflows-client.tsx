@@ -152,6 +152,11 @@ export default function WorkflowsClient({
         bg: "bg-ok-50 border-ok-100",
         label: "제작 완료",
       },
+      "제작 완료": {
+        color: "text-ok-700",
+        bg: "bg-ok-50 border-ok-100",
+        label: "제작 완료",
+      },
       발송완료: {
         color: "text-ok-700",
         bg: "bg-ok-50 border-ok-100",

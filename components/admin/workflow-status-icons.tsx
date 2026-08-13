@@ -29,7 +29,8 @@ export function WorkflowStatusIcons({ workflows, homepageCompleted }: WorkflowSt
 
     // 홈페이지는 워크플로우 상태 OR 광고자동화 완료 체크 둘 중 하나라도 완료면 녹색
     if (type === "홈페이지") {
-      const workflowCompleted = status === "제작 완료";
+      const workflowCompleted =
+        status === "제작 완료" || status === "제작완료" || status === "최종확정";
       return workflowCompleted || homepageCompleted || false;
     }
 

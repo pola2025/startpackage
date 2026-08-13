@@ -80,6 +80,7 @@
     "@remotion/cli": "^4.0.435",
     "@remotion/player": "^4.0.435",
     "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.1.0",
     "@types/node": "^22.10.1",
     "@types/qrcode": "^1.5.6",

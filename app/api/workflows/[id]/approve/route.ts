@@ -29,8 +29,15 @@ export async function POST(
       return NextResponse.json({ error: "권한이 없습니다." }, { status: 403 });
     }
 
-    // 확정 가능한 타입 확인 (로고, 명함, 명찰, 대봉투, 자문계약서, 홈페이지)
-    const confirmableTypes = ["로고", "명함", "명찰", "대봉투", "자문계약서 표지", "자문계약서 내지", "홈페이지"];
+    if (workflow.type === "홈페이지") {
+      return NextResponse.json(
+        { error: "홈페이지는 사용자 시안 확정 없이 제작 완료로 안내됩니다." },
+        { status: 400 }
+      );
+    }
+
+    // 확정 가능한 타입 확인 (로고, 명함, 명찰, 대봉투, 자문계약서)
+    const confirmableTypes = ["로고", "명함", "명찰", "대봉투", "자문계약서 표지", "자문계약서 내지"];
     if (!confirmableTypes.includes(workflow.type)) {
       return NextResponse.json({ error: "확정할 수 없는 항목입니다." }, { status: 400 });
     }
@@ -38,10 +45,6 @@ export async function POST(
     // 상태 확인 - 타입별로 다름
     if (workflow.type === "로고" && workflow.status !== "시안컨펌요청") {
       return NextResponse.json({ error: "시안컨펌요청 상태에서만 확정할 수 있습니다." }, { status: 400 });
-    }
-
-    if (workflow.type === "홈페이지" && workflow.status !== "제작 완료") {
-      return NextResponse.json({ error: "제작 완료 상태에서만 확정할 수 있습니다." }, { status: 400 });
     }
 
     // 명함, 명찰, 대봉투, 자문계약서는 "시안컨펌요청" 상태에서만 확정 가능

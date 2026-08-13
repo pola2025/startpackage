@@ -10,6 +10,7 @@ import { ensureUserWorkflows } from "@/lib/ensureUserWorkflows";
 import ProgressVisualization from "@/components/dashboard/progress-visualization";
 import DashboardAlertsClient from "./_components/dashboard-alerts-client";
 import PrintDeliverableCards from "./_components/print-deliverable-cards";
+import { isHomepageCompleteStatus } from "@/lib/workflow/homepage-status";
 import {
   calculateMarketingSupportEndDate,
   getMarketingSupportDurationLabel,
@@ -183,7 +184,9 @@ export default async function UserDashboard() {
   // 3. 시안 확인 요청
   // 로고: 시안컨펌요청, 인쇄물: 발주대기 (시안완료) 상태
   const designConfirmWorkflows = user.workflows.filter(
-    (w) => w.status === "시안컨펌요청" || w.status === "발주대기",
+    (w) =>
+      w.type !== "홈페이지" &&
+      (w.status === "시안컨펌요청" || w.status === "발주대기"),
   );
   designConfirmWorkflows.forEach((workflow) => {
     notifications.push({
@@ -325,7 +328,10 @@ export default async function UserDashboard() {
 
   // 10. 제작 완료 확인
   const completedWorkflows = user.workflows.filter(
-    (w) => w.status === "제작완료" || w.status === "발송완료",
+    (w) =>
+      w.status === "제작완료" ||
+      w.status === "발송완료" ||
+      isHomepageCompleteStatus(w.type, w.status),
   );
   completedWorkflows.forEach((workflow) => {
     notifications.push({
@@ -655,7 +661,9 @@ export default async function UserDashboard() {
                 const isComplete =
                   workflow.status === "완료" ||
                   workflow.status === "최종확정" ||
-                  workflow.status === "발송완료";
+                  workflow.status === "제작완료" ||
+                  workflow.status === "발송완료" ||
+                  isHomepageCompleteStatus(workflow.type, workflow.status);
                 const isInProgress =
                   workflow.status === "진행중" ||
                   workflow.status === "시안중" ||

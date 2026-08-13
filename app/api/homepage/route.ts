@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { isPaidHomepageStyle } from "@/lib/homepage-styles";
 
 // 외부 서비스 제작 스키마
 const externalSchema = z.object({
@@ -88,6 +89,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (isPaidHomepageStyle(result.data.홈페이지스타일)) {
+      return NextResponse.json(
+        {
+          error:
+            "유료옵션은 Meta 광고 유료 결제 시 제공되며 개별문의가 필요합니다.",
+        },
+        { status: 400 },
+      );
+    }
+
     // Submission이 없으면 생성, 있으면 업데이트
     const existingSubmission = await prisma.submission.findUnique({
       where: { userId: session.user.id },
@@ -148,9 +159,11 @@ export async function POST(request: NextRequest) {
         "https://www.wiztion.com/": "스타일 5",
         "https://brpartners.kr/": "스타일 6",
         "https://startpackagedemo.vercel.app/": "스타일 7",
+        "https://hopebizgroup.com/": "스타일 8",
+        "https://gopartners.cc/": "스타일 9",
+        // 레거시 (이전 데이터 호환용)
         "https://startpackage-demo2.vercel.app/": "스타일 8",
         "https://startpackage-demo3.vercel.app/": "스타일 9",
-        // 레거시 (이전 데이터 호환용)
         "https://mjgood.imweb.me/": "스타일 2",
         "https://bizen.co.kr/": "스타일 2",
         "https://ksupport-center.imweb.me/": "스타일 4",

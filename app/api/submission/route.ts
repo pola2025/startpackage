@@ -9,6 +9,7 @@ import {
 import { submissionPartialSchema } from "@/lib/schemas/submission.schema";
 import { ZodError } from "zod";
 import { formatPhoneNumber } from "@/lib/utils";
+import { isPaidHomepageStyle } from "@/lib/homepage-styles";
 
 function formatPhoneSafe(phone: unknown): string {
   if (!phone) return "";
@@ -88,6 +89,16 @@ export async function POST(request: Request) {
         "📝 [Submission] 필터링된 데이터:",
         JSON.stringify(validatedData, null, 2),
       );
+
+      if (isPaidHomepageStyle(validatedData.홈페이지스타일)) {
+        return NextResponse.json(
+          {
+            error:
+              "유료옵션은 Meta 광고 유료 결제 시 제공되며 개별문의가 필요합니다.",
+          },
+          { status: 400 },
+        );
+      }
     } catch (error) {
       if (error instanceof ZodError) {
         console.error("Zod validation error:", error.errors);
@@ -220,9 +231,11 @@ export async function POST(request: Request) {
           "https://www.wiztion.com/": "스타일 5",
           "https://brpartners.kr/": "스타일 6",
           "https://startpackagedemo.vercel.app/": "스타일 7",
+          "https://hopebizgroup.com/": "스타일 8",
+          "https://gopartners.cc/": "스타일 9",
+          // 레거시 (이전 데이터 호환용)
           "https://startpackage-demo2.vercel.app/": "스타일 8",
           "https://startpackage-demo3.vercel.app/": "스타일 9",
-          // 레거시 (이전 데이터 호환용)
           "https://mjgood.imweb.me/": "스타일 2",
           "https://bizen.co.kr/": "스타일 2",
           "https://ksupport-center.imweb.me/": "스타일 4",

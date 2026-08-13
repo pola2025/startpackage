@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { isPaidHomepageStyle } from "@/lib/homepage-styles";
 
 // 허용된 필드 목록 (Prisma 스키마 기반)
 const ALLOWED_FIELDS = [
@@ -86,6 +87,16 @@ export async function POST(request: Request) {
     // 저장할 데이터가 없으면 조기 리턴
     if (Object.keys(filteredData).length === 0) {
       return NextResponse.json({ success: true, message: "No data to save" });
+    }
+
+    if (isPaidHomepageStyle(String(filteredData.홈페이지스타일 || ""))) {
+      return NextResponse.json(
+        {
+          error:
+            "유료옵션은 Meta 광고 유료 결제 시 제공되며 개별문의가 필요합니다.",
+        },
+        { status: 400 },
+      );
     }
 
     // Submission 업데이트 (upsert로 안전하게)

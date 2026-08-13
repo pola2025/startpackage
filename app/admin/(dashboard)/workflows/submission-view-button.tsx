@@ -410,11 +410,13 @@ export default function SubmissionViewButton({
                               "https://brpartners.kr/": "스타일 6",
                               "https://startpackagedemo.vercel.app/":
                                 "스타일 7",
+                              "https://hopebizgroup.com/": "스타일 8",
+                              "https://gopartners.cc/": "스타일 9",
+                              // 레거시 (이전 데이터 호환용)
                               "https://startpackage-demo2.vercel.app/":
                                 "스타일 8",
                               "https://startpackage-demo3.vercel.app/":
                                 "스타일 9",
-                              // 레거시 (이전 데이터 호환용)
                               "https://mjgood.imweb.me/": "스타일 2",
                               "https://bizen.co.kr/": "스타일 2",
                               "https://ksupport-center.imweb.me/": "스타일 4",

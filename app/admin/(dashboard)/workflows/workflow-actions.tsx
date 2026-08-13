@@ -32,6 +32,7 @@ import {
   Globe,
   Trash2,
 } from "lucide-react";
+import { resolveAdminWorkflowStatus } from "@/lib/workflow/homepage-status";
 
 interface DesignHistory {
   id: string;
@@ -203,12 +204,18 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
         시안URL = uploadedUrl;
       }
 
+      const nextStatus = resolveAdminWorkflowStatus(
+        workflow.type,
+        status,
+        시안URL,
+      );
+
       const response = await fetch("/api/admin/workflows/update", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           workflowId: workflow.id,
-          status,
+          status: nextStatus,
           택배회사: 택배회사 || null,
           운송장번호: 운송장번호 || null,
           시안URL: 시안URL || null,
@@ -322,6 +329,15 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
                                 url: "https://startpackagedemo.vercel.app/",
                                 name: "스타일 7",
                               },
+                              {
+                                url: "https://hopebizgroup.com/",
+                                name: "스타일 8",
+                              },
+                              {
+                                url: "https://gopartners.cc/",
+                                name: "스타일 9",
+                              },
+                              // 레거시 (이전 데이터 호환용)
                               {
                                 url: "https://startpackage-demo2.vercel.app/",
                                 name: "스타일 8",

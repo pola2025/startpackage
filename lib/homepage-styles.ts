@@ -12,8 +12,8 @@ export const HOMEPAGE_STYLE_OPTIONS: HomepageStyleOption[] = [
   { url: "https://www.wiztion.com/", name: "스타일 5" },
   { url: "https://brpartners.kr/", name: "스타일 6" },
   { url: "https://startpackagedemo.vercel.app/", name: "스타일 7" },
-  { url: "https://startpackage-demo2.vercel.app/", name: "스타일 8" },
-  { url: "https://startpackage-demo3.vercel.app/", name: "스타일 9" },
+  { url: "https://hopebizgroup.com/", name: "스타일 8" },
+  { url: "https://gopartners.cc/", name: "스타일 9" },
   { url: "https://jsbizfunding.kr/", name: "유료옵션 1", paid: true },
   {
     url: "https://startpackage-demo4.vercel.app/",
@@ -66,12 +66,23 @@ export function isPaidHomepageStyle(url?: string | null) {
   );
 }
 
+// 레거시 (이전 데이터 호환용) — 데모 사이트로 저장된 기존 선택값
+const LEGACY_HOMEPAGE_STYLE_NAMES: Record<string, string> = {
+  "https://startpackage-demo2.vercel.app/": "스타일 8",
+  "https://startpackage-demo3.vercel.app/": "스타일 9",
+};
+
 export function getHomepageStyleName(url?: string | null) {
   const normalizedUrl = normalizeHomepageStyleUrl(url);
 
-  return (
-    HOMEPAGE_STYLE_OPTIONS.find(
-      (style) => normalizeHomepageStyleUrl(style.url) === normalizedUrl,
-    )?.name || null
-  );
+  const matched = HOMEPAGE_STYLE_OPTIONS.find(
+    (style) => normalizeHomepageStyleUrl(style.url) === normalizedUrl,
+  )?.name;
+  if (matched) return matched;
+
+  const legacy = Object.entries(LEGACY_HOMEPAGE_STYLE_NAMES).find(
+    ([legacyUrl]) => normalizeHomepageStyleUrl(legacyUrl) === normalizedUrl,
+  )?.[1];
+
+  return legacy || null;
 }

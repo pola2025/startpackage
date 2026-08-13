@@ -7,6 +7,12 @@ import {
   logProgress,
 } from "@/lib/notification/notificationService";
 import { calculateExpectedArrival } from "@/lib/utils/businessDays";
+import {
+  HOMEPAGE_COMPLETE_STATUS,
+  hasHomepageResultUrl,
+  isHomepageWorkflow,
+  resolveAdminWorkflowStatus,
+} from "@/lib/workflow/homepage-status";
 
 export async function POST(request: NextRequest) {
   try {
@@ -41,9 +47,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const nextStatus = resolveAdminWorkflowStatus(
+      currentWorkflow.type,
+      status,
+      시안URL,
+    );
+    const isHomepage = isHomepageWorkflow(currentWorkflow.type);
+    const isHomepageComplete =
+      isHomepage && nextStatus === HOMEPAGE_COMPLETE_STATUS;
+    const statusChanged = currentWorkflow.status !== nextStatus;
+    const homepageResultUrlRegistered =
+      isHomepage &&
+      hasHomepageResultUrl(시안URL) &&
+      시안URL !== currentWorkflow.시안URL;
+    const shouldHandleHomepageCompletion =
+      isHomepageComplete && (statusChanged || homepageResultUrlRegistered);
+
     // Prepare update data with automatic date tracking
     const updateData: any = {
-      status,
+      status: nextStatus,
       택배회사,
       운송장번호,
     };
@@ -102,7 +124,7 @@ export async function POST(request: NextRequest) {
 
     // If status changed to 발주대기 and 시안업로드일 is not set
     if (
-      status === "발주대기" &&
+      nextStatus === "발주대기" &&
       currentWorkflow.status !== "발주대기" &&
       !currentWorkflow.시안업로드일
     ) {
@@ -111,7 +133,7 @@ export async function POST(request: NextRequest) {
 
     // If status changed to 발주완료 and 발주승인일 is not set (관리자 승인)
     if (
-      status === "발주완료" &&
+      nextStatus === "발주완료" &&
       currentWorkflow.status !== "발주완료" &&
       !currentWorkflow.발주승인일
     ) {
@@ -134,7 +156,7 @@ export async function POST(request: NextRequest) {
 
     // If status changed to 제작완료 and 제작완료일 is not set
     if (
-      status === "제작완료" &&
+      (nextStatus === "제작완료" || isHomepageComplete) &&
       currentWorkflow.status !== "제작완료" &&
       !currentWorkflow.제작완료일
     ) {
@@ -143,7 +165,7 @@ export async function POST(request: NextRequest) {
 
     // If status changed to 발송완료 and 발송일 is not set
     if (
-      status === "발송완료" &&
+      nextStatus === "발송완료" &&
       currentWorkflow.status !== "발송완료" &&
       !currentWorkflow.발송일
     ) {
@@ -160,12 +182,8 @@ export async function POST(request: NextRequest) {
       updateData.발송일 = now;
     }
 
-    // 홈페이지가 "제작 완료" 상태로 변경되면 User.homepageCompleted도 true로 설정
-    if (
-      currentWorkflow.type === "홈페이지" &&
-      status === "제작 완료" &&
-      currentWorkflow.status !== "제작 완료"
-    ) {
+    // 홈페이지는 결과 URL 등록 시 사용자 컨펌 없이 제작 완료 처리
+    if (shouldHandleHomepageCompletion) {
       await prisma.user.update({
         where: { id: currentWorkflow.userId },
         data: {
@@ -198,7 +216,7 @@ export async function POST(request: NextRequest) {
         performedByName: (session.user as any).name || "관리자",
         action: "상태변경",
         previousStatus: currentWorkflow.status,
-        newStatus: status,
+        newStatus: nextStatus,
         metadata: { 택배회사, 운송장번호, 시안URL },
       },
     });
@@ -206,11 +224,11 @@ export async function POST(request: NextRequest) {
     // Send notifications based on status change
     try {
       // 상태 변경 알림 (텔레그램 + 슬랙)
-      if (currentWorkflow.status !== status) {
+      if (statusChanged) {
         await handleStateChange({
           userId: updatedWorkflow.userId,
           fromState: currentWorkflow.status,
-          toState: status,
+          toState: nextStatus,
           changedBy: (session.user as any).name || "관리자",
         });
       }
@@ -220,12 +238,12 @@ export async function POST(request: NextRequest) {
       // if (status === "발주대기" && currentWorkflow.status !== "발주대기") { ... }
 
       // 발주 완료 알림 (이메일/SMS는 수동 발송으로 변경)
-      if (status === "발주완료" && currentWorkflow.status !== "발주완료") {
+      if (nextStatus === "발주완료" && currentWorkflow.status !== "발주완료") {
         // 자동 발송 없음 - "발주완료 알림 발송" 버튼으로 일괄 발송
       }
 
       // 제작 완료 알림 (텔레그램/슬랙 + 이메일만, SMS는 수동 발송)
-      if (status === "제작완료" && currentWorkflow.status !== "제작완료") {
+      if (nextStatus === "제작완료" && currentWorkflow.status !== "제작완료") {
         await handleProductionComplete({
           userId: updatedWorkflow.userId,
           itemName: updatedWorkflow.type,
@@ -251,11 +269,7 @@ export async function POST(request: NextRequest) {
       }
 
       // 홈페이지 "제작 완료" 알림 (이메일만 - SMS는 수동 발송)
-      if (
-        currentWorkflow.type === "홈페이지" &&
-        status === "제작 완료" &&
-        currentWorkflow.status !== "제작 완료"
-      ) {
+      if (shouldHandleHomepageCompletion) {
         const 홈페이지주소 = updatedWorkflow.시안URL || "";
 
         // 이메일 발송 (Resend - 홈페이지 주소만 포함)
@@ -305,11 +319,7 @@ export async function POST(request: NextRequest) {
 
       // 슬랙 진행 로그
       // 홈페이지 "제작 완료" 시 주소만 전송
-      if (
-        updatedWorkflow.type === "홈페이지" &&
-        status === "제작 완료" &&
-        currentWorkflow.status !== "제작 완료"
-      ) {
+      if (shouldHandleHomepageCompletion) {
         const 홈페이지주소 = updatedWorkflow.시안URL || "";
         if (홈페이지주소) {
           await logProgress({
@@ -327,8 +337,8 @@ export async function POST(request: NextRequest) {
         const changedDetails: Record<string, string> = {};
 
         // 상태가 변경된 경우만 표시
-        if (currentWorkflow.status !== status) {
-          changedDetails["상태"] = `${currentWorkflow.status} → ${status}`;
+        if (statusChanged) {
+          changedDetails["상태"] = `${currentWorkflow.status} → ${nextStatus}`;
         }
 
         // 택배회사가 새로 추가되거나 변경된 경우만 표시
@@ -346,7 +356,7 @@ export async function POST(request: NextRequest) {
           await logProgress({
             userId: updatedWorkflow.userId,
             stage: `${updatedWorkflow.type} 업데이트`,
-            status,
+            status: nextStatus,
             details: changedDetails,
           });
         }
