@@ -94,191 +94,189 @@ export default function SubmissionViewButton({
               <p className="text-gray-500">정보를 불러오는 중...</p>
             </div>
           ) : submission ? (
-            <Tabs defaultValue={getDefaultTab()} className="mt-4">
-              <div className="overflow-x-auto">
-                <TabsList className="grid w-full grid-cols-5 bg-gray-100 min-w-[360px]">
-                  <TabsTrigger value="basic" className="text-xs sm:text-sm">
-                    기본 정보
-                  </TabsTrigger>
-                  <TabsTrigger value="logo" className="text-xs sm:text-sm">
-                    로고
-                  </TabsTrigger>
-                  <TabsTrigger value="namecard" className="text-xs sm:text-sm">
-                    명함
-                  </TabsTrigger>
-                  <TabsTrigger value="website" className="text-xs sm:text-sm">
-                    홈페이지
-                  </TabsTrigger>
-                  <TabsTrigger value="marketing" className="text-xs sm:text-sm">
-                    마케팅
-                  </TabsTrigger>
-                </TabsList>
-              </div>
-
-              {/* 기본 정보 탭 */}
-              <TabsContent value="basic" className="space-y-4">
-                <div className="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <h3 className="font-semibold text-gray-900">브랜드 정보</h3>
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div>
-                      <span className="text-gray-600">브랜드명:</span>
-                      <p className="font-medium text-gray-900">
-                        {submission.브랜드명 || "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">업종:</span>
-                      <p className="font-medium text-gray-900">
-                        {submission.업종 || "-"}
-                      </p>
-                    </div>
-                    <div className="col-span-2">
-                      <span className="text-gray-600">주소:</span>
-                      <p className="font-medium text-gray-900">
-                        {submission.주소 || "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">대표번호:</span>
-                      <p className="font-medium text-gray-900">
-                        {submission.대표번호 || "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">이메일:</span>
-                      <p className="font-medium text-gray-900">
-                        {submission.이메일 || "-"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 계좌 정보 */}
-                <div className="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <h3 className="font-semibold text-gray-900">계좌 정보</h3>
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div>
-                      <span className="text-gray-600">은행명:</span>
-                      <p className="font-medium text-gray-900">
-                        {submission.은행명 || "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">계좌번호:</span>
-                      <p className="font-medium text-gray-900">
-                        {submission.계좌번호 || "-"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 배송 정보 */}
-                <div className="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <h3 className="font-semibold text-gray-900">배송 정보</h3>
-                  <div className="text-sm">
-                    <span className="text-gray-600">인쇄물 받을 주소:</span>
-                    <p className="font-medium text-gray-900 mt-1">
-                      {submission.인쇄물받을주소 || submission.주소 || "-"}
-                    </p>
-                    {submission.인쇄물받을주소 &&
-                      submission.인쇄물받을주소 !== submission.주소 && (
-                        <p className="text-xs text-gray-500 mt-1">
-                          (사업장 주소: {submission.주소})
-                        </p>
-                      )}
-                  </div>
-                </div>
-
-                {/* 파일 */}
-                <div className="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <h3 className="font-semibold text-gray-900">업로드 파일</h3>
-                  <div className="space-y-2 text-sm">
-                    {submission.사업자등록증URL && (
-                      <div>
-                        <span className="text-gray-600">사업자등록증:</span>
-                        <a
-                          href={submission.사업자등록증URL}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-gold-600 hover:underline flex items-center gap-1 mt-1"
-                        >
-                          파일 보기 <ExternalLink className="w-3 h-3" />
-                        </a>
-                      </div>
-                    )}
-                    {submission.프로필사진URL && (
-                      <div>
-                        <span className="text-gray-600">프로필 사진:</span>
-                        <a
-                          href={submission.프로필사진URL}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-gold-600 hover:underline flex items-center gap-1 mt-1"
-                        >
-                          파일 보기 <ExternalLink className="w-3 h-3" />
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </TabsContent>
-
-              {/* 로고 정보 탭 */}
-              <TabsContent value="logo" className="space-y-4">
-                <div className="space-y-3 p-4 bg-purple-50 rounded-lg border border-purple-200">
-                  <h3 className="font-semibold text-gray-900">
-                    로고 디자인 요청사항
+            <>
+              {/* 고객이 남긴 시안 피드백 (슬랙에만 남던 요청사항) */}
+              {workflow.feedback && (
+                <div className="mt-4 space-y-2 p-4 bg-red-50 rounded-lg border border-red-200">
+                  <h3 className="font-semibold text-red-800">
+                    고객 요청사항 ({workflow.type} 시안 피드백)
                   </h3>
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div>
-                      <span className="text-gray-600">선호 스타일:</span>
-                      <p className="font-medium text-gray-900">
-                        {submission.로고선호스타일 || "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">선호 폰트:</span>
-                      <p className="font-medium text-gray-900">
-                        {submission.로고선호폰트 || "-"}
-                      </p>
-                    </div>
-                    <div className="col-span-2">
-                      <span className="text-gray-600">선호 색상:</span>
-                      {submission.로고선호색상 ? (
-                        <div className="flex items-center gap-2 mt-1">
-                          <div
-                            className="w-8 h-8 rounded border border-gray-300"
-                            style={{ backgroundColor: submission.로고선호색상 }}
-                          />
-                          <p className="font-medium text-gray-900">
-                            {submission.로고선호색상}
-                          </p>
-                        </div>
-                      ) : (
-                        <p className="font-medium text-gray-900">-</p>
-                      )}
-                    </div>
-                    <div className="col-span-2">
-                      <span className="text-gray-600">제작 요청사항:</span>
-                      <p className="font-medium text-gray-900 whitespace-pre-wrap mt-1">
-                        {submission.로고제작요청사항 || "-"}
-                      </p>
-                    </div>
-                  </div>
+                  <p className="text-sm text-gray-900 whitespace-pre-wrap">
+                    {workflow.feedback}
+                  </p>
+                  {workflow.feedbackDate && (
+                    <p className="text-xs text-gray-500">
+                      {new Date(workflow.feedbackDate).toLocaleString("ko-KR")}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <Tabs defaultValue={getDefaultTab()} className="mt-4">
+                <div className="overflow-x-auto">
+                  <TabsList className="grid w-full grid-cols-5 bg-gray-100 min-w-[360px]">
+                    <TabsTrigger value="basic" className="text-xs sm:text-sm">
+                      기본 정보
+                    </TabsTrigger>
+                    <TabsTrigger value="logo" className="text-xs sm:text-sm">
+                      로고
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="namecard"
+                      className="text-xs sm:text-sm"
+                    >
+                      명함
+                    </TabsTrigger>
+                    <TabsTrigger value="website" className="text-xs sm:text-sm">
+                      홈페이지
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="marketing"
+                      className="text-xs sm:text-sm"
+                    >
+                      마케팅
+                    </TabsTrigger>
+                  </TabsList>
                 </div>
 
-                {/* 로고 파일 */}
-                {(submission.로고URL ||
-                  submission.로고예시디자인URL ||
-                  submission.로고예시디자인2URL) && (
-                  <div className="space-y-3 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                {/* 기본 정보 탭 */}
+                <TabsContent value="basic" className="space-y-4">
+                  <div className="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <h3 className="font-semibold text-gray-900">브랜드 정보</h3>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <span className="text-gray-600">브랜드명:</span>
+                        <p className="font-medium text-gray-900">
+                          {submission.브랜드명 || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">업종:</span>
+                        <p className="font-medium text-gray-900">
+                          {submission.업종 || "-"}
+                        </p>
+                      </div>
+                      <div className="col-span-2">
+                        <span className="text-gray-600">주소:</span>
+                        <p className="font-medium text-gray-900">
+                          {submission.주소 || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">대표번호:</span>
+                        <p className="font-medium text-gray-900">
+                          {submission.대표번호 || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">이메일:</span>
+                        <p className="font-medium text-gray-900">
+                          {submission.이메일 || "-"}
+                        </p>
+                        {!submission.이메일 && workflow.user.email && (
+                          <p className="text-xs text-gray-500 mt-1">
+                            (계정 이메일: {workflow.user.email})
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 계좌 정보 */}
+                  <div className="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <h3 className="font-semibold text-gray-900">계좌 정보</h3>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <span className="text-gray-600">은행명:</span>
+                        <p className="font-medium text-gray-900">
+                          {submission.은행명 || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">계좌번호:</span>
+                        <p className="font-medium text-gray-900">
+                          {submission.계좌번호 || "-"}
+                        </p>
+                      </div>
+                      <div className="col-span-2">
+                        <span className="text-gray-600">
+                          계좌명의자 (대표와 다른 경우):
+                        </span>
+                        <p className="font-medium text-gray-900">
+                          {submission.계좌명의자명 || "-"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SMS 발신번호 등록 정보 */}
+                  <div className="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <h3 className="font-semibold text-gray-900">
+                      SMS 발신번호 등록 정보
+                    </h3>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <span className="text-gray-600">
+                          통신서비스 이용증명원:
+                        </span>
+                        {submission.통신서비스이용증명원URL ? (
+                          <a
+                            href={submission.통신서비스이용증명원URL}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-gold-600 hover:underline flex items-center gap-1 mt-1"
+                          >
+                            파일 보기 <ExternalLink className="w-3 h-3" />
+                          </a>
+                        ) : (
+                          <p className="font-medium text-gray-900">-</p>
+                        )}
+                      </div>
+                      <div>
+                        <span className="text-gray-600">신분증:</span>
+                        <p className="font-medium text-gray-900">
+                          {submission.대표자신분증URL
+                            ? "제출됨 (슬랙에서 확인)"
+                            : "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">신용카드 앞면:</span>
+                        <p className="font-medium text-gray-900">
+                          {submission.신용카드앞면URL
+                            ? "제출됨 (슬랙에서 확인)"
+                            : "-"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 배송 정보 */}
+                  <div className="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <h3 className="font-semibold text-gray-900">배송 정보</h3>
+                    <div className="text-sm">
+                      <span className="text-gray-600">인쇄물 받을 주소:</span>
+                      <p className="font-medium text-gray-900 mt-1">
+                        {submission.인쇄물받을주소 || submission.주소 || "-"}
+                      </p>
+                      {submission.인쇄물받을주소 &&
+                        submission.인쇄물받을주소 !== submission.주소 && (
+                          <p className="text-xs text-gray-500 mt-1">
+                            (사업장 주소: {submission.주소})
+                          </p>
+                        )}
+                    </div>
+                  </div>
+
+                  {/* 파일 */}
+                  <div className="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
                     <h3 className="font-semibold text-gray-900">업로드 파일</h3>
                     <div className="space-y-2 text-sm">
-                      {submission.로고URL && (
+                      {submission.사업자등록증URL && (
                         <div>
-                          <span className="text-gray-600">로고 파일:</span>
+                          <span className="text-gray-600">사업자등록증:</span>
                           <a
-                            href={submission.로고URL}
+                            href={submission.사업자등록증URL}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-gold-600 hover:underline flex items-center gap-1 mt-1"
@@ -287,24 +285,11 @@ export default function SubmissionViewButton({
                           </a>
                         </div>
                       )}
-                      {submission.로고예시디자인URL && (
+                      {submission.프로필사진URL && (
                         <div>
-                          <span className="text-gray-600">참고 로고 1:</span>
+                          <span className="text-gray-600">프로필 사진:</span>
                           <a
-                            href={submission.로고예시디자인URL}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-gold-600 hover:underline flex items-center gap-1 mt-1"
-                          >
-                            파일 보기 <ExternalLink className="w-3 h-3" />
-                          </a>
-                        </div>
-                      )}
-                      {submission.로고예시디자인2URL && (
-                        <div>
-                          <span className="text-gray-600">참고 로고 2:</span>
-                          <a
-                            href={submission.로고예시디자인2URL}
+                            href={submission.프로필사진URL}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-gold-600 hover:underline flex items-center gap-1 mt-1"
@@ -315,265 +300,426 @@ export default function SubmissionViewButton({
                       )}
                     </div>
                   </div>
-                )}
-              </TabsContent>
+                </TabsContent>
 
-              {/* 명함 정보 탭 */}
-              <TabsContent value="namecard" className="space-y-4">
-                <div className="space-y-3 p-4 bg-green-50 rounded-lg border border-green-200">
-                  <h3 className="font-semibold text-gray-900">
-                    명함 디자인 정보
-                  </h3>
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div>
-                      <span className="text-gray-600">명함 색상:</span>
-                      {submission.명함색상 ? (
-                        <div className="flex items-center gap-2 mt-1">
-                          <div
-                            className="w-8 h-8 rounded border border-gray-300"
-                            style={{ backgroundColor: submission.명함색상 }}
-                          />
-                          <p className="font-medium text-gray-900">
-                            {submission.명함색상}
+                {/* 로고 정보 탭 */}
+                <TabsContent value="logo" className="space-y-4">
+                  <div className="space-y-3 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                    <h3 className="font-semibold text-gray-900">
+                      로고 디자인 요청사항
+                    </h3>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <span className="text-gray-600">선호 스타일:</span>
+                        <p className="font-medium text-gray-900">
+                          {submission.로고선호스타일 || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">선호 폰트:</span>
+                        <p className="font-medium text-gray-900">
+                          {submission.로고선호폰트 || "-"}
+                        </p>
+                      </div>
+                      <div className="col-span-2">
+                        <span className="text-gray-600">선호 색상:</span>
+                        {submission.로고선호색상 ? (
+                          <div className="flex items-center gap-2 mt-1">
+                            <div
+                              className="w-8 h-8 rounded border border-gray-300"
+                              style={{
+                                backgroundColor: submission.로고선호색상,
+                              }}
+                            />
+                            <p className="font-medium text-gray-900">
+                              {submission.로고선호색상}
+                            </p>
+                          </div>
+                        ) : (
+                          <p className="font-medium text-gray-900">-</p>
+                        )}
+                      </div>
+                      <div className="col-span-2">
+                        <span className="text-gray-600">제작 요청사항:</span>
+                        <p className="font-medium text-gray-900 whitespace-pre-wrap mt-1">
+                          {submission.로고제작요청사항 || "-"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 로고 파일 */}
+                  {(submission.로고URL ||
+                    submission.로고예시디자인URL ||
+                    submission.로고예시디자인2URL) && (
+                    <div className="space-y-3 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                      <h3 className="font-semibold text-gray-900">
+                        업로드 파일
+                      </h3>
+                      <div className="space-y-2 text-sm">
+                        {submission.로고URL && (
+                          <div>
+                            <span className="text-gray-600">로고 파일:</span>
+                            <a
+                              href={submission.로고URL}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-gold-600 hover:underline flex items-center gap-1 mt-1"
+                            >
+                              파일 보기 <ExternalLink className="w-3 h-3" />
+                            </a>
+                          </div>
+                        )}
+                        {submission.로고예시디자인URL && (
+                          <div>
+                            <span className="text-gray-600">참고 로고 1:</span>
+                            <a
+                              href={submission.로고예시디자인URL}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-gold-600 hover:underline flex items-center gap-1 mt-1"
+                            >
+                              파일 보기 <ExternalLink className="w-3 h-3" />
+                            </a>
+                          </div>
+                        )}
+                        {submission.로고예시디자인2URL && (
+                          <div>
+                            <span className="text-gray-600">참고 로고 2:</span>
+                            <a
+                              href={submission.로고예시디자인2URL}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-gold-600 hover:underline flex items-center gap-1 mt-1"
+                            >
+                              파일 보기 <ExternalLink className="w-3 h-3" />
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </TabsContent>
+
+                {/* 명함 정보 탭 */}
+                <TabsContent value="namecard" className="space-y-4">
+                  <div className="space-y-3 p-4 bg-green-50 rounded-lg border border-green-200">
+                    <h3 className="font-semibold text-gray-900">
+                      명함 디자인 정보
+                    </h3>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <span className="text-gray-600">명함 색상:</span>
+                        {submission.명함색상 ? (
+                          <div className="flex items-center gap-2 mt-1">
+                            <div
+                              className="w-8 h-8 rounded border border-gray-300"
+                              style={{ backgroundColor: submission.명함색상 }}
+                            />
+                            <p className="font-medium text-gray-900">
+                              {submission.명함색상}
+                            </p>
+                          </div>
+                        ) : (
+                          <p className="font-medium text-gray-900">-</p>
+                        )}
+                      </div>
+                      <div>
+                        <span className="text-gray-600">명함 시안:</span>
+                        <p className="font-medium text-gray-900">
+                          {submission.명함시안 || "-"}
+                        </p>
+                      </div>
+                      <div className="col-span-2">
+                        <span className="text-gray-600">
+                          자문계약서 스타일:
+                        </span>
+                        <p className="font-medium text-gray-900">
+                          {submission.계약서시안 || "-"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 명함에 들어갈 정보 */}
+                  <div className="space-y-3 p-4 bg-green-50 rounded-lg border border-green-200">
+                    <h3 className="font-semibold text-gray-900">
+                      명함 표기 정보
+                    </h3>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <span className="text-gray-600">이름:</span>
+                        <p className="font-medium text-gray-900">
+                          {workflow.user.이름 || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">대표번호:</span>
+                        <p className="font-medium text-gray-900">
+                          {submission.대표번호 || "-"}
+                        </p>
+                      </div>
+                      <div className="col-span-2">
+                        <span className="text-gray-600">이메일:</span>
+                        <p className="font-medium text-gray-900">
+                          {submission.이메일 || "-"}
+                        </p>
+                      </div>
+                      <div className="col-span-2">
+                        <span className="text-gray-600">주소:</span>
+                        <p className="font-medium text-gray-900">
+                          {submission.주소 || "-"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                {/* 홈페이지 정보 탭 */}
+                <TabsContent value="website" className="space-y-4">
+                  <div className="space-y-3 p-4 bg-gold-50 rounded-lg border border-gold-200">
+                    <h3 className="font-semibold text-gray-900">
+                      홈페이지 정보
+                    </h3>
+                    <div className="grid grid-cols-1 gap-3 text-sm">
+                      <div>
+                        <span className="text-gray-600">제작 방식:</span>
+                        <p className="font-medium text-gray-900 mt-1">
+                          {submission.홈페이지제작방식 || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">선택한 스타일:</span>
+                        {submission.홈페이지스타일 ? (
+                          <a
+                            href={submission.홈페이지스타일}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-gold-600 hover:underline flex items-center gap-1 mt-1"
+                          >
+                            {(() => {
+                              const styles: Record<string, string> = {
+                                "https://www.jnipartners.co.kr": "스타일 1",
+                                "https://bizcoaching.co.kr/": "스타일 2",
+                                "https://startpackage-demo-style3.vercel.app/":
+                                  "스타일 3",
+                                // 레거시 (이전 데이터 호환용)
+                                "https://jmbiz.imweb.me/": "스타일 3",
+                                "https://yjbiz.co.kr/": "스타일 3",
+                                "https://biznuri.co.kr/": "스타일 4",
+                                "https://www.wiztion.com/": "스타일 5",
+                                "https://brpartners.kr/": "스타일 6",
+                                "https://startpackagedemo.vercel.app/":
+                                  "스타일 7",
+                                "https://hopebizgroup.com/": "스타일 8",
+                                "https://gopartners.cc/": "스타일 9",
+                                // 레거시 (이전 데이터 호환용)
+                                "https://startpackage-demo2.vercel.app/":
+                                  "스타일 8",
+                                "https://startpackage-demo3.vercel.app/":
+                                  "스타일 9",
+                                "https://mjgood.imweb.me/": "스타일 2",
+                                "https://bizen.co.kr/": "스타일 2",
+                                "https://ksupport-center.imweb.me/": "스타일 4",
+                                "https://fpbiz.imweb.me/": "스타일 6",
+                                "https://www.k-eai.kr/index.html": "스타일 6",
+                              };
+                              return (
+                                styles[submission.홈페이지스타일] ||
+                                submission.홈페이지스타일
+                              );
+                            })()}
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
+                        ) : (
+                          <p className="font-medium text-gray-900 mt-1">-</p>
+                        )}
+                      </div>
+                      <div>
+                        <span className="text-gray-600">컬러 컨셉:</span>
+                        {submission.홈페이지컬러컨셉 ? (
+                          <div className="flex items-center gap-2 mt-1">
+                            <div
+                              className="w-10 h-10 rounded border border-gray-300"
+                              style={{
+                                backgroundColor: submission.홈페이지컬러컨셉,
+                              }}
+                            />
+                            <p className="font-medium text-gray-900">
+                              {submission.홈페이지컬러컨셉}
+                            </p>
+                          </div>
+                        ) : (
+                          <p className="font-medium text-gray-900 mt-1">-</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 도메인 정보 */}
+                  <div className="space-y-3 p-4 bg-gold-50 rounded-lg border border-gold-200">
+                    <h3 className="font-semibold text-gray-900">도메인 정보</h3>
+                    <div className="grid grid-cols-1 gap-3 text-sm">
+                      <div>
+                        <span className="text-gray-600">도메인 주소:</span>
+                        <p className="font-medium text-gray-900">
+                          {submission.도메인주소 || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">
+                          도메인 관리 사이트:
+                        </span>
+                        <p className="font-medium text-gray-900">
+                          {submission.도메인관리사이트 || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">도메인 관리 ID:</span>
+                        <p className="font-medium text-gray-900 font-mono">
+                          {submission.도메인관리ID || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">도메인 관리 PW:</span>
+                        <p className="font-medium text-gray-900 font-mono">
+                          {submission.도메인관리PW || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">해외결제 카드:</span>
+                        <p className="font-medium text-gray-900">
+                          {submission.해외결제카드앞면URL ||
+                          submission.해외결제카드뒷면URL ||
+                          submission.해외결제카드유효기간 ||
+                          submission.해외결제카드CVC
+                            ? "제출됨 (카드번호·유효기간·CVC는 슬랙에서 확인)"
+                            : "-"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Gmail 계정 정보 */}
+                  <div className="space-y-3 p-4 bg-green-50 rounded-lg border border-green-200">
+                    <h3 className="font-semibold text-gray-900">
+                      Gmail 계정 정보
+                    </h3>
+                    <div className="grid grid-cols-1 gap-3 text-sm">
+                      <div>
+                        <span className="text-gray-600">Gmail ID:</span>
+                        <p className="font-medium text-gray-900 font-mono">
+                          {submission.GmailID || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Gmail PW:</span>
+                        <p className="font-medium text-gray-900 font-mono">
+                          {submission.GmailPW || "-"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 레거시: 아임웹 (2026-04 지원 종료, 과거 제출분 확인용) */}
+                  {(submission.아임웹ID ||
+                    submission.아임웹PW ||
+                    submission.아임웹관리자PW) && (
+                    <div className="space-y-3 p-4 bg-gray-100 rounded-lg border border-gray-300">
+                      <h3 className="font-semibold text-gray-700">
+                        아임웹 계정 (지원 종료 · 과거 제출분)
+                      </h3>
+                      <div className="grid grid-cols-1 gap-3 text-sm">
+                        <div>
+                          <span className="text-gray-600">아임웹 ID:</span>
+                          <p className="font-medium text-gray-900 font-mono">
+                            {submission.아임웹ID || "-"}
                           </p>
                         </div>
-                      ) : (
-                        <p className="font-medium text-gray-900">-</p>
-                      )}
-                    </div>
-                    <div>
-                      <span className="text-gray-600">명함 시안:</span>
-                      <p className="font-medium text-gray-900">
-                        {submission.명함시안 || "-"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 명함에 들어갈 정보 */}
-                <div className="space-y-3 p-4 bg-green-50 rounded-lg border border-green-200">
-                  <h3 className="font-semibold text-gray-900">
-                    명함 표기 정보
-                  </h3>
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div>
-                      <span className="text-gray-600">이름:</span>
-                      <p className="font-medium text-gray-900">
-                        {workflow.user.이름 || "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">대표번호:</span>
-                      <p className="font-medium text-gray-900">
-                        {submission.대표번호 || "-"}
-                      </p>
-                    </div>
-                    <div className="col-span-2">
-                      <span className="text-gray-600">이메일:</span>
-                      <p className="font-medium text-gray-900">
-                        {submission.이메일 || "-"}
-                      </p>
-                    </div>
-                    <div className="col-span-2">
-                      <span className="text-gray-600">주소:</span>
-                      <p className="font-medium text-gray-900">
-                        {submission.주소 || "-"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
-
-              {/* 홈페이지 정보 탭 */}
-              <TabsContent value="website" className="space-y-4">
-                <div className="space-y-3 p-4 bg-gold-50 rounded-lg border border-gold-200">
-                  <h3 className="font-semibold text-gray-900">홈페이지 정보</h3>
-                  <div className="grid grid-cols-1 gap-3 text-sm">
-                    <div>
-                      <span className="text-gray-600">선택한 스타일:</span>
-                      {submission.홈페이지스타일 ? (
-                        <a
-                          href={submission.홈페이지스타일}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-gold-600 hover:underline flex items-center gap-1 mt-1"
-                        >
-                          {(() => {
-                            const styles: Record<string, string> = {
-                              "https://www.jnipartners.co.kr": "스타일 1",
-                              "https://bizcoaching.co.kr/": "스타일 2",
-                              "https://startpackage-demo-style3.vercel.app/":
-                                "스타일 3",
-                              // 레거시 (이전 데이터 호환용)
-                              "https://jmbiz.imweb.me/": "스타일 3",
-                              "https://yjbiz.co.kr/": "스타일 3",
-                              "https://biznuri.co.kr/": "스타일 4",
-                              "https://www.wiztion.com/": "스타일 5",
-                              "https://brpartners.kr/": "스타일 6",
-                              "https://startpackagedemo.vercel.app/":
-                                "스타일 7",
-                              "https://hopebizgroup.com/": "스타일 8",
-                              "https://gopartners.cc/": "스타일 9",
-                              // 레거시 (이전 데이터 호환용)
-                              "https://startpackage-demo2.vercel.app/":
-                                "스타일 8",
-                              "https://startpackage-demo3.vercel.app/":
-                                "스타일 9",
-                              "https://mjgood.imweb.me/": "스타일 2",
-                              "https://bizen.co.kr/": "스타일 2",
-                              "https://ksupport-center.imweb.me/": "스타일 4",
-                              "https://fpbiz.imweb.me/": "스타일 6",
-                              "https://www.k-eai.kr/index.html": "스타일 6",
-                            };
-                            return (
-                              styles[submission.홈페이지스타일] ||
-                              submission.홈페이지스타일
-                            );
-                          })()}
-                          <ExternalLink className="w-3 h-3" />
-                        </a>
-                      ) : (
-                        <p className="font-medium text-gray-900 mt-1">-</p>
-                      )}
-                    </div>
-                    <div>
-                      <span className="text-gray-600">컬러 컨셉:</span>
-                      {submission.홈페이지컬러컨셉 ? (
-                        <div className="flex items-center gap-2 mt-1">
-                          <div
-                            className="w-10 h-10 rounded border border-gray-300"
-                            style={{
-                              backgroundColor: submission.홈페이지컬러컨셉,
-                            }}
-                          />
-                          <p className="font-medium text-gray-900">
-                            {submission.홈페이지컬러컨셉}
+                        <div>
+                          <span className="text-gray-600">아임웹 PW:</span>
+                          <p className="font-medium text-gray-900 font-mono">
+                            {submission.아임웹PW || "-"}
                           </p>
                         </div>
-                      ) : (
-                        <p className="font-medium text-gray-900 mt-1">-</p>
-                      )}
+                        <div>
+                          <span className="text-gray-600">
+                            아임웹 관리자 PW:
+                          </span>
+                          <p className="font-medium text-gray-900 font-mono">
+                            {submission.아임웹관리자PW || "-"}
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
+                  )}
+                </TabsContent>
 
-                {/* 도메인 정보 */}
-                <div className="space-y-3 p-4 bg-gold-50 rounded-lg border border-gold-200">
-                  <h3 className="font-semibold text-gray-900">도메인 정보</h3>
-                  <div className="grid grid-cols-1 gap-3 text-sm">
-                    <div>
-                      <span className="text-gray-600">도메인 주소:</span>
-                      <p className="font-medium text-gray-900">
-                        {submission.도메인주소 || "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">도메인 관리 사이트:</span>
-                      <p className="font-medium text-gray-900">
-                        {submission.도메인관리사이트 || "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">도메인 관리 ID:</span>
-                      <p className="font-medium text-gray-900 font-mono">
-                        {submission.도메인관리ID || "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">도메인 관리 PW:</span>
-                      <p className="font-medium text-gray-900 font-mono">
-                        {submission.도메인관리PW || "-"}
-                      </p>
+                {/* 마케팅 정보 탭 */}
+                <TabsContent value="marketing" className="space-y-4">
+                  {/* 네이버 검색광고 */}
+                  <div className="space-y-3 p-4 bg-green-50 rounded-lg border border-green-200">
+                    <h3 className="font-semibold text-gray-900">
+                      네이버 검색광고
+                    </h3>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <span className="text-gray-600">ID:</span>
+                        <p className="font-medium text-gray-900">
+                          {submission.네이버검색광고ID || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">비밀번호:</span>
+                        <p className="font-medium text-gray-900">
+                          {submission.네이버검색광고PW || "-"}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Gmail 계정 정보 */}
-                <div className="space-y-3 p-4 bg-green-50 rounded-lg border border-green-200">
-                  <h3 className="font-semibold text-gray-900">
-                    Gmail 계정 정보
-                  </h3>
-                  <div className="grid grid-cols-1 gap-3 text-sm">
-                    <div>
-                      <span className="text-gray-600">Gmail ID:</span>
-                      <p className="font-medium text-gray-900 font-mono">
-                        {submission.GmailID || "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Gmail PW:</span>
-                      <p className="font-medium text-gray-900 font-mono">
-                        {submission.GmailPW || "-"}
-                      </p>
+                  {/* 네이버 클라우드 */}
+                  <div className="space-y-3 p-4 bg-gold-50 rounded-lg border border-gold-200">
+                    <h3 className="font-semibold text-gray-900">
+                      네이버 클라우드
+                    </h3>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <span className="text-gray-600">ID:</span>
+                        <p className="font-medium text-gray-900">
+                          {submission.네이버클라우드ID || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">비밀번호:</span>
+                        <p className="font-medium text-gray-900">
+                          {submission.네이버클라우드PW || "-"}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </TabsContent>
 
-              {/* 마케팅 정보 탭 */}
-              <TabsContent value="marketing" className="space-y-4">
-                {/* 네이버 검색광고 */}
-                <div className="space-y-3 p-4 bg-green-50 rounded-lg border border-green-200">
-                  <h3 className="font-semibold text-gray-900">
-                    네이버 검색광고
-                  </h3>
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div>
-                      <span className="text-gray-600">ID:</span>
-                      <p className="font-medium text-gray-900">
-                        {submission.네이버검색광고ID || "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">비밀번호:</span>
-                      <p className="font-medium text-gray-900">
-                        {submission.네이버검색광고PW || "-"}
-                      </p>
+                  {/* Instagram */}
+                  <div className="space-y-3 p-4 bg-pink-50 rounded-lg border border-pink-200">
+                    <h3 className="font-semibold text-gray-900">Instagram</h3>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <span className="text-gray-600">ID:</span>
+                        <p className="font-medium text-gray-900">
+                          {submission.InstagramID || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">비밀번호:</span>
+                        <p className="font-medium text-gray-900">
+                          {submission.InstagramPW || "-"}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-
-                {/* 네이버 클라우드 */}
-                <div className="space-y-3 p-4 bg-gold-50 rounded-lg border border-gold-200">
-                  <h3 className="font-semibold text-gray-900">
-                    네이버 클라우드
-                  </h3>
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div>
-                      <span className="text-gray-600">ID:</span>
-                      <p className="font-medium text-gray-900">
-                        {submission.네이버클라우드ID || "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">비밀번호:</span>
-                      <p className="font-medium text-gray-900">
-                        {submission.네이버클라우드PW || "-"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Instagram */}
-                <div className="space-y-3 p-4 bg-pink-50 rounded-lg border border-pink-200">
-                  <h3 className="font-semibold text-gray-900">Instagram</h3>
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div>
-                      <span className="text-gray-600">ID:</span>
-                      <p className="font-medium text-gray-900">
-                        {submission.InstagramID || "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">비밀번호:</span>
-                      <p className="font-medium text-gray-900">
-                        {submission.InstagramPW || "-"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
-            </Tabs>
+                </TabsContent>
+              </Tabs>
+            </>
           ) : (
             <div className="py-12 text-center text-gray-500">
               제출된 정보가 없습니다.

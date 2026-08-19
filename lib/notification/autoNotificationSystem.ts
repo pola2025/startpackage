@@ -55,7 +55,6 @@ export interface User {
 export interface Submission {
   사업자등록증URL?: string;
   프로필사진URL?: string;
-  메타광고관리자값?: string;
   네이버검색광고ID?: string;
   홈페이지컬러컨셉?: string;
 }
@@ -514,7 +513,6 @@ export class AutoNotificationSystem {
     const requiredFields = {
       사업자등록증URL: "사업자등록증",
       프로필사진URL: "프로필사진",
-      메타광고관리자값: "메타광고 설정",
       네이버검색광고ID: "네이버 검색광고",
       홈페이지컬러컨셉: "홈페이지 컬러 컨셉",
     };

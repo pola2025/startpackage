@@ -276,7 +276,7 @@ export function MySubmissionStatus({
     );
 
     // 4. 계정 정보
-    const accountFields = [s.메타광고관리자값, s.InstagramID];
+    const accountFields = [s.InstagramID];
     const accountComplete = accountFields.some(Boolean);
 
     // 5. 홈페이지
@@ -368,10 +368,6 @@ export function MySubmissionStatus({
             <InfoRow label="이름" value={user.이름} />
             <InfoRow label="연락처" value={user.연락처} />
             <InfoRow label="브랜드명" value={submission.브랜드명} />
-            <InfoRow
-              label="영문 브랜드명"
-              value={submission.brandNameEnglish}
-            />
             <InfoRow label="업종" value={submission.업종} />
             <InfoRow label="주소" value={submission.주소} />
             <button
@@ -566,10 +562,6 @@ export function MySubmissionStatus({
           defaultOpen={false}
         >
           <div className="bg-white rounded-lg p-4 mt-3">
-            <InfoRow
-              label="메타 광고관리자"
-              value={submission.메타광고관리자값}
-            />
             <InfoRow label="Instagram ID" value={submission.InstagramID} />
             <InfoRow label="Instagram PW" value={submission.InstagramPW} />
             <InfoRow label="Gmail ID" value={submission.GmailID} />

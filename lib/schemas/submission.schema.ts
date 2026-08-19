@@ -46,6 +46,18 @@ export const submissionSchema = z.object({
     .string()
     .regex(/^#[0-9A-Fa-f]{6}$/, "16진수 색상값을 입력해주세요")
     .optional(),
+  홈페이지제작방식: z.string().optional(),
+
+  // 도메인 관리 계정 (외부 서비스 제작 시)
+  도메인관리사이트: z.string().optional(),
+  도메인관리ID: z.string().optional(),
+  도메인관리PW: z.string().optional(),
+
+  // 해외결제 카드 (슬랙에서만 확인, 관리자 화면 비노출)
+  해외결제카드앞면URL: z.string().optional(),
+  해외결제카드뒷면URL: z.string().optional(),
+  해외결제카드유효기간: z.string().optional(),
+  해외결제카드CVC: z.string().optional(),
 
   // 계좌 정보
   은행명: z.string().optional(),
@@ -53,7 +65,6 @@ export const submissionSchema = z.object({
   계좌명의자명: z.string().optional(), // 사업자 대표와 다를 경우 입력
 
   // SMS 발신 등록용 서류
-  대표자생년월일: z.string().optional(),
   대표자신분증URL: z.string().optional(),
   통신서비스이용증명원URL: z.string().optional(),
   신용카드앞면URL: z.string().optional(),
@@ -64,7 +75,6 @@ export const submissionSchema = z.object({
   인쇄물받을주소: z.string().optional(),
 
   // 마케팅 (선택)
-  메타광고관리자값: z.string().optional(),
   네이버검색광고ID: z.string().optional(),
   네이버검색광고PW: z.string().optional(),
   네이버클라우드ID: z.string().optional(),

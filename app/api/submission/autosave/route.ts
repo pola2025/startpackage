@@ -6,7 +6,6 @@ import { isPaidHomepageStyle } from "@/lib/homepage-styles";
 // 허용된 필드 목록 (Prisma 스키마 기반)
 const ALLOWED_FIELDS = [
   "브랜드명",
-  "brandNameEnglish",
   "업종",
   "주소",
   "대표번호",
@@ -31,14 +30,12 @@ const ALLOWED_FIELDS = [
   "은행명",
   "계좌번호",
   "계좌명의자명",
-  "대표자생년월일",
   "대표자신분증URL",
   "통신서비스이용증명원URL",
   "신용카드앞면URL",
   "로고예시디자인URL",
   "로고예시디자인2URL",
   "인쇄물받을주소",
-  "메타광고관리자값",
   "네이버검색광고ID",
   "네이버검색광고PW",
   "네이버클라우드ID",
@@ -50,6 +47,7 @@ const ALLOWED_FIELDS = [
   "해외결제카드앞면URL",
   "해외결제카드뒷면URL",
   "해외결제카드유효기간",
+  "해외결제카드CVC",
 ];
 
 /**

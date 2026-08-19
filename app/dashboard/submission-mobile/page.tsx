@@ -724,24 +724,12 @@ export default function MobileSubmissionPage() {
                 마케팅 정보
               </CardTitle>
               <CardDescription>
-                메타광고, 네이버 광고, 인스타그램 정보를 입력해주세요
+                네이버 광고, 인스타그램 정보를 입력해주세요
               </CardDescription>
             </CardHeader>
             <CardContent className="p-3 pt-0 space-y-2">
               {/* Sprint 2: 민감정보 안심 UI (모바일 컴팩트) */}
               <SecurityNotice type="marketing" compact />
-
-              <div className="space-y-1">
-                <Label htmlFor="메타광고관리자값">메타광고 관리자 값</Label>
-                <Input
-                  id="메타광고관리자값"
-                  value={formData.메타광고관리자값 || ""}
-                  onChange={(e) =>
-                    handleInputChange("메타광고관리자값", e.target.value)
-                  }
-                  placeholder="초대 링크 또는 계정 정보"
-                />
-              </div>
 
               <div className="space-y-1">
                 <Label htmlFor="네이버검색광고ID">네이버 검색광고 ID</Label>

@@ -362,7 +362,6 @@ export async function POST(request: Request) {
           { key: "명함색상", label: "로고/명함 색상" },
           { key: "명함시안", label: "명함 스타일" },
           { key: "계약서시안", label: "계약서 스타일" },
-          { key: "메타광고관리자값", label: "Meta 광고 관리자 값" },
           { key: "네이버검색광고ID", label: "네이버 검색광고 ID" },
           { key: "네이버검색광고PW", label: "네이버 검색광고 비밀번호" },
           { key: "네이버클라우드ID", label: "네이버 클라우드 ID" },

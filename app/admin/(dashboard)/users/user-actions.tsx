@@ -668,6 +668,86 @@ export default function UserActions({ user }: UserActionsProps) {
                     <p className="font-medium text-gray-900">
                       {submission.이메일 || "-"}
                     </p>
+                    {!submission.이메일 && user.email && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        (계정 이메일: {user.email})
+                      </p>
+                    )}
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-gray-600">인쇄물 받을 주소:</span>
+                    <p className="font-medium text-gray-900">
+                      {submission.인쇄물받을주소 || submission.주소 || "-"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* 계좌 정보 */}
+              <div className="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <h3 className="font-semibold text-gray-900">계좌 정보</h3>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <span className="text-gray-600">은행명:</span>
+                    <p className="font-medium text-gray-900">
+                      {submission.은행명 || "-"}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">계좌번호:</span>
+                    <p className="font-medium text-gray-900">
+                      {submission.계좌번호 || "-"}
+                    </p>
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-gray-600">
+                      계좌명의자 (대표와 다른 경우):
+                    </span>
+                    <p className="font-medium text-gray-900">
+                      {submission.계좌명의자명 || "-"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* SMS 발신번호 등록 정보 */}
+              <div className="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <h3 className="font-semibold text-gray-900">
+                  SMS 발신번호 등록 정보
+                </h3>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <span className="text-gray-600">
+                      통신서비스 이용증명원:
+                    </span>
+                    {submission.통신서비스이용증명원URL ? (
+                      <a
+                        href={submission.통신서비스이용증명원URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gold-600 hover:underline flex items-center gap-1 mt-1"
+                      >
+                        파일 보기 <ExternalLink className="w-3 h-3" />
+                      </a>
+                    ) : (
+                      <p className="font-medium text-gray-900">-</p>
+                    )}
+                  </div>
+                  <div>
+                    <span className="text-gray-600">신분증:</span>
+                    <p className="font-medium text-gray-900">
+                      {submission.대표자신분증URL
+                        ? "제출됨 (슬랙에서 확인)"
+                        : "-"}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">신용카드 앞면:</span>
+                    <p className="font-medium text-gray-900">
+                      {submission.신용카드앞면URL
+                        ? "제출됨 (슬랙에서 확인)"
+                        : "-"}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -730,6 +810,12 @@ export default function UserActions({ user }: UserActionsProps) {
                       {submission.명함시안 || "-"}
                     </p>
                   </div>
+                  <div>
+                    <span className="text-gray-600">자문계약서 스타일:</span>
+                    <p className="font-medium text-gray-900">
+                      {submission.계약서시안 || "-"}
+                    </p>
+                  </div>
                   {submission.로고URL && (
                     <div className="col-span-2">
                       <span className="text-gray-600">로고 파일:</span>
@@ -750,6 +836,12 @@ export default function UserActions({ user }: UserActionsProps) {
               <div className="space-y-3 p-4 bg-gold-50 rounded-lg border border-gold-200">
                 <h3 className="font-semibold text-gray-900">홈페이지 정보</h3>
                 <div className="grid grid-cols-1 gap-3 text-sm">
+                  <div>
+                    <span className="text-gray-600">제작 방식:</span>
+                    <p className="font-medium text-gray-900">
+                      {submission.홈페이지제작방식 || "-"}
+                    </p>
+                  </div>
                   <div>
                     <span className="text-gray-600">선택한 스타일:</span>
                     {submission.홈페이지스타일 ? (
@@ -821,6 +913,49 @@ export default function UserActions({ user }: UserActionsProps) {
                 </div>
               </div>
 
+              {/* 해외결제 카드 / 레거시 아임웹 */}
+              {(submission.해외결제카드앞면URL ||
+                submission.해외결제카드뒷면URL ||
+                submission.해외결제카드유효기간 ||
+                submission.해외결제카드CVC) && (
+                <div className="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <h3 className="font-semibold text-gray-900">해외결제 카드</h3>
+                  <p className="text-sm font-medium text-gray-900">
+                    제출됨 (카드번호·유효기간·CVC는 슬랙에서 확인)
+                  </p>
+                </div>
+              )}
+
+              {(submission.아임웹ID ||
+                submission.아임웹PW ||
+                submission.아임웹관리자PW) && (
+                <div className="space-y-3 p-4 bg-gray-100 rounded-lg border border-gray-300">
+                  <h3 className="font-semibold text-gray-700">
+                    아임웹 계정 (지원 종료 · 과거 제출분)
+                  </h3>
+                  <div className="grid grid-cols-1 gap-3 text-sm">
+                    <div>
+                      <span className="text-gray-600">아임웹 ID:</span>
+                      <p className="font-medium text-gray-900 font-mono">
+                        {submission.아임웹ID || "-"}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">아임웹 PW:</span>
+                      <p className="font-medium text-gray-900 font-mono">
+                        {submission.아임웹PW || "-"}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">아임웹 관리자 PW:</span>
+                      <p className="font-medium text-gray-900 font-mono">
+                        {submission.아임웹관리자PW || "-"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* 마케팅 정보 */}
               <div className="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
                 <h3 className="font-semibold text-gray-900">마케팅 정보</h3>
@@ -832,9 +967,33 @@ export default function UserActions({ user }: UserActionsProps) {
                     </p>
                   </div>
                   <div>
+                    <span className="text-gray-600">네이버 검색광고 PW:</span>
+                    <p className="font-medium text-gray-900">
+                      {submission.네이버검색광고PW || "-"}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">네이버 클라우드 ID:</span>
+                    <p className="font-medium text-gray-900">
+                      {submission.네이버클라우드ID || "-"}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">네이버 클라우드 PW:</span>
+                    <p className="font-medium text-gray-900">
+                      {submission.네이버클라우드PW || "-"}
+                    </p>
+                  </div>
+                  <div>
                     <span className="text-gray-600">Instagram ID:</span>
                     <p className="font-medium text-gray-900">
                       {submission.InstagramID || "-"}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Instagram PW:</span>
+                    <p className="font-medium text-gray-900">
+                      {submission.InstagramPW || "-"}
                     </p>
                   </div>
                 </div>
