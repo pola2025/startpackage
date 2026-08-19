@@ -1213,6 +1213,14 @@ export default function SubmissionPage() {
                     <span className="text-sm font-semibold text-gray-900">
                       디자인 선호도
                     </span>
+                    <a
+                      href="/dashboard/logo-samples"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ml-auto text-xs font-semibold text-gold-600 hover:text-gold-700 hover:underline"
+                    >
+                      제작 사례 보기 →
+                    </a>
                   </div>
                   <div className="bg-white border border-gray-200 rounded-lg p-4 space-y-4">
                     {/* 스타일 */}

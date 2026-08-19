@@ -25,6 +25,8 @@ import {
   Hammer,
   GraduationCap,
   ChevronDown,
+  Images,
+  PenTool,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -91,6 +93,18 @@ export function MobileMoreMenu({
           href: "/dashboard/content-tips",
           icon: Lightbulb,
           label: "콘텐츠 제작 Tip",
+          badge: null,
+        },
+        {
+          href: "/dashboard/content-samples",
+          icon: Images,
+          label: "콘텐츠 제작사례",
+          badge: null,
+        },
+        {
+          href: "/dashboard/logo-samples",
+          icon: PenTool,
+          label: "로고 제작사례",
           badge: null,
         },
       ]

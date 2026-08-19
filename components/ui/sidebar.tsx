@@ -21,6 +21,8 @@ import {
   ChevronDown,
   Hammer,
   GraduationCap,
+  Images,
+  PenTool,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -137,6 +139,18 @@ export function Sidebar({
         href: "/dashboard/content-tips",
         icon: Lightbulb,
         label: "콘텐츠 제작 Tip",
+        badge: null,
+      },
+      {
+        href: "/dashboard/content-samples",
+        icon: Images,
+        label: "콘텐츠 제작사례",
+        badge: null,
+      },
+      {
+        href: "/dashboard/logo-samples",
+        icon: PenTool,
+        label: "로고 제작사례",
         badge: null,
       },
     ],

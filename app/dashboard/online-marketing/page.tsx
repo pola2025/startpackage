@@ -9,9 +9,9 @@ import {
   FileText,
   Film,
   Gift,
-  Globe,
   Images,
   Megaphone,
+  Mic,
   MessageSquare,
   Package,
   ShieldCheck,
@@ -36,9 +36,8 @@ const baseServices = [
 
 const contentDeliverables = [
   { icon: FileText, label: "네이버 블로그" },
-  { icon: Images, label: "인스타 캐러셀" },
-  { icon: Film, label: "인스타 릴스" },
-  { icon: Globe, label: "홈페이지 게시글" },
+  { icon: Images, label: "인스타그램 게시글" },
+  { icon: Film, label: "인스타그램 릴스" },
 ];
 
 const MONTHLY_CONTENT_COUNT = contentDeliverables.length * 30;
@@ -217,6 +216,26 @@ export default function OnlineMarketingPage() {
                   <Sparkles className="h-4 w-4" />
                   기업마당 연동 리라이팅 세팅
                 </div>
+
+                <div className="mt-2 flex items-start gap-2 rounded-lg border border-dashed border-green-300 bg-green-50 p-2.5 text-xs leading-relaxed text-green-900">
+                  <Mic className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                  <span>
+                    <b className="font-semibold">대표님 목소리 적용 가능</b>
+                    <br />
+                    릴스 내레이션에 대표님 목소리를 쓰고 싶으시면 한 번 녹취해
+                    주세요. 이후 콘텐츠에 그 목소리로 생성해 적용합니다.
+                  </span>
+                </div>
+
+                <Button
+                  asChild
+                  variant="outline"
+                  className="mt-3 w-full border-green-600 text-green-700 hover:bg-green-50"
+                >
+                  <Link href="/dashboard/content-samples">
+                    콘텐츠 제작사례 보기
+                  </Link>
+                </Button>
               </div>
 
               <div className="mt-4 flex items-start gap-2 rounded-md border border-gray-200 bg-gray-50 p-2.5 text-xs leading-relaxed text-gray-600">
