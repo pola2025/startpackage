@@ -310,7 +310,7 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
                                 name: "스타일 2",
                               },
                               {
-                                url: "https://yjbiz.co.kr/",
+                                url: "https://startpackage-demo-style3.vercel.app/",
                                 name: "스타일 3",
                               },
                               {

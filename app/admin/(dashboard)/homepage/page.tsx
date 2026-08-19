@@ -89,7 +89,7 @@ interface Cohort {
 const STYLE_NAMES: Record<string, string> = {
   "https://www.jnipartners.co.kr": "스타일 1",
   "https://bizcoaching.co.kr/": "스타일 2",
-  "https://yjbiz.co.kr/": "스타일 3",
+  "https://startpackage-demo-style3.vercel.app/": "스타일 3",
   "https://biznuri.co.kr/": "스타일 4",
   "https://www.wiztion.com/": "스타일 5",
   "https://brpartners.kr/": "스타일 6",

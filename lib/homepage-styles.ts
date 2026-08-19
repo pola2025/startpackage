@@ -7,7 +7,7 @@ export type HomepageStyleOption = {
 export const HOMEPAGE_STYLE_OPTIONS: HomepageStyleOption[] = [
   { url: "https://www.jnipartners.co.kr", name: "스타일 1" },
   { url: "https://bizcoaching.co.kr/", name: "스타일 2" },
-  { url: "https://yjbiz.co.kr/", name: "스타일 3" },
+  { url: "https://startpackage-demo-style3.vercel.app/", name: "스타일 3" },
   { url: "https://biznuri.co.kr/", name: "스타일 4" },
   { url: "https://www.wiztion.com/", name: "스타일 5" },
   { url: "https://brpartners.kr/", name: "스타일 6" },
@@ -67,9 +67,15 @@ export function isPaidHomepageStyle(url?: string | null) {
 }
 
 // 레거시 (이전 데이터 호환용) — 데모 사이트로 저장된 기존 선택값
+//
+// 목록에서 뺀 URL 도 여기에 남겨야 한다. 지우기만 하면 그 URL 을 고른 기존 제출건이
+// `getHomepageStyleName` 에서 null 이 되어 어드민에 스타일 이름이 사라진다.
 const LEGACY_HOMEPAGE_STYLE_NAMES: Record<string, string> = {
   "https://startpackage-demo2.vercel.app/": "스타일 8",
   "https://startpackage-demo3.vercel.app/": "스타일 9",
+  // 스타일 3 이력 — jmbiz.imweb.me → yjbiz.co.kr → startpackage-demo-style3
+  "https://jmbiz.imweb.me/": "스타일 3",
+  "https://yjbiz.co.kr/": "스타일 3",
 };
 
 export function getHomepageStyleName(url?: string | null) {

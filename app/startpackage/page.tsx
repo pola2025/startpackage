@@ -615,7 +615,7 @@ export default function StartPackagePage() {
             const styles = [
               { url: "https://www.jnipartners.co.kr", name: "스타일 1" },
               { url: "https://bizcoaching.co.kr/", name: "스타일 2" },
-              { url: "https://yjbiz.co.kr/", name: "스타일 3" },
+              { url: "https://startpackage-demo-style3.vercel.app/", name: "스타일 3" },
               { url: "https://biznuri.co.kr/", name: "스타일 4" },
               { url: "https://www.wiztion.com/", name: "스타일 5" },
               { url: "https://brpartners.kr/", name: "스타일 6" },
