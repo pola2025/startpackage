@@ -9,6 +9,7 @@ import {
   FileText,
   Film,
   Gift,
+  Globe,
   Images,
   Megaphone,
   Mic,
@@ -38,6 +39,7 @@ const contentDeliverables = [
   { icon: FileText, label: "네이버 블로그" },
   { icon: Images, label: "인스타그램 게시글" },
   { icon: Film, label: "인스타그램 릴스" },
+  { icon: Globe, label: "홈페이지 게시글" },
 ];
 
 const MONTHLY_CONTENT_COUNT = contentDeliverables.length * 30;

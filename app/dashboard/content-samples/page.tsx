@@ -17,6 +17,7 @@ import {
   ArrowRight,
   FileText,
   Film,
+  Globe,
   Images,
   Info,
   Mic,
@@ -34,6 +35,7 @@ const DELIVERABLES = [
   { icon: FileText, label: "네이버 블로그", detail: "표지·본문 이미지·인포그래픽 한 세트" },
   { icon: Images, label: "인스타그램 게시글", detail: "표지부터 마무리까지 넘겨보는 카드" },
   { icon: Film, label: "인스타그램 릴스", detail: "자막과 음악까지 얹은 숏폼" },
+  { icon: Globe, label: "홈페이지 게시글", detail: "같은 글이 홈페이지에도 함께 올라갑니다" },
 ];
 
 function MockBadge() {
@@ -71,7 +73,7 @@ export default function ContentSamplesPage() {
           <p className="mb-3 text-xs font-semibold text-gray-500">
             하루에 나가는 콘텐츠
           </p>
-          <div className="grid gap-2 sm:grid-cols-3">
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             {DELIVERABLES.map(({ icon: Icon, label, detail }) => (
               <div
                 key={label}
