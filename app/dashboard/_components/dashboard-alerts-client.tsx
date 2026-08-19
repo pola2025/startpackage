@@ -35,6 +35,8 @@ interface Props {
   submission: Record<string, unknown> | null;
   /** 사업자 대표명 (account-holder step에 표시) */
   representativeName?: string;
+  /** 가입 계정 이메일 (이메일 step 기본값) */
+  accountEmail?: string;
 }
 
 const QUEST_MAP: Record<
@@ -44,7 +46,7 @@ const QUEST_MAP: Record<
   "basic-info": {
     title: "기본 정보 입력",
     description:
-      "사업자등록증·프로필 사진을 포함한 기본 정보 6가지를 차례로 입력합니다.",
+      "사업자등록증·프로필 사진을 포함한 기본 정보 7가지를 차례로 입력합니다.",
     steps: BASIC_INFO_STEPS,
   },
   "logo-info": {
@@ -96,6 +98,7 @@ export default function DashboardAlertsClient({
   todoCounts,
   submission,
   representativeName,
+  accountEmail,
 }: Props) {
   const [questId, setQuestId] = useState<string | null>(null);
 
@@ -192,6 +195,7 @@ export default function DashboardAlertsClient({
             (submission as Record<string, string | null | undefined>) ?? {}
           }
           representativeName={representativeName}
+          accountEmail={accountEmail}
         />
       )}
     </>

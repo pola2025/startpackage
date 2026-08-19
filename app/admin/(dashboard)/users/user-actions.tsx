@@ -666,11 +666,11 @@ export default function UserActions({ user }: UserActionsProps) {
                   <div>
                     <span className="text-gray-600">이메일:</span>
                     <p className="font-medium text-gray-900">
-                      {submission.이메일 || "-"}
+                      {submission.이메일 || user.email || "-"}
                     </p>
                     {!submission.이메일 && user.email && (
                       <p className="text-xs text-gray-500 mt-1">
-                        (계정 이메일: {user.email})
+                        (미입력 — 계정 이메일 표시)
                       </p>
                     )}
                   </div>

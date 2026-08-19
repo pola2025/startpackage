@@ -82,7 +82,11 @@ export default function MobileSubmissionPage() {
       if (res.ok) {
         const data = await res.json();
         setSubmission(data);
-        setFormData(data);
+        // 이메일 미입력 시 가입 계정 이메일을 기본값으로 (수정 가능)
+        setFormData({
+          ...data,
+          이메일: data?.이메일 || session?.user?.email || "",
+        });
 
         // 진행률 계산
         if (session?.user) {

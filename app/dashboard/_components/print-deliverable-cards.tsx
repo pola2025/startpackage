@@ -80,6 +80,7 @@ const DELIVERABLES: DeliverableSpec[] = [
       { key: "업종", label: "업종" },
       { key: "주소", label: "사업장 주소" },
       { key: "대표번호", label: "대표 연락처" },
+      { key: "이메일", label: "이메일" },
     ],
   },
   {
@@ -106,6 +107,7 @@ const DELIVERABLES: DeliverableSpec[] = [
       { key: "업종", label: "업종", auto: true },
       { key: "주소", label: "주소", auto: true },
       { key: "대표번호", label: "대표 연락처", auto: true },
+      { key: "이메일", label: "이메일", auto: true },
       { key: "사업자등록증URL", label: "사업자등록증", auto: true },
       { key: "로고-확정", label: "로고 (시안 확정)", auto: true },
       { key: "명함시안", label: "명함 스타일" },
@@ -173,7 +175,7 @@ const QUEST_MAP: Record<
   "basic-info": {
     title: "기본 정보 입력",
     description:
-      "사업자등록증·프로필 사진 등 기본 정보 6가지를 차례로 입력합니다.",
+      "사업자등록증·프로필 사진 등 기본 정보 7가지를 차례로 입력합니다.",
     steps: BASIC_INFO_STEPS,
   },
   "logo-info": {
@@ -219,6 +221,8 @@ interface Props {
   submission: Submission;
   workflows: WorkflowSummary[];
   representativeName?: string;
+  /** 가입 계정 이메일 (이메일 step 기본값) */
+  accountEmail?: string;
   /** 기본 정보 자체가 비어있는지 (사업자등록증·프로필사진·브랜드명 셋 다 미입력) */
   basicMissing: boolean;
 }
@@ -227,6 +231,7 @@ export default function PrintDeliverableCards({
   submission,
   workflows,
   representativeName,
+  accountEmail,
   basicMissing,
 }: Props) {
   const router = useRouter();
@@ -545,6 +550,7 @@ export default function PrintDeliverableCards({
             (submission as Record<string, string | null | undefined>) ?? {}
           }
           representativeName={representativeName}
+          accountEmail={accountEmail}
         />
       )}
     </>

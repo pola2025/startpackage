@@ -621,6 +621,7 @@ export default async function UserDashboard() {
         todoCounts={todoCounts}
         submission={user.submission as Record<string, unknown> | null}
         representativeName={user.이름}
+        accountEmail={user.email}
       />
 
       {/* 인쇄물별 필요 정보 카드 — outcome 중심 (이걸 만들려면 이런 게 필요해요) */}
@@ -631,6 +632,7 @@ export default async function UserDashboard() {
           status: w.status,
         }))}
         representativeName={user.이름}
+        accountEmail={user.email}
         basicMissing={
           !user.submission?.브랜드명 ||
           !user.submission?.사업자등록증URL ||

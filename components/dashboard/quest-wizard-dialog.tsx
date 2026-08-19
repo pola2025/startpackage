@@ -81,6 +81,7 @@ export interface QuestStep {
 }
 
 const HEX_PATTERN = /^#[0-9A-Fa-f]{6}$/;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /** 명함 6종 (합본 앞+뒤, 37:10 비율) */
 const NAMECARD_THUMB_ASPECT = "37/10";
@@ -337,6 +338,8 @@ interface QuestWizardDialogProps {
   initialValues?: Record<string, string | null | undefined>;
   /** account-holder step에 표시할 사업자대표명 (선택) */
   representativeName?: string;
+  /** 계정 이메일 — 이메일 step이 비어있을 때 기본값으로 채움 */
+  accountEmail?: string;
   /** 모달 완료 시 호출 */
   onComplete?: () => void;
   /** 열 때 특정 항목(field)의 스텝으로 바로 진입 (없으면 첫 스텝) */
@@ -351,6 +354,7 @@ export default function QuestWizardDialog({
   steps,
   initialValues,
   representativeName,
+  accountEmail,
   onComplete,
   initialField,
 }: QuestWizardDialogProps) {
@@ -379,6 +383,8 @@ export default function QuestWizardDialog({
       steps.forEach((s) => {
         const v = initialValues?.[s.field];
         if (v) init[s.field] = String(v);
+        // 이메일 미입력 시 가입 계정 이메일을 기본값으로 (수정 가능)
+        else if (s.field === "이메일" && accountEmail) init[s.field] = accountEmail;
         if (s.type === "account-holder") {
           // 값이 비어있으면 "대표와 동일"(체크) 기본, 값이 있으면 "다름"(체크 해제)
           holderInit[s.field] = !v;
@@ -394,7 +400,7 @@ export default function QuestWizardDialog({
       setCurrentIdx(startIdx >= 0 ? startIdx : 0);
       setError(null);
     }
-  }, [open, steps, initialValues, initialField]);
+  }, [open, steps, initialValues, initialField, accountEmail]);
 
   if (steps.length === 0) return null;
 
@@ -924,6 +930,19 @@ export const BASIC_INFO_STEPS: QuestStep[] = [
     type: "tel",
     placeholder: "예) 02-0000-0000",
     required: true,
+  },
+  {
+    field: "이메일",
+    label: "이메일",
+    description:
+      "명함·홈페이지에 표기될 이메일 주소입니다. 가입하신 이메일이 기본으로 채워져 있으니 다르면 수정해주세요.",
+    type: "email",
+    placeholder: "예) contact@brand.co.kr",
+    required: true,
+    validate: (v) =>
+      EMAIL_PATTERN.test(v.trim())
+        ? null
+        : "올바른 이메일 형식으로 입력해주세요.",
   },
 ];
 

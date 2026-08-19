@@ -171,11 +171,11 @@ export default function SubmissionViewButton({
                       <div>
                         <span className="text-gray-600">이메일:</span>
                         <p className="font-medium text-gray-900">
-                          {submission.이메일 || "-"}
+                          {submission.이메일 || workflow.user.email || "-"}
                         </p>
                         {!submission.이메일 && workflow.user.email && (
                           <p className="text-xs text-gray-500 mt-1">
-                            (계정 이메일: {workflow.user.email})
+                            (미입력 — 계정 이메일 표시)
                           </p>
                         )}
                       </div>
@@ -462,8 +462,13 @@ export default function SubmissionViewButton({
                       <div className="col-span-2">
                         <span className="text-gray-600">이메일:</span>
                         <p className="font-medium text-gray-900">
-                          {submission.이메일 || "-"}
+                          {submission.이메일 || workflow.user.email || "-"}
                         </p>
+                        {!submission.이메일 && workflow.user.email && (
+                          <p className="text-xs text-gray-500 mt-1">
+                            (미입력 — 계정 이메일 표시)
+                          </p>
+                        )}
                       </div>
                       <div className="col-span-2">
                         <span className="text-gray-600">주소:</span>
