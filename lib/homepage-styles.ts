@@ -21,7 +21,7 @@ export const HOMEPAGE_STYLE_OPTIONS: HomepageStyleOption[] = [
     paid: true,
   },
   {
-    url: "https://startpackagedemo5.vercel.app/",
+    url: "https://richway-biz.com/",
     name: "유료옵션 3",
     paid: true,
   },
@@ -30,6 +30,8 @@ export const HOMEPAGE_STYLE_OPTIONS: HomepageStyleOption[] = [
 const PAID_HOMEPAGE_STYLE_URLS = [
   "https://jsbizfunding.kr/",
   "https://startpackage-demo4.vercel.app/",
+  "https://richway-biz.com/",
+  // 레거시 (이전 데이터 호환용) — 유료옵션 3 이전 URL
   "https://startpackagedemo5.vercel.app/",
 ];
 
@@ -76,6 +78,8 @@ const LEGACY_HOMEPAGE_STYLE_NAMES: Record<string, string> = {
   // 스타일 3 이력 — jmbiz.imweb.me → yjbiz.co.kr → startpackage-demo-style3
   "https://jmbiz.imweb.me/": "스타일 3",
   "https://yjbiz.co.kr/": "스타일 3",
+  // 유료옵션 3 이력 — startpackagedemo5 → richway-biz.com
+  "https://startpackagedemo5.vercel.app/": "유료옵션 3",
 };
 
 export function getHomepageStyleName(url?: string | null) {

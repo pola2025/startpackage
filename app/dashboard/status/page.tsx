@@ -34,6 +34,9 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatArrivalDate } from "@/lib/utils/businessDays";
+import DesignConfirmDialog, {
+  type DesignConfirmPayload,
+} from "@/components/design/design-confirm-dialog";
 
 interface Workflow {
   id: string;
@@ -72,6 +75,41 @@ export default function StatusDashboardPage() {
   });
   const [feedbackText, setFeedbackText] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  // 로고 시안 승인도 시안 대화방과 같은 확정 게이트를 거친다
+  const [approveTarget, setApproveTarget] = useState<{
+    id: string;
+    type: string;
+  } | null>(null);
+  const [approving, setApproving] = useState(false);
+
+  const handleApprove = async (payload: DesignConfirmPayload) => {
+    if (!approveTarget) return;
+    setApproving(true);
+    try {
+      const res = await fetch(`/api/workflows/${approveTarget.id}/approve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          shipping: payload.shipping,
+          agreements: payload.agreements,
+        }),
+      });
+
+      if (res.ok) {
+        setApproveTarget(null);
+        alert(`${approveTarget.type} 시안이 최종 확정되었습니다.`);
+        fetchData();
+      } else {
+        const error = await res.json().catch(() => ({}));
+        alert(error.error || "확정에 실패했습니다.");
+      }
+    } catch (error) {
+      console.error("Failed to approve:", error);
+      alert("확정 중 오류가 발생했습니다.");
+    } finally {
+      setApproving(false);
+    }
+  };
 
   useEffect(() => {
     fetchData();
@@ -510,38 +548,12 @@ export default function StatusDashboardPage() {
                             <Button
                               className="w-full h-9 md:h-10 bg-ok-600 hover:bg-ok-700 text-white font-semibold"
                               size="lg"
-                              onClick={async () => {
-                                if (
-                                  !confirm(
-                                    "로고 시안을 최종 승인하시겠습니까?\n승인 후에는 수정이 어려울 수 있습니다.",
-                                  )
-                                ) {
-                                  return;
-                                }
-
-                                try {
-                                  setLoading(true);
-                                  const res = await fetch(
-                                    `/api/workflows/${workflow.id}/approve`,
-                                    {
-                                      method: "POST",
-                                    },
-                                  );
-
-                                  if (res.ok) {
-                                    alert("로고 시안이 최종 승인되었습니다!");
-                                    fetchData();
-                                  } else {
-                                    const error = await res.json();
-                                    alert(error.error || "승인에 실패했습니다");
-                                  }
-                                } catch (error) {
-                                  console.error("Failed to approve:", error);
-                                  alert("승인 중 오류가 발생했습니다");
-                                } finally {
-                                  setLoading(false);
-                                }
-                              }}
+                              onClick={() =>
+                                setApproveTarget({
+                                  id: workflow.id,
+                                  type: workflow.type,
+                                })
+                              }
                             >
                               <CheckCircle2 className="w-5 h-5 mr-2" />
                               로고 시안 승인하기
@@ -875,6 +887,19 @@ export default function StatusDashboardPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* 시안 확정 3단계 게이트 (시안 대화방과 같은 컴포넌트) */}
+      {approveTarget && (
+        <DesignConfirmDialog
+          open={!!approveTarget}
+          onOpenChange={(open) => {
+            if (!open) setApproveTarget(null);
+          }}
+          workflowType={approveTarget.type}
+          confirming={approving}
+          onConfirm={handleApprove}
+        />
       )}
     </div>
   );

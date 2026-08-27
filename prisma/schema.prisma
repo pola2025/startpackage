@@ -210,6 +210,9 @@ model Submission {
 
   // 배송 정보
   인쇄물받을주소 String?
+  받는분이름     String? // 인쇄물 수령인 (미입력 시 대표자명으로 발송)
+  수령연락처     String? // 배송 기사 연락용
+  우편번호       String?
 
   // === 제출 상태 ===
   isComplete  Boolean   @default(false)
@@ -278,6 +281,14 @@ model Workflow {
   // === 임시저장 관련 ===
   isDraft Boolean @default(true) // true: 임시저장, false: 최종저장
   draftSavedAt DateTime? // 임시저장 시각
+
+  // === ✅ 확정 스냅샷 (고객이 확정 시점에 승인한 내용) ===
+  // 확정 이후 Submission 이 바뀌어도 발주 담당자는 이 값을 기준으로 발송한다.
+  확정배송지     String?   // 승인한 배송지 전문 (우편번호 포함)
+  확정수령인     String?
+  확정수령연락처 String?
+  확정동의항목   Json?     // ["표기정보확인", "수정불가", "재제작비용부담"]
+  확정일시       DateTime?
 
   // 관계
   logs WorkflowLog[]

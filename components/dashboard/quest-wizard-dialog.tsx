@@ -59,6 +59,7 @@ export interface QuestStep {
     | "select"
     | "file"
     | "account-holder"
+    | "shipping"
     | "color-picker"
     | "style-grid";
   placeholder?: string;
@@ -79,6 +80,14 @@ export interface QuestStep {
   /** mkt@polarad.co.kr 메일 안내 박스 표시 여부 (파일 첨부 step) */
   showMailHint?: boolean;
 }
+
+/** shipping step 이 한 화면에서 함께 저장하는 필드들 (대표 field = 인쇄물받을주소) */
+const SHIPPING_SUBFIELDS = [
+  "인쇄물받을주소",
+  "받는분이름",
+  "수령연락처",
+  "우편번호",
+] as const;
 
 const HEX_PATTERN = /^#[0-9A-Fa-f]{6}$/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -385,6 +394,12 @@ export default function QuestWizardDialog({
         if (v) init[s.field] = String(v);
         // 이메일 미입력 시 가입 계정 이메일을 기본값으로 (수정 가능)
         else if (s.field === "이메일" && accountEmail) init[s.field] = accountEmail;
+        if (s.type === "shipping") {
+          SHIPPING_SUBFIELDS.forEach((sub) => {
+            const subValue = initialValues?.[sub];
+            if (subValue) init[sub] = String(subValue);
+          });
+        }
         if (s.type === "account-holder") {
           // 값이 비어있으면 "대표와 동일"(체크) 기본, 값이 있으면 "다름"(체크 해제)
           holderInit[s.field] = !v;
@@ -416,6 +431,12 @@ export default function QuestWizardDialog({
     setError(null);
   };
 
+  /** shipping step 처럼 한 화면에서 여러 필드를 받는 경우 사용 */
+  const setSubValue = (field: string, v: string) => {
+    setValues((prev) => ({ ...prev, [field]: v }));
+    setError(null);
+  };
+
   const setFile = (file: File | null) => {
     setPendingFiles((prev) => {
       const next = { ...prev };
@@ -433,6 +454,26 @@ export default function QuestWizardDialog({
       const hasPending = !!pendingFile;
       if (step.required && !hasExisting && !hasPending) {
         setError("파일을 업로드해주세요.");
+        return false;
+      }
+      return true;
+    }
+    if (step.type === "shipping") {
+      if (!(values["인쇄물받을주소"] || "").trim()) {
+        setError("인쇄물을 받으실 주소를 입력해주세요.");
+        return false;
+      }
+      if (!(values["받는분이름"] || "").trim()) {
+        setError("받는 분 이름을 입력해주세요.");
+        return false;
+      }
+      const phone = (values["수령연락처"] || "").trim();
+      if (!phone) {
+        setError("수령 연락처를 입력해주세요.");
+        return false;
+      }
+      if (!/^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$/.test(phone.replace(/\s/g, ""))) {
+        setError("연락처를 010-0000-0000 형식으로 입력해주세요.");
         return false;
       }
       return true;
@@ -502,6 +543,25 @@ export default function QuestWizardDialog({
     setSaving(true);
     try {
       let valueToSave = currentValue;
+
+      // shipping step: 배송 필드를 한 번에 저장
+      if (step.type === "shipping") {
+        const payload: Record<string, string> = {};
+        SHIPPING_SUBFIELDS.forEach((sub) => {
+          payload[sub] = (values[sub] || "").trim();
+        });
+        const shippingRes = await fetch("/api/submission", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (!shippingRes.ok) {
+          const data = await shippingRes.json().catch(() => ({}));
+          setError(data?.error || "저장에 실패했습니다.");
+          return false;
+        }
+        return true;
+      }
 
       // account-holder step: 체크 시 빈 문자열, 해제 시 입력값 저장
       if (step.type === "account-holder") {
@@ -683,6 +743,96 @@ export default function QuestWizardDialog({
                   </option>
                 ))}
               </select>
+            ) : step.type === "shipping" ? (
+              <div className="space-y-3">
+                <div className="p-3 rounded-lg bg-amber-50 border border-amber-200">
+                  <p className="text-xs text-amber-900 leading-relaxed">
+                    여기에 적어주신 주소로 명함과 인쇄물이 발송됩니다. 시안을
+                    확정하면 주소를 바꿀 수 없으니 받으실 곳을 정확히
+                    적어주세요.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1">
+                    <label
+                      htmlFor="받는분이름"
+                      className="text-xs font-medium text-gray-700"
+                    >
+                      받는 분
+                    </label>
+                    <Input
+                      id="받는분이름"
+                      type="text"
+                      value={values["받는분이름"] ?? ""}
+                      onChange={(e) => setSubValue("받는분이름", e.target.value)}
+                      placeholder="예) 홍길동"
+                      autoFocus
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label
+                      htmlFor="수령연락처"
+                      className="text-xs font-medium text-gray-700"
+                    >
+                      수령 연락처
+                    </label>
+                    <Input
+                      id="수령연락처"
+                      type="tel"
+                      value={values["수령연락처"] ?? ""}
+                      onChange={(e) => setSubValue("수령연락처", e.target.value)}
+                      placeholder="예) 010-0000-0000"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label
+                    htmlFor="우편번호"
+                    className="text-xs font-medium text-gray-700"
+                  >
+                    우편번호 <span className="text-gray-400">(선택)</span>
+                  </label>
+                  <Input
+                    id="우편번호"
+                    type="text"
+                    value={values["우편번호"] ?? ""}
+                    onChange={(e) => setSubValue("우편번호", e.target.value)}
+                    placeholder="예) 06234"
+                    className="max-w-[160px]"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label
+                    htmlFor="인쇄물받을주소"
+                    className="text-xs font-medium text-gray-700"
+                  >
+                    받으실 주소
+                  </label>
+                  <Input
+                    id="인쇄물받을주소"
+                    type="text"
+                    value={values["인쇄물받을주소"] ?? ""}
+                    onChange={(e) =>
+                      setSubValue("인쇄물받을주소", e.target.value)
+                    }
+                    placeholder="예) 서울특별시 강남구 테헤란로 000 12층 1201호"
+                  />
+                  {values["주소"] && !values["인쇄물받을주소"] && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setSubValue("인쇄물받을주소", values["주소"] ?? "")
+                      }
+                      className="text-xs text-gov-blue underline underline-offset-2"
+                    >
+                      사업장 주소와 같습니다
+                    </button>
+                  )}
+                </div>
+              </div>
             ) : step.type === "account-holder" ? (
               <div className="space-y-2">
                 <label className="flex items-start gap-2 p-3 rounded-lg border border-gray-200 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors">
@@ -943,6 +1093,14 @@ export const BASIC_INFO_STEPS: QuestStep[] = [
       EMAIL_PATTERN.test(v.trim())
         ? null
         : "올바른 이메일 형식으로 입력해주세요.",
+  },
+  {
+    field: "인쇄물받을주소",
+    label: "인쇄물 받을 곳",
+    description:
+      "명함·대봉투 등 인쇄물을 배송받으실 주소입니다. 시안 확정 후에는 변경할 수 없습니다.",
+    type: "shipping",
+    required: true,
   },
 ];
 

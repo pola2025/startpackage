@@ -37,7 +37,17 @@ export async function GET() {
       });
     }
 
-    return NextResponse.json(submission);
+    // 배송지 필수 정책 대상 기수인지 함께 내려준다 (확정 게이트가 단계 구성에 사용)
+    const { isShippingPolicyCohort } = await import("@/lib/shipping-policy");
+    const 사용자 = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { cohort: { select: { 교육시작일: true } } },
+    });
+
+    return NextResponse.json({
+      ...submission,
+      _배송지필수: isShippingPolicyCohort(사용자?.cohort?.교육시작일),
+    });
   } catch (error) {
     console.error("GET /api/submission error:", error);
     return NextResponse.json(
@@ -354,6 +364,9 @@ export async function POST(request: Request) {
           { key: "업종", label: "업종" },
           { key: "주소", label: "주소" },
           { key: "인쇄물받을주소", label: "배송받을곳 주소" },
+          { key: "받는분이름", label: "인쇄물 수령인" },
+          { key: "수령연락처", label: "수령 연락처" },
+          { key: "우편번호", label: "우편번호" },
           { key: "대표번호", label: "대표번호" },
           { key: "이메일", label: "이메일" },
           { key: "로고선호스타일", label: "로고 선호 스타일" },

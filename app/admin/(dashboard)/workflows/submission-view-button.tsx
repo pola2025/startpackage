@@ -256,15 +256,39 @@ export default function SubmissionViewButton({
                     <h3 className="font-semibold text-gray-900">배송 정보</h3>
                     <div className="text-sm">
                       <span className="text-gray-600">인쇄물 받을 주소:</span>
-                      <p className="font-medium text-gray-900 mt-1">
-                        {submission.인쇄물받을주소 || submission.주소 || "-"}
-                      </p>
-                      {submission.인쇄물받을주소 &&
-                        submission.인쇄물받을주소 !== submission.주소 && (
-                          <p className="text-xs text-gray-500 mt-1">
-                            (사업장 주소: {submission.주소})
+                      {submission.인쇄물받을주소 ? (
+                        <>
+                          <p className="font-medium text-gray-900 mt-1">
+                            {submission.우편번호
+                              ? `[${submission.우편번호}] `
+                              : ""}
+                            {submission.인쇄물받을주소}
                           </p>
-                        )}
+                          <p className="text-sm text-gray-700 mt-1">
+                            {submission.받는분이름 || "수령인 미입력"}
+                            {submission.수령연락처
+                              ? ` · ${submission.수령연락처}`
+                              : ""}
+                          </p>
+                          {submission.인쇄물받을주소 !== submission.주소 && (
+                            <p className="text-xs text-gray-500 mt-1">
+                              (사업장 주소: {submission.주소})
+                            </p>
+                          )}
+                        </>
+                      ) : (
+                        <div className="mt-1 p-2 rounded border border-amber-300 bg-amber-50">
+                          <p className="font-medium text-amber-900">
+                            배송지 미입력 — 사업장 주소로 발송해야 합니다
+                          </p>
+                          <p className="text-sm text-amber-800 mt-0.5">
+                            {submission.주소 || "사업장 주소도 없습니다"}
+                          </p>
+                          <p className="text-xs text-amber-700 mt-1">
+                            고객이 확정 단계에서 확인하지 않은 주소입니다.
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
 

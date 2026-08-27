@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
+import {
+  buildConfirmSnapshot,
+  validateConfirmPayload,
+  type ShippingSnapshot,
+} from "@/lib/design-confirm";
+import { isShippingPolicyCohort } from "@/lib/shipping-policy";
 
 export async function POST(
   request: NextRequest,
@@ -53,6 +59,36 @@ export async function POST(
       return NextResponse.json({ error: "시안컨펌요청 상태에서만 확정할 수 있습니다." }, { status: 400 });
     }
 
+    // 확정 게이트 검증 — 시안 대화방 확정과 같은 조건을 적용한다
+    const body = await request.json().catch(() => ({}));
+    const shipping: ShippingSnapshot | null = body?.shipping ?? null;
+    const agreements: string[] = Array.isArray(body?.agreements)
+      ? body.agreements
+      : [];
+
+    const 기수 = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { cohort: { select: { 교육시작일: true } } },
+    });
+    const shippingRequired = isShippingPolicyCohort(기수?.cohort?.교육시작일);
+
+    const validationError = validateConfirmPayload({
+      workflowType: workflow.type,
+      shipping,
+      agreements,
+      shippingRequired,
+    });
+    if (validationError) {
+      return NextResponse.json({ error: validationError }, { status: 400 });
+    }
+
+    const confirmSnapshot = buildConfirmSnapshot({
+      workflowType: workflow.type,
+      shipping,
+      agreements,
+      shippingRequired,
+    });
+
     const previousStatus = workflow.status;
 
     // 워크플로우 상태를 최종확정으로 변경
@@ -60,6 +96,7 @@ export async function POST(
       where: { id: workflowId },
       data: {
         status: "최종확정",
+        ...confirmSnapshot,
       },
     });
 

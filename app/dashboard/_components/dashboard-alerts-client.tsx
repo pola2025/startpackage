@@ -37,6 +37,8 @@ interface Props {
   representativeName?: string;
   /** 가입 계정 이메일 (이메일 step 기본값) */
   accountEmail?: string;
+  /** 배송지 필수 정책 대상 기수 여부 (최근 2개 기수만 true) */
+  shippingRequired?: boolean;
 }
 
 const QUEST_MAP: Record<
@@ -46,7 +48,7 @@ const QUEST_MAP: Record<
   "basic-info": {
     title: "기본 정보 입력",
     description:
-      "사업자등록증·프로필 사진을 포함한 기본 정보 7가지를 차례로 입력합니다.",
+      "사업자등록증·프로필 사진을 포함한 기본 정보를 차례로 입력합니다.",
     steps: BASIC_INFO_STEPS,
   },
   "logo-info": {
@@ -99,6 +101,7 @@ export default function DashboardAlertsClient({
   submission,
   representativeName,
   accountEmail,
+  shippingRequired = false,
 }: Props) {
   const [questId, setQuestId] = useState<string | null>(null);
 
@@ -190,7 +193,11 @@ export default function DashboardAlertsClient({
           onClose={() => setQuestId(null)}
           title={quest.title}
           description={quest.description}
-          steps={quest.steps}
+          steps={
+            shippingRequired
+              ? quest.steps
+              : quest.steps.filter((s) => s.type !== "shipping")
+          }
           initialValues={
             (submission as Record<string, string | null | undefined>) ?? {}
           }

@@ -81,6 +81,7 @@ const DELIVERABLES: DeliverableSpec[] = [
       { key: "주소", label: "사업장 주소" },
       { key: "대표번호", label: "대표 연락처" },
       { key: "이메일", label: "이메일" },
+      { key: "인쇄물받을주소", label: "인쇄물 받을 곳" },
     ],
   },
   {
@@ -110,6 +111,7 @@ const DELIVERABLES: DeliverableSpec[] = [
       { key: "이메일", label: "이메일", auto: true },
       { key: "사업자등록증URL", label: "사업자등록증", auto: true },
       { key: "로고-확정", label: "로고 (시안 확정)", auto: true },
+      { key: "인쇄물받을주소", label: "인쇄물 받을 곳", auto: true },
       { key: "명함시안", label: "명함 스타일" },
       { key: "명함색상", label: "명함 색상" },
     ],
@@ -175,7 +177,7 @@ const QUEST_MAP: Record<
   "basic-info": {
     title: "기본 정보 입력",
     description:
-      "사업자등록증·프로필 사진 등 기본 정보 7가지를 차례로 입력합니다.",
+      "사업자등록증·프로필 사진 등 기본 정보를 차례로 입력합니다.",
     steps: BASIC_INFO_STEPS,
   },
   "logo-info": {
@@ -225,6 +227,8 @@ interface Props {
   accountEmail?: string;
   /** 기본 정보 자체가 비어있는지 (사업자등록증·프로필사진·브랜드명 셋 다 미입력) */
   basicMissing: boolean;
+  /** 배송지 필수 정책 대상 기수 여부 (최근 2개 기수만 true) */
+  shippingRequired?: boolean;
 }
 
 export default function PrintDeliverableCards({
@@ -233,6 +237,7 @@ export default function PrintDeliverableCards({
   representativeName,
   accountEmail,
   basicMissing,
+  shippingRequired = false,
 }: Props) {
   const router = useRouter();
   const [questId, setQuestId] = useState<string | null>(null);
@@ -248,8 +253,17 @@ export default function PrintDeliverableCards({
     return () => clearTimeout(t);
   }, [justCompleted]);
 
+  // 배송지 필수 정책 미적용 기수는 체크리스트에서 배송지 항목을 뺀다
+  const applyShippingPolicy = <T extends { fields: FieldSpec[] }>(spec: T): T =>
+    shippingRequired
+      ? spec
+      : {
+          ...spec,
+          fields: spec.fields.filter((f) => f.key !== "인쇄물받을주소"),
+        };
+
   // 항상 노출(alwaysShow) 또는 사용자가 보유한 워크플로우 type 매칭 시 카드 노출
-  const visibleDeliverables = DELIVERABLES.filter(
+  const visibleDeliverables = DELIVERABLES.map(applyShippingPolicy).filter(
     (d) =>
       d.alwaysShow ||
       d.workflowTypes.some((t) => workflows.some((w) => w.type === t)),
@@ -545,7 +559,11 @@ export default function PrintDeliverableCards({
           }}
           title={quest.title}
           description={quest.description}
-          steps={quest.steps}
+          steps={
+            shippingRequired
+              ? quest.steps
+              : quest.steps.filter((s) => s.type !== "shipping")
+          }
           initialValues={
             (submission as Record<string, string | null | undefined>) ?? {}
           }

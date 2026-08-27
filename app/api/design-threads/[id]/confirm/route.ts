@@ -1,6 +1,12 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import {
+  buildConfirmSnapshot,
+  validateConfirmPayload,
+  type ShippingSnapshot,
+} from "@/lib/design-confirm";
+import { isShippingPolicyCohort } from "@/lib/shipping-policy";
 
 // POST: 시안 최종 확정
 // - 클라이언트만 가능
@@ -27,8 +33,12 @@ export async function POST(
       );
     }
 
-    const body = await req.json();
+    const body = await req.json().catch(() => ({}));
     const { message } = body; // 확정 메시지 (선택)
+    const shipping: ShippingSnapshot | null = body?.shipping ?? null;
+    const agreements: string[] = Array.isArray(body?.agreements)
+      ? body.agreements
+      : [];
 
     // 쓰레드 조회
     const thread = await prisma.designThread.findUnique({
@@ -68,7 +78,31 @@ export async function POST(
       );
     }
 
+    // 확정 게이트 검증 — 배송지 확인과 고지 동의를 거치지 않은 요청은 막는다
+    // 배송지 확인은 최근 2개 기수(정책 시행일 이후 시작 기수)에만 적용한다
+    const 기수 = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { cohort: { select: { 교육시작일: true } } },
+    });
+    const shippingRequired = isShippingPolicyCohort(기수?.cohort?.교육시작일);
+
+    const validationError = validateConfirmPayload({
+      workflowType: thread.workflow.type,
+      shipping,
+      agreements,
+      shippingRequired,
+    });
+    if (validationError) {
+      return NextResponse.json({ error: validationError }, { status: 400 });
+    }
+
     const latestDesign = thread.messages[0];
+    const confirmSnapshot = buildConfirmSnapshot({
+      workflowType: thread.workflow.type,
+      shipping,
+      agreements,
+      shippingRequired,
+    });
 
     // 사용자 정보 조회
     const userInfo = await prisma.user.findUnique({
@@ -113,6 +147,7 @@ export async function POST(
           시안업로드일: new Date(),
           수정횟수: thread.currentVersion - 1,
           발주요청일: new Date(),
+          ...confirmSnapshot,
         },
       });
 
@@ -129,6 +164,9 @@ export async function POST(
             confirmedVersion: thread.currentVersion,
             designUrl: latestDesign.designUrl,
             threadId: thread.id,
+            확정배송지: confirmSnapshot.확정배송지,
+            확정수령인: confirmSnapshot.확정수령인,
+            동의항목: agreements,
           },
         },
       });

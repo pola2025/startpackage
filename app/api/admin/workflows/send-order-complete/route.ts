@@ -52,6 +52,28 @@ export async function POST(request: NextRequest) {
 
     const user = workflows[0].user;
 
+    // 발송지 안내 — 확정 시점 스냅샷을 우선하고, 없으면 제출정보를 쓴다
+    const submission = await prisma.submission.findUnique({
+      where: { userId },
+      select: {
+        인쇄물받을주소: true,
+        받는분이름: true,
+        수령연락처: true,
+        우편번호: true,
+        주소: true,
+      },
+    });
+
+    const 스냅샷 = workflows.find((w) => w.확정배송지);
+    const 배송지 =
+      스냅샷?.확정배송지 ||
+      [submission?.우편번호, submission?.인쇄물받을주소]
+        .filter(Boolean)
+        .join(" ") ||
+      submission?.주소 ||
+      null;
+    const 수령인 = 스냅샷?.확정수령인 || submission?.받는분이름 || null;
+
     // 이메일 발송
     if (user.email) {
       const { sendEmail } = await import("@/lib/email/resendClient");
@@ -69,6 +91,18 @@ export async function POST(request: NextRequest) {
 
       emailBody += `
         </ul>
+      `;
+
+      if (배송지) {
+        emailBody += `
+        <p><strong>받으실 곳</strong><br/>${배송지}${
+          수령인 ? ` (${수령인})` : ""
+        }</p>
+        <p style="color:#b91c1c;">발주가 진행되어 배송지는 변경할 수 없습니다.</p>
+      `;
+      }
+
+      emailBody += `
         <p>제작 완료 시 다시 안내드리겠습니다.</p>
       `;
 
@@ -89,6 +123,11 @@ export async function POST(request: NextRequest) {
           message += "\n";
         }
       });
+
+      if (배송지) {
+        message += `\n받으실 곳: ${배송지}${수령인 ? ` (${수령인})` : ""}\n`;
+        message += "발주가 진행되어 배송지는 변경할 수 없습니다.\n";
+      }
 
       message += "\n제작이 진행됩니다. 제작 완료 시 다시 안내드리겠습니다.";
 

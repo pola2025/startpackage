@@ -676,9 +676,26 @@ export default function UserActions({ user }: UserActionsProps) {
                   </div>
                   <div className="col-span-2">
                     <span className="text-gray-600">인쇄물 받을 주소:</span>
-                    <p className="font-medium text-gray-900">
-                      {submission.인쇄물받을주소 || submission.주소 || "-"}
-                    </p>
+                    {submission.인쇄물받을주소 ? (
+                      <>
+                        <p className="font-medium text-gray-900">
+                          {submission.우편번호
+                            ? `[${submission.우편번호}] `
+                            : ""}
+                          {submission.인쇄물받을주소}
+                        </p>
+                        <p className="text-xs text-gray-600 mt-0.5">
+                          {submission.받는분이름 || "수령인 미입력"}
+                          {submission.수령연락처
+                            ? ` · ${submission.수령연락처}`
+                            : ""}
+                        </p>
+                      </>
+                    ) : (
+                      <p className="font-medium text-amber-700">
+                        미입력 — 사업장 주소({submission.주소 || "-"})로 발송
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

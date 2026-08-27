@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
+import { isShippingPolicyCohort } from "@/lib/shipping-policy";
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -424,6 +425,9 @@ export default async function UserDashboard() {
   })();
 
   // 인쇄물 정보 (5종 인쇄물 자료에 필요한 필드)
+  // 배송지 필수 정책은 최근 2개 기수부터 적용한다 (지난 기수는 진행률을 건드리지 않는다)
+  const 배송지필수 = isShippingPolicyCohort(user.cohort?.교육시작일);
+
   const printFields = [
     user.submission?.브랜드명,
     user.submission?.사업자등록증URL,
@@ -432,6 +436,7 @@ export default async function UserDashboard() {
     user.submission?.주소,
     user.submission?.대표번호,
     user.submission?.이메일,
+    ...(배송지필수 ? [user.submission?.인쇄물받을주소] : []),
     user.submission?.명함시안,
   ];
   const printFilled = printFields.filter(Boolean).length;
@@ -622,10 +627,12 @@ export default async function UserDashboard() {
         submission={user.submission as Record<string, unknown> | null}
         representativeName={user.이름}
         accountEmail={user.email}
+        shippingRequired={배송지필수}
       />
 
       {/* 인쇄물별 필요 정보 카드 — outcome 중심 (이걸 만들려면 이런 게 필요해요) */}
       <PrintDeliverableCards
+        shippingRequired={배송지필수}
         submission={user.submission as Record<string, unknown> | null}
         workflows={user.workflows.map((w) => ({
           type: w.type,

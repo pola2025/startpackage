@@ -73,6 +73,9 @@ export const submissionSchema = z.object({
 
   // 배송 정보
   인쇄물받을주소: z.string().optional(),
+  받는분이름: z.string().optional(),
+  수령연락처: z.string().optional(),
+  우편번호: z.string().optional(),
 
   // 마케팅 (선택)
   네이버검색광고ID: z.string().optional(),

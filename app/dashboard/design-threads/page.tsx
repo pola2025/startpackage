@@ -15,6 +15,9 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
+import DesignConfirmDialog, {
+  type DesignConfirmPayload,
+} from "@/components/design/design-confirm-dialog";
 import { Label } from "@/components/ui/label";
 import {
   Dialog,
@@ -131,7 +134,6 @@ export default function UserDesignThreadsPage() {
   // 확정 다이얼로그
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [confirming, setConfirming] = useState(false);
-  const [confirmChecked, setConfirmChecked] = useState(false);
 
   // 새 메시지 알림
   const [newMessageAlert, setNewMessageAlert] = useState(false);
@@ -353,16 +355,25 @@ export default function UserDesignThreadsPage() {
     }
   };
 
-  // 시안 확정
-  const handleConfirmDesign = async () => {
-    if (!selectedThread || !confirmChecked) return;
+  // 시안 확정 (3단계 확정 게이트를 통과한 payload 를 그대로 전달)
+  const handleConfirmDesign = async (payload: DesignConfirmPayload) => {
+    if (!selectedThread) return;
 
     setConfirming(true);
     try {
+      const 배송지 = payload.shipping
+        ? [payload.shipping.우편번호, payload.shipping.인쇄물받을주소]
+            .filter(Boolean)
+            .join(" ")
+        : null;
+
       const confirmMessage =
         `[시안 확정 및 발주 요청]\n\n` +
         `✅ ${selectedThread.currentVersion}차 시안을 최종 확인하였으며, 이 시안으로 발주를 요청합니다.\n` +
-        `✅ 확정 후에는 수정이 어려울 수 있음을 이해하고 동의합니다.`;
+        `✅ 확정 이후에는 디자인과 배송지를 수정할 수 없다는 점에 동의합니다.` +
+        (배송지
+          ? `\n📦 배송지: ${배송지} (${payload.shipping?.받는분이름} · ${payload.shipping?.수령연락처})`
+          : "");
 
       const response = await fetch(
         `/api/design-threads/${selectedThread.id}/confirm`,
@@ -371,13 +382,14 @@ export default function UserDesignThreadsPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             message: confirmMessage,
+            shipping: payload.shipping,
+            agreements: payload.agreements,
           }),
         },
       );
 
       if (response.ok) {
         setConfirmDialogOpen(false);
-        setConfirmChecked(false);
         alert("시안이 확정되었습니다. 발주 단계로 진행됩니다.");
         fetchThreads(selectedThread.id, true);
       } else {
@@ -683,10 +695,7 @@ export default function UserDesignThreadsPage() {
                       <Button
                         size="sm"
                         className="bg-green-600 hover:bg-green-700 text-white"
-                        onClick={() => {
-                          setConfirmChecked(false);
-                          setConfirmDialogOpen(true);
-                        }}
+                        onClick={() => setConfirmDialogOpen(true)}
                       >
                         <Check className="w-4 h-4 mr-1" />
                         시안 확정
@@ -1129,76 +1138,17 @@ export default function UserDesignThreadsPage() {
         </Card>
       </div>
 
-      {/* 시안 확정 확인 다이얼로그 */}
-      <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>시안 확정 및 발주 요청</DialogTitle>
-            <DialogDescription>
-              시안을 확정하고 발주를 요청합니다.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4 space-y-4">
-            {selectedThread && (
-              <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
-                <p className="text-sm text-gray-700">
-                  <span className="font-medium">워크플로우:</span>{" "}
-                  {WORKFLOW_TYPE_LABELS[selectedThread.workflow.type] ||
-                    selectedThread.workflow.type}
-                </p>
-                <p className="text-sm text-gray-700 mt-1">
-                  <span className="font-medium">확정 버전:</span>{" "}
-                  {selectedThread.currentVersion}차 시안
-                </p>
-              </div>
-            )}
-
-            <Alert className="bg-yellow-50 border-yellow-200">
-              <AlertCircle className="w-4 h-4 text-yellow-600" />
-              <AlertDescription className="text-sm text-yellow-800">
-                <strong>주의:</strong> 시안 확정 후에는 변경이 어렵습니다.
-                발주가 진행되면 취소 또는 수정이 불가능합니다.
-              </AlertDescription>
-            </Alert>
-
-            {/* 확인 체크박스 */}
-            <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <div className="flex items-start gap-3">
-                <Checkbox
-                  id="confirm-agreement"
-                  checked={confirmChecked}
-                  onCheckedChange={(checked) =>
-                    setConfirmChecked(checked === true)
-                  }
-                  className="mt-0.5"
-                />
-                <Label
-                  htmlFor="confirm-agreement"
-                  className="text-sm text-gray-700 leading-relaxed cursor-pointer"
-                >
-                  위 시안을 최종 확인하였으며, 이 시안으로 발주를 요청합니다.
-                  확정 후에는 수정이 어려울 수 있음을 이해합니다.
-                </Label>
-              </div>
-            </div>
-          </div>
-          <div className="flex justify-end gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setConfirmDialogOpen(false)}
-            >
-              취소
-            </Button>
-            <Button
-              onClick={handleConfirmDesign}
-              disabled={confirming || !confirmChecked}
-              className="bg-green-600 hover:bg-green-700 text-white"
-            >
-              {confirming ? "확정 중..." : "시안 확정 및 발주 요청"}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* 시안 확정 3단계 게이트 (표기정보 대조 → 배송지 확인 → 수정불가 동의) */}
+      {selectedThread && (
+        <DesignConfirmDialog
+          open={confirmDialogOpen}
+          onOpenChange={setConfirmDialogOpen}
+          workflowType={selectedThread.workflow.type}
+          version={selectedThread.currentVersion}
+          confirming={confirming}
+          onConfirm={handleConfirmDesign}
+        />
+      )}
 
       {/* 이미지 모달 */}
       {imageModalOpen && (

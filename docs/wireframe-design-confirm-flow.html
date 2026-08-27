@@ -1,0 +1,1866 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>시안 확정 플로우 개선 기획 — 배송지 확인 + 수정불가 고지</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Malgun Gothic", "맑은 고딕",
+          "Apple SD Gothic Neo", sans-serif;
+      }
+      .arrow-down::after {
+        content: "▼";
+        display: block;
+        text-align: center;
+        color: #cbd5e1;
+        font-size: 14px;
+        margin: 6px 0;
+      }
+      .tab-active {
+        background: #111827;
+        color: #fff;
+      }
+      .code {
+        font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+        font-size: 11px;
+      }
+      .mock {
+        box-shadow: 0 20px 45px -20px rgba(15, 23, 42, 0.45);
+      }
+      ::-webkit-scrollbar {
+        width: 9px;
+        height: 9px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 6px;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-100 text-slate-800">
+    <!-- ===== 헤더 ===== -->
+    <header class="bg-slate-900 text-white">
+      <div class="max-w-7xl mx-auto px-6 py-10">
+        <p class="text-xs tracking-widest text-slate-400 mb-3">
+          STARTPACKAGE / 와이어프레임 기획안
+        </p>
+        <h1 class="text-3xl md:text-4xl font-bold leading-snug">
+          시안 확정 플로우 개선안
+        </h1>
+        <p class="mt-4 text-slate-300 leading-relaxed max-w-3xl">
+          디자인 시안을 확정하고 발주를 요청하는 시점에
+          <strong class="text-white">배송지 주소를 다시 확인</strong>하도록
+          만들고,
+          <strong class="text-white"
+            >확정 이후에는 수정이 불가능하다는 사실</strong
+          >을 고객이 반드시 읽고 넘어가도록 화면을 다시 설계했습니다. 아래에서
+          현재 플로우와 개선 플로우를 나란히 비교할 수 있습니다.
+        </p>
+        <div class="mt-6 flex flex-wrap gap-2 text-xs">
+          <span
+            class="px-3 py-1.5 rounded-full bg-slate-800 border border-slate-700"
+            >작성일 2026-08-27</span
+          >
+          <span
+            class="px-3 py-1.5 rounded-full bg-slate-800 border border-slate-700"
+            >대상 화면 /dashboard/design-threads · /dashboard/status</span
+          >
+          <span
+            class="px-3 py-1.5 rounded-full bg-slate-800 border border-slate-700"
+            >상태 구현 완료 (2026-08-27)</span
+          >
+        </div>
+      </div>
+    </header>
+
+    <!-- ===== 탭 ===== -->
+    <nav class="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm">
+      <div class="max-w-7xl mx-auto px-6 flex gap-1 overflow-x-auto">
+        <button
+          data-tab="flow"
+          class="tab tab-active px-5 py-4 text-sm font-semibold whitespace-nowrap rounded-t-lg"
+        >
+          1. 플로우 비교
+        </button>
+        <button
+          data-tab="problem"
+          class="tab px-5 py-4 text-sm font-semibold whitespace-nowrap rounded-t-lg text-slate-500"
+        >
+          2. 배송지 흔적 · 문제점
+        </button>
+        <button
+          data-tab="mock"
+          class="tab px-5 py-4 text-sm font-semibold whitespace-nowrap rounded-t-lg text-slate-500"
+        >
+          3. 개선 화면 와이어프레임
+        </button>
+        <button
+          data-tab="table"
+          class="tab px-5 py-4 text-sm font-semibold whitespace-nowrap rounded-t-lg text-slate-500"
+        >
+          4. 항목별 대조표
+        </button>
+        <button
+          data-tab="impl"
+          class="tab px-5 py-4 text-sm font-semibold whitespace-nowrap rounded-t-lg text-slate-500"
+        >
+          5. 구현 범위
+        </button>
+      </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-6 py-10">
+      <!-- ============================================================ -->
+      <!-- 1. 플로우 비교                                                -->
+      <!-- ============================================================ -->
+      <section id="tab-flow" class="tabpane">
+        <div class="grid lg:grid-cols-2 gap-6">
+          <!-- AS-IS -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <div class="flex items-center gap-3 mb-5">
+              <span
+                class="px-3 py-1 rounded-full bg-slate-200 text-slate-700 text-xs font-bold"
+                >AS-IS</span
+              >
+              <h2 class="text-lg font-bold">현재 플로우</h2>
+            </div>
+
+            <div class="space-y-0">
+              <div class="border border-slate-200 rounded-xl p-4">
+                <p class="text-xs text-slate-400 mb-1">STEP 1 · 고객</p>
+                <p class="font-semibold">자료 제출 위자드</p>
+                <p class="text-sm text-slate-500 mt-1">
+                  대시보드 카드에서 열리는 퀘스트 위자드에는
+                  <span class="text-rose-600 font-semibold">배송지 입력란 자체가 없습니다.</span>
+                  사업장 주소만 받습니다.
+                </p>
+                <p class="code mt-2 text-slate-400">
+                  quest-wizard-dialog.tsx:919 → 주소(사업장)만 등록
+                </p>
+              </div>
+              <div class="arrow-down"></div>
+
+              <div class="border border-slate-200 rounded-xl p-4">
+                <p class="text-xs text-slate-400 mb-1">STEP 2 · 고객</p>
+                <p class="font-semibold">디자인 시안 제작요청</p>
+                <p class="text-sm text-slate-500 mt-1">
+                  브라우저 기본 confirm 창 한 줄이 뜨고 바로 접수됩니다.
+                </p>
+                <div
+                  class="mt-2 bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm text-slate-600"
+                >
+                  “디자인 시안 제작을 요청하시겠습니까? 요청 후에는 제출 자료를
+                  수정할 수 없습니다.”
+                </div>
+              </div>
+              <div class="arrow-down"></div>
+
+              <div class="border border-slate-200 rounded-xl p-4">
+                <p class="text-xs text-slate-400 mb-1">STEP 3 · 디자이너</p>
+                <p class="font-semibold">시안 업로드 → 상태 “시안컨펌요청”</p>
+              </div>
+              <div class="arrow-down"></div>
+
+              <div class="border-2 border-rose-300 bg-rose-50 rounded-xl p-4">
+                <p class="text-xs text-rose-500 mb-1">
+                  STEP 4 · 고객 · 문제 구간
+                </p>
+                <p class="font-semibold text-rose-900">
+                  시안 확정 (진입 경로가 두 갈래입니다)
+                </p>
+                <div class="mt-3 space-y-2">
+                  <div class="bg-white rounded-lg border border-rose-200 p-3">
+                    <p class="text-sm font-semibold">경로 A · 시안 대화방</p>
+                    <p class="text-xs text-slate-500 mt-1">
+                      모달 1장 + 동의 체크박스 1개. 문구는 “변경이
+                      어렵습니다”입니다.
+                    </p>
+                    <p class="code mt-1.5 text-slate-400">
+                      app/dashboard/design-threads/page.tsx:1133
+                    </p>
+                  </div>
+                  <div class="bg-white rounded-lg border border-rose-200 p-3">
+                    <p class="text-sm font-semibold">
+                      경로 B · 진행 상태 페이지 (로고)
+                    </p>
+                    <p class="text-xs text-rose-600 mt-1">
+                      브라우저 confirm 한 줄만 뜨고 곧바로 최종확정됩니다.
+                      체크박스도 배송지 확인도 없습니다.
+                    </p>
+                    <p class="code mt-1.5 text-slate-400">
+                      app/dashboard/status/page.tsx:513
+                    </p>
+                  </div>
+                </div>
+                <div
+                  class="mt-3 bg-white rounded-lg border border-rose-200 p-3"
+                >
+                  <p class="text-xs font-bold text-rose-700 mb-1">
+                    이 단계에서 빠져 있는 것
+                  </p>
+                  <ul
+                    class="text-xs text-rose-800 space-y-1 list-disc list-inside"
+                  >
+                    <li>배송지 주소를 다시 보여주는 화면이 없습니다.</li>
+                    <li>
+                      확정 이후 수정이 왜 불가능한지, 비용이 어떻게 되는지
+                      설명이 없습니다.
+                    </li>
+                    <li>고객이 무엇에 동의했는지 남는 기록이 없습니다.</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="arrow-down"></div>
+
+              <div class="border border-slate-200 rounded-xl p-4">
+                <p class="text-xs text-slate-400 mb-1">STEP 5 · 관리자</p>
+                <p class="font-semibold">발주요청 → 인쇄 → 배송</p>
+                <p class="text-sm text-slate-500 mt-1">
+                  관리자 화면은 배송지가 비어 있으면 사업장 주소를 대신
+                  표시합니다. 고객이 확인한 적 없는 주소로 나갈 수 있습니다.
+                </p>
+                <p class="code mt-2 text-slate-400">
+                  workflows/submission-view-button.tsx:260
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- TO-BE -->
+          <div class="bg-white rounded-2xl border-2 border-emerald-300 p-6">
+            <div class="flex items-center gap-3 mb-5">
+              <span
+                class="px-3 py-1 rounded-full bg-emerald-600 text-white text-xs font-bold"
+                >TO-BE</span
+              >
+              <h2 class="text-lg font-bold">개선 플로우</h2>
+            </div>
+
+            <div class="space-y-0">
+              <div class="border border-slate-200 rounded-xl p-4">
+                <p class="text-xs text-slate-400 mb-1">STEP 1 · 고객</p>
+                <p class="font-semibold">
+                  자료 제출 위자드
+                  <span class="text-xs text-slate-400 font-normal"
+                    >(변경 없음)</span
+                  >
+                </p>
+                <p class="text-sm text-slate-500 mt-1">
+                  퀘스트 위자드 스텝에 배송지 항목을 추가합니다. 여기서 비워두더라도
+                  확정 단계에서 반드시 다시 묻습니다.
+                </p>
+              </div>
+              <div class="arrow-down"></div>
+
+              <div class="border border-slate-200 rounded-xl p-4">
+                <p class="text-xs text-slate-400 mb-1">
+                  STEP 2~3 · 고객 · 디자이너
+                </p>
+                <p class="font-semibold">
+                  제작요청 → 시안 업로드
+                  <span class="text-xs text-slate-400 font-normal"
+                    >(변경 없음)</span
+                  >
+                </p>
+              </div>
+              <div class="arrow-down"></div>
+
+              <div
+                class="border-2 border-emerald-400 bg-emerald-50 rounded-xl p-4"
+              >
+                <p class="text-xs text-emerald-700 mb-1">
+                  STEP 4 · 고객 · 개선 핵심
+                </p>
+                <p class="font-semibold text-emerald-900 text-base">
+                  확정 3단계 게이트 (두 경로를 하나로 합칩니다)
+                </p>
+
+                <div class="mt-3 space-y-2">
+                  <div
+                    class="bg-white rounded-lg border border-emerald-200 p-3"
+                  >
+                    <div class="flex items-start gap-3">
+                      <span
+                        class="w-7 h-7 shrink-0 rounded-full bg-emerald-600 text-white text-xs font-bold grid place-items-center"
+                        >1</span
+                      >
+                      <div>
+                        <p class="text-sm font-bold">시안 표기 정보 대조</p>
+                        <p class="text-xs text-slate-600 mt-1">
+                          시안 이미지 옆에 제출한
+                          상호·대표자명·연락처·이메일·주소를 나란히 띄우고,
+                          항목마다 눈으로 확인했다는 체크를 받습니다.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    class="bg-white rounded-lg border-2 border-emerald-400 p-3"
+                  >
+                    <div class="flex items-start gap-3">
+                      <span
+                        class="w-7 h-7 shrink-0 rounded-full bg-emerald-600 text-white text-xs font-bold grid place-items-center"
+                        >2</span
+                      >
+                      <div>
+                        <p class="text-sm font-bold">
+                          배송지 주소 확인
+                          <span class="text-emerald-700">← 요청하신 지점</span>
+                        </p>
+                        <p class="text-xs text-slate-600 mt-1">
+                          현재 등록된 배송지를 크게 보여주고 “이 주소로
+                          받겠습니다”를 직접 누르게 합니다. 주소가 비어 있거나
+                          사업장 주소로 대체된 상태라면 경고를 띄우고 입력할
+                          때까지 다음 단계로 넘기지 않습니다.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    class="bg-white rounded-lg border-2 border-emerald-400 p-3"
+                  >
+                    <div class="flex items-start gap-3">
+                      <span
+                        class="w-7 h-7 shrink-0 rounded-full bg-emerald-600 text-white text-xs font-bold grid place-items-center"
+                        >3</span
+                      >
+                      <div>
+                        <p class="text-sm font-bold">
+                          수정 불가 고지와 최종 동의
+                          <span class="text-emerald-700">← 요청하신 지점</span>
+                        </p>
+                        <p class="text-xs text-slate-600 mt-1">
+                          확정 이후 인쇄가 걸리면 수정이 불가능하고, 재제작
+                          비용이 고객 부담이라는 사실을 항목별로 나눠 동의를
+                          받습니다. 확정 버튼은 모든 항목에 체크해야 열립니다.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="arrow-down"></div>
+
+              <div
+                class="border-2 border-emerald-400 bg-emerald-50 rounded-xl p-4"
+              >
+                <p class="text-xs text-emerald-700 mb-1">
+                  STEP 5 · 시스템 · 신규
+                </p>
+                <p class="font-semibold text-emerald-900">
+                  확정 내역 저장과 발송
+                </p>
+                <p class="text-sm text-slate-600 mt-1">
+                  확정 시점의 시안 버전, 고객이 승인한 배송지, 동의한 문구, 확정
+                  일시를 하나로 묶어 저장하고 고객에게 문자로 같은 내용을
+                  보냅니다. 나중에 주소나 표기가 문제되면 이 기록이 근거가
+                  됩니다.
+                </p>
+              </div>
+              <div class="arrow-down"></div>
+
+              <div class="border border-slate-200 rounded-xl p-4">
+                <p class="text-xs text-slate-400 mb-1">STEP 6 · 관리자</p>
+                <p class="font-semibold">발주요청 → 인쇄 → 배송</p>
+                <p class="text-sm text-slate-500 mt-1">
+                  관리자 화면에는 사업장 주소 대체분이 아니라
+                  <strong>고객이 확정한 배송지</strong>가 표시됩니다.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- 2. 현재 문제점                                                -->
+      <!-- ============================================================ -->
+      <section id="tab-problem" class="tabpane hidden">
+
+  <!-- 입력 경로 지도 -->
+  <div class="bg-white rounded-2xl border-2 border-rose-400 p-6 mb-6">
+    <div class="flex items-center gap-3 mb-2">
+      <span class="px-3 py-1 rounded-full bg-rose-600 text-white text-xs font-bold">P0 · 실측 확인</span>
+      <h2 class="text-lg font-bold">고객이 실제로 쓰는 화면에는 배송지 입력란이 없습니다</h2>
+    </div>
+    <p class="text-sm text-slate-500 mb-5">
+      자료 입력 화면이 세 갈래로 나뉘어 있는데, 고객 대부분이 지나가는 대시보드 퀘스트 위자드에 배송지 항목이 빠져 있습니다.
+      화면을 직접 눌러봐도 입력란이 나오지 않는 이유가 여기에 있습니다.
+    </p>
+
+    <div class="grid md:grid-cols-3 gap-4">
+      <div class="border-2 border-rose-400 bg-rose-50 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-xs font-bold text-rose-600">주력 진입로</p>
+          <span class="px-2 py-0.5 rounded-full bg-rose-600 text-white text-[11px] font-bold">입력란 없음</span>
+        </div>
+        <p class="font-bold text-slate-900">퀘스트 위자드</p>
+        <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">대시보드 인쇄물 카드와 알림 배너에서 열립니다. 고객이 자료를 채우는 기본 경로입니다.</p>
+        <div class="mt-3 pt-3 border-t border-rose-200 space-y-1">
+          <p class="text-xs text-slate-700">수집 항목에 <strong>주소(사업장)</strong>만 있습니다.</p>
+          <p class="text-xs text-rose-700 font-semibold">인쇄물받을주소는 스텝 상수에 없습니다.</p>
+        </div>
+        <p class="code mt-2 text-slate-400">quest-wizard-dialog.tsx:919</p>
+        <p class="code text-slate-400">print-deliverable-cards.tsx:535</p>
+      </div>
+
+      <div class="border border-slate-300 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-xs font-bold text-slate-400">보조 경로</p>
+          <span class="px-2 py-0.5 rounded-full bg-amber-200 text-amber-900 text-[11px] font-bold">있음 · 선택</span>
+        </div>
+        <p class="font-bold text-slate-900">제작요청서 풀페이지</p>
+        <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">사이드바나 로고 샘플 페이지 링크로 들어가야 나옵니다. 스스로 찾아 들어가는 고객만 만납니다.</p>
+        <div class="mt-3 pt-3 border-t border-slate-200">
+          <p class="text-xs text-slate-700">입력란이 있지만 선택 항목이라 비워도 넘어갑니다.</p>
+        </div>
+        <p class="code mt-2 text-slate-400">app/dashboard/submission/page.tsx:1002</p>
+      </div>
+
+      <div class="border border-slate-300 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-xs font-bold text-slate-400">모바일 경로</p>
+          <span class="px-2 py-0.5 rounded-full bg-amber-200 text-amber-900 text-[11px] font-bold">있음 · 선택</span>
+        </div>
+        <p class="font-bold text-slate-900">모바일 제출 위자드</p>
+        <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">연락처 스텝 맨 아래에 있습니다. 안내 문구가 “사업장 주소와 다르면 입력해주세요”라서 대부분 건너뜁니다.</p>
+        <div class="mt-3 pt-3 border-t border-slate-200">
+          <p class="text-xs text-slate-700">비워두면 사업장 주소로 대체됩니다.</p>
+        </div>
+        <p class="code mt-2 text-slate-400">wizard/steps/step-contact.tsx:139</p>
+      </div>
+    </div>
+
+    <div class="mt-5 bg-slate-900 rounded-xl p-5">
+      <p class="text-xs font-bold text-slate-400 mb-2">배송 정보 구조 자체도 부족합니다</p>
+      <p class="text-sm text-slate-200 leading-relaxed">
+        데이터베이스에 배송 관련 항목은 <span class="code text-emerald-300">인쇄물받을주소</span> 문자열 하나뿐입니다.
+        받는 분 이름, 수령 연락처, 우편번호를 담을 자리가 없어서 담당자가 주소 한 줄만 보고 발송합니다.
+      </p>
+      <div class="mt-3 flex flex-wrap gap-2">
+        <span class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 text-xs code">인쇄물받을주소 ✓</span>
+        <span class="px-2.5 py-1 rounded-lg bg-rose-900/50 text-rose-300 text-xs code">받는분이름 ✗</span>
+        <span class="px-2.5 py-1 rounded-lg bg-rose-900/50 text-rose-300 text-xs code">수령연락처 ✗</span>
+        <span class="px-2.5 py-1 rounded-lg bg-rose-900/50 text-rose-300 text-xs code">우편번호 ✗</span>
+      </div>
+    </div>
+
+    <div class="mt-4 bg-amber-50 border border-amber-300 rounded-xl p-4">
+      <p class="text-sm text-amber-900 leading-relaxed">
+        <strong>같은 사고가 이미 한 번 있었습니다.</strong> 퀘스트 위자드 스텝 상수에 이메일 항목이 빠져 있어서 제출정보 21건에 이메일이 비어 있던 건과 구조가 같습니다.
+        스텝 상수에 항목이 없으면 고객이 입력할 화면 자체가 생기지 않습니다.
+      </p>
+    </div>
+  </div>
+
+  <!-- 배송지 흔적 지도 -->
+  <div class="bg-white rounded-2xl border-2 border-indigo-300 p-6 mb-6">
+    <div class="flex items-center gap-3 mb-2">
+      <span class="px-3 py-1 rounded-full bg-indigo-600 text-white text-xs font-bold">배송지 흔적 지도</span>
+      <h2 class="text-lg font-bold">지금 배송지 주소는 어디까지 흘러가고, 고객은 어디서 볼 수 있는가</h2>
+    </div>
+    <p class="text-sm text-slate-500 mb-5">저장 자체는 여러 곳에 남습니다. 문제는 그 값이 <strong class="text-slate-700">전부 내부 방향으로만 흐른다</strong>는 점입니다.</p>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm min-w-[820px]">
+        <thead class="bg-slate-50 text-slate-500 text-xs">
+          <tr>
+            <th class="text-left px-4 py-3 font-bold w-64">지점</th>
+            <th class="text-left px-4 py-3 font-bold">배송지가 남는 형태</th>
+            <th class="text-center px-4 py-3 font-bold w-36">고객이 봅니까</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr class="bg-rose-50">
+            <td class="px-4 py-3 font-semibold align-top">고객 입력 화면<br><span class="code text-slate-400">quest-wizard-dialog.tsx</span></td>
+            <td class="px-4 py-3 align-top text-rose-800">주력 진입로인 퀘스트 위자드에는 입력란이 없습니다. 풀페이지와 모바일 폼에만 선택 항목으로 있습니다.</td>
+            <td class="px-4 py-3 text-center align-top"><span class="px-2.5 py-1 rounded-full bg-rose-600 text-white text-xs font-bold">화면 없음</span></td>
+          </tr>
+          <tr>
+            <td class="px-4 py-3 font-semibold align-top">데이터베이스<br><span class="code text-slate-400">Submission.인쇄물받을주소</span></td>
+            <td class="px-4 py-3 align-top text-slate-600">값이 있으면 그대로 저장됩니다. 비어 있어도 제출은 통과합니다.</td>
+            <td class="px-4 py-3 text-center align-top"><span class="px-2.5 py-1 rounded-full bg-slate-100 text-slate-500 text-xs font-bold">해당 없음</span></td>
+          </tr>
+          <tr>
+            <td class="px-4 py-3 font-semibold align-top">슬랙 최초 푸시<br><span class="code text-slate-400">slackClient.ts:614</span></td>
+            <td class="px-4 py-3 align-top text-slate-600">“배송받을곳 주소” 항목으로 담당자 채널에 전달됩니다.</td>
+            <td class="px-4 py-3 text-center align-top"><span class="px-2.5 py-1 rounded-full bg-rose-100 text-rose-700 text-xs font-bold">못 봅니다</span></td>
+          </tr>
+          <tr>
+            <td class="px-4 py-3 font-semibold align-top">슬랙 변경 알림<br><span class="code text-slate-400">api/submission/route.ts:356</span></td>
+            <td class="px-4 py-3 align-top text-slate-600">주소가 바뀌면 변경 알림이 채널에 올라갑니다.</td>
+            <td class="px-4 py-3 text-center align-top"><span class="px-2.5 py-1 rounded-full bg-rose-100 text-rose-700 text-xs font-bold">못 봅니다</span></td>
+          </tr>
+          <tr>
+            <td class="px-4 py-3 font-semibold align-top">관리자 · 워크플로우 제출정보<br><span class="code text-slate-400">submission-view-button.tsx:260</span></td>
+            <td class="px-4 py-3 align-top text-slate-600">표시됩니다. 다만 값이 비면 사업장 주소를 대신 보여줍니다.</td>
+            <td class="px-4 py-3 text-center align-top"><span class="px-2.5 py-1 rounded-full bg-rose-100 text-rose-700 text-xs font-bold">못 봅니다</span></td>
+          </tr>
+          <tr>
+            <td class="px-4 py-3 font-semibold align-top">관리자 · 사용자관리 제출정보<br><span class="code text-slate-400">user-actions.tsx:680</span></td>
+            <td class="px-4 py-3 align-top text-slate-600">같은 대체 규칙으로 표시됩니다.</td>
+            <td class="px-4 py-3 text-center align-top"><span class="px-2.5 py-1 rounded-full bg-rose-100 text-rose-700 text-xs font-bold">못 봅니다</span></td>
+          </tr>
+          <tr class="bg-amber-50">
+            <td class="px-4 py-3 font-semibold align-top">고객 · 제출정보 페이지<br><span class="code text-slate-400">/dashboard/submission</span></td>
+            <td class="px-4 py-3 align-top text-slate-700">본인이 직접 들어가서 입력란을 열어야 자기가 적은 값을 봅니다.</td>
+            <td class="px-4 py-3 text-center align-top"><span class="px-2.5 py-1 rounded-full bg-amber-200 text-amber-900 text-xs font-bold">찾아가야 봅니다</span></td>
+          </tr>
+          <tr>
+            <td class="px-4 py-3 font-semibold align-top">제작요청 완료 안내</td>
+            <td class="px-4 py-3 align-top text-slate-600">“영업일 2일 후 시안 전달 예정”이라는 알림창만 뜹니다. 주소 언급은 없습니다.</td>
+            <td class="px-4 py-3 text-center align-top"><span class="px-2.5 py-1 rounded-full bg-rose-600 text-white text-xs font-bold">없습니다</span></td>
+          </tr>
+          <tr>
+            <td class="px-4 py-3 font-semibold align-top">시안 확정 화면</td>
+            <td class="px-4 py-3 align-top text-slate-600">확정 모달에도, 확정 완료 표시에도 주소가 나오지 않습니다.</td>
+            <td class="px-4 py-3 text-center align-top"><span class="px-2.5 py-1 rounded-full bg-rose-600 text-white text-xs font-bold">없습니다</span></td>
+          </tr>
+          <tr>
+            <td class="px-4 py-3 font-semibold align-top">발주완료 문자 · 이메일<br><span class="code text-slate-400">send-order-complete/route.ts:84</span></td>
+            <td class="px-4 py-3 align-top text-slate-600">“발주가 완료되었습니다”와 제작물 목록만 나갑니다. 어디로 받는지는 적히지 않습니다.</td>
+            <td class="px-4 py-3 text-center align-top"><span class="px-2.5 py-1 rounded-full bg-rose-600 text-white text-xs font-bold">없습니다</span></td>
+          </tr>
+          <tr>
+            <td class="px-4 py-3 font-semibold align-top">발송 · 수령 안내</td>
+            <td class="px-4 py-3 align-top text-slate-600">발송 시점에 배송지나 송장을 알려주는 절차가 없습니다.</td>
+            <td class="px-4 py-3 text-center align-top"><span class="px-2.5 py-1 rounded-full bg-rose-600 text-white text-xs font-bold">없습니다</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mt-5 grid md:grid-cols-2 gap-4">
+      <div class="bg-rose-50 border border-rose-200 rounded-xl p-4">
+        <p class="text-xs font-bold text-rose-600 mb-1.5">지금 상태를 한 줄로 정리하면</p>
+        <p class="text-sm text-rose-900 leading-relaxed">고객은 자료를 제출할 때 주소를 한 번 적고, 그 뒤로는 인쇄물이 도착할 때까지 자기 주소를 다시 마주칠 일이 없습니다. 심지어 주소를 비워둔 채 넘어갔다면 사업장 주소로 발송된다는 사실조차 알 방법이 없습니다.</p>
+      </div>
+      <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+        <p class="text-xs font-bold text-emerald-700 mb-1.5">개선안이 만드는 접점</p>
+        <p class="text-sm text-emerald-900 leading-relaxed">확정 2단계에서 화면으로 한 번, 확정 직후 문자로 한 번, 관리자 발주 화면에서 담당자가 한 번 더 봅니다. 고객 방향으로 되돌려 보여주는 지점이 두 개 생깁니다.</p>
+      </div>
+    </div>
+  </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
+          <h2 class="text-lg font-bold mb-2">
+            현재 코드에서 확인한 문제 다섯 가지
+          </h2>
+          <p class="text-sm text-slate-500">
+            각 항목은 실제 파일과 줄 번호를 근거로 정리했습니다.
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <div class="flex items-start gap-4">
+              <span
+                class="px-2.5 py-1 rounded-lg bg-rose-100 text-rose-700 text-xs font-bold shrink-0"
+                >P1</span
+              >
+              <div class="flex-1">
+                <h3 class="font-bold">
+                  배송지가 비어 있어도 발주까지 흘러갑니다
+                </h3>
+                <p class="text-sm text-slate-600 mt-2">
+                  인쇄물 받을 주소는 스키마에서 선택 항목이고, 관리자 화면은
+                  값이 없으면 사업장 주소를 대신 보여줍니다. 고객은 자기
+                  인쇄물이 어디로 가는지 한 번도 확인하지 않은 채 발주가
+                  끝납니다.
+                </p>
+                <div
+                  class="mt-3 bg-slate-50 rounded-lg p-3 code text-slate-600 space-y-1"
+                >
+                  <div>
+                    lib/schemas/submission.schema.ts:75 → 인쇄물받을주소:
+                    z.string().optional()
+                  </div>
+                  <div>
+                    app/admin/(dashboard)/workflows/submission-view-button.tsx:260
+                    → {submission.인쇄물받을주소 || submission.주소 || "-"}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <div class="flex items-start gap-4">
+              <span
+                class="px-2.5 py-1 rounded-lg bg-rose-100 text-rose-700 text-xs font-bold shrink-0"
+                >P2</span
+              >
+              <div class="flex-1">
+                <h3 class="font-bold">
+                  주소를 적은 시점과 인쇄가 나가는 시점 사이가 멉니다
+                </h3>
+                <p class="text-sm text-slate-600 mt-2">
+                  주소는 자료 제출 위자드에서 한 번 받고 끝납니다. 시안 제작과
+                  수정을 거치는 동안 사무실을 옮기거나 수령지가 바뀌어도 이를
+                  다시 묻는 화면이 없습니다.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <div class="flex items-start gap-4">
+              <span
+                class="px-2.5 py-1 rounded-lg bg-rose-100 text-rose-700 text-xs font-bold shrink-0"
+                >P3</span
+              >
+              <div class="flex-1">
+                <h3 class="font-bold">
+                  경고 문구가 약해서 고객이 위험을 못 느낍니다
+                </h3>
+                <p class="text-sm text-slate-600 mt-2">
+                  현재 문구는 “수정이 어려울 수 있음을 이해합니다”입니다.
+                  실제로는 인쇄가 걸리면 수정 자체가 불가능하고 재제작 비용이
+                  발생하는데, 문구가 가능성을 말하는 표현이라 고객은 여지가
+                  있다고 읽습니다.
+                </p>
+                <div class="mt-3 grid md:grid-cols-2 gap-3">
+                  <div
+                    class="bg-slate-50 border border-slate-200 rounded-lg p-3"
+                  >
+                    <p class="text-xs font-bold text-slate-400 mb-1">
+                      현재 문구
+                    </p>
+                    <p class="text-sm text-slate-600">
+                      위 시안을 최종 확인하였으며, 이 시안으로 발주를
+                      요청합니다. 확정 후에는 수정이 어려울 수 있음을
+                      이해합니다.
+                    </p>
+                  </div>
+                  <div
+                    class="bg-emerald-50 border border-emerald-200 rounded-lg p-3"
+                  >
+                    <p class="text-xs font-bold text-emerald-600 mb-1">
+                      개선 방향
+                    </p>
+                    <p class="text-sm text-slate-700">
+                      확정하면 곧바로 인쇄 발주가 걸리므로 문구·색상·배송지를
+                      바꿀 수 없고, 잘못 확정한 내용을 다시 제작할 때는 인쇄비와
+                      배송비를 고객이 부담한다는 사실을 항목별로 나눠서
+                      동의받습니다.
+                    </p>
+                  </div>
+                </div>
+                <div
+                  class="mt-3 bg-slate-50 rounded-lg p-3 code text-slate-600"
+                >
+                  app/dashboard/design-threads/page.tsx:1159, 1173
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <div class="flex items-start gap-4">
+              <span
+                class="px-2.5 py-1 rounded-lg bg-rose-100 text-rose-700 text-xs font-bold shrink-0"
+                >P4</span
+              >
+              <div class="flex-1">
+                <h3 class="font-bold">
+                  확정 경로가 둘인데 한쪽은 아무 안내가 없습니다
+                </h3>
+                <p class="text-sm text-slate-600 mt-2">
+                  시안 대화방에서 확정하면 모달과 체크박스를 거치지만, 진행 상태
+                  페이지의 로고 승인 버튼은 브라우저 confirm 한 줄만 띄우고
+                  곧바로 최종확정 처리합니다. 같은 결과를 만드는 두 버튼의 안내
+                  수준이 다릅니다.
+                </p>
+                <div
+                  class="mt-3 bg-slate-50 rounded-lg p-3 code text-slate-600 space-y-1"
+                >
+                  <div>
+                    app/dashboard/design-threads/page.tsx:1133 → 모달 + 체크박스
+                    1개
+                  </div>
+                  <div>
+                    app/dashboard/status/page.tsx:513 → confirm("승인 후에는
+                    수정이 어려울 수 있습니다.") 직행
+                  </div>
+                  <div>
+                    app/api/workflows/[id]/approve/route.ts → 상태만 검사하고
+                    바로 최종확정
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <div class="flex items-start gap-4">
+              <span
+                class="px-2.5 py-1 rounded-lg bg-rose-100 text-rose-700 text-xs font-bold shrink-0"
+                >P5</span
+              >
+              <div class="flex-1">
+                <h3 class="font-bold">
+                  고객이 무엇에 동의했는지 남는 기록이 없습니다
+                </h3>
+                <p class="text-sm text-slate-600 mt-2">
+                  확정 시각과 확정자 이름만 저장됩니다. 어떤 배송지를
+                  승인했는지, 어떤 고지를 읽었는지가 남지 않아서 배송 사고나
+                  오탈자 분쟁이 생기면 대화 기록을 뒤져야 합니다.
+                </p>
+                <div
+                  class="mt-3 bg-slate-50 rounded-lg p-3 code text-slate-600"
+                >
+                  prisma DesignThread → status, confirmedAt, confirmedByName 만
+                  저장
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- 3. 개선 화면 와이어프레임                                      -->
+      <!-- ============================================================ -->
+      <section id="tab-mock" class="tabpane hidden">
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
+          <h2 class="text-lg font-bold mb-2">확정 3단계 게이트 화면</h2>
+          <p class="text-sm text-slate-500">
+            아래 모달은 실제로 눌러볼 수 있습니다. 단계 버튼과 체크박스가
+            동작하므로 진행 조건을 그대로 확인하실 수 있습니다.
+          </p>
+        </div>
+
+        <div class="grid lg:grid-cols-[280px_1fr] gap-6">
+          <!-- 단계 인디케이터 -->
+          <aside
+            class="bg-white rounded-2xl border border-slate-200 p-5 h-fit lg:sticky lg:top-24"
+          >
+            <p class="text-xs font-bold text-slate-400 mb-4">확정 단계</p>
+            <div class="space-y-2" id="stepNav">
+              <button
+                data-step="1"
+                class="stepbtn w-full text-left p-3 rounded-xl border-2 border-emerald-500 bg-emerald-50"
+              >
+                <p class="text-xs text-emerald-600 font-bold">STEP 1</p>
+                <p class="text-sm font-semibold">시안 표기 정보 대조</p>
+              </button>
+              <button
+                data-step="2"
+                class="stepbtn w-full text-left p-3 rounded-xl border-2 border-slate-200"
+              >
+                <p class="text-xs text-slate-400 font-bold">STEP 2</p>
+                <p class="text-sm font-semibold">배송지 주소 확인</p>
+              </button>
+              <button
+                data-step="3"
+                class="stepbtn w-full text-left p-3 rounded-xl border-2 border-slate-200"
+              >
+                <p class="text-xs text-slate-400 font-bold">STEP 3</p>
+                <p class="text-sm font-semibold">수정 불가 고지 동의</p>
+              </button>
+              <button
+                data-step="4"
+                class="stepbtn w-full text-left p-3 rounded-xl border-2 border-slate-200"
+              >
+                <p class="text-xs text-slate-400 font-bold">완료</p>
+                <p class="text-sm font-semibold">확정 내역</p>
+              </button>
+            </div>
+            <div class="mt-5 pt-5 border-t border-slate-200">
+              <p class="text-xs text-slate-500 leading-relaxed">
+                모바일에서는 같은 내용을 전체 화면 바텀시트로 올려서 스크롤 없이
+                한 단계씩 넘기게 합니다.
+              </p>
+            </div>
+          </aside>
+
+          <!-- 모달 목업 -->
+          <div class="bg-slate-800 rounded-2xl p-6 md:p-10">
+            <!-- STEP 1 -->
+            <div class="stepPane" data-pane="1">
+              <div
+                class="mock bg-white rounded-2xl max-w-2xl mx-auto overflow-hidden"
+              >
+                <div class="px-6 py-5 border-b border-slate-200">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-xs text-slate-400 font-bold">1 / 3 단계</p>
+                      <h3 class="text-lg font-bold mt-0.5">
+                        시안에 들어간 정보를 확인해주세요
+                      </h3>
+                    </div>
+                    <div class="flex gap-1">
+                      <span
+                        class="w-8 h-1.5 rounded-full bg-emerald-500"
+                      ></span>
+                      <span class="w-8 h-1.5 rounded-full bg-slate-200"></span>
+                      <span class="w-8 h-1.5 rounded-full bg-slate-200"></span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="p-6 space-y-5 max-h-[560px] overflow-y-auto">
+                  <div
+                    class="bg-amber-50 border border-amber-200 rounded-xl p-4"
+                  >
+                    <p class="text-sm text-amber-900 leading-relaxed">
+                      인쇄가 시작되면 오탈자 하나도 고칠 수 없습니다. 아래
+                      항목을 시안 이미지와 하나씩 대조하고 체크해주세요.
+                    </p>
+                  </div>
+
+                  <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <p class="text-xs font-bold text-slate-400 mb-2">
+                        3차 시안 (최신)
+                      </p>
+                      <div
+                        class="aspect-[5/3] bg-slate-100 border-2 border-dashed border-slate-300 rounded-xl grid place-items-center"
+                      >
+                        <div class="text-center text-slate-400">
+                          <p class="text-3xl mb-1">🖼</p>
+                          <p class="text-xs">시안 이미지</p>
+                          <p class="text-[11px] mt-1">눌러서 크게 보기</p>
+                        </div>
+                      </div>
+                      <button
+                        class="mt-2 w-full py-2 text-xs font-semibold text-slate-600 border border-slate-300 rounded-lg hover:bg-slate-50"
+                      >
+                        원본 크기로 열기
+                      </button>
+                    </div>
+
+                    <div>
+                      <p class="text-xs font-bold text-slate-400 mb-2">
+                        제출하신 표기 정보
+                      </p>
+                      <div class="space-y-2">
+                        <label
+                          class="flex items-start gap-2.5 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            class="s1chk mt-0.5 w-4 h-4 accent-emerald-600"
+                          />
+                          <span class="text-sm"
+                            ><span class="text-slate-400 text-xs block"
+                              >상호</span
+                            >주식회사 스타트패키지</span
+                          >
+                        </label>
+                        <label
+                          class="flex items-start gap-2.5 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            class="s1chk mt-0.5 w-4 h-4 accent-emerald-600"
+                          />
+                          <span class="text-sm"
+                            ><span class="text-slate-400 text-xs block"
+                              >대표자명 · 직함</span
+                            >임혜진 / 대표</span
+                          >
+                        </label>
+                        <label
+                          class="flex items-start gap-2.5 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            class="s1chk mt-0.5 w-4 h-4 accent-emerald-600"
+                          />
+                          <span class="text-sm"
+                            ><span class="text-slate-400 text-xs block"
+                              >연락처</span
+                            >010-6624-6615</span
+                          >
+                        </label>
+                        <label
+                          class="flex items-start gap-2.5 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            class="s1chk mt-0.5 w-4 h-4 accent-emerald-600"
+                          />
+                          <span class="text-sm"
+                            ><span class="text-slate-400 text-xs block"
+                              >이메일</span
+                            >imagime2002@naver.com</span
+                          >
+                        </label>
+                        <label
+                          class="flex items-start gap-2.5 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            class="s1chk mt-0.5 w-4 h-4 accent-emerald-600"
+                          />
+                          <span class="text-sm"
+                            ><span class="text-slate-400 text-xs block"
+                              >사업장 주소</span
+                            >서울시 강남구 테헤란로 000, 12층</span
+                          >
+                        </label>
+                      </div>
+                      <p class="text-[11px] text-slate-400 mt-2">
+                        틀린 항목이 있으면 아래 “수정 요청하기”로 돌아가세요.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-3"
+                >
+                  <button
+                    class="px-4 py-2.5 text-sm font-semibold text-slate-600 hover:text-slate-900"
+                  >
+                    수정 요청하기
+                  </button>
+                  <div class="flex items-center gap-3">
+                    <span id="s1count" class="text-xs text-slate-400"
+                      >0 / 5 확인</span
+                    >
+                    <button
+                      data-go="2"
+                      class="gobtn px-5 py-2.5 rounded-lg bg-slate-300 text-white text-sm font-bold cursor-not-allowed"
+                      disabled
+                    >
+                      다음 단계
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- STEP 2 -->
+            <div class="stepPane hidden" data-pane="2">
+              <div
+                class="mock bg-white rounded-2xl max-w-2xl mx-auto overflow-hidden"
+              >
+                <div class="px-6 py-5 border-b border-slate-200">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-xs text-slate-400 font-bold">2 / 3 단계</p>
+                      <h3 class="text-lg font-bold mt-0.5">
+                        인쇄물을 어디로 받으시겠습니까?
+                      </h3>
+                    </div>
+                    <div class="flex gap-1">
+                      <span
+                        class="w-8 h-1.5 rounded-full bg-emerald-500"
+                      ></span>
+                      <span
+                        class="w-8 h-1.5 rounded-full bg-emerald-500"
+                      ></span>
+                      <span class="w-8 h-1.5 rounded-full bg-slate-200"></span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="p-6 space-y-4 max-h-[560px] overflow-y-auto">
+                  <!-- 케이스 A: 주소 등록됨 -->
+                  <div>
+                    <p class="text-xs font-bold text-slate-400 mb-2">
+                      등록된 배송지
+                    </p>
+                    <div
+                      class="border-2 border-emerald-500 bg-emerald-50 rounded-xl p-5"
+                    >
+                      <div class="flex items-start justify-between gap-4">
+                        <div>
+                          <p
+                            class="text-lg font-bold text-slate-900 leading-snug"
+                          >
+                            서울특별시 강남구 테헤란로 000<br />스타트빌딩 12층
+                            1201호
+                          </p>
+                          <p class="text-sm text-slate-600 mt-2">
+                            임혜진 · 010-6624-6615
+                          </p>
+                          <p class="text-xs text-slate-500 mt-1">
+                            우편번호 06234
+                          </p>
+                        </div>
+                        <button
+                          class="px-3 py-1.5 text-xs font-semibold text-emerald-700 border border-emerald-400 rounded-lg bg-white hover:bg-emerald-50 shrink-0"
+                        >
+                          주소 변경
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <label
+                    class="flex items-start gap-3 p-4 rounded-xl border-2 border-slate-200 hover:bg-slate-50 cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      id="s2chk"
+                      class="mt-0.5 w-5 h-5 accent-emerald-600"
+                    />
+                    <span
+                      class="text-sm font-semibold text-slate-800 leading-relaxed"
+                    >
+                      위 주소로 인쇄물을 받겠습니다. 주소가 잘못되어 반송되거나
+                      분실될 경우 재발송 비용은 제가 부담한다는 점을
+                      확인했습니다.
+                    </span>
+                  </label>
+
+                  <!-- 케이스 B: 주소 미등록 (경고 상태 예시) -->
+                  <div class="pt-4 border-t border-dashed border-slate-300">
+                    <p class="text-xs font-bold text-rose-500 mb-2">
+                      참고 · 배송지가 비어 있을 때 나오는 화면
+                    </p>
+                    <div
+                      class="border-2 border-rose-400 bg-rose-50 rounded-xl p-5"
+                    >
+                      <div class="flex items-start gap-3">
+                        <span class="text-xl">⚠️</span>
+                        <div class="flex-1">
+                          <p class="font-bold text-rose-900">
+                            배송지 주소가 등록되어 있지 않습니다
+                          </p>
+                          <p
+                            class="text-sm text-rose-800 mt-1.5 leading-relaxed"
+                          >
+                            주소를 입력하지 않으면 시안을 확정할 수 없습니다.
+                            지금 입력하시면 그대로 인쇄물이 발송됩니다.
+                          </p>
+                          <div class="mt-3 space-y-2">
+                            <input
+                              type="text"
+                              placeholder="도로명 주소를 검색하세요"
+                              class="w-full px-3 py-2.5 text-sm border border-rose-300 rounded-lg bg-white"
+                              disabled
+                            />
+                            <input
+                              type="text"
+                              placeholder="상세 주소 (동 · 호수)"
+                              class="w-full px-3 py-2.5 text-sm border border-rose-300 rounded-lg bg-white"
+                              disabled
+                            />
+                            <div class="grid grid-cols-2 gap-2">
+                              <input
+                                type="text"
+                                placeholder="받는 분 이름"
+                                class="px-3 py-2.5 text-sm border border-rose-300 rounded-lg bg-white"
+                                disabled
+                              />
+                              <input
+                                type="text"
+                                placeholder="연락처"
+                                class="px-3 py-2.5 text-sm border border-rose-300 rounded-lg bg-white"
+                                disabled
+                              />
+                            </div>
+                            <button
+                              class="w-full py-2.5 rounded-lg bg-rose-600 text-white text-sm font-bold"
+                              disabled
+                            >
+                              이 주소로 저장하기
+                            </button>
+                          </div>
+                          <p class="text-[11px] text-rose-700 mt-2">
+                            저장하면 제출 정보의 인쇄물 받을 주소에도 함께
+                            반영됩니다.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-3"
+                >
+                  <button
+                    data-go="1"
+                    class="gobtn px-4 py-2.5 text-sm font-semibold text-slate-600 hover:text-slate-900"
+                  >
+                    이전
+                  </button>
+                  <button
+                    data-go="3"
+                    id="s2next"
+                    class="gobtn px-5 py-2.5 rounded-lg bg-slate-300 text-white text-sm font-bold cursor-not-allowed"
+                    disabled
+                  >
+                    다음 단계
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- STEP 3 -->
+            <div class="stepPane hidden" data-pane="3">
+              <div
+                class="mock bg-white rounded-2xl max-w-2xl mx-auto overflow-hidden"
+              >
+                <div class="px-6 py-5 border-b border-slate-200">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-xs text-slate-400 font-bold">3 / 3 단계</p>
+                      <h3 class="text-lg font-bold mt-0.5">
+                        확정하면 되돌릴 수 없습니다
+                      </h3>
+                    </div>
+                    <div class="flex gap-1">
+                      <span
+                        class="w-8 h-1.5 rounded-full bg-emerald-500"
+                      ></span>
+                      <span
+                        class="w-8 h-1.5 rounded-full bg-emerald-500"
+                      ></span>
+                      <span
+                        class="w-8 h-1.5 rounded-full bg-emerald-500"
+                      ></span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="p-6 space-y-4 max-h-[560px] overflow-y-auto">
+                  <div
+                    class="rounded-xl border-2 border-rose-400 overflow-hidden"
+                  >
+                    <div class="bg-rose-600 px-5 py-3">
+                      <p class="text-white font-bold text-sm">
+                        확정 이후에는 아래 내용을 바꿀 수 없습니다
+                      </p>
+                    </div>
+                    <div class="bg-rose-50 px-5 py-4 space-y-2.5">
+                      <div class="flex gap-2.5 text-sm text-rose-900">
+                        <span class="font-bold shrink-0">01</span>
+                        <p>시안의 문구, 색상, 로고 배치를 포함한 디자인 일체</p>
+                      </div>
+                      <div class="flex gap-2.5 text-sm text-rose-900">
+                        <span class="font-bold shrink-0">02</span>
+                        <p>인쇄 수량과 용지 사양</p>
+                      </div>
+                      <div class="flex gap-2.5 text-sm text-rose-900">
+                        <span class="font-bold shrink-0">03</span>
+                        <p>앞 단계에서 확인하신 배송지 주소</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    class="bg-slate-50 border border-slate-200 rounded-xl p-4"
+                  >
+                    <p class="text-xs font-bold text-slate-400 mb-2">
+                      확정 직후 벌어지는 일
+                    </p>
+                    <div
+                      class="flex items-center gap-2 text-xs text-slate-600 flex-wrap"
+                    >
+                      <span
+                        class="px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg"
+                        >확정 접수</span
+                      >
+                      <span class="text-slate-300">→</span>
+                      <span
+                        class="px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg"
+                        >인쇄소 발주 (당일)</span
+                      >
+                      <span class="text-slate-300">→</span>
+                      <span
+                        class="px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg"
+                        >인쇄 진행</span
+                      >
+                      <span class="text-slate-300">→</span>
+                      <span
+                        class="px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg"
+                        >발송</span
+                      >
+                    </div>
+                    <p class="text-xs text-slate-500 mt-2.5 leading-relaxed">
+                      발주가 인쇄소로 넘어간 뒤에는 저희도 되돌릴 수 없습니다.
+                      잘못 확정한 내용을 다시 만들려면 인쇄비와 배송비를 새로
+                      지불하셔야 합니다.
+                    </p>
+                  </div>
+
+                  <div class="space-y-2">
+                    <label
+                      class="flex items-start gap-3 p-3.5 rounded-xl border-2 border-slate-200 hover:bg-slate-50 cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        class="s3chk mt-0.5 w-5 h-5 accent-rose-600"
+                      />
+                      <span class="text-sm text-slate-800 leading-relaxed"
+                        >시안에 들어간 상호, 대표자명, 연락처, 이메일, 주소를
+                        직접 확인했습니다.</span
+                      >
+                    </label>
+                    <label
+                      class="flex items-start gap-3 p-3.5 rounded-xl border-2 border-slate-200 hover:bg-slate-50 cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        class="s3chk mt-0.5 w-5 h-5 accent-rose-600"
+                      />
+                      <span class="text-sm text-slate-800 leading-relaxed"
+                        >확정 이후에는 디자인과 배송지를 수정할 수 없다는 점을
+                        확인했습니다.</span
+                      >
+                    </label>
+                    <label
+                      class="flex items-start gap-3 p-3.5 rounded-xl border-2 border-slate-200 hover:bg-slate-50 cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        class="s3chk mt-0.5 w-5 h-5 accent-rose-600"
+                      />
+                      <span class="text-sm text-slate-800 leading-relaxed"
+                        >제 확인 착오로 재제작하는 경우 인쇄비와 배송비를
+                        부담한다는 점에 동의합니다.</span
+                      >
+                    </label>
+                  </div>
+
+                  <div class="bg-slate-900 rounded-xl p-4">
+                    <p class="text-xs text-slate-400 mb-2.5">최종 확정 요약</p>
+                    <div class="space-y-1.5 text-sm text-white">
+                      <div class="flex justify-between gap-3">
+                        <span class="text-slate-400">항목</span
+                        ><span class="font-semibold">명함</span>
+                      </div>
+                      <div class="flex justify-between gap-3">
+                        <span class="text-slate-400">확정 시안</span
+                        ><span class="font-semibold">3차 시안</span>
+                      </div>
+                      <div class="flex justify-between gap-3">
+                        <span class="text-slate-400">배송지</span
+                        ><span class="font-semibold text-right"
+                          >서울 강남구 테헤란로 000, 12층</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-3"
+                >
+                  <button
+                    data-go="2"
+                    class="gobtn px-4 py-2.5 text-sm font-semibold text-slate-600 hover:text-slate-900"
+                  >
+                    이전
+                  </button>
+                  <div class="flex items-center gap-3">
+                    <span id="s3count" class="text-xs text-slate-400"
+                      >0 / 3 동의</span
+                    >
+                    <button
+                      data-go="4"
+                      id="s3next"
+                      class="gobtn px-6 py-2.5 rounded-lg bg-slate-300 text-white text-sm font-bold cursor-not-allowed"
+                      disabled
+                    >
+                      이 시안으로 확정하고 발주 요청
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- STEP 4 -->
+            <div class="stepPane hidden" data-pane="4">
+              <div
+                class="mock bg-white rounded-2xl max-w-2xl mx-auto overflow-hidden"
+              >
+                <div class="px-6 py-8 text-center border-b border-slate-200">
+                  <div
+                    class="w-14 h-14 rounded-full bg-emerald-100 grid place-items-center mx-auto mb-3"
+                  >
+                    <span class="text-2xl">✅</span>
+                  </div>
+                  <h3 class="text-lg font-bold">시안이 확정되었습니다</h3>
+                  <p class="text-sm text-slate-500 mt-1.5">
+                    아래 내용 그대로 인쇄 발주가 접수되었습니다. 같은 내용을
+                    문자로도 보내드렸습니다.
+                  </p>
+                </div>
+
+                <div class="p-6 space-y-4">
+                  <div
+                    class="border border-slate-200 rounded-xl overflow-hidden"
+                  >
+                    <div
+                      class="bg-slate-50 px-4 py-2.5 border-b border-slate-200"
+                    >
+                      <p class="text-xs font-bold text-slate-500">확정 내역</p>
+                    </div>
+                    <div class="divide-y divide-slate-100">
+                      <div class="px-4 py-3 flex justify-between gap-3 text-sm">
+                        <span class="text-slate-500">항목</span
+                        ><span class="font-semibold">명함</span>
+                      </div>
+                      <div class="px-4 py-3 flex justify-between gap-3 text-sm">
+                        <span class="text-slate-500">확정 시안</span
+                        ><span class="font-semibold">3차 시안</span>
+                      </div>
+                      <div class="px-4 py-3 flex justify-between gap-3 text-sm">
+                        <span class="text-slate-500">확정 일시</span
+                        ><span class="font-semibold">2026-08-27 14:32</span>
+                      </div>
+                      <div class="px-4 py-3 flex justify-between gap-3 text-sm">
+                        <span class="text-slate-500">확정자</span
+                        ><span class="font-semibold">임혜진</span>
+                      </div>
+                      <div class="px-4 py-3 flex justify-between gap-3 text-sm">
+                        <span class="text-slate-500">배송지</span
+                        ><span class="font-semibold text-right"
+                          >서울 강남구 테헤란로 000<br />스타트빌딩 12층
+                          1201호</span
+                        >
+                      </div>
+                      <div class="px-4 py-3 flex justify-between gap-3 text-sm">
+                        <span class="text-slate-500">동의 항목</span
+                        ><span class="font-semibold text-right"
+                          >3건 모두 동의</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    class="bg-slate-50 border border-slate-200 rounded-xl p-4"
+                  >
+                    <p class="text-xs font-bold text-slate-400 mb-2">
+                      고객에게 나가는 문자
+                    </p>
+                    <div
+                      class="bg-white border border-slate-200 rounded-lg p-3 text-xs text-slate-600 leading-relaxed"
+                    >
+                      [스타트패키지] 명함 시안이 확정되어 인쇄 발주가
+                      접수되었습니다.<br />
+                      · 확정 시안 3차<br />
+                      · 배송지 서울 강남구 테헤란로 000 스타트빌딩 12층
+                      1201호<br />
+                      확정 이후에는 디자인과 배송지를 변경할 수 없습니다.
+                    </div>
+                  </div>
+
+                  <div
+                    class="bg-emerald-50 border border-emerald-200 rounded-xl p-4"
+                  >
+                    <p class="text-sm text-emerald-900 leading-relaxed">
+                      이 확정 내역은 관리자 화면과 슬랙 채널에도 그대로
+                      기록됩니다. 발주 담당자는 사업장 주소가 아니라 여기서
+                      고객이 승인한 배송지를 보고 발송합니다.
+                    </p>
+                  </div>
+
+                  <button
+                    data-go="1"
+                    class="gobtn w-full py-3 rounded-lg border border-slate-300 text-sm font-semibold text-slate-600 hover:bg-slate-50"
+                  >
+                    처음부터 다시 보기
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- 4. 대조표                                                     -->
+      <!-- ============================================================ -->
+      <section id="tab-table" class="tabpane hidden">
+        <div
+          class="bg-white rounded-2xl border border-slate-200 overflow-hidden"
+        >
+          <div class="px-6 py-5 border-b border-slate-200">
+            <h2 class="text-lg font-bold">항목별 대조표</h2>
+            <p class="text-sm text-slate-500 mt-1">
+              현재 동작과 개선 후 동작을 같은 기준으로 놓고 비교했습니다.
+            </p>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm min-w-[900px]">
+              <thead class="bg-slate-50 text-slate-500 text-xs">
+                <tr>
+                  <th class="text-left px-5 py-3 font-bold w-40">구분</th>
+                  <th class="text-left px-5 py-3 font-bold">현재</th>
+                  <th
+                    class="text-left px-5 py-3 font-bold bg-emerald-50 text-emerald-700"
+                  >
+                    개선
+                  </th>
+                  <th class="text-left px-5 py-3 font-bold w-52">기대 효과</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr>
+                  <td class="px-5 py-4 font-semibold align-top">
+                    배송지 확인 시점
+                  </td>
+                  <td class="px-5 py-4 align-top text-slate-600">
+                    자료 제출 위자드에서 한 번만 묻고, 확정 시점에는 묻지
+                    않습니다.
+                  </td>
+                  <td class="px-5 py-4 align-top bg-emerald-50/40">
+                    확정 2단계에서 주소를 크게 띄우고 고객이 직접 승인하게
+                    합니다.
+                  </td>
+                  <td class="px-5 py-4 align-top text-slate-500 text-xs">
+                    오배송과 반송을 발송 전에 차단합니다.
+                  </td>
+                </tr>
+                <tr>
+                  <td class="px-5 py-4 font-semibold align-top">
+                    배송지 미입력 처리
+                  </td>
+                  <td class="px-5 py-4 align-top text-slate-600">
+                    사업장 주소로 조용히 대체되고 발주가 그대로 진행됩니다.
+                  </td>
+                  <td class="px-5 py-4 align-top bg-emerald-50/40">
+                    경고를 띄우고 주소를 입력할 때까지 확정 버튼을 잠급니다.
+                  </td>
+                  <td class="px-5 py-4 align-top text-slate-500 text-xs">
+                    고객이 모르는 주소로 나가는 상황이 사라집니다.
+                  </td>
+                </tr>
+                <tr>
+                  <td class="px-5 py-4 font-semibold align-top">
+                    수정 불가 고지
+                  </td>
+                  <td class="px-5 py-4 align-top text-slate-600">
+                    “수정이 어려울 수 있음” 한 문장과 체크박스 한 개로 끝납니다.
+                  </td>
+                  <td class="px-5 py-4 align-top bg-emerald-50/40">
+                    바꿀 수 없는 항목을 세 가지로 나눠 보여주고, 재제작 비용
+                    부담까지 항목별로 동의를 받습니다.
+                  </td>
+                  <td class="px-5 py-4 align-top text-slate-500 text-xs">
+                    확정 이후 수정 요청이 줄어듭니다.
+                  </td>
+                </tr>
+                <tr>
+                  <td class="px-5 py-4 font-semibold align-top">
+                    표기 정보 검수
+                  </td>
+                  <td class="px-5 py-4 align-top text-slate-600">
+                    시안 이미지만 보여주고 대조는 고객 몫입니다.
+                  </td>
+                  <td class="px-5 py-4 align-top bg-emerald-50/40">
+                    제출한 값을 시안 옆에 나열하고 항목마다 확인 체크를
+                    받습니다.
+                  </td>
+                  <td class="px-5 py-4 align-top text-slate-500 text-xs">
+                    오탈자 재제작 건수가 줄어듭니다.
+                  </td>
+                </tr>
+                <tr>
+                  <td class="px-5 py-4 font-semibold align-top">확정 경로</td>
+                  <td class="px-5 py-4 align-top text-slate-600">
+                    시안 대화방과 진행 상태 페이지가 서로 다른 안내를 띄웁니다.
+                  </td>
+                  <td class="px-5 py-4 align-top bg-emerald-50/40">
+                    두 곳 모두 같은 3단계 모달을 열고, 서버에서도 같은 조건을
+                    검증합니다.
+                  </td>
+                  <td class="px-5 py-4 align-top text-slate-500 text-xs">
+                    우회 확정 경로가 사라집니다.
+                  </td>
+                </tr>
+                <tr>
+                  <td class="px-5 py-4 font-semibold align-top">확정 기록</td>
+                  <td class="px-5 py-4 align-top text-slate-600">
+                    확정 시각과 이름만 남습니다.
+                  </td>
+                  <td class="px-5 py-4 align-top bg-emerald-50/40">
+                    승인한 배송지, 동의 항목, 확정 시안 버전을 한 건으로
+                    저장합니다.
+                  </td>
+                  <td class="px-5 py-4 align-top text-slate-500 text-xs">
+                    분쟁이 생겨도 근거를 바로 제시합니다.
+                  </td>
+                </tr>
+                <tr>
+                  <td class="px-5 py-4 font-semibold align-top">
+                    확정 후 안내
+                  </td>
+                  <td class="px-5 py-4 align-top text-slate-600">
+                    화면에 확정 완료 표시만 뜹니다.
+                  </td>
+                  <td class="px-5 py-4 align-top bg-emerald-50/40">
+                    확정 내역을 문자로 발송하고 슬랙과 관리자 화면에 같은 내용을
+                    남깁니다.
+                  </td>
+                  <td class="px-5 py-4 align-top text-slate-500 text-xs">
+                    고객이 확정 사실을 나중에도 확인합니다.
+                  </td>
+                </tr>
+                <tr>
+                  <td class="px-5 py-4 font-semibold align-top">
+                    관리자 발주 화면
+                  </td>
+                  <td class="px-5 py-4 align-top text-slate-600">
+                    배송지가 비면 사업장 주소를 대신 표시합니다.
+                  </td>
+                  <td class="px-5 py-4 align-top bg-emerald-50/40">
+                    고객이 확정한 배송지를 표시하고, 확정 전 상태면 발주 버튼을
+                    잠급니다.
+                  </td>
+                  <td class="px-5 py-4 align-top text-slate-500 text-xs">
+                    담당자가 주소를 추측할 일이 없어집니다.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="mt-6 grid md:grid-cols-3 gap-4">
+          <div class="bg-white rounded-2xl border border-slate-200 p-5">
+            <p class="text-xs font-bold text-slate-400 mb-2">
+              고객이 느끼는 변화
+            </p>
+            <p class="text-sm text-slate-600 leading-relaxed">
+              확정 버튼을 누르기 전에 무엇이 인쇄되고 어디로 오는지 화면에서
+              그대로 확인합니다.
+            </p>
+          </div>
+          <div class="bg-white rounded-2xl border border-slate-200 p-5">
+            <p class="text-xs font-bold text-slate-400 mb-2">운영이 얻는 것</p>
+            <p class="text-sm text-slate-600 leading-relaxed">
+              주소를 다시 물어보는 연락과 반송 처리가 줄고, 재제작 요청에 근거를
+              들어 답할 수 있습니다.
+            </p>
+          </div>
+          <div class="bg-white rounded-2xl border border-slate-200 p-5">
+            <p class="text-xs font-bold text-slate-400 mb-2">
+              감수해야 할 부담
+            </p>
+            <p class="text-sm text-slate-600 leading-relaxed">
+              확정 단계가 한 화면에서 세 화면으로 늘어납니다. 모바일에서 넘기기
+              쉽도록 단계마다 내용을 짧게 유지해야 합니다.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- 5. 구현 범위                                                  -->
+      <!-- ============================================================ -->
+      <section id="tab-impl" class="tabpane hidden">
+
+  <div class="bg-white rounded-2xl border-2 border-emerald-400 p-6 mb-6">
+    <div class="flex items-center gap-3 mb-3">
+      <span class="px-3 py-1 rounded-full bg-emerald-600 text-white text-xs font-bold">적용 범위</span>
+      <h2 class="text-lg font-bold">최근 2개 기수부터 적용합니다</h2>
+    </div>
+    <p class="text-sm text-slate-600 leading-relaxed mb-4">
+      배송지 입력 단계와 확정 게이트의 배송지 확인은 정책 시행일(2026-07-01) 이후에 교육을 시작하는 기수에만 적용합니다.
+      이미 발주가 끝난 지난 기수까지 소급하면 완료된 항목이 다시 미완료로 표시되기 때문입니다.
+      이후에 열리는 기수는 날짜 조건으로 자동 포함되므로 코드를 다시 고칠 필요가 없습니다.
+    </p>
+
+    <div class="grid md:grid-cols-2 gap-4">
+      <div class="border-2 border-emerald-400 bg-emerald-50 rounded-xl p-4">
+        <p class="text-xs font-bold text-emerald-700 mb-2">적용 대상 (7명)</p>
+        <ul class="text-sm text-slate-800 space-y-1">
+          <li>26기 · 2026-08-13 시작 · 3명</li>
+          <li>26-5기 · 2026-07-01 시작 · 4명</li>
+          <li class="text-emerald-700 font-semibold pt-1">이후 개설되는 모든 기수</li>
+        </ul>
+      </div>
+      <div class="border border-slate-300 rounded-xl p-4">
+        <p class="text-xs font-bold text-slate-400 mb-2">제외 (77명)</p>
+        <p class="text-sm text-slate-600 leading-relaxed">
+          26-4기 이전 전체와 수료생. 위자드에 배송지 단계가 나타나지 않고, 진행률과 체크리스트도 지금과 똑같이 유지됩니다.
+          확정할 때도 배송지 확인 단계 없이 표기정보 대조와 최종 동의 2단계만 거칩니다.
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-4 bg-slate-900 rounded-xl p-4">
+      <p class="text-xs text-slate-400 mb-1.5">판정 기준</p>
+      <p class="code text-emerald-300 text-xs">lib/shipping-policy.ts → SHIPPING_POLICY_START_DATE = 2026-07-01</p>
+      <p class="text-xs text-slate-300 mt-2 leading-relaxed">
+        고객 대시보드는 서버에서 기수를 판정해 화면에 넘기고, 확정 API 두 곳도 같은 함수로 다시 판정합니다.
+        적용 범위를 옮길 일이 생기면 이 날짜 한 곳만 고치면 됩니다.
+      </p>
+    </div>
+  </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
+          <h2 class="text-lg font-bold mb-2">구현할 때 손대야 하는 지점</h2>
+          <p class="text-sm text-slate-500">
+            컨펌해주시면 1번 데이터 구조부터 4번 관리자 화면까지 차례대로 작업하겠습니다. 화면만 바꾸고 서버 검증을
+            빼면 우회 확정이 그대로 남기 때문에 서버까지 함께 막아야 합니다.
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <div class="flex items-center gap-3 mb-4">
+              <span
+                class="px-2.5 py-1 rounded-lg bg-slate-900 text-white text-xs font-bold"
+                >1</span
+              >
+              <h3 class="font-bold">데이터 구조</h3>
+            </div>
+            <div class="space-y-2.5 text-sm">
+              <div class="flex gap-3 p-3 bg-rose-50 border border-rose-200 rounded-lg">
+                <span class="code text-rose-500 shrink-0 w-64">prisma Submission</span>
+                <span class="text-rose-800">배송 정보를 주소 한 줄에서 블록으로 넓힙니다. 받는분이름, 수령연락처, 우편번호를 추가하고 기존 인쇄물받을주소는 상세주소로 이어갑니다.</span>
+              </div>
+              <div class="flex gap-3 p-3 bg-slate-50 rounded-lg">
+                <span class="code text-slate-500 shrink-0 w-64"
+                  >prisma/schema.prisma</span
+                >
+                <span class="text-slate-600"
+                  >DesignThread에 확정 시점 배송지, 동의 항목, 동의 시각을
+                  저장할 필드를 추가하거나 별도 확정 기록 모델을 만듭니다.</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <div class="flex items-center gap-3 mb-4">
+              <span
+                class="px-2.5 py-1 rounded-lg bg-slate-900 text-white text-xs font-bold"
+                >2</span
+              >
+              <h3 class="font-bold">서버 검증</h3>
+            </div>
+            <div class="space-y-2.5 text-sm">
+              <div class="flex gap-3 p-3 bg-slate-50 rounded-lg">
+                <span class="code text-slate-500 shrink-0 w-64"
+                  >app/api/design-threads/[id]/confirm/route.ts</span
+                >
+                <span class="text-slate-600"
+                  >요청 본문에서 승인한 배송지와 동의 항목을 받고, 값이 없으면
+                  400으로 막습니다. 확정 기록을 트랜잭션 안에서 함께
+                  저장합니다.</span
+                >
+              </div>
+              <div class="flex gap-3 p-3 bg-slate-50 rounded-lg">
+                <span class="code text-slate-500 shrink-0 w-64"
+                  >app/api/workflows/[id]/approve/route.ts</span
+                >
+                <span class="text-slate-600"
+                  >같은 검증을 적용해서 진행 상태 페이지로 들어오는 확정도
+                  동일한 조건을 통과하게 합니다.</span
+                >
+              </div>
+              <div class="flex gap-3 p-3 bg-slate-50 rounded-lg">
+                <span class="code text-slate-500 shrink-0 w-64"
+                  >lib/schemas/</span
+                >
+                <span class="text-slate-600"
+                  >확정 요청 전용 스키마를 새로 만듭니다. 제출 스키마의 선택
+                  항목 설정은 그대로 두고 확정 시점에만 필수로 검사합니다.</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <div class="flex items-center gap-3 mb-4">
+              <span
+                class="px-2.5 py-1 rounded-lg bg-slate-900 text-white text-xs font-bold"
+                >3</span
+              >
+              <h3 class="font-bold">고객 화면</h3>
+            </div>
+            <div class="space-y-2.5 text-sm">
+              <div class="flex gap-3 p-3 bg-rose-50 border border-rose-200 rounded-lg">
+                <span class="code text-rose-500 shrink-0 w-64">components/dashboard/quest-wizard-dialog.tsx</span>
+                <span class="text-rose-800"><strong>가장 먼저 손봐야 할 곳입니다.</strong> 스텝 상수에 배송지 항목을 추가해서 입력 화면을 만듭니다. 이 작업을 빼면 개선안 전체가 무의미합니다.</span>
+              </div>
+              <div class="flex gap-3 p-3 bg-slate-50 rounded-lg">
+                <span class="code text-slate-500 shrink-0 w-64"
+                  >components/design/confirm-dialog.tsx (신규)</span
+                >
+                <span class="text-slate-600"
+                  >3단계 확정 모달을 공용 컴포넌트로 만들어 두 진입점에서 함께
+                  씁니다.</span
+                >
+              </div>
+              <div class="flex gap-3 p-3 bg-slate-50 rounded-lg">
+                <span class="code text-slate-500 shrink-0 w-64"
+                  >app/dashboard/design-threads/page.tsx</span
+                >
+                <span class="text-slate-600"
+                  >기존 단일 모달을 공용 컴포넌트로 교체합니다.</span
+                >
+              </div>
+              <div class="flex gap-3 p-3 bg-slate-50 rounded-lg">
+                <span class="code text-slate-500 shrink-0 w-64"
+                  >app/dashboard/status/page.tsx</span
+                >
+                <span class="text-slate-600"
+                  >브라우저 confirm 호출을 걷어내고 같은 모달을 띄웁니다.</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <div class="flex items-center gap-3 mb-4">
+              <span
+                class="px-2.5 py-1 rounded-lg bg-slate-900 text-white text-xs font-bold"
+                >4</span
+              >
+              <h3 class="font-bold">관리자 화면과 알림</h3>
+            </div>
+            <div class="space-y-2.5 text-sm">
+              <div class="flex gap-3 p-3 bg-slate-50 rounded-lg">
+                <span class="code text-slate-500 shrink-0 w-64"
+                  >workflows/submission-view-button.tsx</span
+                >
+                <span class="text-slate-600"
+                  >사업장 주소 대체 표시를 걷어내고 확정된 배송지를 보여줍니다.
+                  제출정보 표시 화면 세 곳을 함께 맞춥니다.</span
+                >
+              </div>
+              <div class="flex gap-3 p-3 bg-slate-50 rounded-lg">
+                <span class="code text-slate-500 shrink-0 w-64"
+                  >lib/notification/</span
+                >
+                <span class="text-slate-600"
+                  >확정 내역 문자와 슬랙 메시지에 배송지와 동의 항목을 함께
+                  담습니다.</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-amber-50 border-2 border-amber-300 rounded-2xl p-6">
+            <h3 class="font-bold text-amber-900 mb-3">
+              진행 전에 확인이 필요한 사항
+            </h3>
+            <div class="space-y-2.5 text-sm text-amber-900">
+              <p>
+                <strong>1.</strong> 재제작 비용을 고객이 부담한다는 문구를
+                실제로 넣어도 되는지 확인이 필요합니다. 운영 정책과 어긋나면
+                문구를 다르게 잡겠습니다.
+              </p>
+              <p>
+                <strong>2.</strong> 배송지 입력에 우편번호 검색 API를 붙일지,
+                지금처럼 자유 입력으로 둘지 정해주셔야 합니다.
+              </p>
+              <p>
+                <strong>3.</strong> 로고처럼 인쇄가 없는 항목에도 배송지 단계를
+                띄울지 결정이 필요합니다. 인쇄물 항목에만 2단계를 넣고 로고는
+                1·3단계만 거치게 하는 방식을 제안드립니다.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 py-8 mt-10">
+      <div class="max-w-7xl mx-auto px-6 text-xs">
+        <p>스타트패키지 · 시안 확정 플로우 개선 와이어프레임 · 2026-08-27</p>
+        <p class="mt-1">
+          이 문서는 구현 전 검토용 목업입니다. 실제 데이터와 연결되어 있지
+          않습니다.
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      // 탭 전환
+      document.querySelectorAll(".tab").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          document.querySelectorAll(".tab").forEach(function (b) {
+            b.classList.remove("tab-active");
+            b.classList.add("text-slate-500");
+          });
+          btn.classList.add("tab-active");
+          btn.classList.remove("text-slate-500");
+          document.querySelectorAll(".tabpane").forEach(function (p) {
+            p.classList.add("hidden");
+          });
+          document
+            .getElementById("tab-" + btn.dataset.tab)
+            .classList.remove("hidden");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+      });
+
+      // 단계 이동
+      function goStep(n) {
+        document.querySelectorAll(".stepPane").forEach(function (p) {
+          p.classList.toggle("hidden", p.dataset.pane !== String(n));
+        });
+        document.querySelectorAll(".stepbtn").forEach(function (b) {
+          var on = b.dataset.step === String(n);
+          b.classList.toggle("border-emerald-500", on);
+          b.classList.toggle("bg-emerald-50", on);
+          b.classList.toggle("border-slate-200", !on);
+        });
+      }
+      document.querySelectorAll(".gobtn").forEach(function (b) {
+        b.addEventListener("click", function () {
+          if (b.disabled) return;
+          goStep(b.dataset.go);
+        });
+      });
+      document.querySelectorAll(".stepbtn").forEach(function (b) {
+        b.addEventListener("click", function () {
+          goStep(b.dataset.step);
+        });
+      });
+
+      function setBtn(btn, enabled) {
+        btn.disabled = !enabled;
+        btn.classList.toggle("bg-slate-300", !enabled);
+        btn.classList.toggle("cursor-not-allowed", !enabled);
+        btn.classList.toggle("bg-emerald-600", enabled);
+        btn.classList.toggle("hover:bg-emerald-700", enabled);
+      }
+
+      // STEP 1 체크 카운트
+      var s1 = document.querySelectorAll(".s1chk");
+      var s1next = document.querySelector('[data-pane="1"] [data-go="2"]');
+      s1.forEach(function (c) {
+        c.addEventListener("change", function () {
+          var n = document.querySelectorAll(".s1chk:checked").length;
+          document.getElementById("s1count").textContent =
+            n + " / " + s1.length + " 확인";
+          setBtn(s1next, n === s1.length);
+        });
+      });
+
+      // STEP 2 배송지 동의
+      var s2chk = document.getElementById("s2chk");
+      var s2next = document.getElementById("s2next");
+      s2chk.addEventListener("change", function () {
+        setBtn(s2next, s2chk.checked);
+      });
+
+      // STEP 3 동의 카운트
+      var s3 = document.querySelectorAll(".s3chk");
+      var s3next = document.getElementById("s3next");
+      s3.forEach(function (c) {
+        c.addEventListener("change", function () {
+          var n = document.querySelectorAll(".s3chk:checked").length;
+          document.getElementById("s3count").textContent =
+            n + " / " + s3.length + " 동의";
+          var ok = n === s3.length;
+          s3next.disabled = !ok;
+          s3next.classList.toggle("bg-slate-300", !ok);
+          s3next.classList.toggle("cursor-not-allowed", !ok);
+          s3next.classList.toggle("bg-rose-600", ok);
+          s3next.classList.toggle("hover:bg-rose-700", ok);
+        });
+      });
+    </script>
+  </body>
+</html>
