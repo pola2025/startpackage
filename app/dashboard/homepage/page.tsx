@@ -13,7 +13,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Globe,
-  ExternalLink,
   AlertTriangle,
   CheckCircle2,
   Upload,
@@ -48,10 +47,6 @@ import {
 interface HomepageData {
   홈페이지스타일: string | null;
   홈페이지컬러컨셉: string | null;
-  도메인주소: string | null;
-  도메인관리사이트: string | null;
-  도메인관리ID: string | null;
-  도메인관리PW: string | null;
   해외결제카드앞면URL: string | null;
   해외결제카드유효기간: string | null;
   해외결제카드CVC: string | null;
@@ -65,10 +60,6 @@ export default function HomepageSettingsPage() {
   const [data, setData] = useState<HomepageData | null>(null);
 
   // 외부 서비스 폼
-  const [domainAddress, setDomainAddress] = useState("");
-  const [domainSite, setDomainSite] = useState("후이즈");
-  const [domainId, setDomainId] = useState("");
-  const [domainPw, setDomainPw] = useState("");
   const [cardFrontUrl, setCardFrontUrl] = useState("");
   const [cardExpiry, setCardExpiry] = useState("");
   const [cardCvc, setCardCvc] = useState("");
@@ -113,10 +104,6 @@ export default function HomepageSettingsPage() {
         setData(result);
 
         // 폼 초기화
-        if (result.도메인주소) setDomainAddress(result.도메인주소);
-        if (result.도메인관리사이트) setDomainSite(result.도메인관리사이트);
-        if (result.도메인관리ID) setDomainId(result.도메인관리ID);
-        if (result.도메인관리PW) setDomainPw(result.도메인관리PW);
         if (result.해외결제카드앞면URL)
           setCardFrontUrl(result.해외결제카드앞면URL);
         if (result.해외결제카드유효기간)
@@ -156,10 +143,6 @@ export default function HomepageSettingsPage() {
 
   // 필수 입력 확인
   const isFormValid =
-    domainAddress.trim() &&
-    domainSite.trim() &&
-    domainId.trim() &&
-    domainPw.trim() &&
     gmailId.trim() &&
     gmailPw.trim() &&
     cardFrontUrl.trim() &&
@@ -237,10 +220,6 @@ export default function HomepageSettingsPage() {
     try {
       const payload: Record<string, string> = {
         홈페이지제작방식: "외부서비스",
-        도메인주소: domainAddress,
-        도메인관리사이트: domainSite,
-        도메인관리ID: domainId,
-        도메인관리PW: domainPw,
         해외결제카드앞면URL: cardFrontUrl,
         해외결제카드유효기간: cardExpiry,
         해외결제카드CVC: cardCvc,
@@ -289,11 +268,7 @@ export default function HomepageSettingsPage() {
   };
 
   // Step 완료 여부 계산
-  const step1Done =
-    domainAddress.trim() &&
-    domainSite.trim() &&
-    domainId.trim() &&
-    domainPw.trim();
+  const step1Done = gmailId.trim() && gmailPw.trim();
   const step2Done =
     cardFrontUrl.trim() &&
     /^\d{2}\/\d{2}$/.test(cardExpiry) &&
@@ -339,7 +314,7 @@ export default function HomepageSettingsPage() {
         </div>
       </div>
 
-      {/* Step 1: 도메인 정보 */}
+      {/* Step 1: Gmail 계정 */}
       <Card className="border-gray-200">
         <CardHeader className="pb-3">
           <div className="flex items-center gap-3 flex-wrap">
@@ -347,311 +322,12 @@ export default function HomepageSettingsPage() {
               1
             </span>
             <CardTitle className="text-gray-900 text-base flex items-center gap-2">
-              <Globe className="w-4 h-4 text-gray-600" />
-              도메인 정보
-            </CardTitle>
-            <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">
-              필수
-            </span>
-            {step1Done ? (
-              <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
-                완료
-              </span>
-            ) : null}
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* 🚨 최상단 경고: 도메인 구매/가용성 확인 필수 (인쇄물 교체 불가) */}
-          <div className="rounded-xl border-2 border-red-500 bg-red-50 p-4 md:p-5 shadow-sm">
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 w-9 h-9 rounded-full bg-red-500 flex items-center justify-center">
-                <AlertCircle className="w-5 h-5 text-white" />
-              </div>
-              <div className="flex-1">
-                <p className="text-red-700 font-bold text-base md:text-lg leading-tight">
-                  반드시 도메인을 <u>구매</u>하거나 <u>사용 가능</u>한지 확인 후
-                  신청해주세요
-                </p>
-                <p className="text-red-600 text-sm mt-2 leading-relaxed">
-                  도메인 검증 없이 신청하면 인쇄물(명함·전단 등)에 들어간
-                  도메인을{" "}
-                  <strong className="bg-red-100 px-1">
-                    이미 누군가 사용 중이거나 구매 불가
-                  </strong>
-                  한 경우가 생길 수 있습니다.
-                </p>
-                <div className="mt-3 bg-white border border-red-200 rounded-lg p-3">
-                  <p className="text-sm text-red-800 font-semibold flex items-start gap-1.5">
-                    <span className="text-red-500 flex-shrink-0">⚠️</span>
-                    <span>
-                      인쇄물은 이미 <u>제작 완료된 상태</u>라서 도메인을 나중에
-                      바꿀 수 없습니다.
-                    </span>
-                  </p>
-                </div>
-                <div className="mt-3 flex flex-col sm:flex-row gap-2">
-                  <a
-                    href="https://www.whois.co.kr"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg transition-colors"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    후이즈에서 도메인 확인/구매
-                  </a>
-                  <span className="inline-flex items-center text-xs text-red-600 font-medium px-2">
-                    검색 → 사용 가능 확인 → 결제 완료 후 신청
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Layer 1: 입력 폼 */}
-          <div className="space-y-4">
-            <div>
-              <Label
-                htmlFor="domainAddress"
-                className="flex items-center gap-1 text-sm"
-              >
-                도메인 주소 <span className="text-red-500">*</span>
-              </Label>
-              <p className="text-xs text-gray-500 mt-0.5 mb-1">
-                구매한 도메인 주소를 입력해주세요
-                <br />
-                <span className="text-gray-400">
-                  예: www.mybrand.co.kr &nbsp;|&nbsp; mybrand.com &nbsp;|&nbsp;
-                  mybrand.kr
-                </span>
-                <br />
-                <span className="text-red-500 font-medium">
-                  ※ 한글도메인은 사용할 수 없습니다 (예: 마이브랜드.kr,
-                  마이브랜드.한국)
-                </span>
-              </p>
-              <Input
-                id="domainAddress"
-                value={domainAddress}
-                onChange={(e) => setDomainAddress(e.target.value)}
-                placeholder="예: www.mybrand.co.kr"
-                className="mt-1 h-11 md:h-10"
-              />
-            </div>
-
-            <div>
-              <Label className="flex items-center gap-1 text-sm">
-                도메인 관리 사이트
-              </Label>
-              <div className="mt-1 h-11 md:h-10 flex items-center px-3 border border-gray-200 rounded-lg bg-gray-50 text-sm text-gray-700">
-                후이즈 (whois.co.kr)
-              </div>
-            </div>
-
-            <div>
-              <Label
-                htmlFor="domainId"
-                className="flex items-center gap-1 text-sm"
-              >
-                도메인 관리 ID <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="domainId"
-                value={domainId}
-                onChange={(e) => setDomainId(e.target.value)}
-                placeholder="도메인 관리 사이트 로그인 ID"
-                className="mt-1 h-11 md:h-10"
-              />
-            </div>
-
-            <div>
-              <Label
-                htmlFor="domainPw"
-                className="flex items-center gap-1 text-sm"
-              >
-                도메인 관리 비밀번호 <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="domainPw"
-                type="password"
-                value={domainPw}
-                onChange={(e) => setDomainPw(e.target.value)}
-                placeholder="도메인 관리 사이트 비밀번호"
-                className="mt-1 h-11 md:h-10"
-              />
-            </div>
-          </div>
-
-          {/* Layer 2: 안내 (details) */}
-          <div className="space-y-2 pt-1">
-            <details>
-              <summary className="cursor-pointer text-sm font-medium text-gray-700 p-3 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors">
-                ⚠️ 왜 한글도메인이 안 되나요?
-              </summary>
-              <div className="p-4 bg-red-50 border border-red-200 border-t-0 rounded-b-lg">
-                <ul className="text-xs text-gray-700 space-y-2.5">
-                  <li className="flex items-start gap-2">
-                    <span className="text-red-400 mt-0.5 flex-shrink-0">✕</span>
-                    <div>
-                      <strong className="text-gray-800">URL 공유 불가</strong>
-                      <p className="text-gray-500 mt-0.5">
-                        복사 시{" "}
-                        <code className="bg-white px-1 py-0.5 rounded text-[11px]">
-                          xn--2o2bq2qmwcnqt.com
-                        </code>{" "}
-                        같은 알 수 없는 코드로 변환됩니다
-                      </p>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-red-400 mt-0.5 flex-shrink-0">✕</span>
-                    <div>
-                      <strong className="text-gray-800">
-                        기업 이메일 사용 불가
-                      </strong>
-                      <p className="text-gray-500 mt-0.5">
-                        메일 발송 시 퓨니코드로 변환되어 스팸으로 오인됩니다
-                      </p>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-red-400 mt-0.5 flex-shrink-0">✕</span>
-                    <div>
-                      <strong className="text-gray-800">
-                        광고 플랫폼 비호환
-                      </strong>
-                      <p className="text-gray-500 mt-0.5">
-                        Google Ads, Meta 광고 등 해외 광고 플랫폼에서 등록이
-                        거절됩니다
-                      </p>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-red-400 mt-0.5 flex-shrink-0">✕</span>
-                    <div>
-                      <strong className="text-gray-800">
-                        SSL 인증서 호환 문제
-                      </strong>
-                      <p className="text-gray-500 mt-0.5">
-                        일부 SSL 인증서 발급 시 퓨니코드 변환이 필요하며 호환성
-                        이슈가 있습니다
-                      </p>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-red-400 mt-0.5 flex-shrink-0">✕</span>
-                    <div>
-                      <strong className="text-gray-800">
-                        나중에 바꾸면 손해
-                      </strong>
-                      <p className="text-gray-500 mt-0.5">
-                        사업 확장 시 영문 도메인으로 교체하면 기존 SEO와
-                        트래픽을 모두 잃습니다
-                      </p>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-            </details>
-
-            <details open>
-              <summary className="cursor-pointer text-sm font-medium text-gray-700 p-3 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
-                도메인 구매 안내
-              </summary>
-              <div className="p-4 bg-gray-50 border border-gray-200 border-t-0 rounded-b-lg">
-                <div className="flex items-start gap-3">
-                  <Info className="w-5 h-5 text-gray-500 flex-shrink-0 mt-0.5" />
-                  <div className="flex-1">
-                    <p className="font-medium text-gray-800">
-                      도메인을 먼저 구매해주세요
-                    </p>
-                    <p className="text-sm text-gray-600 mt-1">
-                      후이즈(whois.co.kr)에서 도메인을 검색하고 할인가에 바로
-                      등록할 수 있습니다.
-                    </p>
-                    <a
-                      href="https://www.whois.co.kr"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 mt-2 px-3 py-1.5 bg-gray-800 text-white text-sm rounded-lg hover:bg-gray-700 transition-colors"
-                    >
-                      <ExternalLink className="w-3 h-3" />
-                      후이즈 바로가기
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </details>
-
-            <details open>
-              <summary className="cursor-pointer text-sm font-medium text-gray-700 p-3 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
-                도메인 구매 가이드
-              </summary>
-              <div className="border border-gray-200 border-t-0 rounded-b-lg overflow-hidden">
-                {/* 후이즈 화면 미리보기 */}
-                <div className="relative">
-                  <div className="bg-[#0066cc] p-4 opacity-80">
-                    <p className="text-white text-sm font-medium mb-3">
-                      도메인을 검색해보세요! 할인가에 바로 등록할 수 있습니다.
-                    </p>
-                    <div className="flex gap-2">
-                      <div className="flex-1 bg-white rounded-lg px-3 py-2 text-sm text-gray-400">
-                        영문 / 한글 입력 (예: &apos;whois&apos; 또는
-                        &apos;후이즈&apos;)
-                      </div>
-                      <div className="bg-[#ff6600] text-white text-sm font-medium px-4 py-2 rounded-lg">
-                        검색
-                      </div>
-                    </div>
-                  </div>
-                  {/* 화살표 오버레이 */}
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full shadow-lg">
-                      ↑ 여기에 브랜드명 입력 후 검색
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-white px-4 py-3 space-y-2">
-                  <ol className="text-xs text-gray-600 space-y-1.5 list-decimal list-inside">
-                    <li>
-                      <a
-                        href="https://www.whois.co.kr"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-gold-600 underline"
-                      >
-                        후이즈 사이트
-                      </a>
-                      에 접속하세요
-                    </li>
-                    <li>검색창에 원하는 도메인명 입력 (예: 브랜드명)</li>
-                    <li>
-                      검색 결과에서 <strong>.co.kr</strong> 또는{" "}
-                      <strong>.com</strong> 선택
-                    </li>
-                    <li>회원가입 후 결제 완료</li>
-                    <li>구매 후 아래에 후이즈 ID/PW를 입력해주세요</li>
-                  </ol>
-                </div>
-              </div>
-            </details>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Step 2: Gmail 계정 */}
-      <Card className="border-gray-200">
-        <CardHeader className="pb-3">
-          <div className="flex items-center gap-3 flex-wrap">
-            <span className="w-6 h-6 rounded-full bg-navy-900 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">
-              2
-            </span>
-            <CardTitle className="text-gray-900 text-base flex items-center gap-2">
               Gmail (서비스 인프라 연결용)
             </CardTitle>
             <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">
               필수
             </span>
-            {gmailId.trim() ? (
+            {step1Done ? (
               <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
                 입력됨
               </span>
@@ -699,12 +375,12 @@ export default function HomepageSettingsPage() {
         </CardContent>
       </Card>
 
-      {/* Step 3: 해외결제 카드 정보 */}
+      {/* Step 2: 해외결제 카드 정보 */}
       <Card className="border-gray-200">
         <CardHeader className="pb-3">
           <div className="flex items-center gap-3 flex-wrap">
             <span className="w-6 h-6 rounded-full bg-navy-900 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">
-              3
+              2
             </span>
             <CardTitle className="text-gray-900 text-base flex items-center gap-2">
               <CreditCard className="w-4 h-4 text-gray-600" />
@@ -825,7 +501,7 @@ export default function HomepageSettingsPage() {
 
           {/* 필수 입력 안내 */}
           {!isFormValid &&
-          (domainAddress || cardFrontUrl || cardExpiry || cardCvc) ? (
+          (gmailId || gmailPw || cardFrontUrl || cardExpiry || cardCvc) ? (
             <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-yellow-600 flex-shrink-0" />
               <span className="text-sm text-yellow-700">
@@ -836,12 +512,12 @@ export default function HomepageSettingsPage() {
         </CardContent>
       </Card>
 
-      {/* Step 4: 홈페이지 스타일 */}
+      {/* Step 3: 홈페이지 스타일 */}
       <Card className="border-gray-200">
         <CardHeader className="pb-3">
           <div className="flex items-center gap-3 flex-wrap">
             <span className="w-6 h-6 rounded-full bg-navy-900 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">
-              4
+              3
             </span>
             <CardTitle className="text-gray-900 text-base flex items-center gap-2">
               <Globe className="w-4 h-4 text-gray-600" />

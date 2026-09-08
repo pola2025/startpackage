@@ -1,5 +1,6 @@
 "use client";
 
+import { PrintColorNotice } from "@/components/design/print-color-notice";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -149,7 +150,7 @@ export function DesignConfirmationModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center gap-2">
             <FileText className="h-6 w-6 text-primary" />
@@ -189,6 +190,8 @@ export function DesignConfirmationModal({
             )}
           </DialogDescription>
         </DialogHeader>
+
+        {currentWorkflow && <PrintColorNotice workflowType={currentWorkflow.type} />}
 
         <DialogFooter className="flex flex-col gap-4">
           <div className="flex items-center gap-2 text-sm">

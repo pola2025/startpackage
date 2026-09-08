@@ -1,5 +1,7 @@
 "use client";
 
+import { PrintColorNotice } from "@/components/design/print-color-notice";
+import { PRINT_COLOR_AGREEMENT } from "@/lib/design-confirm";
 import { useEffect, useState, useCallback } from "react";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
@@ -371,6 +373,10 @@ export default function UserDesignThreadsPage() {
         `[시안 확정 및 발주 요청]\n\n` +
         `✅ ${selectedThread.currentVersion}차 시안을 최종 확인하였으며, 이 시안으로 발주를 요청합니다.\n` +
         `✅ 확정 이후에는 디자인과 배송지를 수정할 수 없다는 점에 동의합니다.` +
+        (payload.agreements.includes(PRINT_COLOR_AGREEMENT.id)
+          ? `
+✅ ${PRINT_COLOR_AGREEMENT.label}`
+          : "") +
         (배송지
           ? `\n📦 배송지: ${배송지} (${payload.shipping?.받는분이름} · ${payload.shipping?.수령연락처})`
           : "");
@@ -680,6 +686,10 @@ export default function UserDesignThreadsPage() {
                   </div>
                 </div>
               </CardHeader>
+
+              <div className="mx-3 sm:mx-6 mt-3">
+                <PrintColorNotice workflowType={selectedThread.workflow.type} />
+              </div>
 
               {/* 시안 확정 필요 알림 */}
               {needsFeedback && (

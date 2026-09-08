@@ -179,7 +179,7 @@ export default function HomepageManagementPage() {
           );
           break;
         case "info-incomplete":
-          // 정보 미완료 (요청했지만 도메인/카드 정보 미입력)
+          // 정보 미완료 (요청했지만 제작 필수 정보 미제출)
           filtered = filtered.filter((user) => {
             const hasRequest =
               user.homepageWorkflow || user.submission?.홈페이지스타일;
@@ -312,12 +312,7 @@ export default function HomepageManagementPage() {
       );
     }
 
-    const hasDomain =
-      submission.도메인주소 &&
-      submission.도메인관리ID &&
-      submission.도메인관리PW;
-
-    if (hasDomain) {
+    if (submission.홈페이지제작방식) {
       return (
         <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
           정보 완료
@@ -325,11 +320,11 @@ export default function HomepageManagementPage() {
       );
     }
 
-    // 스타일/컬러만 선택하고 도메인 정보는 아직 미입력
+    // 스타일/컬러만 선택하고 제작 필수 정보는 아직 미제출
     if (submission.홈페이지스타일 || submission.홈페이지컬러컨셉) {
       return (
         <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100">
-          도메인 미입력
+          필수 정보 미제출
         </Badge>
       );
     }

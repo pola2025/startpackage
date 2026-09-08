@@ -1,5 +1,6 @@
 "use client";
 
+import { PrintColorNotice } from "@/components/design/print-color-notice";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import {
@@ -1016,6 +1017,9 @@ export default function GuidesPage() {
                   </li>
                   <li>• 개인 정보 반드시 확인!</li>
                 </ul>
+                <div className="mt-3">
+                  <PrintColorNotice workflowType="명함" />
+                </div>
               </div>
 
               <div>

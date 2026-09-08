@@ -39,6 +39,18 @@ export const CONFIRM_AGREEMENTS = [
 
 export const REQUIRED_AGREEMENT_IDS = CONFIRM_AGREEMENTS.map((a) => a.id);
 
+export const PRINT_COLOR_AGREEMENT = {
+  id: "인쇄색상차이확인",
+  label:
+    "색상 차이가 발생할 수 있으며, 별도 인쇄 교정 서비스가 제공되지 않음을 확인했습니다.",
+};
+
+export function getConfirmAgreements(workflowType: string) {
+  return requiresShippingStep(workflowType)
+    ? [...CONFIRM_AGREEMENTS, PRINT_COLOR_AGREEMENT]
+    : CONFIRM_AGREEMENTS;
+}
+
 export interface ShippingSnapshot {
   인쇄물받을주소: string;
   받는분이름: string;
@@ -68,7 +80,7 @@ export function validateConfirmPayload(params: {
 }): string | null {
   const { workflowType, shipping, agreements, shippingRequired = true } = params;
 
-  const missingAgreement = REQUIRED_AGREEMENT_IDS.filter(
+  const missingAgreement = getConfirmAgreements(workflowType).map((a) => a.id).filter(
     (id) => !(agreements || []).includes(id),
   );
   if (missingAgreement.length > 0) {

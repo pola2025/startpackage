@@ -1,5 +1,6 @@
 "use client";
 
+import { PrintColorNotice } from "@/components/design/print-color-notice";
 import { useState, useEffect, useCallback } from "react";
 import {
   Dialog,
@@ -14,14 +15,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertCircle, CheckCircle, Loader2, Truck } from "lucide-react";
 import {
-  CONFIRM_AGREEMENTS,
+  getConfirmAgreements,
   requiresShippingStep,
   type DesignConfirmPayload,
   type ShippingSnapshot,
 } from "@/lib/design-confirm";
 
 export type { DesignConfirmPayload, ShippingSnapshot };
-export { requiresShippingStep, CONFIRM_AGREEMENTS };
+export { requiresShippingStep, CONFIRM_AGREEMENTS } from "@/lib/design-confirm";
 
 interface SubmissionInfo {
   /** 배송지 필수 정책 대상 기수 여부 (서버가 내려준다) */
@@ -59,6 +60,7 @@ export default function DesignConfirmDialog({
   // 배송지 단계는 인쇄물이면서 정책 대상 기수일 때만 띄운다
   const [shippingPolicy, setShippingPolicy] = useState(false);
   const needsShipping = requiresShippingStep(workflowType) && shippingPolicy;
+  const confirmAgreements = getConfirmAgreements(workflowType);
   const lastStep = needsShipping ? 3 : 2;
 
   const [step, setStep] = useState(1);
@@ -129,8 +131,8 @@ export default function DesignConfirmDialog({
 
   const infoAllChecked =
     infoItems.length > 0 && infoItems.every((item) => checkedInfo[item.key]);
-  const agreedCount = CONFIRM_AGREEMENTS.filter((a) => agreed[a.id]).length;
-  const allAgreed = agreedCount === CONFIRM_AGREEMENTS.length;
+  const agreedCount = confirmAgreements.filter((a) => agreed[a.id]).length;
+  const allAgreed = agreedCount === confirmAgreements.length;
 
   const shippingComplete =
     !!shipping.인쇄물받을주소.trim() &&
@@ -177,7 +179,7 @@ export default function DesignConfirmDialog({
     setError(null);
     await onConfirm({
       shipping: needsShipping ? shipping : null,
-      agreements: CONFIRM_AGREEMENTS.filter((a) => agreed[a.id]).map(
+      agreements: confirmAgreements.filter((a) => agreed[a.id]).map(
         (a) => a.id,
       ),
     });
@@ -489,7 +491,7 @@ export default function DesignConfirmDialog({
                 </div>
 
                 <div className="space-y-2">
-                  {CONFIRM_AGREEMENTS.map((item) => (
+                  {confirmAgreements.map((item) => (
                     <label
                       key={item.id}
                       className="flex items-start gap-3 p-3 rounded-lg border-2 border-gray-200 hover:bg-gray-50 cursor-pointer"
@@ -546,6 +548,8 @@ export default function DesignConfirmDialog({
           </div>
         )}
 
+        <PrintColorNotice workflowType={workflowType} />
+
         {/* ===== 하단 버튼 ===== */}
         <div className="flex items-center justify-between gap-3 pt-2 border-t">
           {step === 1 ? (
@@ -567,7 +571,7 @@ export default function DesignConfirmDialog({
             )}
             {isAgreementStep && (
               <span className="text-xs text-gray-400">
-                {agreedCount} / {CONFIRM_AGREEMENTS.length} 동의
+                {agreedCount} / {confirmAgreements.length} 동의
               </span>
             )}
 

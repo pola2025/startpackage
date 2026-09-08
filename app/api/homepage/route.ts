@@ -7,10 +7,6 @@ import { isPaidHomepageStyle } from "@/lib/homepage-styles";
 // 외부 서비스 제작 스키마
 const externalSchema = z.object({
   홈페이지제작방식: z.literal("외부서비스"),
-  도메인주소: z.string().min(1, "도메인 주소를 입력해주세요"),
-  도메인관리사이트: z.string().min(1, "도메인 관리 사이트를 선택해주세요"),
-  도메인관리ID: z.string().min(1, "도메인 ID를 입력해주세요"),
-  도메인관리PW: z.string().min(1, "도메인 비밀번호를 입력해주세요"),
   해외결제카드앞면URL: z.string().min(1, "카드 사진을 업로드해주세요"),
   해외결제카드뒷면URL: z.string().optional(),
   해외결제카드유효기간: z
@@ -38,10 +34,6 @@ export async function GET() {
         홈페이지제작방식: true,
         홈페이지스타일: true,
         홈페이지컬러컨셉: true,
-        도메인주소: true,
-        도메인관리사이트: true,
-        도메인관리ID: true,
-        도메인관리PW: true,
         해외결제카드앞면URL: true,
         해외결제카드뒷면URL: true,
         해외결제카드유효기간: true,
@@ -111,10 +103,6 @@ export async function POST(request: NextRequest) {
       홈페이지컬러컨셉: body.홈페이지컬러컨셉 || null,
       GmailID: body.GmailID || null,
       GmailPW: body.GmailPW || null,
-      도메인주소: body.도메인주소,
-      도메인관리사이트: body.도메인관리사이트,
-      도메인관리ID: body.도메인관리ID,
-      도메인관리PW: body.도메인관리PW,
       해외결제카드앞면URL: body.해외결제카드앞면URL,
       해외결제카드뒷면URL: body.해외결제카드뒷면URL || null,
       해외결제카드유효기간: body.해외결제카드유효기간,
@@ -182,11 +170,6 @@ export async function POST(request: NextRequest) {
         message += `━━━━━━━━━━━━━━━━━━━━\n`;
         message += `*제작 방식:* ${홈페이지제작방식}\n`;
 
-        message += `\n*도메인 정보*\n`;
-        message += `• 도메인 주소: ${body.도메인주소}\n`;
-        message += `• 관리 사이트: ${body.도메인관리사이트}\n`;
-        message += `• ID: ${body.도메인관리ID}\n`;
-        message += `• PW: ${body.도메인관리PW}\n`;
         message += `• 카드 유효기간: ${body.해외결제카드유효기간}\n`;
         message += `• 카드 CVC: ${body.해외결제카드CVC}\n`;
 
@@ -227,7 +210,6 @@ export async function POST(request: NextRequest) {
       }
       telegramMsg += `\n🏢 브랜드: ${brandName}`;
       telegramMsg += `\n📋 제작 방식: ${홈페이지제작방식}\n`;
-      telegramMsg += `\n🌍 도메인: ${body.도메인관리사이트}\n`;
 
       if (body.홈페이지스타일) {
         telegramMsg += `🎨 스타일: ${styleNames[body.홈페이지스타일] || "선택됨"}\n`;

@@ -1,5 +1,6 @@
 "use client";
 
+import { PrintColorNotice } from "@/components/design/print-color-notice";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import {
@@ -523,6 +524,7 @@ export default function StatusDashboardPage() {
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-6">
+                    <PrintColorNotice workflowType={workflow.type} />
                     {/* 시안 보기 & 피드백 버튼 */}
                     {workflow.시안URL && (
                       <div className="space-y-3">
@@ -685,6 +687,7 @@ export default function StatusDashboardPage() {
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-6">
+                    <PrintColorNotice workflowType={workflow.type} />
                     {/* 시안 보기 & 피드백 버튼 */}
                     {workflow.시안URL && (
                       <div className="space-y-3">

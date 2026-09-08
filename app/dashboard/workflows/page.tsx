@@ -1,5 +1,7 @@
 "use client";
 
+import { PrintColorNotice } from "@/components/design/print-color-notice";
+import { PRINT_COLOR_AGREEMENT } from "@/lib/design-confirm";
 import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -489,7 +491,7 @@ export default function WorkflowsPage() {
                                   : "시안확인"}
                               </Button>
                             </DialogTrigger>
-                            <DialogContent className="bg-white border border-gray-200 max-w-3xl">
+                            <DialogContent className="bg-white border border-gray-200 max-w-3xl max-h-[90vh] overflow-y-auto">
                               <DialogHeader>
                                 <DialogTitle className="text-gray-900">
                                   {workflow.type === "홈페이지"
@@ -846,7 +848,7 @@ export default function WorkflowsPage() {
                                                 시안확인
                                               </Button>
                                             </DialogTrigger>
-                                            <DialogContent className="bg-white border border-gray-200 max-w-3xl">
+                                            <DialogContent className="bg-white border border-gray-200 max-w-3xl max-h-[90vh] overflow-y-auto">
                                               <DialogHeader>
                                                 <DialogTitle className="text-gray-900">
                                                   {workflow.type} 시안
@@ -953,6 +955,8 @@ export default function WorkflowsPage() {
                                                   </Button>
                                                 </div>
 
+                                                <PrintColorNotice workflowType={workflow.type} />
+
                                                 {/* 발주대기 상태: 발주 요청 버튼 */}
                                                 {workflow.status ===
                                                   "발주대기" && (
@@ -1008,7 +1012,7 @@ export default function WorkflowsPage() {
                                                             className="w-4 h-4 text-terra-500 border-terra-100 rounded focus:ring-terra-500"
                                                           />
                                                           <span className="text-xs md:text-sm font-medium text-gray-900">
-                                                            확인 후 발주 요청
+                                                            디자인 변경 불가 안내를 확인했습니다. {PRINT_COLOR_AGREEMENT.label}
                                                           </span>
                                                         </label>
                                                       </div>
