@@ -129,6 +129,8 @@ export default function WorkflowsPage() {
     try {
       const res = await fetch(`/api/workflows/${workflowId}/order`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ agreements: [PRINT_COLOR_AGREEMENT.id] }),
       });
 
       if (res.ok) {

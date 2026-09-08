@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { handleStateChange, handleOrderRequest } from "@/lib/notification/notificationService";
 import { calculateExpectedArrival } from "@/lib/utils/businessDays";
+import { PRINT_COLOR_AGREEMENT, requiresShippingStep } from "@/lib/design-confirm";
 
 // POST: 발주 요청
 export async function POST(
@@ -40,6 +41,17 @@ export async function POST(
       );
     }
 
+    const isPrint = requiresShippingStep(workflow.type);
+    if (isPrint) {
+      const body = await request.json().catch(() => null);
+      if (!Array.isArray(body?.agreements) || !body.agreements.includes(PRINT_COLOR_AGREEMENT.id)) {
+        return NextResponse.json(
+          { error: "인쇄 색상 차이와 별도 인쇄 교정 미지원 안내를 확인해주세요." },
+          { status: 400 },
+        );
+      }
+    }
+
     // 발주 요청일 기준으로 예상 도착일 계산
     const orderDate = new Date();
     const expectedArrival = calculateExpectedArrival(orderDate, workflow.type);
@@ -51,6 +63,12 @@ export async function POST(
         status: "발주요청",
         발주요청일: orderDate,
         예상도착일: expectedArrival || null,
+        ...(isPrint ? {
+          확정동의항목: [...new Set([
+            ...(Array.isArray(workflow.확정동의항목) ? workflow.확정동의항목 : []),
+            PRINT_COLOR_AGREEMENT.id,
+          ])],
+        } : {}),
       },
     });
 
