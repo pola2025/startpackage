@@ -1,5 +1,25 @@
 # D1/R2 migration status
 
+## 2026-09-09 KST release checkpoint
+
+The following evidence supersedes the historical staging report below. D1 production activation reached READY at commit `078b32d31f2e971dca0da874f35ce6b588eb7c6b`; all three production domains were verified against that deployment with HTTP 200 responses.
+
+- Maintenance was verified on all three production domains before the PostgreSQL application role was made read-only. A fresh connection rejected a zero-row write with SQLSTATE `25006`.
+- The frozen snapshot contains 24 tables and 5,329 records, exported in 71 bounded keyset queries. Sensitive submission fields were encrypted in a separate snapshot with round-trip and full local value parity checks.
+- New D1 target `startpackage-migration-production-20260909` contains all 5,329 matching records. Full remote comparison used 143 requests and 5,333 rows read.
+- Incremental migrations 0002–0009 completed in 13 requests: 95 indexes, 12 triggers, and zero foreign-key violations.
+- The Worker was connected to the final database. Real unauthenticated requests returned 401; an authenticated indexed lookup returned 200.
+- Eight real Worker reads across user and admin domains returned 200. Sensitive values remained encrypted at the Worker boundary. User and admin login screens rendered without browser exceptions; authenticated end-to-end mutation testing was performed in the isolated QA environment, not against customer records in production.
+- Runtime reachability now passes for 103 guarded files. Authentication, submissions, workflows, administration, communication, and scheduled jobs use the D1 branches; PostgreSQL model access fails closed when D1 is enabled.
+- User/admin browser E2E passed in an isolated environment with external sends suppressed. Intake, revisions, confirmation, orders, shipping, homepage, secret masking/reveal, shipping locks, and all 106 paginated history messages were checked.
+- 41 test files / 250 tests, production build, TypeScript, and lint passed; existing lint warnings remain.
+- All five production R2 settings match project-local authority and bucket access passed. Oversized files direct users to `mkt@polarad.co.kr`.
+- DB encryption and response masking preserve the existing Slack business credential handoff. Confirmation content and print-color agreements are retained. Marketing service copy uses 8 weeks.
+
+Keep PostgreSQL read-only after the first D1 write. Returning to it requires reconciliation, not only a flag change. Source and encrypted snapshots, schema ledgers, deployment IDs, alias verification, and live smoke evidence remain private under `.omx/d1-migration/`.
+
+## Historical staging report — superseded
+
 ## Current boundary
 
 The application still uses PostgreSQL through Prisma. `startpackage-migration-20260908` is an isolated D1 staging copy, not the production source of truth. No application connection, R2 object, production Worker, or deployment setting was switched.
