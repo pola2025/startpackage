@@ -8,8 +8,8 @@ account_id = "b520cb8ed3989e8182bdb020ade36495"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "startpackage-migration-20260908"
-database_id = "14b9fcec-b2ca-4cba-adc5-b93141ecab74"
+database_name = "startpackage-migration-production-20260909"
+database_id = "a56301df-97ea-4072-9b19-074f82633199"
 
 [[ratelimits]]
 name = "READ_LIMITER"
