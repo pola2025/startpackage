@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 export async function POST(request: NextRequest) {
   try {
@@ -37,6 +40,11 @@ export async function POST(request: NextRequest) {
     }
 
     const adminName = (session.user as any)?.name || "관리자";
+
+    if (isD1RuntimeEnabled()) {
+      const cohort = await callDataService<Record<string, unknown>>("admin-domain/cohort-create", { adminId: (session.user as { id: string }).id, name, 교육요일, 교육시작일: new Date(교육시작일).getTime(), 자료제출마감일: new Date(자료제출마감일).getTime(), isActive: true });
+      return NextResponse.json({ success: true, cohort });
+    }
 
     // Create cohort
     const cohort = await prisma.cohort.create({
@@ -76,6 +84,8 @@ export async function POST(request: NextRequest) {
       cohort,
     });
   } catch (error: any) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("기수 생성 에러:", error);
     return NextResponse.json(
       { error: "기수 생성 중 오류가 발생했습니다." },

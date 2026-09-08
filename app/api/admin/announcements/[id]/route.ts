@@ -1,6 +1,11 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
+
+function d1Announcement(row: Record<string, unknown>) { let imageUrls: unknown = row.imageUrls; if (typeof imageUrls === "string") { try { imageUrls = JSON.parse(imageUrls); } catch { imageUrls = []; } } return { ...row, imageUrls: Array.isArray(imageUrls) ? imageUrls : [], published: Boolean(row.published), createdAt: new Date(Number(row.createdAt)), updatedAt: new Date(Number(row.updatedAt)) }; }
 
 // PATCH: 공지사항 수정 (관리자)
 export async function PATCH(
@@ -18,6 +23,11 @@ export async function PATCH(
     const { id } = await params;
     const body = await request.json();
     const { title, content, imageUrls, youtubeUrl, published } = body;
+
+    if (isD1RuntimeEnabled()) {
+      const announcement = await callDataService<Record<string, unknown>>("admin-domain/announcement-update", { adminId: session.user.id, id, title, content, imageUrls, youtubeUrl: youtubeUrl || null, published });
+      return NextResponse.json({ success: true, announcement: d1Announcement(announcement) });
+    }
 
     // 공지사항 존재 여부 확인
     const existingAnnouncement = await prisma.announcement.findUnique({
@@ -48,6 +58,8 @@ export async function PATCH(
       announcement,
     });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("PATCH /api/admin/announcements/[id] error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
@@ -71,6 +83,11 @@ export async function DELETE(
 
     const { id } = await params;
 
+    if (isD1RuntimeEnabled()) {
+      await callDataService("admin-domain/announcement-delete", { adminId: session.user.id, id });
+      return NextResponse.json({ success: true, message: "공지사항이 삭제되었습니다" });
+    }
+
     // 공지사항 존재 여부 확인
     const existingAnnouncement = await prisma.announcement.findUnique({
       where: { id },
@@ -93,6 +110,8 @@ export async function DELETE(
       message: "공지사항이 삭제되었습니다",
     });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("DELETE /api/admin/announcements/[id] error:", error);
     return NextResponse.json(
       { error: "Internal server error" },

@@ -1,12 +1,22 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GraduationCap, Users, CheckCircle2 } from "lucide-react";
 import AddCohortButton from "./add-cohort-button";
 import CohortsList from "./cohorts-list";
 
-async function getCohorts() {
+async function getCohorts(adminId?: string) {
+  if (adminId && isD1RuntimeEnabled()) {
+    return callDataService<{
+      items: any[];
+      stats: { total: number; active: number; students: number };
+      nextCursor?: string;
+    }>("admin-pages/cohorts-page", { adminId, pageSize: 50 });
+  }
+
   return await prisma.cohort.findMany({
     include: {
       _count: {
@@ -27,10 +37,12 @@ export default async function CohortsPage() {
     redirect("/admin/login");
   }
 
-  const cohorts = await getCohorts();
+  const data = await getCohorts(String((session.user as any).id));
+  const cohorts = Array.isArray(data) ? data : data.items;
 
-  const activeCohorts = cohorts.filter((c) => c.isActive).length;
-  const totalStudents = cohorts.reduce((sum, c) => sum + c._count.users, 0);
+  const activeCohorts = Array.isArray(data) ? cohorts.filter((c) => c.isActive).length : data.stats.active;
+  const totalStudents = Array.isArray(data) ? cohorts.reduce((sum, c) => sum + c._count.users, 0) : data.stats.students;
+  const totalCohorts = Array.isArray(data) ? cohorts.length : data.stats.total;
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -59,7 +71,7 @@ export default async function CohortsPage() {
           </CardHeader>
           <CardContent className="p-2 sm:p-3 md:p-4 pt-0">
             <div className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
-              {cohorts.length}
+              {totalCohorts}
             </div>
           </CardContent>
         </Card>
@@ -96,7 +108,7 @@ export default async function CohortsPage() {
       </div>
 
       {/* Cohorts List */}
-      <CohortsList cohorts={cohorts} />
+      <CohortsList cohorts={cohorts} nextCursor={Array.isArray(data) ? null : data.nextCursor ?? null} />
     </div>
   );
 }

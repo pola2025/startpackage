@@ -7,6 +7,64 @@
 import * as telegram from "./telegramClient";
 import * as slack from "./slackClient";
 import prisma from "@/lib/prisma";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+
+type NotificationUser = {
+  id: string;
+  이름: string;
+  연락처: string;
+  email: string;
+  telegramChatId: string | null;
+  slackChannelId: string | null;
+  cohort: { name: string; 교육시작일: Date; 자료제출마감일: Date } | null;
+  submission: { 브랜드명: string | null } | null;
+};
+
+async function getNotificationUser(userId: string): Promise<NotificationUser | null> {
+  if (isD1RuntimeEnabled()) {
+    const row = await callDataService<{
+      id: string;
+      이름: string;
+      연락처: string;
+      email: string;
+      telegramChatId?: string | null;
+      slackChannelId?: string | null;
+      cohortName?: string | null;
+      교육시작일?: string | number | null;
+      자료제출마감일?: string | number | null;
+      brandName?: string | null;
+    }>("shared-domain/notification-user-context", { userId });
+    return {
+      id: row.id,
+      이름: row.이름,
+      연락처: row.연락처,
+      email: row.email,
+      telegramChatId: row.telegramChatId ?? null,
+      slackChannelId: row.slackChannelId ?? null,
+      cohort: row.cohortName
+        ? {
+            name: row.cohortName,
+            교육시작일: new Date(row.교육시작일 ?? 0),
+            자료제출마감일: new Date(row.자료제출마감일 ?? 0),
+          }
+        : null,
+      submission: row.brandName === undefined ? null : { 브랜드명: row.brandName ?? null },
+    };
+  }
+  return prisma.user.findUnique({
+    where: { id: userId },
+    include: { cohort: true, submission: true },
+  });
+}
+
+async function updateSlackChannel(userId: string, slackChannelId: string): Promise<void> {
+  if (isD1RuntimeEnabled()) {
+    await callDataService("shared-domain/user-slack-channel-update", { userId, slackChannelId });
+    return;
+  }
+  await prisma.user.update({ where: { id: userId }, data: { slackChannelId } });
+}
 
 /**
  * 자료 제출 완료 처리
@@ -61,10 +119,7 @@ export async function handleSubmissionComplete(params: {
 
       // DB에 슬랙 채널 ID 저장
       console.log(`🔄 DB에 슬랙 채널 ID 저장 중...`);
-      await prisma.user.update({
-        where: { id: userId },
-        data: { slackChannelId },
-      });
+      await updateSlackChannel(userId, slackChannelId);
 
       console.log(`✅ 슬랙 채널 생성 및 정보 푸시 완료: ${slackChannelId}`);
     } else {
@@ -101,10 +156,7 @@ export async function handleStateChange(params: {
     const { userId, fromState, toState, changedBy } = params;
 
     // 사용자 정보 조회
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      include: { cohort: true },
-    });
+    const user = await getNotificationUser(userId);
 
     if (!user) {
       console.error("사용자를 찾을 수 없습니다:", userId);
@@ -213,9 +265,7 @@ export async function handleDesignUpload(params: {
     const { userId, itemName, designUrl, version } = params;
 
     // 사용자 정보 조회
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-    });
+    const user = await getNotificationUser(userId);
 
     if (!user) {
       console.error("사용자를 찾을 수 없습니다:", userId);
@@ -253,13 +303,7 @@ export async function handleOrderRequest(params: {
     const { userId, printItems, expectedDate } = params;
 
     // 사용자 정보 조회
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      include: {
-        cohort: true,
-        submission: true,
-      },
-    });
+    const user = await getNotificationUser(userId);
 
     if (!user) {
       console.error("사용자를 찾을 수 없습니다:", userId);
@@ -306,9 +350,7 @@ export async function handleProductionComplete(params: {
     const { userId, itemName, trackingNumber } = params;
 
     // 사용자 정보 조회
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-    });
+    const user = await getNotificationUser(userId);
 
     if (!user) {
       console.error("사용자를 찾을 수 없습니다:", userId);
@@ -355,10 +397,9 @@ export async function logProgress(params: {
     const { userId, stage, status, details, emoji } = params;
 
     // 사용자의 슬랙 채널 ID 조회
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { slackChannelId: true },
-    });
+    const user = isD1RuntimeEnabled()
+      ? await callDataService<{ slackChannelId: string | null }>("shared-domain/profile-user", { userId })
+      : await prisma.user.findUnique({ where: { id: userId }, select: { slackChannelId: true } });
 
     if (!user?.slackChannelId) {
       console.log("슬랙 채널이 없습니다. 로그를 건너뜁니다.");

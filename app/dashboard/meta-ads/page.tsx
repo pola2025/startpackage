@@ -22,7 +22,8 @@ import {
   Info,
 } from "lucide-react";
 import {
-  ONLINE_MARKETING_MONTHLY_PRICE,
+  ONLINE_MARKETING_BILLING_WEEKS,
+  ONLINE_MARKETING_TOTAL_PRICE,
   formatWon,
 } from "@/lib/marketing-pricing";
 
@@ -493,10 +494,10 @@ export default function MetaAdsPage() {
                   </div>
                   <div className="flex items-baseline gap-1">
                     <p className="text-base md:text-2xl font-bold text-navy-900">
-                      월 {formatWon(ONLINE_MARKETING_MONTHLY_PRICE)}원
+                      {ONLINE_MARKETING_BILLING_WEEKS}주 {formatWon(ONLINE_MARKETING_TOTAL_PRICE)}원
                     </p>
                     <p className="text-[10px] md:text-sm text-gray-600">
-                      (VAT)
+                      (VAT 포함)
                     </p>
                   </div>
                 </div>

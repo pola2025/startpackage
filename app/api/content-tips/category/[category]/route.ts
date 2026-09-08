@@ -2,6 +2,9 @@ import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { isValidCategory } from "@/lib/constants/contentTipCategories";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 // GET: 특정 카테고리의 모든 콘텐츠 조회 (서브카테고리 필터 지원)
 export async function GET(
@@ -19,6 +22,21 @@ export async function GET(
     // 카테고리 유효성 검증
     if (!isValidCategory(category)) {
       return NextResponse.json({ error: "Invalid category" }, { status: 400 });
+    }
+
+    if (isD1RuntimeEnabled()) {
+      const searchParams = new URL(request.url).searchParams;
+      const subCategory = searchParams.get("subCategory");
+      const pageSize = Math.min(Number(searchParams.get("pageSize")) || 50, 50);
+      const cursor = searchParams.get("cursor") || undefined;
+      const page = await callDataService<{ items: unknown[]; total: number; nextCursor: string | null; availableSubCategories: string[] }>("content-domain/category-tips", {
+        userId: session.user.id,
+        category,
+        subCategory,
+        pageSize,
+        ...(cursor ? { cursor } : {}),
+      });
+      return NextResponse.json({ tips: page.items, total: page.total, availableSubCategories: page.availableSubCategories, nextCursor: page.nextCursor });
     }
 
     // URL에서 서브카테고리 필터 가져오기
@@ -63,6 +81,8 @@ export async function GET(
       availableSubCategories,
     });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("GET /api/content-tips/category/[category] error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

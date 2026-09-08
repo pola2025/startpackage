@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { generateSecret, generateURI, NobleCryptoPlugin, ScureBase32Plugin, verify as otpVerify } from "otplib";
 import QRCode from "qrcode";
 import prisma from "@/lib/prisma";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 const crypto = new NobleCryptoPlugin();
 const base32 = new ScureBase32Plugin();
@@ -21,6 +24,13 @@ export async function GET(request: NextRequest) {
         { error: "토큰과 이메일이 필요합니다." },
         { status: 400 }
       );
+    }
+
+    if (isD1RuntimeEnabled()) {
+      const secret = generateSecret();
+      const prepared = await callDataService<Record<string, unknown>>("admin-domain/admin-prepare-2fa", { email, setupToken: token, secret });
+      const otpauthUrl = generateURI({ secret, issuer: "StartPackage", label: email });
+      return NextResponse.json({ qrCode: await QRCode.toDataURL(otpauthUrl, { width: 300, margin: 2 }), secret, email, name: prepared.name });
     }
 
     // 관리자 조회 + 셋업 토큰 검증
@@ -71,6 +81,8 @@ export async function GET(request: NextRequest) {
       name: admin.name,
     });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("2FA 셋업 조회 오류:", error);
     return NextResponse.json(
       { error: "2FA 셋업 중 오류가 발생했습니다." },
@@ -100,6 +112,15 @@ export async function POST(request: NextRequest) {
         { error: "6자리 숫자 코드를 입력해주세요." },
         { status: 400 }
       );
+    }
+
+    if (isD1RuntimeEnabled()) {
+      const prepared = await callDataService<Record<string, unknown>>("admin-domain/admin-prepare-2fa", { email, setupToken: token, secret: "" }).catch(() => null);
+      if (!prepared) return NextResponse.json({ error: "먼저 QR코드를 생성해주세요." }, { status: 400 });
+      const result = await otpVerify({ secret: String(prepared.twoFactorSecret), token: totpCode, crypto, base32 });
+      if (!result.valid) return NextResponse.json({ error: "인증 코드가 일치하지 않습니다. 다시 시도해주세요." }, { status: 400 });
+      await callDataService("admin-domain/admin-setup-2fa", { adminId: String(prepared.id), targetAdminId: String(prepared.id), setupToken: token, secret: String(prepared.twoFactorSecret) });
+      return NextResponse.json({ success: true, message: "2FA 설정이 완료되었습니다. 이제 로그인할 수 있습니다." });
     }
 
     // 관리자 조회
@@ -157,6 +178,8 @@ export async function POST(request: NextRequest) {
       message: "2FA 설정이 완료되었습니다. 이제 로그인할 수 있습니다.",
     });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("2FA 활성화 오류:", error);
     return NextResponse.json(
       { error: "2FA 활성화 중 오류가 발생했습니다." },

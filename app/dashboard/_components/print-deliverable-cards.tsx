@@ -152,7 +152,6 @@ const DELIVERABLES: DeliverableSpec[] = [
       { key: "로고-확정", label: "로고 (시안 확정)", auto: true },
       { key: "홈페이지스타일", label: "홈페이지 스타일" },
       { key: "홈페이지컬러컨셉", label: "메인 컬러" },
-      { key: "도메인주소", label: "도메인 (선택)" },
     ],
   },
   {
@@ -176,8 +175,7 @@ const QUEST_MAP: Record<
 > = {
   "basic-info": {
     title: "기본 정보 입력",
-    description:
-      "사업자등록증·프로필 사진 등 기본 정보를 차례로 입력합니다.",
+    description: "사업자등록증·프로필 사진 등 기본 정보를 차례로 입력합니다.",
     steps: BASIC_INFO_STEPS,
   },
   "logo-info": {
@@ -187,7 +185,7 @@ const QUEST_MAP: Record<
   },
   "website-info": {
     title: "홈페이지 제작 정보",
-    description: "홈페이지 스타일·메인 컬러·도메인 주소를 입력합니다.",
+    description: "홈페이지 제작에 필요한 정보를 확인합니다.",
     steps: HOMEPAGE_INFO_STEPS,
   },
   "namecard-envelope-info": {
@@ -254,7 +252,9 @@ export default function PrintDeliverableCards({
   }, [justCompleted]);
 
   // 배송지 필수 정책 미적용 기수는 체크리스트에서 배송지 항목을 뺀다
-  const applyShippingPolicy = <T extends { fields: FieldSpec[] }>(spec: T): T =>
+  const applyShippingPolicy = <T extends { fields: FieldSpec[] }>(
+    spec: T,
+  ): T =>
     shippingRequired
       ? spec
       : {

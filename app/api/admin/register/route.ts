@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { hash } from "bcryptjs";
 import prisma from "@/lib/prisma";
 import { notifyAdmin } from "@/lib/notification/telegramClient";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 // IP 기반 rate limit (best-effort 인메모리, 1시간에 3회)
 const ipAttempts = new Map<string, { count: number; resetAt: number }>();
@@ -121,43 +124,22 @@ export async function POST(request: Request) {
       );
     }
 
-    // 이미 존재하는 관리자 확인
-    const existingAdmin = await prisma.admin.findUnique({
-      where: { email },
-    });
-
-    if (existingAdmin) {
-      return NextResponse.json(
-        { error: "이미 등록된 관리자 이메일입니다." },
-        { status: 409 },
-      );
-    }
-
-    // 이미 존재하는 가입 신청 확인
-    const existingRequest = await prisma.adminRequest.findUnique({
-      where: { email },
-    });
-
-    if (existingRequest) {
-      if (existingRequest.status === "pending") {
-        return NextResponse.json(
-          { error: "이미 가입 신청이 처리 대기 중입니다." },
-          { status: 409 },
-        );
-      } else if (existingRequest.status === "rejected") {
-        return NextResponse.json(
-          {
-            error: `가입 신청이 거부되었습니다. 사유: ${
-              existingRequest.rejectReason || "관리자 검토"
-            }`,
-          },
-          { status: 403 },
-        );
-      }
-    }
-
     // 비밀번호 해싱
     const hashedPassword = await hash(password, 10);
+
+    if (isD1RuntimeEnabled()) {
+      const result = await callDataService<{ id: string }>("admin-domain/admin-request-create", { email, name, phone, password: hashedPassword });
+      try {
+        await notifyAdmin({ title: "관리자 가입 신청", message: "새로운 관리자 가입 신청이 접수되었습니다.", details: { 이름: name, 이메일: email, 전화번호: phone, 신청일시: new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" }) } });
+      } catch (telegramError) { console.error("텔레그램 알림 발송 실패:", telegramError); }
+      return NextResponse.json({ message: "가입 신청이 완료되었습니다. 관리자 승인 후 이메일로 안내드립니다.", requestId: result.id }, { status: 201 });
+    }
+
+    const existingAdmin = await prisma.admin.findUnique({ where: { email } });
+    if (existingAdmin) return NextResponse.json({ error: "이미 등록된 관리자 이메일입니다." }, { status: 409 });
+    const existingRequest = await prisma.adminRequest.findUnique({ where: { email } });
+    if (existingRequest?.status === "pending") return NextResponse.json({ error: "이미 가입 신청이 처리 대기 중입니다." }, { status: 409 });
+    if (existingRequest?.status === "rejected") return NextResponse.json({ error: `가입 신청이 거부되었습니다. 사유: ${existingRequest.rejectReason || "관리자 검토"}` }, { status: 403 });
 
     // 관리자 가입 신청 생성
     const adminRequest = await prisma.adminRequest.create({
@@ -198,6 +180,8 @@ export async function POST(request: Request) {
       { status: 201 },
     );
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("관리자 가입 신청 오류:", error);
 
     // 500 에러 관리자 알림 (글로벌 규칙: [프로젝트/라우트] 네임태그 + IP + 에러 요약)

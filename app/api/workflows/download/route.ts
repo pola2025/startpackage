@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callCore } from "@/lib/d1/core-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 const MAX_DOWNLOAD_COUNT = 100;
 
@@ -25,6 +28,23 @@ export async function GET(request: Request) {
         { error: "workflowId와 url 파라미터가 필요합니다." },
         { status: 400 },
       );
+    }
+
+    if (isD1RuntimeEnabled()) {
+      const workflow = await callCore<{ type: string; 시안URL: string; 다운로드횟수: number }>("workflow-download", session.user.id, { userId: session.user.id, workflowId, fileUrl });
+      const target = new URL(fileUrl);
+      const publicOrigin = process.env.R2_PUBLIC_URL ? new URL(process.env.R2_PUBLIC_URL).origin : "";
+      if (target.protocol !== "https:" || !publicOrigin || target.origin !== publicOrigin) return NextResponse.json({ error: "허용되지 않은 파일 주소입니다." }, { status: 400 });
+      const fileResponse = await fetch(target, { redirect: "error", signal: AbortSignal.timeout(15_000) });
+      if (!fileResponse.ok) return NextResponse.json({ error: "파일을 가져오는데 실패했습니다." }, { status: fileResponse.status });
+      const contentLength = Number(fileResponse.headers.get("content-length") || 0);
+      if (contentLength > 50 * 1024 * 1024) return NextResponse.json({ error: "파일 용량이 제한을 초과했습니다.", maxBytes: 50 * 1024 * 1024 }, { status: 413 });
+      const fileBuffer = await fileResponse.arrayBuffer();
+      if (fileBuffer.byteLength > 50 * 1024 * 1024) return NextResponse.json({ error: "파일 용량이 제한을 초과했습니다.", maxBytes: 50 * 1024 * 1024 }, { status: 413 });
+      const extension = ["png", "jpg", "jpeg", "pdf", "webp"].includes(target.pathname.split(".").pop()?.toLowerCase() || "") ? target.pathname.split(".").pop()!.toLowerCase() : "png";
+      const finalFilename = filename || `시안_${new Date().toLocaleDateString("ko-KR")}.${extension}`;
+      const updated = await callCore<{ 다운로드횟수: number }>("workflow-download", session.user.id, { userId: session.user.id, workflowId, fileUrl, increment: true });
+      return new NextResponse(fileBuffer, { headers: { "Content-Type": fileResponse.headers.get("content-type") || "application/octet-stream", "Content-Disposition": `attachment; filename="${encodeURIComponent(finalFilename)}"`, "Cache-Control": "no-cache", "X-Download-Count": String(updated.다운로드횟수), "X-Download-Max": String(MAX_DOWNLOAD_COUNT) } });
     }
 
     const workflow = await prisma.workflow.findUnique({
@@ -107,6 +127,8 @@ export async function GET(request: Request) {
       },
     });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("❌ 파일 다운로드 실패:", error);
     return NextResponse.json(
       { error: "파일 다운로드 중 오류가 발생했습니다." },

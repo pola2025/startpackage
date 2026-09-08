@@ -1,6 +1,8 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callCore } from "@/lib/d1/core-client";
 
 // POST: 메시지 추가
 // - 관리자: 시안 업로드 (design_upload), 일반 메시지 (message)
@@ -21,6 +23,21 @@ export async function POST(
 
     const body = await req.json();
     const { messageType, content, attachments = [], designUrl, designVersion } = body;
+
+    if (isD1RuntimeEnabled()) {
+      const result = await callCore<{ message: unknown; thread: unknown }>("design-thread-message", user.id, {
+        userId: user.id,
+        actorType: isAdmin ? "admin" : "user",
+        authorName: user.name || user.이름,
+        threadId,
+        messageType,
+        content,
+        attachments,
+        designUrl,
+        designVersion,
+      });
+      return NextResponse.json({ success: true, message: result.message, thread: result.thread });
+    }
 
     // 쓰레드 존재 확인
     const thread = await prisma.designThread.findUnique({

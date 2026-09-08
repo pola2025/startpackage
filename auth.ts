@@ -1,17 +1,20 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { compare } from "bcryptjs";
-import {
-  verify as otpVerify,
-  NobleCryptoPlugin,
-  ScureBase32Plugin,
-} from "otplib";
 import prisma from "./lib/prisma";
 import { userCredentialsProvider } from "./lib/auth/providers/user-credentials";
 import { adminCredentialsProvider } from "./lib/auth/providers/admin-credentials";
-
-const otpCrypto = new NobleCryptoPlugin();
-const otpBase32 = new ScureBase32Plugin();
+import { authenticateAdmin } from "./lib/auth/services/admin-auth.service";
+import { authenticateUser } from "./lib/auth/services/user-auth.service";
+import { isD1RuntimeEnabled } from "./lib/d1/runtime";
+import { findD1AdminState } from "./lib/d1/auth-client";
+import { isAdminSessionCurrent } from "./lib/auth/admin-session";
+import {
+  clearLoginFailures,
+  getLoginRateLimitKey,
+  isLoginRateLimited,
+  recordLoginFailure,
+  reserveLoginAttempt,
+} from "./lib/auth/login-rate-limit";
 
 // ✅ Feature Flag: 새 Provider 사용 여부
 const USE_NEW_PROVIDER = process.env.NEXT_PUBLIC_USE_NEW_PROVIDER === "true";
@@ -36,154 +39,37 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             email: { label: "이메일", type: "email" },
             password: { label: "비밀번호", type: "password" },
           },
-          async authorize(credentials) {
-            if (!credentials?.email || !credentials?.password) {
+          async authorize(credentials, request) {
+            if (typeof credentials?.email !== "string" || typeof credentials?.password !== "string") {
               return null;
             }
 
-            const emailOrPhone = credentials.email as string;
-            const password = credentials.password as string;
+            const emailOrPhone = credentials.email;
+            const password = credentials.password;
+            const key = getLoginRateLimitKey(emailOrPhone, request);
+            if (isLoginRateLimited(key)) return null;
+            const distributed = await reserveLoginAttempt(emailOrPhone, request);
+            if (!distributed.allowed) return null;
 
-            // 전화번호 형식인지 확인 (숫자만 10-11자리)
-            const isPhone = /^[0-9]{10,11}$/.test(
-              emailOrPhone.replace(/-/g, ""),
-            );
-
-            if (isPhone) {
-              // 전화번호로 사용자 찾기
-              const cleanPhone = emailOrPhone.replace(/-/g, "");
-              // 하이픈 포함/미포함 형식 모두 검색 (DB 데이터 불일치 대응)
-              const formattedPhone = cleanPhone.replace(
-                /(\d{3})(\d{3,4})(\d{4})/,
-                "$1-$2-$3",
-              );
-
-              const user = await prisma.user.findFirst({
-                where: {
-                  OR: [{ 연락처: cleanPhone }, { 연락처: formattedPhone }],
-                },
-                include: {
-                  cohort: {
-                    select: {
-                      id: true,
-                      name: true,
-                    },
-                  },
-                },
-              });
-
-              if (user) {
-                const isPasswordValid = await compare(password, user.password);
-
-                if (isPasswordValid) {
-                  return {
-                    id: user.id,
-                    email: user.email,
-                    name: user.이름,
-                    role: user.role as
-                      | "user"
-                      | "super"
-                      | "designer"
-                      | "operator",
-                    cohortId: user.cohortId,
-                    cohortName: user.cohort?.name,
-                    status: user.status,
-                    graduatedAt: user.graduatedAt,
-                  };
-                }
+            const authenticatedUser = await authenticateUser(emailOrPhone, password);
+            if (authenticatedUser) {
+              clearLoginFailures(key);
+              return authenticatedUser;
+            }
+            if (!/^[0-9]{10,11}$/.test(emailOrPhone.replace(/-/g, ""))) {
+              const authenticatedAdmin = await authenticateAdmin(emailOrPhone, password);
+              if (authenticatedAdmin && "error" in authenticatedAdmin) {
+                recordLoginFailure(key);
+                throw new Error(authenticatedAdmin.error);
               }
-            } else {
-              // 이메일로 사용자 확인
-              const user = await prisma.user.findUnique({
-                where: { email: emailOrPhone },
-                include: {
-                  cohort: {
-                    select: {
-                      id: true,
-                      name: true,
-                    },
-                  },
-                },
-              });
-
-              if (user) {
-                const isPasswordValid = await compare(password, user.password);
-
-                if (isPasswordValid) {
-                  return {
-                    id: user.id,
-                    email: user.email,
-                    name: user.이름,
-                    role: user.role as
-                      | "user"
-                      | "super"
-                      | "designer"
-                      | "operator",
-                    cohortId: user.cohortId,
-                    cohortName: user.cohort?.name,
-                    status: user.status,
-                    graduatedAt: user.graduatedAt,
-                  };
-                }
-              }
-
-              // 관리자 확인 (TOTP 인증)
-              const admin = await prisma.admin.findUnique({
-                where: { email: emailOrPhone },
-              });
-
-              console.log("[AUTH DEBUG] Admin lookup:", {
-                email: emailOrPhone,
-                found: !!admin,
-                adminRole: admin?.role,
-              });
-
-              if (admin) {
-                // 2FA 미설정 관리자는 로그인 거부
-                if (!admin.twoFactorEnabled || !admin.twoFactorSecret) {
-                  console.log(
-                    "[AUTH DEBUG] Admin 2FA not set up:",
-                    emailOrPhone,
-                  );
-                  throw new Error("2FA_NOT_SETUP");
-                }
-
-                // TOTP 코드 검증 (password 필드를 TOTP 코드로 사용)
-                const totpResult = await otpVerify({
-                  secret: admin.twoFactorSecret,
-                  token: password,
-                  crypto: otpCrypto,
-                  base32: otpBase32,
-                });
-
-                console.log("[AUTH DEBUG] TOTP check:", {
-                  email: emailOrPhone,
-                  valid: totpResult.valid,
-                });
-
-                if (totpResult.valid) {
-                  console.log("[AUTH DEBUG] Admin TOTP login successful:", {
-                    id: admin.id,
-                    email: admin.email,
-                    role: admin.role,
-                  });
-
-                  return {
-                    id: admin.id,
-                    email: admin.email,
-                    name: admin.name,
-                    role: admin.role as
-                      | "user"
-                      | "super"
-                      | "designer"
-                      | "operator",
-                  };
-                }
+              if (authenticatedAdmin) {
+                clearLoginFailures(key);
+                return authenticatedAdmin;
               }
             }
-
-            console.log("[AUTH DEBUG] Login failed - returning null");
+            recordLoginFailure(key);
             return null;
+
           },
         }),
       ],
@@ -191,7 +77,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, user, account }) {
       // ✅ 새 Provider: account.provider로 userType 설정
       if (USE_NEW_PROVIDER && account) {
-        token.userType = account.provider; // "user-credentials" | "admin-credentials"
+        token.userType = account.provider === "admin-credentials" ? "admin" : "user";
       }
 
       if (user) {
@@ -202,12 +88,38 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.cohortName = user.cohortName;
         token.status = user.status;
         token.graduatedAt = user.graduatedAt;
+        token.adminUpdatedAt = user.adminUpdatedAt;
+        token.revoked = false;
+      }
+
+      const adminRole = ["super", "designer", "operator"].includes(token.role as string);
+      if ((token.userType === "admin" || adminRole) && token.id && !token.revoked) {
+        const admin = isD1RuntimeEnabled()
+          ? await findD1AdminState(token.id as string)
+          : await prisma.admin.findUnique({
+              where: { id: token.id as string },
+              select: { role: true, updatedAt: true },
+            });
+        if (!admin) {
+          token.revoked = true;
+          token.role = "user";
+          token.userType = undefined;
+        } else if (!isAdminSessionCurrent(token.adminUpdatedAt as number | undefined, {
+          role: admin.role,
+          updatedAt: typeof admin.updatedAt === "number" ? admin.updatedAt : admin.updatedAt.getTime(),
+        })) {
+          token.revoked = true;
+          token.role = "user";
+          token.userType = undefined;
+        } else {
+          token.role = admin.role;
+        }
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id as string;
+        session.user.id = token.revoked ? "" : (token.id as string);
         session.user.role = token.role as
           | "user"
           | "super"
@@ -218,6 +130,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.cohortName = token.cohortName as string | undefined;
         session.user.status = token.status as string | undefined;
         session.user.graduatedAt = token.graduatedAt as Date | null | undefined;
+        session.user.adminUpdatedAt = token.adminUpdatedAt as number | undefined;
       }
       return session;
     },

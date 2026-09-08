@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
@@ -109,6 +109,30 @@ interface UserActionsProps {
   user: any;
 }
 
+const MASKED_SECRET = "••••••••";
+
+function SecretValue({
+  field,
+  value,
+  onReveal,
+}: {
+  field: string;
+  value: unknown;
+  onReveal: (field: string) => void;
+}) {
+  const hasValue = typeof value === "string" && value.length > 0;
+  return (
+    <span className="flex items-center gap-2">
+      <span>{hasValue ? value : "-"}</span>
+      {hasValue && value === MASKED_SECRET && (
+        <Button type="button" variant="outline" size="sm" onClick={() => onReveal(field)}>
+          민감정보 확인
+        </Button>
+      )}
+    </span>
+  );
+}
+
 export default function UserActions({ user }: UserActionsProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -117,6 +141,7 @@ export default function UserActions({ user }: UserActionsProps) {
   const [showGraduateDialog, setShowGraduateDialog] = useState(false);
   const [showMessageDialog, setShowMessageDialog] = useState(false);
   const [submission, setSubmission] = useState<any>(null);
+  const [revealedSecrets, setRevealedSecrets] = useState<Record<string, string>>({});
   const [loadingSubmission, setLoadingSubmission] = useState(false);
   const [sendingMessage, setSendingMessage] = useState(false);
   const [messageChannel, setMessageChannel] = useState<"SMS" | "EMAIL">("SMS");
@@ -126,6 +151,10 @@ export default function UserActions({ user }: UserActionsProps) {
     null,
   );
   const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
+
+  useEffect(() => {
+    setRevealedSecrets({});
+  }, [user.id]);
 
   // 이메일 첨부파일
   const [emailAttachments, setEmailAttachments] = useState<
@@ -167,6 +196,24 @@ export default function UserActions({ user }: UserActionsProps) {
       console.error("Failed to fetch submission:", error);
     } finally {
       setLoadingSubmission(false);
+    }
+  };
+
+  const handleRevealSecret = async (field: string) => {
+    try {
+      const response = await fetch(`/api/admin/users/${user.id}/submission/reveal`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ field }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        alert(data.error || "민감정보를 확인할 수 없습니다.");
+        return;
+      }
+      setRevealedSecrets((current) => ({ ...current, [field]: data.value ?? "-" }));
+    } catch {
+      alert("민감정보 확인 중 오류가 발생했습니다.");
     }
   };
 
@@ -241,7 +288,7 @@ export default function UserActions({ user }: UserActionsProps) {
 
         // 파일 크기 체크 (10MB)
         if (file.size > 10 * 1024 * 1024) {
-          alert(`"${file.name}" 파일 크기가 10MB를 초과합니다.`);
+          alert(`"${file.name}" 파일 크기가 10MB를 초과합니다. 더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.`);
           continue;
         }
 
@@ -363,7 +410,7 @@ export default function UserActions({ user }: UserActionsProps) {
     }
 
     if (file.size > 10 * 1024 * 1024) {
-      alert("파일 크기는 10MB 이하여야 합니다.");
+      alert("파일 크기는 10MB 이하여야 합니다. 더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.");
       return;
     }
 
@@ -618,7 +665,13 @@ export default function UserActions({ user }: UserActionsProps) {
         </AlertDialogContent>
       </AlertDialog>
 
-      <Dialog open={showDetailDialog} onOpenChange={setShowDetailDialog}>
+      <Dialog
+        open={showDetailDialog}
+        onOpenChange={(open) => {
+          setShowDetailDialog(open);
+          if (!open) setRevealedSecrets({});
+        }}
+      >
         <DialogContent className="bg-white border-gray-200 max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl text-gray-900">
@@ -912,7 +965,7 @@ export default function UserActions({ user }: UserActionsProps) {
                   <div>
                     <span className="text-gray-600">도메인 관리 PW:</span>
                     <p className="font-medium text-gray-900 font-mono">
-                      {submission.도메인관리PW || "-"}
+                      <SecretValue field="도메인관리PW" value={revealedSecrets.도메인관리PW || submission.도메인관리PW} onReveal={handleRevealSecret} />
                     </p>
                   </div>
                   <div>
@@ -924,7 +977,7 @@ export default function UserActions({ user }: UserActionsProps) {
                   <div>
                     <span className="text-gray-600">Gmail PW:</span>
                     <p className="font-medium text-gray-900 font-mono">
-                      {submission.GmailPW || "-"}
+                      <SecretValue field="GmailPW" value={revealedSecrets.GmailPW || submission.GmailPW} onReveal={handleRevealSecret} />
                     </p>
                   </div>
                 </div>
@@ -960,13 +1013,13 @@ export default function UserActions({ user }: UserActionsProps) {
                     <div>
                       <span className="text-gray-600">아임웹 PW:</span>
                       <p className="font-medium text-gray-900 font-mono">
-                        {submission.아임웹PW || "-"}
+                        <SecretValue field="아임웹PW" value={revealedSecrets.아임웹PW || submission.아임웹PW} onReveal={handleRevealSecret} />
                       </p>
                     </div>
                     <div>
                       <span className="text-gray-600">아임웹 관리자 PW:</span>
                       <p className="font-medium text-gray-900 font-mono">
-                        {submission.아임웹관리자PW || "-"}
+                        <SecretValue field="아임웹관리자PW" value={revealedSecrets.아임웹관리자PW || submission.아임웹관리자PW} onReveal={handleRevealSecret} />
                       </p>
                     </div>
                   </div>
@@ -986,7 +1039,7 @@ export default function UserActions({ user }: UserActionsProps) {
                   <div>
                     <span className="text-gray-600">네이버 검색광고 PW:</span>
                     <p className="font-medium text-gray-900">
-                      {submission.네이버검색광고PW || "-"}
+                      <SecretValue field="네이버검색광고PW" value={revealedSecrets.네이버검색광고PW || submission.네이버검색광고PW} onReveal={handleRevealSecret} />
                     </p>
                   </div>
                   <div>
@@ -998,7 +1051,7 @@ export default function UserActions({ user }: UserActionsProps) {
                   <div>
                     <span className="text-gray-600">네이버 클라우드 PW:</span>
                     <p className="font-medium text-gray-900">
-                      {submission.네이버클라우드PW || "-"}
+                      <SecretValue field="네이버클라우드PW" value={revealedSecrets.네이버클라우드PW || submission.네이버클라우드PW} onReveal={handleRevealSecret} />
                     </p>
                   </div>
                   <div>
@@ -1010,7 +1063,7 @@ export default function UserActions({ user }: UserActionsProps) {
                   <div>
                     <span className="text-gray-600">Instagram PW:</span>
                     <p className="font-medium text-gray-900">
-                      {submission.InstagramPW || "-"}
+                      <SecretValue field="InstagramPW" value={revealedSecrets.InstagramPW || submission.InstagramPW} onReveal={handleRevealSecret} />
                     </p>
                   </div>
                 </div>

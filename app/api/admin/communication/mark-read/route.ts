@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { z } from "zod";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 /**
  * POST /api/admin/communication/mark-read
@@ -39,6 +42,7 @@ export async function POST(request: Request) {
     }
 
     const { threadId } = validation.data;
+    if (isD1RuntimeEnabled()) return NextResponse.json(await callDataService("communication-domain/admin-mark-read", { adminId: (session.user as any).id, threadId }));
 
     // 스레드 존재 확인
     const thread = await prisma.communicationThread.findUnique({
@@ -70,6 +74,8 @@ export async function POST(request: Request) {
       markedCount: result.count,
     });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("❌ 관리자 메시지 읽음 처리 실패:", error);
     return NextResponse.json(
       { error: "메시지 읽음 처리 중 오류가 발생했습니다." },

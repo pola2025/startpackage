@@ -61,8 +61,8 @@ const emailHtml = `<!DOCTYPE html>
                   <th style="padding: 15px; color: #ffffff; font-size: 14px; text-align: center;">할인</th>
                 </tr>
                 <tr style="background-color: #ffffff;">
-                  <td style="padding: 15px; font-size: 14px; text-align: center; border-right: 1px solid #dee2e6; border-top: 1px solid #dee2e6;">3개월</td>
-                  <td style="padding: 15px; font-size: 14px; text-align: center; border-right: 1px solid #dee2e6; border-top: 1px solid #dee2e6; font-weight: 600;">22만원</td>
+                  <td style="padding: 15px; font-size: 14px; text-align: center; border-right: 1px solid #dee2e6; border-top: 1px solid #dee2e6;">8주</td>
+                  <td style="padding: 15px; font-size: 14px; text-align: center; border-right: 1px solid #dee2e6; border-top: 1px solid #dee2e6; font-weight: 600;">-</td>
                   <td style="padding: 15px; font-size: 14px; text-align: center; border-right: 1px solid #dee2e6; border-top: 1px solid #dee2e6; font-weight: 600;">66만원</td>
                   <td style="padding: 15px; font-size: 14px; text-align: center; border-top: 1px solid #dee2e6; color: #6c757d;">-</td>
                 </tr>

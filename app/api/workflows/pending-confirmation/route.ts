@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callCore } from "@/lib/d1/core-client";
 
 /**
  * GET /api/workflows/pending-confirmation
@@ -21,6 +23,11 @@ export async function GET() {
     }
 
     const userId = (session.user as any).id;
+
+    if (isD1RuntimeEnabled()) {
+      const result = await callCore<unknown>("pending-confirmation", userId, { userId });
+      return NextResponse.json(result);
+    }
     const now = new Date();
 
     // 1. 현재 시각 기준 만료되지 않은 숨김 목록 조회

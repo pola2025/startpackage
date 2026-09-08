@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 import { sendSMS, getSenderPhoneByAdmin } from "@/lib/sms/ncpSensClient";
 
 export async function POST(request: NextRequest) {
@@ -21,6 +24,19 @@ export async function POST(request: NextRequest) {
         { error: "사용자 ID가 필요합니다." },
         { status: 400 },
       );
+    }
+
+    if (isD1RuntimeEnabled()) {
+      const adminId = (session.user as any).id;
+      const data = await callDataService<{ user: { id: string; 이름: string; 연락처: string | null; email: string | null }; workflows: Array<Record<string, unknown>>; submission: Record<string, unknown> | null }>("admin-notifications/order-complete-data", { adminId, userId });
+      if (!data.workflows.length) return NextResponse.json({ error: "발주완료 상태인 워크플로우가 없습니다." }, { status: 404 });
+      const snapshot = data.workflows.find((w) => w.확정배송지);
+      const submission = data.submission;
+      const 배송지 = snapshot?.확정배송지 || [submission?.우편번호, submission?.인쇄물받을주소].filter(Boolean).join(" ") || submission?.주소 || null;
+      const 수령인 = snapshot?.확정수령인 || submission?.받는분이름 || null;
+      if (data.user.email) { const { sendEmail } = await import("@/lib/email/resendClient"); let html = `<h2>발주가 완료되었습니다</h2><p>안녕하세요, ${data.user.이름}님!</p><p>다음 제작물의 발주가 완료되어 제작이 진행됩니다:</p><ul>${data.workflows.map((w) => `<li><strong>${String(w.type)}</strong></li>`).join("")}</ul>`; if (배송지) html += `<p><strong>받으실 곳</strong><br/>${배송지}${수령인 ? ` (${수령인})` : ""}</p><p style="color:#b91c1c;">발주가 진행되어 배송지는 변경할 수 없습니다.</p>`; html += `<p>제작 완료 시 다시 안내드리겠습니다.</p>`; await sendEmail({ to: data.user.email, subject: `[스타트패키지] 발주가 완료되었습니다 (${data.workflows.length}개 제작물)`, html }); }
+      if (data.user.연락처) { let message = "[스타트패키지] 발주가 완료되었습니다.\n\n"; data.workflows.forEach((w, i) => { message += `[${String(w.type)}]${i < data.workflows.length - 1 ? "\n\n" : ""}`; }); if (배송지) message += `\n받으실 곳: ${배송지}${수령인 ? ` (${수령인})` : ""}\n발주가 진행되어 배송지는 변경할 수 없습니다.\n`; message += "\n제작이 진행됩니다. 제작 완료 시 다시 안내드리겠습니다."; const adminFrom = getSenderPhoneByAdmin(session.user?.email); await sendSMS(data.user.연락처, message, adminFrom ? { from: adminFrom } : undefined); await Promise.all(data.workflows.map((w) => callDataService("admin-notifications/notification-create", { adminId, userId, type: "발주완료", channel: "SMS", title: "[스타트패키지] 발주 완료", message: `${String(w.type)} - 발주가 완료되어 제작이 진행됩니다`, status: "성공", sentBy: adminId, sentByName: (session.user as any).name || "관리자" }))); }
+      return NextResponse.json({ success: true, message: `${data.workflows.length}개 제작물의 발주완료 알림을 발송했습니다.`, workflows: data.workflows.map((w) => ({ type: w.type, status: w.status })) });
     }
 
     // 해당 사용자의 발주완료 상태인 모든 워크플로우 조회
@@ -174,6 +190,8 @@ export async function POST(request: NextRequest) {
       })),
     });
   } catch (error: any) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("발주완료 알림 발송 에러:", error);
     return NextResponse.json(
       { error: "발주완료 알림 발송 중 오류가 발생했습니다." },

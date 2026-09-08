@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 import { randomBytes } from "crypto";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
@@ -13,6 +16,16 @@ export async function GET(request: Request) {
 
     if (!session || !["super", "designer", "operator"].includes((session.user as any).role)) {
       return NextResponse.json({ error: "권한이 없습니다." }, { status: 403 });
+    }
+
+    if (isD1RuntimeEnabled()) {
+      const params = new URL(request.url).searchParams;
+      const result = await callDataService<{ items: Array<Record<string, unknown>>; nextCursor?: string }>("admin-domain/requests-list", {
+        adminId: (session.user as { id: string }).id,
+        pageSize: params.get("pageSize") ?? undefined,
+        cursor: params.get("cursor") ?? undefined,
+      });
+      return NextResponse.json({ requests: result.items }, result.nextCursor ? { headers: { "X-Next-Cursor": result.nextCursor } } : undefined);
     }
 
     const { searchParams } = new URL(request.url);
@@ -39,6 +52,8 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ requests });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("관리자 가입 신청 목록 조회 오류:", error);
     return NextResponse.json(
       { error: "목록 조회 중 오류가 발생했습니다." },
@@ -86,6 +101,23 @@ export async function POST(request: Request) {
         { error: "거부 사유를 입력해주세요." },
         { status: 400 }
       );
+    }
+
+    if (isD1RuntimeEnabled()) {
+      const setupToken = action === "approve" ? randomBytes(32).toString("hex") : undefined;
+      const result = await callDataService<Record<string, unknown>>("admin-domain/admin-request-review", {
+        adminId: (session.user as { id: string }).id,
+        requestId,
+        action,
+        rejectReason,
+        assignedRole: assignedRole || "operator",
+        ...(setupToken ? { setupToken } : {}),
+      });
+      if (action === "approve") {
+        const baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_BASE_URL || "";
+        return NextResponse.json({ message: "가입 신청이 승인되었습니다. 2FA 셋업 URL을 관리자에게 전달하세요.", email: result.email, setupUrl: `${baseUrl}/admin/setup-2fa?token=${setupToken}&email=${encodeURIComponent(String(result.email ?? ""))}` });
+      }
+      return NextResponse.json({ message: "가입 신청이 거부되었습니다." });
     }
 
     // 가입 신청 조회
@@ -169,6 +201,8 @@ export async function POST(request: Request) {
       });
     }
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("관리자 가입 신청 처리 오류:", error);
     return NextResponse.json(
       { error: "신청 처리 중 오류가 발생했습니다." },

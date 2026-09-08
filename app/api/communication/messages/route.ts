@@ -1,6 +1,9 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 // POST: 메시지 작성 (답글)
 export async function POST(request: Request) {
@@ -14,6 +17,7 @@ export async function POST(request: Request) {
     const userName = (session.user as any).name;
     const body = await request.json();
     const { threadId, content, attachments } = body;
+    if (isD1RuntimeEnabled()) return NextResponse.json(await callDataService("communication-domain/user-create-message", { userId, threadId, content, attachments }));
 
     if (!threadId || !content) {
       return NextResponse.json(
@@ -117,6 +121,8 @@ export async function POST(request: Request) {
       message,
     });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("POST /api/communication/messages error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

@@ -107,6 +107,7 @@ interface ThreadDetail {
     };
   };
   messages: DesignMessage[];
+  messagesNextCursor?: string;
 }
 
 export default function AdminDesignThreadsPage() {
@@ -117,6 +118,7 @@ export default function AdminDesignThreadsPage() {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
 
   // 메시지 입력
   const [messageContent, setMessageContent] = useState("");
@@ -165,22 +167,32 @@ export default function AdminDesignThreadsPage() {
 
   // 스레드 목록 조회
   const fetchThreads = useCallback(
-    async (keepSelectedThreadId?: string, silentRefresh: boolean = false) => {
+    async (
+      keepSelectedThreadId?: string,
+      silentRefresh: boolean = false,
+      cursor?: string,
+      append: boolean = false,
+    ) => {
       try {
         if (!silentRefresh) setLoading(true);
         const params = new URLSearchParams();
         if (statusFilter !== "all") params.append("status", statusFilter);
         if (typeFilter !== "all") params.append("type", typeFilter);
+        params.set("pageSize", "50");
+        if (cursor) params.set("cursor", cursor);
 
         const response = await fetch(`/api/design-threads?${params}`);
         const data = await response.json();
 
         if (response.ok) {
-          setThreads(data.threads || []);
+          setThreads((current) =>
+            append ? [...current, ...(data.threads || [])] : data.threads || [],
+          );
+          setNextCursor(data.nextCursor ?? null);
 
           // 선택된 쓰레드가 있으면 상세 정보 다시 조회
           const threadIdToKeep = keepSelectedThreadId || selectedThread?.id;
-          if (threadIdToKeep) {
+          if (threadIdToKeep && !append) {
             fetchThreadDetail(threadIdToKeep, silentRefresh);
           }
         }
@@ -197,9 +209,13 @@ export default function AdminDesignThreadsPage() {
   const fetchThreadDetail = async (
     threadId: string,
     silentRefresh: boolean = false,
+    cursor?: string,
+    appendMessages: boolean = false,
   ) => {
     try {
-      const response = await fetch(`/api/design-threads/${threadId}`);
+      const params = new URLSearchParams({ pageSize: "50" });
+      if (cursor) params.set("cursor", cursor);
+      const response = await fetch(`/api/design-threads/${threadId}?${params}`);
       const data = await response.json();
 
       if (response.ok) {
@@ -211,8 +227,20 @@ export default function AdminDesignThreadsPage() {
           setNewMessageAlert(true);
         }
 
-        setSelectedThread(data.thread);
-        setLastMessageCount(data.thread.messages.length);
+        const messages = appendMessages
+          ? [
+              ...data.thread.messages,
+              ...(selectedThread?.id === threadId
+                ? selectedThread.messages
+                : []),
+            ]
+          : data.thread.messages;
+        setSelectedThread({
+          ...data.thread,
+          messages,
+          messagesNextCursor: data.messagesNextCursor,
+        });
+        setLastMessageCount(messages.length);
       }
     } catch (error) {
       console.error("Failed to fetch thread detail:", error);
@@ -280,7 +308,7 @@ export default function AdminDesignThreadsPage() {
     }
 
     if (file.size > 10 * 1024 * 1024) {
-      alert("파일 크기는 10MB 이하여야 합니다.");
+      alert("파일 크기는 10MB 이하여야 합니다. 더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.");
       return;
     }
 
@@ -296,7 +324,7 @@ export default function AdminDesignThreadsPage() {
 
       if (!response.ok) {
         if (response.status === 413) {
-          alert("파일이 너무 큽니다. 10MB 이하의 파일만 업로드 가능합니다.");
+          alert("파일이 너무 큽니다. 10MB 이하의 파일만 업로드 가능합니다. 더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.");
           return;
         }
         const data = await response.json();
@@ -317,7 +345,7 @@ export default function AdminDesignThreadsPage() {
   // 시안 파일 업로드
   const handleDesignFileUpload = async (file: File) => {
     if (file.size > 10 * 1024 * 1024) {
-      alert("파일 크기는 10MB 이하여야 합니다.");
+      alert("파일 크기는 10MB 이하여야 합니다. 더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.");
       return;
     }
 
@@ -333,7 +361,7 @@ export default function AdminDesignThreadsPage() {
 
       if (!response.ok) {
         if (response.status === 413) {
-          alert("파일이 너무 큽니다. 10MB 이하의 파일만 업로드 가능합니다.");
+          alert("파일이 너무 큽니다. 10MB 이하의 파일만 업로드 가능합니다. 더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.");
           return;
         }
         const data = await response.json();
@@ -557,7 +585,8 @@ export default function AdminDesignThreadsPage() {
             ) : threads.length === 0 ? (
               <p className="text-center text-gray-500">시안이 없습니다</p>
             ) : (
-              <Accordion type="multiple" className="space-y-2">
+              <>
+                <Accordion type="multiple" className="space-y-2">
                 {groupThreadsByUser().map((userGroup) => {
                   const hasUnread = userGroup.unreadCount > 0;
 
@@ -689,7 +718,22 @@ export default function AdminDesignThreadsPage() {
                     </AccordionItem>
                   );
                 })}
-              </Accordion>
+                </Accordion>
+                {nextCursor && (
+                  <div className="flex justify-center pt-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() =>
+                        fetchThreads(undefined, false, nextCursor, true)
+                      }
+                      disabled={loading}
+                    >
+                      {loading ? "불러오는 중..." : "더 많은 시안 불러오기"}
+                    </Button>
+                  </div>
+                )}
+              </>
             )}
           </CardContent>
         </Card>
@@ -957,6 +1001,25 @@ export default function AdminDesignThreadsPage() {
                     <FileImage className="w-12 h-12 mx-auto mb-4 opacity-50" />
                     <p>아직 메시지가 없습니다.</p>
                     <p className="text-sm mt-1">시안을 업로드해주세요.</p>
+                  </div>
+                )}
+                {selectedThread.messagesNextCursor && (
+                  <div className="flex justify-center py-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() =>
+                        fetchThreadDetail(
+                          selectedThread.id,
+                          false,
+                          selectedThread.messagesNextCursor,
+                          true,
+                        )
+                      }
+                      disabled={loading}
+                    >
+                      {loading ? "불러오는 중..." : "이전 메시지 더 보기"}
+                    </Button>
                   </div>
                 )}
               </CardContent>

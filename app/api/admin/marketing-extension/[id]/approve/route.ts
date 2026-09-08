@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import {
-  ONLINE_MARKETING_BILLING_MONTHS,
-  ONLINE_MARKETING_MONTHLY_PRICE,
+  ONLINE_MARKETING_BILLING_WEEKS,
   ONLINE_MARKETING_TOTAL_PRICE,
   formatManwon,
   formatWon,
 } from "@/lib/marketing-pricing";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService, DataServiceRequestError } from "@/lib/d1/service-client";
 
 // POST: 마케팅 지원 연장 신청 승인
 export async function POST(
@@ -26,6 +27,19 @@ export async function POST(
     const { id } = await params;
     const body = await request.json();
     const { adminResponse } = body;
+
+    if (isD1RuntimeEnabled()) {
+      const result = await callDataService<Record<string, unknown>>("admin-domain/extension-approve", { adminId: (session.user as { id: string }).id, id, adminResponse });
+      if (result.status === "approved") {
+        const email = String(result.userEmail ?? ""); const name = String(result.userName ?? ""); const phone = typeof result.userPhone === "string" ? result.userPhone : ""; const newEndDate = new Date(Number(result.newEndDate));
+        try {
+          const { sendEmail } = await import("@/lib/email/resendClient");
+          await sendEmail({ to: email, subject: "[스타트패키지] 마케팅 지원 연장 신청이 승인되었습니다", html: `<h2>마케팅 지원 연장 승인</h2><p>안녕하세요, ${name}님!</p><p>마케팅 지원 연장 신청이 승인되었습니다.</p><p><strong>새로운 종료일:</strong> ${newEndDate.toLocaleDateString("ko-KR")}</p>${adminResponse ? `<p><strong>관리자 메시지:</strong> ${adminResponse}</p>` : ""}<hr /><p><strong>결제 정보:</strong></p><ul><li>계좌번호: 우리은행 1005-302-954803</li><li>예금주: 폴라애드(이재호)</li><li>금액: ${formatWon(ONLINE_MARKETING_TOTAL_PRICE)}원 (VAT 포함, ${ONLINE_MARKETING_BILLING_WEEKS}주분)</li></ul><p>결제 후 확인 부탁드립니다.</p>` });
+          if (phone) { const { sendSMS, getSenderPhoneByAdmin } = await import("@/lib/sms/ncpSensClient"); const from = getSenderPhoneByAdmin(session.user?.email); await sendSMS(phone, `[스타트패키지] 마케팅 지원 연장이 승인되었습니다.\n\n새로운 종료일: ${newEndDate.toLocaleDateString("ko-KR")}\n\n결제 정보: 우리은행 1005-302-954803 폴라애드(이재호) / ${formatManwon(ONLINE_MARKETING_TOTAL_PRICE)}(VAT포함)`, from ? { from } : undefined); }
+        } catch (notificationError) { console.error("알림 발송 실패:", notificationError); }
+      }
+      return NextResponse.json({ success: true, message: "연장 신청이 승인되었습니다" });
+    }
 
     // 연장 신청 조회
     const extensionRequest = await prisma.marketingExtensionRequest.findUnique({
@@ -92,8 +106,7 @@ export async function POST(
           <ul>
             <li>계좌번호: 우리은행 1005-302-954803</li>
             <li>예금주: 폴라애드(이재호)</li>
-            <li>금액: ${formatWon(ONLINE_MARKETING_TOTAL_PRICE)}원 (VAT 포함, ${ONLINE_MARKETING_BILLING_MONTHS}개월분)</li>
-            <li>월 ${formatWon(ONLINE_MARKETING_MONTHLY_PRICE)}원 (VAT 포함)</li>
+            <li>금액: ${formatWon(ONLINE_MARKETING_TOTAL_PRICE)}원 (VAT 포함, ${ONLINE_MARKETING_BILLING_WEEKS}주분)</li>
           </ul>
           <p>결제 후 확인 부탁드립니다.</p>
         `,
@@ -106,7 +119,7 @@ export async function POST(
         const adminFrom = getSenderPhoneByAdmin(session.user?.email);
         await sendSMS(
           extensionRequest.user.연락처,
-          `[스타트패키지] 마케팅 지원 연장이 승인되었습니다.\n\n새로운 종료일: ${extensionRequest.newEndDate.toLocaleDateString("ko-KR")}\n\n결제 정보: 우리은행 1005-302-954803 폴라애드(이재호) / ${formatManwon(ONLINE_MARKETING_TOTAL_PRICE)}(VAT포함)`,
+          `[스타트패키지] 마케팅 지원 연장이 승인되었습니다.\n\n새로운 종료일: ${extensionRequest.newEndDate.toLocaleDateString("ko-KR")}\n\n결제 정보: 우리은행 1005-302-954803 폴라애드(이재호) / ${formatManwon(ONLINE_MARKETING_TOTAL_PRICE)}(VAT포함, ${ONLINE_MARKETING_BILLING_WEEKS}주)`,
           adminFrom ? { from: adminFrom } : undefined,
         );
       }
@@ -119,6 +132,9 @@ export async function POST(
       message: "연장 신청이 승인되었습니다",
     });
   } catch (error) {
+    if (error instanceof DataServiceRequestError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
     console.error(
       "POST /api/admin/marketing-extension/[id]/approve error:",
       error,

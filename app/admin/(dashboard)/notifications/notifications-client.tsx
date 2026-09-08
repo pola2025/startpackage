@@ -42,9 +42,16 @@ interface Notification {
 
 interface NotificationsClientProps {
   notifications: Notification[];
+  nextCursor?: string | null;
 }
 
-export default function NotificationsClient({ notifications }: NotificationsClientProps) {
+export default function NotificationsClient({
+  notifications: initialNotifications,
+  nextCursor: initialNextCursor = null,
+}: NotificationsClientProps) {
+  const [notifications, setNotifications] = useState(initialNotifications);
+  const [nextCursor, setNextCursor] = useState(initialNextCursor);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [expandedDates, setExpandedDates] = useState<Set<string>>(new Set());
 
   // 날짜별로 그룹화
@@ -83,6 +90,23 @@ export default function NotificationsClient({ notifications }: NotificationsClie
       setExpandedDates(new Set());
     } else {
       setExpandedDates(new Set(Object.keys(groupedByDate)));
+    }
+  };
+
+  const loadMore = async () => {
+    if (!nextCursor || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const params = new URLSearchParams({ cursor: nextCursor, pageSize: "50" });
+      const res = await fetch(`/api/admin/pages/notifications?${params.toString()}`);
+      if (!res.ok) throw new Error("load failed");
+      const data = await res.json();
+      setNotifications((prev) => [...prev, ...data.items]);
+      setNextCursor(data.nextCursor ?? null);
+    } catch {
+      window.alert("추가 알림 이력을 불러오지 못했습니다.");
+    } finally {
+      setLoadingMore(false);
     }
   };
 
@@ -301,6 +325,17 @@ export default function NotificationsClient({ notifications }: NotificationsClie
           );
         })}
       </div>
+      {nextCursor && (
+        <div className="flex justify-center pt-4">
+          <button
+            onClick={loadMore}
+            disabled={loadingMore}
+            className="text-xs sm:text-sm text-gold-600 hover:text-gold-800 disabled:text-gray-400"
+          >
+            {loadingMore ? "불러오는 중..." : "더 보기"}
+          </button>
+        </div>
+      )}
     </>
   );
 }

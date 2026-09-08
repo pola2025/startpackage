@@ -4,6 +4,9 @@ import { NextResponse } from "next/server";
 import { notificationManager } from "@/lib/notifications/notification-manager";
 import { z } from "zod";
 import { sendEmail, getAdminMessageEmailHTML } from "@/lib/email/resendClient";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 /**
  * POST /api/admin/communication/create-thread
@@ -49,6 +52,7 @@ export async function POST(request: Request) {
 
     const { userId, title, category, content, attachments, expectedCompletionDate } =
       validation.data;
+    if (isD1RuntimeEnabled()) return NextResponse.json(await callDataService("communication-domain/admin-create-thread", { adminId, targetUserId: userId, title, category, content, attachments, expectedCompletionDate }));
 
     // 사용자 존재 확인 (이메일 수신 동의 여부 포함)
     const user = await prisma.user.findUnique({
@@ -150,6 +154,8 @@ export async function POST(request: Request) {
       message: result.message,
     });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("[CREATE THREAD] 에러:", error);
     return NextResponse.json(
       {

@@ -1,6 +1,10 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callCore } from "@/lib/d1/core-client";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 // GET: 시안 쓰레드 목록 조회
 // - 관리자: 모든 쓰레드 (필터링 가능)
@@ -19,6 +23,29 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get("status"); // 상태 필터
     const workflowType = searchParams.get("type"); // 워크플로우 타입 필터
     const userId = searchParams.get("userId"); // 특정 사용자 필터 (관리자용)
+
+    if (isD1RuntimeEnabled() && isAdmin) {
+      const result = await callDataService<{ threads: unknown[]; nextCursor?: string }>("admin-domain/design-threads-list", {
+        adminId: user.id,
+        status: status ?? "all",
+        workflowType: workflowType ?? "all",
+        userId: userId ?? undefined,
+        pageSize: searchParams.get("pageSize") ?? undefined,
+        cursor: searchParams.get("cursor") ?? undefined,
+      });
+      return NextResponse.json(result);
+    }
+
+    if (isD1RuntimeEnabled() && !isAdmin) {
+      const result = await callCore<{ threads: unknown[] }>("design-threads-list", user.id, {
+        userId: user.id,
+        status: status ?? "all",
+        workflowType: workflowType ?? "all",
+        pageSize: searchParams.get("pageSize") ?? undefined,
+        cursor: searchParams.get("cursor") ?? undefined,
+      });
+      return NextResponse.json(result);
+    }
 
     // 기본 where 조건
     const where: any = {};
@@ -108,6 +135,8 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ threads: formattedThreads });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("GET /api/design-threads error:", error);
     return NextResponse.json(
       { error: "Internal server error" },

@@ -540,6 +540,7 @@ export default function QuestWizardDialog({
   };
 
   const saveCurrent = async (): Promise<boolean> => {
+    setError(null);
     setSaving(true);
     try {
       let valueToSave = currentValue;
@@ -582,8 +583,7 @@ export default function QuestWizardDialog({
           });
           // SLACK_ONLY 마커도 submission에 저장 (필드 non-null 처리)
         } else {
-          // 기존 값 유지 — 저장 호출 불필요
-          return true;
+          valueToSave = currentValue;
         }
       }
 
@@ -875,6 +875,7 @@ export default function QuestWizardDialog({
             ) : step.type === "file" ? (
               <div className="space-y-2">
                 <input
+                  key={step.field}
                   ref={fileInputRef}
                   type="file"
                   accept={step.accept}
@@ -1035,7 +1036,7 @@ export const BASIC_INFO_STEPS: QuestStep[] = [
     field: "사업자등록증URL",
     label: "사업자등록증",
     description:
-      "사업자등록증 사본(이미지 또는 PDF)을 업로드해주세요. 보안 처리되어 슬랙으로만 전달됩니다.",
+      "사업자등록증 사본(이미지 또는 PDF)을 업로드해주세요. 제작에 필요한 사업자 정보 확인에 사용됩니다.",
     type: "file",
     accept: "image/*,application/pdf",
     required: true,

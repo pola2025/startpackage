@@ -53,4 +53,22 @@ describe("print color confirmation", () => {
     fireEvent.click(confirm);
     expect(onConfirm).toHaveBeenCalledWith({ shipping: null, agreements: getConfirmAgreements("명함").map((a) => a.id) });
   });
+
+  it("keeps the logo approval payload behind the required agreement gate", async () => {
+    vi.stubGlobal("React", React);
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => ({ _배송지필수: false }) }));
+    const onConfirm = vi.fn();
+    render(<DesignConfirmDialog open onOpenChange={() => {}} workflowType="로고" onConfirm={onConfirm} />);
+    const next = screen.getByRole("button", { name: "다음 단계" });
+    await waitFor(() => expect(next).toBeEnabled());
+    fireEvent.click(next);
+    const confirm = screen.getByRole("button", { name: "이 시안으로 확정" });
+    expect(confirm).toBeDisabled();
+    for (const item of getConfirmAgreements("로고")) {
+      fireEvent.click(screen.getByText(item.label));
+    }
+    expect(confirm).toBeEnabled();
+    fireEvent.click(confirm);
+    expect(onConfirm).toHaveBeenCalledWith({ shipping: null, agreements: getConfirmAgreements("로고").map((a) => a.id) });
+  });
 });

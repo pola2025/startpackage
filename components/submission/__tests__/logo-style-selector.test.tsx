@@ -22,23 +22,17 @@ describe("LogoColorSelector 컴포넌트", () => {
       ).toBeInTheDocument();
     });
 
-    it("6가지 색상 옵션이 표시된다", () => {
+    it("직접 색상 선택 안내와 컬러피커가 표시된다", () => {
       render(<LogoColorSelector {...defaultProps} />);
 
-      expect(screen.getByText("파란색 계열")).toBeInTheDocument();
-      expect(screen.getByText("초록색 계열")).toBeInTheDocument();
-      expect(screen.getByText("검정/흰색")).toBeInTheDocument();
-      expect(screen.getByText("주황색 계열")).toBeInTheDocument();
-      expect(screen.getByText("보라색 계열")).toBeInTheDocument();
-      expect(screen.getByText("빨간색 계열")).toBeInTheDocument();
+      expect(screen.getByText(/무지개 바를 누르면 컬러피커가 열려요/)).toBeInTheDocument();
+      expect(screen.getByLabelText("색상 직접 선택")).toBeInTheDocument();
     });
 
-    it("각 색상에 설명이 표시된다", () => {
+    it("색상 선택 전 상태가 표시된다", () => {
       render(<LogoColorSelector {...defaultProps} />);
 
-      expect(screen.getByText("신뢰, 전문성")).toBeInTheDocument();
-      expect(screen.getByText("자연, 친환경")).toBeInTheDocument();
-      expect(screen.getByText("세련, 미니멀")).toBeInTheDocument();
+      expect(screen.getByText("선택 전")).toBeInTheDocument();
     });
   });
 
@@ -47,24 +41,25 @@ describe("LogoColorSelector 컴포넌트", () => {
       const onChange = vi.fn();
       render(<LogoColorSelector {...defaultProps} onChange={onChange} />);
 
-      fireEvent.click(screen.getByText("파란색 계열"));
+      fireEvent.change(screen.getByLabelText("색상 직접 선택"), {
+        target: { value: "#315680" },
+      });
 
-      expect(onChange).toHaveBeenCalledWith("blue");
+      expect(onChange).toHaveBeenCalledWith("#315680");
     });
 
     it("선택된 색상에 체크마크가 표시된다", () => {
-      render(<LogoColorSelector {...defaultProps} value="blue" />);
+      render(<LogoColorSelector {...defaultProps} value="#315680" />);
 
-      // 선택된 카드에 체크 아이콘이 있는지 확인
-      const blueCard = screen.getByText("파란색 계열").closest("button");
-      expect(blueCard).toHaveClass("border-gold-500");
+      expect(screen.getByLabelText("색상 직접 선택")).toHaveValue("#315680");
+      expect(screen.getByText("#315680")).toBeInTheDocument();
     });
 
     it("선택 결과가 하단에 표시된다", () => {
-      render(<LogoColorSelector {...defaultProps} value="green" />);
+      render(<LogoColorSelector {...defaultProps} value="#22C55E" />);
 
-      expect(screen.getByText(/선택한 스타일/)).toBeInTheDocument();
-      expect(screen.getByText(/초록색 계열/)).toBeInTheDocument();
+      expect(screen.getByText(/선택한 색상/)).toBeInTheDocument();
+      expect(screen.getByText("#22C55E")).toBeInTheDocument();
     });
   });
 
@@ -72,25 +67,15 @@ describe("LogoColorSelector 컴포넌트", () => {
     it("disabled일 때 카드가 비활성화된다", () => {
       render(<LogoColorSelector {...defaultProps} disabled={true} />);
 
-      const cards = screen.getAllByRole("button");
-      cards.forEach((card) => {
-        expect(card).toBeDisabled();
-      });
+      expect(screen.getByLabelText("색상 직접 선택")).toBeDisabled();
     });
 
-    it("disabled일 때 클릭해도 onChange가 호출되지 않는다", () => {
-      const onChange = vi.fn();
-      render(
-        <LogoColorSelector
-          {...defaultProps}
-          onChange={onChange}
-          disabled={true}
-        />,
-      );
+    it("disabled일 때 컬러피커 입력과 안내 바가 비활성 상태로 표시된다", () => {
+      render(<LogoColorSelector {...defaultProps} disabled={true} />);
 
-      fireEvent.click(screen.getByText("파란색 계열"));
-
-      expect(onChange).not.toHaveBeenCalled();
+      const picker = screen.getByLabelText("색상 직접 선택");
+      expect(picker).toBeDisabled();
+      expect(picker.closest("label")).toHaveClass("cursor-not-allowed");
     });
   });
 });

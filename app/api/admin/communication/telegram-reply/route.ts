@@ -2,6 +2,9 @@ import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { notificationManager } from "@/lib/notifications/notification-manager";
 import { timingSafeEqual } from "crypto";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 const WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET || "";
 
@@ -42,6 +45,10 @@ export async function POST(request: Request) {
         { success: false, error: "threadId와 content 필요" },
         { status: 400 },
       );
+    }
+
+    if (isD1RuntimeEnabled()) {
+      return NextResponse.json(await callDataService("communication-domain/telegram-reply", { threadId, content }));
     }
 
     // 스레드 확인
@@ -180,6 +187,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, message });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("[TELEGRAM-REPLY] 에러:", error);
     return NextResponse.json(
       { success: false, error: "Internal server error" },

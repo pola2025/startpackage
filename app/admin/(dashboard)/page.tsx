@@ -1,5 +1,7 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
 import { redirect } from "next/navigation";
 import {
   Card,
@@ -35,7 +37,18 @@ function Progress({ value, className }: { value: number; className?: string }) {
   );
 }
 
-async function getDashboardStats() {
+async function getDashboardStats(adminId: string) {
+  if (isD1RuntimeEnabled()) {
+    return callDataService<{
+      totalUsers: number;
+      activeCohorts: number;
+      recentWorkflows: any[];
+      notifications: number;
+      unreadMessages: number;
+      workflowStats: Array<{ status: string; _count: number }>;
+    }>("admin-pages/dashboard-summary", { adminId });
+  }
+
   const [totalUsers, activeCohorts, workflows, notifications, unreadMessages] =
     await Promise.all([
       prisma.user.count(),
@@ -91,7 +104,7 @@ export default async function AdminDashboard() {
     redirect("/admin/login");
   }
 
-  const stats = await getDashboardStats();
+  const stats = await getDashboardStats(String((session.user as any).id));
 
   const statusCounts = {
     대기: 0,

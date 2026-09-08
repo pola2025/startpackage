@@ -57,15 +57,15 @@ describe("ColorPaletteSelector 컴포넌트", () => {
     it("선택된 팔레트에 체크마크가 표시된다", () => {
       render(<ColorPaletteSelector {...defaultProps} value="#3B82F6" />);
 
-      const blueCard = screen.getByText("파란색 계열").closest("button");
-      expect(blueCard).toHaveClass("border-gold-500");
+      const blueCard = screen.getByRole("button", { name: /파란색 계열/ });
+      expect(blueCard).toHaveClass("border-navy-700");
     });
 
     it("선택 결과가 하단에 표시된다", () => {
       render(<ColorPaletteSelector {...defaultProps} value="#22C55E" />);
 
       expect(screen.getByText(/선택한 색상/)).toBeInTheDocument();
-      expect(screen.getByText(/초록색 계열/)).toBeInTheDocument();
+      expect(screen.getByText("선택한 색상:")).toHaveTextContent("초록색 계열");
     });
   });
 

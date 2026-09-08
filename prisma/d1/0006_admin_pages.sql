@@ -1,0 +1,12 @@
+CREATE INDEX IF NOT EXISTS "users_role_name_id_idx" ON "users" ("role", "이름", "id");
+CREATE INDEX IF NOT EXISTS "users_role_cohort_name_id_idx" ON "users" ("role", "cohortId", "이름", "id");
+CREATE INDEX IF NOT EXISTS "cohorts_created_id_idx" ON "cohorts" ("createdAt", "id");
+CREATE INDEX IF NOT EXISTS "cohorts_start_id_idx" ON "cohorts" ("교육시작일", "id");
+CREATE INDEX IF NOT EXISTS "workflows_created_id_idx" ON "workflows" ("createdAt", "id");
+CREATE INDEX IF NOT EXISTS "workflows_status_created_id_idx" ON "workflows" ("status", "createdAt", "id");
+CREATE INDEX IF NOT EXISTS "workflows_type_created_id_idx" ON "workflows" ("type", "createdAt", "id");
+CREATE INDEX IF NOT EXISTS "workflows_user_created_id_idx" ON "workflows" ("userId", "createdAt", "id");
+CREATE INDEX IF NOT EXISTS "notifications_created_id_idx" ON "notifications" ("createdAt", "id");
+CREATE INDEX IF NOT EXISTS "notifications_channel_status_idx" ON "notifications" ("channel", "status");
+CREATE INDEX IF NOT EXISTS "communication_messages_admin_unread_idx" ON "communication_messages" ("authorType", "isReadByAdmin");
+CREATE INDEX IF NOT EXISTS "system_alerts_admin_page_idx" ON "system_alerts" ("isActive", "endDate", "priority", "id");

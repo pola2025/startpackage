@@ -9,6 +9,10 @@ import { requestPrintSchema } from "@/lib/schemas/request-print.schema";
 import { ZodError } from "zod";
 import * as telegram from "@/lib/notification/telegramClient";
 import * as slack from "@/lib/notification/slackClient";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callCore } from "@/lib/d1/core-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
+import { handleSubmissionComplete } from "@/lib/notification/notificationService";
 
 /**
  * POST /api/submission/request-print
@@ -27,6 +31,29 @@ export async function POST(request: Request) {
     }
 
     const userId = session.user.id; // ✅ 타입 안전
+
+    const body = await request.json();
+    let validatedData;
+    try {
+      validatedData = requestPrintSchema.parse(body);
+    } catch (error) {
+      if (error instanceof ZodError) return NextResponse.json({ error: "Invalid data", details: error.errors }, { status: 400 });
+      throw error;
+    }
+    const { printTypes } = validatedData;
+
+    if (isD1RuntimeEnabled()) {
+      const submission = await callCore<Record<string, unknown>>("submission-get", userId, { userId });
+      try {
+        submissionCompleteSchema.parse(submission);
+      } catch (error) {
+        if (error instanceof ZodError) return NextResponse.json({ error: "필수 항목을 모두 입력해주세요", details: error.errors }, { status: 400 });
+        throw error;
+      }
+      const result = await callCore<{ workflows: Array<Record<string, unknown>> }>("request-print", userId, { userId, printTypes });
+      await handleSubmissionComplete({ userId, cohortName: "unknown", userName: session.user.name || "unknown", brandName: String(submission.brandNameEnglish || submission.브랜드명 || "unknown"), userEmail: session.user.email || "", userPhone: String((session.user as { phone?: string }).phone || ""), submissionData: submission }).catch((error) => console.error("알림 발송 실패:", error));
+      return NextResponse.json({ success: true, message: `${printTypes.length}개 인쇄물 제작요청이 완료되었습니다.`, workflows: result.workflows });
+    }
 
     // 1. Submission 조회
     const submission = await prisma.submission.findUnique({
@@ -55,24 +82,6 @@ export async function POST(request: Request) {
       }
       throw error;
     }
-
-    // 3. 요청 본문 검증
-    const body = await request.json();
-
-    let validatedData;
-    try {
-      validatedData = requestPrintSchema.parse(body);
-    } catch (error) {
-      if (error instanceof ZodError) {
-        return NextResponse.json(
-          { error: "Invalid data", details: error.errors },
-          { status: 400 }
-        );
-      }
-      throw error;
-    }
-
-    const { printTypes } = validatedData;
 
     // 4. 사용자 정보 조회 (알림용)
     const user = await prisma.user.findUnique({
@@ -202,6 +211,8 @@ export async function POST(request: Request) {
       })),
     });
   } catch (error) {
+    const response = dataServiceErrorResponse(error);
+    if (response) return response;
     console.error("POST /api/submission/request-print error:", error);
     return NextResponse.json(
       { error: "Internal server error" },

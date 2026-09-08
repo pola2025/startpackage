@@ -50,6 +50,8 @@ export default function UserAnnouncementsPage() {
   const [emailEnabled, setEmailEnabled] = useState(true);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [updating, setUpdating] = useState(false);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   useEffect(() => {
     fetchAnnouncements();
@@ -62,11 +64,29 @@ export default function UserAnnouncementsPage() {
       const data = await res.json();
       if (data.announcements) {
         setAnnouncements(data.announcements);
+        setNextCursor(data.nextCursor || null);
       }
     } catch (error) {
       console.error("공지사항 조회 실패:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadMoreAnnouncements = async () => {
+    if (!nextCursor || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const res = await fetch(`/api/announcements?cursor=${encodeURIComponent(nextCursor)}`);
+      const data = await res.json();
+      if (Array.isArray(data.announcements)) {
+        setAnnouncements((current) => [...current, ...data.announcements]);
+        setNextCursor(data.nextCursor || null);
+      }
+    } catch (error) {
+      console.error("공지사항 추가 조회 실패:", error);
+    } finally {
+      setLoadingMore(false);
     }
   };
 
@@ -404,6 +424,14 @@ export default function UserAnnouncementsPage() {
           </Card>
         )}
       </div>
+
+      {nextCursor && (
+        <div className="flex justify-center">
+          <Button variant="outline" onClick={loadMoreAnnouncements} disabled={loadingMore}>
+            {loadingMore ? "불러오는 중..." : "더 보기"}
+          </Button>
+        </div>
+      )}
 
       {/* 설정 다이얼로그/바텀시트 */}
       {isMobile ? (

@@ -123,7 +123,7 @@ export default function AdminAnnouncementsPage() {
     // 각 파일 크기 체크 (10MB)
     for (const file of fileArray) {
       if (file.size > 10 * 1024 * 1024) {
-        alert(`${file.name} 파일 크기는 10MB 이하여야 합니다`);
+        alert(`${file.name} 파일 크기는 10MB 이하여야 합니다. 더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.`);
         return;
       }
     }

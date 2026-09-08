@@ -13,6 +13,10 @@ import {
 } from "@/lib/constants/sensitiveFields";
 import { uploadSensitiveFileToSlack } from "@/lib/notification/slackClient";
 import prisma from "@/lib/prisma";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
+import { fileSizeExceededPayload } from "@/lib/storage/uploadLimits";
 
 // Vercel function 설정
 export const maxDuration = 30; // 30초 타임아웃
@@ -72,6 +76,13 @@ export async function POST(request: Request) {
 
     console.log("[Upload API] 사용자:", userId);
 
+    const contentLength = Number(request.headers.get("content-length"));
+    if (Number.isFinite(contentLength) && contentLength > 10 * 1024 * 1024 + 64 * 1024) {
+      return NextResponse.json(fileSizeExceededPayload(10 * 1024 * 1024), {
+        status: 413,
+      });
+    }
+
     const formData = await request.formData();
     const file = formData.get("file") as File;
     const field = formData.get("field") as string;
@@ -96,10 +107,9 @@ export async function POST(request: Request) {
     // 파일 크기 체크 (10MB)
     if (file.size > 10 * 1024 * 1024) {
       console.log("[Upload API] 파일 크기 초과:", file.size);
-      return NextResponse.json(
-        { error: "파일 크기는 10MB 이하여야 합니다" },
-        { status: 400 },
-      );
+      return NextResponse.json(fileSizeExceededPayload(10 * 1024 * 1024), {
+        status: 413,
+      });
     }
 
     // 파일 버퍼 읽기
@@ -152,7 +162,9 @@ export async function POST(request: Request) {
       console.log(`🔐 [Upload API] 민감 파일 감지: ${field}`);
 
       // 사용자의 슬랙 채널 ID 조회
-      const user = await prisma.user.findUnique({
+      const user = isD1RuntimeEnabled()
+        ? await callDataService<{ slackChannelId: string | null; 이름: string }>("shared-domain/profile-user", { userId })
+        : await prisma.user.findUnique({
         where: { id: userId },
         select: { slackChannelId: true, 이름: true },
       });
@@ -230,6 +242,8 @@ export async function POST(request: Request) {
       key,
     });
   } catch (error: any) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("[Upload API] 치명적 오류:", error);
     console.error("[Upload API] 오류 스택:", error?.stack);
     return NextResponse.json(

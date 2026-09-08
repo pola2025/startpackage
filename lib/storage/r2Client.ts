@@ -4,6 +4,7 @@ import {
   GetObjectCommand,
   DeleteObjectCommand,
   DeleteObjectsCommand,
+  HeadObjectCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
@@ -76,11 +77,13 @@ export async function getSignedUploadUrl(
   key: string,
   contentType: string,
   expiresIn: number = 300,
+  contentLength?: number,
 ): Promise<string> {
   const command = new PutObjectCommand({
     Bucket: BUCKET_NAME,
     Key: key,
     ContentType: contentType,
+    ...(contentLength !== undefined ? { ContentLength: contentLength } : {}),
   });
 
   return getSignedUrl(r2Client, command, { expiresIn });
@@ -90,15 +93,61 @@ export async function getSignedUploadUrl(
  * R2 객체를 버퍼로 읽기 (서버에서 원본 재처리용)
  * @param key 파일 키
  */
-export async function getObjectBuffer(key: string): Promise<Buffer> {
+export async function getObjectBuffer(
+  key: string,
+  maxBytes?: number,
+): Promise<Buffer> {
+  return getObjectBufferWithLimit(key, maxBytes);
+}
+
+export class R2ObjectTooLargeError extends Error {
+  constructor(
+    public readonly key: string,
+    public readonly size: number,
+    public readonly maxBytes: number,
+  ) {
+    super(`R2 object exceeds the ${maxBytes}-byte limit`);
+    this.name = "R2ObjectTooLargeError";
+  }
+}
+
+export async function getObjectBufferWithLimit(
+  key: string,
+  maxBytes?: number,
+): Promise<Buffer> {
+  if (maxBytes !== undefined) {
+    const head = await r2Client.send(
+      new HeadObjectCommand({
+        Bucket: BUCKET_NAME,
+        Key: key,
+      }),
+    );
+    if (typeof head.ContentLength === "number" && head.ContentLength > maxBytes) {
+      throw new R2ObjectTooLargeError(key, head.ContentLength, maxBytes);
+    }
+  }
+
   const command = new GetObjectCommand({
     Bucket: BUCKET_NAME,
     Key: key,
   });
 
   const response = await r2Client.send(command);
-  const bytes = await response.Body!.transformToByteArray();
-  return Buffer.from(bytes);
+  if (maxBytes === undefined) {
+    const bytes = await response.Body!.transformToByteArray();
+    return Buffer.from(bytes);
+  }
+
+  const chunks: Buffer[] = [];
+  let totalBytes = 0;
+  for await (const chunk of response.Body as AsyncIterable<Uint8Array>) {
+    totalBytes += chunk.byteLength;
+    if (totalBytes > maxBytes) {
+      throw new R2ObjectTooLargeError(key, totalBytes, maxBytes);
+    }
+    chunks.push(Buffer.from(chunk));
+  }
+  return Buffer.concat(chunks, totalBytes);
 }
 
 /**

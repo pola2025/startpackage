@@ -1,6 +1,9 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 export async function POST(request: Request) {
   try {
@@ -19,6 +22,11 @@ export async function POST(request: Request) {
         { error: "userId와 type이 필요합니다" },
         { status: 400 }
       );
+    }
+
+    if (isD1RuntimeEnabled()) {
+      const workflow = await callDataService<Record<string, unknown>>("admin-domain/workflow-create", { adminId: (session.user as { id: string }).id, userId, type });
+      return NextResponse.json(workflow);
     }
 
     // 사용자 존재 확인
@@ -71,6 +79,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json(workflow);
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("POST /api/admin/workflows/create error:", error);
     return NextResponse.json(
       { error: "Internal server error" },

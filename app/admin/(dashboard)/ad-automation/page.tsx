@@ -662,13 +662,13 @@ export default function AdAutomationManagementPage() {
                       onClick={() => {
                         if (adEndDate) {
                           const newEndDate = new Date(adEndDate);
-                          newEndDate.setMonth(newEndDate.getMonth() + 3);
+                          newEndDate.setDate(newEndDate.getDate() + 56);
                           setAdEndDate(newEndDate);
                         }
                       }}
                       disabled={!adEndDate}
                     >
-                      + 3개월 연장
+                      + 8주 연장
                     </Button>
                   </div>
                 )}
@@ -777,7 +777,7 @@ export default function AdAutomationManagementPage() {
                 <Label htmlFor="reason">변경 사유 (선택)</Label>
                 <Input
                   id="reason"
-                  placeholder="예: 유료 결제 완료, 3개월 연장"
+                  placeholder="예: 유료 결제 완료, 8주 연장"
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                 />
@@ -843,13 +843,13 @@ export default function AdAutomationManagementPage() {
                       onClick={() => {
                         if (adEndDate) {
                           const newEndDate = new Date(adEndDate);
-                          newEndDate.setMonth(newEndDate.getMonth() + 3);
+                          newEndDate.setDate(newEndDate.getDate() + 56);
                           setAdEndDate(newEndDate);
                         }
                       }}
                       disabled={!adEndDate}
                     >
-                      + 3개월 연장
+                      + 8주 연장
                     </Button>
                   </div>
                 )}

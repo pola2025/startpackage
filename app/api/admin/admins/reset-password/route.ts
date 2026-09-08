@@ -3,6 +3,9 @@ import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { hash } from "bcryptjs";
 import { z } from "zod";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 const resetPasswordSchema = z.object({
   adminId: z.string(),
@@ -40,6 +43,11 @@ export async function POST(request: NextRequest) {
     // 비밀번호 해시
     const hashedPassword = await hash(newPassword, 10);
 
+    if (isD1RuntimeEnabled()) {
+      await callDataService("admin-domain/admin-reset-password", { adminId: (session.user as { id: string }).id, targetAdminId: adminId, password: hashedPassword });
+      return NextResponse.json({ success: true, message: "비밀번호가 초기화되었습니다." });
+    }
+
     // 비밀번호 업데이트
     await prisma.admin.update({
       where: { id: adminId },
@@ -51,6 +59,8 @@ export async function POST(request: NextRequest) {
       message: "비밀번호가 초기화되었습니다.",
     });
   } catch (error: any) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("비밀번호 초기화 에러:", error);
     return NextResponse.json(
       { error: "비밀번호 초기화 중 오류가 발생했습니다." },

@@ -3,6 +3,8 @@ import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { notificationManager } from "@/lib/notifications/notification-manager";
 import { z } from "zod";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService, DataServiceRequestError } from "@/lib/d1/service-client";
 
 /**
  * POST /api/admin/communication/create-design-thread
@@ -48,6 +50,34 @@ export async function POST(request: Request) {
 
     const { userId, workflowType, designUrl, message, communicationThreadId } =
       validation.data;
+    if (isD1RuntimeEnabled()) {
+      const result = await callDataService("communication-domain/admin-create-design-thread", { adminId, userId, workflowType, designUrl, message, communicationThreadId }) as {
+        success?: boolean;
+        isNewWorkflow?: boolean;
+        workflow?: { id?: string; type?: string; status?: string };
+        designThread?: { id?: string; status?: string; currentVersion?: number };
+        message?: unknown;
+      };
+      notificationManager.notifyUser(userId, {
+        type: "new_message",
+        data: { threadId: result.designThread?.id ?? "", count: 1, timestamp: new Date().toISOString() },
+      });
+      return NextResponse.json({
+        success: result.success ?? true,
+        isNewWorkflow: result.isNewWorkflow ?? false,
+        workflow: {
+          id: result.workflow?.id,
+          type: result.workflow?.type,
+          status: result.workflow?.status,
+        },
+        designThread: {
+          id: result.designThread?.id,
+          status: result.designThread?.status,
+          currentVersion: result.designThread?.currentVersion,
+        },
+        message: result.message,
+      });
+    }
 
     // 사용자 존재 확인
     const user = await prisma.user.findUnique({
@@ -230,6 +260,7 @@ export async function POST(request: Request) {
       message: designMessage,
     });
   } catch (error) {
+    if (error instanceof DataServiceRequestError) return NextResponse.json({ error: error.message }, { status: error.status });
     console.error("[CREATE DESIGN THREAD] 에러:", error);
     return NextResponse.json(
       {

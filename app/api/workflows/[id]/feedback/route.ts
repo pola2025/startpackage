@@ -1,6 +1,10 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callCore } from "@/lib/d1/core-client";
+import { notifyWorkflowFeedback } from "@/lib/notification/workflowNotifications";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 // POST: 시안 피드백 제출
 export async function POST(
@@ -22,6 +26,15 @@ export async function POST(
         { error: "피드백 내용을 입력해주세요" },
         { status: 400 },
       );
+    }
+
+    if (isD1RuntimeEnabled()) {
+      const updated = await callCore<Record<string, unknown>>("workflow-feedback", userId, { userId, workflowId, feedback });
+      const meta = updated.__d1Meta as { user?: Record<string, unknown> } | undefined;
+      delete updated.__d1Meta;
+      const person = meta?.user || {};
+      await notifyWorkflowFeedback({ userId, workflowType: String(updated.type || "워크플로우"), userName: String(person.이름 || person.englishName || session.user.name || "사용자"), cohortName: typeof person.cohortName === "string" ? person.cohortName : undefined, slackChannelId: typeof person.slackChannelId === "string" ? person.slackChannelId : undefined, feedback }).catch((error) => console.error("알림 발송 실패:", error));
+      return NextResponse.json(updated);
     }
 
     // 워크플로우 확인
@@ -72,46 +85,17 @@ export async function POST(
       },
     });
 
-    // 텔레그램 알림 (관리자에게)
     try {
-      const { sendTelegramMessage } =
-        await import("@/lib/notification/telegramClient");
-      await sendTelegramMessage(
-        `📝 *시안 피드백 접수*\n\n*사용자:* ${workflow.user.이름} (${workflow.user.cohort?.name || "기수 미정"})\n*제작물:* ${workflow.type}\n*피드백:*\n${feedback}\n\n*시간:* ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`,
-      );
+      await notifyWorkflowFeedback({
+        userId,
+        workflowType: workflow.type,
+        userName: workflow.user.이름,
+        cohortName: workflow.user.cohort?.name,
+        slackChannelId: workflow.user.slackChannelId,
+        feedback,
+      });
     } catch (err) {
-      console.error("텔레그램 알림 실패:", err);
-    }
-
-    // 슬랙 알림
-    try {
-      if (workflow.user.slackChannelId) {
-        const { postMessage } = await import("@/lib/notification/slackClient");
-        await postMessage({
-          channelId: workflow.user.slackChannelId,
-          text: `📝 시안 피드백: ${workflow.type}`,
-          blocks: [
-            {
-              type: "section",
-              text: {
-                type: "mrkdwn",
-                text: `*📝 ${workflow.type} 시안 피드백*\n\n${feedback}`,
-              },
-            },
-            {
-              type: "context",
-              elements: [
-                {
-                  type: "mrkdwn",
-                  text: `📅 ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`,
-                },
-              ],
-            },
-          ],
-        });
-      }
-    } catch (err) {
-      console.error("슬랙 알림 실패:", err);
+      console.error("피드백 알림 실패:", err);
     }
 
     // 문의 스레드 자동 생성
@@ -189,6 +173,8 @@ export async function POST(
 
     return NextResponse.json(updated);
   } catch (error) {
+    const response = dataServiceErrorResponse(error);
+    if (response) return response;
     console.error("POST /api/workflows/[id]/feedback error:", error);
     return NextResponse.json(
       { error: "Internal server error" },

@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 import { z } from "zod";
 
 /**
@@ -55,6 +58,27 @@ export async function POST(request: Request) {
     }
 
     const { userId, channel, title, message, attachments } = validation.data;
+
+    if (isD1RuntimeEnabled()) {
+      const adminId = (session.user as any).id;
+      const user = await callDataService<{ id: string; 이름: string; 연락처: string | null; email: string | null; SMS수신동의: number; 이메일수신동의: number }>("admin-notifications/message-user", { adminId, userId });
+      const consent = channel === "SMS" ? user.SMS수신동의 : user.이메일수신동의;
+      if (!consent) return NextResponse.json({ error: `${user.이름} 사용자가 ${channel === "SMS" ? "SMS" : "이메일"} 수신에 동의하지 않았습니다.` }, { status: 400 });
+      if (channel === "SMS" && !user.연락처) return NextResponse.json({ error: "사용자 연락처가 없습니다." }, { status: 400 });
+      if (channel === "EMAIL" && !user.email) return NextResponse.json({ error: "사용자 이메일이 없습니다." }, { status: 400 });
+      const recipientPhone = user.연락처 ?? "";
+      const recipientEmail = user.email ?? "";
+      const created = await callDataService<{ id: string; sentAt: number }>("admin-notifications/notification-create", { adminId, userId: user.id, type: "수동발송", channel, title, message, status: "전송중", sentBy: adminId, sentByName: (session.user as any).name || "관리자" });
+      let sent = false; let internalError = "";
+      if (channel === "SMS") {
+        try { const { sendSMS, getSenderPhoneByAdmin } = await import("@/lib/sms/ncpSensClient"); const adminFrom = getSenderPhoneByAdmin(session.user?.email); await sendSMS(recipientPhone, `[${title}]\n\n${message}`, adminFrom ? { from: adminFrom } : undefined); sent = true; } catch (error) { internalError = String(error).slice(0, 300); }
+      } else {
+        try { const { sendEmailWithAttachments } = await import("@/lib/email/emailClient"); await sendEmailWithAttachments({ to: recipientEmail, subject: title, html: message.replace(/\n/g, "<br>"), attachments: attachments?.map((att) => ({ filename: att.filename, path: att.url })) }); sent = true; } catch (error) { internalError = String(error).slice(0, 300); }
+      }
+      await callDataService("admin-notifications/notification-update", { adminId, notificationId: created.id, status: sent ? "성공" : "실패", errorMessage: internalError || null });
+      if (!sent) return NextResponse.json({ error: channel === "SMS" ? "SMS 발송에 실패했습니다." : "이메일 발송에 실패했습니다." }, { status: 500 });
+      return NextResponse.json({ success: true, message: `${channel === "SMS" ? "문자" : "이메일"}를 성공적으로 발송했습니다.`, notification: { id: created.id, channel, sentAt: new Date(created.sentAt) } });
+    }
 
     // 사용자 정보 조회
     const user = await prisma.user.findUnique({
@@ -173,6 +197,8 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("❌ 개별 메시지 발송 실패:", error);
     return NextResponse.json(
       { error: "메시지 발송 중 오류가 발생했습니다." },

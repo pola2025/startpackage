@@ -43,6 +43,9 @@ import {
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
 import { formatArrivalDate } from "@/lib/utils/businessDays";
+import DesignConfirmDialog, {
+  type DesignConfirmPayload,
+} from "@/components/design/design-confirm-dialog";
 
 interface Workflow {
   id: string;
@@ -78,6 +81,9 @@ export default function WorkflowsPage() {
   const [feedbackText, setFeedbackText] = useState("");
   const [submittingFeedback, setSubmittingFeedback] = useState(false);
   const [orderConfirmChecked, setOrderConfirmChecked] = useState(false);
+  const [approveTarget, setApproveTarget] = useState<Workflow | null>(null);
+  const [approving, setApproving] = useState(false);
+  const [orderTarget, setOrderTarget] = useState<Workflow | null>(null);
   // URL ?open= 파라미터로 자동 펼칠 아코디언 ID
   const [autoOpenId, setAutoOpenId] = useState<string | null>(null);
   const accordionRefs = useRef<Record<string, HTMLDetailsElement | null>>({});
@@ -119,27 +125,28 @@ export default function WorkflowsPage() {
     }
   };
 
-  const handleOrderRequest = async (workflowId: string) => {
-    if (!orderConfirmChecked) {
-      alert("발주 요청 전 주의사항을 확인하고 체크박스에 동의해주세요.");
-      return;
-    }
-
+  const handleOrderRequest = async (payload: DesignConfirmPayload) => {
+    if (!orderTarget) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/workflows/${workflowId}/order`, {
+      const res = await fetch(`/api/workflows/${orderTarget.id}/order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ agreements: [PRINT_COLOR_AGREEMENT.id] }),
+        body: JSON.stringify({
+          shipping: payload.shipping,
+          agreements: payload.agreements,
+        }),
       });
 
       if (res.ok) {
         alert("발주 요청이 완료되었습니다!");
         setOrderConfirmChecked(false); // 체크박스 초기화
         setDialogOpen(false);
+        setOrderTarget(null);
         await fetchWorkflows();
       } else {
-        alert("발주 요청에 실패했습니다.");
+        const error = await res.json().catch(() => ({}));
+        alert(error.error || "발주 요청에 실패했습니다.");
       }
     } catch (error) {
       console.error("Order request failed:", error);
@@ -176,6 +183,35 @@ export default function WorkflowsPage() {
       alert("피드백 저장 중 오류가 발생했습니다");
     } finally {
       setSubmittingFeedback(false);
+    }
+  };
+
+  const handleApprove = async (payload: DesignConfirmPayload) => {
+    if (!approveTarget) return;
+    setApproving(true);
+    try {
+      const res = await fetch(`/api/workflows/${approveTarget.id}/approve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          shipping: payload.shipping,
+          agreements: payload.agreements,
+        }),
+      });
+
+      if (res.ok) {
+        setApproveTarget(null);
+        alert(`${approveTarget.type} 시안이 최종 확정되었습니다!`);
+        await fetchWorkflows();
+      } else {
+        const error = await res.json().catch(() => ({}));
+        alert(error.error || "확정에 실패했습니다");
+      }
+    } catch (error) {
+      console.error("Failed to approve:", error);
+      alert("확정 중 오류가 발생했습니다");
+    } finally {
+      setApproving(false);
     }
   };
 
@@ -543,45 +579,11 @@ export default function WorkflowsPage() {
                                     workflow.status !== "최종확정" && (
                                       <Button
                                         size="sm"
-                                        onClick={async () => {
-                                          if (
-                                            !confirm(
-                                              `${workflow.type} 시안을 최종 확정하시겠습니까?\n확정 후에는 수정이 어려울 수 있습니다.`,
-                                            )
-                                          ) {
-                                            return;
-                                          }
-                                          setLoading(true);
-                                          try {
-                                            const res = await fetch(
-                                              `/api/workflows/${workflow.id}/approve`,
-                                              { method: "POST" },
-                                            );
-                                            if (res.ok) {
-                                              alert(
-                                                `${workflow.type} 시안이 최종 확정되었습니다!`,
-                                              );
-                                              await fetchWorkflows();
-                                            } else {
-                                              const error = await res.json();
-                                              alert(
-                                                error.error ||
-                                                  "확정에 실패했습니다",
-                                              );
-                                            }
-                                          } catch (error) {
-                                            console.error(
-                                              "Failed to approve:",
-                                              error,
-                                            );
-                                            alert(
-                                              "확정 중 오류가 발생했습니다",
-                                            );
-                                          } finally {
-                                            setLoading(false);
-                                          }
+                                        onClick={() => {
+                                          setDialogOpen(false);
+                                          setApproveTarget(workflow);
                                         }}
-                                        disabled={loading}
+                                        disabled={loading || approving}
                                         className="w-full h-9 md:h-10 text-sm bg-ok-600 hover:bg-ok-700 text-white"
                                       >
                                         시안 확정
@@ -964,12 +966,15 @@ export default function WorkflowsPage() {
                                                   "발주대기" && (
                                                   <Button
                                                     size="sm"
-                                                    onClick={() =>
-                                                      handleOrderRequest(
-                                                        workflow.id,
-                                                      )
-                                                    }
-                                                    disabled={loading}
+                                                    onClick={() => {
+                                                      if (!orderConfirmChecked) {
+                                                        alert("발주 요청 전 주의사항을 확인하고 체크박스에 동의해주세요.");
+                                                        return;
+                                                      }
+                                                      setDialogOpen(false);
+                                                      setOrderTarget(workflow);
+                                                    }}
+                                                    disabled={loading || !!orderTarget}
                                                     className="w-full h-9 md:h-10 text-sm bg-navy-900 hover:bg-navy-800 text-white"
                                                   >
                                                     발주 요청
@@ -1150,6 +1155,30 @@ export default function WorkflowsPage() {
             </section>
           )}
         </div>
+      )}
+
+      {approveTarget && (
+        <DesignConfirmDialog
+          open={!!approveTarget}
+          onOpenChange={(open) => {
+            if (!open) setApproveTarget(null);
+          }}
+          workflowType={approveTarget.type}
+          confirming={approving}
+          onConfirm={handleApprove}
+        />
+      )}
+
+      {orderTarget && (
+        <DesignConfirmDialog
+          open={!!orderTarget}
+          onOpenChange={(open) => {
+            if (!open) setOrderTarget(null);
+          }}
+          workflowType={orderTarget.type}
+          confirming={loading}
+          onConfirm={handleOrderRequest}
+        />
       )}
     </div>
   );

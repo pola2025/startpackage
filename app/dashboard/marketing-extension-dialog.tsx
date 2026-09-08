@@ -14,8 +14,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Loader2, ExternalLink } from "lucide-react";
 import {
-  ONLINE_MARKETING_BILLING_MONTHS,
-  ONLINE_MARKETING_MONTHLY_PRICE,
+  ONLINE_MARKETING_BILLING_DAYS,
+  ONLINE_MARKETING_BILLING_WEEKS,
   ONLINE_MARKETING_TOTAL_PRICE,
   formatManwon,
   formatWon,
@@ -40,8 +40,8 @@ export default function MarketingExtensionDialog({
 
   // 연장 후 종료일 계산 (결제 단위 기준)
   const calculatedEndDate = new Date(currentEndDate);
-  calculatedEndDate.setMonth(
-    calculatedEndDate.getMonth() + ONLINE_MARKETING_BILLING_MONTHS,
+  calculatedEndDate.setDate(
+    calculatedEndDate.getDate() + ONLINE_MARKETING_BILLING_DAYS,
   );
 
   const handleSubmit = async () => {
@@ -55,7 +55,7 @@ export default function MarketingExtensionDialog({
         },
         body: JSON.stringify({
           requestMessage,
-          months: ONLINE_MARKETING_BILLING_MONTHS,
+          weeks: ONLINE_MARKETING_BILLING_WEEKS,
         }),
       });
 
@@ -88,7 +88,7 @@ export default function MarketingExtensionDialog({
         <DialogHeader>
           <DialogTitle className="text-xl">마케팅 지원 연장 신청</DialogTitle>
           <DialogDescription className="text-sm">
-            마케팅 지원은 {ONLINE_MARKETING_BILLING_MONTHS}개월 단위로
+            마케팅 지원은 {ONLINE_MARKETING_BILLING_WEEKS}주 단위로
             연장됩니다.
           </DialogDescription>
         </DialogHeader>
@@ -98,17 +98,17 @@ export default function MarketingExtensionDialog({
           <div className="rounded-lg border-2 border-gold-500 bg-gold-50 p-4">
             <div className="flex items-baseline justify-between">
               <div className="text-base font-semibold text-navy-900">
-                {ONLINE_MARKETING_BILLING_MONTHS}개월 연장
+                {ONLINE_MARKETING_BILLING_WEEKS}주 연장
               </div>
               <div className="text-right">
                 <div className="text-lg font-bold text-navy-900">
-                  월 {formatManwon(ONLINE_MARKETING_MONTHLY_PRICE)}
+                  {formatManwon(ONLINE_MARKETING_TOTAL_PRICE)}
                 </div>
                 <div className="text-xs text-gray-600">VAT 포함</div>
               </div>
             </div>
             <p className="mt-2 text-xs text-gray-600">
-              {ONLINE_MARKETING_BILLING_MONTHS}개월 단위 결제만 가능합니다.
+              {ONLINE_MARKETING_BILLING_WEEKS}주 단위 결제만 가능합니다.
             </p>
           </div>
 
@@ -157,12 +157,12 @@ export default function MarketingExtensionDialog({
                 금액:{" "}
                 <span className="font-semibold text-gold-600">
                   {formatWon(ONLINE_MARKETING_TOTAL_PRICE)}원 (VAT 포함,{" "}
-                  {ONLINE_MARKETING_BILLING_MONTHS}개월분)
+                  {ONLINE_MARKETING_BILLING_WEEKS}주분)
                 </span>
               </p>
               <p className="text-xs text-gray-600 mt-2">
-                월 {formatWon(ONLINE_MARKETING_MONTHLY_PRICE)}원 (VAT 포함) ·
-                입금자명에 상호 또는 신청자명을 기재해 주세요.
+                총액 기준 (VAT 포함) · 입금자명에 상호 또는 신청자명을
+                기재해 주세요.
               </p>
             </div>
           </div>

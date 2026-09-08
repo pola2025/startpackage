@@ -1,8 +1,12 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 import { NextResponse } from "next/server";
 import { handleDesignUpload } from "@/lib/notification/notificationService";
 import { uploadToR2, generateFileName, validateR2Config } from "@/lib/storage/r2Client";
+import { fileSizeExceededPayload } from "@/lib/storage/uploadLimits";
 
 // Vercel function 설정
 export const maxDuration = 30; // 30초 타임아웃
@@ -35,7 +39,9 @@ export async function POST(request: Request) {
     }
 
     // 워크플로우 존재 확인
-    const workflow = await prisma.workflow.findUnique({
+    const workflow = isD1RuntimeEnabled()
+      ? await callDataService<{ id: string } | null>("admin-domain/workflow-get", { adminId: session.user.id, workflowId })
+      : await prisma.workflow.findUnique({
       where: { id: workflowId },
     });
 
@@ -57,8 +63,8 @@ export async function POST(request: Request) {
     // 파일 크기 검증 (10MB)
     if (file.size > 10 * 1024 * 1024) {
       return NextResponse.json(
-        { error: "File size exceeds 10MB" },
-        { status: 400 }
+        fileSizeExceededPayload(10 * 1024 * 1024),
+        { status: 413 }
       );
     }
 
@@ -79,6 +85,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ url: fileUrl });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("POST /api/admin/upload-design error:", error);
     return NextResponse.json(
       { error: "Internal server error" },

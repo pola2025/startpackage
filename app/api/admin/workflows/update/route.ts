@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
+import type { Workflow } from "@prisma/client";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService, DataServiceRequestError } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 import {
   handleStateChange,
   handleProductionComplete,
@@ -36,7 +40,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Get current workflow state
-    const currentWorkflow = await prisma.workflow.findUnique({
+    const d1Enabled = isD1RuntimeEnabled();
+    const currentWorkflow = d1Enabled
+      ? await callDataService<Workflow | null>("admin-domain/workflow-get", { adminId: session.user.id, workflowId })
+      : await prisma.workflow.findUnique({
       where: { id: workflowId },
     });
 
@@ -80,7 +87,7 @@ export async function POST(request: NextRequest) {
       updateData.시안URL = 시안URL;
 
       // 시안 파일이 업로드되었고, 이전에 없었다면 슬랙에 업로드 + 수정횟수 증가 + 이력 저장
-      if (시안URL && 시안URL !== currentWorkflow.시안URL) {
+      if (!d1Enabled && 시안URL && 시안URL !== currentWorkflow.시안URL) {
         const user = await prisma.user.findUnique({
           where: { id: currentWorkflow.userId },
           select: { slackChannelId: true },
@@ -183,7 +190,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 홈페이지는 결과 URL 등록 시 사용자 컨펌 없이 제작 완료 처리
-    if (shouldHandleHomepageCompletion) {
+    if (!d1Enabled && shouldHandleHomepageCompletion) {
       await prisma.user.update({
         where: { id: currentWorkflow.userId },
         data: {
@@ -194,7 +201,18 @@ export async function POST(request: NextRequest) {
     }
 
     // Update workflow
-    const updatedWorkflow = await prisma.workflow.update({
+    type SavedWorkflow = Workflow & { user: { 이름: string; 연락처: string; email: string; slackChannelId?: string | null } };
+    const d1Saved = d1Enabled ? await callDataService<{ workflow: SavedWorkflow; history: { version: number } | null }>("admin-domain/workflow-save", {
+      adminId: session.user.id,
+      workflowId,
+      expectedUpdatedAt: currentWorkflow.updatedAt,
+      homepageComplete: shouldHandleHomepageCompletion,
+      changes: updateData,
+    }) : null;
+    if (d1Enabled && !d1Saved?.workflow) {
+      return NextResponse.json({ error: "워크플로우 저장 결과를 확인할 수 없습니다." }, { status: 503 });
+    }
+    const updatedWorkflow = d1Saved?.workflow ?? await prisma.workflow.update({
       where: { id: workflowId },
       data: updateData,
       include: {
@@ -209,7 +227,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Log the update
-    await prisma.workflowLog.create({
+    if (!d1Enabled) await prisma.workflowLog.create({
       data: {
         workflowId,
         performedBy: (session.user as any).id,
@@ -223,6 +241,15 @@ export async function POST(request: NextRequest) {
 
     // Send notifications based on status change
     try {
+      if (d1Saved?.history && d1Saved.workflow.user.slackChannelId && 시안URL) {
+        const { uploadFileToSlack } = await import("@/lib/notification/slackClient");
+        await uploadFileToSlack({
+          channelId: d1Saved.workflow.user.slackChannelId,
+          filePath: 시안URL,
+          fileName: `${currentWorkflow.type}_${d1Saved.history.version}차시안.jpg`,
+          title: `${currentWorkflow.type} ${d1Saved.history.version}차시안`,
+        }).catch((error) => console.error("시안 파일 슬랙 업로드 실패:", error));
+      }
       // 상태 변경 알림 (텔레그램 + 슬랙)
       if (statusChanged) {
         await handleStateChange({
@@ -371,6 +398,11 @@ export async function POST(request: NextRequest) {
       workflow: updatedWorkflow,
     });
   } catch (error: any) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
+    if (error instanceof DataServiceRequestError && error.status === 409) {
+      return NextResponse.json({ error: "다른 변경사항이 저장되었습니다. 새로고침 후 다시 시도해주세요." }, { status: 409 });
+    }
     console.error("워크플로우 업데이트 에러:", error);
     return NextResponse.json(
       { error: "워크플로우 업데이트 중 오류가 발생했습니다." },

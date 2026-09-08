@@ -97,7 +97,7 @@ export async function createSlackChannel(params: {
   userPhone: string;
 }): Promise<string | null> {
   try {
-    console.log(`🔄 [Slack] 채널 생성 시작`, params);
+    console.log("🔄 [Slack] 채널 생성 시작");
 
     const client = initSlackClient();
 
@@ -325,7 +325,7 @@ export async function postMessage(params: {
     console.log(`✅ 슬랙 메시지 전송 성공: ${params.channelId}`);
     return true;
   } catch (error) {
-    console.error("슬랙 메시지 전송 실패:", error);
+    console.error("슬랙 메시지 전송 실패");
     return false;
   }
 }

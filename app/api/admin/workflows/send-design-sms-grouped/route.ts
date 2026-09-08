@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 import { getSMSClient, getSenderPhoneByAdmin } from "@/lib/sms/ncpSensClient";
 
 interface SendData {
@@ -26,6 +29,29 @@ export async function POST(request: NextRequest) {
         { error: "발송 데이터가 필요합니다." },
         { status: 400 },
       );
+    }
+
+    if (isD1RuntimeEnabled()) {
+      if (data.length > 200) return NextResponse.json({ error: "한 번에 최대 200명까지 발송할 수 있습니다." }, { status: 400 });
+      const adminId = (session.user as any).id;
+      const results: { userName: string; types: string[]; success: boolean; error?: string }[] = [];
+      let successCount = 0;
+      let failedCount = 0;
+      const smsClient = getSMSClient();
+      for (const item of data) {
+        try {
+          const result = await callDataService<{ user: { id: string; 이름: string; 연락처: string | null }; workflows: Array<Record<string, unknown>> }>("admin-notifications/grouped-design-data", { adminId, userId: item.userId, workflowIds: item.workflowIds });
+          if (!result.user.연락처) throw new Error("연락처가 없습니다.");
+          if (!result.workflows.length) throw new Error("발송 가능한 시안이 없습니다.");
+          const types = result.workflows.map((w) => String(w.type));
+          const message = types.length === 1 ? `[스타트패키지]\n\n${result.user.이름}님, ${types[0]} 디자인 시안이 업로드되었습니다.\n\n확인 부탁드립니다.` : `[스타트패키지]\n\n${result.user.이름}님, 디자인 시안이 업로드되었습니다.\n\n▶ 완료된 시안\n${types.map((t) => `- ${t}`).join("\n")}\n\n확인 부탁드립니다.`;
+          const adminFrom = getSenderPhoneByAdmin(session.user?.email);
+          await smsClient.sendSMS(result.user.연락처, message, "LMS", adminFrom ? { from: adminFrom } : undefined);
+          await callDataService("admin-notifications/notification-create", { adminId, userId: result.user.id, type: "시안완료", channel: "SMS", title: "[스타트패키지] 시안 완료 알림", message, status: "성공", sentBy: adminId, sentByName: (session.user as any).name || "관리자" });
+          successCount++; results.push({ userName: result.user.이름, types, success: true });
+        } catch (error) { failedCount++; results.push({ userName: "처리 중 오류", types: [], success: false, error: "LMS 발송 실패" }); console.error("LMS 발송 실패:", error); }
+      }
+      return NextResponse.json({ success: successCount, failed: failedCount, details: results });
     }
 
     const results: {
@@ -167,6 +193,8 @@ export async function POST(request: NextRequest) {
       details: results,
     });
   } catch (error: any) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("SMS 일괄 발송 에러:", error);
     return NextResponse.json(
       { error: "SMS 발송 중 오류가 발생했습니다." },

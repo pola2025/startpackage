@@ -1,38 +1,26 @@
 import { describe, expect, it } from "vitest";
 import {
+  BAS_MARKETING_SUPPORT_WEEKS,
   calculateMarketingSupportEndDate,
   getMarketingSupportDurationLabel,
-  usesEightWeekMarketingSupport,
 } from "../marketing-support";
 
 describe("marketing support policy", () => {
-  it("keeps older cohorts on the legacy 3 month policy", () => {
-    expect(usesEightWeekMarketingSupport("26-4기")).toBe(false);
-    expect(getMarketingSupportDurationLabel("26기 4기")).toBe("3개월");
-
-    const endDate = calculateMarketingSupportEndDate(
-      new Date("2026-04-01T00:00:00.000Z"),
-      "26-4기",
-    );
-
-    expect(endDate.toISOString().slice(0, 10)).toBe("2026-07-01");
+  it("uses a single eight-week policy for every cohort", () => {
+    expect(BAS_MARKETING_SUPPORT_WEEKS).toBe(8);
+    expect(getMarketingSupportDurationLabel()).toBe("8주");
   });
 
-  it("uses 8 weeks from 26-5 onward", () => {
-    expect(usesEightWeekMarketingSupport("26-5기")).toBe(true);
-    expect(usesEightWeekMarketingSupport("26기 5기")).toBe(true);
-    expect(getMarketingSupportDurationLabel("26-5기")).toBe("8주");
-
-    const endDate = calculateMarketingSupportEndDate(
-      new Date("2026-05-01T00:00:00.000Z"),
-      "26-5기",
-    );
-
-    expect(endDate.toISOString().slice(0, 10)).toBe("2026-06-26");
-  });
-
-  it("treats later year-style cohorts as 8 week cohorts", () => {
-    expect(usesEightWeekMarketingSupport("27-1기")).toBe(true);
-    expect(usesEightWeekMarketingSupport("2027-1기")).toBe(true);
+  it.each([
+    ["2026-04-01", "2026-05-27"],
+    ["2026-05-01", "2026-06-26"],
+    ["2026-09-08", "2026-11-03"],
+    ["2026-12-31", "2027-02-25"],
+    ["2028-02-01", "2028-03-28"],
+  ])("adds 56 days from %s without changing the original date", (start, expected) => {
+    const input = new Date(`${start}T00:00:00.000Z`);
+    expect(calculateMarketingSupportEndDate(input).toISOString())
+      .toBe(`${expected}T00:00:00.000Z`);
+    expect(input.toISOString()).toBe(`${start}T00:00:00.000Z`);
   });
 });

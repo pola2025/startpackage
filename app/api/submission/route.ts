@@ -10,10 +10,29 @@ import { submissionPartialSchema } from "@/lib/schemas/submission.schema";
 import { ZodError } from "zod";
 import { formatPhoneNumber } from "@/lib/utils";
 import { isPaidHomepageStyle } from "@/lib/homepage-styles";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callCore } from "@/lib/d1/core-client";
+import { notifySubmissionChanges } from "@/lib/notification/submissionNotifications";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
+import { decryptSubmissionSecrets, dropMaskedSecretFields, encryptSubmissionSecrets, maskSubmissionSecretsDeep } from "@/lib/security/submission-secrets";
 
 function formatPhoneSafe(phone: unknown): string {
   if (!phone) return "";
   return formatPhoneNumber(String(phone));
+}
+
+const SHIPPING_FIELDS = ["인쇄물받을주소", "받는분이름", "수령연락처", "우편번호"];
+
+async function hasLockedShippingConflict(userId: string, data: Record<string, unknown>) {
+  const fields = SHIPPING_FIELDS.filter((field) => Object.prototype.hasOwnProperty.call(data, field));
+  if (!fields.length) return false;
+  const locked = await prisma.workflow.findFirst({
+    where: { userId, type: { notIn: ["로고", "홈페이지"] }, status: { in: ["발주요청", "발주완료", "제작완료", "발송완료"] } },
+    select: { id: true },
+  });
+  if (!locked) return false;
+  const current = await prisma.submission.findUnique({ where: { userId } });
+  return fields.some((field) => data[field] !== (current?.[field as keyof typeof current] ?? null));
 }
 
 // GET: 사용자 제출 데이터 조회
@@ -25,6 +44,11 @@ export async function GET() {
     }
 
     const userId = session.user.id; // ✅ 타입 안전
+
+    if (isD1RuntimeEnabled()) {
+      const submission = await callCore<Record<string, unknown>>("submission-get", userId, { userId });
+      return NextResponse.json(maskSubmissionSecretsDeep(submission));
+    }
 
     // Submission 조회 또는 생성
     let submission = await prisma.submission.findUnique({
@@ -45,7 +69,7 @@ export async function GET() {
     });
 
     return NextResponse.json({
-      ...submission,
+      ...maskSubmissionSecretsDeep(submission),
       _배송지필수: isShippingPolicyCohort(사용자?.cohort?.교육시작일),
     });
   } catch (error) {
@@ -71,8 +95,7 @@ export async function POST(request: Request) {
     const userId = session.user.id; // ✅ 타입 안전
     console.log(`✅ [Submission] 사용자 인증 성공: userId=${userId}`);
 
-    const body = await request.json();
-    console.log("📋 [Submission] Request body:", JSON.stringify(body, null, 2));
+    const body = dropMaskedSecretFields(await request.json());
 
     // ✅ Zod 검증
     let validatedData;
@@ -95,11 +118,6 @@ export async function POST(request: Request) {
       }
       validatedData = filteredData;
 
-      console.log(
-        "📝 [Submission] 필터링된 데이터:",
-        JSON.stringify(validatedData, null, 2),
-      );
-
       if (isPaidHomepageStyle(validatedData.홈페이지스타일)) {
         return NextResponse.json(
           {
@@ -109,10 +127,35 @@ export async function POST(request: Request) {
           { status: 400 },
         );
       }
+
+      if (isD1RuntimeEnabled()) {
+        const storedResult = await callCore<Record<string, unknown>>("submission-save", userId, {
+          userId,
+          data: validatedData,
+        });
+        const meta = storedResult.__d1Meta as { user?: { email?: string; 이름?: string; englishName?: string; 연락처?: string; slackChannelId?: string | null; cohortName?: string; cohortEnglishName?: string }; previous?: Record<string, unknown> } | undefined;
+        delete storedResult.__d1Meta;
+        const result = decryptSubmissionSecrets(storedResult, userId);
+        if (meta?.previous) meta.previous = decryptSubmissionSecrets(meta.previous, userId);
+        if (meta?.user) {
+          await notifySubmissionChanges(userId, result, meta.previous, meta.user, (channelId: string) => callCore("user-slack-channel-update", userId, { userId, slackChannelId: channelId }), Object.keys(validatedData)).catch((error: unknown) => console.error("제출 변경 알림 실패:", error));
+        }
+        if (validatedData.isComplete === true && meta?.user) {
+          await handleSubmissionComplete({
+            userId,
+            cohortName: meta.user.cohortEnglishName || meta.user.cohortName || "unknown",
+            userName: meta.user.englishName || meta.user.이름 || "unknown",
+            brandName: String(result.brandNameEnglish || result.브랜드명 || "unknown"),
+            userEmail: meta.user.email || "",
+            userPhone: meta.user.연락처 || "",
+            submissionData: result,
+          }).catch((error) => console.error("알림 발송 실패:", error));
+        }
+        return NextResponse.json(maskSubmissionSecretsDeep(result));
+      }
     } catch (error) {
       if (error instanceof ZodError) {
         console.error("Zod validation error:", error.errors);
-        console.error("Request body:", body);
         return NextResponse.json(
           { error: "Invalid data", details: error.errors },
           { status: 400 },
@@ -122,42 +165,50 @@ export async function POST(request: Request) {
     }
 
     // 기존 submission 상태 확인 (제작요청 처리 전에 체크하기 위함)
-    const existingSubmission = await prisma.submission.findUnique({
+    const storedExistingSubmission = await prisma.submission.findUnique({
       where: { userId },
     });
+    const existingSubmission = storedExistingSubmission
+      ? decryptSubmissionSecrets(storedExistingSubmission, userId)
+      : null;
     const wasNotComplete = !existingSubmission?.isComplete;
 
-    // Gmail 디버깅 로그
-    if (validatedData.GmailID || validatedData.GmailPW) {
-      console.log(
-        `🔍 [Gmail Debug] validatedData.GmailID: "${validatedData.GmailID}"`,
-      );
-      console.log(
-        `🔍 [Gmail Debug] validatedData.GmailPW: "${validatedData.GmailPW}"`,
-      );
-      console.log(
-        `🔍 [Gmail Debug] existingSubmission.GmailID: "${existingSubmission?.GmailID}"`,
-      );
-      console.log(
-        `🔍 [Gmail Debug] existingSubmission.GmailPW: "${existingSubmission?.GmailPW}"`,
-      );
+    if (await hasLockedShippingConflict(userId, validatedData)) {
+      return NextResponse.json({ error: "발주 요청 이후 배송지는 변경할 수 없습니다." }, { status: 409 });
     }
 
     // Submission 업데이트
-    const submission = await prisma.submission.upsert({
+    const encryptedData = encryptSubmissionSecrets(validatedData, userId);
+    const storedSubmission = await prisma.submission.upsert({
       where: { userId },
       create: {
         userId,
-        ...validatedData,
+        ...encryptedData,
       },
-      update: validatedData,
+      update: encryptedData,
     });
+    const submission = decryptSubmissionSecrets(storedSubmission, userId);
 
     // 사용자 정보 조회 (슬랙 채널 ID 확인용)
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: { cohort: true },
     });
+
+    if (user) {
+      await notifySubmissionChanges(userId, submission as Record<string, unknown>, existingSubmission as Record<string, unknown> | undefined, {
+        email: user.email,
+        이름: user.이름,
+        englishName: user.englishName || undefined,
+        연락처: user.연락처 || undefined,
+        slackChannelId: user.slackChannelId || undefined,
+        cohortName: user.cohort?.name,
+        cohortEnglishName: user.cohort?.englishName || undefined,
+      }, async (channelId) => {
+        await prisma.user.update({ where: { id: userId }, data: { slackChannelId: channelId } });
+        user.slackChannelId = channelId;
+      }, Object.keys(validatedData)).catch((error: unknown) => console.error("제출 변경 알림 실패:", error));
+    }
 
     // 자료제출 시 로고 워크플로우 자동 생성 (없으면 생성)
     const existingLogoWorkflow = await prisma.workflow.findFirst({
@@ -226,455 +277,6 @@ export async function POST(request: Request) {
         );
       }
 
-      // 홈페이지 스타일+컬러 선택 시 슬랙 알림
-      if (
-        (validatedData.홈페이지스타일 || validatedData.홈페이지컬러컨셉) &&
-        user?.slackChannelId
-      ) {
-        const { postMessage } = await import("@/lib/notification/slackClient");
-
-        const styleNames: Record<string, string> = {
-          "https://www.jnipartners.co.kr": "스타일 1",
-          "https://bizcoaching.co.kr/": "스타일 2",
-          "https://startpackage-demo-style3.vercel.app/": "스타일 3",
-          "https://biznuri.co.kr/": "스타일 4",
-          "https://www.wiztion.com/": "스타일 5",
-          "https://brpartners.kr/": "스타일 6",
-          "https://startpackagedemo.vercel.app/": "스타일 7",
-          "https://hopebizgroup.com/": "스타일 8",
-          "https://gopartners.cc/": "스타일 9",
-          // 레거시 (이전 데이터 호환용)
-          "https://startpackage-demo2.vercel.app/": "스타일 8",
-          "https://startpackage-demo3.vercel.app/": "스타일 9",
-          "https://mjgood.imweb.me/": "스타일 2",
-          "https://bizen.co.kr/": "스타일 2",
-          "https://ksupport-center.imweb.me/": "스타일 4",
-          "https://fpbiz.imweb.me/": "스타일 6",
-          "https://www.k-eai.kr/index.html": "스타일 6",
-        };
-
-        const styleName = submission.홈페이지스타일
-          ? styleNames[submission.홈페이지스타일] || submission.홈페이지스타일
-          : "-";
-        const color = submission.홈페이지컬러컨셉 || "-";
-
-        await postMessage({
-          channelId: user.slackChannelId,
-          text: `✅ 홈페이지 스타일 & 컬러 선택`,
-          blocks: [
-            {
-              type: "section",
-              text: {
-                type: "mrkdwn",
-                text: `*✅ 홈페이지 스타일 & 컬러 선택*\n\n*선택한 스타일:* ${styleName}\n*컬러 컨셉:* ${color}`,
-              },
-            },
-            submission.홈페이지스타일
-              ? {
-                  type: "section",
-                  text: {
-                    type: "mrkdwn",
-                    text: `<${submission.홈페이지스타일}|스타일 보기>`,
-                  },
-                }
-              : null,
-            {
-              type: "context",
-              elements: [
-                {
-                  type: "mrkdwn",
-                  text: `📅 ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`,
-                },
-              ],
-            },
-          ].filter(Boolean) as any,
-        }).catch((err) => console.error("홈페이지 선택 슬랙 알림 실패", err));
-      }
-    }
-
-    // 슬랙 채널 생성 또는 업데이트
-    console.log(
-      `🔍 [Submission] 슬랙 체크 - slackChannelId: ${user?.slackChannelId}`,
-    );
-
-    // 슬랙 채널이 없으면 생성 (기본 정보 완료 시)
-    if (
-      user &&
-      !user.slackChannelId &&
-      submission.브랜드명 &&
-      submission.업종 &&
-      submission.주소
-    ) {
-      console.log(`🔄 [Submission] 슬랙 채널 생성 시작 (제출 정보 있음)`);
-      const { createSlackChannel } =
-        await import("@/lib/notification/slackClient");
-
-      const cohortName =
-        user.cohort?.englishName || user.cohort?.name || "unknown";
-      const userName = user.englishName || user.이름;
-      const brandName =
-        submission.brandNameEnglish || submission.브랜드명 || "unknown";
-
-      const slackChannelId = await createSlackChannel({
-        cohortName,
-        userName,
-        brandName,
-        userEmail: user.email,
-        userPhone: user.연락처,
-      });
-
-      if (slackChannelId) {
-        // DB에 슬랙 채널 ID 저장
-        await prisma.user.update({
-          where: { id: userId },
-          data: { slackChannelId },
-        });
-        console.log(`✅ [Submission] 슬랙 채널 생성 완료: ${slackChannelId}`);
-
-        // 초기 제출 정보 푸시
-        const { pushSubmissionData } =
-          await import("@/lib/notification/slackClient");
-        await pushSubmissionData({
-          channelId: slackChannelId,
-          submissionData: submission,
-        });
-
-        // user 객체 업데이트 (이후 로직에서 사용)
-        user.slackChannelId = slackChannelId;
-      }
-    }
-
-    // 슬랙 채널이 있으면 변경사항 업데이트
-    console.log(
-      `🔍 [Slack Check] slackChannelId: "${user?.slackChannelId}", existingSubmission: ${!!existingSubmission}`,
-    );
-    console.log(
-      `🔍 [Slack Check] submission.GmailID: "${submission.GmailID}", existing.GmailID: "${existingSubmission?.GmailID}"`,
-    );
-    if (user?.slackChannelId && existingSubmission) {
-      console.log(`✅ [Submission] 슬랙 업데이트 시작`);
-      const { uploadFileToSlack } =
-        await import("@/lib/notification/slackClient");
-      const { postMessage } = await import("@/lib/notification/slackClient");
-
-      // 텍스트 필드 변경 감지
-      const textFields: Array<{ key: keyof typeof submission; label: string }> =
-        [
-          { key: "브랜드명", label: "브랜드명" },
-          { key: "업종", label: "업종" },
-          { key: "주소", label: "주소" },
-          { key: "인쇄물받을주소", label: "배송받을곳 주소" },
-          { key: "받는분이름", label: "인쇄물 수령인" },
-          { key: "수령연락처", label: "수령 연락처" },
-          { key: "우편번호", label: "우편번호" },
-          { key: "대표번호", label: "대표번호" },
-          { key: "이메일", label: "이메일" },
-          { key: "로고선호스타일", label: "로고 선호 스타일" },
-          { key: "로고선호색상", label: "로고 선호 색상 (HEX)" },
-          { key: "로고선호폰트", label: "로고 선호 폰트" },
-          { key: "명함색상", label: "로고/명함 색상" },
-          { key: "명함시안", label: "명함 스타일" },
-          { key: "계약서시안", label: "계약서 스타일" },
-          { key: "네이버검색광고ID", label: "네이버 검색광고 ID" },
-          { key: "네이버검색광고PW", label: "네이버 검색광고 비밀번호" },
-          { key: "네이버클라우드ID", label: "네이버 클라우드 ID" },
-          { key: "네이버클라우드PW", label: "네이버 클라우드 비밀번호" },
-          { key: "InstagramID", label: "Instagram ID" },
-          { key: "InstagramPW", label: "Instagram 비밀번호" },
-          { key: "GmailID", label: "Gmail ID" },
-          { key: "GmailPW", label: "Gmail 비밀번호" },
-          { key: "홈페이지스타일", label: "홈페이지 스타일" },
-          { key: "홈페이지컬러컨셉", label: "홈페이지 컬러" },
-          { key: "은행명", label: "은행명" },
-          { key: "계좌번호", label: "계좌번호" },
-          { key: "계좌명의자명", label: "계좌명의자 (대표와 다른 경우)" },
-        ];
-
-      const changedTextFields: Array<{
-        label: string;
-        oldValue: any;
-        newValue: any;
-        isNew: boolean;
-      }> = [];
-
-      for (const { key, label } of textFields) {
-        const newValue = submission[key];
-        const oldValue = existingSubmission[key];
-
-        // 새로 추가된 경우 (oldValue가 null/undefined) 또는 변경된 경우
-        if (newValue && newValue !== oldValue) {
-          const isNew = !oldValue;
-          changedTextFields.push({ label, oldValue, newValue, isNew });
-          console.log(
-            `📝 [Submission] 텍스트 필드 ${isNew ? "추가" : "변경"}: ${label} - ${oldValue || "없음"} → ${newValue}`,
-          );
-        }
-      }
-
-      // 배송지 변경 감지 (우선순위 높음)
-      const deliveryAddressChanged = changedTextFields.find(
-        (f) => f.label === "배송받을곳 주소",
-      );
-
-      // 배송지 변경 시 별도 강조 메시지
-      if (deliveryAddressChanged) {
-        await postMessage({
-          channelId: user.slackChannelId,
-          text: "🚚 배송지 정보 변경됨",
-          blocks: [
-            {
-              type: "header",
-              text: {
-                type: "plain_text",
-                text: "🚚 배송지 정보 변경됨",
-              },
-            },
-            {
-              type: "section",
-              text: {
-                type: "mrkdwn",
-                text: deliveryAddressChanged.isNew
-                  ? `*새로운 배송지 주소:*\n✨ *${deliveryAddressChanged.newValue}*`
-                  : `*배송지 주소 변경:*\n~${deliveryAddressChanged.oldValue}~ → *${deliveryAddressChanged.newValue}*`,
-              },
-            },
-            {
-              type: "context",
-              elements: [
-                {
-                  type: "mrkdwn",
-                  text: `⚠️ 배송지가 변경되었습니다. 인쇄물 발주 시 확인 필요`,
-                },
-              ],
-            },
-            {
-              type: "context",
-              elements: [
-                {
-                  type: "mrkdwn",
-                  text: `📅 ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`,
-                },
-              ],
-            },
-          ],
-        }).catch((err) =>
-          console.error("배송지 변경 슬랙 메시지 전송 실패", err),
-        );
-      }
-
-      // 변경된 텍스트 필드가 있으면 슬랙에 메시지 전송
-      if (changedTextFields.length > 0) {
-        const fields = changedTextFields.map(
-          ({ label, oldValue, newValue, isNew }) => {
-            const isPhone = label === "대표번호";
-            const displayNew = isPhone ? formatPhoneSafe(newValue) : newValue;
-            const displayOld = isPhone ? formatPhoneSafe(oldValue) : oldValue;
-            return {
-              type: "mrkdwn",
-              text: isNew
-                ? `*${label}:*\n✨ *${displayNew}* (새로 추가됨)`
-                : `*${label}:*\n~${displayOld}~ → *${displayNew}*`,
-            };
-          },
-        );
-
-        const hasNewFields = changedTextFields.some((f) => f.isNew);
-        const hasUpdatedFields = changedTextFields.some((f) => !f.isNew);
-
-        let headerText = "📝 정보 업데이트";
-        if (hasNewFields && !hasUpdatedFields) {
-          headerText = "✨ 새로운 정보 추가됨";
-        } else if (hasNewFields && hasUpdatedFields) {
-          headerText = "📝 정보 추가 및 수정";
-        }
-
-        await postMessage({
-          channelId: user.slackChannelId,
-          text: headerText,
-          blocks: [
-            {
-              type: "header",
-              text: {
-                type: "plain_text",
-                text: headerText,
-              },
-            },
-            {
-              type: "section",
-              fields,
-            },
-            {
-              type: "context",
-              elements: [
-                {
-                  type: "mrkdwn",
-                  text: `📅 ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`,
-                },
-              ],
-            },
-          ],
-        }).catch((err) =>
-          console.error("정보 수정 슬랙 메시지 전송 실패", err),
-        );
-      }
-
-      // Gmail 명시적 제출 시 별도 슬랙 알림 (autosave로 이미 저장된 경우 변경감지 누락 방지)
-      if (
-        validatedData.GmailID &&
-        !changedTextFields.find((f) => f.label === "Gmail ID")
-      ) {
-        console.log(
-          `📧 [Gmail] 명시적 제출 감지 - 변경감지 누락, 별도 알림 발송`,
-        );
-        await postMessage({
-          channelId: user.slackChannelId,
-          text: `✅ Gmail 계정 정보 등록`,
-          blocks: [
-            {
-              type: "section",
-              text: {
-                type: "mrkdwn",
-                text: `*✅ Gmail 계정 정보 등록*\n\n*Gmail ID:* ${submission.GmailID}\n*비밀번호:* ${submission.GmailPW || "(미입력)"}`,
-              },
-            },
-            {
-              type: "context",
-              elements: [
-                {
-                  type: "mrkdwn",
-                  text: `📅 ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`,
-                },
-              ],
-            },
-          ],
-        }).catch((err) => console.error("Gmail 슬랙 알림 실패", err));
-      }
-
-      // 파일 필드 체크 (모든 업로드 파일)
-      const fileFields = [
-        {
-          key: "사업자등록증URL",
-          label: "사업자등록증",
-          fileName: "사업자등록증.pdf",
-        },
-        {
-          key: "프로필사진URL",
-          label: "프로필사진",
-          fileName: "프로필사진.jpg",
-        },
-        { key: "로고URL", label: "로고 파일", fileName: "로고.png" },
-        {
-          key: "대표자신분증URL",
-          label: "대표자신분증",
-          fileName: "대표자신분증.jpg",
-        },
-        {
-          key: "통신서비스이용증명원URL",
-          label: "통신서비스이용증명원",
-          fileName: "통신서비스이용증명원.pdf",
-        },
-        {
-          key: "신용카드앞면URL",
-          label: "신용카드앞면",
-          fileName: "신용카드앞면.jpg",
-        },
-        {
-          key: "로고예시디자인URL",
-          label: "로고예시디자인",
-          fileName: "로고예시디자인.jpg",
-        },
-        {
-          key: "로고예시디자인2URL",
-          label: "로고예시디자인2",
-          fileName: "로고예시디자인2.jpg",
-        },
-      ] as const;
-
-      // 변경된 파일 업로드
-      for (const { key, label, fileName } of fileFields) {
-        const newValue = submission[key];
-        const oldValue = existingSubmission[key];
-
-        if (newValue && newValue !== oldValue) {
-          console.log(`📤 [Submission] 파일 업로드: ${label}`);
-          await uploadFileToSlack({
-            channelId: user.slackChannelId,
-            filePath: newValue,
-            fileName,
-            title: label,
-          }).catch((err) => console.error(`파일 업로드 실패: ${label}`, err));
-
-          // 텔레그램 알림 발송
-          const { sendTelegramMessage } =
-            await import("@/lib/notification/telegramClient");
-          await sendTelegramMessage(
-            `📤 *파일 업로드*\n\n*사용자:* ${user.이름 || user.email}\n*파일:* ${label}\n*시간:* ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`,
-          ).catch((err) => console.error("텔레그램 알림 실패:", err));
-        }
-      }
-
-      // 명함시안 변경 체크
-      if (
-        submission.명함시안 &&
-        submission.명함시안 !== existingSubmission.명함시안
-      ) {
-        console.log(`📝 명함 스타일 선택: ${submission.명함시안}`);
-
-        // 슬랙에 메시지 전송
-        await postMessage({
-          channelId: user.slackChannelId,
-          text: `✅ 명함 스타일 선택: ${submission.명함시안}`,
-          blocks: [
-            {
-              type: "section",
-              text: {
-                type: "mrkdwn",
-                text: `*✅ 명함 스타일 선택*\n선택한 스타일: *${submission.명함시안}*`,
-              },
-            },
-            {
-              type: "context",
-              elements: [
-                {
-                  type: "mrkdwn",
-                  text: `📅 ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`,
-                },
-              ],
-            },
-          ],
-        }).catch((err) => console.error("명함 스타일 메시지 전송 실패", err));
-      }
-
-      // 계약서시안 변경 체크
-      if (
-        submission.계약서시안 &&
-        submission.계약서시안 !== existingSubmission.계약서시안
-      ) {
-        console.log(`📝 계약서 스타일 선택: ${submission.계약서시안}`);
-
-        await postMessage({
-          channelId: user.slackChannelId,
-          text: `✅ 계약서 스타일 선택: ${submission.계약서시안}`,
-          blocks: [
-            {
-              type: "section",
-              text: {
-                type: "mrkdwn",
-                text: `*✅ 계약서 스타일 선택*\n선택한 스타일: *${submission.계약서시안}*`,
-              },
-            },
-            {
-              type: "context",
-              elements: [
-                {
-                  type: "mrkdwn",
-                  text: `📅 ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`,
-                },
-              ],
-            },
-          ],
-        }).catch((err) => console.error("계약서 스타일 메시지 전송 실패", err));
-      }
     }
 
     // 사용자가 명시적으로 isComplete: true를 보낸 경우만 제작요청 처리
@@ -791,11 +393,13 @@ export async function POST(request: Request) {
         });
       }
 
-      return NextResponse.json(updatedSubmission);
+      return NextResponse.json(maskSubmissionSecretsDeep(updatedSubmission));
     }
 
-    return NextResponse.json(submission);
+    return NextResponse.json(maskSubmissionSecretsDeep(submission));
   } catch (error) {
+    const response = dataServiceErrorResponse(error);
+    if (response) return response;
     console.error("POST /api/submission error:", error);
     return NextResponse.json(
       { error: "Internal server error" },

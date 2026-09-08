@@ -1,6 +1,9 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 // GET: 스레드 상세 조회
 export async function GET(
@@ -15,6 +18,10 @@ export async function GET(
 
     const userId = (session.user as any).id;
     const { id } = await params;
+    if (isD1RuntimeEnabled()) {
+      const search = new URL(request.url).searchParams;
+      return NextResponse.json(await callDataService("communication-domain/user-thread", { userId, threadId: id, pageSize: search.get("pageSize") ?? undefined, cursor: search.get("cursor") ?? undefined }));
+    }
 
     const thread = await prisma.communicationThread.findUnique({
       where: { id },
@@ -42,6 +49,8 @@ export async function GET(
 
     return NextResponse.json(thread);
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("GET /api/communication/threads/[id] error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

@@ -1,11 +1,14 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import {
-  ONLINE_MARKETING_BILLING_MONTHS,
-  ONLINE_MARKETING_MONTHLY_PRICE,
+  ONLINE_MARKETING_BILLING_WEEKS,
+  ONLINE_MARKETING_BILLING_DAYS,
   ONLINE_MARKETING_TOTAL_PRICE,
 } from "@/lib/marketing-pricing";
 import { NextResponse } from "next/server";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 // POST: 마케팅 지원 연장 신청
 export async function POST(request: Request) {
@@ -15,15 +18,34 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userId = (session.user as any).id;
+    const userId = session.user.id;
     const body = await request.json();
     const { requestMessage } = body;
 
-    // 3개월 단위 결제만 가능
-    const months = ONLINE_MARKETING_BILLING_MONTHS;
+    if (isD1RuntimeEnabled()) {
+      const extensionRequest = await callDataService<{ success: boolean; id: string; currentEndDate: number; newEndDate: number; requestMessage: string; userName?: string; email?: string }>("content-domain/marketing-extension-request", {
+        userId,
+        requestMessage: typeof requestMessage === "string" ? requestMessage : "",
+      });
+      try {
+        const { sendTelegramMessage } = await import("@/lib/notification/telegramClient");
+        await sendTelegramMessage(
+          `🔔 *마케팅 지원 연장 신청*\n\n` +
+            `*신청자:* ${extensionRequest.userName ?? "알 수 없음"} (${extensionRequest.email ?? ""})\n` +
+            `*연장 기간:* ${ONLINE_MARKETING_BILLING_WEEKS}주\n` +
+            `*결제 금액:* ${ONLINE_MARKETING_TOTAL_PRICE.toLocaleString()}원 (VAT 포함)\n` +
+            `*현재 종료일:* ${new Date(extensionRequest.currentEndDate).toLocaleDateString("ko-KR")}\n` +
+            `*연장 종료일:* ${new Date(extensionRequest.newEndDate).toLocaleDateString("ko-KR")}\n` +
+            `*요청 메시지:* ${extensionRequest.requestMessage || "(없음)"}`,
+        );
+      } catch (error) {
+        console.error("텔레그램 알림 실패:", error);
+      }
+      return NextResponse.json({ success: true, extensionRequest });
+    }
+
     const selectedPrice = {
       total: ONLINE_MARKETING_TOTAL_PRICE,
-      monthly: ONLINE_MARKETING_MONTHLY_PRICE,
     };
 
     // 사용자 정보 조회
@@ -51,10 +73,9 @@ export async function POST(request: Request) {
       );
     }
 
-    // 현재 종료일로부터 선택한 개월수 후 계산
     const currentEndDate = new Date(user.marketingSupportEndDate);
     const newEndDate = new Date(currentEndDate);
-    newEndDate.setMonth(newEndDate.getMonth() + months);
+    newEndDate.setDate(newEndDate.getDate() + ONLINE_MARKETING_BILLING_DAYS);
 
     // 이미 pending 상태의 신청이 있는지 확인
     const existingRequest = await prisma.marketingExtensionRequest.findFirst({
@@ -88,8 +109,8 @@ export async function POST(request: Request) {
       await sendTelegramMessage(
         `🔔 *마케팅 지원 연장 신청*\n\n` +
           `*신청자:* ${user.이름} (${user.email})\n` +
-          `*연장 기간:* ${months}개월\n` +
-          `*결제 금액:* ${selectedPrice.total.toLocaleString()}원 (월 ${selectedPrice.monthly.toLocaleString()}원)\n` +
+          `*연장 기간:* ${ONLINE_MARKETING_BILLING_WEEKS}주\n` +
+          `*결제 금액:* ${selectedPrice.total.toLocaleString()}원 (VAT 포함)\n` +
           `*현재 종료일:* ${currentEndDate.toLocaleDateString("ko-KR")}\n` +
           `*연장 종료일:* ${newEndDate.toLocaleDateString("ko-KR")}\n` +
           `*요청 메시지:* ${requestMessage || "(없음)"}`,
@@ -103,6 +124,8 @@ export async function POST(request: Request) {
       extensionRequest,
     });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("POST /api/marketing-extension/request error:", error);
     return NextResponse.json(
       { error: "Internal server error" },

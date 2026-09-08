@@ -7,6 +7,10 @@ import {
   type ShippingSnapshot,
 } from "@/lib/design-confirm";
 import { isShippingPolicyCohort } from "@/lib/shipping-policy";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callCore } from "@/lib/d1/core-client";
+import { notifyWorkflowApproval } from "@/lib/notification/workflowNotifications";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 export async function POST(
   request: NextRequest,
@@ -20,6 +24,22 @@ export async function POST(
 
     const { id: workflowId } = await params;
     const userId = session.user.id;
+
+    if (isD1RuntimeEnabled()) {
+      const body = await request.json().catch(() => ({}));
+      const result = await callCore<Record<string, unknown>>("workflow-approve", userId, {
+        userId,
+        workflowId,
+        shipping: body?.shipping ?? null,
+        agreements: Array.isArray(body?.agreements) ? body.agreements : [],
+        performedByName: session.user.name || "사용자",
+      });
+      const meta = result.__d1Meta as { user?: Record<string, unknown> } | undefined;
+      delete result.__d1Meta;
+      const person = meta?.user || {};
+      await notifyWorkflowApproval({ userId, workflowType: String(result.type || "워크플로우"), userName: String(person.이름 || person.englishName || session.user.name || "사용자"), cohortName: String(person.cohortName || person.cohortEnglishName || "미정"), brandName: String(person.브랜드명 || person.brandNameEnglish || "미정"), slackChannelId: typeof person.slackChannelId === "string" ? person.slackChannelId : undefined }).catch((error) => console.error("알림 발송 실패:", error));
+      return NextResponse.json({ success: true, workflow: result });
+    }
 
     // 워크플로우 조회
     const workflow = await prisma.workflow.findUnique({
@@ -125,75 +145,17 @@ export async function POST(
       },
     });
 
-    // 슬랙 알림 전송
-    if (user?.slackChannelId) {
-      const { postMessage } = await import("@/lib/notification/slackClient");
-
-      await postMessage({
-        channelId: user.slackChannelId,
-        text: `✅ ${workflow.type} 최종 확정`,
-        blocks: [
-          {
-            type: "header",
-            text: {
-              type: "plain_text",
-              text: `✅ ${workflow.type} 최종 확정`,
-            },
-          },
-          {
-            type: "section",
-            fields: [
-              {
-                type: "mrkdwn",
-                text: `*항목:*\n${workflow.type}`,
-              },
-              {
-                type: "mrkdwn",
-                text: `*이전 상태:*\n${previousStatus}`,
-              },
-              {
-                type: "mrkdwn",
-                text: `*현재 상태:*\n최종확정`,
-              },
-              {
-                type: "mrkdwn",
-                text: `*확정자:*\n${user.이름}`,
-              },
-            ],
-          },
-          {
-            type: "context",
-            elements: [
-              {
-                type: "mrkdwn",
-                text: `📅 ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`,
-              },
-            ],
-          },
-        ],
-      }).catch(err => console.error("슬랙 알림 전송 실패:", err));
-    }
-
-    // 텔레그램 관리자 알림 전송
     if (user) {
-      const { notifyAdmin } = await import("@/lib/notification/telegramClient");
-
-      const cohortName = user.cohort?.name || "미정";
-      const userName = user.이름 || "알 수 없음";
-      const brandName = user.submission?.브랜드명 || "미정";
-
-      await notifyAdmin({
-        title: `✅ ${workflow.type} 확정`,
-        message: `${cohortName}_${userName}_${brandName} 님이 ${workflow.type} 시안을 확정했습니다.`,
-        details: {
-          "기수": cohortName,
-          "이름": userName,
-          "브랜드명": brandName,
-          "항목": workflow.type,
-          "이전 상태": previousStatus,
-          "현재 상태": "최종확정",
-        },
-      }).catch(err => console.error("텔레그램 알림 전송 실패:", err));
+      await notifyWorkflowApproval({
+        userId,
+        workflowType: workflow.type,
+        userName: user.이름 || "알 수 없음",
+        cohortName: user.cohort?.name || "미정",
+        brandName: user.submission?.브랜드명 || "미정",
+        slackChannelId: user.slackChannelId,
+        previousStatus,
+        confirmedAt: new Date(),
+      }).catch(err => console.error("승인 알림 전송 실패:", err));
     }
 
     return NextResponse.json({
@@ -201,6 +163,8 @@ export async function POST(
       workflow: updatedWorkflow,
     });
   } catch (error: any) {
+    const response = dataServiceErrorResponse(error);
+    if (response) return response;
     console.error("로고 승인 에러:", error);
     return NextResponse.json(
       { error: "로고 승인 중 오류가 발생했습니다." },

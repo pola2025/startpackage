@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 import { uploadToR2, generateFileName, validateR2Config } from "@/lib/storage/r2Client";
+import { fileSizeExceededPayload } from "@/lib/storage/uploadLimits";
 
 // Vercel function 설정
 export const maxDuration = 30; // 30초 타임아웃
@@ -58,8 +59,8 @@ export async function POST(request: Request) {
     // 파일 크기 체크
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
-        { error: "파일 크기는 10MB 이하여야 합니다" },
-        { status: 400 }
+        fileSizeExceededPayload(MAX_FILE_SIZE),
+        { status: 413 }
       );
     }
 

@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
+
+function d1Alert(row: Record<string, unknown>) { return { ...row, isActive: Boolean(row.isActive), startDate: new Date(Number(row.startDate)), endDate: new Date(Number(row.endDate)), createdAt: new Date(Number(row.createdAt)), updatedAt: new Date(Number(row.updatedAt)) }; }
 
 const updateAlertSchema = z.object({
   title: z.string().min(1).optional(),
@@ -45,6 +50,10 @@ export async function PATCH(
     }
 
     const data = validation.data;
+    if (isD1RuntimeEnabled()) {
+      const alert = await callDataService<Record<string, unknown>>("admin-domain/alert-update", { adminId: session.user.id, id, ...data, startDate: data.startDate ? new Date(data.startDate).getTime() : undefined, endDate: data.endDate ? new Date(data.endDate).getTime() : undefined });
+      return NextResponse.json({ success: true, alert: d1Alert(alert) });
+    }
     const updateData: Record<string, unknown> = {};
 
     if (data.title !== undefined) updateData.title = data.title;
@@ -66,6 +75,8 @@ export async function PATCH(
 
     return NextResponse.json({ success: true, alert });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("알림 수정 실패:", error);
     return NextResponse.json(
       { success: false, error: "알림 수정에 실패했습니다." },
@@ -94,10 +105,17 @@ export async function DELETE(
 
     const { id } = await params;
 
+    if (isD1RuntimeEnabled()) {
+      await callDataService("admin-domain/alert-delete", { adminId: session.user.id, id });
+      return NextResponse.json({ success: true });
+    }
+
     await prisma.systemAlert.delete({ where: { id } });
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("알림 삭제 실패:", error);
     return NextResponse.json(
       { success: false, error: "알림 삭제에 실패했습니다." },

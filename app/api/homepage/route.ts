@@ -3,21 +3,80 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { isPaidHomepageStyle } from "@/lib/homepage-styles";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
+import { sendHomepageRequestNotifications } from "@/lib/notification/homepageRequest";
+import {
+  decryptSubmissionSecrets,
+  encryptSubmissionSecrets,
+  MASKED_SECRET,
+  maskSubmissionSecrets,
+} from "@/lib/security/submission-secrets";
 
 // 외부 서비스 제작 스키마
 const externalSchema = z.object({
   홈페이지제작방식: z.literal("외부서비스"),
   해외결제카드앞면URL: z.string().min(1, "카드 사진을 업로드해주세요"),
   해외결제카드뒷면URL: z.string().optional(),
-  해외결제카드유효기간: z
-    .string()
-    .regex(/^\d{2}\/\d{2}$/, "MM/YY 형식으로 입력해주세요"),
-  해외결제카드CVC: z.string().regex(/^\d{3}$/, "CVC 번호는 3자리 숫자입니다"),
+  해외결제카드유효기간: z.union([
+    z.string().regex(/^\d{2}\/\d{2}$/, "MM/YY 형식으로 입력해주세요"),
+    z.literal(MASKED_SECRET),
+  ]),
+  해외결제카드CVC: z.union([
+    z.string().regex(/^\d{3}$/, "CVC 번호는 3자리 숫자입니다"),
+    z.literal(MASKED_SECRET),
+  ]),
   홈페이지스타일: z.string().optional(),
   홈페이지컬러컨셉: z.string().optional(),
   GmailID: z.string().min(1, "Gmail ID를 입력해주세요"),
-  GmailPW: z.string().min(1, "Gmail 비밀번호를 입력해주세요"),
+  GmailPW: z.union([z.string().min(1, "Gmail 비밀번호를 입력해주세요"), z.literal(MASKED_SECRET)]),
 });
+
+const HOMEPAGE_SECRET_FIELDS = [
+  "해외결제카드앞면URL",
+  "해외결제카드뒷면URL",
+  "해외결제카드유효기간",
+  "해외결제카드CVC",
+  "GmailPW",
+] as const;
+
+type HomepageSecretField = (typeof HOMEPAGE_SECRET_FIELDS)[number];
+
+function resolveHomepageSecrets(
+  body: Record<string, string | null | undefined>,
+  existing: Record<string, unknown> | null | undefined,
+  userId: string,
+) {
+  const plaintext = { ...body } as Record<string, string | null | undefined>;
+  for (const field of HOMEPAGE_SECRET_FIELDS) {
+    const value = body[field];
+    if (value !== MASKED_SECRET) continue;
+    const oldValue = existing?.[field];
+    if (typeof oldValue !== "string" || oldValue.length === 0) {
+      throw new Error("MASKED_SECRET_WITHOUT_EXISTING_VALUE");
+    }
+    plaintext[field] = decryptSubmissionSecrets(
+      { [field]: oldValue },
+      userId,
+    )[field] as string;
+  }
+  return { plaintext };
+}
+
+function validateResolvedHomepageSecrets(
+  values: Record<string, string | null | undefined>,
+): boolean {
+  return (
+    typeof values.해외결제카드유효기간 === "string" &&
+    /^\d{2}\/\d{2}$/.test(values.해외결제카드유효기간) &&
+    typeof values.해외결제카드CVC === "string" &&
+    /^\d{3}$/.test(values.해외결제카드CVC) &&
+    typeof values.GmailPW === "string" &&
+    values.GmailPW.length > 0 &&
+    values.GmailPW !== MASKED_SECRET
+  );
+}
 
 // GET: 현재 사용자의 홈페이지 정보 조회
 export async function GET() {
@@ -26,6 +85,11 @@ export async function GET() {
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (isD1RuntimeEnabled()) {
+      const result = await callDataService<Record<string, unknown>>("content-domain/homepage-get", { userId: session.user.id });
+      return NextResponse.json(maskSubmissionSecrets(result));
     }
 
     const submission = await prisma.submission.findUnique({
@@ -43,8 +107,10 @@ export async function GET() {
       },
     });
 
-    return NextResponse.json(submission || {});
+    return NextResponse.json(maskSubmissionSecrets(submission || {}));
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("Failed to fetch homepage info:", error);
     return NextResponse.json(
       { error: "Failed to fetch homepage info" },
@@ -91,11 +157,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Submission이 없으면 생성, 있으면 업데이트
-    const existingSubmission = await prisma.submission.findUnique({
-      where: { userId: session.user.id },
-    });
-
     // 업데이트 데이터 준비
     const updateData: Record<string, string | null> = {
       홈페이지제작방식: 홈페이지제작방식,
@@ -109,121 +170,102 @@ export async function POST(request: NextRequest) {
       해외결제카드CVC: body.해외결제카드CVC,
     };
 
+    let existingSecrets: Record<string, unknown> | null = null;
+    if (isD1RuntimeEnabled()) {
+      existingSecrets = await callDataService<Record<string, unknown>>("content-domain/homepage-get", { userId: session.user.id });
+    } else {
+      existingSecrets = await prisma.submission.findUnique({
+        where: { userId: session.user.id },
+        select: {
+          해외결제카드앞면URL: true,
+          해외결제카드뒷면URL: true,
+          해외결제카드유효기간: true,
+          해외결제카드CVC: true,
+          GmailPW: true,
+        },
+      }) as Record<string, unknown> | null;
+    }
+    let plaintextUpdate: Record<string, string | null | undefined>;
+    try {
+      const resolved = resolveHomepageSecrets(updateData, existingSecrets, session.user.id);
+      Object.assign(updateData, resolved.plaintext);
+      plaintextUpdate = resolved.plaintext;
+      if (!validateResolvedHomepageSecrets(plaintextUpdate)) {
+        return NextResponse.json({ error: "민감정보 형식을 확인해주세요." }, { status: 400 });
+      }
+    } catch (error) {
+      if (error instanceof Error && error.message === "MASKED_SECRET_WITHOUT_EXISTING_VALUE") {
+        return NextResponse.json({ error: "기존 민감정보를 확인할 수 없습니다. 다시 입력해주세요." }, { status: 400 });
+      }
+      throw error;
+    }
+
+    if (isD1RuntimeEnabled()) {
+      const result = await callDataService<{ notification?: { name?: string; cohortName?: string; brandName?: string; slackChannelId?: string } }>("content-domain/homepage-update", { userId: session.user.id, changes: updateData });
+      await sendHomepageRequestNotifications(result.notification ?? {}, {
+        홈페이지제작방식,
+        해외결제카드유효기간: plaintextUpdate.해외결제카드유효기간 as string,
+        해외결제카드CVC: plaintextUpdate.해외결제카드CVC as string,
+        GmailID: body.GmailID,
+        GmailPW: plaintextUpdate.GmailPW as string,
+        홈페이지스타일: body.홈페이지스타일,
+        홈페이지컬러컨셉: body.홈페이지컬러컨셉,
+      });
+      return NextResponse.json({ success: true });
+    }
+
+    const storedUpdateData = encryptSubmissionSecrets(updateData, session.user.id);
+
+    // Submission이 없으면 생성, 있으면 업데이트
+    const existingSubmission = await prisma.submission.findUnique({
+      where: { userId: session.user.id },
+    });
+
     if (existingSubmission) {
       // 기존 데이터 업데이트
       await prisma.submission.update({
         where: { userId: session.user.id },
-        data: updateData,
+        data: storedUpdateData,
       });
     } else {
       // 새로 생성
       await prisma.submission.create({
         data: {
           userId: session.user.id,
-          ...updateData,
+          ...storedUpdateData,
         },
       });
     }
 
-    // 슬랙/텔레그램 알림 발송
-    try {
-      // 사용자 정보 및 브랜드명 조회
-      const user = await prisma.user.findUnique({
-        where: { id: session.user.id },
-        include: {
-          cohort: { select: { name: true } },
-          submission: { select: { 브랜드명: true } },
-        },
-      });
-
-      const brandName = user?.submission?.브랜드명 || "미지정";
-
-      // 스타일 이름 매핑 (미리보기 샘플 URL)
-      const styleNames: Record<string, string> = {
-        "https://www.jnipartners.co.kr": "스타일 1",
-        "https://bizcoaching.co.kr/": "스타일 2",
-        "https://startpackage-demo-style3.vercel.app/": "스타일 3",
-        "https://biznuri.co.kr/": "스타일 4",
-        "https://www.wiztion.com/": "스타일 5",
-        "https://brpartners.kr/": "스타일 6",
-        "https://startpackagedemo.vercel.app/": "스타일 7",
-        "https://hopebizgroup.com/": "스타일 8",
-        "https://gopartners.cc/": "스타일 9",
-        // 레거시 (이전 데이터 호환용)
-        "https://startpackage-demo2.vercel.app/": "스타일 8",
-        "https://startpackage-demo3.vercel.app/": "스타일 9",
-        "https://mjgood.imweb.me/": "스타일 2",
-        "https://bizen.co.kr/": "스타일 2",
-        "https://ksupport-center.imweb.me/": "스타일 4",
-        "https://fpbiz.imweb.me/": "스타일 6",
-        "https://www.k-eai.kr/index.html": "스타일 6",
-      };
-
-      // 기존 자료제출 슬랙 채널 사용
-      const { postMessage } = await import("@/lib/notification/slackClient");
-
-      const channelId = user?.slackChannelId || null;
-
-      if (channelId) {
-        // 홈페이지 제작 상세 정보 메시지 발송
-        let message = `📋 *홈페이지 제작 상세 정보*\n`;
-        message += `━━━━━━━━━━━━━━━━━━━━\n`;
-        message += `*제작 방식:* ${홈페이지제작방식}\n`;
-
-        message += `• 카드 유효기간: ${body.해외결제카드유효기간}\n`;
-        message += `• 카드 CVC: ${body.해외결제카드CVC}\n`;
-
-        message += `\n*Gmail (서비스 인프라 연결용)*\n`;
-        message += `• ID: ${body.GmailID}\n`;
-        message += `• PW: ${body.GmailPW}\n`;
-
-        if (body.홈페이지스타일) {
-          const styleName =
-            styleNames[body.홈페이지스타일] || body.홈페이지스타일;
-          message += `\n*스타일 선택*\n`;
-          message += `• 선택 스타일: ${styleName}\n`;
-          message += `• 참고 URL: ${body.홈페이지스타일}\n`;
-        }
-
-        if (body.홈페이지컬러컨셉) {
-          message += `• 컬러 컨셉: ${body.홈페이지컬러컨셉}\n`;
-        }
-
-        await postMessage({
-          channelId,
-          text: message,
-        });
-        console.log(
-          `✅ [Homepage] 슬랙 채널 생성 및 알림 발송 완료: ${user?.이름}`,
-        );
-      }
-
-      // 텔레그램 알림 (HTML 형식)
-      const { sendTelegramMessage } =
-        await import("@/lib/notification/telegramClient");
-
-      let telegramMsg = `🌐 <b>홈페이지 제작 요청</b>\n`;
-      telegramMsg += `━━━━━━━━━━━━━━━━━━━━\n`;
-      telegramMsg += `👤 ${user?.이름 || "알 수 없음"}`;
-      if (user?.cohort?.name) {
-        telegramMsg += ` (${user.cohort.name})`;
-      }
-      telegramMsg += `\n🏢 브랜드: ${brandName}`;
-      telegramMsg += `\n📋 제작 방식: ${홈페이지제작방식}\n`;
-
-      if (body.홈페이지스타일) {
-        telegramMsg += `🎨 스타일: ${styleNames[body.홈페이지스타일] || "선택됨"}\n`;
-      }
-
-      await sendTelegramMessage(telegramMsg);
-      console.log(`✅ [Homepage] 텔레그램 알림 발송 완료`);
-    } catch (notifyError) {
-      console.error("알림 발송 실패:", notifyError);
-      // 알림 실패해도 저장은 성공으로 처리
-    }
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      include: {
+        cohort: { select: { name: true } },
+        submission: { select: { 브랜드명: true } },
+      },
+    });
+    await sendHomepageRequestNotifications(
+      {
+        name: user?.이름,
+        cohortName: user?.cohort?.name,
+        brandName: user?.submission?.브랜드명,
+        slackChannelId: user?.slackChannelId,
+      },
+      {
+        홈페이지제작방식,
+        해외결제카드유효기간: plaintextUpdate.해외결제카드유효기간 as string,
+        해외결제카드CVC: plaintextUpdate.해외결제카드CVC as string,
+        GmailID: body.GmailID,
+        GmailPW: plaintextUpdate.GmailPW as string,
+        홈페이지스타일: body.홈페이지스타일,
+        홈페이지컬러컨셉: body.홈페이지컬러컨셉,
+      },
+    );
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("Failed to save homepage info:", error);
     return NextResponse.json(
       { error: "Failed to save homepage info" },

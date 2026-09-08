@@ -77,7 +77,7 @@ model User {
   slackChannelId   String? // 슬랙 채널 ID (기수명_이름_브랜드명)
   telegramChatId   String? // 텔레그램 채팅 ID
 
-  // 마케팅 지원 기간 (기수 정책 기준: 26-5기부터 8주, 이전 기수 3개월)
+  // 마케팅 지원 기간 (현재 운영 정책: 8주)
   marketingSupportEnabled   Boolean   @default(false) // 활성화 여부
   marketingSupportStartDate DateTime? // 시작일
   marketingSupportEndDate   DateTime? // 종료일
@@ -573,7 +573,7 @@ model MarketingExtensionRequest {
   // 신청 정보
   requestDate    DateTime @default(now()) // 신청일
   currentEndDate DateTime // 현재 종료일
-  newEndDate     DateTime // 새로운 종료일 (현재 종료일 + 3개월)
+  newEndDate     DateTime // 새로운 종료일 (현재 종료일 + 8주)
   requestMessage String?  @db.Text // 요청 메시지
 
   // 신청 상태

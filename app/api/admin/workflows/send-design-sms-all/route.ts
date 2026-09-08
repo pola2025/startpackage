@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 import { sendSMS, getSenderPhoneByAdmin } from "@/lib/sms/ncpSensClient";
 
 export async function POST(request: NextRequest) {
@@ -25,6 +28,26 @@ export async function POST(request: NextRequest) {
         { error: "워크플로우 ID 목록이 필요합니다." },
         { status: 400 },
       );
+    }
+
+    if (isD1RuntimeEnabled()) {
+      if (workflowIds.length > 200) return NextResponse.json({ error: "한 번에 최대 200개까지 발송할 수 있습니다." }, { status: 400 });
+      const adminId = (session.user as any).id;
+      const data = await callDataService<{ workflows: Array<Record<string, unknown>> }>("admin-notifications/all-design-data", { adminId, workflowIds });
+      if (data.workflows.length !== workflowIds.length) return NextResponse.json({ error: "일부 워크플로우를 찾을 수 없어 발송하지 않았습니다." }, { status: 400 });
+      let successCount = 0; let failedCount = 0;
+      const results: Array<Record<string, unknown>> = [];
+      const message = `[스타트패키지]\n\n디자인 시안이 업로드되었습니다.\n확인 부탁드립니다.`;
+      for (const workflow of data.workflows) {
+        try {
+          if (!workflow.연락처) { failedCount++; results.push({ workflowId: workflow.id, userName: workflow.이름, success: false, error: "연락처 없음" }); continue; }
+          const adminFrom = getSenderPhoneByAdmin(session.user?.email);
+          await sendSMS(String(workflow.연락처), message, adminFrom ? { from: adminFrom } : undefined);
+          await callDataService("admin-notifications/notification-create", { adminId, userId: String(workflow.userId), type: "시안완료", channel: "SMS", title: `[스타트패키지] ${String(workflow.type)} 시안 완료`, message, status: "성공", sentBy: adminId, sentByName: (session.user as any).name || "관리자" });
+          successCount++; results.push({ workflowId: workflow.id, userName: workflow.이름, success: true });
+        } catch (error) { failedCount++; results.push({ workflowId: workflow.id, userName: workflow.이름, success: false, error: "SMS 발송 실패" }); console.error("SMS 발송 실패:", error); }
+      }
+      return NextResponse.json({ success: successCount, failed: failedCount, results });
     }
 
     // Get workflows with user info
@@ -124,6 +147,8 @@ export async function POST(request: NextRequest) {
       results,
     });
   } catch (error: any) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("SMS 일괄 발송 에러:", error);
     return NextResponse.json(
       { error: "SMS 발송 중 오류가 발생했습니다." },

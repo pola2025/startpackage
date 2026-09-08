@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 /**
  * GET /api/admin/ad-automation/[userId]
@@ -23,6 +26,11 @@ export async function GET(
     }
 
     const { userId } = await params;
+
+    if (isD1RuntimeEnabled()) {
+      const result = await callDataService<Record<string, unknown>>("admin-domain/ad-automation-get", { adminId: (session.user as { id: string }).id, userId });
+      return NextResponse.json(result);
+    }
 
     // 사용자 정보 조회
     const user = await prisma.user.findUnique({
@@ -93,6 +101,8 @@ export async function GET(
       },
     });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("광고자동화 상태 조회 실패:", error);
     return NextResponse.json(
       { success: false, error: "광고자동화 상태 조회에 실패했습니다." },

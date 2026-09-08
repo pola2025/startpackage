@@ -7,6 +7,9 @@ import {
   type ShippingSnapshot,
 } from "@/lib/design-confirm";
 import { isShippingPolicyCohort } from "@/lib/shipping-policy";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callCore } from "@/lib/d1/core-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 // POST: 시안 최종 확정
 // - 클라이언트만 가능
@@ -39,6 +42,35 @@ export async function POST(
     const agreements: string[] = Array.isArray(body?.agreements)
       ? body.agreements
       : [];
+
+    if (isD1RuntimeEnabled()) {
+      const result = await callCore<{
+        threadId: string;
+        workflowId: string;
+        status: "confirmed";
+        workflowStatus: "발주요청";
+        confirmedAt: number;
+        confirmedByName: string;
+        messageId: string;
+      }>("confirm-design", user.id, {
+        userId: user.id,
+        threadId,
+        message,
+        shipping,
+        agreements,
+      });
+      return NextResponse.json({
+        success: true,
+        message: "시안이 최종 확정되었습니다.",
+        thread: {
+          id: result.threadId,
+          status: result.status,
+          confirmedAt: new Date(result.confirmedAt),
+          confirmedByName: result.confirmedByName,
+        },
+        workflow: { id: result.workflowId, status: result.workflowStatus },
+      });
+    }
 
     // 쓰레드 조회
     const thread = await prisma.designThread.findUnique({
@@ -193,6 +225,8 @@ export async function POST(
       },
     });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("POST /api/design-threads/[id]/confirm error:", error);
     return NextResponse.json(
       { error: "Internal server error" },

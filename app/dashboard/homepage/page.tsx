@@ -40,9 +40,11 @@ import {
   isPaidHomepageStyle,
 } from "@/lib/homepage-styles";
 import {
-  ONLINE_MARKETING_MONTHLY_PRICE,
+  ONLINE_MARKETING_BILLING_WEEKS,
+  ONLINE_MARKETING_TOTAL_PRICE,
   formatManwon,
 } from "@/lib/marketing-pricing";
+import { MASKED_SECRET } from "@/lib/security/submission-secret-mask";
 
 interface HomepageData {
   홈페이지스타일: string | null;
@@ -144,10 +146,10 @@ export default function HomepageSettingsPage() {
   // 필수 입력 확인
   const isFormValid =
     gmailId.trim() &&
-    gmailPw.trim() &&
+    (gmailPw.trim() === MASKED_SECRET || gmailPw.trim()) &&
     cardFrontUrl.trim() &&
-    /^\d{2}\/\d{2}$/.test(cardExpiry) &&
-    /^\d{3}$/.test(cardCvc);
+    (cardExpiry === MASKED_SECRET || /^\d{2}\/\d{2}$/.test(cardExpiry)) &&
+    (cardCvc === MASKED_SECRET || /^\d{3}$/.test(cardCvc));
 
   // 저장 가능 여부
   const canSave = isFormValid;
@@ -268,11 +270,11 @@ export default function HomepageSettingsPage() {
   };
 
   // Step 완료 여부 계산
-  const step1Done = gmailId.trim() && gmailPw.trim();
+  const step1Done = gmailId.trim() && (gmailPw.trim() === MASKED_SECRET || gmailPw.trim());
   const step2Done =
     cardFrontUrl.trim() &&
-    /^\d{2}\/\d{2}$/.test(cardExpiry) &&
-    /^\d{3}$/.test(cardCvc);
+    (cardExpiry === MASKED_SECRET || /^\d{2}\/\d{2}$/.test(cardExpiry)) &&
+    (cardCvc === MASKED_SECRET || /^\d{3}$/.test(cardCvc));
   const step3Done =
     !!selectedWebsiteStyle && !isPaidHomepageStyle(selectedWebsiteStyle);
   const completedSteps = [step1Done, step2Done, step3Done].filter(
@@ -693,8 +695,8 @@ export default function HomepageSettingsPage() {
             <Info className="w-4 h-4 mt-0.5 flex-shrink-0 text-amber-600" />
             <div>
               <span className="font-semibold">유료옵션</span> 온라인마케팅
-              대행상품 이용 시 선택 가능 (월{" "}
-              {formatManwon(ONLINE_MARKETING_MONTHLY_PRICE)}, VAT 포함)
+              대행상품 이용 시 선택 가능 ({ONLINE_MARKETING_BILLING_WEEKS}주{" "}
+              {formatManwon(ONLINE_MARKETING_TOTAL_PRICE)}, VAT 포함)
             </div>
           </div>
 

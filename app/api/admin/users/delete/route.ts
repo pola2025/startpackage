@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { deleteMultipleFromR2 } from "@/lib/storage/r2Client";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
+import { decryptSubmissionSecrets } from "@/lib/security/submission-secrets";
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,12 +27,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (isD1RuntimeEnabled()) {
+      const assets = await callDataService<{ fileUrls: string[] }>("admin-domain/user-delete-assets", { adminId: (session.user as { id: string }).id, userId });
+      assets.fileUrls = assets.fileUrls.map((url) =>
+        decryptSubmissionSecrets({ 신용카드앞면URL: url }, userId).신용카드앞면URL,
+      ).filter((url) => url !== "SLACK_ONLY");
+      if (assets.fileUrls.length > 0) await deleteMultipleFromR2(assets.fileUrls);
+      await callDataService("admin-domain/user-delete", { adminId: (session.user as { id: string }).id, userId });
+      return NextResponse.json({ success: true, message: "사용자와 관련 파일이 모두 삭제되었습니다.", deletedFiles: assets.fileUrls.length });
+    }
+
     console.log(`🗑️ 사용자 삭제 시작: ${userId}`);
 
     // 1. Submission에서 파일 URL 수집
-    const submission = await prisma.submission.findUnique({
+    const storedSubmission = await prisma.submission.findUnique({
       where: { userId },
     });
+    const submission = storedSubmission ? decryptSubmissionSecrets(storedSubmission, userId) : null;
 
     const fileUrls: string[] = [];
 
@@ -45,7 +60,7 @@ export async function POST(request: NextRequest) {
       ];
 
       submissionFileFields.forEach((url) => {
-        if (url) fileUrls.push(url);
+        if (url && url !== "SLACK_ONLY") fileUrls.push(url);
       });
 
       console.log(`📋 Submission 파일: ${fileUrls.length}개`);
@@ -93,6 +108,8 @@ export async function POST(request: NextRequest) {
       deletedFiles: fileUrls.length,
     });
   } catch (error: any) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("사용자 삭제 에러:", error);
     return NextResponse.json(
       { error: "사용자 삭제 중 오류가 발생했습니다." },

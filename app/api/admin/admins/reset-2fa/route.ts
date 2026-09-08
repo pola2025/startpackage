@@ -3,6 +3,9 @@ import { randomBytes } from "crypto";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { z } from "zod";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 const reset2faSchema = z.object({
   adminId: z.string(),
@@ -40,19 +43,17 @@ export async function POST(request: NextRequest) {
 
     const { adminId } = validationResult.data;
 
-    const admin = await prisma.admin.findUnique({
-      where: { id: adminId },
-    });
-
-    if (!admin) {
-      return NextResponse.json(
-        { error: "관리자를 찾을 수 없습니다." },
-        { status: 404 }
-      );
-    }
-
     // 새 셋업 토큰 생성
     const setupToken = randomBytes(32).toString("hex");
+
+    if (isD1RuntimeEnabled()) {
+      const target = await callDataService<Record<string, unknown>>("admin-domain/admin-reset-2fa", { adminId: (session.user as { id: string }).id, targetAdminId: adminId, setupToken });
+      const baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_BASE_URL || "";
+      return NextResponse.json({ success: true, message: "2FA가 초기화되었습니다. 셋업 URL을 관리자에게 전달하세요.", setupUrl: `${baseUrl}/admin/setup-2fa?token=${setupToken}&email=${encodeURIComponent(String(target.email ?? ""))}` });
+    }
+
+    const admin = await prisma.admin.findUnique({ where: { id: adminId } });
+    if (!admin) return NextResponse.json({ error: "관리자를 찾을 수 없습니다." }, { status: 404 });
 
     // 2FA 초기화
     await prisma.admin.update({
@@ -74,6 +75,8 @@ export async function POST(request: NextRequest) {
       setupUrl,
     });
   } catch (error: any) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("2FA 재설정 에러:", error);
     return NextResponse.json(
       { error: "2FA 재설정 중 오류가 발생했습니다." },

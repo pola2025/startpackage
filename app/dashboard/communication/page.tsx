@@ -103,6 +103,10 @@ export default function UserCommunicationPage() {
   // 새 메시지 알림
   const [newMessageAlert, setNewMessageAlert] = useState(false);
   const [lastMessageCount, setLastMessageCount] = useState(0);
+  const [messageCursor, setMessageCursor] = useState<string | null>(null);
+  const [loadingMoreMessages, setLoadingMoreMessages] = useState(false);
+  const [threadCursor, setThreadCursor] = useState<string | null>(null);
+  const [loadingMoreThreads, setLoadingMoreThreads] = useState(false);
 
   // 이미지 첨부 바텀시트 상태
   const [attachmentSheetOpen, setAttachmentSheetOpen] = useState(false);
@@ -173,11 +177,12 @@ export default function UserCommunicationPage() {
   const fetchThreads = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/communication/threads");
+      const response = await fetch(`/api/communication/threads?pageSize=20${threadCursor ? `&cursor=${encodeURIComponent(threadCursor)}` : ""}`);
       const data = await response.json();
 
       if (response.ok) {
-        setThreads(data);
+        setThreads(Array.isArray(data) ? data : data.items ?? []);
+        setThreadCursor(data.nextCursor ?? null);
         // 선택된 스레드 업데이트
         if (selectedThread) {
           const response = await fetch(
@@ -186,6 +191,9 @@ export default function UserCommunicationPage() {
           if (response.ok) {
             const updated = await response.json();
 
+            const updatedMessages = Array.isArray(updated.messages) ? updated.messages : updated.messages?.items ?? [];
+            setMessageCursor(updated.messages?.nextCursor ?? null);
+            updated.messages = updatedMessages;
             // 새 메시지 감지
             if (
               lastMessageCount > 0 &&
@@ -206,10 +214,26 @@ export default function UserCommunicationPage() {
     }
   };
 
+  const loadMoreThreads = async () => {
+    if (!threadCursor || loadingMoreThreads) return;
+    setLoadingMoreThreads(true);
+    try {
+      const response = await fetch(`/api/communication/threads?pageSize=20&cursor=${encodeURIComponent(threadCursor)}`);
+      if (!response.ok) return;
+      const page = await response.json();
+      setThreads((current) => [...current, ...(page.items ?? [])]);
+      setThreadCursor(page.nextCursor ?? null);
+    } finally { setLoadingMoreThreads(false); }
+  };
+
   // 스레드 선택 시 읽음 처리
   const handleSelectThread = async (thread: CommunicationThread) => {
-    setSelectedThread(thread);
-    setLastMessageCount(thread.messages.length);
+    const response = await fetch(`/api/communication/threads/${thread.id}?pageSize=50`);
+    const detail = response.ok ? await response.json() : thread;
+    const messages = Array.isArray(detail.messages) ? detail.messages : detail.messages?.items ?? [];
+    setSelectedThread({ ...thread, ...detail, messages });
+    setMessageCursor(detail.messages?.nextCursor ?? null);
+    setLastMessageCount(messages.length);
     setNewMessageAlert(false);
 
     // 읽음 처리
@@ -222,6 +246,19 @@ export default function UserCommunicationPage() {
     } catch (error) {
       console.error("Failed to mark as read:", error);
     }
+  };
+
+  const loadMoreMessages = async () => {
+    if (!selectedThread || !messageCursor || loadingMoreMessages) return;
+    setLoadingMoreMessages(true);
+    try {
+      const response = await fetch(`/api/communication/threads/${selectedThread.id}?pageSize=50&cursor=${encodeURIComponent(messageCursor)}`);
+      if (!response.ok) return;
+      const page = await response.json();
+      const older = Array.isArray(page.messages) ? page.messages : page.messages?.items ?? [];
+      setSelectedThread((current) => current ? { ...current, messages: [...current.messages, ...older].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()) } : current);
+      setMessageCursor(page.messages?.nextCursor ?? null);
+    } finally { setLoadingMoreMessages(false); }
   };
 
   useEffect(() => {
@@ -730,6 +767,7 @@ export default function UserCommunicationPage() {
                     </div>
                   </div>
                 ))}
+                {threadCursor && <Button type="button" variant="outline" size="sm" onClick={loadMoreThreads} disabled={loadingMoreThreads}>{loadingMoreThreads ? "불러오는 중..." : "이전 문의 더보기"}</Button>}
               </div>
             )}
           </CardContent>
@@ -799,6 +837,8 @@ export default function UserCommunicationPage() {
                   </div>
                 </div>
               )}
+
+              {messageCursor && <div className="px-3 sm:px-6"><Button type="button" variant="outline" size="sm" onClick={loadMoreMessages} disabled={loadingMoreMessages}>{loadingMoreMessages ? "불러오는 중..." : "이전 메시지 더보기"}</Button></div>}
 
               {/* 메시지 목록 - 모바일 패딩 최적화 */}
               <CardContent

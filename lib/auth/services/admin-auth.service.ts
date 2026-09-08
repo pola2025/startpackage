@@ -3,6 +3,8 @@
 
 import { TOTP, NobleCryptoPlugin, ScureBase32Plugin, verify as otpVerify } from "otplib";
 import prisma from "@/lib/prisma";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { findD1AdminByEmail } from "@/lib/d1/auth-client";
 
 const crypto = new NobleCryptoPlugin();
 const base32 = new ScureBase32Plugin();
@@ -13,9 +15,9 @@ const base32 = new ScureBase32Plugin();
  * @param totpCode 6자리 TOTP 코드
  */
 export async function authenticateAdmin(email: string, totpCode: string) {
-  const admin = await prisma.admin.findUnique({
-    where: { email },
-  });
+  const admin = isD1RuntimeEnabled()
+    ? await findD1AdminByEmail(email)
+    : await prisma.admin.findUnique({ where: { email } });
 
   if (!admin) {
     console.log("[AUTH] Admin not found:", email);
@@ -56,5 +58,6 @@ export async function authenticateAdmin(email: string, totpCode: string) {
     name: admin.name,
     role: admin.role as "super" | "designer" | "operator",
     userType: "admin" as const,
+    adminUpdatedAt: typeof admin.updatedAt === "number" ? admin.updatedAt : admin.updatedAt.getTime(),
   };
 }

@@ -4,6 +4,9 @@ import { z } from "zod";
 import prisma from "@/lib/prisma";
 import { signIn } from "@/auth";
 import { notifyAdmin } from "@/lib/notification/telegramClient";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 // 회원가입 유효성 검증 스키마
 const signupSchema = z.object({
@@ -129,6 +132,31 @@ export async function POST(request: NextRequest) {
 
     const { 이름, 연락처, 이메일, password, cohortId } = validationResult.data;
 
+    if (isD1RuntimeEnabled()) {
+      const d1User = await callDataService<{
+        userId: string;
+        cohortName: string;
+      }>("core/signup", {
+        email: 이메일,
+        passwordHash: await hash(password, 10),
+        name: 이름,
+        phone: 연락처,
+        cohortId,
+      });
+
+      await notifyAdmin({
+        title: "🎉 신규 회원 가입",
+        message: `${d1User.cohortName} 신규 회원이 가입했습니다.`,
+        details: { 기수: d1User.cohortName, 이름, 연락처, 이메일 },
+      }).catch((error) => console.error("텔레그램 알림 발송 실패:", error));
+
+      return NextResponse.json({
+        success: true,
+        message: "가입이 완료되었습니다.",
+        user: { id: d1User.userId, email: 이메일, 이름 },
+      });
+    }
+
     // 이메일 중복 확인
     const existingUser = await prisma.user.findUnique({
       where: { email: 이메일 },
@@ -245,6 +273,8 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("회원가입 에러:", error);
 
     // 500 에러 관리자 알림 (글로벌 규칙: [프로젝트/라우트] + IP + 에러 요약)

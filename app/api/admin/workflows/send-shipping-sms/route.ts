@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 import { sendSMS, getSenderPhoneByAdmin } from "@/lib/sms/ncpSensClient";
 
 export async function POST(request: NextRequest) {
@@ -21,6 +24,20 @@ export async function POST(request: NextRequest) {
         { error: "사용자 ID가 필요합니다." },
         { status: 400 },
       );
+    }
+
+    if (isD1RuntimeEnabled()) {
+      const adminId = (session.user as any).id;
+      const data = await callDataService<{ user: { 이름: string; 연락처: string | null }; workflows: Array<Record<string, unknown>> }>("admin-notifications/shipping-data", { adminId, userId });
+      if (!data.workflows.length) return NextResponse.json({ error: "배송 정보가 입력된 워크플로우가 없습니다." }, { status: 404 });
+      if (!data.user.연락처) return NextResponse.json({ error: "사용자의 연락처가 등록되지 않았습니다." }, { status: 400 });
+      let message = "[스타트패키지] 배송이 시작되었습니다.\n\n";
+      data.workflows.forEach((workflow, index) => { message += `[${String(workflow.type)}]\n택배: ${String(workflow.택배회사)}\n운송장: ${String(workflow.운송장번호)}${index < data.workflows.length - 1 ? "\n\n" : ""}`; });
+      message += "\n배송 조회를 통해 확인하세요.";
+      const adminFrom = getSenderPhoneByAdmin(session.user?.email);
+      await sendSMS(data.user.연락처, message, adminFrom ? { from: adminFrom } : undefined);
+      await Promise.all(data.workflows.map((workflow) => callDataService("admin-notifications/notification-create", { adminId, userId, type: "배송알림", channel: "SMS", title: "[스타트패키지] 배송 시작", message: `${String(workflow.type)} - ${String(workflow.택배회사)} ${String(workflow.운송장번호)}`, status: "성공", sentBy: adminId, sentByName: (session.user as any).name || "관리자" })));
+      return NextResponse.json({ success: true, message: `${data.workflows.length}개 제작물의 배송 정보를 SMS로 발송했습니다.`, workflows: data.workflows.map((w) => ({ type: w.type, 택배회사: w.택배회사, 운송장번호: w.운송장번호 })) });
     }
 
     // 해당 사용자의 배송 정보가 있는 모든 워크플로우 조회
@@ -117,6 +134,8 @@ export async function POST(request: NextRequest) {
       );
     }
   } catch (error: any) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("배송 SMS 발송 에러:", error);
     return NextResponse.json(
       { error: "배송 SMS 발송 중 오류가 발생했습니다." },

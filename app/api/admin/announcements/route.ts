@@ -1,9 +1,14 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
+
+function d1Announcement(row: Record<string, unknown>) { let imageUrls: unknown = row.imageUrls; if (typeof imageUrls === "string") { try { imageUrls = JSON.parse(imageUrls); } catch { imageUrls = []; } } return { ...row, imageUrls: Array.isArray(imageUrls) ? imageUrls : [], published: Boolean(row.published), createdAt: new Date(Number(row.createdAt)), updatedAt: new Date(Number(row.updatedAt)) }; }
 
 // GET: 공지사항 목록 조회 (관리자)
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const session = await auth();
     const userRole = (session?.user as any)?.role;
@@ -12,12 +17,20 @@ export async function GET() {
       return NextResponse.json({ error: "권한이 없습니다" }, { status: 403 });
     }
 
+    if (isD1RuntimeEnabled()) {
+      const params = new URL(request.url).searchParams;
+      const result = await callDataService<{ items: Array<Record<string, unknown>>; nextCursor?: string }>("admin-domain/announcements-list", { adminId: session.user.id, pageSize: params.get("pageSize") ?? undefined, cursor: params.get("cursor") ?? undefined });
+      return NextResponse.json({ announcements: result.items.map(d1Announcement) }, result.nextCursor ? { headers: { "X-Next-Cursor": result.nextCursor } } : undefined);
+    }
+
     const announcements = await prisma.announcement.findMany({
       orderBy: { createdAt: "desc" },
     });
 
     return NextResponse.json({ announcements });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("GET /api/admin/announcements error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
@@ -46,6 +59,11 @@ export async function POST(request: Request) {
         { error: "제목과 내용을 입력해주세요" },
         { status: 400 }
       );
+    }
+
+    if (isD1RuntimeEnabled()) {
+      const announcement = await callDataService<Record<string, unknown>>("admin-domain/announcement-create", { adminId, title, content, imageUrls, youtubeUrl: youtubeUrl || null, published });
+      return NextResponse.json({ success: true, announcement: d1Announcement(announcement) });
     }
 
     // 공지사항 생성
@@ -148,6 +166,8 @@ ${content}
       announcement,
     });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("POST /api/admin/announcements error:", error);
     return NextResponse.json(
       { error: "Internal server error" },

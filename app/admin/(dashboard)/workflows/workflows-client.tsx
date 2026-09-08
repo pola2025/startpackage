@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Card,
   CardContent,
@@ -65,14 +65,22 @@ interface WorkflowsClientProps {
   };
   cohorts: { id: string; name: string }[];
   workflowTypes: string[];
+  nextCursor?: string | null;
+  pagingEnabled?: boolean;
 }
 
 export default function WorkflowsClient({
-  workflowsByUser,
+  workflowsByUser: initialWorkflowsByUser,
   stats,
   cohorts,
   workflowTypes,
+  nextCursor: initialNextCursor = null,
+  pagingEnabled = false,
 }: WorkflowsClientProps) {
+  const [workflowsByUser, setWorkflowsByUser] = useState(initialWorkflowsByUser);
+  const [nextCursor, setNextCursor] = useState(initialNextCursor);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const fetchRequestId = useRef(0);
   const [filters, setFilters] = useState<FilterState>({
     search: "",
     status: "all",
@@ -99,6 +107,57 @@ export default function WorkflowsClient({
     new Set(),
   );
   const [expandedUsers, setExpandedUsers] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    fetchRequestId.current += 1;
+    setWorkflowsByUser(initialWorkflowsByUser);
+    setNextCursor(initialNextCursor);
+    setSelectedWorkflows(new Set());
+  }, [initialNextCursor, initialWorkflowsByUser]);
+
+  const fetchWorkflowPage = useCallback(
+    async (cursor?: string | null) => {
+      if (!pagingEnabled) return;
+      const requestId = ++fetchRequestId.current;
+      setLoadingMore(true);
+      try {
+        const params = new URLSearchParams({
+          pageSize: "50",
+          search: filters.search,
+          status: filters.status,
+          type: filters.type,
+          cohort: filters.cohort,
+        });
+        if (filters.hasFeedback !== undefined) {
+          params.set("hasFeedback", String(filters.hasFeedback));
+        }
+        if (filters.isDelayed !== undefined) {
+          params.set("isDelayed", String(filters.isDelayed));
+        }
+        if (cursor) params.set("cursor", cursor);
+        const res = await fetch(`/api/admin/pages/workflows?${params.toString()}`);
+        if (!res.ok) throw new Error("load failed");
+        const data = await res.json();
+        if (requestId !== fetchRequestId.current) return;
+        setWorkflowsByUser((prev) =>
+          cursor ? { ...prev, ...data.workflowsByUser } : data.workflowsByUser,
+        );
+        setNextCursor(data.nextCursor ?? null);
+        if (!cursor) setSelectedWorkflows(new Set());
+      } catch {
+        if (requestId !== fetchRequestId.current) return;
+        alert("워크플로우 목록을 불러오지 못했습니다.");
+      } finally {
+        if (requestId === fetchRequestId.current) setLoadingMore(false);
+      }
+    },
+    [filters, pagingEnabled],
+  );
+
+  useEffect(() => {
+    if (!pagingEnabled) return;
+    fetchWorkflowPage(null);
+  }, [fetchWorkflowPage, pagingEnabled]);
 
   const getStatusBadge = (status: string) => {
     const statusMap: Record<
@@ -1251,6 +1310,17 @@ export default function WorkflowsClient({
         onClearSelection={() => setSelectedWorkflows(new Set())}
         onBulkAction={handleBulkAction}
       />
+      {nextCursor && (
+        <div className="flex justify-center pt-2">
+          <Button
+            variant="outline"
+            onClick={() => fetchWorkflowPage(nextCursor)}
+            disabled={loadingMore}
+          >
+            {loadingMore ? "불러오는 중..." : "더 보기"}
+          </Button>
+        </div>
+      )}
 
       {/* 시안 SMS 발송 모달 */}
       <DesignSMSModal

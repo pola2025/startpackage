@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 const settingsSchema = z.object({
   // 광고 자동화
@@ -48,23 +51,6 @@ export async function POST(
 
     const { userId } = await params;
 
-    // 사용자 확인
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        id: true,
-        이름: true,
-        marketingSupportEndDate: true,
-      },
-    });
-
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: "사용자를 찾을 수 없습니다." },
-        { status: 404 }
-      );
-    }
-
     // 요청 본문 파싱 및 검증
     const body = await request.json();
     const validation = settingsSchema.safeParse(body);
@@ -79,6 +65,16 @@ export async function POST(
         { status: 400 }
       );
     }
+
+    if (isD1RuntimeEnabled()) {
+      const settings = validation.data;
+      const asTime = (value: string | null | undefined) => value ? new Date(value).getTime() : null;
+      const result = await callDataService<Record<string, unknown>>("admin-domain/ad-automation-settings", { adminId: (session.user as { id: string }).id, userId, ...settings, adAutomationStartDate: asTime(settings.adAutomationStartDate), adAutomationEndDate: asTime(settings.adAutomationEndDate), smsSettingStartDate: asTime(settings.smsSettingStartDate), smsSettingEndDate: asTime(settings.smsSettingEndDate), naverAdSettingStartDate: asTime(settings.naverAdSettingStartDate), naverAdSettingEndDate: asTime(settings.naverAdSettingEndDate), homepageCompletedAt: asTime(settings.homepageCompletedAt) });
+      return NextResponse.json({ success: true, message: "설정이 저장되었습니다.", data: result });
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, 이름: true, marketingSupportEndDate: true } });
+    if (!user) return NextResponse.json({ success: false, error: "사용자를 찾을 수 없습니다." }, { status: 404 });
 
     const {
       adAutomationEnabled,
@@ -172,6 +168,8 @@ export async function POST(
       },
     });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("설정 저장 실패:", error);
     return NextResponse.json(
       { success: false, error: "설정 저장에 실패했습니다." },

@@ -4,6 +4,9 @@ import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { hash } from "bcryptjs";
 import { z } from "zod";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 const createAdminSchema = z.object({
   email: z.string().email("올바른 이메일 형식이 아닙니다."),
@@ -39,23 +42,20 @@ export async function POST(request: NextRequest) {
 
     const { email, name, role } = validationResult.data;
 
-    // 이메일 중복 확인
-    const existingAdmin = await prisma.admin.findUnique({
-      where: { email },
-    });
-
-    if (existingAdmin) {
-      return NextResponse.json(
-        { error: "이미 등록된 이메일입니다." },
-        { status: 400 }
-      );
-    }
-
     // 비밀번호 자동생성 (레거시 필드, 2FA 전용 로그인이므로 미사용)
     const hashedPassword = await hash(randomBytes(32).toString("hex"), 10);
 
     // 2FA 셋업 토큰 생성
     const setupToken = randomBytes(32).toString("hex");
+
+    if (isD1RuntimeEnabled()) {
+      const admin = await callDataService<Record<string, unknown>>("admin-domain/admin-create", { adminId: (session.user as { id: string }).id, email, name, role, password: hashedPassword, setupToken });
+      const baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_BASE_URL || "";
+      return NextResponse.json({ success: true, message: "관리자가 생성되었습니다. 2FA 셋업 URL을 전달하세요.", admin, setupUrl: `${baseUrl}/admin/setup-2fa?token=${setupToken}&email=${encodeURIComponent(email)}` });
+    }
+
+    const existingAdmin = await prisma.admin.findUnique({ where: { email } });
+    if (existingAdmin) return NextResponse.json({ error: "이미 등록된 이메일입니다." }, { status: 400 });
 
     // 관리자 생성
     const admin = await prisma.admin.create({
@@ -86,6 +86,8 @@ export async function POST(request: NextRequest) {
       setupUrl,
     });
   } catch (error: any) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("관리자 생성 에러:", error);
     return NextResponse.json(
       { error: "관리자 생성 중 오류가 발생했습니다." },

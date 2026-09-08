@@ -1,6 +1,9 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 export async function GET(
   request: Request,
@@ -16,6 +19,11 @@ export async function GET(
 
     const { workflowId } = await params;
 
+    if (isD1RuntimeEnabled()) {
+      const result = await callDataService<{ items: unknown[]; nextCursor?: string }>("admin-domain/design-history-list", { adminId: (session.user as { id: string }).id, workflowId, pageSize: new URL(request.url).searchParams.get("pageSize") ?? undefined, cursor: new URL(request.url).searchParams.get("cursor") ?? undefined });
+      return NextResponse.json(result.items, result.nextCursor ? { headers: { "X-Next-Cursor": result.nextCursor } } : undefined);
+    }
+
     const history = await prisma.designHistory.findMany({
       where: { workflowId },
       orderBy: { version: "asc" },
@@ -23,6 +31,8 @@ export async function GET(
 
     return NextResponse.json(history);
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("GET /api/admin/workflows/[workflowId]/design-history error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
@@ -50,6 +60,11 @@ export async function DELETE(
 
     if (!historyId) {
       return NextResponse.json({ error: "historyId is required" }, { status: 400 });
+    }
+
+    if (isD1RuntimeEnabled()) {
+      const result = await callDataService("admin-domain/design-history-delete", { adminId: (session.user as { id: string }).id, workflowId, historyId });
+      return NextResponse.json(result);
     }
 
     // 해당 시안 이력이 존재하는지 확인
@@ -122,6 +137,8 @@ export async function DELETE(
       remainingCount: remainingHistory.length,
     });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("DELETE /api/admin/workflows/[workflowId]/design-history error:", error);
     return NextResponse.json(
       { error: "Internal server error" },

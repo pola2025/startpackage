@@ -2,6 +2,9 @@ import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { notificationManager } from "@/lib/notifications/notification-manager";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 // POST: 관리자 답글 작성
 export async function POST(request: Request) {
@@ -25,6 +28,7 @@ export async function POST(request: Request) {
     console.log("[REPLY API] Body:", body);
 
     const { threadId, content, attachments, expectedCompletionDate } = body;
+    if (isD1RuntimeEnabled()) return NextResponse.json(await callDataService("communication-domain/admin-reply", { adminId, threadId, content, attachments, expectedCompletionDate }));
 
     if (!threadId || !content) {
       console.log("[REPLY API] threadId 또는 content 없음");
@@ -183,6 +187,8 @@ export async function POST(request: Request) {
       message,
     });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("[REPLY API] 에러:", error);
     return NextResponse.json({
       error: "Internal server error",

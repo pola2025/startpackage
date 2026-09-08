@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,6 +22,11 @@ export async function POST(request: NextRequest) {
         { error: "기수 ID가 필요합니다." },
         { status: 400 }
       );
+    }
+
+    if (isD1RuntimeEnabled()) {
+      await callDataService("admin-domain/cohort-delete", { adminId: (session.user as { id: string }).id, id: cohortId });
+      return NextResponse.json({ success: true, message: "기수가 삭제되었습니다." });
     }
 
     const userCount = await prisma.user.count({
@@ -44,6 +52,8 @@ export async function POST(request: NextRequest) {
       message: "기수가 삭제되었습니다.",
     });
   } catch (error: any) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("기수 삭제 에러:", error);
     return NextResponse.json(
       { error: "기수 삭제 중 오류가 발생했습니다.", details: error.message },

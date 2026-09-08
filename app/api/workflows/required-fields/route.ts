@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { z } from "zod";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callCore } from "@/lib/d1/core-client";
 
 /**
  * GET /api/workflows/required-fields?workflowType={type}
@@ -27,6 +29,11 @@ export async function GET(request: Request) {
         { error: "workflowType 파라미터가 필요합니다." },
         { status: 400 }
       );
+    }
+
+    if (isD1RuntimeEnabled()) {
+      const result = await callCore<unknown>("required-fields", session.user.id, { workflowType });
+      return NextResponse.json(result);
     }
 
     const requiredFields = await prisma.requiredFieldConfig.findMany({
@@ -98,6 +105,11 @@ export async function POST(request: Request) {
 
     const { workflowId } = validation.data;
     const userId = (session.user as any).id;
+
+    if (isD1RuntimeEnabled()) {
+      const result = await callCore<unknown>("required-fields-validate", userId, { userId, workflowId });
+      return NextResponse.json(result);
+    }
 
     // 워크플로우 조회
     const workflow = await prisma.workflow.findFirst({

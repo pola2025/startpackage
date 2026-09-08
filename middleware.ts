@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { isMigrationMaintenance, MIGRATION_MAINTENANCE_MESSAGE } from "./lib/d1/maintenance";
 
 // 도메인 분리 활성화 토글 (Phase 2 마이그 시 true로 전환)
 const DOMAIN_SPLIT_ENABLED =
@@ -9,6 +10,13 @@ const ADMIN_HOST = "admin.polaai.co.kr";
 const MAIN_HOST = "polaai.co.kr";
 
 export function middleware(request: NextRequest) {
+  const isContentTipCron = request.nextUrl.pathname === "/api/cron/content-tip-notifications";
+  if (isMigrationMaintenance() && !isContentTipCron) {
+    return NextResponse.json(
+      { error: MIGRATION_MAINTENANCE_MESSAGE, code: "MIGRATION_MAINTENANCE" },
+      { status: 503, headers: { "Retry-After": "300", "Cache-Control": "no-store" } },
+    );
+  }
   const { pathname } = request.nextUrl;
   const host = (request.headers.get("host") || "").toLowerCase();
 
@@ -53,11 +61,6 @@ export function middleware(request: NextRequest) {
     pathname.startsWith("/admin") &&
     !pathname.startsWith("/admin/login") &&
     !pathname.startsWith("/admin/register");
-  const isAdminLogin = pathname.startsWith("/admin/login");
-
-  if (isAdminLogin && isLoggedIn) {
-    return NextResponse.redirect(new URL("/admin", request.url));
-  }
   if (isAdminRoute && !isLoggedIn) {
     return NextResponse.redirect(new URL("/admin/login", request.url));
   }

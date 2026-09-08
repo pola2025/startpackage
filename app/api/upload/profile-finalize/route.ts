@@ -5,8 +5,10 @@ import {
   getObjectBuffer,
   deleteFromR2,
   validateR2Config,
+  R2ObjectTooLargeError,
 } from "@/lib/storage/r2Client";
 import { processProfilePhoto } from "@/lib/storage/profileUpload";
+import { fileSizeExceededPayload } from "@/lib/storage/uploadLimits";
 
 export const maxDuration = 30;
 export const runtime = "nodejs";
@@ -56,8 +58,13 @@ export async function POST(request: Request) {
     // R2에서 원본 읽기
     let buffer: Buffer;
     try {
-      buffer = await getObjectBuffer(tempKey);
-    } catch {
+      buffer = await getObjectBuffer(tempKey, MAX_SIZE);
+    } catch (error) {
+      if (error instanceof R2ObjectTooLargeError) {
+        await deleteFromR2(tempKey);
+        return NextResponse.json(fileSizeExceededPayload(MAX_SIZE), { status: 413 });
+      }
+
       return NextResponse.json(
         { error: "업로드된 원본을 찾을 수 없습니다. 다시 시도해주세요." },
         { status: 400 },
@@ -68,8 +75,8 @@ export async function POST(request: Request) {
     if (buffer.length > MAX_SIZE) {
       await deleteFromR2(tempKey);
       return NextResponse.json(
-        { error: "파일 크기는 20MB 이하여야 합니다" },
-        { status: 400 },
+        fileSizeExceededPayload(MAX_SIZE),
+        { status: 413 },
       );
     }
 

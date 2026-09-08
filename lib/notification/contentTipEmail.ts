@@ -1,7 +1,10 @@
 import { sendEmail } from "@/lib/email/resendClient";
 import prisma from "@/lib/prisma";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { randomUUID } from "node:crypto";
 
-type ContentTip = {
+export type ContentTip = {
   id: string;
   title: string;
   description: string;
@@ -9,26 +12,83 @@ type ContentTip = {
   linkUrl: string;
 };
 
+type EmailRecipient = { id: string; 이름: string; email: string };
+
+async function getRecipients(): Promise<EmailRecipient[]> {
+  return prisma.user.findMany({
+    where: { 콘텐츠팁이메일수신: true },
+    select: { id: true, 이름: true, email: true },
+  });
+}
+
+async function sendD1Notifications(tip: ContentTip, requestedLeaseToken?: string): Promise<void> {
+  const leaseToken = requestedLeaseToken ?? randomUUID();
+  await callDataService("shared-domain/scheduled-notification-register", { fanoutKey: tip.id });
+  await callDataService("shared-domain/scheduled-notification-claim", { fanoutKey: tip.id, leaseToken });
+  let pages = 0;
+  let completed = false;
+  let successCount = 0;
+  let failCount = 0;
+  while (!completed && pages < 5) {
+    const page = await callDataService<{
+      items: EmailRecipient[];
+      nextCursor?: string;
+      hasMore: boolean;
+    }>("shared-domain/scheduled-notification-page", { fanoutKey: tip.id, leaseToken, pageSize: 50 });
+    const results = await Promise.allSettled(page.items.map(async (user) => {
+      const sent = await sendEmail({
+        to: user.email,
+        subject: `[비즈액터스쿨] 새로운 콘텐츠 제작 Tip: ${tip.title}`,
+        html: getContentTipEmailHTML({
+          userName: user.이름 || "회원",
+          tipTitle: tip.title,
+          tipDescription: tip.description,
+          tipType: tip.linkType === "youtube" ? "유튜브 영상" : "블로그 글",
+          tipUrl: tip.linkUrl,
+        }),
+      });
+      return sent;
+    }));
+    await callDataService("shared-domain/scheduled-notification-deliveries", {
+      fanoutKey: tip.id,
+      leaseToken,
+      deliveries: page.items.map((user, index) => ({
+        userId: user.id,
+        status: results[index]?.status === "fulfilled" && results[index].value === true ? "sent" : "pending",
+      })),
+    });
+    successCount += results.filter((result) => result.status === "fulfilled" && result.value === true).length;
+    failCount += results.filter((result) => result.status === "rejected" || (result.status === "fulfilled" && result.value === false)).length;
+    completed = !page.hasMore && failCount === 0;
+    await callDataService("shared-domain/scheduled-notification-advance", {
+      fanoutKey: tip.id,
+      leaseToken,
+      cursor: page.nextCursor,
+      completed,
+    });
+    pages += 1;
+  }
+  if (!completed) console.warn("콘텐츠 팁 이메일 대상이 페이지 예산을 초과했습니다. 저장된 커서부터 계속합니다.");
+  console.log(`✅ 콘텐츠 팁 이메일 발송 완료: 성공 ${successCount}건, 실패 ${failCount}건`);
+}
+
 /**
  * 새 콘텐츠 팁 등록 시 이메일 알림 발송
  */
 export async function sendContentTipNotifications(
   tip: ContentTip,
+  options?: { leaseToken?: string },
 ): Promise<void> {
   try {
     console.log(`📧 콘텐츠 팁 이메일 알림 발송 시작: ${tip.title}`);
 
+    if (isD1RuntimeEnabled()) {
+      await sendD1Notifications(tip, options?.leaseToken);
+      return;
+    }
+
     // 콘텐츠팁 이메일 수신 동의한 사용자 조회
-    const users = await prisma.user.findMany({
-      where: {
-        콘텐츠팁이메일수신: true,
-      },
-      select: {
-        id: true,
-        이름: true,
-        email: true,
-      },
-    });
+    const users = await getRecipients();
 
     if (users.length === 0) {
       console.log("📧 이메일 수신 동의한 사용자가 없습니다.");

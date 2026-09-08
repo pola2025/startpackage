@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import QuestWizardDialog, {
   BASIC_INFO_STEPS,
   LOGO_INFO_STEPS,
-  HOMEPAGE_INFO_STEPS,
   MARKETING_INFO_STEPS,
   NAMECARD_ENVELOPE_STEPS,
   CONTRACT_STEPS,
@@ -56,11 +55,6 @@ const QUEST_MAP: Record<
     description: "로고 시안 제작에 필요한 4가지 항목을 입력합니다.",
     steps: LOGO_INFO_STEPS,
   },
-  "website-info": {
-    title: "홈페이지 제작 정보",
-    description: "홈페이지 스타일·메인 컬러·도메인 주소를 입력합니다.",
-    steps: HOMEPAGE_INFO_STEPS,
-  },
   "marketing-info": {
     title: "마케팅 채널 정보",
     description: "이미 운영 중인 광고 ID가 있으면 입력해주세요.",
@@ -108,9 +102,56 @@ export default function DashboardAlertsClient({
   if (notifications.length === 0) return null;
 
   const quest = questId ? QUEST_MAP[questId] : null;
+  const nextAction = notifications.find(
+    (n) => n.type === "urgent" || n.type === "warning",
+  );
+  const actionHref = (notification: AlertNotification) =>
+    notification.id === "website-info"
+      ? "/dashboard/homepage"
+      : notification.link;
 
   return (
     <>
+      {nextAction && (
+        <section
+          aria-labelledby="next-action-title"
+          className="rounded-xl border border-gold-200 bg-gold-50 p-5 md:p-7"
+        >
+          <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
+            <div className="min-w-0">
+              <p className="text-xs font-semibold text-gold-800">
+                지금 확인할 일 · {nextAction.badge}
+              </p>
+              <h2
+                id="next-action-title"
+                className="mt-2 text-xl font-bold leading-snug text-navy-900"
+              >
+                {nextAction.message}
+              </h2>
+              <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                아래 처리 사항 안내에서 다른 요청과 진행 안내도 모두 확인하실 수
+                있습니다.
+              </p>
+            </div>
+            {nextAction.id in QUEST_MAP ? (
+              <button
+                type="button"
+                onClick={() => setQuestId(nextAction.id)}
+                className="shrink-0 rounded-lg bg-navy-900 px-5 py-3 text-sm font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-700 focus-visible:ring-offset-2"
+              >
+                필요 정보 입력
+              </button>
+            ) : (
+              <Link
+                href={actionHref(nextAction)}
+                className="shrink-0 rounded-lg bg-navy-900 px-5 py-3 text-center text-sm font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-700 focus-visible:ring-offset-2"
+              >
+                {nextAction.badge} 바로가기
+              </Link>
+            )}
+          </div>
+        </section>
+      )}
       {/* 처리 사항 패널 — 관공서 양식: 좌측 단색 액센트 + 차분한 헤더 */}
       <Card className="bg-white border border-slate-200 rounded-lg shadow-sm">
         <CardHeader className="p-3 md:p-4 pb-1 md:pb-2 border-b border-slate-100">
@@ -124,17 +165,17 @@ export default function DashboardAlertsClient({
             <div className="flex items-center gap-1.5 text-[11px] md:text-xs">
               {todoCounts.urgent > 0 && (
                 <span className="px-2 py-0.5 bg-amber-50 text-amber-700 font-bold rounded border border-amber-200">
-                  미입력 {todoCounts.urgent}
+                  우선 확인 {todoCounts.urgent}
                 </span>
               )}
               {todoCounts.confirm > 0 && (
                 <span className="px-2 py-0.5 bg-amber-50 text-amber-700 font-bold rounded border border-amber-200">
-                  컨펌 {todoCounts.confirm}
+                  확인 필요 {todoCounts.confirm}
                 </span>
               )}
               {todoCounts.waiting > 0 && (
                 <span className="px-2 py-0.5 bg-gov-blue-50 text-gov-blue font-bold rounded border border-gov-blue-100">
-                  처리 중 {todoCounts.waiting}
+                  안내 {todoCounts.waiting}
                 </span>
               )}
               {todoCounts.completed > 0 && (
@@ -158,7 +199,7 @@ export default function DashboardAlertsClient({
                   >
                     {n.badge}
                   </span>
-                  <span className="flex-1 text-xs md:text-sm font-medium line-clamp-1">
+                  <span className="flex-1 text-xs md:text-sm font-medium break-words">
                     {n.message}
                   </span>
                 </>
@@ -178,7 +219,7 @@ export default function DashboardAlertsClient({
               }
 
               return (
-                <Link key={n.id} href={n.link} className={className}>
+                <Link key={n.id} href={actionHref(n)} className={className}>
                   {inner}
                 </Link>
               );

@@ -1,6 +1,8 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callCore } from "@/lib/d1/core-client";
 
 // PATCH: 메시지 읽음 처리
 export async function PATCH(
@@ -16,6 +18,15 @@ export async function PATCH(
     const { id: threadId } = await params;
     const user = session.user as any;
     const isAdmin = ["super", "designer", "operator"].includes(user.role);
+
+    if (isD1RuntimeEnabled()) {
+      const result = await callCore<{ updatedCount: number }>("design-thread-read", user.id, {
+        userId: user.id,
+        actorType: isAdmin ? "admin" : "user",
+        threadId,
+      });
+      return NextResponse.json({ success: true, updatedCount: result.updatedCount });
+    }
 
     // 쓰레드 존재 확인
     const thread = await prisma.designThread.findUnique({

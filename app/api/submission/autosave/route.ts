@@ -2,6 +2,10 @@ import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { isPaidHomepageStyle } from "@/lib/homepage-styles";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callCore } from "@/lib/d1/core-client";
+import { dropMaskedSecretFields, encryptSubmissionSecrets } from "@/lib/security/submission-secrets";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 // 허용된 필드 목록 (Prisma 스키마 기반)
 const ALLOWED_FIELDS = [
@@ -53,6 +57,20 @@ const ALLOWED_FIELDS = [
   "해외결제카드CVC",
 ];
 
+const SHIPPING_FIELDS = ["인쇄물받을주소", "받는분이름", "수령연락처", "우편번호"];
+
+async function hasLockedShippingConflict(userId: string, data: Record<string, unknown>) {
+  const fields = SHIPPING_FIELDS.filter((field) => Object.prototype.hasOwnProperty.call(data, field));
+  if (!fields.length) return false;
+  const locked = await prisma.workflow.findFirst({
+    where: { userId, type: { notIn: ["로고", "홈페이지"] }, status: { in: ["발주요청", "발주완료", "제작완료", "발송완료"] } },
+    select: { id: true },
+  });
+  if (!locked) return false;
+  const current = await prisma.submission.findUnique({ where: { userId } });
+  return fields.some((field) => data[field] !== (current?.[field as keyof typeof current] ?? null));
+}
+
 /**
  * POST: 자동 저장 (슬랙 알림, 워크플로우 생성 없이 데이터만 저장)
  * - 2초 디바운스로 호출됨
@@ -67,7 +85,7 @@ export async function POST(request: Request) {
     }
 
     const userId = session.user.id;
-    const body = await request.json();
+    const body = dropMaskedSecretFields(await request.json());
 
     // 허용된 필드만 필터링 (Zod 검증 대신 간단한 필터링)
     const filteredData: Record<string, unknown> = {};
@@ -100,16 +118,29 @@ export async function POST(request: Request) {
       );
     }
 
+    if (isD1RuntimeEnabled()) {
+      const submission = await callCore<Record<string, unknown>>("submission-save", userId, {
+        userId,
+        data: { ...filteredData, lastAutoSaveAt: Date.now() },
+      });
+      return NextResponse.json({ success: true, lastAutoSaveAt: submission.lastAutoSaveAt });
+    }
+
+    if (await hasLockedShippingConflict(userId, filteredData)) {
+      return NextResponse.json({ error: "발주 요청 이후 배송지는 변경할 수 없습니다." }, { status: 409 });
+    }
+
     // Submission 업데이트 (upsert로 안전하게)
+    const encryptedData = encryptSubmissionSecrets(filteredData, userId);
     const submission = await prisma.submission.upsert({
       where: { userId },
       create: {
         userId,
-        ...filteredData,
+        ...encryptedData,
         lastAutoSaveAt: new Date(),
       },
       update: {
-        ...filteredData,
+        ...encryptedData,
         lastAutoSaveAt: new Date(),
       },
     });
@@ -119,6 +150,8 @@ export async function POST(request: Request) {
       lastAutoSaveAt: submission.lastAutoSaveAt,
     });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("POST /api/submission/autosave error:", error);
     return NextResponse.json(
       { error: "Internal server error" },

@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 import { sendSMS, getSenderPhoneByAdmin } from "@/lib/sms/ncpSensClient";
 import {
   sendEmail,
@@ -25,6 +28,19 @@ export async function POST(request: NextRequest) {
         { error: "사용자 ID가 필요합니다." },
         { status: 400 },
       );
+    }
+
+    if (isD1RuntimeEnabled()) {
+      const adminId = (session.user as any).id;
+      const data = await callDataService<{ user: { 이름: string; 연락처: string | null; email: string | null }; workflows: Array<Record<string, unknown>> }>("admin-notifications/user-design-data", { adminId, userId });
+      if (!data.user.연락처) return NextResponse.json({ error: "사용자 연락처가 없습니다." }, { status: 400 });
+      if (data.workflows.length === 0) return NextResponse.json({ error: "시안이 업로드된 워크플로우가 없습니다." }, { status: 400 });
+      const smsMessage = `[스타트패키지]\n\n디자인 시안이 업로드되었습니다.\n확인 부탁드립니다.`;
+      const adminFrom = getSenderPhoneByAdmin(session.user?.email);
+      await sendSMS(data.user.연락처, smsMessage, adminFrom ? { from: adminFrom } : undefined);
+      if (data.user.email) await sendEmail({ to: data.user.email, subject: "[스타트패키지] 디자인 시안이 업로드되었습니다", html: getDesignCompleteEmailHTML({ userName: data.user.이름 || "사용자", workflowCount: data.workflows.length }) });
+      await callDataService("admin-notifications/notification-create", { adminId, userId, type: "시안완료", channel: "SMS", title: "[스타트패키지] 시안 완료", message: smsMessage, status: "성공", sentBy: adminId, sentByName: (session.user as any).name || "관리자" });
+      return NextResponse.json({ success: true, message: "SMS 발송 완료", count: data.workflows.length });
     }
 
     // Get user info
@@ -117,6 +133,8 @@ export async function POST(request: NextRequest) {
       count: workflows.length,
     });
   } catch (error: any) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("SMS 발송 에러:", error);
     return NextResponse.json(
       { error: "SMS 발송 중 오류가 발생했습니다." },

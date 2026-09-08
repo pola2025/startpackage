@@ -17,5 +17,6 @@
       "memory": 1024
     }
   },
-  "regions": ["icn1"]
+  "regions": ["icn1"],
+  "crons": [{ "path": "/api/cron/content-tip-notifications", "schedule": "0 3 * * *" }]
 }

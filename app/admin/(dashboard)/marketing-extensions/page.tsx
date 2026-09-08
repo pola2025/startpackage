@@ -23,8 +23,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { Megaphone, CheckCircle, XCircle, Clock, User, Mail, Phone, Calendar } from "lucide-react";
 import {
-  ONLINE_MARKETING_BILLING_MONTHS,
-  ONLINE_MARKETING_MONTHLY_PRICE,
+  ONLINE_MARKETING_BILLING_WEEKS,
   ONLINE_MARKETING_TOTAL_PRICE,
   formatWon,
 } from "@/lib/marketing-pricing";
@@ -375,10 +374,10 @@ export default function MarketingExtensionsPage() {
                     <p>예금주: 폴라애드(이재호)</p>
                     <p>
                       금액: {formatWon(ONLINE_MARKETING_TOTAL_PRICE)}원 (VAT 포함,{" "}
-                      {ONLINE_MARKETING_BILLING_MONTHS}개월분)
+                      {ONLINE_MARKETING_BILLING_WEEKS}주분)
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
-                      월 {formatWon(ONLINE_MARKETING_MONTHLY_PRICE)}원 (VAT 포함)
+                      총액 기준 (VAT 포함)
                     </p>
                   </div>
                 </div>
@@ -455,10 +454,10 @@ export default function MarketingExtensionsPage() {
                     <p>예금주: 폴라애드(이재호)</p>
                     <p>
                       금액: {formatWon(ONLINE_MARKETING_TOTAL_PRICE)}원 (VAT 포함,{" "}
-                      {ONLINE_MARKETING_BILLING_MONTHS}개월분)
+                      {ONLINE_MARKETING_BILLING_WEEKS}주분)
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
-                      월 {formatWon(ONLINE_MARKETING_MONTHLY_PRICE)}원 (VAT 포함)
+                      총액 기준 (VAT 포함)
                     </p>
                   </div>
                 </div>

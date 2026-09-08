@@ -2,6 +2,9 @@ import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 // Validation schema
 const contentTipSchema = z.object({
@@ -20,7 +23,7 @@ const contentTipSchema = z.object({
 });
 
 // GET: 모든 콘텐츠 팁 목록 조회 (관리자용, 발행/미발행 포함)
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const session = await auth();
     const userRole = (session?.user as any)?.role;
@@ -29,12 +32,24 @@ export async function GET() {
       return NextResponse.json({ error: "권한이 없습니다" }, { status: 403 });
     }
 
+    if (isD1RuntimeEnabled()) {
+      const searchParams = new URL(request.url).searchParams;
+      const page = await callDataService<{ items: unknown[]; nextCursor?: string }>("admin-domain/content-tips-list", {
+        adminId: (session.user as any).id,
+        pageSize: Math.min(Number(searchParams.get("pageSize")) || 50, 50),
+        ...(searchParams.get("cursor") ? { cursor: searchParams.get("cursor") } : {}),
+      });
+      return NextResponse.json({ tips: page.items, nextCursor: page.nextCursor ?? null });
+    }
+
     const tips = await prisma.contentTip.findMany({
       orderBy: { createdAt: "desc" },
     });
 
     return NextResponse.json({ tips });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("GET /api/admin/content-tips error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
@@ -66,6 +81,22 @@ export async function POST(request: Request) {
       );
     }
 
+    if (isD1RuntimeEnabled()) {
+      const tip = await callDataService<Record<string, unknown>>("admin-domain/content-tip-create", {
+        adminId,
+        ...validated.data,
+      });
+      if (validated.data.published) {
+        try {
+          const { sendContentTipNotifications } = await import("@/lib/notification/contentTipEmail");
+          await sendContentTipNotifications(tip as unknown as import("@prisma/client").ContentTip);
+        } catch (error) {
+          console.error("콘텐츠 팁 이메일 알림 실패:", error);
+        }
+      }
+      return NextResponse.json({ success: true, tip });
+    }
+
     const tip = await prisma.contentTip.create({
       data: {
         ...validated.data,
@@ -90,6 +121,8 @@ export async function POST(request: Request) {
       tip,
     });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("POST /api/admin/content-tips error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

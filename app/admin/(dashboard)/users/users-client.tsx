@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Card,
   CardContent,
@@ -83,9 +83,19 @@ type SendResult = {
 interface UsersClientProps {
   users: User[];
   cohorts: Cohort[];
+  nextCursor?: string | null;
+  pagingEnabled?: boolean;
 }
 
-export default function UsersClient({ users, cohorts }: UsersClientProps) {
+export default function UsersClient({
+  users: initialUsers,
+  cohorts,
+  nextCursor: initialNextCursor = null,
+  pagingEnabled = false,
+}: UsersClientProps) {
+  const [users, setUsers] = useState(initialUsers);
+  const [nextCursor, setNextCursor] = useState(initialNextCursor);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [sortMode, setSortMode] = useState<"name" | "cohort">("name");
   const [activeYearTab, setActiveYearTab] = useState("2026");
   const [selectedCohortId, setSelectedCohortId] = useState<string | null>(null);
@@ -206,6 +216,38 @@ export default function UsersClient({ users, cohorts }: UsersClientProps) {
   const clearChecked = () => setCheckedUserIds(new Set());
 
   const checkedCount = checkedUserIds.size;
+
+  const fetchUsers = useCallback(
+    async (cursor?: string | null) => {
+      if (!pagingEnabled) return;
+      setLoadingMore(true);
+      try {
+        const params = new URLSearchParams({
+          pageSize: "50",
+          year: activeYearTab,
+          sortMode,
+          cohortId: selectedCohortId ?? "all",
+        });
+        if (cursor) params.set("cursor", cursor);
+        const res = await fetch(`/api/admin/pages/users?${params.toString()}`);
+        if (!res.ok) throw new Error("load failed");
+        const data = await res.json();
+        setUsers((prev) => (cursor ? [...prev, ...data.items] : data.items));
+        setNextCursor(data.nextCursor ?? null);
+        if (!cursor) setCheckedUserIds(new Set());
+      } catch {
+        window.alert("사용자 목록을 불러오지 못했습니다.");
+      } finally {
+        setLoadingMore(false);
+      }
+    },
+    [activeYearTab, pagingEnabled, selectedCohortId, sortMode],
+  );
+
+  useEffect(() => {
+    if (!pagingEnabled) return;
+    fetchUsers(null);
+  }, [fetchUsers, pagingEnabled]);
 
   const openBulkSms = () => {
     setSendResults([]);
@@ -596,6 +638,17 @@ export default function UsersClient({ users, cohorts }: UsersClientProps) {
           </Table>
         </CardContent>
       </Card>
+      {nextCursor && (
+        <div className="flex justify-center">
+          <Button
+            variant="outline"
+            onClick={() => fetchUsers(nextCursor)}
+            disabled={loadingMore}
+          >
+            {loadingMore ? "불러오는 중..." : "더 보기"}
+          </Button>
+        </div>
+      )}
 
       {/* 다중 선택 바 (sticky bottom) */}
       {checkedCount > 0 && (

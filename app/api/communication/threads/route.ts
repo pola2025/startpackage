@@ -1,9 +1,12 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 // GET: 사용자의 스레드 목록 조회
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const session = await auth();
     if (!session?.user) {
@@ -11,6 +14,10 @@ export async function GET() {
     }
 
     const userId = (session.user as any).id;
+    if (isD1RuntimeEnabled()) {
+      const params = new URL(request.url).searchParams;
+      return NextResponse.json(await callDataService("communication-domain/user-threads", { userId, pageSize: params.get("pageSize") ?? undefined, cursor: params.get("cursor") ?? undefined }));
+    }
 
     // 최신 답글 순으로 정렬
     const threads = await prisma.communicationThread.findMany({
@@ -28,6 +35,8 @@ export async function GET() {
 
     return NextResponse.json(threads);
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("GET /api/communication/threads error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
@@ -45,6 +54,7 @@ export async function POST(request: Request) {
     const userName = (session.user as any).name;
     const body = await request.json();
     const { title, category, content, attachments } = body;
+    if (isD1RuntimeEnabled()) return NextResponse.json(await callDataService("communication-domain/user-create-thread", { userId, title, category, content, attachments }));
 
     if (!title || !content) {
       return NextResponse.json(
@@ -161,6 +171,8 @@ export async function POST(request: Request) {
       thread,
     });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("POST /api/communication/threads error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

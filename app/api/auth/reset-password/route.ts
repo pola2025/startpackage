@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { hash } from "bcryptjs";
 import prisma from "@/lib/prisma";
 import { notifyAdmin } from "@/lib/notification/telegramClient";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 // 임시 비밀번호 생성 (4자리 숫자)
 function generateTempPassword(): string {
@@ -105,6 +108,48 @@ export async function POST(request: NextRequest) {
       "$1-$2-$3",
     );
 
+    if (isD1RuntimeEnabled()) {
+      const tempPassword = generateTempPassword();
+      const hashedPassword = await hash(tempPassword, 10);
+      const reset = await callDataService<{
+        id: string;
+        이름: string;
+        연락처: string;
+        notificationId: string;
+      }>("shared-domain/password-reset-start", {
+        cleanPhone,
+        formattedPhone,
+        hashedPassword,
+      });
+      try {
+        const { sendSMS } = await import("@/lib/sms/ncpSensClient");
+        await sendSMS(
+          reset.연락처,
+          `[스타트패키지] 임시 비밀번호가 발급되었습니다.\n\n임시 비밀번호: ${tempPassword}\n\n로그인 후 반드시 비밀번호를 변경해주세요.`,
+        );
+      } catch (smsError) {
+        console.error("SMS 발송 실패:", smsError);
+        await callDataService("shared-domain/notification-update", {
+          id: reset.notificationId,
+          status: "실패",
+          errorMessage: "SMS 발송 실패",
+        });
+        return NextResponse.json({
+          success: true,
+          message: "임시 비밀번호가 생성되었으나 SMS 발송에 실패했습니다. 관리자에게 문의하세요.",
+          warning: true,
+        });
+      }
+      await callDataService("shared-domain/notification-update", {
+        id: reset.notificationId,
+        status: "성공",
+      });
+      return NextResponse.json({
+        success: true,
+        message: `${reset.이름}님의 휴대폰으로 임시 비밀번호가 발송되었습니다.`,
+      });
+    }
+
     const user = await prisma.user.findFirst({
       where: {
         OR: [{ 연락처: cleanPhone }, { 연락처: formattedPhone }],
@@ -180,7 +225,7 @@ export async function POST(request: NextRequest) {
         type: "비밀번호재발급",
         channel: "SMS",
         title: "[스타트패키지] 임시 비밀번호 발급",
-        message: `임시 비밀번호: ${tempPassword}`,
+        message: "임시 비밀번호가 발급되었습니다. SMS 발송 결과는 별도 확인하세요.",
         status: "성공",
       },
     });
@@ -190,6 +235,8 @@ export async function POST(request: NextRequest) {
       message: `${user.이름}님의 휴대폰으로 임시 비밀번호가 발송되었습니다.`,
     });
   } catch (error: any) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("비밀번호 재발급 에러:", error);
 
     // 500 에러 관리자 알림 ([startpackage/reset-password] 네임태그)

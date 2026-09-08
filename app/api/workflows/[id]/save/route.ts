@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { z } from "zod";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callCore } from "@/lib/d1/core-client";
 
 /**
  * POST /api/workflows/[id]/save
@@ -30,6 +32,14 @@ export async function POST(
 
     const { id: workflowId } = await params;
     const userId = (session.user as any).id;
+
+    if (isD1RuntimeEnabled()) {
+      const body = await request.json();
+      const validation = saveSchema.safeParse(body);
+      if (!validation.success) return NextResponse.json({ error: "입력값이 유효하지 않습니다.", details: validation.error.errors }, { status: 400 });
+      const result = await callCore<unknown>("workflow-save", userId, { userId, workflowId, ...validation.data });
+      return NextResponse.json(result);
+    }
 
     // 워크플로우 권한 확인
     const workflow = await prisma.workflow.findFirst({

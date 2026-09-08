@@ -1,11 +1,21 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bell, Mail, MessageSquare } from "lucide-react";
 import NotificationsClient from "./notifications-client";
 
-async function getNotifications() {
+async function getNotifications(adminId?: string) {
+  if (adminId && isD1RuntimeEnabled()) {
+    const result = await callDataService<{ items: any[]; stats: any; nextCursor?: string }>(
+      "admin-pages/notifications-page",
+      { adminId, pageSize: 50 },
+    );
+    return result;
+  }
+
   return await prisma.notification.findMany({
     include: {
       user: {
@@ -21,7 +31,15 @@ async function getNotifications() {
   });
 }
 
-async function getNotificationStats() {
+async function getNotificationStats(adminId?: string) {
+  if (adminId && isD1RuntimeEnabled()) {
+    const result = await callDataService<{ stats: any }>(
+      "admin-pages/notifications-page",
+      { adminId, pageSize: 1 },
+    );
+    return result.stats;
+  }
+
   const [total, smsCount, emailCount, successCount, failCount] =
     await Promise.all([
       prisma.notification.count(),
@@ -42,10 +60,17 @@ export default async function NotificationsPage() {
     redirect("/admin/login");
   }
 
-  const [notifications, stats] = await Promise.all([
-    getNotifications(),
-    getNotificationStats(),
-  ]);
+  const adminId = String((session.user as any).id);
+  const notificationsResult = await getNotifications(adminId);
+  const notifications = Array.isArray(notificationsResult)
+    ? notificationsResult
+    : notificationsResult.items;
+  const stats = Array.isArray(notificationsResult)
+    ? await getNotificationStats()
+    : notificationsResult.stats;
+  const nextCursor = Array.isArray(notificationsResult)
+    ? null
+    : notificationsResult.nextCursor ?? null;
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -122,7 +147,7 @@ export default async function NotificationsPage() {
       </div>
 
       {/* Notifications List - 날짜별 그룹화 */}
-      <NotificationsClient notifications={notifications} />
+      <NotificationsClient notifications={notifications} nextCursor={nextCursor} />
     </div>
   );
 }

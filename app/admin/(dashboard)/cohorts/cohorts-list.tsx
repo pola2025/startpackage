@@ -46,19 +46,43 @@ interface Cohort {
 
 interface CohortsListProps {
   cohorts: Cohort[];
+  nextCursor?: string | null;
 }
 
-export default function CohortsList({ cohorts }: CohortsListProps) {
+export default function CohortsList({
+  cohorts: initialCohorts,
+  nextCursor: initialNextCursor = null,
+}: CohortsListProps) {
+  const [cohorts, setCohorts] = useState(initialCohorts);
+  const [nextCursor, setNextCursor] = useState(initialNextCursor);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [showInactive, setShowInactive] = useState(false);
 
   const activeCohorts = cohorts.filter((c) => c.isActive);
   const inactiveCohorts = cohorts.filter((c) => !c.isActive);
 
+  const loadMore = async () => {
+    if (!nextCursor || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const params = new URLSearchParams({ cursor: nextCursor, pageSize: "50" });
+      const res = await fetch(`/api/admin/pages/cohorts?${params.toString()}`);
+      if (!res.ok) throw new Error("load failed");
+      const data = await res.json();
+      setCohorts((prev) => [...prev, ...data.items]);
+      setNextCursor(data.nextCursor ?? null);
+    } catch {
+      window.alert("추가 기수를 불러오지 못했습니다.");
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
   const renderCohortCard = (cohort: Cohort) => {
     const endDate = cohort.교육시작일
-      ? calculateMarketingSupportEndDate(cohort.교육시작일, cohort.name)
+      ? calculateMarketingSupportEndDate(cohort.교육시작일)
       : null;
-    const durationLabel = getMarketingSupportDurationLabel(cohort.name);
+    const durationLabel = getMarketingSupportDurationLabel();
     const now = new Date();
     const isExpired = endDate ? now > endDate : false;
     const daysLeft = endDate
@@ -244,11 +268,8 @@ export default function CohortsList({ cohorts }: CohortsListProps) {
             (() => {
               const endDate = calculateMarketingSupportEndDate(
                 cohort.교육시작일,
-                cohort.name,
               );
-              const durationLabel = getMarketingSupportDurationLabel(
-                cohort.name,
-              );
+              const durationLabel = getMarketingSupportDurationLabel();
               const now = new Date();
               const isExpired = now > endDate;
               const daysLeft = Math.ceil(
@@ -444,6 +465,13 @@ export default function CohortsList({ cohorts }: CohortsListProps) {
                 </div>
               </div>
             )}
+          </div>
+        )}
+        {nextCursor && (
+          <div className="flex justify-center pt-2">
+            <Button variant="outline" onClick={loadMore} disabled={loadingMore}>
+              {loadingMore ? "불러오는 중..." : "더 보기"}
+            </Button>
           </div>
         )}
       </CardContent>

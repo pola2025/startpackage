@@ -1,0 +1,26 @@
+.env
+.env.*
+!.env.example
+.git
+.github
+.vercel
+.next
+node_modules
+.omx
+.codex
+.claude
+.chrome-codex-profile
+NEXT_SESSION_*.md
+*.log
+tmp
+exports
+test-results
+
+# Local review artifacts
+docs/**/*.html
+docs/**/*.pdf
+**/*.test.ts
+**/*.test.tsx
+**/__tests__
+*.tsbuildinfo
+tsc-*-output.txt

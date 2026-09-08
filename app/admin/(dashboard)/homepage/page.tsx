@@ -85,6 +85,30 @@ interface Cohort {
   name: string;
 }
 
+const MASKED_SECRET = "••••••••";
+
+function SecretValue({
+  field,
+  value,
+  onReveal,
+}: {
+  field: string;
+  value: unknown;
+  onReveal: (field: string) => void;
+}) {
+  const hasValue = typeof value === "string" && value.length > 0;
+  return (
+    <span className="flex items-center gap-2">
+      <span>{hasValue ? value : "-"}</span>
+      {hasValue && value === MASKED_SECRET && (
+        <Button type="button" variant="outline" size="sm" onClick={() => onReveal(field)}>
+          민감정보 확인
+        </Button>
+      )}
+    </span>
+  );
+}
+
 // 스타일 이름 매핑
 const STYLE_NAMES: Record<string, string> = {
   "https://www.jnipartners.co.kr": "스타일 1",
@@ -120,6 +144,26 @@ export default function HomepageManagementPage() {
   // 상세 보기 다이얼로그
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [revealedSecrets, setRevealedSecrets] = useState<Record<string, string>>({});
+
+  const handleRevealSecret = async (field: string) => {
+    if (!selectedUser) return;
+    try {
+      const response = await fetch(`/api/admin/users/${selectedUser.id}/submission/reveal`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ field }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        alert(data.error || "민감정보를 확인할 수 없습니다.");
+        return;
+      }
+      setRevealedSecrets((current) => ({ ...current, [field]: data.value ?? "-" }));
+    } catch {
+      alert("민감정보 확인 중 오류가 발생했습니다.");
+    }
+  };
 
   useEffect(() => {
     fetchData();
@@ -341,9 +385,18 @@ export default function HomepageManagementPage() {
     return STYLE_NAMES[url] || "커스텀";
   };
 
-  const openDetailDialog = (user: User) => {
+  const openDetailDialog = async (user: User) => {
     setSelectedUser(user);
+    setRevealedSecrets({});
     setDetailDialogOpen(true);
+    try {
+      const response = await fetch(`/api/admin/users/${user.id}/submission`);
+      if (!response.ok) return;
+      const submission = await response.json();
+      setSelectedUser((current) => (current?.id === user.id ? { ...current, submission } : current));
+    } catch {
+      return;
+    }
   };
 
   // 최근 7일 내 접수된 요청
@@ -732,7 +785,13 @@ export default function HomepageManagementPage() {
       </Card>
 
       {/* 상세 정보 다이얼로그 */}
-      <Dialog open={detailDialogOpen} onOpenChange={setDetailDialogOpen}>
+      <Dialog
+        open={detailDialogOpen}
+        onOpenChange={(open) => {
+          setDetailDialogOpen(open);
+          if (!open) setRevealedSecrets({});
+        }}
+      >
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -897,7 +956,7 @@ export default function HomepageManagementPage() {
                           도메인 관리 PW
                         </Label>
                         <p className="font-medium text-gray-900 mt-1 font-mono">
-                          {selectedUser.submission.도메인관리PW || "-"}
+                          <SecretValue field="도메인관리PW" value={revealedSecrets.도메인관리PW || selectedUser.submission.도메인관리PW} onReveal={handleRevealSecret} />
                         </p>
                       </div>
                     </div>
@@ -927,7 +986,7 @@ export default function HomepageManagementPage() {
                           Gmail PW
                         </Label>
                         <p className="font-medium text-gray-900 mt-1 font-mono">
-                          {selectedUser.submission.GmailPW || "-"}
+                          <SecretValue field="GmailPW" value={revealedSecrets.GmailPW || selectedUser.submission.GmailPW} onReveal={handleRevealSecret} />
                         </p>
                       </div>
                     </div>

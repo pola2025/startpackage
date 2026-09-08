@@ -2,6 +2,9 @@ import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { fileSizeExceededPayload } from "@/lib/storage/uploadLimits";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callCore } from "@/lib/d1/core-client";
 
 // R2 클라이언트 설정
 const s3Client = new S3Client({
@@ -25,6 +28,11 @@ export async function GET(
     }
 
     const { id: threadId } = await params;
+
+    if (isD1RuntimeEnabled()) {
+      const actor = session.user as { id: string; role?: string };
+      return NextResponse.json(await callCore("final-files-list", actor.id, { userId: actor.id, threadId, actorType: ["super", "designer", "operator"].includes(actor.role || "") ? "admin" : "user" }));
+    }
 
     const files = await prisma.designFinalFile.findMany({
       where: { threadId },
@@ -62,25 +70,26 @@ export async function POST(
 
     const { id: threadId } = await params;
 
-    // 스레드 확인
-    const thread = await prisma.designThread.findUnique({
-      where: { id: threadId },
-      include: { workflow: true },
-    });
+    let thread: { status: string } | null = null;
+    if (!isD1RuntimeEnabled()) {
+      thread = await prisma.designThread.findUnique({
+        where: { id: threadId },
+        select: { status: true },
+      });
 
-    if (!thread) {
-      return NextResponse.json(
-        { error: "스레드를 찾을 수 없습니다" },
-        { status: 404 },
-      );
-    }
+      if (!thread) {
+        return NextResponse.json(
+          { error: "스레드를 찾을 수 없습니다" },
+          { status: 404 },
+        );
+      }
 
-    // 확정 상태인지 확인
-    if (thread.status !== "confirmed") {
-      return NextResponse.json(
-        { error: "확정된 시안에만 파일을 업로드할 수 있습니다" },
-        { status: 400 },
-      );
+      if (thread.status !== "confirmed") {
+        return NextResponse.json(
+          { error: "확정된 시안에만 파일을 업로드할 수 있습니다" },
+          { status: 400 },
+        );
+      }
     }
 
     // FormData 파싱
@@ -92,6 +101,15 @@ export async function POST(
         { error: "파일을 선택해주세요" },
         { status: 400 },
       );
+    }
+
+    if (isD1RuntimeEnabled()) {
+      await callCore("final-file-create", user.id, {
+        userId: user.id,
+        threadId,
+        actorType: "admin",
+        dryRun: true,
+      });
     }
 
     // 허용 파일 타입
@@ -126,9 +144,13 @@ export async function POST(
 
       // 파일 크기 체크 (50MB)
       if (file.size > 50 * 1024 * 1024) {
+        const sizeError = fileSizeExceededPayload(50 * 1024 * 1024);
         return NextResponse.json(
-          { error: `파일 크기는 50MB 이하여야 합니다: ${fileName}` },
-          { status: 400 },
+          {
+            ...sizeError,
+            error: `${fileName}: ${sizeError.error}`,
+          },
+          { status: 413 },
         );
       }
 
@@ -149,17 +171,11 @@ export async function POST(
 
       const fileUrl = `${process.env.R2_PUBLIC_URL}/${key}`;
 
-      // DB에 저장
-      const savedFile = await prisma.designFinalFile.create({
-        data: {
-          threadId,
-          fileName,
-          fileType: fileExt,
-          fileSize: file.size,
-          fileUrl,
-          uploadedBy: user.id,
-        },
-      });
+      const savedFile = isD1RuntimeEnabled()
+        ? await callCore("final-file-create", user.id, { userId: user.id, threadId, actorType: "admin", fileName, fileType: fileExt, fileSize: file.size, fileUrl })
+        : await prisma.designFinalFile.create({
+            data: { threadId, fileName, fileType: fileExt, fileSize: file.size, fileUrl, uploadedBy: user.id },
+          });
 
       uploadedFiles.push(savedFile);
     }
@@ -204,6 +220,10 @@ export async function DELETE(
         { error: "파일 ID가 필요합니다" },
         { status: 400 },
       );
+    }
+
+    if (isD1RuntimeEnabled()) {
+      return NextResponse.json(await callCore("final-file-delete", user.id, { userId: user.id, fileId, actorType: "admin" }));
     }
 
     await prisma.designFinalFile.delete({

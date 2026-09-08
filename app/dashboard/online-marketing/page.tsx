@@ -21,8 +21,7 @@ import {
 } from "lucide-react";
 import {
   CONTENT_AUTOMATION_OPTION_MONTHLY_PRICE,
-  ONLINE_MARKETING_BILLING_MONTHS,
-  ONLINE_MARKETING_MONTHLY_PRICE,
+  ONLINE_MARKETING_BILLING_WEEKS,
   ONLINE_MARKETING_TOTAL_PRICE,
   formatManwon,
 } from "@/lib/marketing-pricing";
@@ -87,8 +86,8 @@ export default function OnlineMarketingPage() {
             광고운영대행을 수강생 특별가로 제공합니다
           </h2>
           <p className="mt-2 text-sm leading-relaxed text-gray-700">
-            BAS 수강생은 광고운영대행을 월{" "}
-            {formatManwon(ONLINE_MARKETING_MONTHLY_PRICE)}으로 이용하실 수
+            BAS 수강생은 광고운영대행을 {ONLINE_MARKETING_BILLING_WEEKS}주 단위,
+            총액 {formatManwon(ONLINE_MARKETING_TOTAL_PRICE)}으로 이용하실 수
             있습니다. 콘텐츠 대행은 월{" "}
             {formatManwon(CONTENT_AUTOMATION_OPTION_MONTHLY_PRICE)}으로 함께
             진행할 수 있습니다.
@@ -127,16 +126,16 @@ export default function OnlineMarketingPage() {
 
               <div className="mt-3 rounded-lg bg-gray-50 p-3">
                 <div className="flex items-baseline gap-1">
-                  <span className="text-sm text-gray-500">월</span>
+                  <span className="text-sm text-gray-500">8주</span>
                   <span className="text-3xl font-bold text-navy-900">
-                    {formatManwon(ONLINE_MARKETING_MONTHLY_PRICE)}
+                    {formatManwon(ONLINE_MARKETING_TOTAL_PRICE)}
                   </span>
                 </div>
                 <p className="mt-1 text-xs text-gray-500">
-                  VAT 포함 · {ONLINE_MARKETING_BILLING_MONTHS}개월 단위 결제
+                  VAT 포함 · {ONLINE_MARKETING_BILLING_WEEKS}주 단위 결제
                 </p>
                 <p className="mt-0.5 text-xs text-gray-500">
-                  {ONLINE_MARKETING_BILLING_MONTHS}개월 총액{" "}
+                  {ONLINE_MARKETING_BILLING_WEEKS}주 총액 {" "}
                   {formatManwon(ONLINE_MARKETING_TOTAL_PRICE)}
                 </p>
               </div>

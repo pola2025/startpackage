@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
+import { maskSubmissionSecretsDeep } from "@/lib/security/submission-secrets";
 
 // GET: 홈페이지 관리용 사용자 목록 조회
 export async function GET(request: NextRequest) {
@@ -12,6 +16,12 @@ export async function GET(request: NextRequest) {
       !["super", "designer", "operator"].includes(session.user.role)
     ) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (isD1RuntimeEnabled()) {
+      const params = new URL(request.url).searchParams;
+      const result = await callDataService<{ items: Array<Record<string, unknown>>; nextCursor?: string }>("admin-domain/homepage-users-list", { adminId: session.user.id, pageSize: params.get("pageSize") ?? undefined, cursor: params.get("cursor") ?? undefined });
+      return NextResponse.json(maskSubmissionSecretsDeep(result.items), result.nextCursor ? { headers: { "X-Next-Cursor": result.nextCursor } } : undefined);
     }
 
     const users = await prisma.user.findMany({
@@ -69,8 +79,10 @@ export async function GET(request: NextRequest) {
       workflows: undefined,
     }));
 
-    return NextResponse.json(usersWithWorkflow);
+    return NextResponse.json(maskSubmissionSecretsDeep(usersWithWorkflow));
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("Failed to fetch homepage users:", error);
     return NextResponse.json(
       { error: "Failed to fetch users" },

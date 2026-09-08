@@ -106,6 +106,10 @@ export default function AdminCommunicationPage() {
   const [expectedDate, setExpectedDate] = useState<Date>();
   const [uploading, setUploading] = useState(false);
   const [sending, setSending] = useState(false);
+  const [messageCursor, setMessageCursor] = useState<string | null>(null);
+  const [loadingMoreMessages, setLoadingMoreMessages] = useState(false);
+  const [threadCursor, setThreadCursor] = useState<string | null>(null);
+  const [loadingMoreThreads, setLoadingMoreThreads] = useState(false);
 
   // 새 메시지 알림
   const [newMessageAlert, setNewMessageAlert] = useState(false);
@@ -201,11 +205,13 @@ export default function AdminCommunicationPage() {
       const data = await response.json();
 
       if (response.ok) {
-        setThreads(data);
+        const pageItems = (Array.isArray(data) ? data : data.items ?? []).map((item: CommunicationThread & { messageCount?: number; userId?: string; userName?: string; phone?: string; email?: string }) => ({ ...item, user: item.user ?? { id: item.userId ?? "", 이름: item.userName ?? "사용자", email: item.email ?? "", 연락처: item.phone ?? "", cohort: null }, messages: item.messages ?? [], _count: item._count ?? { messages: item.messageCount ?? 0 } }));
+        setThreads(pageItems);
+        setThreadCursor(data.nextCursor ?? null);
         // 선택된 스레드 업데이트 (keepSelectedThreadId가 있으면 우선 사용)
         const threadIdToKeep = keepSelectedThreadId || selectedThread?.id;
         if (threadIdToKeep) {
-          const updated = data.find(
+          const updated = pageItems.find(
             (t: CommunicationThread) => t.id === threadIdToKeep,
           );
           if (updated) {
@@ -229,6 +235,22 @@ export default function AdminCommunicationPage() {
     }
   };
 
+  const loadMoreThreads = async () => {
+    if (!threadCursor || loadingMoreThreads) return;
+    setLoadingMoreThreads(true);
+    try {
+      const params = new URLSearchParams({ pageSize: "20", cursor: threadCursor });
+      if (statusFilter !== "all") params.set("status", statusFilter);
+      if (categoryFilter !== "all") params.set("category", categoryFilter);
+      const response = await fetch(`/api/admin/communication/threads?${params}`);
+      if (!response.ok) return;
+      const page = await response.json();
+      const items = (page.items ?? []).map((item: CommunicationThread & { messageCount?: number; userId?: string; userName?: string; phone?: string; email?: string }) => ({ ...item, user: item.user ?? { id: item.userId ?? "", 이름: item.userName ?? "사용자", email: item.email ?? "", 연락처: item.phone ?? "", cohort: null }, messages: item.messages ?? [], _count: item._count ?? { messages: item.messageCount ?? 0 } }));
+      setThreads((current) => [...current, ...items]);
+      setThreadCursor(page.nextCursor ?? null);
+    } finally { setLoadingMoreThreads(false); }
+  };
+
   // 사용자별로 스레드 그룹핑
   const groupThreadsByUser = () => {
     const grouped = threads.reduce(
@@ -244,7 +266,7 @@ export default function AdminCommunicationPage() {
         acc[userId].threads.push(thread);
 
         // 미확인 메시지 개수 계산
-        const unreadMessages = thread.messages.filter(
+        const unreadMessages = (thread as CommunicationThread & { unreadCount?: number }).unreadCount ?? thread.messages.filter(
           (msg) => msg.authorType === "user" && !msg.isReadByAdmin,
         ).length;
         acc[userId].unreadCount += unreadMessages;
@@ -389,8 +411,12 @@ export default function AdminCommunicationPage() {
   };
 
   const handleSelectThread = async (thread: CommunicationThread) => {
-    setSelectedThread(thread);
-    setLastMessageCount(thread.messages.length);
+    const response = await fetch(`/api/admin/communication/threads/${thread.id}?pageSize=50`);
+    const detail = response.ok ? await response.json() : thread;
+    const messages = Array.isArray(detail.messages) ? detail.messages : detail.messages?.items ?? [];
+    setSelectedThread({ ...thread, ...detail, messages });
+    setMessageCursor(detail.messages?.nextCursor ?? null);
+    setLastMessageCount(messages.length);
     setNewMessageAlert(false);
 
     // 관리자가 스레드를 열면 사용자 메시지를 읽음 처리
@@ -406,6 +432,19 @@ export default function AdminCommunicationPage() {
     } catch (error) {
       console.error("Failed to mark messages as read:", error);
     }
+  };
+
+  const loadMoreMessages = async () => {
+    if (!selectedThread || !messageCursor || loadingMoreMessages) return;
+    setLoadingMoreMessages(true);
+    try {
+      const response = await fetch(`/api/admin/communication/threads/${selectedThread.id}?pageSize=50&cursor=${encodeURIComponent(messageCursor)}`);
+      if (!response.ok) return;
+      const page = await response.json();
+      const older = Array.isArray(page.messages) ? page.messages : page.messages?.items ?? [];
+      setSelectedThread((current) => current ? { ...current, messages: [...current.messages, ...older].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()) } : current);
+      setMessageCursor(page.messages?.nextCursor ?? null);
+    } finally { setLoadingMoreMessages(false); }
   };
 
   const handleDeleteThread = async (threadId: string) => {
@@ -458,7 +497,7 @@ export default function AdminCommunicationPage() {
 
       if (!response.ok) {
         if (response.status === 413) {
-          alert("파일이 너무 큽니다. 10MB 이하의 파일만 업로드 가능합니다.");
+          alert("파일이 너무 큽니다. 10MB 이하의 파일만 업로드 가능합니다. 더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.");
           return;
         }
         const data = await response.json();
@@ -729,7 +768,7 @@ export default function AdminCommunicationPage() {
                       <AccordionContent className="px-2 pb-2">
                         <div className="space-y-2">
                           {userGroup.threads.map((thread) => {
-                            const threadUnreadCount = thread.messages.filter(
+                            const threadUnreadCount = (thread as CommunicationThread & { unreadCount?: number }).unreadCount ?? thread.messages.filter(
                               (msg) =>
                                 msg.authorType === "user" && !msg.isReadByAdmin,
                             ).length;
@@ -788,6 +827,7 @@ export default function AdminCommunicationPage() {
                     </AccordionItem>
                   );
                 })}
+                {threadCursor && <Button type="button" variant="outline" size="sm" onClick={loadMoreThreads} disabled={loadingMoreThreads}>{loadingMoreThreads ? "불러오는 중..." : "이전 문의 더보기"}</Button>}
               </Accordion>
             )}
           </CardContent>
@@ -877,6 +917,8 @@ export default function AdminCommunicationPage() {
                   </div>
                 </div>
               )}
+
+              {messageCursor && <div className="px-3 sm:px-6"><Button type="button" variant="outline" size="sm" onClick={loadMoreMessages} disabled={loadingMoreMessages}>{loadingMoreMessages ? "불러오는 중..." : "이전 메시지 더보기"}</Button></div>}
 
               {/* 메시지 목록 - 스크롤 가능 영역 */}
               <CardContent className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 bg-gray-50 min-h-0">

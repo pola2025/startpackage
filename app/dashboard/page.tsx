@@ -1,14 +1,17 @@
 import { auth } from "@/auth";
+import { maskSubmissionSecretsDeep } from "@/lib/security/submission-secrets";
 import prisma from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
 import { isShippingPolicyCohort } from "@/lib/shipping-policy";
 import { redirect } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { formatDate, formatDday } from "@/lib/utils";
+import { formatDday } from "@/lib/utils";
 import PrintRequestButton from "./print-request-button";
 import MarketingExtensionDialog from "./marketing-extension-dialog";
 import { ensureUserWorkflows } from "@/lib/ensureUserWorkflows";
-import ProgressVisualization from "@/components/dashboard/progress-visualization";
+import { normalizeDashboardDates } from "@/lib/dashboard/serialization";
+import ProjectProgress from "@/components/dashboard/project-progress";
 import DashboardAlertsClient from "./_components/dashboard-alerts-client";
 import PrintDeliverableCards from "./_components/print-deliverable-cards";
 import { isHomepageCompleteStatus } from "@/lib/workflow/homepage-status";
@@ -17,23 +20,9 @@ import {
   getMarketingSupportDurationLabel,
 } from "@/lib/marketing-support";
 
-// Temporary Progress component
-function Progress({ value, className }: { value: number; className?: string }) {
-  return (
-    <div
-      className={`relative h-2 w-full overflow-hidden rounded-full bg-gray-200 ${className || ""}`}
-    >
-      <div
-        className="h-full bg-gov-blue transition-all"
-        style={{ width: `${value}%` }}
-      />
-    </div>
-  );
-}
 import {
   Calendar,
   Clock,
-  Package,
   AlertCircle,
   Megaphone,
   Database,
@@ -42,6 +31,16 @@ import {
   BarChart3,
   Sheet,
 } from "lucide-react";
+
+type DashboardUser = Prisma.UserGetPayload<{
+  include: {
+    cohort: true;
+    submission: true;
+    workflows: true;
+    marketingExtensionRequests: true;
+    communicationThreads: { include: { messages: true } };
+  };
+}>;
 
 export default async function UserDashboard() {
   const session = await auth();
@@ -52,11 +51,15 @@ export default async function UserDashboard() {
 
   const userId = (session.user as any).id;
 
-  // 워크플로우 누락 체크 및 자동 생성
+  const d1Runtime = isD1RuntimeEnabled();
   await ensureUserWorkflows(userId);
 
   // 사용자 정보 조회
-  const user = await prisma.user.findUnique({
+  const user = d1Runtime
+    ? normalizeDashboardDates(
+        await callDataService<DashboardUser | null>("shared-domain/dashboard-context", { userId }),
+      )
+    : await prisma.user.findUnique({
     where: { id: userId },
     include: {
       cohort: true,
@@ -81,7 +84,7 @@ export default async function UserDashboard() {
         },
       },
     },
-  });
+      });
 
   if (!user) {
     return (
@@ -93,6 +96,8 @@ export default async function UserDashboard() {
       </div>
     );
   }
+
+  user.submission = maskSubmissionSecretsDeep(user.submission);
 
   // 읽지 않은 공지사항 (나중에 구현)
   const unreadAnnouncements = 0;
@@ -114,12 +119,9 @@ export default async function UserDashboard() {
   const totalFields = submissionFields.length;
   const completionPercent = Math.round((completedFields / totalFields) * 100);
 
-  // 마케팅 지원 기간 계산 (26-5기부터 8주, 이전 기수는 3개월)
   let marketingStartDate: Date | null = null;
   let marketingEndDate: Date | null = null;
-  const marketingSupportDurationLabel = getMarketingSupportDurationLabel(
-    user.cohort?.name,
-  );
+  const marketingSupportDurationLabel = getMarketingSupportDurationLabel();
 
   if (
     user.marketingSupportEnabled &&
@@ -134,7 +136,6 @@ export default async function UserDashboard() {
     marketingStartDate = new Date(user.cohort.교육시작일);
     marketingEndDate = calculateMarketingSupportEndDate(
       user.cohort.교육시작일,
-      user.cohort.name,
     );
   }
 
@@ -406,24 +407,6 @@ export default async function UserDashboard() {
   // 우선순위에 따라 정렬
   notifications.sort((a, b) => a.priority - b.priority);
 
-  // === 와이어프레임 v4 시각화용 데이터 매핑 ===
-  // 로고 상태 매핑
-  const logoWorkflow = user.workflows.find((w) => w.type === "로고");
-  const logoStatusKey: "idle" | "working" | "ready" = (() => {
-    const s = logoWorkflow?.status ?? "대기";
-    if (s === "시안중" || s === "시안제작중") return "working";
-    if (
-      s === "시안컨펌요청" ||
-      s === "시안확정" ||
-      s === "최종확정" ||
-      s === "발주완료" ||
-      s === "제작완료" ||
-      s === "발송완료"
-    )
-      return "ready";
-    return "idle";
-  })();
-
   // 인쇄물 정보 (5종 인쇄물 자료에 필요한 필드)
   // 배송지 필수 정책은 최근 2개 기수부터 적용한다 (지난 기수는 진행률을 건드리지 않는다)
   const 배송지필수 = isShippingPolicyCohort(user.cohort?.교육시작일);
@@ -441,8 +424,6 @@ export default async function UserDashboard() {
   ];
   const printFilled = printFields.filter(Boolean).length;
   const printTotal = printFields.length;
-  const printPercent = Math.round((printFilled / printTotal) * 100);
-  const printConnected = printPercent >= 100;
 
   // 홈페이지 정보
   const webFields = [
@@ -450,19 +431,10 @@ export default async function UserDashboard() {
     user.submission?.업종,
     user.submission?.홈페이지스타일,
     user.submission?.홈페이지컬러컨셉,
-    user.submission?.도메인주소,
     user.submission?.로고URL,
   ];
   const webFilled = webFields.filter(Boolean).length;
   const webTotal = webFields.length;
-  const webPercent = Math.round((webFilled / webTotal) * 100);
-  const webConnected = webPercent >= 100;
-
-  // 광고 연결: 마케팅 정보 + 광고 활성화
-  const adConnected = !!(
-    user.submission?.네이버검색광고ID || user.submission?.InstagramID
-  );
-
   // 카테고리별 카운트 (와이어프레임 To-do 분류)
   const todoCounts = {
     urgent: notifications.filter((n) => n.type === "urgent").length,
@@ -470,31 +442,6 @@ export default async function UserDashboard() {
     waiting: notifications.filter((n) => n.type === "info").length,
     completed: notifications.filter((n) => n.type === "success").length,
   };
-
-  // 전체 진행률 계산 (자료제출 30% + 워크플로우 진행 70% 가중)
-  const workflowProgressMap: Record<string, number> = {
-    대기: 0,
-    시안중: 30,
-    시안제작중: 30,
-    시안컨펌요청: 55,
-    시안확정: 70,
-    발주요청: 75,
-    발주대기: 75,
-    발주완료: 85,
-    제작완료: 92,
-    "제작 진행 중": 60,
-    "제작 완료": 95,
-    발송완료: 100,
-    최종확정: 100,
-  };
-  const wfPercents = user.workflows.map(
-    (w) => workflowProgressMap[w.status] ?? 0,
-  );
-  const wfAvg =
-    wfPercents.length > 0
-      ? Math.round(wfPercents.reduce((a, b) => a + b, 0) / wfPercents.length)
-      : 0;
-  const overallProgress = Math.round(completionPercent * 0.3 + wfAvg * 0.7);
 
   // 자료 제출 마감 = 교육시작일 + 4주 (28일). 모든 기수 공통 정책.
   // 마감 후에는 추가 입력/진행 불가 → 관리자 별도 문의로 유도
@@ -510,17 +457,9 @@ export default async function UserDashboard() {
     submissionExpired = submissionDaysRemaining <= 0;
   }
 
-  // 마케팅 D-Day (Meta 광고 카드 통합용)
-  let marketingDaysRemaining: number | null = null;
-  if (marketingEndDate) {
-    marketingDaysRemaining = Math.ceil(
-      (marketingEndDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24),
-    );
-  }
-
   return (
-    <div className="space-y-4">
-      {/* 진행 현황 헤더: 좌측 사용자 정보 + 우측 전체 진행률 */}
+    <div className="space-y-6">
+      {/* 진행 현황과 기존 제출·지원 마감 안내 */}
       <div className="flex items-start justify-between gap-3 px-4 py-3 bg-white border border-gray-200 rounded-lg">
         <div className="flex flex-wrap items-center gap-2 flex-1 min-w-0">
           <div className="w-full">
@@ -528,8 +467,11 @@ export default async function UserDashboard() {
               {user.이름}님
             </div>
             <h1 className="text-base md:text-lg font-bold text-slate-900">
-              스타트패키지 진행 현황
+              제작 프로젝트 현황
             </h1>
+            <p className="mt-1 text-sm text-slate-600">
+              지금 필요한 일과 품목별 제작 상황을 확인하세요.
+            </p>
             {submissionDeadline && (
               <p
                 className={`text-[11px] mt-0.5 font-medium ${
@@ -595,30 +537,7 @@ export default async function UserDashboard() {
               );
             })()}
         </div>
-        <div className="text-right flex-shrink-0">
-          <div className="text-[11px] text-gray-500 font-medium">전체 진행</div>
-          <div className="text-2xl md:text-3xl font-bold text-gov-blue">
-            {overallProgress}
-            <span className="text-base md:text-lg">%</span>
-          </div>
-        </div>
       </div>
-
-      {/* 메인 시각화: 로고 동력원 + 결과물 박스 (와이어프레임 v4) */}
-      <ProgressVisualization
-        logoStatus={logoStatusKey}
-        printConnected={printConnected}
-        webConnected={webConnected}
-        adConnected={adConnected}
-        printPercent={printPercent}
-        webPercent={webPercent}
-        printFilled={printFilled}
-        printTotal={printTotal}
-        webFilled={webFilled}
-        webTotal={webTotal}
-        submissionDaysRemaining={submissionDaysRemaining}
-        marketingDaysRemaining={marketingDaysRemaining}
-      />
 
       {/* 내가 처리해야 할 것 (To-do 패널) — 알림 클릭 시 위자드 모달 */}
       <DashboardAlertsClient
@@ -629,6 +548,45 @@ export default async function UserDashboard() {
         accountEmail={user.email}
         shippingRequired={배송지필수}
       />
+
+      <ProjectProgress
+        workflows={user.workflows.map((w) => ({
+          id: w.id,
+          type: w.type,
+          status: w.status,
+          시안URL: w.시안URL,
+          최종확정일: w.확정일시?.toISOString() ?? null,
+          발주요청일: w.발주요청일?.toISOString() ?? null,
+          updatedAt: w.updatedAt.toISOString(),
+        }))}
+      />
+
+      <section
+        aria-labelledby="preparation-title"
+        className="rounded-xl border border-slate-200 bg-white p-4 md:p-6"
+      >
+        <h2 id="preparation-title" className="font-bold text-navy-900">
+          자료 준비 현황
+        </h2>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <div className="flex items-center justify-between gap-3 rounded-lg bg-slate-50 p-3 text-sm">
+            <span>인쇄물 자료</span>
+            <strong className="text-gov-blue">
+              {printFilled} / {printTotal} 항목 입력
+            </strong>
+          </div>
+          <div className="flex items-center justify-between gap-3 rounded-lg bg-slate-50 p-3 text-sm">
+            <span>홈페이지 자료</span>
+            <strong className="text-gov-blue">
+              {webFilled} / {webTotal} 항목 입력
+            </strong>
+          </div>
+        </div>
+        <p className="mt-3 text-xs leading-relaxed text-slate-600">
+          자료 준비와 실제 제작은 별도로 진행됩니다. 아래에서 필요한 자료를
+          확인하거나 수정할 수 있습니다.
+        </p>
+      </section>
 
       {/* 인쇄물별 필요 정보 카드 — outcome 중심 (이걸 만들려면 이런 게 필요해요) */}
       <PrintDeliverableCards
@@ -651,87 +609,38 @@ export default async function UserDashboard() {
       <div className="flex justify-end">
         <PrintRequestButton
           completionRate={completionPercent}
-          hasWorkflows={user.workflows.length > 0}
+          hasWorkflows={user.submission?.isComplete ?? false}
         />
       </div>
 
-      {/* Workflow Status — 2열 미니 그리드 */}
-      <Card className="bg-white border border-gray-200">
-        <CardHeader className="p-3 md:p-4 pb-1 md:pb-2">
-          <CardTitle className="text-sm md:text-base text-gray-900 flex items-center gap-2">
-            <Package className="w-4 h-4" />
-            제작 진행 현황
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-3 md:p-4 pt-0">
-          {user.workflows.length > 0 ? (
-            <div className="grid grid-cols-2 gap-1.5 md:gap-2">
-              {user.workflows.map((workflow) => {
-                const isComplete =
-                  workflow.status === "완료" ||
-                  workflow.status === "최종확정" ||
-                  workflow.status === "제작완료" ||
-                  workflow.status === "발송완료" ||
-                  isHomepageCompleteStatus(workflow.type, workflow.status);
-                const isInProgress =
-                  workflow.status === "진행중" ||
-                  workflow.status === "시안중" ||
-                  workflow.status === "시안제작중" ||
-                  workflow.status === "시안컨펌요청" ||
-                  workflow.status === "발주요청" ||
-                  workflow.status === "발주대기" ||
-                  workflow.status === "발주완료" ||
-                  workflow.status === "제작완료" ||
-                  workflow.status === "제작 진행 중" ||
-                  workflow.status === "제작 완료" ||
-                  workflow.status === "시안확정";
-
-                return (
-                  <div
-                    key={workflow.id}
-                    className="flex items-center gap-2 p-2 md:p-2.5 rounded border border-slate-200 bg-white"
-                  >
-                    <div
-                      className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                        isComplete
-                          ? "bg-emerald-500"
-                          : isInProgress
-                            ? "bg-amber-500"
-                            : "bg-slate-300"
-                      }`}
-                    />
-                    <span className="text-xs md:text-sm font-medium text-slate-900 truncate">
-                      {workflow.type}
-                    </span>
-                    <span
-                      className={`ml-auto text-[10px] md:text-xs px-2 py-0.5 rounded border font-bold flex-shrink-0 ${
-                        isComplete
-                          ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                          : isInProgress
-                            ? "bg-amber-50 text-amber-700 border-amber-200"
-                            : "bg-slate-50 text-slate-500 border-slate-200"
-                      }`}
-                    >
-                      {workflow.status}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="text-center py-4">
-              <Clock className="w-8 h-8 mx-auto text-gray-400 mb-2" />
-              <p className="text-xs text-gray-500">
-                워크플로우가 아직 생성되지 않았습니다.
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <section
+        className="rounded-xl border border-navy-700 bg-navy-900 p-5 text-white"
+        aria-labelledby="meta-request-title"
+      >
+        <h2 id="meta-request-title" className="font-bold text-white">
+          Meta 광고 신청 안내
+        </h2>
+        <p className="mt-2 text-sm leading-relaxed text-slate-200">
+          전화·문자·문의로 직접 신청 필수
+        </p>
+        <p className="mt-1 text-sm leading-relaxed text-slate-200">
+          직접 신청 → 관리자 승인 순서로 진행됩니다. 인쇄물·홈페이지 제작과
+          별도로 신청해주세요.
+        </p>
+        <a
+          href="/dashboard/communication"
+          className="mt-4 inline-flex rounded-lg bg-white px-4 py-2 text-sm font-semibold text-navy-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-300"
+        >
+          광고 신청 문의
+        </a>
+      </section>
 
       {/* Marketing Support — 아코디언 (기본 접힘) */}
       {marketingStartDate && marketingEndDate && (
-        <details className="bg-white border border-gray-200 rounded-lg">
+        <details
+          id="marketing-extension"
+          className="bg-white border border-gray-200 rounded-lg"
+        >
           <summary className="flex items-center gap-2 p-3 md:p-4 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
             <Megaphone className="w-4 h-4 text-gov-blue" />
             <span className="text-sm md:text-base font-bold text-gray-900 flex-1">

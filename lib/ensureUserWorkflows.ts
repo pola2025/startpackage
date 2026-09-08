@@ -7,6 +7,8 @@
  */
 
 import prisma from "./prisma";
+import { isD1RuntimeEnabled } from "./d1/runtime";
+import { callCore } from "./d1/core-client";
 
 // 표준 워크플로우 타입 (신규 가입자가 가져야 할 워크플로우)
 // "로고" = 모든 인쇄물·홈페이지의 게이트 (선행 필수)
@@ -28,6 +30,11 @@ const STANDARD_WORKFLOWS = [
  */
 export async function ensureUserWorkflows(userId: string): Promise<number> {
   try {
+    if (isD1RuntimeEnabled()) {
+      const result = await callCore<{ created: number }>("ensure-workflows", userId, { userId });
+      return result.created;
+    }
+
     // 사용자 정보 조회
     const user = await prisma.user.findUnique({
       where: { id: userId },

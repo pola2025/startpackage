@@ -41,6 +41,8 @@ export default function CategoryDetailPage() {
   const [selectedSubCategory, setSelectedSubCategory] = useState<string | null>(null);
   const [selectedTip, setSelectedTip] = useState<ContentTip | null>(null);
   const [loading, setLoading] = useState(true);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   // Validate category before any hooks
   const isValid = isValidCategory(categoryId);
@@ -66,11 +68,31 @@ export default function CategoryDetailPage() {
       if (data) {
         setTips(data.tips || []);
         setAvailableSubCategories(data.availableSubCategories || []);
+        setNextCursor(data.nextCursor || null);
       }
     } catch (error) {
       console.error("콘텐츠 팁 조회 실패:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadMoreTips = async () => {
+    if (!nextCursor || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const params = new URLSearchParams({ cursor: nextCursor });
+      if (selectedSubCategory) params.set("subCategory", selectedSubCategory);
+      const res = await fetch(`/api/content-tips/category/${categoryId}?${params.toString()}`);
+      const data = await res.json();
+      if (Array.isArray(data.tips)) {
+        setTips((current) => [...current, ...data.tips]);
+        setNextCursor(data.nextCursor || null);
+      }
+    } catch (error) {
+      console.error("콘텐츠 팁 추가 조회 실패:", error);
+    } finally {
+      setLoadingMore(false);
     }
   };
 
@@ -271,6 +293,14 @@ export default function CategoryDetailPage() {
           })
         )}
       </div>
+
+      {nextCursor && (
+        <div className="flex justify-center">
+          <Button variant="outline" onClick={loadMoreTips} disabled={loadingMore}>
+            {loadingMore ? "불러오는 중..." : "더 보기"}
+          </Button>
+        </div>
+      )}
 
       {/* 콘텐츠 팁 상세 모달 */}
       <Dialog open={!!selectedTip} onOpenChange={() => setSelectedTip(null)}>

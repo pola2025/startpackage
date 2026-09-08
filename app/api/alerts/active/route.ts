@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 /**
  * GET /api/alerts/active
@@ -23,6 +26,10 @@ export async function GET(request: NextRequest) {
     }
 
     const userId = session.user.id;
+
+    if (isD1RuntimeEnabled()) {
+      return NextResponse.json(await callDataService<{ success: boolean; alerts: unknown[] }>("content-domain/active-alerts", { userId }));
+    }
     const now = new Date();
 
     // 1. 사용자의 기수(cohortId) 조회
@@ -68,6 +75,8 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ success: true, alerts });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("활성 알림 조회 실패:", error);
     return NextResponse.json(
       { success: false, error: "알림 조회에 실패했습니다." },

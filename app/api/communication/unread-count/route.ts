@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 /**
  * GET /api/communication/unread-count
@@ -19,6 +22,7 @@ export async function GET() {
     }
 
     const userId = (session.user as any).id;
+    if (isD1RuntimeEnabled()) return NextResponse.json(await callDataService("communication-domain/user-unread-count", { userId }));
 
     // 사용자의 스레드 ID 목록
     const userThreads = await prisma.communicationThread.findMany({
@@ -58,6 +62,8 @@ export async function GET() {
       })),
     });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("❌ 미확인 메시지 조회 실패:", error);
     return NextResponse.json(
       { error: "미확인 메시지 조회 중 오류가 발생했습니다." },

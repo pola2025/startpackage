@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { z } from "zod";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callCore } from "@/lib/d1/core-client";
 
 /**
  * POST /api/workflows/dismiss-modal
@@ -39,6 +41,11 @@ export async function POST(request: Request) {
 
     const { workflowId } = validation.data;
     const userId = (session.user as any).id;
+
+    if (isD1RuntimeEnabled()) {
+      const result = await callCore<unknown>("workflow-dismiss", userId, { userId, workflowId });
+      return NextResponse.json(result);
+    }
 
     // 워크플로우 권한 확인
     const workflow = await prisma.workflow.findFirst({

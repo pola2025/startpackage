@@ -2,6 +2,9 @@ import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 // Validation schema
 const contentTipUpdateSchema = z.object({
@@ -32,6 +35,11 @@ export async function GET(
 
     const { id } = await params;
 
+    if (isD1RuntimeEnabled()) {
+      const tip = await callDataService<Record<string, unknown>>("admin-domain/content-tip-get", { adminId: (session.user as any).id, id });
+      return NextResponse.json({ tip });
+    }
+
     const tip = await prisma.contentTip.findUnique({
       where: { id },
     });
@@ -42,6 +50,8 @@ export async function GET(
 
     return NextResponse.json({ tip });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("GET /api/admin/content-tips/[id] error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
@@ -74,6 +84,11 @@ export async function PATCH(
       );
     }
 
+    if (isD1RuntimeEnabled()) {
+      const tip = await callDataService<Record<string, unknown>>("admin-domain/content-tip-update", { adminId: (session.user as any).id, id, ...validated.data });
+      return NextResponse.json({ success: true, tip });
+    }
+
     const tip = await prisma.contentTip.update({
       where: { id },
       data: validated.data,
@@ -84,6 +99,8 @@ export async function PATCH(
       tip,
     });
   } catch (error: any) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("PATCH /api/admin/content-tips/[id] error:", error);
 
     if (error.code === "P2025") {
@@ -109,6 +126,10 @@ export async function DELETE(
 
     const { id } = await params;
 
+    if (isD1RuntimeEnabled()) {
+      return NextResponse.json(await callDataService<{ success: boolean; message: string }>("admin-domain/content-tip-delete", { adminId: (session.user as any).id, id }));
+    }
+
     await prisma.contentTip.delete({
       where: { id },
     });
@@ -118,6 +139,8 @@ export async function DELETE(
       message: "콘텐츠 팁이 삭제되었습니다",
     });
   } catch (error: any) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("DELETE /api/admin/content-tips/[id] error:", error);
 
     if (error.code === "P2025") {

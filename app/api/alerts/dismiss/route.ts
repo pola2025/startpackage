@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 const dismissSchema = z.object({
   alertId: z.string().cuid(),
@@ -37,6 +40,10 @@ export async function POST(request: NextRequest) {
     }
 
     const { alertId } = validation.data;
+
+    if (isD1RuntimeEnabled()) {
+      return NextResponse.json(await callDataService<{ success: boolean; message: string }>("content-domain/dismiss-alert", { userId, alertId }));
+    }
 
     // 알림 존재 확인
     const alert = await prisma.systemAlert.findUnique({
@@ -78,6 +85,8 @@ export async function POST(request: NextRequest) {
       message: "24시간 동안 이 알림이 표시되지 않습니다.",
     });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("알림 숨김 처리 실패:", error);
     return NextResponse.json(
       { success: false, error: "알림 숨김 처리에 실패했습니다." },

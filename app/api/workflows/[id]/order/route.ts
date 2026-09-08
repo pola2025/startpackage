@@ -1,9 +1,18 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { handleStateChange, handleOrderRequest } from "@/lib/notification/notificationService";
 import { calculateExpectedArrival } from "@/lib/utils/businessDays";
-import { PRINT_COLOR_AGREEMENT, requiresShippingStep } from "@/lib/design-confirm";
+import {
+  buildConfirmSnapshot,
+  validateConfirmPayload,
+  requiresShippingStep,
+  type ShippingSnapshot,
+} from "@/lib/design-confirm";
+import { isShippingPolicyCohort } from "@/lib/shipping-policy";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callCore } from "@/lib/d1/core-client";
+import { notifyWorkflowOrder } from "@/lib/notification/workflowNotifications";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 // POST: 발주 요청
 export async function POST(
@@ -18,11 +27,25 @@ export async function POST(
 
     const userId = (session.user as any).id;
     const { id: workflowId } = await params;
+    const body = await request.json().catch(() => ({}));
+
+    if (isD1RuntimeEnabled()) {
+      const result = await callCore<Record<string, unknown>>("workflow-order", userId, {
+        userId,
+        workflowId,
+        shipping: body?.shipping ?? null,
+        agreements: body?.agreements,
+      });
+      const meta = result.__d1Meta as { user?: Record<string, unknown>; allOrdersRequested?: boolean } | undefined;
+      delete result.__d1Meta;
+      await notifyWorkflowOrder({ userId, userName: typeof meta?.user?.이름 === "string" ? meta.user.이름 : undefined, cohortName: typeof meta?.user?.cohortName === "string" ? meta.user.cohortName : undefined, allOrdersRequested: meta?.allOrdersRequested === true, workflowType: String(result.type || "워크플로우"), ...(meta?.user?.slackChannelId ? { slackChannelId: String(meta.user.slackChannelId) } : {}) }).catch((error) => console.error("알림 발송 실패:", error));
+      return NextResponse.json(result);
+    }
 
     // 워크플로우 확인
     const workflow = await prisma.workflow.findUnique({
       where: { id: workflowId },
-      include: { user: true },
+      include: { user: { include: { cohort: true } } },
     });
 
     if (!workflow) {
@@ -42,88 +65,97 @@ export async function POST(
     }
 
     const isPrint = requiresShippingStep(workflow.type);
-    if (isPrint) {
-      const body = await request.json().catch(() => null);
-      if (!Array.isArray(body?.agreements) || !body.agreements.includes(PRINT_COLOR_AGREEMENT.id)) {
-        return NextResponse.json(
-          { error: "인쇄 색상 차이와 별도 인쇄 교정 미지원 안내를 확인해주세요." },
-          { status: 400 },
-        );
+    if (!isPrint) {
+      return NextResponse.json({ error: "인쇄물만 발주 요청할 수 있습니다." }, { status: 400 });
+    }
+
+    const rawShipping = body?.shipping;
+    if (rawShipping && typeof rawShipping === "object") {
+      const shippingKeys = ["인쇄물받을주소", "받는분이름", "수령연락처", "우편번호"] as const;
+      if (shippingKeys.some((key) => key in rawShipping && typeof rawShipping[key] !== "string")) {
+        return NextResponse.json({ error: "배송지 정보 형식이 올바르지 않습니다." }, { status: 400 });
       }
     }
+    const shipping: ShippingSnapshot | null = rawShipping && typeof rawShipping === "object"
+      ? {
+          인쇄물받을주소: typeof rawShipping.인쇄물받을주소 === "string" ? rawShipping.인쇄물받을주소 : "",
+          받는분이름: typeof rawShipping.받는분이름 === "string" ? rawShipping.받는분이름 : "",
+          수령연락처: typeof rawShipping.수령연락처 === "string" ? rawShipping.수령연락처 : "",
+          우편번호: typeof rawShipping.우편번호 === "string" ? rawShipping.우편번호 : "",
+        }
+      : null;
+      const agreements: string[] = Array.isArray(body?.agreements)
+        ? body.agreements
+        : [];
+      const shippingRequired = isShippingPolicyCohort(workflow.user.cohort?.교육시작일);
+      const validationError = validateConfirmPayload({
+        workflowType: workflow.type,
+        shipping,
+        agreements,
+        shippingRequired,
+      });
+      if (validationError) {
+        return NextResponse.json({ error: validationError }, { status: 400 });
+      }
 
-    // 발주 요청일 기준으로 예상 도착일 계산
-    const orderDate = new Date();
-    const expectedArrival = calculateExpectedArrival(orderDate, workflow.type);
-
-    // 발주 요청으로 상태 변경 (관리자 승인 대기)
-    const updated = await prisma.workflow.update({
-      where: { id: workflowId },
-      data: {
-        status: "발주요청",
-        발주요청일: orderDate,
-        예상도착일: expectedArrival || null,
-        ...(isPrint ? {
-          확정동의항목: [...new Set([
-            ...(Array.isArray(workflow.확정동의항목) ? workflow.확정동의항목 : []),
-            PRINT_COLOR_AGREEMENT.id,
-          ])],
-        } : {}),
-      },
-    });
-
-    // 알림 발송 (발주 요청 - 텔레그램 + 슬랙)
-    try {
-      await handleStateChange({
-        userId,
-        fromState: "발주대기",
-        toState: "발주요청",
+      const confirmSnapshot = buildConfirmSnapshot({
+        workflowType: workflow.type,
+        shipping,
+        agreements,
+        shippingRequired,
       });
 
-      await handleOrderRequest({
-        userId,
-        printItems: [workflow.type],
+      const orderDate = new Date();
+      const expectedArrival = calculateExpectedArrival(orderDate, workflow.type);
+      const result = await prisma.workflow.updateMany({
+        where: { id: workflowId, userId, status: "발주대기" },
+        data: {
+          status: "발주요청",
+          발주요청일: orderDate,
+          예상도착일: expectedArrival || null,
+          ...confirmSnapshot,
+          확정일시: orderDate,
+        },
       });
-    } catch (notificationError) {
-      console.error("알림 발송 실패:", notificationError);
-      // 알림 실패는 무시하고 계속 진행
-    }
+      if (result.count !== 1) {
+        return NextResponse.json({ error: "이미 변경된 발주 상태입니다. 새로고침해주세요." }, { status: 409 });
+      }
+      const updated = await prisma.workflow.findUnique({
+        where: { id: workflowId },
+        include: { user: { include: { cohort: true } } },
+      });
+      if (!updated) {
+        return NextResponse.json({ error: "Workflow not found" }, { status: 404 });
+      }
 
-    // 모든 워크플로우가 발주요청 상태인지 확인
+    let allOrdersRequested = false;
     try {
       const allWorkflows = await prisma.workflow.findMany({
         where: { userId },
+        select: { status: true },
       });
-
-      const allOrdersRequested = allWorkflows.every(
+      allOrdersRequested = allWorkflows.every(
         (w) => w.status === "발주요청" ||
                w.status === "발주완료" ||
                w.status === "제작완료" ||
-               w.status === "발송완료"
+               w.status === "발송완료",
       );
-
-      if (allOrdersRequested) {
-        // 모든 워크플로우가 발주요청 이상의 상태일 때만 알림
-        const user = await prisma.user.findUnique({
-          where: { id: userId },
-          include: { cohort: true },
-        });
-
-        if (user) {
-          const { sendTelegramMessage } = await import("@/lib/notification/telegramClient");
-
-          await sendTelegramMessage(
-            `🎉 *전체 발주 요청 완료*\n\n*${user.cohort?.name || "미지정"} ${user.이름}* 님의 모든 디자인 시안 발주 요청이 접수되었습니다.\n\n관리자 승인을 기다리고 있습니다.`
-          );
-        }
-      }
-    } catch (checkError) {
-      console.error("전체 발주 확인 실패:", checkError);
-      // 확인 실패는 무시하고 계속 진행
+    } catch (notificationError) {
+      console.error("전체 발주 확인 실패:", notificationError);
+      // 알림 실패는 무시하고 계속 진행
     }
+    await notifyWorkflowOrder({
+      userId,
+      workflowType: workflow.type,
+      userName: workflow.user.이름,
+      cohortName: workflow.user.cohort?.name,
+      allOrdersRequested,
+    }).catch((error) => console.error("알림 발송 실패:", error));
 
     return NextResponse.json(updated);
   } catch (error) {
+    const response = dataServiceErrorResponse(error);
+    if (response) return response;
     console.error("POST /api/workflows/[id]/order error:", error);
     return NextResponse.json(
       { error: "Internal server error" },

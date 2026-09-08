@@ -1,10 +1,15 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { EmailFileGuide, EmailFileToast } from '../email-file-guide'
+import React from 'react'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react'
+import { EmailFileGuide, EmailFileHint } from '../email-file-guide'
+
+beforeEach(() => { vi.stubGlobal('React', React) })
+afterEach(() => { cleanup(); vi.unstubAllGlobals() })
 
 describe('EmailFileGuide 컴포넌트', () => {
   const defaultProps = {
     isOpen: true,
+    errorType: 'SIZE_EXCEEDED' as const,
     onClose: vi.fn(),
   }
 
@@ -16,13 +21,13 @@ describe('EmailFileGuide 컴포넌트', () => {
     it('isOpen이 true일 때 모달이 표시된다', () => {
       render(<EmailFileGuide {...defaultProps} />)
 
-      expect(screen.getByText(/이메일로 파일을 보내주세요/)).toBeInTheDocument()
+      expect(screen.getByText(/이메일로 파일 보내기/)).toBeInTheDocument()
     })
 
     it('isOpen이 false일 때 모달이 표시되지 않는다', () => {
       render(<EmailFileGuide {...defaultProps} isOpen={false} />)
 
-      expect(screen.queryByText(/이메일로 파일을 보내주세요/)).not.toBeInTheDocument()
+      expect(screen.queryByText(/이메일로 파일 보내기/)).not.toBeInTheDocument()
     })
   })
 
@@ -68,7 +73,7 @@ describe('EmailFileGuide 컴포넌트', () => {
     it('SIZE_EXCEEDED 타입일 때 크기 관련 메시지가 표시된다', () => {
       render(<EmailFileGuide {...defaultProps} errorType="SIZE_EXCEEDED" />)
 
-      expect(screen.getByText(/용량이 너무 큰/)).toBeInTheDocument()
+      expect(screen.getByText(/파일이 너무 큽니다/)).toBeInTheDocument()
     })
 
     it('UNSUPPORTED_FORMAT 타입일 때 형식 관련 메시지가 표시된다', () => {
@@ -110,21 +115,23 @@ describe('EmailFileGuide 컴포넌트', () => {
   })
 })
 
-describe('EmailFileToast 컴포넌트', () => {
+describe('EmailFileHint 컴포넌트', () => {
   it('토스트 메시지가 표시된다', () => {
-    render(<EmailFileToast show={true} />)
+    render(<EmailFileHint />)
 
-    expect(screen.getByText(/이메일.*로도 보낼 수 있어요/)).toBeInTheDocument()
+    expect(screen.getByText(/파일이 크면 이메일/)).toHaveTextContent('로도 보낼 수 있어요')
+    expect(screen.queryByRole('button')).not.toBeInTheDocument()
   })
 
-  it('show가 false일 때 토스트가 표시되지 않는다', () => {
-    render(<EmailFileToast show={false} />)
-
-    expect(screen.queryByText(/이메일.*로도 보낼 수 있어요/)).not.toBeInTheDocument()
+  it('닫기 콜백을 제공하면 닫기 버튼으로 호출할 수 있다', () => {
+    const onClose = vi.fn()
+    render(<EmailFileHint onClose={onClose} />)
+    fireEvent.click(screen.getByRole('button'))
+    expect(onClose).toHaveBeenCalledTimes(1)
   })
 
   it('이메일 주소가 포함되어 있다', () => {
-    render(<EmailFileToast show={true} />)
+    render(<EmailFileHint />)
 
     expect(screen.getByText(/mkt@polarad\.co\.kr/)).toBeInTheDocument()
   })

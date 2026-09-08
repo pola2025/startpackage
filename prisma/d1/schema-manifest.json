@@ -1,0 +1,2522 @@
+{
+  "source": "prisma/schema.prisma",
+  "tables": [
+    {
+      "name": "cohorts",
+      "model": "Cohort",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "name",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "englishName",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "교육시작일",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "교육요일",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "자료제출마감일",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "isActive",
+          "type": "Boolean",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        }
+      ]
+    },
+    {
+      "name": "users",
+      "model": "User",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "email",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "password",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "이름",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "englishName",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "연락처",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "cohortId",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "SMS수신동의",
+          "type": "Boolean",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "이메일수신동의",
+          "type": "Boolean",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "공지사항이메일수신",
+          "type": "Boolean",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "콘텐츠팁이메일수신",
+          "type": "Boolean",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "role",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "status",
+          "type": "UserStatus",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "graduatedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "slackChannelId",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "telegramChatId",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "marketingSupportEnabled",
+          "type": "Boolean",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "marketingSupportStartDate",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "marketingSupportEndDate",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "adAutomationEnabled",
+          "type": "Boolean",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "adAutomationStartDate",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "adAutomationEndDate",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "smsSettingEnabled",
+          "type": "Boolean",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "smsSettingStartDate",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "smsSettingEndDate",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "naverAdSettingEnabled",
+          "type": "Boolean",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "naverAdSettingStartDate",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "naverAdSettingEndDate",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "homepageCompleted",
+          "type": "Boolean",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "homepageCompletedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        }
+      ]
+    },
+    {
+      "name": "submissions",
+      "model": "Submission",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "userId",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "사업자등록증URL",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "프로필사진URL",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "브랜드명",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "brandNameEnglish",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "업종",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "주소",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "메타광고관리자값",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "네이버검색광고ID",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "네이버검색광고PW",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "네이버클라우드ID",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "네이버클라우드PW",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "InstagramID",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "InstagramPW",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "GmailID",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "GmailPW",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "홈페이지스타일",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "홈페이지컬러컨셉",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "홈페이지제작방식",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "아임웹ID",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "아임웹PW",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "아임웹관리자PW",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "도메인주소",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "도메인관리사이트",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "도메인관리ID",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "도메인관리PW",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "해외결제카드앞면URL",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "해외결제카드뒷면URL",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "해외결제카드유효기간",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "해외결제카드CVC",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "대표번호",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "이메일",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "로고URL",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "로고선호스타일",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "로고선호색상",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "로고선호폰트",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "로고제작요청사항",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "명함색상",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "명함시안",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "계약서시안",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "은행명",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "계좌번호",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "계좌명의자명",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "대표자생년월일",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "대표자신분증URL",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "통신서비스이용증명원URL",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "신용카드앞면URL",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "로고예시디자인URL",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "로고예시디자인2URL",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "인쇄물받을주소",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "받는분이름",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "수령연락처",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "우편번호",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "isComplete",
+          "type": "Boolean",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "completedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "시안예정일",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "submissionStatus",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "progressPercentage",
+          "type": "Int",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "lastAutoSaveAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "autoSaveData",
+          "type": "Json",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        }
+      ]
+    },
+    {
+      "name": "workflows",
+      "model": "Workflow",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "userId",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "type",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "status",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "자료제출일",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "시안업로드일",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "발주요청일",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "발주승인일",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "예상발주일",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "예상도착일",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "제작완료일",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "발송일",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "시안URL",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "택배회사",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "운송장번호",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "수정횟수",
+          "type": "Int",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "다운로드횟수",
+          "type": "Int",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "시안이력",
+          "type": "Json",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "feedback",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "feedbackDate",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "feedbackRead",
+          "type": "Boolean",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "isDraft",
+          "type": "Boolean",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "draftSavedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "확정배송지",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "확정수령인",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "확정수령연락처",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "확정동의항목",
+          "type": "Json",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "확정일시",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        }
+      ]
+    },
+    {
+      "name": "design_threads",
+      "model": "DesignThread",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "workflowId",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "status",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "currentVersion",
+          "type": "Int",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "confirmedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "confirmedByName",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "finalFileUrl",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "finalFileName",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "finalFileUploadedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        }
+      ]
+    },
+    {
+      "name": "design_final_files",
+      "model": "DesignFinalFile",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "threadId",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "fileName",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "fileType",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "fileSize",
+          "type": "Int",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "fileUrl",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "uploadedBy",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "uploadedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        }
+      ]
+    },
+    {
+      "name": "design_thread_messages",
+      "model": "DesignThreadMessage",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "threadId",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "authorId",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "authorType",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "authorName",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "messageType",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "content",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "attachments",
+          "type": "String",
+          "array": true,
+          "nullable": true,
+          "prismaRequired": true
+        },
+        {
+          "name": "designVersion",
+          "type": "Int",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "designUrl",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "isReadByAdmin",
+          "type": "Boolean",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "isReadByUser",
+          "type": "Boolean",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        }
+      ]
+    },
+    {
+      "name": "workflow_logs",
+      "model": "WorkflowLog",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "workflowId",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "action",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "performedBy",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "performedByName",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "previousStatus",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "newStatus",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "metadata",
+          "type": "Json",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        }
+      ]
+    },
+    {
+      "name": "design_history",
+      "model": "DesignHistory",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "workflowId",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "version",
+          "type": "Int",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "fileUrl",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "uploadedBy",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "uploadedByName",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        }
+      ]
+    },
+    {
+      "name": "notifications",
+      "model": "Notification",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "userId",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "type",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "channel",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "title",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "message",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "status",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "errorMessage",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "sentBy",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "sentByName",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "metadata",
+          "type": "Json",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "sentAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        }
+      ]
+    },
+    {
+      "name": "admins",
+      "model": "Admin",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "email",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "password",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "name",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "role",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "twoFactorSecret",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "twoFactorEnabled",
+          "type": "Boolean",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "twoFactorSetupToken",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        }
+      ]
+    },
+    {
+      "name": "admin_requests",
+      "model": "AdminRequest",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "email",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "password",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "name",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "phone",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "status",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "reviewedBy",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "reviewedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "rejectReason",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        }
+      ]
+    },
+    {
+      "name": "settings",
+      "model": "Setting",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "key",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "value",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "description",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        }
+      ]
+    },
+    {
+      "name": "marketing_extension_requests",
+      "model": "MarketingExtensionRequest",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "userId",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "requestDate",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "currentEndDate",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "newEndDate",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "requestMessage",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "status",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "reviewedBy",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "reviewedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "adminResponse",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        }
+      ]
+    },
+    {
+      "name": "communication_threads",
+      "model": "CommunicationThread",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "userId",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "title",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "category",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "status",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "expectedCompletionDate",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "lastReplyAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        }
+      ]
+    },
+    {
+      "name": "communication_messages",
+      "model": "CommunicationMessage",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "threadId",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "authorId",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "authorType",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "authorName",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "content",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "attachments",
+          "type": "String",
+          "array": true,
+          "nullable": true,
+          "prismaRequired": true
+        },
+        {
+          "name": "expectedCompletionDate",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "isReadByUser",
+          "type": "Boolean",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "readByUserAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "isReadByAdmin",
+          "type": "Boolean",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "readByAdminAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        }
+      ]
+    },
+    {
+      "name": "announcements",
+      "model": "Announcement",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "authorId",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "authorName",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "title",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "content",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "imageUrls",
+          "type": "String",
+          "array": true,
+          "nullable": true,
+          "prismaRequired": true
+        },
+        {
+          "name": "youtubeUrl",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "published",
+          "type": "Boolean",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        }
+      ]
+    },
+    {
+      "name": "content_tips",
+      "model": "ContentTip",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "authorId",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "authorName",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "title",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "description",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "linkType",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "linkUrl",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "thumbnailUrl",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "category",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "subCategory",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "published",
+          "type": "Boolean",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        }
+      ]
+    },
+    {
+      "name": "modal_dismissals",
+      "model": "ModalDismissal",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "userId",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "workflowId",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "dismissedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "expiresAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        }
+      ]
+    },
+    {
+      "name": "required_field_configs",
+      "model": "RequiredFieldConfig",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "workflowType",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "fieldName",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "fieldLabel",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "fieldReason",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "fieldOrder",
+          "type": "Int",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "validationType",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "minLength",
+          "type": "Int",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "maxLength",
+          "type": "Int",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "isActive",
+          "type": "Boolean",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        }
+      ]
+    },
+    {
+      "name": "system_alerts",
+      "model": "SystemAlert",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "title",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "content",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "type",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "priority",
+          "type": "Int",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "startDate",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "endDate",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "isActive",
+          "type": "Boolean",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "cohortId",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "phoneNumber",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "createdBy",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "createdByName",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        }
+      ]
+    },
+    {
+      "name": "alert_dismissals",
+      "model": "AlertDismissal",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "userId",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "alertId",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "dismissedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "expiresAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        }
+      ]
+    },
+    {
+      "name": "ad_automation_history",
+      "model": "AdAutomationHistory",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "userId",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "action",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "actionBy",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "actionByName",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "reason",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "startDate",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "endDate",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        }
+      ]
+    },
+    {
+      "name": "ad_automation_payments",
+      "model": "AdAutomationPayment",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "userId",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "paymentDate",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "paymentAmount",
+          "type": "Int",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "paymentMethod",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "receiptUrl",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "serviceStartDate",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "serviceEndDate",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "status",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "memo",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "registeredBy",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "registeredByName",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        }
+      ]
+    }
+  ]
+}

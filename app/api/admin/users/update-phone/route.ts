@@ -2,6 +2,9 @@ import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 // 전화번호 검증 스키마
 const updatePhoneSchema = z.object({
@@ -39,12 +42,19 @@ export async function POST(req: Request) {
       );
     }
 
+    const isAdmin = ["super", "designer", "operator"].includes(userRole);
+    const isSelf = currentUserId === validation.data.userId;
+    if (!isAdmin && !isSelf) return NextResponse.json({ error: "본인의 전화번호만 수정할 수 있습니다" }, { status: 403 });
+
+    if (isD1RuntimeEnabled()) {
+      const { userId, 연락처 } = validation.data;
+      const user = await callDataService<Record<string, unknown>>(isAdmin ? "admin-domain/user-update-phone" : "admin-domain/user-update-phone-self", { adminId: currentUserId, userId, phone: 연락처 });
+      return NextResponse.json({ success: true, message: "전화번호가 성공적으로 변경되었습니다.", user });
+    }
+
     const { userId, 연락처 } = validation.data;
 
     // 권한 확인: 관리자이거나 본인만 수정 가능
-    const isAdmin = ["super", "designer", "operator"].includes(userRole);
-    const isSelf = currentUserId === userId;
-
     if (!isAdmin && !isSelf) {
       return NextResponse.json(
         { error: "본인의 전화번호만 수정할 수 있습니다" },
@@ -140,6 +150,8 @@ export async function POST(req: Request) {
       user: updatedUser,
     });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("POST /api/admin/users/update-phone error:", error);
     return NextResponse.json(
       { error: "전화번호 수정 중 오류가 발생했습니다" },

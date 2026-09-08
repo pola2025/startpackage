@@ -1,6 +1,8 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callCore } from "@/lib/d1/core-client";
 
 // POST: 워크플로우에 대한 시안 쓰레드 생성
 // - 관리자만 가능
@@ -30,6 +32,11 @@ export async function POST(req: NextRequest) {
         { error: "workflowId is required" },
         { status: 400 }
       );
+    }
+
+    if (isD1RuntimeEnabled()) {
+      const thread = await callCore<unknown>("design-thread-create", user.id, { workflowId, actorType: "admin" });
+      return NextResponse.json({ success: true, thread, message: "Thread created successfully" });
     }
 
     // 워크플로우 확인

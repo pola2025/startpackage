@@ -19,6 +19,7 @@ declare module "next-auth" {
     cohortName?: string; // 기수명
     status?: string; // 사용자 상태 (active, graduated, inactive)
     graduatedAt?: Date | null; // 수료일
+    adminUpdatedAt?: number;
   }
 
   /**
@@ -43,5 +44,7 @@ declare module "next-auth/jwt" {
     cohortName?: string; // 기수명
     status?: string; // 사용자 상태 (active, graduated, inactive)
     graduatedAt?: Date | null; // 수료일
+    adminUpdatedAt?: number;
+    revoked?: boolean;
   }
 }

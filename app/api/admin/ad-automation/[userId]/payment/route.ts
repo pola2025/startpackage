@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 const paymentSchema = z.object({
   paymentDate: z.string().datetime(),
@@ -33,23 +36,6 @@ export async function POST(
 
     const { userId } = await params;
 
-    // 사용자 확인
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        id: true,
-        이름: true,
-        adAutomationEndDate: true,
-      },
-    });
-
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: "사용자를 찾을 수 없습니다." },
-        { status: 404 },
-      );
-    }
-
     // 요청 본문 파싱 및 검증
     const body = await request.json();
     const validation = paymentSchema.safeParse(body);
@@ -65,10 +51,17 @@ export async function POST(
       );
     }
 
+    if (isD1RuntimeEnabled()) {
+      const result = await callDataService<Record<string, any>>("admin-domain/ad-automation-payment", { adminId: (session.user as { id: string }).id, userId, ...validation.data, paymentDate: new Date(validation.data.paymentDate).getTime() });
+      return NextResponse.json({ success: true, message: "결제가 등록되었습니다.", data: { payment: result.payment, serviceStartDate: new Date(Number(result.serviceStartDate)), serviceEndDate: new Date(Number(result.serviceEndDate)) } });
+    }
+
     const { paymentDate, paymentAmount, paymentMethod, receiptUrl, memo } =
       validation.data;
 
     const paymentDateObj = new Date(paymentDate);
+    const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, 이름: true, adAutomationEndDate: true } });
+    if (!user) return NextResponse.json({ success: false, error: "사용자를 찾을 수 없습니다." }, { status: 404 });
 
     // 서비스 기간 계산 (결제일부터 1개월)
     const serviceStartDate = paymentDateObj;
@@ -130,6 +123,8 @@ export async function POST(
       },
     });
   } catch (error) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("결제 등록 실패:", error);
     return NextResponse.json(
       { success: false, error: "결제 등록에 실패했습니다." },

@@ -1,5 +1,7 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
 import { redirect } from "next/navigation";
 import WorkflowCreateButton from "./workflow-create-button";
 import WorkflowsClient from "./workflows-client";
@@ -48,6 +50,42 @@ export default async function WorkflowsPage() {
 
   if (!session || !["super", "designer", "operator"].includes(userRole)) {
     redirect("/admin/login");
+  }
+
+  if (isD1RuntimeEnabled()) {
+    const result = await callDataService<{
+      workflowsByUser: Record<string, { user: any; workflows: any[] }>;
+      stats: any;
+      cohorts: Array<{ id: string; name: string }>;
+      workflowTypes: string[];
+      nextCursor?: string;
+    }>("admin-pages/workflows-page", {
+      adminId: String((session.user as any).id),
+      pageSize: 50,
+    });
+
+    return (
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+          <div>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">워크플로우 관리</h1>
+            <p className="text-sm sm:text-base text-gray-600">
+              사용자별 제작 진행 상황을 추적하고 관리하세요
+            </p>
+          </div>
+          <WorkflowCreateButton />
+        </div>
+
+        <WorkflowsClient
+          workflowsByUser={result.workflowsByUser}
+          stats={result.stats}
+          cohorts={result.cohorts}
+          workflowTypes={result.workflowTypes}
+          nextCursor={result.nextCursor ?? null}
+          pagingEnabled
+        />
+      </div>
+    );
   }
 
   const [workflows, cohorts] = await Promise.all([

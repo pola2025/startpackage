@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 import { getSignedUploadUrl, validateR2Config } from "@/lib/storage/r2Client";
+import { fileSizeExceededPayload } from "@/lib/storage/uploadLimits";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -49,11 +50,14 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
-    if (typeof size !== "number" || size <= 0 || size > MAX_SIZE) {
+    if (typeof size !== "number" || size <= 0) {
       return NextResponse.json(
-        { error: "파일 크기는 20MB 이하여야 합니다" },
+        { error: "파일 크기가 유효하지 않습니다" },
         { status: 400 },
       );
+    }
+    if (size > MAX_SIZE) {
+      return NextResponse.json(fileSizeExceededPayload(MAX_SIZE), { status: 413 });
     }
 
     // 확장자 sanitize + userId 네임스페이스 임시 키 (IDOR 방지)
@@ -68,7 +72,12 @@ export async function POST(request: Request) {
         .slice(0, 5) || "jpg";
     const tempKey = `${userId}/_tmp/profile_${Date.now()}.${ext}`;
 
-    const uploadUrl = await getSignedUploadUrl(tempKey, contentType, 300);
+    const uploadUrl = await getSignedUploadUrl(
+      tempKey,
+      contentType,
+      300,
+      size,
+    );
 
     return NextResponse.json({ uploadUrl, tempKey });
   } catch (error: any) {

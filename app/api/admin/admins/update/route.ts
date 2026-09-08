@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { z } from "zod";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
+import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 const updateAdminSchema = z.object({
   adminId: z.string(),
@@ -46,6 +49,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (isD1RuntimeEnabled()) {
+      const admin = await callDataService<Record<string, unknown>>("admin-domain/admin-update", { adminId: currentAdminId, targetAdminId: adminId, name, role });
+      return NextResponse.json({ success: true, message: "관리자 정보가 수정되었습니다.", admin });
+    }
+
     const updateData: any = {};
     if (name) updateData.name = name;
     if (role) updateData.role = role;
@@ -68,6 +76,8 @@ export async function POST(request: NextRequest) {
       admin,
     });
   } catch (error: any) {
+    const serviceError = dataServiceErrorResponse(error);
+    if (serviceError) return serviceError;
     console.error("관리자 수정 에러:", error);
     return NextResponse.json(
       { error: "관리자 수정 중 오류가 발생했습니다." },

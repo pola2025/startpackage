@@ -9,6 +9,8 @@
 
 import sharp from "sharp";
 import prisma from "@/lib/prisma";
+import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
+import { callDataService } from "@/lib/d1/service-client";
 import { uploadToR2, generateFileName } from "@/lib/storage/r2Client";
 import { uploadProfilePhotoToSlack } from "@/lib/notification/slackClient";
 import { SLACK_ONLY_MARKER } from "@/lib/constants/sensitiveFields";
@@ -95,10 +97,15 @@ export async function processProfilePhoto(params: {
 }): Promise<ProfilePhotoResult> {
   const { userId, buffer, originalFilename } = params;
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { slackChannelId: true, 이름: true },
-  });
+  const user = isD1RuntimeEnabled()
+    ? await callDataService<{ slackChannelId: string | null; 이름: string }>(
+        "shared-domain/profile-user",
+        { userId },
+      )
+    : await prisma.user.findUnique({
+        where: { id: userId },
+        select: { slackChannelId: true, 이름: true },
+      });
 
   // 1) 원본을 슬랙으로 전송 (채널이 있을 때) — 디자인 작업용 원본 해상도
   let slackSent = false;

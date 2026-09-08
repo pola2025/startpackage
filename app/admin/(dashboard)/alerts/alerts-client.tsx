@@ -52,6 +52,7 @@ interface Cohort {
 interface AlertsClientProps {
   alerts: SystemAlert[];
   cohorts: Cohort[];
+  nextCursor?: string | null;
 }
 
 function getStatus(
@@ -327,9 +328,12 @@ function AlertPreviewModal({
 export default function AlertsClient({
   alerts: initialAlerts,
   cohorts,
+  nextCursor: initialNextCursor = null,
 }: AlertsClientProps) {
   const [alerts, setAlerts] = useState(initialAlerts);
+  const [nextCursor, setNextCursor] = useState(initialNextCursor);
   const [loading, setLoading] = useState<string | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [previewAlert, setPreviewAlert] = useState<SystemAlert | null>(null);
 
   const cohortMap = Object.fromEntries(cohorts.map((c) => [c.id, c.name]));
@@ -375,6 +379,23 @@ export default function AlertsClient({
   const scheduledCount = alerts.filter(
     (a) => getStatus(a) === "scheduled",
   ).length;
+
+  const loadMore = async () => {
+    if (!nextCursor || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const params = new URLSearchParams({ cursor: nextCursor, pageSize: "50" });
+      const res = await fetch(`/api/admin/pages/alerts?${params.toString()}`);
+      if (!res.ok) throw new Error("load failed");
+      const data = await res.json();
+      setAlerts((prev) => [...prev, ...data.items]);
+      setNextCursor(data.nextCursor ?? null);
+    } catch {
+      window.alert("추가 팝업을 불러오지 못했습니다.");
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -550,6 +571,13 @@ export default function AlertsClient({
               </div>
             );
           })}
+        </div>
+      )}
+      {nextCursor && (
+        <div className="flex justify-center pt-2">
+          <Button variant="outline" onClick={loadMore} disabled={loadingMore}>
+            {loadingMore ? "불러오는 중..." : "더 보기"}
+          </Button>
         </div>
       )}
     </div>

@@ -7,6 +7,7 @@
  */
 
 export const PROFILE_MAX_SIZE = 20 * 1024 * 1024; // 20MB
+const FILE_UPLOAD_CONTACT = "mkt@polarad.co.kr";
 
 export class ProfileUploadError extends Error {
   isNetwork: boolean;
@@ -82,7 +83,10 @@ export async function uploadProfilePhoto(
   onProgress?: (ratio: number) => void,
 ): Promise<string> {
   if (file.size > PROFILE_MAX_SIZE) {
-    throw new ProfileUploadError("파일 크기는 20MB 이하여야 합니다.", false);
+    throw new ProfileUploadError(
+      `파일 크기는 20MB 이하여야 합니다. 더 큰 파일은 ${FILE_UPLOAD_CONTACT}로 메일 발송 부탁드립니다.`,
+      false,
+    );
   }
   if (!file.type.startsWith("image/")) {
     throw new ProfileUploadError("이미지 파일만 업로드할 수 있습니다.", false);

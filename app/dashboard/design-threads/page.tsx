@@ -118,6 +118,7 @@ interface ThreadDetail {
     };
   };
   messages: DesignMessage[];
+  messagesNextCursor?: string | null;
 }
 
 export default function UserDesignThreadsPage() {
@@ -126,6 +127,7 @@ export default function UserDesignThreadsPage() {
     null,
   );
   const [loading, setLoading] = useState(true);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
 
   // 메시지 입력
   const [messageContent, setMessageContent] = useState("");
@@ -140,6 +142,7 @@ export default function UserDesignThreadsPage() {
   // 새 메시지 알림
   const [newMessageAlert, setNewMessageAlert] = useState(false);
   const [lastMessageCount, setLastMessageCount] = useState(0);
+  const [loadingOlderMessages, setLoadingOlderMessages] = useState(false);
 
   // 이미지 모달 상태
   const [imageModalOpen, setImageModalOpen] = useState(false);
@@ -179,17 +182,26 @@ export default function UserDesignThreadsPage() {
 
   // 스레드 목록 조회
   const fetchThreads = useCallback(
-    async (keepSelectedThreadId?: string, silentRefresh: boolean = false) => {
+    async (keepSelectedThreadId?: string, silentRefresh: boolean = false, cursor?: string, append: boolean = false) => {
       try {
         if (!silentRefresh) setLoading(true);
-        const response = await fetch("/api/design-threads");
+        const params = new URLSearchParams({ pageSize: "50" });
+        if (cursor) params.set("cursor", cursor);
+        const response = await fetch(`/api/design-threads?${params}`);
         const data = await response.json();
 
         if (response.ok) {
-          setThreads(data.threads || []);
+          setThreads((current) => {
+            const incoming = data.threads || [];
+            if (!append) return incoming;
+            const byId = new Map(current.map((thread: DesignThread) => [thread.id, thread]));
+            for (const thread of incoming) byId.set(thread.id, thread);
+            return [...byId.values()];
+          });
+          setNextCursor(data.nextCursor ?? null);
 
           const threadIdToKeep = keepSelectedThreadId || selectedThread?.id;
-          if (threadIdToKeep) {
+          if (threadIdToKeep && !append) {
             fetchThreadDetail(threadIdToKeep, silentRefresh);
           }
         }
@@ -227,6 +239,24 @@ export default function UserDesignThreadsPage() {
     }
   };
 
+  const loadOlderMessages = async () => {
+    if (!selectedThread?.messagesNextCursor || loadingOlderMessages) return;
+    setLoadingOlderMessages(true);
+    try {
+      const response = await fetch(`/api/design-threads/${selectedThread.id}?cursor=${encodeURIComponent(selectedThread.messagesNextCursor)}`);
+      const data = await response.json();
+      if (response.ok && data.thread) {
+        setSelectedThread((current) => current ? {
+          ...current,
+          messages: [...(data.thread.messages || []), ...current.messages],
+          messagesNextCursor: data.thread.messagesNextCursor,
+        } : current);
+      }
+    } finally {
+      setLoadingOlderMessages(false);
+    }
+  };
+
   useEffect(() => {
     fetchThreads();
   }, []);
@@ -245,7 +275,7 @@ export default function UserDesignThreadsPage() {
     }
 
     if (file.size > 10 * 1024 * 1024) {
-      alert("파일 크기는 10MB 이하여야 합니다.");
+      alert("파일 크기는 10MB 이하여야 합니다. 더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.");
       return;
     }
 
@@ -261,7 +291,7 @@ export default function UserDesignThreadsPage() {
 
       if (!response.ok) {
         if (response.status === 413) {
-          alert("파일이 너무 큽니다. 10MB 이하의 파일만 업로드 가능합니다.");
+          alert("파일이 너무 큽니다. 10MB 이하의 파일만 업로드 가능합니다. 더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.");
           return;
         }
         const data = await response.json();
@@ -637,6 +667,18 @@ export default function UserDesignThreadsPage() {
                     </div>
                   );
                 })}
+                {nextCursor && (
+                  <div className="flex justify-center pt-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => fetchThreads(undefined, false, nextCursor, true)}
+                      disabled={loading}
+                    >
+                      {loading ? "불러오는 중..." : "더 많은 시안 불러오기"}
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
           </CardContent>
@@ -736,6 +778,13 @@ export default function UserDesignThreadsPage() {
               <CardContent
                 className={`flex-1 overflow-y-auto p-3 sm:p-4 space-y-4 bg-gray-50 ${isMobile ? "pb-40" : ""}`}
               >
+                {selectedThread.messagesNextCursor && (
+                  <div className="flex justify-center pb-2">
+                    <Button variant="outline" size="sm" onClick={loadOlderMessages} disabled={loadingOlderMessages}>
+                      {loadingOlderMessages ? "불러오는 중..." : "이전 메시지 더 보기"}
+                    </Button>
+                  </div>
+                )}
                 {groupMessagesByDate(selectedThread.messages).map(
                   (item, groupIndex) => {
                     if (item.type === "date") {
