@@ -52,34 +52,6 @@ async function migrationFiles() {
     .map((entry) => resolve(MIGRATION_DIR, entry.name));
 }
 
-// Split ordinary D1 statements while retaining semicolons inside CREATE TRIGGER bodies.
-function splitSqlStatements(sql) {
-  const statements = [];
-  let start = 0;
-  let quoteChar = null;
-  let trigger = false;
-  for (let index = 0; index < sql.length; index += 1) {
-    const character = sql[index];
-    if (quoteChar) {
-      if (character === quoteChar && sql[index + 1] === quoteChar) { index += 1; continue; }
-      if (character === quoteChar) quoteChar = null;
-      continue;
-    }
-    if (character === "'" || character === '"' || character === "`") { quoteChar = character; continue; }
-    if (sql.slice(start, index + 1).match(/^\s*CREATE\s+(?:TEMP\s+)?TRIGGER\b/i)) trigger = true;
-    if (character !== ";") continue;
-    const candidate = sql.slice(start, index + 1).trim();
-    if (!candidate) { start = index + 1; continue; }
-    if (trigger && !/\bEND\s*;\s*$/i.test(candidate)) continue;
-    statements.push(candidate);
-    start = index + 1;
-    trigger = false;
-  }
-  const tail = sql.slice(start).trim();
-  if (tail) statements.push(tail);
-  return statements;
-}
-
 async function apiClient(env, databaseId) {
   const accountId = env.CLOUDFLARE_ACCOUNT_ID;
   if (!accountId) fail("Project-local CLOUDFLARE_ACCOUNT_ID is required");
@@ -91,9 +63,12 @@ async function apiClient(env, databaseId) {
     headers["X-Auth-Key"] = env.CLOUDFLARE_API_KEY;
   } else fail("Project-local Cloudflare authority is required");
   let requests = 0;
-  async function query(sql, params = []) {
+  function reserveRequest() {
     if (requests >= MAX_REQUESTS) fail("D1 request budget exceeded");
     requests += 1;
+  }
+  async function query(sql, params = []) {
+    reserveRequest();
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
     try {
@@ -107,7 +82,13 @@ async function apiClient(env, databaseId) {
       return body.result.flatMap((item) => item.results ?? []);
     } finally { clearTimeout(timer); }
   }
-  return { query, requests: () => requests };
+  return {
+    query,
+    requests: () => requests,
+    reserveRequest,
+    headers,
+    importEndpoint: `https://api.cloudflare.com/client/v4/accounts/${accountId}/d1/database/${databaseId}/import`,
+  };
 }
 
 async function inspectRemote(client) {
@@ -132,10 +113,62 @@ function columnNames(report, table) { return new Set((report.columns[table] ?? [
 function rewriteForExistingColumns(file, sql, report) {
   if (!file.endsWith("0008_fanout_resume.sql")) return sql;
   const columns = columnNames(report, "notification_fanouts");
-  return splitSqlStatements(sql).filter((statement) => {
-    const match = statement.match(/^ALTER TABLE\s+"notification_fanouts"\s+ADD COLUMN\s+"([^"]+)"/i);
+  return sql.split(/\r?\n/).filter((line) => {
+    const match = line.match(/^\s*ALTER TABLE\s+"notification_fanouts"\s+ADD COLUMN\s+"([^"]+)"/i);
     return !match || !columns.has(match[1]);
   }).join("\n");
+}
+
+async function importSql(client, sql, statePath) {
+  const etag = createHash("md5").update(sql).digest("hex");
+  const importState = { version: 1, etag, status: "init-pending", requests: 0 };
+  await writeFile(statePath, JSON.stringify(importState, null, 2) + "\n", "utf8");
+  const call = async (body) => {
+    client.reserveRequest();
+    importState.requests += 1;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+    try {
+      const response = await fetch(client.importEndpoint, { method: "POST", headers: client.headers, body: JSON.stringify(body), signal: controller.signal });
+      const json = await response.json();
+      if (!response.ok || json.success !== true) fail(`D1 import request failed (${body.action})`);
+      return json.result;
+    } finally { clearTimeout(timer); }
+  };
+  const initialized = await call({ action: "init", etag });
+  if (!initialized?.filename) fail("D1 import init returned no filename");
+  importState.status = "upload-pending";
+  importState.filename = initialized.filename;
+  await writeFile(statePath, JSON.stringify(importState, null, 2) + "\n", "utf8");
+  if (initialized.upload_url) {
+    const upload = new URL(initialized.upload_url);
+    if (upload.protocol !== "https:" || !upload.hostname.endsWith(".r2.cloudflarestorage.com")) fail("Unexpected D1 import upload destination");
+    client.reserveRequest();
+    importState.requests += 1;
+    const uploadController = new AbortController();
+    const uploadTimer = setTimeout(() => uploadController.abort(), 60_000);
+    try {
+      const response = await fetch(initialized.upload_url, { method: "PUT", body: sql, signal: uploadController.signal });
+      if (![200, 201, 204].includes(response.status)) fail(`D1 import upload failed (${response.status})`);
+    } finally { clearTimeout(uploadTimer); }
+  }
+  importState.status = "ingest-pending";
+  await writeFile(statePath, JSON.stringify(importState, null, 2) + "\n", "utf8");
+  const ingested = await call({ action: "ingest", etag, filename: initialized.filename });
+  importState.status = ingested?.status ?? "unknown";
+  importState.bookmark = ingested?.at_bookmark ?? null;
+  await writeFile(statePath, JSON.stringify(importState, null, 2) + "\n", "utf8");
+  for (let attempt = 0; importState.status !== "complete" && attempt < 6; attempt += 1) {
+    if (importState.status === "error") fail("D1 import failed; inspect recorded state without retrying");
+    if (!importState.bookmark) fail("D1 import returned no polling bookmark");
+    await new Promise((resolve) => setTimeout(resolve, 5_000));
+    const polled = await call({ action: "poll", current_bookmark: importState.bookmark });
+    importState.status = polled?.status ?? "unknown";
+    importState.bookmark = polled?.at_bookmark ?? importState.bookmark;
+    await writeFile(statePath, JSON.stringify(importState, null, 2) + "\n", "utf8");
+  }
+  if (importState.status !== "complete") fail("D1 import did not complete within bounded polling; inspect state before retrying");
+  return importState;
 }
 
 async function runRehearsal(files, outputDir) {
@@ -149,9 +182,8 @@ async function runRehearsal(files, outputDir) {
   const applied = [];
   for (const file of files) {
     const sql = await readFile(file, "utf8");
-    const statements = splitSqlStatements(sql);
     db.exec(sql);
-    applied.push({ file: relative(ROOT, file).replaceAll("\\", "/"), sha256: sha256(sql), statements: statements.length });
+    applied.push({ file: relative(ROOT, file).replaceAll("\\", "/"), sha256: sha256(sql) });
   }
   const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name").all().map((row) => row.name);
   const indexes = db.prepare("SELECT name, tbl_name FROM sqlite_master WHERE type='index' AND name NOT LIKE 'sqlite_%' ORDER BY name").all();
@@ -209,7 +241,7 @@ async function main() {
     for (const match of sql.matchAll(/CREATE\s+(?:UNIQUE\s+)?INDEX\s+IF\s+NOT\s+EXISTS\s+"([^"]+)"/gi)) expected.indexes.push(match[1]);
     for (const match of sql.matchAll(/CREATE\s+TRIGGER\s+IF\s+NOT\s+EXISTS\s+"([^"]+)"/gi)) expected.triggers.push(match[1]);
   }
-  const applied = [];
+  const pendingFiles = [];
   for (const file of files) {
     const name = relative(ROOT, file).replaceAll("\\", "/");
     const previous = state.migrations[name];
@@ -217,25 +249,30 @@ async function main() {
     if (previous?.status === "applied") continue;
     const original = await readFile(file, "utf8");
     const sql = rewriteForExistingColumns(file, original, remoteBefore);
-    const statements = splitSqlStatements(sql).filter((statement) => statement.trim());
-    // Keep the migration file as one request. The pending ledger is written
-    // before this request so an uncertain partial result cannot be retried.
-    state.scope = { accountId: env.CLOUDFLARE_ACCOUNT_ID, databaseId };
-    state.migrations[name] = { sha256: hashes[name], status: "pending", statements: statements.length, startedAt: new Date().toISOString(), commit: head };
-    await writeFile(statePath, JSON.stringify(state, null, 2) + "\n", "utf8");
-    try {
-      await client.query(sql);
-    } catch (error) {
-      await writeFile(statePath, JSON.stringify(state, null, 2) + "\n", "utf8");
-      throw error;
-    }
-    state.migrations[name] = { ...state.migrations[name], status: "applied", appliedAt: new Date().toISOString() };
-    await writeFile(statePath, JSON.stringify(state, null, 2) + "\n", "utf8");
-    applied.push(name);
+    pendingFiles.push({ file, name, sql });
   }
-  output.applied = applied;
-  output.requests = client.requests();
+  if (!pendingFiles.length) fail("No pending migrations remain for this target");
+  const importStatePath = resolve(STATE_DIR, `incremental-schema-import-${ledgerKey}.json`);
+  if (existsSync(importStatePath)) {
+    const previousImport = JSON.parse(await readFile(importStatePath, "utf8"));
+    fail(`Existing D1 import state requires inspection before retry: ${previousImport.status ?? "unknown"}`);
+  }
+  state.scope = { accountId: env.CLOUDFLARE_ACCOUNT_ID, databaseId };
+  for (const item of pendingFiles) {
+    state.migrations[item.name] = { sha256: hashes[item.name], status: "pending", startedAt: new Date().toISOString(), commit: head };
+  }
+  await writeFile(statePath, JSON.stringify(state, null, 2) + "\n", "utf8");
+  const combinedSql = pendingFiles.map((item) => `-- ${item.name}\n${item.sql.trim()}\n`).join("\n");
+  if (Buffer.byteLength(combinedSql) > 1_000_000) fail("Incremental schema exceeds the reviewed import size budget");
+  const importResult = await importSql(client, combinedSql, importStatePath);
+  for (const item of pendingFiles) {
+    state.migrations[item.name] = { ...state.migrations[item.name], status: "applied", appliedAt: new Date().toISOString() };
+  }
+  await writeFile(statePath, JSON.stringify(state, null, 2) + "\n", "utf8");
+  output.applied = pendingFiles.map((item) => item.name);
+  output.import = { status: importResult.status, requests: importResult.requests };
   output.remoteAfter = await inspectRemote(client);
+  output.requests = client.requests();
   const actual = output.remoteAfter;
   const missing = {
     tables: expected.tables.filter((name) => !actual.tables.includes(name)),
