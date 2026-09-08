@@ -283,8 +283,9 @@ async function main() {
     fail(`Post-apply schema verification failed: ${JSON.stringify({ missing, foreignKeyErrors: actual.foreignKeyErrors.length })}`);
   }
   output.remoteAfter = { tableCount: actual.tables.length, indexCount: actual.indexes.length, triggerCount: actual.triggers.length, foreignKeyErrors: actual.foreignKeyErrors.length, requests: actual.requests };
+  output.complete = true;
   await writeFile(resolve(STATE_DIR, "incremental-schema-apply.json"), JSON.stringify(output, null, 2) + "\n", "utf8");
-  console.log(JSON.stringify({ ...output, remoteAfter: { tableCount: output.remoteAfter.tables.length, indexCount: output.remoteAfter.indexes.length, requests: output.remoteAfter.requests } }));
+  console.log(JSON.stringify(output));
 }
 
 main().catch((error) => { console.error(JSON.stringify({ complete: false, errorType: error.name, message: error.message })); process.exitCode = 1; });
