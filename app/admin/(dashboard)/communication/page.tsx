@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -110,6 +110,7 @@ export default function AdminCommunicationPage() {
   const [loadingMoreMessages, setLoadingMoreMessages] = useState(false);
   const [threadCursor, setThreadCursor] = useState<string | null>(null);
   const [loadingMoreThreads, setLoadingMoreThreads] = useState(false);
+  const selectionRequest = useRef(0);
 
   // 새 메시지 알림
   const [newMessageAlert, setNewMessageAlert] = useState(false);
@@ -223,8 +224,11 @@ export default function AdminCommunicationPage() {
               setNewMessageAlert(true);
             }
 
-            setSelectedThread(updated);
-            setLastMessageCount(updated.messages.length);
+            setSelectedThread((current) =>
+              current?.id === threadIdToKeep
+                ? { ...current, ...updated, user: current.user, messages: current.messages }
+                : current,
+            );
           }
         }
       }
@@ -395,6 +399,12 @@ export default function AdminCommunicationPage() {
       });
 
       if (response.ok) {
+        const data = await response.json();
+        if (data.message) {
+          setSelectedThread((current) => current?.id === selectedThread.id
+            ? { ...current, messages: [...current.messages, data.message] }
+            : current);
+        }
         setReplyContent("");
         setReplyAttachments([]);
         setExpectedDate(undefined);
@@ -411,13 +421,21 @@ export default function AdminCommunicationPage() {
   };
 
   const handleSelectThread = async (thread: CommunicationThread) => {
-    const response = await fetch(`/api/admin/communication/threads/${thread.id}?pageSize=50`);
-    const detail = response.ok ? await response.json() : thread;
-    const messages = Array.isArray(detail.messages) ? detail.messages : detail.messages?.items ?? [];
-    setSelectedThread({ ...thread, ...detail, messages });
-    setMessageCursor(detail.messages?.nextCursor ?? null);
-    setLastMessageCount(messages.length);
-    setNewMessageAlert(false);
+    const requestId = ++selectionRequest.current;
+    try {
+      const response = await fetch(`/api/admin/communication/threads/${thread.id}?pageSize=50`);
+      if (!response.ok) throw new Error("Failed to load conversation");
+      const detail = await response.json();
+      if (selectionRequest.current !== requestId) return;
+      const messages = Array.isArray(detail.messages) ? detail.messages : detail.messages?.items ?? [];
+      setSelectedThread({ ...thread, ...detail, user: thread.user, messages });
+      setMessageCursor(detail.messages?.nextCursor ?? null);
+      setLastMessageCount(messages.length);
+      setNewMessageAlert(false);
+    } catch (error) {
+      if (selectionRequest.current === requestId) alert("대화 내용을 불러오지 못했습니다. 다시 시도해주세요.");
+      return;
+    }
 
     // 관리자가 스레드를 열면 사용자 메시지를 읽음 처리
     try {
@@ -436,13 +454,15 @@ export default function AdminCommunicationPage() {
 
   const loadMoreMessages = async () => {
     if (!selectedThread || !messageCursor || loadingMoreMessages) return;
+    const requestId = selectionRequest.current;
     setLoadingMoreMessages(true);
     try {
       const response = await fetch(`/api/admin/communication/threads/${selectedThread.id}?pageSize=50&cursor=${encodeURIComponent(messageCursor)}`);
       if (!response.ok) return;
       const page = await response.json();
+      if (selectionRequest.current !== requestId) return;
       const older = Array.isArray(page.messages) ? page.messages : page.messages?.items ?? [];
-      setSelectedThread((current) => current ? { ...current, messages: [...current.messages, ...older].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()) } : current);
+      setSelectedThread((current) => current?.id === selectedThread.id ? { ...current, messages: [...current.messages, ...older].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()) } : current);
       setMessageCursor(page.messages?.nextCursor ?? null);
     } finally { setLoadingMoreMessages(false); }
   };
@@ -846,7 +866,7 @@ export default function AdminCommunicationPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => setSelectedThread(null)}
+                      onClick={() => { selectionRequest.current++; setSelectedThread(null); }}
                       className="lg:hidden mb-1 -ml-2 h-7 px-2 text-xs"
                     >
                       ← 목록으로
