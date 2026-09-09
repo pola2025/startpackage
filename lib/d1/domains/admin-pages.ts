@@ -1,6 +1,7 @@
 import { DataServiceError, type Database, type SqlValue } from "../database";
 import { parsePageSize, signCursor, verifyCursor } from "../read-policy";
 import { decodeRow } from "../row-codec";
+import { cachedCohortPage, cachedCohortStats } from "../cohort-cache";
 
 export type AdminPagesOperation =
   | "dashboard-summary"
@@ -154,30 +155,30 @@ async function alertsPage(db: Database, input: Input) {
 }
 
 async function cohortsPage(db: Database, input: Input) {
-  const current = page(input, "admin-pages-cohorts");
-  const values: SqlValue[] = [];
-  let continuation = "";
-  if (current.cursor) {
-    const decoded = verifyCursor(current.secret, current.cursor, current.scope, ["createdAt", "id"]);
-    continuation = 'WHERE (c."createdAt", c."id") < (?, ?)';
-    values.push(Number(decoded.sort[0]?.value), String(decoded.sort[1]?.value ?? ""));
-  }
-  values.push(current.size + 1);
-  const rows = await all(db, `SELECT c.* FROM "cohorts" c ${continuation} ORDER BY c."createdAt" DESC, c."id" DESC LIMIT ?`, values);
-  const pageRows = rows.slice(0, current.size);
-  const counts = await userCountsForCohorts(db, pageRows.map((row) => String(row.id)));
-  const items: Row[] = pageRows.map((row) => ({ ...decode("cohorts", row), _count: { users: counts.get(String(row.id)) ?? 0 } }));
-  const last = rows.length > current.size ? items[items.length - 1] : undefined;
-  const stats = await cached("cohort-page-stats", async () =>
-    first<{ total: number; active: number; students: number }>(db, 'SELECT (SELECT COUNT(*) FROM "cohorts") AS total, (SELECT COUNT(*) FROM "cohorts" WHERE "isActive" = 1) AS active, (SELECT COUNT(*) FROM "users" WHERE "role" = ?) AS students', ["user"]),
-  );
-  const nextCursor = last
-    ? signCursor(current.secret, { version: 1, scope: current.scope, sort: [
-      { field: "createdAt", value: String(new Date(last.createdAt as Date).getTime()) },
-      { field: "id", value: String(last.id) },
-    ] })
-    : undefined;
-  return { ...pageResult(items, rows, current.size, nextCursor), stats: stats ?? { total: 0, active: 0, students: 0 } };
+  const current = page(input, "admin-pages-cohorts-start-desc");
+  return cachedCohortPage(db, current.size, current.cursor, current.secret, async () => {
+    const values: SqlValue[] = [];
+    let continuation = "";
+    if (current.cursor) {
+      const decoded = verifyCursor(current.secret, current.cursor, current.scope, ["교육시작일", "id"]);
+      continuation = 'WHERE (c."교육시작일", c."id") < (?, ?)';
+      values.push(Number(decoded.sort[0]?.value), String(decoded.sort[1]?.value ?? ""));
+    }
+    values.push(current.size + 1);
+    const rows = await all(db, `SELECT c.* FROM "cohorts" c ${continuation} ORDER BY c."교육시작일" DESC, c."id" DESC LIMIT ?`, values);
+    const pageRows = rows.slice(0, current.size);
+    const counts = await userCountsForCohorts(db, pageRows.map((row) => String(row.id)));
+    const items: Row[] = pageRows.map((row) => ({ ...decode("cohorts", row), _count: { users: counts.get(String(row.id)) ?? 0 } }));
+    const last = rows.length > current.size ? items[items.length - 1] : undefined;
+    const stats = await cachedCohortStats(db, () => first<{ total: number; active: number; students: number }>(db, 'SELECT (SELECT COUNT(*) FROM "cohorts") AS total, (SELECT COUNT(*) FROM "cohorts" WHERE "isActive" = 1) AS active, (SELECT COUNT(*) FROM "users" WHERE "role" = ?) AS students', ["user"]));
+    const nextCursor = last
+      ? signCursor(current.secret, { version: 1, scope: current.scope, sort: [
+        { field: "교육시작일", value: String(new Date(last.교육시작일 as Date).getTime()) },
+        { field: "id", value: String(last.id) },
+      ] })
+      : undefined;
+    return { ...pageResult(items, rows, current.size, nextCursor), stats: stats ?? { total: 0, active: 0, students: 0 } };
+  });
 }
 
 async function userCountsForCohorts(db: Database, cohortIds: string[]) {

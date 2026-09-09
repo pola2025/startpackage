@@ -21,6 +21,7 @@ function database(): SQLiteDatabase {
   const raw = new DatabaseSync(":memory:");
   raw.exec(readFileSync("prisma/d1/0001_initial.sql", "utf8"));
   raw.exec(readFileSync("prisma/d1/0006_admin_pages.sql", "utf8"));
+  raw.exec(readFileSync("prisma/d1/0010_cohort_read_cache.sql", "utf8"));
   raw.prepare('INSERT INTO "admins" ("id", "email", "password", "name", "role", "twoFactorEnabled", "updatedAt") VALUES (?, ?, ?, ?, ?, ?, ?)').run("admin-1", "admin@test.invalid", "hash", "관리자", "operator", 1, 1);
   raw.prepare('INSERT INTO "cohorts" ("id", "name", "교육시작일", "교육요일", "자료제출마감일", "createdAt", "updatedAt") VALUES (?, ?, ?, ?, ?, ?, ?)').run("cohort-1", "2026 1기", 1, "월", 10, 1, 1);
   raw.prepare('INSERT INTO "cohorts" ("id", "name", "교육시작일", "교육요일", "자료제출마감일", "createdAt", "updatedAt") VALUES (?, ?, ?, ?, ?, ?, ?)').run("cohort-2", "2026 2기", 2, "화", 20, 2, 2);
@@ -36,6 +37,34 @@ function database(): SQLiteDatabase {
 }
 
 describe("adminPagesOperation", () => {
+  it("pages cohorts by latest education date despite reverse registration order", async () => {
+    const db = database();
+    db.raw.exec('UPDATE "cohorts" SET "createdAt" = 100 WHERE "id" = \'cohort-1\'');
+    db.raw.prepare('INSERT INTO "cohorts" ("id", "name", "교육시작일", "교육요일", "자료제출마감일", "createdAt", "updatedAt") VALUES (?, ?, ?, ?, ?, ?, ?)').run("cohort-3", "2026 3기", 2, "화", 20, 0, 0);
+    const ids: string[] = [];
+    const cursors = new Set<string>();
+    let cursor: string | undefined;
+    for (let index = 0; index < 3; index += 1) {
+      const result = await adminPagesOperation(db, "cohorts-page", {
+        adminId: "admin-1", pageSize: 1, cursor,
+        cursorSecret: "0123456789abcdef0123456789abcdef",
+      }) as { items: Array<{ id: string }>; nextCursor?: string };
+      expect(result.items).toHaveLength(1);
+      ids.push(result.items[0].id);
+      cursor = result.nextCursor;
+      if (cursor) {
+        expect(cursors.has(cursor)).toBe(false);
+        cursors.add(cursor);
+      }
+    }
+    expect(ids).toEqual(["cohort-3", "cohort-2", "cohort-1"]);
+    expect(cursor).toBeUndefined();
+    const plan = db.raw.prepare('EXPLAIN QUERY PLAN SELECT c.* FROM "cohorts" c WHERE (c."교육시작일", c."id") < (?, ?) ORDER BY c."교육시작일" DESC, c."id" DESC LIMIT ?').all(2, "cohort-3", 2) as Array<{ detail: string }>;
+    expect(plan.some((row) => row.detail.includes("cohorts_start_id_idx"))).toBe(true);
+    expect(plan.some((row) => row.detail.includes("TEMP B-TREE"))).toBe(false);
+    db.raw.close();
+  });
+
   it("pages workflow users without splitting a user's workflow group", async () => {
     const db = database();
     const result = await adminPagesOperation(db, "workflows-page", {

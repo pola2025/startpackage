@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Card,
   CardContent,
@@ -49,6 +49,9 @@ interface CohortsListProps {
   nextCursor?: string | null;
 }
 
+const MAX_LOAD_MORE_PAGES = 20;
+const MAX_COHORT_ROWS = 1000;
+
 export default function CohortsList({
   cohorts: initialCohorts,
   nextCursor: initialNextCursor = null,
@@ -57,24 +60,94 @@ export default function CohortsList({
   const [nextCursor, setNextCursor] = useState(initialNextCursor);
   const [loadingMore, setLoadingMore] = useState(false);
   const [showInactive, setShowInactive] = useState(false);
+  const refreshVersion = useRef(0);
+  const loadingMoreRef = useRef(false);
+  const loadedPagesRef = useRef(0);
+  const loadedCohortIdsRef = useRef(new Set(initialCohorts.map((cohort) => cohort.id)));
+  const seenCursorsRef = useRef(new Set<string>());
+  const requestAbortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    requestAbortRef.current?.abort();
+    refreshVersion.current += 1;
+    setCohorts(initialCohorts);
+    setNextCursor(initialNextCursor);
+    setLoadingMore(false);
+    loadingMoreRef.current = false;
+    loadedPagesRef.current = 0;
+    loadedCohortIdsRef.current = new Set(initialCohorts.map((cohort) => cohort.id));
+    seenCursorsRef.current = new Set();
+
+    return () => requestAbortRef.current?.abort();
+  }, [initialCohorts, initialNextCursor]);
 
   const activeCohorts = cohorts.filter((c) => c.isActive);
   const inactiveCohorts = cohorts.filter((c) => !c.isActive);
 
   const loadMore = async () => {
-    if (!nextCursor || loadingMore) return;
+    if (!nextCursor || loadingMore || loadingMoreRef.current) return;
+    if (
+      loadedPagesRef.current >= MAX_LOAD_MORE_PAGES ||
+      cohorts.length >= MAX_COHORT_ROWS
+    ) {
+      setNextCursor(null);
+      window.alert("기수 목록 조회 한도에 도달했습니다.");
+      return;
+    }
+    const cursor = nextCursor;
+    if (seenCursorsRef.current.has(cursor)) {
+      setNextCursor(null);
+      window.alert("추가 기수를 불러오지 못했습니다.");
+      return;
+    }
+    seenCursorsRef.current.add(cursor);
+    const requestVersion = refreshVersion.current;
+    const abortController = new AbortController();
+    requestAbortRef.current = abortController;
+    loadingMoreRef.current = true;
     setLoadingMore(true);
     try {
-      const params = new URLSearchParams({ cursor: nextCursor, pageSize: "50" });
-      const res = await fetch(`/api/admin/pages/cohorts?${params.toString()}`);
+      const params = new URLSearchParams({ cursor, pageSize: "50" });
+      const res = await fetch(`/api/admin/pages/cohorts?${params.toString()}`, {
+        signal: abortController.signal,
+      });
       if (!res.ok) throw new Error("load failed");
       const data = await res.json();
-      setCohorts((prev) => [...prev, ...data.items]);
-      setNextCursor(data.nextCursor ?? null);
+      if (requestVersion !== refreshVersion.current) return;
+      const items = Array.isArray(data.items) ? data.items : [];
+      if (items.length > 50) throw new Error("page too large");
+      const uniqueItems = items.filter((item: Cohort) => {
+        if (loadedCohortIdsRef.current.has(item.id)) return false;
+        loadedCohortIdsRef.current.add(item.id);
+        return true;
+      });
+      const remainingRows = MAX_COHORT_ROWS - cohorts.length;
+      setCohorts((prev) => [...prev, ...uniqueItems.slice(0, remainingRows)]);
+      loadedPagesRef.current += 1;
+      const responseCursor = data.nextCursor ?? null;
+      if (responseCursor && seenCursorsRef.current.has(responseCursor)) {
+        setNextCursor(null);
+        window.alert("추가 기수를 불러오지 못했습니다.");
+      } else {
+        const reachedLimit =
+          loadedPagesRef.current >= MAX_LOAD_MORE_PAGES ||
+          cohorts.length + uniqueItems.length >= MAX_COHORT_ROWS;
+        setNextCursor(reachedLimit ? null : responseCursor);
+        if (reachedLimit && responseCursor) {
+          window.alert("기수 목록 조회 한도에 도달해 일부 기수만 표시됩니다.");
+        }
+      }
     } catch {
-      window.alert("추가 기수를 불러오지 못했습니다.");
+      if (requestVersion === refreshVersion.current && !abortController.signal.aborted) {
+        setNextCursor(null);
+        window.alert("추가 기수를 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.");
+      }
     } finally {
-      setLoadingMore(false);
+      if (requestVersion === refreshVersion.current) {
+        loadingMoreRef.current = false;
+        setLoadingMore(false);
+        requestAbortRef.current = null;
+      }
     }
   };
 

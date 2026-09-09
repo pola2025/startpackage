@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
 import { callDataService } from "@/lib/d1/service-client";
+import { signCursor } from "@/lib/d1/read-policy";
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GraduationCap, Users, CheckCircle2 } from "lucide-react";
@@ -17,16 +18,39 @@ async function getCohorts(adminId?: string) {
     }>("admin-pages/cohorts-page", { adminId, pageSize: 50 });
   }
 
-  return await prisma.cohort.findMany({
-    include: {
-      _count: {
-        select: {
-          users: true,
-        },
-      },
-    },
-    orderBy: { createdAt: "desc" },
+  const pageSize = 50;
+  const rows = await prisma.cohort.findMany({
+    take: pageSize + 1,
+    include: { _count: { select: { users: true } } },
+    orderBy: [{ 교육시작일: "desc" }, { id: "desc" }],
   });
+  const items = rows.slice(0, pageSize);
+  const [total, active, students] = await Promise.all([
+    prisma.cohort.count(),
+    prisma.cohort.count({ where: { isActive: true } }),
+    prisma.user.count({ where: { role: "user" } }),
+  ]);
+  const last = items[items.length - 1];
+  const cursorSecret = process.env.D1_CURSOR_SECRET || process.env.NEXTAUTH_SECRET;
+  if (rows.length > pageSize && (!cursorSecret || cursorSecret.length < 16)) {
+    throw new Error("Cohort pagination is unavailable without a valid cursor secret");
+  }
+  return {
+    items,
+    stats: { total, active, students },
+    ...(rows.length > pageSize && last && cursorSecret
+      ? {
+          nextCursor: signCursor(cursorSecret, {
+            version: 1,
+            scope: "admin-pages-cohorts-start-desc",
+            sort: [
+              { field: "교육시작일", value: String(last.교육시작일.getTime()) },
+              { field: "id", value: last.id },
+            ],
+          }),
+        }
+      : {}),
+  };
 }
 
 export default async function CohortsPage() {
