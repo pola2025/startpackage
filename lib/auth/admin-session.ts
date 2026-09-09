@@ -3,6 +3,10 @@ export type AdminSessionState = {
   updatedAt: number;
 };
 
+export function hasAdminAccess(user: { id?: string; role?: string } | null | undefined): boolean {
+  return Boolean(user?.id && user.role && ["super", "designer", "operator"].includes(user.role));
+}
+
 export function isAdminSessionCurrent(
   tokenUpdatedAt: number | undefined,
   state: AdminSessionState | null,

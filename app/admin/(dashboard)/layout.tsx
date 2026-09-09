@@ -27,6 +27,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { hasAdminAccess } from "@/lib/auth/admin-session";
 
 const navigation = [
   {
@@ -116,6 +117,7 @@ export default function AdminLayout({
   const { data: session, status } = useSession();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [unreadMessageCount, setUnreadMessageCount] = useState(0);
+  const isAdmin = hasAdminAccess(session?.user);
 
   // 인증 및 권한 체크 (Middleware 대체)
   useEffect(() => {
@@ -128,20 +130,15 @@ export default function AdminLayout({
     }
 
     // 권한 체크: admin 권한이 없는 경우
-    const userRole = session?.user?.role;
-    if (
-      session &&
-      userRole &&
-      !["super", "designer", "operator"].includes(userRole)
-    ) {
-      router.replace("/");
+    if (!isAdmin) {
+      router.replace("/admin/login");
       return;
     }
-  }, [status, session, router]);
+  }, [status, isAdmin, router]);
 
   // 미확인 메시지 개수 가져오기
   useEffect(() => {
-    if (status !== "authenticated") return;
+    if (status !== "authenticated" || !isAdmin) return;
 
     const fetchUnreadCount = async () => {
       try {
@@ -160,7 +157,7 @@ export default function AdminLayout({
     // 30초마다 갱신
     const interval = setInterval(fetchUnreadCount, 30000);
     return () => clearInterval(interval);
-  }, [status]);
+  }, [status, isAdmin]);
 
   const handleLogout = async () => {
     await signOut({ redirect: false });
@@ -187,13 +184,8 @@ export default function AdminLayout({
     );
   }
 
-  // 권한이 없는 경우 (메인으로 리다이렉트 대기)
-  const userRole = session?.user?.role;
-  if (
-    session &&
-    userRole &&
-    !["super", "designer", "operator"].includes(userRole)
-  ) {
+  // 권한이 없는 경우 (관리자 로그인으로 리다이렉트 대기)
+  if (!isAdmin) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center gap-3">
         <Loader2 className="w-8 h-8 text-gold-600 animate-spin" />

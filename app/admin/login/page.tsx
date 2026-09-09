@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, Mail, KeyRound, Loader2 } from "lucide-react";
+import { hasAdminAccess } from "@/lib/auth/admin-session";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -17,16 +18,17 @@ export default function AdminLoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const totpInputRef = useRef<HTMLInputElement>(null);
+  const isAdmin = hasAdminAccess(session?.user);
 
-  // 이미 로그인된 상태면 어드민 대시보드로 리다이렉트
+  // 유효한 관리자 세션만 대시보드로 이동
   useEffect(() => {
-    if (status === "authenticated") {
+    if (status === "authenticated" && isAdmin) {
       router.replace("/admin");
     }
-  }, [status, router]);
+  }, [status, isAdmin, router]);
 
   // 로딩 중 또는 인증됨 (리다이렉트 대기) → 로딩 화면 표시
-  if (status === "loading" || status === "authenticated") {
+  if (status === "loading" || (status === "authenticated" && isAdmin)) {
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-3">
         <Loader2 className="w-8 h-8 text-gold-600 animate-spin" />
