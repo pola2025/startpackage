@@ -356,23 +356,27 @@ function workflowFilters(input: Input): { where: string; values: SqlValue[]; sco
 
 async function workflowsPage(db: Database, input: Input) {
   const filters = workflowFilters(input);
-  const current = page(input, filters.scope);
+  const current = page(input, `${filters.scope}:cohort-start-desc`);
   const values = [...filters.values];
   let continuation = "";
   if (current.cursor) {
-    const decoded = verifyCursor(current.secret, current.cursor, current.scope, ["cohortId", "이름", "id"]);
-    continuation = ' AND (u."cohortId", u."이름", u."id") > (?, ?, ?)';
-    values.push(String(decoded.sort[0]?.value ?? ""), String(decoded.sort[1]?.value ?? ""), String(decoded.sort[2]?.value ?? ""));
+    const decoded = verifyCursor(current.secret, current.cursor, current.scope, ["cohortStart", "cohortId", "이름", "id"]);
+    const cohortStart = Number(decoded.sort[0]?.value);
+    const cohortId = String(decoded.sort[1]?.value ?? "");
+    const userName = String(decoded.sort[2]?.value ?? "");
+    const userId = String(decoded.sort[3]?.value ?? "");
+    continuation = ' AND (c."교육시작일" < ? OR (c."교육시작일" = ? AND c."id" < ?) OR (c."교육시작일" = ? AND c."id" = ? AND u."이름" > ?) OR (c."교육시작일" = ? AND c."id" = ? AND u."이름" = ? AND u."id" > ?))';
+    values.push(cohortStart, cohortStart, cohortId, cohortStart, cohortId, userName, cohortStart, cohortId, userName, userId);
   }
   values.push(current.size + 1);
-  const users = await all(db, `SELECT u."id", u."이름", u."연락처", u."email", u."cohortId", u."adAutomationEnabled", u."adAutomationStartDate", u."adAutomationEndDate", u."smsSettingEnabled", u."naverAdSettingEnabled", u."naverAdSettingStartDate", u."naverAdSettingEndDate", u."homepageCompleted", u."marketingSupportEndDate", c."id" AS "cohortRowId", c."name" AS "cohortName" FROM "users" u LEFT JOIN "cohorts" c ON c."id" = u."cohortId" ${filters.where}${continuation} ORDER BY u."cohortId" ASC, u."이름" ASC, u."id" ASC LIMIT ?`, values);
+  const users = await all(db, `SELECT u."id", u."이름", u."연락처", u."email", u."cohortId", u."adAutomationEnabled", u."adAutomationStartDate", u."adAutomationEndDate", u."smsSettingEnabled", u."naverAdSettingEnabled", u."naverAdSettingStartDate", u."naverAdSettingEndDate", u."homepageCompleted", u."marketingSupportEndDate", c."id" AS "cohortRowId", c."name" AS "cohortName", c."교육시작일" AS "cohortStart" FROM "cohorts" c INDEXED BY "cohorts_start_id_idx" CROSS JOIN "users" u INDEXED BY "users_role_cohort_name_id_idx" ON u."cohortId" = c."id" ${filters.where}${continuation} ORDER BY c."교육시작일" DESC, c."id" DESC, u."이름" ASC, u."id" ASC LIMIT ?`, values);
   const pageUsers = users.slice(0, current.size);
   const ids = pageUsers.map((row) => String(row.id));
   const workflowRows = ids.length ? await workflowsForUsers(db, input, ids) : [];
   const grouped = Object.fromEntries(pageUsers.map((row) => {
     const user = {
       ...decode("users", { id: row.id, 이름: row.이름, 연락처: row.연락처, email: row.email, cohortId: row.cohortId, adAutomationEnabled: row.adAutomationEnabled, adAutomationStartDate: row.adAutomationStartDate, adAutomationEndDate: row.adAutomationEndDate, smsSettingEnabled: row.smsSettingEnabled, naverAdSettingEnabled: row.naverAdSettingEnabled, naverAdSettingStartDate: row.naverAdSettingStartDate, naverAdSettingEndDate: row.naverAdSettingEndDate, homepageCompleted: row.homepageCompleted, marketingSupportEndDate: row.marketingSupportEndDate, password: "", role: "user", status: "active", SMS수신동의: 0, 이메일수신동의: 0, 공지사항이메일수신: 0, 콘텐츠팁이메일수신: 0, marketingSupportEnabled: 0, createdAt: 0, updatedAt: 0, smsSettingStartDate: null, smsSettingEndDate: null, homepageCompletedAt: null }),
-      cohort: row.cohortRowId ? { id: row.cohortRowId, name: row.cohortName } : null,
+      cohort: row.cohortRowId ? { id: row.cohortRowId, name: row.cohortName, 교육시작일: new Date(number(row.cohortStart)) } : null,
     };
     return [row.id, {
       user,
@@ -384,6 +388,7 @@ async function workflowsPage(db: Database, input: Input) {
   const last = users.length > current.size ? pageUsers[pageUsers.length - 1] : undefined;
   const nextCursor = last
     ? signCursor(current.secret, { version: 1, scope: current.scope, sort: [
+      { field: "cohortStart", value: String(number(last.cohortStart)) },
       { field: "cohortId", value: String(last.cohortId) },
       { field: "이름", value: String(last.이름) },
       { field: "id", value: String(last.id) },
@@ -393,7 +398,7 @@ async function workflowsPage(db: Database, input: Input) {
     workflowsByUser: grouped,
     stats: await workflowStats(db),
     cohorts: await cached("workflow-page-cohorts", async () => {
-      const rows = await all(db, 'SELECT "id", "name" FROM "cohorts" ORDER BY "name" ASC LIMIT ?', [MAX_FILTER_OPTIONS + 1]);
+      const rows = await all(db, 'SELECT "id", "name" FROM "cohorts" ORDER BY "교육시작일" DESC, "id" DESC LIMIT ?', [MAX_FILTER_OPTIONS + 1]);
       if (rows.length > MAX_FILTER_OPTIONS) throw new DataServiceError(400, "Too many cohort filter options");
       return rows;
     }),

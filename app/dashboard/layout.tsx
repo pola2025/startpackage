@@ -11,6 +11,7 @@ import { MessageNotificationModal } from "@/components/ui/message-notification-m
 import { SystemAlertModal } from "@/components/ui/system-alert-modal";
 import { CohortAnnouncementPopup } from "@/components/ui/cohort-announcement-popup";
 import { MobileMoreMenu } from "@/components/ui/mobile-more-menu";
+import { SupportContactPopup } from "@/components/ui/support-contact-notice";
 
 export default function UserLayout({
   children,
@@ -126,6 +127,9 @@ export default function UserLayout({
   // 일반 사용자 레이아웃
   return (
     <div className="relative min-h-screen bg-gray-50">
+      {/* 진행 관련 문의처 안내 */}
+      <SupportContactPopup />
+
       {/* 26-3기 안내 팝업 - 비활성화 */}
       {/* <CohortAnnouncementPopup /> */}
 

@@ -81,8 +81,20 @@ export default function CohortsList({
     return () => requestAbortRef.current?.abort();
   }, [initialCohorts, initialNextCursor]);
 
-  const activeCohorts = cohorts.filter((c) => c.isActive);
-  const inactiveCohorts = cohorts.filter((c) => !c.isActive);
+  const orderedCohorts = [...cohorts].sort((left, right) => {
+    const leftTime = left.교육시작일
+      ? new Date(left.교육시작일).getTime()
+      : Number.NEGATIVE_INFINITY;
+    const rightTime = right.교육시작일
+      ? new Date(right.교육시작일).getTime()
+      : Number.NEGATIVE_INFINITY;
+
+    if (leftTime !== rightTime) return rightTime - leftTime;
+    if (left.id === right.id) return 0;
+    return left.id < right.id ? 1 : -1;
+  });
+  const activeCohorts = orderedCohorts.filter((cohort) => cohort.isActive);
+  const inactiveCohorts = orderedCohorts.filter((cohort) => !cohort.isActive);
 
   const loadMore = async () => {
     if (!nextCursor || loadingMore || loadingMoreRef.current) return;
@@ -403,7 +415,7 @@ export default function CohortsList({
           기수 목록
         </CardTitle>
         <CardDescription className="text-xs sm:text-sm text-gray-600">
-          모든 기수 정보 및 활성화 상태
+          교육 시작일 최신순 · 활성/비활성 상태 포함
         </CardDescription>
       </CardHeader>
       <CardContent className="p-3 sm:p-4 md:p-6 pt-0 space-y-4">

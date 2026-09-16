@@ -37,6 +37,18 @@ describe("CohortsList refreshed props", () => {
     });
   });
 
+  it("keeps the latest active cohort first regardless of input order", () => {
+    const olderActive = cohort("cohort-26", "26기", "2026-08-13T00:00:00.000Z");
+    const latestActive = cohort("cohort-27", "27기", "2026-09-16T00:00:00.000Z");
+
+    render(<CohortsList cohorts={[olderActive, latestActive]} />);
+
+    const names = screen
+      .getAllByText(/^\d+기$/)
+      .map((element) => element.textContent);
+    expect(names.slice(0, 2)).toEqual(["27기", "26기"]);
+  });
+
   it("does not append a stale load-more response after refreshed props arrive", async () => {
     const initial = cohort("cohort-26", "26기", "2026-08-13T00:00:00.000Z");
     const refreshed = cohort("cohort-27", "27기", "2026-09-16T00:00:00.000Z");

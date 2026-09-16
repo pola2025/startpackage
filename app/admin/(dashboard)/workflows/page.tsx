@@ -20,6 +20,7 @@ async function getWorkflows() {
             select: {
               id: true,
               name: true,
+              교육시작일: true,
             },
           },
           // 광고자동화 정보
@@ -40,7 +41,7 @@ async function getCohorts() {
       id: true,
       name: true,
     },
-    orderBy: { name: "asc" },
+    orderBy: [{ 교육시작일: "desc" }, { id: "desc" }],
   });
 }
 

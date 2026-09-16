@@ -67,6 +67,7 @@ describe("adminPagesOperation", () => {
 
   it("pages workflow users without splitting a user's workflow group", async () => {
     const db = database();
+    db.raw.exec('UPDATE "cohorts" SET "교육시작일" = 3 WHERE "id" = \'cohort-1\'');
     const result = await adminPagesOperation(db, "workflows-page", {
       adminId: "admin-1",
       pageSize: 1,
@@ -77,6 +78,40 @@ describe("adminPagesOperation", () => {
     expect(result.workflowsByUser["user-1"].user).toMatchObject({ 이름: "가나다", cohort: { name: "2026 1기" } });
     expect(result.workflowsByUser["user-1"].workflows[0].user).toMatchObject({ 이름: "가나다", cohort: { name: "2026 1기" } });
     expect(result.nextCursor).toBeTruthy();
+  });
+
+  it("pages workflow user groups by latest cohort education date", async () => {
+    const db = database();
+    const first = await adminPagesOperation(db, "workflows-page", {
+      adminId: "admin-1",
+      pageSize: 1,
+      cursorSecret: "0123456789abcdef0123456789abcdef",
+    }) as { workflowsByUser: Record<string, { user: { cohort: { name: string; 교육시작일: Date } } }>; nextCursor?: string };
+    expect(Object.keys(first.workflowsByUser)).toEqual(["user-2"]);
+    expect(first.workflowsByUser["user-2"].user.cohort).toMatchObject({ name: "2026 2기" });
+
+    const second = await adminPagesOperation(db, "workflows-page", {
+      adminId: "admin-1",
+      pageSize: 1,
+      cursor: first.nextCursor,
+      cursorSecret: "0123456789abcdef0123456789abcdef",
+    }) as { workflowsByUser: Record<string, { user: { cohort: { name: string } } }>; nextCursor?: string };
+    expect(Object.keys(second.workflowsByUser)).toEqual(["user-1"]);
+    expect(second.workflowsByUser["user-1"].user.cohort).toMatchObject({ name: "2026 1기" });
+    expect(second.nextCursor).toBeUndefined();
+
+    const plan = db.raw.prepare(`EXPLAIN QUERY PLAN
+      SELECT u."id"
+      FROM "cohorts" c INDEXED BY "cohorts_start_id_idx"
+      CROSS JOIN "users" u INDEXED BY "users_role_cohort_name_id_idx" ON u."cohortId" = c."id"
+      WHERE u."role" = ? AND EXISTS (SELECT 1 FROM "workflows" w WHERE w."userId" = u."id")
+      ORDER BY c."교육시작일" DESC, c."id" DESC, u."이름" ASC, u."id" ASC
+      LIMIT ?`).all("user", 2) as Array<{ detail: string }>;
+    expect(plan.some((row) => row.detail.includes("cohorts_start_id_idx"))).toBe(true);
+    expect(plan.some((row) => row.detail.includes("users_role_cohort_name_id_idx"))).toBe(true);
+    expect(plan.some((row) => row.detail === "USE TEMP B-TREE FOR ORDER BY")).toBe(false);
+    expect(plan.some((row) => row.detail.includes("LAST 2 TERMS OF ORDER BY"))).toBe(true);
+    db.raw.close();
   });
 
   it("filters users globally before paging", async () => {

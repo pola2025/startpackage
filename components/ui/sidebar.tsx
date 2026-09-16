@@ -28,6 +28,7 @@ import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { SupportContactCard } from "@/components/ui/support-contact-notice";
 
 interface SidebarProps {
   userName: string;
@@ -308,6 +309,11 @@ export function Sidebar({
             closeMobile,
           )}
       </nav>
+
+      {/* PC 고정 문의처 */}
+      <div className="hidden lg:block">
+        <SupportContactCard />
+      </div>
 
       {/* 사용자 정보 + 로그아웃 */}
       <div className="p-3 border-t border-gray-200">

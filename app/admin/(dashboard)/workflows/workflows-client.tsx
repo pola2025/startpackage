@@ -372,7 +372,11 @@ export default function WorkflowsClient({
 
         if (!groups[cohortId]) {
           groups[cohortId] = {
-            cohort: { id: cohortId, name: cohortName },
+            cohort: {
+              id: cohortId,
+              name: cohortName,
+              교육시작일: user.cohort?.교육시작일 ?? null,
+            },
             userGroups: {},
           };
         }
@@ -383,6 +387,25 @@ export default function WorkflowsClient({
 
     return groups;
   }, [filteredAndSortedData]);
+
+  const orderedCohortGroups = useMemo(
+    () =>
+      Object.entries(groupedByCohort).sort(
+        ([leftId, left], [rightId, right]) => {
+          const leftTime = left.cohort.교육시작일
+            ? new Date(left.cohort.교육시작일).getTime()
+            : Number.NEGATIVE_INFINITY;
+          const rightTime = right.cohort.교육시작일
+            ? new Date(right.cohort.교육시작일).getTime()
+            : Number.NEGATIVE_INFINITY;
+
+          if (leftTime !== rightTime) return rightTime - leftTime;
+          if (leftId === rightId) return 0;
+          return leftId < rightId ? 1 : -1;
+        },
+      ),
+    [groupedByCohort],
+  );
 
   // 상태별 뷰를 위한 데이터 그룹화
   const groupedByStatus = useMemo(() => {
@@ -1013,7 +1036,7 @@ export default function WorkflowsClient({
       {/* User-Grouped View - 기수별 → 사용자별 */}
       {viewMode === "user" && (
         <div className="space-y-6">
-          {Object.entries(groupedByCohort).map(
+          {orderedCohortGroups.map(
             ([cohortId, { cohort, userGroups }]) => {
               const isCohortExpanded = expandedCohorts.has(cohortId);
               const totalUsers = Object.keys(userGroups).length;
