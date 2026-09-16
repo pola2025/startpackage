@@ -398,9 +398,9 @@ async function workflowsPage(db: Database, input: Input) {
     workflowsByUser: grouped,
     stats: await workflowStats(db),
     cohorts: await cached("workflow-page-cohorts", async () => {
-      const rows = await all(db, 'SELECT "id", "name" FROM "cohorts" ORDER BY "교육시작일" DESC, "id" DESC LIMIT ?', [MAX_FILTER_OPTIONS + 1]);
+      const rows = await all(db, 'SELECT "id", "name", "isActive", "교육시작일" FROM "cohorts" ORDER BY "교육시작일" DESC, "id" DESC LIMIT ?', [MAX_FILTER_OPTIONS + 1]);
       if (rows.length > MAX_FILTER_OPTIONS) throw new DataServiceError(400, "Too many cohort filter options");
-      return rows;
+      return rows.map((row) => decode("cohorts", row));
     }),
     workflowTypes: await cached("workflow-page-types", async () => {
       const rows = await all<{ type: string }>(db, 'SELECT DISTINCT "type" FROM "workflows" WHERE "type" IS NOT NULL ORDER BY "type" ASC LIMIT ?', [MAX_FILTER_OPTIONS + 1]);

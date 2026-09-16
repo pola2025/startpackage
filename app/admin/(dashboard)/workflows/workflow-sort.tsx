@@ -30,7 +30,7 @@ export default function WorkflowSort({
     <div className="flex items-center gap-2">
       <ArrowUpDown className="w-4 h-4 text-gray-600" />
       <Select value={currentSort} onValueChange={onSortChange}>
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger className="w-[180px]" aria-label="워크플로우 정렬 기준">
           <SelectValue placeholder="정렬" />
         </SelectTrigger>
         <SelectContent>

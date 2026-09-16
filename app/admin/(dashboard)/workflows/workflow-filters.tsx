@@ -118,7 +118,7 @@ export default function WorkflowFilters({
           value={filters.status}
           onValueChange={(value) => updateFilter("status", value)}
         >
-          <SelectTrigger>
+          <SelectTrigger aria-label="워크플로우 상태 필터">
             <SelectValue placeholder="상태 선택" />
           </SelectTrigger>
           <SelectContent>
@@ -135,7 +135,7 @@ export default function WorkflowFilters({
           value={filters.type}
           onValueChange={(value) => updateFilter("type", value)}
         >
-          <SelectTrigger>
+          <SelectTrigger aria-label="제작물 타입 필터">
             <SelectValue placeholder="제작물 타입" />
           </SelectTrigger>
           <SelectContent>
@@ -153,7 +153,7 @@ export default function WorkflowFilters({
           value={filters.cohort}
           onValueChange={(value) => updateFilter("cohort", value)}
         >
-          <SelectTrigger>
+          <SelectTrigger aria-label="기수 필터">
             <SelectValue placeholder="코호트" />
           </SelectTrigger>
           <SelectContent>

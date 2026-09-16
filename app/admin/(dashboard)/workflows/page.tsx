@@ -18,9 +18,10 @@ async function getWorkflows() {
           cohortId: true,
           cohort: {
             select: {
-              id: true,
-              name: true,
-              교육시작일: true,
+          id: true,
+          name: true,
+          isActive: true,
+          교육시작일: true,
             },
           },
           // 광고자동화 정보
@@ -40,6 +41,8 @@ async function getCohorts() {
     select: {
       id: true,
       name: true,
+      isActive: true,
+      교육시작일: true,
     },
     orderBy: [{ 교육시작일: "desc" }, { id: "desc" }],
   });
@@ -57,7 +60,12 @@ export default async function WorkflowsPage() {
     const result = await callDataService<{
       workflowsByUser: Record<string, { user: any; workflows: any[] }>;
       stats: any;
-      cohorts: Array<{ id: string; name: string }>;
+      cohorts: Array<{
+        id: string;
+        name: string;
+        isActive: boolean;
+        교육시작일: string | Date;
+      }>;
       workflowTypes: string[];
       nextCursor?: string;
     }>("admin-pages/workflows-page", {

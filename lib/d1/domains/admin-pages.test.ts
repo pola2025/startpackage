@@ -86,9 +86,12 @@ describe("adminPagesOperation", () => {
       adminId: "admin-1",
       pageSize: 1,
       cursorSecret: "0123456789abcdef0123456789abcdef",
-    }) as { workflowsByUser: Record<string, { user: { cohort: { name: string; 교육시작일: Date } } }>; nextCursor?: string };
+    }) as { workflowsByUser: Record<string, { user: { cohort: { name: string; 교육시작일: Date } } }>; cohorts: Array<{ name: string; isActive: boolean; 교육시작일: Date }>; nextCursor?: string };
     expect(Object.keys(first.workflowsByUser)).toEqual(["user-2"]);
     expect(first.workflowsByUser["user-2"].user.cohort).toMatchObject({ name: "2026 2기" });
+    const cohortOption = first.cohorts.find((cohort) => cohort.name === "2026 2기");
+    expect(cohortOption).toMatchObject({ name: "2026 2기", isActive: true });
+    expect(cohortOption?.교육시작일).toBeInstanceOf(Date);
 
     const second = await adminPagesOperation(db, "workflows-page", {
       adminId: "admin-1",

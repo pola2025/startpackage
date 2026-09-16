@@ -63,7 +63,12 @@ interface WorkflowsClientProps {
     제작중: number;
     발송완료: number;
   };
-  cohorts: { id: string; name: string }[];
+  cohorts: Array<{
+    id: string;
+    name: string;
+    isActive?: boolean;
+    교육시작일?: string | Date | null;
+  }>;
   workflowTypes: string[];
   nextCursor?: string | null;
   pagingEnabled?: boolean;
@@ -365,6 +370,29 @@ export default function WorkflowsClient({
       }
     > = {};
 
+    const hasNarrowingFilter =
+      filters.search !== "" ||
+      filters.status !== "all" ||
+      filters.type !== "all" ||
+      filters.cohort !== "all" ||
+      filters.hasFeedback !== undefined ||
+      filters.isDelayed !== undefined;
+
+    if (!hasNarrowingFilter) {
+      cohorts
+        .filter((cohort) => cohort.isActive !== false)
+        .forEach((cohort) => {
+          groups[cohort.id] = {
+            cohort: {
+              id: cohort.id,
+              name: cohort.name,
+              교육시작일: cohort.교육시작일 ?? null,
+            },
+            userGroups: {},
+          };
+        });
+    }
+
     Object.entries(filteredAndSortedData).forEach(
       ([userId, { user, workflows }]) => {
         const cohortId = user.cohortId || "미지정";
@@ -386,7 +414,7 @@ export default function WorkflowsClient({
     );
 
     return groups;
-  }, [filteredAndSortedData]);
+  }, [cohorts, filteredAndSortedData, filters]);
 
   const orderedCohortGroups = useMemo(
     () =>
@@ -933,7 +961,7 @@ export default function WorkflowsClient({
             </CardTitle>
           </CardHeader>
           <CardContent className="p-2 sm:p-3 pt-0">
-            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-gold-600">
+            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-gold-700">
               {stats.시안중}
             </div>
           </CardContent>
