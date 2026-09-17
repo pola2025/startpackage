@@ -83,7 +83,7 @@ export async function contentOperation(db: Database, operation: string, input: u
     } else {
       await db.prepare(`INSERT INTO "submissions" ("id","userId",${HOMEPAGE_FIELDS.map((field) => `"${field}"`).join(",")},"createdAt","updatedAt") VALUES (?, ?, ${HOMEPAGE_FIELDS.map(() => "?").join(",")}, ?, ?)`).bind(randomUUID(), data.userId, ...values, now, now).all();
     }
-    const notification = await db.prepare('SELECT u."이름" AS "name", u."slackChannelId", c."name" AS "cohortName", s."브랜드명" AS "brandName" FROM "users" u LEFT JOIN "cohorts" c ON c."id" = u."cohortId" LEFT JOIN "submissions" s ON s."userId" = u."id" WHERE u."id" = ? LIMIT 1').bind(data.userId).first<Record<string, unknown>>();
+    const notification = await db.prepare('SELECT u."이름" AS "name", u."email", u."연락처" AS "phone", u."slackChannelId", c."name" AS "cohortName", s."브랜드명" AS "brandName" FROM "users" u LEFT JOIN "cohorts" c ON c."id" = u."cohortId" LEFT JOIN "submissions" s ON s."userId" = u."id" WHERE u."id" = ? LIMIT 1').bind(data.userId).first<Record<string, unknown>>();
     return { success: true, notification };
   }
   if (operation === "public-tips" || operation === "announcements" || operation === "category-tips") {

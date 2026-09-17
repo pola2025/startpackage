@@ -118,11 +118,22 @@ describe("remaining D1 route reachability", () => {
       해외결제카드CVC: "123",
       GmailPW: "secret",
     });
-    expect(notify).toHaveBeenCalledWith({}, expect.objectContaining({
-      해외결제카드유효기간: "12/30",
-      해외결제카드CVC: "123",
-      GmailPW: "secret",
-    }));
+    expect(notify).toHaveBeenCalledWith(
+      {},
+      expect.objectContaining({
+        해외결제카드유효기간: "12/30",
+        해외결제카드CVC: "123",
+        GmailPW: "secret",
+      }),
+      expect.any(Function),
+    );
+    const persistSlackChannel = notify.mock.calls[0]?.[2] as ((channelId: string) => Promise<void>) | undefined;
+    expect(persistSlackChannel).toBeTypeOf("function");
+    await persistSlackChannel?.("C123");
+    expect(callDataService).toHaveBeenCalledWith("shared-domain/user-slack-channel-update", {
+      userId: "user-1",
+      slackChannelId: "C123",
+    });
   });
 
   it("rejects masked secrets when no prior value exists", async () => {
