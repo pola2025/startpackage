@@ -34,6 +34,33 @@ function seed(): SQLiteDatabase {
 }
 
 describe("content D1 operations", () => {
+  it("returns the profile fields needed to create the first homepage Slack channel", async () => {
+    const db = seed();
+    const encryptionKey = Buffer.alloc(32, 7).toString("base64");
+    const result = await contentOperation(db, "homepage-update", {
+      userId: "user-1",
+      changes: {
+        홈페이지제작방식: "외부서비스",
+        홈페이지스타일: null,
+        홈페이지컬러컨셉: null,
+        해외결제카드앞면URL: "SLACK_ONLY",
+        해외결제카드뒷면URL: null,
+        해외결제카드유효기간: "12/30",
+        해외결제카드CVC: "123",
+        GmailID: "homepage@example.com",
+        GmailPW: "secret",
+      },
+    }, "s".repeat(32), encryptionKey) as { notification: Record<string, unknown> };
+
+    expect(result.notification).toMatchObject({
+      name: "홍길동",
+      cohortName: "26기",
+      email: "user@example.com",
+      phone: "01012345678",
+      slackChannelId: null,
+    });
+  });
+
   it("filters dismissed alerts in SQL before the bounded result limit", async () => {
     const db = seed();
     const now = Date.now();

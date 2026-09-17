@@ -201,16 +201,25 @@ export async function POST(request: NextRequest) {
     }
 
     if (isD1RuntimeEnabled()) {
-      const result = await callDataService<{ notification?: { name?: string; cohortName?: string; brandName?: string; slackChannelId?: string } }>("content-domain/homepage-update", { userId: session.user.id, changes: updateData });
-      await sendHomepageRequestNotifications(result.notification ?? {}, {
-        홈페이지제작방식,
-        해외결제카드유효기간: plaintextUpdate.해외결제카드유효기간 as string,
-        해외결제카드CVC: plaintextUpdate.해외결제카드CVC as string,
-        GmailID: body.GmailID,
-        GmailPW: plaintextUpdate.GmailPW as string,
-        홈페이지스타일: body.홈페이지스타일,
-        홈페이지컬러컨셉: body.홈페이지컬러컨셉,
-      });
+      const result = await callDataService<{ notification?: { name?: string; cohortName?: string; brandName?: string; email?: string; phone?: string; slackChannelId?: string } }>("content-domain/homepage-update", { userId: session.user.id, changes: updateData });
+      await sendHomepageRequestNotifications(
+        result.notification ?? {},
+        {
+          홈페이지제작방식,
+          해외결제카드유효기간: plaintextUpdate.해외결제카드유효기간 as string,
+          해외결제카드CVC: plaintextUpdate.해외결제카드CVC as string,
+          GmailID: body.GmailID,
+          GmailPW: plaintextUpdate.GmailPW as string,
+          홈페이지스타일: body.홈페이지스타일,
+          홈페이지컬러컨셉: body.홈페이지컬러컨셉,
+        },
+        async (channelId) => {
+          await callDataService("shared-domain/user-slack-channel-update", {
+            userId: session.user.id,
+            slackChannelId: channelId,
+          });
+        },
+      );
       return NextResponse.json({ success: true });
     }
 
@@ -249,6 +258,8 @@ export async function POST(request: NextRequest) {
         name: user?.이름,
         cohortName: user?.cohort?.name,
         brandName: user?.submission?.브랜드명,
+        email: user?.email,
+        phone: user?.연락처,
         slackChannelId: user?.slackChannelId,
       },
       {
@@ -259,6 +270,12 @@ export async function POST(request: NextRequest) {
         GmailPW: plaintextUpdate.GmailPW as string,
         홈페이지스타일: body.홈페이지스타일,
         홈페이지컬러컨셉: body.홈페이지컬러컨셉,
+      },
+      async (channelId) => {
+        await prisma.user.update({
+          where: { id: session.user.id },
+          data: { slackChannelId: channelId },
+        });
       },
     );
 

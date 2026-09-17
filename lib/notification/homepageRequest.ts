@@ -2,6 +2,8 @@ type HomepageRequestUser = {
   name?: string | null;
   cohortName?: string | null;
   brandName?: string | null;
+  email?: string | null;
+  phone?: string | null;
   slackChannelId?: string | null;
 };
 
@@ -34,17 +36,42 @@ const styleNames: Record<string, string> = {
   "https://www.k-eai.kr/index.html": "스타일 6",
 };
 
-export async function sendHomepageRequestNotifications(user: HomepageRequestUser, body: HomepageRequestBody): Promise<void> {
+export async function sendHomepageRequestNotifications(
+  user: HomepageRequestUser,
+  body: HomepageRequestBody,
+  persistSlackChannel: (channelId: string) => Promise<void>,
+): Promise<void> {
+  let channelId = user.slackChannelId || null;
+
   try {
-    const { postMessage } = await import("@/lib/notification/slackClient");
-    if (user.slackChannelId) {
+    const { createSlackChannel, postMessage } = await import("@/lib/notification/slackClient");
+    if (!channelId) {
+      channelId = await createSlackChannel({
+        cohortName: user.cohortName || "unknown",
+        userName: user.name || "unknown",
+        brandName: user.brandName || "homepage",
+        userEmail: user.email || "",
+        userPhone: user.phone || "",
+      });
+      if (channelId) await persistSlackChannel(channelId);
+    }
+
+    if (channelId) {
       let message = `📋 *홈페이지 제작 상세 정보*\n━━━━━━━━━━━━━━━━━━━━\n*제작 방식:* ${body.홈페이지제작방식}\n`;
       message += `• 카드 유효기간: ${body.해외결제카드유효기간}\n• 카드 CVC: ${body.해외결제카드CVC}\n`;
       message += `\n*Gmail (서비스 인프라 연결용)*\n• ID: ${body.GmailID}\n• PW: ${body.GmailPW}\n`;
       if (body.홈페이지스타일) message += `\n*스타일 선택*\n• 선택 스타일: ${styleNames[body.홈페이지스타일] || body.홈페이지스타일}\n• 참고 URL: ${body.홈페이지스타일}\n`;
       if (body.홈페이지컬러컨셉) message += `• 컬러 컨셉: ${body.홈페이지컬러컨셉}\n`;
-      await postMessage({ channelId: user.slackChannelId, text: message });
+      await postMessage({ channelId, text: message });
     }
+  } catch (error) {
+    console.error(
+      "홈페이지 Slack 알림 실패:",
+      error instanceof Error ? error.message : "Unknown error",
+    );
+  }
+
+  try {
     const { sendTelegramMessage } = await import("@/lib/notification/telegramClient");
     let telegramMsg = `🌐 <b>홈페이지 제작 요청</b>\n━━━━━━━━━━━━━━━━━━━━\n👤 ${user.name || "알 수 없음"}`;
     if (user.cohortName) telegramMsg += ` (${user.cohortName})`;
@@ -52,6 +79,9 @@ export async function sendHomepageRequestNotifications(user: HomepageRequestUser
     if (body.홈페이지스타일) telegramMsg += `🎨 스타일: ${styleNames[body.홈페이지스타일] || "선택됨"}\n`;
     await sendTelegramMessage(telegramMsg);
   } catch (error) {
-    console.error("알림 발송 실패:", error);
+    console.error(
+      "홈페이지 Telegram 알림 실패:",
+      error instanceof Error ? error.message : "Unknown error",
+    );
   }
 }
