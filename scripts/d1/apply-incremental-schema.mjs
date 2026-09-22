@@ -252,7 +252,7 @@ async function main() {
     pendingFiles.push({ file, name, sql });
   }
   if (!pendingFiles.length) fail("No pending migrations remain for this target");
-  const importStatePath = resolve(STATE_DIR, `incremental-schema-import-${ledgerKey}.json`);
+  const importStatePath = resolve(STATE_DIR, `incremental-schema-import-${ledgerKey}-${head.slice(0, 12)}.json`);
   if (existsSync(importStatePath)) {
     const previousImport = JSON.parse(await readFile(importStatePath, "utf8"));
     fail(`Existing D1 import state requires inspection before retry: ${previousImport.status ?? "unknown"}`);
