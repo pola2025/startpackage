@@ -1,6 +1,20 @@
 (()=>{
+  const nextKeys=new Set(['ArrowRight','ArrowDown','PageDown',' ','Enter','MediaTrackNext']);
+  const previousKeys=new Set(['ArrowLeft','ArrowUp','PageUp','Backspace','MediaTrackPrevious']);
+  const skipNavigation=event=>event.repeat||event.ctrlKey||event.altKey||event.metaKey||event.target.closest('input,textarea,select,[contenteditable="true"]')||(['Enter',' '].includes(event.key)&&event.target.closest('a,button,[role="button"]'));
   const slides=[...document.querySelectorAll('.slide')];
-  if(!slides.length)return;
+  if(!slides.length){
+    const courses=[...document.querySelectorAll('.course-index .course-card')];
+    if(!courses.length)return;
+    document.addEventListener('keydown',event=>{
+      if(skipNavigation(event))return;
+      if(nextKeys.has(event.key)){event.preventDefault();location.href=courses[0].href;return}
+      if(previousKeys.has(event.key)){event.preventDefault();location.href='chapter-07-ad-settings.html#/999';return}
+      const number=Number(event.key);
+      if(number>=1&&number<=courses.length){event.preventDefault();location.href=courses[number-1].href}
+    });
+    return;
+  }
   const previous=document.querySelector('#prev');
   const next=document.querySelector('#next');
   const replay=document.querySelector('#replay');
@@ -45,7 +59,7 @@
   });
   const indexLink=document.createElement('a');
   indexLink.className='chapter-jump-index';
-  indexLink.href='social-content-training.html';
+  indexLink.href='meta-training-chapters.html';
   indexLink.textContent='전체 과정 목록';
   menu.append(indexLink);
   wrap.append(toggle,menu);
@@ -114,9 +128,10 @@
     if(target){event.preventDefault();go(Number(target.dataset.go))}
   });
   document.addEventListener('keydown',event=>{
+    if(skipNavigation(event))return;
     if(event.key==='Escape'){closeDetail();wrap.classList.remove('open');return}
-    if(['ArrowRight','PageDown',' '].includes(event.key)){event.preventDefault();moveNext()}
-    if(['ArrowLeft','PageUp'].includes(event.key)){event.preventDefault();movePrevious()}
+    if(nextKeys.has(event.key)){event.preventDefault();moveNext();return}
+    if(previousKeys.has(event.key)){event.preventDefault();movePrevious();return}
     if(event.key==='Home')go(0);
     if(event.key==='End')go(slides.length-1);
     if(event.key.toLowerCase()==='f')full.click();
