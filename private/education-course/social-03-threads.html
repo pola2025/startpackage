@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>비즈액터스쿨 온라인마케팅 교육 · Threads 계정과 게시물</title>
+  <link rel="stylesheet" href="./assets/social-publishing-course.css">
+</head>
+<body data-chapter="03">
+<main class="deck">
+  <header class="top"><div class="brand"><b>비즈액터스쿨</b><span>온라인마케팅 교육</span></div><div class="chapter">폴라애드 · 03 Threads 계정과 게시물</div></header>
+  <div class="stage" id="stage"></div>
+  <footer class="bottom"><button id="prev">이전</button><button id="next" class="primary">다음</button><button id="replay">다시 보기</button><button id="full">전체 화면</button><div class="counter"><b id="current">1</b> / <span id="total">1</span></div><div class="progress" id="progress"></div></footer>
+</main>
+<script>
+const A='./assets/social-content/';
+const target=(html,go,cls='')=>`<button class="${cls} target" data-go="${go}">${html}</button>`;
+const phone=(body,dark=false)=>`<div class="phone"><div class="status ${dark?'dark':''}"><span>4:05</span><span>5G&nbsp;&nbsp;88%</span></div><div class="app ${dark?'dark':''}">${body}</div><div class="navline ${dark?'dark':''}"><i></i></div></div>`;
+const staticThreadTabs='<div class="bottom-tabs"><span class="tab-icon">⌂</span><span class="tab-icon">⌕</span><span class="tab-icon">＋</span><span class="tab-icon">♡</span><span class="tab-icon avatar"></span></div>';
+const threadTabs=go=>`<div class="bottom-tabs"><span class="tab-icon">⌂</span><span class="tab-icon">⌕</span>${target('＋',go,'tab-icon')}<span class="tab-icon">♡</span><span class="tab-icon avatar"></span></div>`;
+const start=go=>phone(`<div class="threads-start" style="padding:38px 16px 18px"><img src="${A}threads-2026-logo.svg" alt="Threads" style="width:56px;height:62px;margin-bottom:14px"><h2>Threads 시작하기</h2><p style="margin:10px 0 4px">Instagram 사용자 이름과 프로필 정보를 이어서 사용합니다.</p>${target('<span class="avatar"></span><span><b>polarad_official</b><small>Instagram 계정으로 계속</small></span>',go,'thread-account')}<div style="margin-top:14px;color:#687282;font-size:12px;font-weight:800">다른 Instagram 계정으로 전환</div></div>`);
+const importProfile=go=>phone(`<div class="app-head"><span class="back">‹</span>프로필</div><div class="thread-profile"><div class="thread-profile-top"><span class="avatar"></span><div><b>polarad_official</b><div style="font-size:11px;color:#687282;margin-top:4px">Threads 프로필</div></div></div><div class="thread-profile-field"><b>소개</b><span>브랜드가 기억되는 마케팅을 만듭니다.</span></div><div class="thread-profile-field"><b>링크</b><span>polarad.co.kr</span></div>${target('Instagram에서 프로필 가져오기',go,'black-button')}</div>`);
+const privacy=go=>phone(`<div class="app-head"><span class="back">‹</span>공개 범위</div><div style="padding:19px 16px 0"><h2 style="font-size:24px;margin:0">프로필 공개 범위</h2><p style="font-size:13px;line-height:1.45;color:#687282">비즈니스 콘텐츠가 발견될 수 있도록 공개 프로필을 선택합니다.</p></div><div class="privacy-choice">${target('<div><b>공개 프로필</b><small>Threads 안팎의 모든 사람이 게시물을 볼 수 있습니다.</small></div><span class="radio on"></span>',go,'privacy-row')}<div class="privacy-row"><div><b>비공개 프로필</b><small>승인한 팔로워만 게시물을 볼 수 있습니다.</small></div><span class="radio"></span></div></div>`);
+const follow=go=>phone(`<div class="app-head"><span class="back">‹</span>계정 팔로우</div><div style="padding:18px 15px"><h2 style="font-size:23px;margin:0">Instagram에서 팔로우하는 계정</h2><p style="font-size:13px;line-height:1.45;color:#687282">Threads에서도 같은 계정을 팔로우할 수 있습니다.</p><div class="thread-account"><span class="avatar"></span><span><b>브랜드 마케팅</b><small>Instagram에서 팔로우 중</small></span><span style="margin-left:auto;font-weight:900">팔로우</span></div><div class="thread-account"><span class="avatar"></span><span><b>온라인 비즈니스</b><small>Instagram에서 팔로우 중</small></span><span style="margin-left:auto;font-weight:900">팔로우</span></div>${target('건너뛰기',go,'black-button')}</div>`);
+const join=go=>phone(`<div class="threads-start" style="padding-top:54px"><img src="${A}threads-2026-logo.svg" alt="Threads"><h2>Threads 작동 방식</h2><p style="text-align:left">Threads는 Instagram 계정을 바탕으로 만든 대화형 공간입니다.<br><br>프로필 공개 범위와 차단 설정은 각 앱에서 관리할 수 있습니다.</p>${target('Threads 가입',go,'black-button')}</div>`);
+const threadHome=go=>phone(`<div class="thread-home-head"><img src="${A}threads-2026-logo.svg" alt="Threads"></div><div class="thread-post"><span class="avatar"></span><div><b>polarad_official</b><p>브랜드가 기억되는 마케팅은 예쁜 디자인보다 먼저, 기준을 세우는 일에서 시작합니다.</p><div class="thread-actions"><span>♡ 24</span><span>답글 3</span><span>재게시 2</span></div></div></div><div class="thread-post"><span class="avatar"></span><div><b>polarad_official</b><p>광고대행사를 비교할 때는 금액보다 업무 범위를 먼저 확인하세요.</p><img class="thread-post-image" src="${A}polarad-post-02.png" alt="폴라애드 게시물"><div class="thread-actions"><span>♡ 41</span><span>답글 6</span><span>재게시 5</span></div></div></div>${threadTabs(go)}`);
+const composeText=go=>phone(`<div class="app-head"><span class="close">×</span>새로운 스레드</div><div class="thread-compose"><span class="avatar"></span><div>${target('<b>polarad_official</b><p>광고대행사를 비교할 때는 금액보다 먼저, 업무 범위를 확인하세요.</p><small>첫 글은 핵심 문장만</small>',go,'compose-area compose-text-target')}<div class="compose-tools"><span>▧</span><span>GIF</span><span>투표</span><span>위치</span></div></div></div><div class="reply-permission">누구나 답글을 남길 수 있습니다.</div><button class="thread-post-button">게시</button>`);
+const chainComposer=(go,mode='add')=>{
+  const second=mode==='add'?'':`<div class="thread-unit second"><div class="thread-avatar-rail"><span class="avatar"></span></div><div class="thread-unit-body">${mode==='continue'?target('<b>polarad_official</b><p>좋은 광고 운영은 소재 제작, 문의 확인, 후속 응대까지 한 흐름으로 연결됩니다.</p><small>이어지는 내용을 같은 화면에서 작성</small>',go,'thread-body-editor'):`<b>polarad_official</b><p>좋은 광고 운영은 소재 제작, 문의 확인, 후속 응대까지 한 흐름으로 연결됩니다.</p><div class="thread-support ${mode==='media'?'target':''}" ${mode==='media'?`data-go="${go}"`:''}><img src="${A}polarad-post-02.png" alt="폴라애드 콘텐츠"><div><b>관련 자료 보기</b><span>polarad.co.kr</span></div></div>`}</div></div>`;
+  const add=mode==='add'?target('<span>＋</span>스레드에 추가',go,'thread-add'):'<button class="thread-add muted"><span>＋</span>스레드에 추가</button>';
+  const post=mode==='post'?target('모두 게시',go,'thread-post-button'):'<button class="thread-post-button">모두 게시</button>';
+  return phone(`<div class="app-head"><span class="close">×</span>새로운 스레드</div><div class="thread-chain"><div class="thread-unit first"><div class="thread-avatar-rail"><span class="avatar"></span><i></i></div><div class="thread-unit-body"><b>polarad_official</b><p>광고대행사를 비교할 때는 금액보다 먼저, 업무 범위를 확인하세요.</p><small>첫 글 · 텍스트만</small></div></div>${second}${add}</div><div class="reply-permission">누구나 답글을 남길 수 있습니다.</div>${post}`);
+};
+const published=()=>phone(`<div class="thread-home-head"><img src="${A}threads-2026-logo.svg" alt="Threads"></div><div class="published-chain"><div class="thread-unit first"><div class="thread-avatar-rail"><span class="avatar"></span><i></i></div><div class="thread-unit-body"><b>polarad_official <span>· 방금</span></b><p>광고대행사를 비교할 때는 금액보다 먼저, 업무 범위를 확인하세요.</p><div class="thread-actions"><span>♡</span><span>답글</span><span>재게시</span></div></div></div><div class="thread-unit second"><div class="thread-avatar-rail"><span class="avatar"></span></div><div class="thread-unit-body"><b>polarad_official <span>· 방금</span></b><p>좋은 광고 운영은 소재 제작, 문의 확인, 후속 응대까지 한 흐름으로 연결됩니다.</p><div class="published-support"><img src="${A}polarad-post-02.png" alt="폴라애드 콘텐츠"><b>관련 자료 보기</b><span>polarad.co.kr</span></div><div class="thread-actions"><span>♡</span><span>답글</span><span>재게시</span></div></div></div></div>${staticThreadTabs}`);
+const scenes=[
+  {cover:1,ey:'CONTENT COURSE · 03',title:'Threads<br><em>계정과 게시물</em>',desc:'Instagram 계정을 이어받아 Threads 프로필을 만들고 글과 이미지를 게시합니다.'},
+  {concept:1,ey:'ACCOUNT STRUCTURE',title:'Instagram 계정 하나에<br><em>Threads 프로필 하나</em>',desc:'이름, 사용자 이름, 프로필 정보를 가져와 별도 입력을 줄일 수 있습니다.'},
+  {ey:'STEP 01',title:'Threads에서<br><em>Instagram 계정으로 계속</em>',desc:'새 전화번호나 이메일을 만들지 않고 운영할 Instagram 계정을 선택합니다.',say:'polarad_official 계정 확인',screen:()=>start(3)},
+  {ey:'STEP 02',title:'프로필 정보를<br><em>Instagram에서 가져오기</em>',desc:'프로필 사진, 소개, 링크를 그대로 불러옵니다.',say:'필요하면 Threads에서 수정 가능',screen:()=>importProfile(4)},
+  {ey:'STEP 03',title:'비즈니스 운영은<br><em>공개 프로필</em>',desc:'팔로워가 아니어도 콘텐츠를 발견하고 볼 수 있도록 공개를 선택합니다.',say:'공개 범위 확인',screen:()=>privacy(5)},
+  {ey:'STEP 04',title:'처음에는<br><em>건너뛰기</em>',desc:'Instagram에서 팔로우한 계정을 한꺼번에 추가하지 않고 필요한 계정만 나중에 선택합니다.',say:'자동 팔로우 없이 시작',screen:()=>follow(6)},
+  {ey:'STEP 05',title:'마지막으로<br><em>Threads 가입</em>',desc:'계정과 공개 범위를 확인한 뒤 프로필 생성을 완료합니다.',say:'Instagram 기반 프로필',screen:()=>join(7)},
+  {ey:'STEP 06',title:'하단 가운데<br><em>＋ 버튼</em>',desc:'Threads 홈 화면 아래쪽 가운데에서 새 글을 시작합니다.',say:'새로운 스레드 작성',screen:()=>threadHome(8)},
+  {ey:'STEP 07',title:'첫 글에는<br><em>핵심 문장만</em>',desc:'처음 보이는 글에는 링크나 이미지를 넣지 않고 고객이 바로 이해할 핵심 의견부터 씁니다.',say:'첫 글 · 텍스트만',screen:()=>composeText(9)},
+  {ey:'STEP 08',title:'장문은<br><em>스레드에 추가</em>',desc:'글이 길어지면 한 문단에 몰아넣지 않고 다음 글을 추가해 같은 흐름으로 이어갑니다.',say:'한 화면에서 연속 작성',screen:()=>chainComposer(10,'add')},
+  {ey:'STEP 09',title:'이어지는 내용을<br><em>다음 글에 작성</em>',desc:'첫 글을 보충하는 설명을 두 번째 글에 적습니다. 게시 전까지 한 번에 계속 추가할 수 있습니다.',say:'문단마다 한 가지 내용',screen:()=>chainComposer(11,'continue')},
+  {ey:'STEP 10',title:'링크와 이미지는<br><em>추가 글에 배치</em>',desc:'자료 링크나 이미지는 첫 글 아래에 이어지는 글에 넣어 핵심 문장의 집중도를 유지합니다.',say:'두 번째 글부터 첨부',screen:()=>chainComposer(12,'media')},
+  {ey:'STEP 11',title:'전체 흐름을 보고<br><em>모두 게시</em>',desc:'첫 글, 이어지는 설명, 링크와 이미지 순서를 확인한 뒤 한 번에 게시합니다.',say:'연속 게시 순서 확인',screen:()=>chainComposer(13,'post')},
+  {ey:'PUBLISHED',title:'첫 글 아래로<br><em>내용이 이어집니다</em>',desc:'핵심 의견은 먼저 보이고, 자세한 설명과 자료는 아래 글에서 자연스럽게 이어집니다.',say:'텍스트 → 설명 → 자료',screen:published},
+  {ey:'COMPLETE',title:'Threads 교육<br><em>완료</em>',desc:'첫 글의 핵심 문장 · 이어지는 장문 · 추가 글의 링크와 이미지까지 완료했습니다.',say:'Instagram + Reels + Threads',screen:()=>phone('<div class="complete"><div class="complete-mark">✓</div><h2>Threads 게시 완료</h2><p>첫 글은 핵심 문장<br>자료는 이어지는 글</p></div>')}
+];
+const stage=document.querySelector('#stage');
+stage.innerHTML=scenes.map(s=>s.cover?`<section class="slide"><div class="hero"><p class="eyebrow">${s.ey}</p><h1>${s.title}</h1><p>${s.desc}</p><div class="device-rule"><b>모바일 작업</b><span>스마트폰 세로 화면</span></div></div></section>`:s.concept?`<section class="slide"><div class="concept"><p class="eyebrow">${s.ey}</p><h1>${s.title}</h1><p>${s.desc}</p><div class="device-rule"><b>Instagram</b><span>계정 선택</span><b>Threads</b><span>프로필 생성</span></div><aside class="notes">Meta 공식 Threads 안내는 Instagram 계정으로 로그인하면 사용자 이름과 인증 정보가 이어진다고 설명합니다.</aside></div></section>`:`<section class="slide"><div class="lesson"><div class="lesson-copy"><span class="step-no">${s.ey}</span><h1>${s.title}</h1><p>${s.desc}</p><span class="say">${s.say}</span></div><div class="phone-stage">${s.screen()}</div></div></section>`).join('');
+</script>
+<script src="./assets/social-publishing-course.js"></script>
+</body>
+</html>

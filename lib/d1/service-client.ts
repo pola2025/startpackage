@@ -17,7 +17,7 @@ export async function callDataService<T>(operation: string, input: unknown): Pro
   if (base.protocol !== "https:" || base.username || base.password || base.search || base.hash) {
     throw new Error("Invalid D1 data service endpoint");
   }
-  if (!/^(?:communication\/(?:threads|messages)|(?:auth|core|communication-domain|admin-domain|content-domain|shared-domain|admin-notifications|admin-pages)\/[a-z][a-z0-9-]{0,63})$/.test(operation)) {
+  if (!/^(?:communication\/(?:threads|messages)|(?:auth|core|communication-domain|admin-domain|content-domain|shared-domain|admin-notifications|admin-pages|education-domain)\/[a-z][a-z0-9-]{0,63})$/.test(operation)) {
     throw new Error("Unknown D1 operation");
   }
   let result: Response;

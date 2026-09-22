@@ -20,6 +20,7 @@ import { contentOperation } from "../../lib/d1/domains/content";
 import { sharedOperation } from "../../lib/d1/domains/shared";
 import { authOperation } from "../../lib/d1/domains/auth";
 import { adminNotificationOperation } from "../../lib/d1/domains/admin-notifications";
+import { educationOperation, pruneEducationSecurity } from "../../lib/d1/domains/education";
 
 export interface DataEnvironment {
   DB: Database;
@@ -93,7 +94,7 @@ export function createDataService() {
       if (!authorized(request, env.DATA_SERVICE_TOKEN)) return response({ error: "Unauthorized" }, 401);
       if (request.method !== "POST") return response({ error: "Method not allowed" }, 405);
       const path = new URL(request.url).pathname;
-      const domainMatch = /^\/v1\/(auth|core|content-domain|admin-domain|communication-domain|shared-domain|admin-notifications|admin-pages)\/([a-z][a-z0-9-]{0,63})$/.exec(path);
+      const domainMatch = /^\/v1\/(auth|core|content-domain|admin-domain|communication-domain|shared-domain|admin-notifications|admin-pages|education-domain)\/([a-z][a-z0-9-]{0,63})$/.exec(path);
       if (!["/v1/communication/threads", "/v1/communication/messages"].includes(path) && !domainMatch) {
         return response({ error: "Unknown operation" }, 404);
       }
@@ -139,6 +140,7 @@ export function createDataService() {
           if (domain === "admin-domain" && operation === "workflow-save") return response(await saveAdminWorkflow(env.DB, domainPayload));
           const cursorPayload = { ...domainPayload, cursorSecret: env.CURSOR_SECRET };
           if (domain === "admin-pages") return response(await adminPagesOperation(env.DB, operation, cursorPayload));
+          if (domain === "education-domain") return response(await educationOperation(env.DB, operation, cursorPayload));
           if (domain === "admin-notifications") return response(await adminNotificationOperation(env.DB, operation, domainPayload));
           if (domain === "shared-domain") return response(await sharedOperation(env.DB, operation, cursorPayload));
           if (domain === "communication-domain") return response(await communicationOperation(env.DB, operation, cursorPayload));
@@ -193,6 +195,8 @@ const dataWorker = {
   ...createDataService(),
   async scheduled(_event: unknown, env: DataEnvironment): Promise<void> {
     await pruneAuthAttempts(env.DB);
+    const hour = new Date().getUTCHours();
+    if (hour === 18) await pruneEducationSecurity(env.DB);
   },
 };
 

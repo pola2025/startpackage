@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>비즈액터스쿨 온라인마케팅 교육 · 교육 및 업무지원</title>
+  <style>
+    @font-face{font-family:Pretendard;src:url('./assets/Pretendard-Regular.otf') format('opentype');font-weight:400;font-display:swap}
+    @font-face{font-family:Pretendard;src:url('./assets/Pretendard-SemiBold.otf') format('opentype');font-weight:600 750;font-display:swap}
+    @font-face{font-family:Pretendard;src:url('./assets/Pretendard-ExtraBold.otf') format('opentype');font-weight:800 950;font-display:swap}
+    :root{font-family:Pretendard,system-ui,sans-serif;color:#fff;background:#06183c}
+    *{box-sizing:border-box}html,body{margin:0;min-height:100%;overflow-x:hidden}body{min-height:100vh}
+    .page{position:relative;min-height:100vh;padding:4vh 8vw;background:#071b42;overflow:hidden}.page:before{content:"";position:absolute;inset:0;background:linear-gradient(104deg,rgba(2,22,59,.98),rgba(5,59,143,.92) 55%,rgba(8,102,255,.75)),url('./assets/screen-concept-04-atlas.png') center/cover}.page:after{content:"";position:absolute;inset:0;background-image:radial-gradient(circle at 20% 30%,rgba(255,255,255,.15) 0 1px,transparent 1px);background-size:12px 12px;mix-blend-mode:overlay;pointer-events:none}.shell{position:relative;z-index:2;max-width:1540px;margin:auto}
+    header{height:6vh;min-height:54px;display:flex;align-items:center;border-bottom:1px solid #ffffff3d;font-size:clamp(18px,1.2vw,23px);font-weight:850}header span{margin-left:16px;padding-left:16px;border-left:1px solid #ffffff55;color:#d5e5ff;font-weight:650}header small{margin-left:auto;color:#c8dcff;font-size:clamp(15px,1vw,19px)}
+    .intro{padding:2.2vh 0 1.4vh}.eyebrow{color:#a9c9ff;font-size:clamp(18px,1.2vw,22px);font-weight:900;letter-spacing:.13em}.intro h1{margin:.8vh 0 0;font-size:clamp(58px,4.6vw,84px);line-height:.9;letter-spacing:-.075em}.intro h1 em{font-style:normal;color:#a9c9ff}.intro p{font-size:clamp(21px,1.4vw,27px);color:#dce9ff;margin:1.5vh 0 0;font-weight:650}
+    .track-guide{display:grid;grid-template-columns:7fr 1fr 3fr;gap:8px;margin:0 0 1.2vh}.track-guide span{min-height:39px;display:flex;align-items:center;padding:0 14px;border:1px solid #ffffff32;border-radius:10px;background:#ffffff0b;font-size:clamp(13px,.9vw,17px);font-weight:900;white-space:nowrap}.track-guide span:before{content:"";width:10px;height:10px;margin-right:8px;border-radius:50%;background:#5ca6ff}.track-guide .content:before{background:#ff6ac1}.track-guide .support:before{background:#ffb22e}
+    nav{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid #ffffff3d;border-left:1px solid #ffffff3d}.chapter{position:relative;min-height:132px;display:grid;grid-template-columns:92px 1fr;align-items:center;gap:16px;color:#fff;text-decoration:none;border-right:1px solid #ffffff3d;border-bottom:1px solid #ffffff3d;transition:.25s;padding:12px 18px}.chapter:before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:#5ca6ff}.chapter.track-content:before{background:#ff6ac1}.chapter.track-support:before{background:#ffb22e}.chapter:last-child:nth-child(odd){grid-column:1/-1}.chapter:hover,.chapter:focus-visible{background:#ffffff12;transform:scale(1.012);outline:3px solid #fff;outline-offset:-3px}.chapter .no{font-size:clamp(39px,2.8vw,52px);font-weight:950;color:#a9c9ff;letter-spacing:-.06em}.chapter.track-content .no{color:#ffb4dd}.chapter.track-support .no{color:#ffd17c}.chapter strong{display:block;font-size:clamp(22px,1.55vw,30px);letter-spacing:-.045em}.chapter span{display:block;margin-top:5px;color:#cfe0ff;font-size:clamp(15px,.94vw,18px);font-weight:650}.chapter b{display:none}
+    footer{padding-top:1.8vh;color:#bcd3fa;font-size:17px;font-weight:700}.key{display:inline-grid;place-items:center;width:30px;height:30px;margin:0 5px;border:1px solid #ffffff5e;border-radius:7px;background:#ffffff10;color:#fff}
+    @media (min-width:851px) and (max-height:850px){.page{padding-top:1.2vh;padding-bottom:1.2vh}.shell{max-width:1500px}header{height:4.5vh;min-height:38px;font-size:17px}.intro{padding:.7vh 0 .9vh}.eyebrow{font-size:14px}.intro h1{font-size:42px;line-height:.88}.intro p{font-size:17px;margin-top:.7vh}.track-guide{margin-bottom:.7vh;gap:6px}.track-guide span{min-height:28px;padding:0 10px;font-size:12px}.track-guide span:before{width:8px;height:8px}.chapter{min-height:75px;grid-template-columns:68px 1fr;padding:5px 16px}.chapter .no{font-size:34px}.chapter strong{font-size:20px}.chapter span{font-size:13px;margin-top:1px}footer{padding-top:.7vh;font-size:13px}.key{width:22px;height:22px}}
+    @media (min-width:851px) and (min-height:851px) and (max-height:1100px){.page{padding-top:2vh;padding-bottom:2vh}.shell{max-width:1540px}header{height:4.7vh;min-height:46px}.intro{padding:1vh 0 1.1vh}.intro h1{font-size:56px;line-height:.9}.intro p{font-size:21px;margin-top:.8vh}.track-guide{margin-bottom:.8vh}.track-guide span{min-height:34px}.chapter{min-height:99px;grid-template-columns:82px 1fr;padding:8px 18px}.chapter .no{font-size:43px}.chapter strong{font-size:24px}.chapter span{font-size:15px;margin-top:2px}footer{padding-top:.8vh}}
+    @media(max-width:850px){.page{padding-left:5vw;padding-right:5vw}nav{grid-template-columns:1fr}.chapter{grid-template-columns:82px 1fr;min-height:100px}.chapter .no{font-size:42px}.intro h1{font-size:58px}}
+  </style>
+</head>
+<body>
+  <main class="page"><div class="shell">
+    <header><b>비즈액터스쿨</b><span>온라인마케팅 교육</span><small>폴라애드 · 교육 및 업무지원</small></header>
+    <section class="intro"><div class="eyebrow">LEARNING HUB</div><h1>각 단계별<br><em>상세진행안내</em></h1><p>본교육과 별도자료를 구분해 원하는 챕터를 선택하세요.</p></section>
+    <div class="track-guide" aria-label="교육자료 구분"><span class="main">01–07 · Meta 본교육</span><span class="content">08 · 콘텐츠 별도교육</span><span class="support">09–11 · 스타트패키지 업무지원</span></div>
+    <nav aria-label="교육 챕터">
+      <a class="chapter track-main" href="chapter-01-online-db.html"><div class="no">01</div><div><strong>온라인 DB 이해</strong><span>발견형 광고와 고객 반응의 구조</span></div><b>열기</b></a>
+      <a class="chapter track-main" href="chapter-02-facebook-page.html"><div class="no">02</div><div><strong>Facebook 페이지 만들기</strong><span>개인 프로필에서 페이지 생성 완료까지</span></div><b>열기</b></a>
+      <a class="chapter track-main" href="chapter-03-instagram-account.html"><div class="no">03</div><div><strong>Instagram 계정 생성</strong><span>모바일 가입부터 프로페셔널 설정까지</span></div><b>열기</b></a>
+      <a class="chapter track-main" href="chapter-04-account-integration.html"><div class="no">04</div><div><strong>Facebook · Instagram 계정 통합</strong><span>페이지 연결과 Business Suite 로그인 상태 확인</span></div><b>열기</b></a>
+      <a class="chapter track-main" href="chapter-05-ad-payment.html"><div class="no">05</div><div><strong>광고 계정 · 결제 설정</strong><span>광고 계정 만들기부터 결제수단 등록까지</span></div><b>열기</b></a>
+      <a class="chapter track-main" href="chapter-06-advertiser-safety.html"><div class="no">06</div><div><strong>Meta 광고운영 주의사항</strong><span>Meta 사칭 피싱 구분과 공식 확인 경로</span></div><b>열기</b></a>
+      <a class="chapter track-main" href="chapter-07-ad-settings.html"><div class="no">07</div><div><strong>잠재 고객 광고 설정</strong><span>캠페인 목표 · 지역 타겟팅 · Meta 입력양식</span></div><b>열기</b></a>
+      <a class="chapter track-content" href="social-content-training.html"><div class="no">08</div><div><strong>소셜 콘텐츠 게시 실습</strong><span>Instagram 게시물 · Reels · Threads</span></div><b>열기</b></a>
+      <a class="chapter track-support" href="chapter-09-startpackage.html"><div class="no">09</div><div><strong>스타트패키지</strong><span>로고 · 홈페이지 9종 · 인쇄물 · 추가 인쇄비</span></div><b>열기</b></a>
+      <a class="chapter track-support" href="chapter-10-marketing-support.html"><div class="no">10</div><div><strong>Meta 마케팅 지원사항</strong><span>8주 기본 지원 · 광고운영대행 · 콘텐츠대행</span></div><b>열기</b></a>
+      <a class="chapter track-support" href="chapter-11-submission-guide.html"><div class="no">11</div><div><strong>관련정보 제출안내</strong><span>Gmail · 도메인 · 사업정보 · 디자인 선택</span></div><b>열기</b></a>
+    </nav>
+    <footer><span class="key">1</span>부터 <span class="key">9</span>, <span class="key">0</span>으로 10번을 열고 11번은 화면에서 선택합니다.</footer>
+  </div></main>
+  <script>
+    const links=[...document.querySelectorAll('.chapter')];
+    addEventListener('keydown',e=>{const n=e.key==='0'?10:Number(e.key);if(n>=1&&n<=Math.min(10,links.length))location.href=links[n-1].href});
+  </script>
+</body>
+</html>

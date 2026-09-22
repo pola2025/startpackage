@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>비즈액터스쿨 온라인마케팅 교육 · Instagram 게시물 올리기</title>
+  <link rel="stylesheet" href="./assets/social-publishing-course.css">
+</head>
+<body data-chapter="01">
+<main class="deck">
+  <header class="top"><div class="brand"><b>비즈액터스쿨</b><span>온라인마케팅 교육</span></div><div class="chapter">폴라애드 · 01 Instagram 게시물</div></header>
+  <div class="stage" id="stage"></div>
+  <footer class="bottom"><button id="prev">이전</button><button id="next" class="primary">다음</button><button id="replay">다시 보기</button><button id="full">전체 화면</button><div class="counter"><b id="current">1</b> / <span id="total">1</span></div><div class="progress" id="progress"></div></footer>
+</main>
+<script>
+const A='./assets/social-content/';
+const target=(html,go,cls='')=>`<button class="${cls} target" data-go="${go}">${html}</button>`;
+const phone=(body,dark=false)=>`<div class="phone"><div class="status ${dark?'dark':''}"><span>4:05</span><span>5G&nbsp;&nbsp;88%</span></div><div class="app ${dark?'dark':''}">${body}</div><div class="navline ${dark?'dark':''}"><i></i></div></div>`;
+const tabs=go=>`<div class="bottom-tabs"><span class="tab-icon">⌂</span><span class="tab-icon">⌕</span>${target('＋',go,'tab-icon')}<span class="tab-icon">▣</span><span class="tab-icon avatar"></span></div>`;
+const pickerItems=(go,selected)=>[1,2,3,4,5,1].map((n,i)=>{
+  if(i===0&&!selected)return target(`<img src="${A}polarad-post-0${n}.png" alt="">`,go,'gallery-item');
+  return `<button class="gallery-item"><img src="${A}polarad-post-0${n}.png" alt="">${selected&&i===0?'<span class="pick-number">1</span>':''}</button>`;
+}).join('');
+const home=go=>phone(`<div class="ig-home-head"><b class="ig-word">Instagram</b><div class="home-actions"><span class="line-icon round">♡</span><span class="line-icon">≡</span></div></div><div class="stories"><div class="story"><i></i>내 스토리</div><div class="story"><i></i>브랜딩</div><div class="story"><i></i>마케팅</div><div class="story"><i></i>웹제작</div></div><div class="feed-user"><span class="avatar"></span><b>polarad_official</b><span class="more">···</span></div><img class="feed-image" src="${A}polarad-post-01.png" alt="폴라애드 게시물"><div class="feed-actions"><span>♡</span><span>○</span><span>▱</span></div>${tabs(go)}`);
+const createMenu=go=>phone(`<div class="ig-home-head"><b class="ig-word">Instagram</b><div class="home-actions"><span class="line-icon round">♡</span><span class="line-icon">≡</span></div></div><div class="stories"><div class="story"><i></i>내 스토리</div><div class="story"><i></i>브랜딩</div></div><div class="feed-user"><span class="avatar"></span><b>polarad_official</b></div><img class="feed-image" src="${A}polarad-post-01.png" alt=""><div class="create-sheet"><div class="sheet-handle"></div><h3>만들기</h3>${target('<i>▦</i>게시물',go,'create-row')}<button class="create-row"><i>◎</i>스토리</button><button class="create-row"><i>▶</i>릴스</button><button class="create-row"><i>◉</i>라이브 방송</button></div><div class="bottom-tabs"><span class="tab-icon">⌂</span><span class="tab-icon">⌕</span><span class="tab-icon">＋</span><span class="tab-icon">▣</span><span class="tab-icon avatar"></span></div>`);
+const picker=(go,selected=false)=>phone(`<div class="app-head"><span class="close">×</span>새 게시물<span class="head-action">다음</span></div><div class="picker-preview"><img src="${A}polarad-post-01.png" alt="선택 미리보기">${selected?target('원본',go,'crop-button'):'<button class="crop-button">원본</button>'}<button class="multi-button">여러 항목 선택</button></div><div class="gallery-head">최근 항목 <span>사진 · 동영상</span></div><div class="gallery">${pickerItems(go,selected)}</div>`);
+const ratioPicker=go=>phone(`<div class="app-head"><span class="close">×</span>새 게시물<span class="head-action">다음</span></div><div class="picker-preview"><img src="${A}polarad-post-01.png" alt="원본 비율 미리보기"><button class="crop-button">원본</button><button class="multi-button">여러 항목 선택</button></div><div class="gallery-head">최근 항목</div><div class="gallery">${[1,2,3].map(n=>`<button class="gallery-item"><img src="${A}polarad-post-0${n}.png" alt=""></button>`).join('')}</div><div class="ratio-panel"><h3>화면 비율</h3><div class="ratio-options">${target('원본',go,'ratio-option selected')}<button class="ratio-option">1:1</button><button class="ratio-option">4:5</button><button class="ratio-option">16:9</button></div></div>`);
+const multiChoice=go=>phone(`<div class="app-head"><span class="close">×</span>새 게시물<span class="head-action">다음</span></div><div class="picker-preview multi-choice-preview"><img src="${A}polarad-post-01.png" alt="원본 비율 미리보기"><button class="crop-button">원본</button>${target('여러 항목 선택',go,'multi-button')}</div><div class="gallery-head">최근 항목 <span>원본 비율 유지</span></div><div class="gallery multi-choice-gallery">${[1,2,3,4,5,1].map(n=>`<button class="gallery-item"><img src="${A}polarad-post-0${n}.png" alt=""></button>`).join('')}</div>`);
+const multiPicker=go=>phone(`<div class="app-head"><span class="close">×</span>새 게시물<span class="head-action target" data-go="${go}">다음</span></div><div class="picker-preview"><img src="${A}polarad-post-01.png" alt="선택 미리보기"><button class="crop-button">원본</button><button class="multi-button">여러 항목 선택 · 켜짐</button></div><div class="gallery-head">5개 선택 <span>선택 순서대로 게시</span></div><div class="gallery">${[1,2,3,4,5,1].map((n,i)=>`<button class="gallery-item"><img src="${A}polarad-post-0${n}.png" alt="">${i<5?`<span class="pick-number">${i+1}</span>`:''}</button>`).join('')}</div>`);
+const editScreen=go=>phone(`<div class="edit-screen"><div class="app-head dark"><span class="close">×</span>새 게시물${target('다음',go,'head-action')}</div><div class="edit-canvas"><img src="${A}polarad-post-01.png" alt="게시물 편집 미리보기"></div><div class="filter-row">${['원본','밝게','선명하게','따뜻하게','차갑게'].map((x,i)=>`<div class="filter"><i style="background-image:url('${A}polarad-post-0${(i%5)+1}.png')"></i>${x}</div>`).join('')}</div></div>`,true);
+const shareScreen=go=>phone(`<div class="app-head"><span class="back">‹</span>새 게시물</div><div class="share-form"><div class="share-top"><img class="share-thumb" src="${A}polarad-post-01.png" alt=""><div class="caption-box"><b>polarad_official</b><br>브랜드가 기억되는 마케팅을 만듭니다.<br><br>고객 · 메시지 · 채널을 하나로</div></div><div class="setting-row">사람 태그하기<span>선택</span></div><div class="setting-row">위치 추가<span>선택</span></div><div class="setting-row">음악 추가<span>선택</span></div><div class="setting-row">접근성<span>대체 텍스트</span></div><div class="setting-row">고급 설정<span>확인</span></div></div>${target('공유',go,'share-button')}`);
+const gridPreview=()=>phone(`<div class="profile"><div class="profile-main"><span class="avatar"></span><div><b>polarad_official</b><div style="font-size:11px;color:#687282;margin-top:4px">폴라애드</div></div><div class="profile-stats"><div><b>15</b><small>게시물</small></div><div><b>328</b><small>팔로워</small></div></div></div><div class="profile-buttons"><span>프로필 편집</span><span>프로필 공유</span></div></div><div class="profile-tabs"><b>▦</b><span>▣</span></div><div class="profile-grid">${[1,2,3,4,5,1,2,3,4].map(n=>`<img src="${A}polarad-post-0${n}.png" alt="">`).join('')}</div><div class="bottom-tabs"><span class="tab-icon">⌂</span><span class="tab-icon">⌕</span><span class="tab-icon">＋</span><span class="tab-icon">▣</span><span class="tab-icon avatar"></span></div>`);
+const safePreview=()=>phone(`<div class="app-head"><span class="back">‹</span>미리보기</div><div class="picker-preview" style="height:calc(100% - 51px)"><img src="${A}polarad-post-01.png" alt="폴라애드 콘텐츠"><div class="safe-frame"></div></div>`);
+const scenes=[
+  {cover:1,ey:'CONTENT COURSE · 01',title:'Instagram<br><em>게시물 올리기</em>',desc:'폴라애드 콘텐츠를 실제 Instagram 화면 흐름에 맞춰 게시합니다.'},
+  {concept:1,ey:'CURRENT SIZE · 2026.09',title:'현재 그리드는<br><em>3:4 세로형</em>',desc:'폴라애드 원본도 1080 × 1440으로 제작되어 현재 프로필 그리드에 자연스럽게 맞습니다.'},
+  {ey:'BEFORE UPLOAD',title:'핵심 문구는<br><em>가운데 안전 영역</em>',desc:'화면마다 잘리는 범위가 달라질 수 있으므로 중요한 글자와 얼굴은 가장자리에 붙이지 않습니다.',say:'3:4 · 1080 × 1440',screen:safePreview},
+  {ey:'STEP 01',title:'하단 가운데<br><em>＋ 버튼</em>',desc:'Instagram 홈 화면 아래쪽 가운데에서 게시물 만들기를 시작합니다.',say:'스마트폰 Instagram 앱',screen:()=>home(4)},
+  {ey:'STEP 02',title:'만들기에서<br><em>게시물</em>',desc:'스토리나 릴스가 아니라 게시물을 선택합니다.',say:'게시물 선택',screen:()=>createMenu(5)},
+  {ey:'STEP 03',title:'앨범에서<br><em>첫 이미지 선택</em>',desc:'게시할 폴라애드 콘텐츠의 첫 장을 선택합니다.',say:'첫 장이 대표 이미지',screen:()=>picker(6,false)},
+  {ey:'STEP 04',title:'왼쪽 아래<br><em>원본 크기</em>',desc:'누르지 않으면 정사각형으로 잘릴 수 있습니다. 왼쪽 아래 원본 크기 버튼을 먼저 누릅니다.',say:'원본 비율 유지',screen:()=>picker(7,true)},
+  {ey:'STEP 05',title:'화면 비율은<br><em>원본</em>',desc:'3:4로 제작한 이미지 전체가 보이도록 원본을 선택합니다.',say:'3:4 전체 표시',screen:()=>ratioPicker(8)},
+  {ey:'STEP 06',title:'여러 장이면<br><em>여러 항목 선택</em>',desc:'한 게시물에 여러 장을 올릴 때 선택 기능을 켭니다.',say:'카드뉴스 · 최대 20개',screen:()=>multiChoice(9)},
+  {ey:'STEP 07',title:'보여줄 순서대로<br><em>1 · 2 · 3 · 4 · 5</em>',desc:'대표 이미지를 1번으로 두고, 읽는 순서대로 고른 뒤 다음을 누릅니다.',say:'선택 번호 확인',screen:()=>multiPicker(10)},
+  {ey:'STEP 08',title:'편집은 최소로<br><em>다음</em>',desc:'이미 제작한 콘텐츠이므로 필터를 추가하지 않고 원본 상태로 넘어갑니다.',say:'원본 유지',screen:()=>editScreen(11)},
+  {ey:'STEP 09',title:'본문을 적고<br><em>공유</em>',desc:'첫 문장에 핵심 내용을 넣고 필요한 태그와 위치를 확인한 뒤 공유합니다.',say:'첫 문장이 미리보기',screen:()=>shareScreen(12)},
+  {ey:'PUBLISHED',title:'프로필 그리드에서<br><em>3:4로 확인</em>',desc:'대표 이미지와 글자가 잘리지 않았는지 프로필에서 마지막으로 확인합니다.',say:'세로형 그리드',screen:gridPreview},
+  {ey:'COMPLETE',title:'게시물 업로드<br><em>완료</em>',desc:'3:4 원본 비율 · 선택 순서 · 첫 문장을 확인했습니다.',say:'다음 챕터 · Instagram Reels',screen:()=>phone('<div class="complete"><div class="complete-mark">✓</div><h2>게시물 업로드 완료</h2><p>폴라애드 3:4 콘텐츠<br>프로필 그리드 확인</p></div>')}
+];
+const stage=document.querySelector('#stage');
+stage.innerHTML=scenes.map((s,i)=>s.cover?`<section class="slide"><div class="hero"><p class="eyebrow">${s.ey}</p><h1>${s.title}</h1><p>${s.desc}</p><div class="device-rule"><b>모바일 작업</b><span>스마트폰 세로 화면</span></div></div></section>`:s.concept?`<section class="slide"><div class="concept"><p class="eyebrow">${s.ey}</p><h1>${s.title}</h1><p>${s.desc}</p><div class="concept-grid"><div class="ratio-card current"><div class="ratio-shape r34"></div><div><b>3:4</b><strong>1080 × 1440</strong><span>현재 일반 게시물과 프로필 그리드 기준</span></div></div><div class="ratio-card"><div class="ratio-shape r45"></div><div><b>4:5</b><strong>1080 × 1350</strong><span>기존 세로 게시물과 광고 호환 규격</span></div></div><div class="ratio-card"><div class="ratio-shape r916"></div><div><b>9:16</b><strong>1080 × 1920</strong><span>Reels · Story 전체 화면</span></div></div></div><aside class="notes">Instagram 도움말은 일반 사진을 1080px 너비, 1.91:1부터 3:4까지 지원합니다.</aside></div></section>`:`<section class="slide"><div class="lesson"><div class="lesson-copy"><span class="step-no">${s.ey}</span><h1>${s.title}</h1><p>${s.desc}</p><span class="say">${s.say}</span></div><div class="phone-stage">${s.screen()}</div></div></section>`).join('');
+</script>
+<script src="./assets/social-publishing-course.js"></script>
+</body>
+</html>

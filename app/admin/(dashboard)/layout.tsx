@@ -25,6 +25,7 @@ import {
   BellRing,
   ExternalLink,
   Loader2,
+  BookOpenCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { hasAdminAccess } from "@/lib/auth/admin-session";
@@ -104,6 +105,11 @@ const navigation = [
     name: "콘텐츠 제작 Tip",
     href: "/admin/content-tips",
     icon: Lightbulb,
+  },
+  {
+    name: "교육자료 접근",
+    href: "/admin/education-access",
+    icon: BookOpenCheck,
   },
 ];
 

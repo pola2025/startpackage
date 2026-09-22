@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>비즈액터스쿨 온라인마케팅 교육 · 관련정보 제출안내</title>
+  <link rel="stylesheet" href="./assets/service-course.css">
+  <link rel="stylesheet" href="./assets/chapter-navigation.css">
+</head>
+<body>
+<main class="deck">
+  <header class="top"><div class="brand"><b>비즈액터스쿨</b><span>온라인마케팅 교육</span></div><div class="chapter"></div></header>
+  <section class="stage" id="stage"></section>
+  <footer class="bottom"><button id="prev">이전</button><button class="primary" id="next">다음</button><button id="replay">다시 보기</button><button id="full">전체 화면</button><div class="counter"><b id="current">01</b>/<span id="total">01</span></div><div class="progress" id="progress"></div></footer>
+</main>
+<section class="mobile-gate"><div><h1>PC에서<br>열어주세요</h1><p>제출 항목을 확인하며 실제 자료를 준비하는 교육페이지입니다.</p><strong>노트북 또는 데스크탑 권장</strong></div></section>
+<script>
+window.COURSE={
+  number:'11',
+  name:'관련정보 제출안내',
+  previous:'chapter-10-marketing-support.html#/18',
+  next:'meta-training-chapters.html',
+  nextLabel:'과정 목록',
+  scenes:[
+    {type:'cover',eyebrow:'CHAPTER 11 · SUBMISSION GUIDE',title:'제작 전에 필요한<br><em>관련정보 제출안내</em>',copy:'Gmail 계정, 도메인, 사업 기본정보와 디자인 선택사항을 순서대로 준비합니다.',pills:['Gmail ID/PW','도메인','사업 기본정보','디자인 선택']},
+    {eyebrow:'SUBMISSION MAP',title:'준비할 정보는<br><em>네 묶음</em>',copy:'계정과 주소부터 제작에 사용할 사업 정보까지 한 번에 준비하면 진행이 빨라집니다.',mode:'제출 전 체크',visual:'support',number:'4',numberLabel:'필수 준비 묶음',items:['Gmail 계정과 비밀번호','도메인 주소와 결제','사업자 · 연락처 · 배송지','로고 · 홈페이지 선택정보']},
+    {eyebrow:'GMAIL ACCOUNT',title:'Gmail ID와 PW가<br><em>필요합니다</em>',copy:'메일 발송용 계정이 아니라 홈페이지와 서비스 인프라 연결에 사용할 계정입니다.',mode:'필수 제출',modeTone:'warn',visual:'scopes',left:{kicker:'제출할 값',title:'Gmail 계정정보',items:['Gmail 전체 이메일 주소','현재 로그인 가능한 비밀번호','PC에서 로그인 여부 확인']},right:{kicker:'사용 목적',title:'홈페이지 인프라 연결',items:['홈페이지 서비스 연결','자동 알림 기능 연결','계정관리표에도 동일하게 기록']}},
+    {eyebrow:'GMAIL CHECK',title:'제출 전<br><em>로그인부터 확인</em>',copy:'계정을 새로 만들거나 기존 계정을 사용할 수 있으며 PC에서 정상 로그인되는지 먼저 확인합니다.',mode:'로그인 확인 후 제출',visual:'flow',items:[['계정 준비','사업용 Gmail'],['로그인 확인','ID · PW 점검'],['자료 제출','홈페이지 정보 저장']]},
+    {eyebrow:'DOMAIN COST',title:'도메인은<br><em>1년에 한 번 결제</em>',copy:'주소 종류와 구매 시점에 따라 연간 약 13,000원부터 30,000원 내외가 발생합니다.',mode:'연 1회 결제',modeTone:'good',visual:'support',number:'1',numberLabel:'년에 한 번<br>13,000원 ~ 30,000원 내외',items:['원하는 도메인 주소 선택','매년 한 번 갱신 결제','홈페이지 운영 중 계속 유지']},
+    {eyebrow:'DOMAIN PROVIDER',title:'도메인 구매는<br><em>Cloudflare 권장</em>',copy:'홈페이지 연결과 DNS 관리가 편리하도록 Cloudflare에서 구매하는 방식을 권장합니다.',mode:'연결성 기준 권장',visual:'scopes',left:{kicker:'구매처',title:'Cloudflare',items:['도메인 구매와 DNS 관리','홈페이지 연결 설정','한 곳에서 갱신 관리']},right:{kicker:'제출할 값',title:'구매한 도메인 주소',items:['영문 도메인 전체 주소','구매한 계정 정보 확인','결제와 갱신일 기록']}},
+    {eyebrow:'DOMAIN NAME',title:'도메인 후보는<br><em>두세 개 준비</em>',copy:'이미 사용 중인 주소가 있을 수 있으므로 브랜드명과 핵심 단어를 기준으로 후보를 준비합니다.',mode:'구매 가능 여부 확인',visual:'flow',items:[['브랜드명','짧고 읽기 쉽게'],['후보 준비','2개 또는 3개'],['주소 확정','구매 후 제출']]},
+    {eyebrow:'BUSINESS INFO',title:'사업 기본정보는<br><em>제작 전 공통 입력</em>',copy:'홈페이지와 인쇄물에 반복해서 들어가는 정보를 먼저 정확히 제출합니다.',mode:'공통 정보',visual:'automation',items:[['사업자등록증','이미지 또는 PDF'],['대표 프로필 사진','선명한 정면 사진'],['브랜드명 · 업종','정식 표기 기준'],['사업장 주소','사업자등록증 기준'],['대표 연락처 · 이메일','외부 공개 정보'],['인쇄물 배송지','받는 분과 연락처 포함']]},
+    {eyebrow:'DESIGN INFO',title:'디자인 선택정보도<br><em>함께 제출</em>',copy:'원하는 방향을 글로만 설명하지 않고 예시와 선택값을 함께 전달합니다.',mode:'선택과 참고자료',visual:'automation',items:[['로고 유형','심볼형 · 워드마크형'],['선호 글꼴','고딕 · 명조 · 모던'],['선호 색상','대표 색상 선택'],['참고 로고 1','원하는 구조 예시'],['참고 로고 2','추가 비교 예시'],['홈페이지 스타일','9종 중 선택']]},
+    {eyebrow:'PRINT INFO',title:'인쇄물과 계약서는<br><em>정보가 더 필요</em>',copy:'배송과 계약서 표기에 필요한 값은 시안 확정 전에 함께 확인합니다.',mode:'확정 전 확인',visual:'scopes',left:{kicker:'인쇄물 배송',title:'받는 정보',items:['받는 분 이름','수령 연락처','우편번호와 전체 주소']},right:{kicker:'자문계약서',title:'입금 계좌정보',items:['은행명','계좌번호','계좌 명의자명']}},
+    {eyebrow:'SUBMISSION ORDER',title:'이 순서대로 제출하면<br><em>누락을 줄일 수 있습니다</em>',copy:'기본정보를 먼저 저장하고 디자인 선택과 홈페이지 연결정보를 차례로 입력합니다.',mode:'제출 순서',modeTone:'good',visual:'automation',items:[['기본정보','사업자 · 브랜드 · 연락처'],['배송정보','받는 분 · 주소'],['로고 선택','유형 · 색상 · 참고자료'],['인쇄물 선택','명함 · 계약서 스타일'],['홈페이지 선택','스타일 · 도메인'],['연결정보','Gmail ID/PW']]},
+    {type:'closing',eyebrow:'CHAPTER 11 COMPLETE',title:'정보가 정확해야<br><em>제작이 바로 시작됩니다</em>',copy:'Gmail 로그인, 도메인 후보, 사업 기본정보와 디자인 선택을 확인한 뒤 자료 제출 시스템에 입력합니다.',foot:'비즈액터스쿨 온라인마케팅 교육 · 전체 과정 완료'}
+  ]
+};
+</script>
+<script src="./assets/service-course.js"></script>
+<script src="./assets/chapter-navigation.js"></script>
+</body>
+</html>

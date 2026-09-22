@@ -8,6 +8,7 @@ const DOMAIN_SPLIT_ENABLED =
 
 const ADMIN_HOST = "admin.polaai.co.kr";
 const MAIN_HOST = "polaai.co.kr";
+const EDUCATION_HOST = process.env.EDUCATION_HOST || "mkt.polaai.co.kr";
 
 export function middleware(request: NextRequest) {
   const isContentTipCron = request.nextUrl.pathname === "/api/cron/content-tip-notifications";
@@ -19,6 +20,21 @@ export function middleware(request: NextRequest) {
   }
   const { pathname } = request.nextUrl;
   const host = (request.headers.get("host") || "").toLowerCase();
+  const hostname = host.split(":")[0];
+
+  if (hostname === EDUCATION_HOST) {
+    const userAgent = request.headers.get("user-agent") || "";
+    if (process.env.NODE_ENV === "production" && (!userAgent || /bot|crawler|spider|scrapy|curl|wget|python-requests|headlesschrome|playwright|selenium/i.test(userAgent))) {
+      return new NextResponse("Forbidden", { status: 403, headers: { "X-Robots-Tag": "noindex, nofollow, noarchive", "Cache-Control": "private, no-store" } });
+    }
+    const allowed = pathname.startsWith("/education") || pathname.startsWith("/api/education") || pathname.startsWith("/_next") || pathname === "/robots.txt" || pathname === "/favicon.ico";
+    if (!allowed) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/education";
+      url.search = "";
+      return NextResponse.rewrite(url);
+    }
+  }
 
   // ============================================================
   // 1. 호스트 분기 (도메인 분리 단계적 활성화)

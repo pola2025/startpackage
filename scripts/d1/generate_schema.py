@@ -120,7 +120,8 @@ def relation_fk(field: dict) -> tuple[str, str, str, str, bool] | None:
     if not match:
         return None
     local, target, on_delete = match.groups()
-    return local.strip(), target.strip(), on_delete or ("SET NULL" if field["optional"] else "RESTRICT"), field["type"], field["optional"]
+    delete_rule = {"SetNull": "SET NULL", "Cascade": "CASCADE", "Restrict": "RESTRICT", "NoAction": "NO ACTION"}.get(on_delete or "")
+    return local.strip(), target.strip(), delete_rule or ("SET NULL" if field["optional"] else "RESTRICT"), field["type"], field["optional"]
 
 
 def generate(source: str) -> str:
@@ -142,7 +143,7 @@ def generate(source: str) -> str:
                 continue
             name = field["name"]
             parts = [sql_identifier(name), column_type(field, enum_values)]
-            if name == "id":
+            if "@id" in field["attributes"]:
                 parts.append("PRIMARY KEY")
             if "@unique" in field["attributes"]:
                 parts.append("UNIQUE")

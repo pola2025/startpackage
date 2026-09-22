@@ -43,11 +43,29 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  outputFileTracingIncludes: {
+    "/education/course/[...path]": ["./private/education-course/**/*"],
+  },
   async headers() {
     return [
       {
         source: "/(.*)",
         headers: SECURITY_HEADERS,
+      },
+      {
+        source: "/education/:path*",
+        headers: [
+          ...SECURITY_HEADERS,
+          { key: "Cache-Control", value: "private, no-store, max-age=0" },
+          { key: "Content-Security-Policy", value: "default-src 'self'; img-src 'self' data: https:; media-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'" },
+        ],
+      },
+      {
+        source: "/api/education/:path*",
+        headers: [
+          ...SECURITY_HEADERS,
+          { key: "Cache-Control", value: "private, no-store, max-age=0" },
+        ],
       },
     ];
   },

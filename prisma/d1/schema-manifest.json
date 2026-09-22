@@ -1717,6 +1717,296 @@
       ]
     },
     {
+      "name": "education_access_events",
+      "model": "EducationAccessEvent",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "userId",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "cohortId",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "eventType",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "outcome",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "ipAddress",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "ipHash",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "userAgent",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "country",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "city",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "path",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "metadata",
+          "type": "Json",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        }
+      ]
+    },
+    {
+      "name": "education_extension_requests",
+      "model": "EducationExtensionRequest",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "userId",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "currentEndAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "status",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "approvedUntil",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "requestIp",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "requestedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "reviewedBy",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "reviewedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "adminNote",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        }
+      ]
+    },
+    {
+      "name": "education_ip_blocks",
+      "model": "EducationIpBlock",
+      "fields": [
+        {
+          "name": "ipHash",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "ipAddress",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "reason",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "hitCount",
+          "type": "Int",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "blockedUntil",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        }
+      ]
+    },
+    {
+      "name": "education_rate_windows",
+      "model": "EducationRateWindow",
+      "fields": [
+        {
+          "name": "keyHash",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "action",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "windowStartedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "count",
+          "type": "Int",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "blockedUntil",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        }
+      ]
+    },
+    {
       "name": "communication_threads",
       "model": "CommunicationThread",
       "fields": [
