@@ -47,7 +47,7 @@ function sha256(value) { return createHash("sha256").update(value).digest("hex")
 
 async function migrationFiles() {
   const entries = await readdir(MIGRATION_DIR, { withFileTypes: true });
-  return entries.filter((entry) => entry.isFile() && /^000[2-9]_.*\.sql$/.test(entry.name))
+  return entries.filter((entry) => entry.isFile() && /^\d{4}_.*\.sql$/.test(entry.name) && entry.name !== "0001_initial.sql")
     .sort((left, right) => left.name.localeCompare(right.name))
     .map((entry) => resolve(MIGRATION_DIR, entry.name));
 }
