@@ -67,15 +67,17 @@
     {keywords:['페이스북 페이지','페이지 만들기','개인 프로필','바둑판 메뉴'],title:'Facebook 페이지 만들기',answer:'Facebook 개인 프로필로 로그인한 홈 화면에서 오른쪽 위 메뉴를 열고 만들기의 페이지를 선택합니다.',href:'chapter-02-facebook-page.html#/2'},
     {keywords:['인스타그램 계정','새 계정','이메일 가입','프로페셔널','크리에이터'],title:'Instagram 계정 만들기',answer:'스마트폰 Instagram 앱에서 사업별 전용 이메일로 새 계정을 만들고 프로페셔널 크리에이터 계정으로 전환합니다.',href:'chapter-03-instagram-account.html#/3'},
     {keywords:['미디어 품질','고화질','화질','업로드 품질'],title:'고화질 업로드 설정',answer:'프로필 오른쪽 위 메뉴에서 설정 및 활동을 열고 앱 및 미디어의 미디어 품질로 이동해 고화질 업로드를 켭니다.',href:'chapter-03-instagram-account.html#/27'},
-    {keywords:['연결된 계정','계정 통합','인스타그램 연결','페이스북 연결'],title:'Facebook과 Instagram 연결',answer:'Facebook 페이지 프로필로 전환한 뒤 페이지 설정의 연결된 계정에서 Instagram을 선택해 승인합니다.',href:'chapter-04-account-integration.html#/8'},
+    {keywords:['인스타그램 비밀번호','비번','PC 로그인','로그인 안됨','비밀번호 재설정'],title:'Instagram PC 로그인 비밀번호 변경',answer:'휴대폰 Instagram 앱에서 계정 센터 > 비밀번호 및 보안 > 비밀번호 변경으로 이동합니다. 계정을 선택한 뒤 비밀번호를 잊으셨나요?를 눌러 이메일 링크로 새 비밀번호를 설정하세요.',href:'chapter-04-account-integration.html#/3'},
+    {keywords:['연결된 계정','계정 통합','인스타그램 연결','페이스북 연결'],title:'Facebook과 Instagram 연결',answer:'Facebook 페이지 프로필로 전환한 뒤 페이지 설정의 연결된 계정에서 Instagram을 선택해 승인합니다.',href:'chapter-04-account-integration.html#/10'},
     {keywords:['광고 관리자 추가','광고 계정 만들기','새 광고 계정','광고 관리자'],title:'광고 계정 만들기',answer:'Business Suite의 광고 관리자에서 새 광고 계정을 만들고 이름, Asia/Seoul 시간대와 통화를 확인한 뒤 내 비즈니스용으로 생성합니다.',href:'chapter-05-ad-payment.html#/4'},
     {keywords:['결제수단','결제 수단','토스','toss','카드','원화','달러','통화'],title:'광고 결제수단 등록',answer:'KRW 계정은 Toss 충전결제, USD 계정은 해외결제 가능한 신용카드 또는 체크카드 후불결제를 사용합니다.',href:'chapter-05-ad-payment.html#/10'},
     {keywords:['소액 결제','결제 검증','청구 기준액','자주 결제'],title:'신규 계정 결제 검증',answer:'신규 광고 계정은 작은 결제 기준액부터 청구될 수 있습니다. 정상 결제 이력이 쌓이면 기준액이 점차 높아질 수 있습니다.',href:'chapter-05-ad-payment.html#/17'},
     {keywords:['피싱','스팸','사칭','경고 메일','메신저 사기'],title:'Meta 사칭 메시지 주의',answer:'메신저나 이메일의 인증·경고 링크에는 답장하거나 로그인하지 않습니다. Facebook 알림과 광고 관리자 안의 공식 안내만 확인하세요.',href:'chapter-06-advertiser-safety.html#/2'},
-    {keywords:['광고 목표','인지도','트래픽','잠재 고객 목표'],title:'광고 목표 선택',answer:'이번 교육은 잠재 고객 목표와 Meta 인스턴트 양식을 기본으로 사용합니다. 홈페이지 접수 구조가 있으면 트래픽 목표를 선택할 수 있습니다.',href:'chapter-07-ad-settings.html#/2'},
-    {keywords:['지역 타겟팅','지역 타게팅','위치 타겟','지역 설정','대한민국','반경'],title:'지역 타겟팅 설정',answer:'타겟의 관리 옵션 표시를 누르고 위치를 엽니다. 전국 광고는 대한민국을 유지하고 지역 광고는 영업지역을 검색해 정확한 도시·구와 반경을 확인합니다.',href:'chapter-07-ad-settings.html#/19'},
-    {keywords:['예산','일일 예산','20달러','$20','입찰'],title:'광고 예산 기본값',answer:'캠페인 일일 예산은 $20로 설정하고 입찰 전략은 최고 볼륨을 유지합니다. 시작일과 종료일은 기본값을 사용합니다.',href:'chapter-07-ad-settings.html#/11'},
-    {keywords:['입력양식','인스턴트 양식','양식 만들기','회사명','전화번호'],title:'인스턴트 양식 만들기',answer:'양식 만들기를 선택하고 회사명, 업종, 이름, 전화번호를 받습니다. 소개 설명과 개인정보처리방침 주소도 입력해야 합니다.',href:'chapter-07-ad-settings.html#/31'},
+    {keywords:['광고 라이브러리','광고라이브러리','다른 사람 광고','경쟁사 광고','광고 참고'],title:'Meta 광고 라이브러리',answer:'광고 라이브러리에서 대한민국과 모든 광고를 선택한 뒤 광고주 이름이나 키워드를 검색하면 현재 게재 광고의 이미지와 문구를 참고할 수 있습니다.',href:'chapter-07-ad-settings.html#/2'},
+    {keywords:['광고 목표','인지도','트래픽','잠재 고객 목표'],title:'광고 목표 선택',answer:'이번 교육은 잠재 고객 목표와 Meta 인스턴트 양식을 기본으로 사용합니다. 홈페이지 접수 구조가 있으면 트래픽 목표를 선택할 수 있습니다.',href:'chapter-07-ad-settings.html#/4'},
+    {keywords:['지역 타겟팅','지역 타게팅','위치 타겟','지역 설정','대한민국','반경'],title:'지역 타겟팅 설정',answer:'타겟의 관리 옵션 표시를 누르고 위치를 엽니다. 전국 광고는 대한민국을 유지하고 지역 광고는 영업지역을 검색해 정확한 도시·구와 반경을 확인합니다.',href:'chapter-07-ad-settings.html#/21'},
+    {keywords:['예산','일일 예산','20달러','$20','입찰'],title:'광고 예산 기본값',answer:'캠페인 일일 예산은 $20로 설정하고 입찰 전략은 최고 볼륨을 유지합니다. 시작일과 종료일은 기본값을 사용합니다.',href:'chapter-07-ad-settings.html#/13'},
+    {keywords:['입력양식','인스턴트 양식','양식 만들기','회사명','전화번호'],title:'인스턴트 양식 만들기',answer:'양식 만들기를 선택하고 회사명, 업종, 이름, 전화번호를 받습니다. 소개 설명과 개인정보처리방침 주소도 입력해야 합니다.',href:'chapter-07-ad-settings.html#/33'},
     {keywords:['콘텐츠','게시물','릴스','reels','쓰레드','threads','게시 실습'],title:'소셜 콘텐츠 게시 실습',answer:'Instagram 게시물, Reels, Threads의 실제 모바일 게시 과정을 콘텐츠 교육에서 확인합니다.',href:'social-content-training.html'},
     {keywords:['스타트패키지','로고','추상 로고','캘리그라피','인쇄물','명함','명찰','대봉투','계약서','홈페이지 스타일'],title:'스타트패키지 제작 범위',answer:'단순 엠블럼과 레퍼런스가 있는 로고를 기준으로 진행하며 홈페이지 9종과 인쇄물 예시를 확인할 수 있습니다.',href:'chapter-09-startpackage.html#/2'},
     {keywords:['추가 인쇄','재인쇄','인쇄 비용','명함 비용','대봉투 비용','계약서 비용'],title:'추가 인쇄비',answer:'명함은 추가 22,000원, 대봉투는 220,000원, 자문계약서는 330,000원이며 모두 VAT 포함 기준입니다.',href:'chapter-09-startpackage.html#/26'},
@@ -135,8 +137,17 @@
   });
   assistantPanel.querySelector('.assistant-close').addEventListener('click',closeAssistant);
 
+  const kakaoContact=document.createElement('a');
+  kakaoContact.className='course-kakao-contact';
+  kakaoContact.href='https://pf.kakao.com/_CTaiX/chat';
+  kakaoContact.target='_blank';
+  kakaoContact.rel='noopener noreferrer';
+  kakaoContact.textContent='polarad 카카오톡 친구추가 · 문의';
+  kakaoContact.setAttribute('aria-label','polarad 카카오톡 채널 친구추가 후 문의');
+  kakaoContact.addEventListener('keydown',event=>event.stopPropagation());
+
   [previous,next,replay,full].forEach(element=>{if(element)bottom.append(element)});
-  bottom.append(wrap,assistant);
+  bottom.append(wrap,assistant,kakaoContact);
   if(counter)bottom.append(counter);
   if(progress)bottom.append(progress);
 
