@@ -44,7 +44,8 @@ const navigation = [
   },
   {
     name: "로그인 차단 해제",
-    href: "/admin/login-blocks",
+    // /admin/login* 은 미들웨어가 로그인 화면으로 보고 인증 확인을 건너뛰므로 다른 접두어를 쓴다.
+    href: "/admin/blocked-logins",
     icon: LockOpen,
   },
   {
