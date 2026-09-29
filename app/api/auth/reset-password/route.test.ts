@@ -66,4 +66,15 @@ describe("POST /api/auth/reset-password cooldown", () => {
     expect(mocks.prisma.user.update).not.toHaveBeenCalled();
     expect(mocks.sendSMS).not.toHaveBeenCalled();
   });
+
+  it("sends the temporary password SMS even when SMS consent is off", async () => {
+    mocks.d1Enabled.value = false;
+    mocks.prisma.user.findFirst.mockResolvedValue({ id: "user-2", 이름: "회원", 연락처: "01012345678", SMS수신동의: false });
+    mocks.prisma.notification.findFirst.mockResolvedValue(null);
+    mocks.sendSMS.mockResolvedValue(undefined);
+    const response = await POST(resetRequest());
+    expect(response.status).toBe(200);
+    expect(mocks.prisma.user.update).toHaveBeenCalledTimes(1);
+    expect(mocks.sendSMS).toHaveBeenCalledWith("01012345678", expect.stringContaining("임시 비밀번호"));
+  });
 });

@@ -202,10 +202,10 @@ async function startPasswordReset(db: Database, input: SharedInput): Promise<unk
   const cleanPhone = requiredString(input, "cleanPhone", 20);
   const formattedPhone = requiredString(input, "formattedPhone", 20);
   const hashedPassword = requiredString(input, "hashedPassword", 512);
-  const user = await first<Row>(db, `SELECT "id", "이름", "연락처", "SMS수신동의"
+  const user = await first<Row>(db, `SELECT "id", "이름", "연락처"
     FROM "users" WHERE "연락처" IN (?, ?) LIMIT 1`, [cleanPhone, formattedPhone]);
   if (!user) throw new DataServiceError(404, "등록되지 않은 전화번호입니다.");
-  if (!user.SMS수신동의) throw new DataServiceError(400, "SMS 수신 동의가 필요합니다. 관리자에게 문의하세요.");
+  // 임시 비밀번호는 본인이 요청한 서비스 문자라 SMS 수신 동의와 무관하게 발송한다.
   const since = now(input) - 3 * 60 * 1000;
   const timestamp = now(input);
   const notificationId = crypto.randomUUID();

@@ -62,6 +62,17 @@ describe("shared D1 operations", () => {
     })).rejects.toMatchObject({ status: 429 });
   });
 
+  it("sends a temporary password even when SMS consent is off", async () => {
+    const { db, sqlite } = setup();
+    sqlite.exec("UPDATE users SET SMS수신동의 = 0 WHERE id = 'user-a'");
+    await expect(sharedOperation(db, "password-reset-start", {
+      cleanPhone: "01000000001",
+      formattedPhone: "010-0000-0001",
+      hashedPassword: "hashed-value",
+      now: 5_000_000,
+    })).resolves.toMatchObject({ id: "user-a" });
+  });
+
   it("allows the next password reset SMS only after three minutes", async () => {
     const { db } = setup();
     const input = { cleanPhone: "01000000001", formattedPhone: "010-0000-0001", hashedPassword: "hashed-value" };

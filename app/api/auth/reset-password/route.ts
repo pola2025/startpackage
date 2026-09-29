@@ -186,13 +186,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // SMS 수신 동의 확인
-    if (!user.SMS수신동의) {
-      return NextResponse.json(
-        { error: "SMS 수신 동의가 필요합니다. 관리자에게 문의하세요." },
-        { status: 400 },
-      );
-    }
+    // 임시 비밀번호는 본인이 요청한 서비스 문자라 SMS 수신 동의와 무관하게 발송한다.
 
     // 전화번호 기준 쿨다운 3분 — 기존 Notification 테이블로 중복 발송 차단
     const recentReset = await prisma.notification.findFirst({
