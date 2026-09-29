@@ -1132,20 +1132,14 @@ export default function UserActions({ user }: UserActionsProps) {
                 <button
                   type="button"
                   onClick={() => setMessageChannel("SMS")}
-                  disabled={!user.SMS수신동의}
-                  className={`flex-1 py-3 px-4 rounded-lg border-2 transition-all ${
+                  className={`flex-1 py-3 px-4 rounded-lg border-2 transition-all cursor-pointer ${
                     messageChannel === "SMS"
                       ? "border-purple-600 bg-purple-50 text-purple-900"
                       : "border-gray-300 bg-white text-gray-700 hover:border-purple-400"
-                  } ${!user.SMS수신동의 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                  }`}
                 >
                   <div className="font-semibold">SMS (문자)</div>
                   <div className="text-xs mt-1">{user.연락처}</div>
-                  {!user.SMS수신동의 && (
-                    <div className="text-xs text-red-600 mt-1">
-                      수신 동의 안 함
-                    </div>
-                  )}
                 </button>
                 <button
                   type="button"

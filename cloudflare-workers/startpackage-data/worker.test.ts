@@ -87,6 +87,28 @@ describe("D1 data service HTTP boundary", () => {
     expect((await request("auth/consume-attempts", { ...account, now: 0 })).status).toBe(400);
   });
 
+  it("lets administrators list and clear login blocks through strict auth operations", async () => {
+    const { request, sqlite } = setup();
+    sqlite.exec("INSERT INTO admins (id,email,password,name,role,updatedAt) VALUES ('admin-1','op@test.invalid','x','운영','operator',1)");
+    const account = { keyHash: "e".repeat(64), kind: "account" };
+    for (let index = 0; index < 6; index += 1) await request("auth/consume-attempts", account);
+
+    const listed = await request("auth/login-blocks", { adminId: "admin-1" });
+    expect(listed.status).toBe(200);
+    const body = await listed.json() as { blocks: Array<{ keyHash: string }>; identities: Array<{ id: string }> };
+    expect(body.blocks.map((row) => row.keyHash)).toEqual(["e".repeat(64)]);
+    expect(body.identities.map((row) => row.id)).toEqual(["user-a", "user-b"]);
+
+    expect((await request("auth/login-blocks", { adminId: "missing" })).status).toBe(403);
+    expect((await request("auth/login-blocks", { adminId: "admin-1", now: 1 })).status).toBe(400);
+    expect((await request("auth/login-blocks-clear", { adminId: "admin-1", keyHashes: ["bad"] })).status).toBe(400);
+    expect(await (await request("auth/login-blocks-clear", { adminId: "admin-1", keyHashes: ["e".repeat(64)] })).json()).toEqual({ cleared: 1 });
+    expect(await (await request("auth/consume-attempts", account)).json()).toMatchObject({ allowed: true, failures: 1 });
+
+    expect((await request("auth/clear-attempts", { keyHash: "e".repeat(64), kind: "ip" })).status).toBe(400);
+    expect(await (await request("auth/clear-attempts", { keyHash: "e".repeat(64), kind: "account" })).json()).toEqual({ cleared: 1 });
+  });
+
   it("rejects unknown auth commands and only reads the requested identity", async () => {
     const { request } = setup();
     expect((await request("auth/consume-attempt", { keyHash: "c".repeat(64) })).status).toBe(404);

@@ -4,6 +4,7 @@ import { createHash, timingSafeEqual } from "node:crypto";
 import { z } from "zod";
 import { DataServiceError, type Database } from "../../lib/d1/database";
 import { consumeLoginAttempt } from "../../lib/d1/commands/auth-attempts";
+import { clearAccountAttempt, clearLoginBlocks, listLoginBlocks, MAX_CLEAR_KEYS } from "../../lib/d1/commands/login-blocks";
 import { saveAdminWorkflow } from "../../lib/d1/commands/admin-workflow-save";
 import { createReadCache, parsePageSize, ReadPolicyError } from "../../lib/d1/read-policy";
 import {
@@ -119,6 +120,24 @@ export function createDataService() {
           if (!(await env.READ_LIMITER.limit({ key: `domain:${principal}` })).success) return response({ error: "Too many requests" }, 429);
           const [, domain, operation] = domainMatch;
           if (domain === "auth") {
+            if (operation === "login-blocks") {
+              const listInput = z.object({ adminId: identifier }).strict().safeParse(domainPayload);
+              if (!listInput.success) throw new DataServiceError(400, "Invalid login block input");
+              return response(await listLoginBlocks(env.DB, listInput.data));
+            }
+            if (operation === "login-blocks-clear") {
+              const clearInput = z.object({
+                adminId: identifier,
+                keyHashes: z.array(z.string().regex(/^[a-f0-9]{64}$/)).min(1).max(MAX_CLEAR_KEYS),
+              }).strict().safeParse(domainPayload);
+              if (!clearInput.success) throw new DataServiceError(400, "Invalid login block input");
+              return response(await clearLoginBlocks(env.DB, clearInput.data));
+            }
+            if (operation === "clear-attempts") {
+              const clearInput = z.object({ keyHash: z.string().regex(/^[a-f0-9]{64}$/), kind: z.literal("account") }).strict().safeParse(domainPayload);
+              if (!clearInput.success) throw new DataServiceError(400, "Invalid login attempt input");
+              return response(await clearAccountAttempt(env.DB, clearInput.data));
+            }
             if (operation === "admin-state") {
               const admin = z.object({ adminId: identifier }).safeParse(domainPayload);
               if (!admin.success) throw new DataServiceError(400, "Invalid admin input");

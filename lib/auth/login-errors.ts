@@ -23,9 +23,9 @@ export class LoginBlockedError extends CredentialsSignin {
   }
 }
 
-/** 분산(D1) 계정 시도 횟수와 로컬 실패 횟수 중 큰 값을 안내 기준으로 쓴다. */
+/** D1 분산 기록이 있으면 그 횟수가 기준이다(관리자 해제·성공 후 초기화가 반영됨). 없을 때만 로컬 횟수를 쓴다. */
 export function invalidLoginFor(localFailures: number, reservation: LoginAttemptReservation) {
-  return new InvalidLoginError(Math.max(localFailures, reservation.accountAttempts ?? 0));
+  return new InvalidLoginError(reservation.accountAttempts ?? localFailures);
 }
 
 export function blockedLoginFor(reservation: LoginAttemptReservation) {

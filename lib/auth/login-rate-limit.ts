@@ -45,19 +45,35 @@ export function getLoginRateLimitKey(identifier: string, request?: Request) {
   return digest(`${ip}\u0000${normalizeIdentifier(identifier)}`);
 }
 
+/** D1 분산 제한기의 계정 키. 관리자 차단 해제 화면이 회원 전화번호·이메일과 대조할 때도 쓴다. */
+export function getAccountLoginKey(identifier: string) {
+  return digest(`account\u0000${normalizeIdentifier(identifier)}`);
+}
+
 export function getLoginRateLimitKeys(identifier: string, request?: Request) {
   const ip = getClientIp(request);
-  const normalizedIdentifier = normalizeIdentifier(identifier);
   return {
-    account: digest(`account\u0000${normalizedIdentifier}`),
+    account: getAccountLoginKey(identifier),
     ip: digest(`ip\u0000${ip.toLowerCase()}`),
   };
+}
+
+function isDistributedLimiterConfigured() {
+  return Boolean(process.env.D1_DATA_SERVICE_URL && process.env.D1_DATA_SERVICE_TOKEN);
 }
 
 export function isLoginRateLimited(key: string, now = Date.now()) {
   prune(now);
   const bucket = buckets.get(key);
   return Boolean(bucket && bucket.resetAt > now && bucket.failures >= MAX_FAILURES);
+}
+
+/**
+ * 로그인 차단 판단용. D1 분산 제한기가 설정돼 있으면 그쪽이 기준이다.
+ * 인스턴스 메모리 버킷은 관리자 "차단 해제"로 지울 수 없어서 D1이 없을 때(로컬 개발)만 막는다.
+ */
+export function isLocallyRateLimited(key: string, now = Date.now()) {
+  return !isDistributedLimiterConfigured() && isLoginRateLimited(key, now);
 }
 
 export function getLoginRetryAfterSeconds(key: string, now = Date.now()) {
@@ -117,6 +133,20 @@ export async function reserveLoginAttempt(identifier: string, request?: Request)
   return typeof accountFailures === "number" && Number.isFinite(accountFailures)
     ? { allowed: true, accountAttempts: accountFailures }
     : { allowed: true };
+}
+
+/**
+ * 로그인 성공 직후 D1의 계정 시도 기록을 지운다. 성공한 로그인이 다음 실패 안내("실패 n/5회")와
+ * 차단 횟수에 섞이지 않게 한다. IP 기록은 그대로 둔다. 실패해도 로그인은 막지 않는다.
+ */
+export async function clearDistributedLoginAttempts(identifier: string): Promise<void> {
+  if (!isDistributedLimiterConfigured()) return;
+  try {
+    const { callDataService } = await import("../d1/service-client");
+    await callDataService("auth/clear-attempts", { keyHash: getAccountLoginKey(identifier), kind: "account" });
+  } catch {
+    console.warn("[login] 성공 후 계정 시도 기록을 지우지 못했습니다.");
+  }
 }
 
 export const loginRateLimitConfig = {

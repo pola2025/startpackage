@@ -26,6 +26,7 @@ import {
   ExternalLink,
   Loader2,
   BookOpenCheck,
+  LockOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { hasAdminAccess } from "@/lib/auth/admin-session";
@@ -40,6 +41,11 @@ const navigation = [
     name: "사용자 관리",
     href: "/admin/users",
     icon: Users,
+  },
+  {
+    name: "로그인 차단 해제",
+    href: "/admin/login-blocks",
+    icon: LockOpen,
   },
   {
     name: "워크플로우",

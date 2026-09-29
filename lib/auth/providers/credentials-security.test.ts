@@ -5,19 +5,21 @@ const {
   authenticateAdmin,
   getLoginRateLimitKey,
   getLoginRetryAfterSeconds,
-  isLoginRateLimited,
+  isLocallyRateLimited,
   recordLoginFailure,
   clearLoginFailures,
   reserveLoginAttempt,
+  clearDistributedLoginAttempts,
 } = vi.hoisted(() => ({
   authenticateUser: vi.fn(),
   authenticateAdmin: vi.fn(),
   getLoginRateLimitKey: vi.fn(() => "local-key"),
   getLoginRetryAfterSeconds: vi.fn(() => 600),
-  isLoginRateLimited: vi.fn(() => false),
+  isLocallyRateLimited: vi.fn(() => false),
   recordLoginFailure: vi.fn(() => 1),
   clearLoginFailures: vi.fn(),
   reserveLoginAttempt: vi.fn(),
+  clearDistributedLoginAttempts: vi.fn(async () => undefined),
 }));
 
 vi.mock("../services/user-auth.service", () => ({ authenticateUser }));
@@ -27,10 +29,11 @@ vi.mock("next-auth", async () => ({
   CredentialsSignin: (await import("@auth/core/errors")).CredentialsSignin,
 }));
 vi.mock("../login-rate-limit", () => ({
+  clearDistributedLoginAttempts,
   clearLoginFailures,
   getLoginRateLimitKey,
   getLoginRetryAfterSeconds,
-  isLoginRateLimited,
+  isLocallyRateLimited,
   recordLoginFailure,
   reserveLoginAttempt,
 }));
@@ -47,7 +50,7 @@ describe("credentials provider security contract", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     reserveLoginAttempt.mockResolvedValue({ allowed: true });
-    isLoginRateLimited.mockReturnValue(false);
+    isLocallyRateLimited.mockReturnValue(false);
     recordLoginFailure.mockReturnValue(1);
   });
 
@@ -60,7 +63,7 @@ describe("credentials provider security contract", () => {
   });
 
   it("reports the local block without reserving another distributed attempt", async () => {
-    isLoginRateLimited.mockReturnValue(true);
+    isLocallyRateLimited.mockReturnValue(true);
     await expect(userAuthorize({ emailOrPhone: "member@example.com", password: "bad" }, request))
       .rejects.toMatchObject({ type: "CredentialsSignin", code: "blocked_account_600" });
     expect(reserveLoginAttempt).not.toHaveBeenCalled();
@@ -76,19 +79,33 @@ describe("credentials provider security contract", () => {
     expect(recordLoginFailure).toHaveBeenCalledTimes(1);
   });
 
-  it("uses the larger of the distributed and local attempt counts", async () => {
+  it("prefers the distributed attempt count so admin releases and resets are reflected", async () => {
     authenticateUser.mockResolvedValue(null);
-    reserveLoginAttempt.mockResolvedValue({ allowed: true, accountAttempts: 3 });
-    recordLoginFailure.mockReturnValue(2);
+    reserveLoginAttempt.mockResolvedValue({ allowed: true, accountAttempts: 1 });
+    recordLoginFailure.mockReturnValue(4);
     await expect(userAuthorize({ emailOrPhone: "member@example.com", password: "bad" }, request))
-      .rejects.toMatchObject({ code: "invalid_3" });
+      .rejects.toMatchObject({ code: "invalid_1" });
   });
 
-  it("clears only the local bucket after valid credentials", async () => {
+  it("falls back to the local count without a distributed limiter", async () => {
+    authenticateUser.mockResolvedValue(null);
+    recordLoginFailure.mockReturnValue(2);
+    await expect(userAuthorize({ emailOrPhone: "member@example.com", password: "bad" }, request))
+      .rejects.toMatchObject({ code: "invalid_2" });
+  });
+
+  it("clears the local bucket and the distributed account attempts after valid credentials", async () => {
     authenticateUser.mockResolvedValue({ id: "user-1", email: "member@example.com", name: "Member", role: "user", userType: "user" });
     await expect(userAuthorize({ emailOrPhone: "member@example.com", password: "good" }, request)).resolves.toMatchObject({ id: "user-1" });
     expect(clearLoginFailures).toHaveBeenCalledTimes(1);
+    expect(clearDistributedLoginAttempts).toHaveBeenCalledWith("member@example.com");
     expect(recordLoginFailure).not.toHaveBeenCalled();
+  });
+
+  it("does not reset distributed attempts after a failed login", async () => {
+    authenticateUser.mockResolvedValue(null);
+    await expect(userAuthorize({ emailOrPhone: "member@example.com", password: "bad" }, request)).rejects.toBeDefined();
+    expect(clearDistributedLoginAttempts).not.toHaveBeenCalled();
   });
 
   it("records a single failure when administrator 2FA is not configured", async () => {

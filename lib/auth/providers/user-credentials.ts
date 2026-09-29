@@ -4,10 +4,11 @@
 import Credentials from "next-auth/providers/credentials";
 import { authenticateUser } from "../services/user-auth.service";
 import {
+  clearDistributedLoginAttempts,
   clearLoginFailures,
   getLoginRateLimitKey,
   getLoginRetryAfterSeconds,
-  isLoginRateLimited,
+  isLocallyRateLimited,
   recordLoginFailure,
   reserveLoginAttempt,
 } from "../login-rate-limit";
@@ -26,7 +27,7 @@ export const userCredentialsProvider = Credentials({
     }
 
     const key = getLoginRateLimitKey(credentials.emailOrPhone, request);
-    if (isLoginRateLimited(key)) throw new LoginBlockedError("account", getLoginRetryAfterSeconds(key));
+    if (isLocallyRateLimited(key)) throw new LoginBlockedError("account", getLoginRetryAfterSeconds(key));
     const distributed = await reserveLoginAttempt(credentials.emailOrPhone, request);
     if (!distributed.allowed) throw blockedLoginFor(distributed);
 
@@ -41,6 +42,7 @@ export const userCredentialsProvider = Credentials({
     }
 
     clearLoginFailures(key);
+    await clearDistributedLoginAttempts(credentials.emailOrPhone);
     return user;
   },
 });

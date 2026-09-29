@@ -9,10 +9,11 @@ import { isD1RuntimeEnabled } from "./lib/d1/runtime";
 import { findD1AdminState } from "./lib/d1/auth-client";
 import { isAdminSessionCurrent } from "./lib/auth/admin-session";
 import {
+  clearDistributedLoginAttempts,
   clearLoginFailures,
   getLoginRateLimitKey,
   getLoginRetryAfterSeconds,
-  isLoginRateLimited,
+  isLocallyRateLimited,
   recordLoginFailure,
   reserveLoginAttempt,
 } from "./lib/auth/login-rate-limit";
@@ -49,13 +50,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             const emailOrPhone = credentials.email;
             const password = credentials.password;
             const key = getLoginRateLimitKey(emailOrPhone, request);
-            if (isLoginRateLimited(key)) throw new LoginBlockedError("account", getLoginRetryAfterSeconds(key));
+            if (isLocallyRateLimited(key)) throw new LoginBlockedError("account", getLoginRetryAfterSeconds(key));
             const distributed = await reserveLoginAttempt(emailOrPhone, request);
             if (!distributed.allowed) throw blockedLoginFor(distributed);
 
             const authenticatedUser = await authenticateUser(emailOrPhone, password);
             if (authenticatedUser) {
               clearLoginFailures(key);
+              await clearDistributedLoginAttempts(emailOrPhone);
               return authenticatedUser;
             }
             if (!/^[0-9]{10,11}$/.test(emailOrPhone.replace(/-/g, ""))) {
@@ -66,6 +68,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               }
               if (authenticatedAdmin) {
                 clearLoginFailures(key);
+                await clearDistributedLoginAttempts(emailOrPhone);
                 return authenticatedAdmin;
               }
             }

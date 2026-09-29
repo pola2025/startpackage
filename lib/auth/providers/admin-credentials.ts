@@ -4,9 +4,10 @@
 import Credentials from "next-auth/providers/credentials";
 import { authenticateAdmin } from "../services/admin-auth.service";
 import {
+  clearDistributedLoginAttempts,
   clearLoginFailures,
   getLoginRateLimitKey,
-  isLoginRateLimited,
+  isLocallyRateLimited,
   recordLoginFailure,
   reserveLoginAttempt,
 } from "../login-rate-limit";
@@ -24,7 +25,7 @@ export const adminCredentialsProvider = Credentials({
     }
 
     const key = getLoginRateLimitKey(credentials.email, request);
-    if (isLoginRateLimited(key)) return null;
+    if (isLocallyRateLimited(key)) return null;
     const distributed = await reserveLoginAttempt(credentials.email, request);
     if (!distributed.allowed) return null;
 
@@ -45,6 +46,7 @@ export const adminCredentialsProvider = Credentials({
     }
 
     clearLoginFailures(key);
+    await clearDistributedLoginAttempts(credentials.email);
     return result;
   },
 });

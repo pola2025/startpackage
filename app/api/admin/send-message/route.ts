@@ -62,8 +62,8 @@ export async function POST(request: Request) {
     if (isD1RuntimeEnabled()) {
       const adminId = (session.user as any).id;
       const user = await callDataService<{ id: string; 이름: string; 연락처: string | null; email: string | null; SMS수신동의: number; 이메일수신동의: number }>("admin-notifications/message-user", { adminId, userId });
-      const consent = channel === "SMS" ? user.SMS수신동의 : user.이메일수신동의;
-      if (!consent) return NextResponse.json({ error: `${user.이름} 사용자가 ${channel === "SMS" ? "SMS" : "이메일"} 수신에 동의하지 않았습니다.` }, { status: 400 });
+      // 문자는 서비스 안내라 SMS 수신 동의와 무관하게 보낸다. 이메일은 기존대로 동의를 본다.
+      if (channel === "EMAIL" && !user.이메일수신동의) return NextResponse.json({ error: `${user.이름} 사용자가 이메일 수신에 동의하지 않았습니다.` }, { status: 400 });
       if (channel === "SMS" && !user.연락처) return NextResponse.json({ error: "사용자 연락처가 없습니다." }, { status: 400 });
       if (channel === "EMAIL" && !user.email) return NextResponse.json({ error: "사용자 이메일이 없습니다." }, { status: 400 });
       const recipientPhone = user.연락처 ?? "";
@@ -100,14 +100,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // 수신 동의 확인
-    if (channel === "SMS" && !user.SMS수신동의) {
-      return NextResponse.json(
-        { error: `${user.이름} 사용자가 SMS 수신에 동의하지 않았습니다.` },
-        { status: 400 },
-      );
-    }
-
+    // 문자는 서비스 안내라 SMS 수신 동의와 무관하게 보낸다. 이메일은 동의를 본다.
     if (channel === "EMAIL" && !user.이메일수신동의) {
       return NextResponse.json(
         { error: `${user.이름} 사용자가 이메일 수신에 동의하지 않았습니다.` },

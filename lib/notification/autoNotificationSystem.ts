@@ -498,7 +498,8 @@ export class AutoNotificationSystem {
   private static getEnabledChannels(user: User): NotificationChannel[] {
     const channels: NotificationChannel[] = [];
 
-    if (user.SMS수신동의) channels.push("SMS");
+    // 문자는 서비스 안내라 SMS 수신 동의와 무관하게 보낸다.
+    if (user.연락처) channels.push("SMS");
     if (user.이메일수신동의) channels.push("EMAIL");
 
     return channels;

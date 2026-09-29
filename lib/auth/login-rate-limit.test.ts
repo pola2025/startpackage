@@ -1,8 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+  clearDistributedLoginAttempts,
   clearLoginFailures,
+  getAccountLoginKey,
   getLoginRateLimitKey,
   getLoginRetryAfterSeconds,
+  isLocallyRateLimited,
   isLoginRateLimited,
   recordLoginFailure,
   reserveLoginAttempt,
@@ -77,6 +80,31 @@ describe("login rate limit", () => {
       blockedBy: "ip",
     });
 
+    delete process.env.D1_DATA_SERVICE_URL;
+    delete process.env.D1_DATA_SERVICE_TOKEN;
+    vi.mocked(callDataService).mockReset();
+  });
+
+  it("uses the in-memory limiter only when the distributed limiter is absent", () => {
+    const key = getLoginRateLimitKey("local-only@example.com");
+    for (let index = 0; index < 5; index += 1) recordLoginFailure(key, Date.now());
+    expect(isLocallyRateLimited(key)).toBe(true);
+    process.env.D1_DATA_SERVICE_URL = "https://data.example.test";
+    process.env.D1_DATA_SERVICE_TOKEN = "x".repeat(32);
+    expect(isLocallyRateLimited(key)).toBe(false);
+    delete process.env.D1_DATA_SERVICE_URL;
+    delete process.env.D1_DATA_SERVICE_TOKEN;
+    clearLoginFailures(key);
+  });
+
+  it("clears the distributed account key after a successful login and never throws", async () => {
+    process.env.D1_DATA_SERVICE_URL = "https://data.example.test";
+    process.env.D1_DATA_SERVICE_TOKEN = "x".repeat(32);
+    vi.mocked(callDataService).mockResolvedValue({ cleared: 1 });
+    await clearDistributedLoginAttempts("010-1234-5678");
+    expect(callDataService).toHaveBeenCalledWith("auth/clear-attempts", { keyHash: getAccountLoginKey("01012345678"), kind: "account" });
+    vi.mocked(callDataService).mockRejectedValue(new Error("down"));
+    await expect(clearDistributedLoginAttempts("01012345678")).resolves.toBeUndefined();
     delete process.env.D1_DATA_SERVICE_URL;
     delete process.env.D1_DATA_SERVICE_TOKEN;
     vi.mocked(callDataService).mockReset();

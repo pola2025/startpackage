@@ -475,11 +475,6 @@ export default function UsersClient({
                       <span className="text-gray-400">/{totalWorkflows}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      {user.SMS수신동의 ? (
-                        <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
-                      ) : (
-                        <XCircle className="w-3.5 h-3.5 text-gray-300" />
-                      )}
                       {user.이메일수신동의 ? (
                         <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
                       ) : (
@@ -608,12 +603,6 @@ export default function UsersClient({
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        {user.SMS수신동의 ? (
-                          <CheckCircle2 className="w-4 h-4 text-green-600" />
-                        ) : (
-                          <XCircle className="w-4 h-4 text-gray-400" />
-                        )}
-                        <span className="text-xs text-gray-500">SMS</span>
                         {user.이메일수신동의 ? (
                           <CheckCircle2 className="w-4 h-4 text-green-600" />
                         ) : (
@@ -701,18 +690,7 @@ export default function UsersClient({
                 className="flex items-center justify-between text-sm py-1"
               >
                 <div className="flex items-center gap-2">
-                  <span
-                    className={
-                      user.SMS수신동의 ? "text-gray-800" : "text-red-500"
-                    }
-                  >
-                    {user.이름.trim()}
-                  </span>
-                  {!user.SMS수신동의 && (
-                    <span className="text-xs text-red-400 bg-red-50 px-1.5 py-0.5 rounded">
-                      수신 미동의
-                    </span>
-                  )}
+                  <span className="text-gray-800">{user.이름.trim()}</span>
                 </div>
                 <span className="text-gray-500 text-xs">{user.연락처}</span>
               </div>
