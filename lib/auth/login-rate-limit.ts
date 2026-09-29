@@ -60,6 +60,13 @@ export function isLoginRateLimited(key: string, now = Date.now()) {
   return Boolean(bucket && bucket.resetAt > now && bucket.failures >= MAX_FAILURES);
 }
 
+export function getLoginRetryAfterSeconds(key: string, now = Date.now()) {
+  const bucket = buckets.get(key);
+  if (!bucket || bucket.resetAt <= now) return undefined;
+  return Math.max(1, Math.ceil((bucket.resetAt - now) / 1000));
+}
+
+/** 실패를 기록하고 현재 윈도우의 누적 실패 횟수를 돌려준다. */
 export function recordLoginFailure(key: string, now = Date.now()) {
   prune(now);
   const existing = buckets.get(key);
@@ -68,15 +75,26 @@ export function recordLoginFailure(key: string, now = Date.now()) {
     : { failures: existing.failures + 1, resetAt: existing.resetAt };
   buckets.delete(key);
   buckets.set(key, bucket);
+  return bucket.failures;
 }
 
 export function clearLoginFailures(key: string) {
   buckets.delete(key);
 }
 
-type DistributedLoginAttempt = { allowed: boolean; retryAfterSeconds?: number };
+type LoginAttemptKind = "account" | "ip";
+type DistributedLoginAttempt = { allowed: boolean; retryAfterSeconds?: number; failures?: number };
 
-export async function reserveLoginAttempt(identifier: string, request?: Request): Promise<DistributedLoginAttempt> {
+export type LoginAttemptReservation = {
+  allowed: boolean;
+  retryAfterSeconds?: number;
+  /** 차단된 경우 어느 한도에 걸렸는지 */
+  blockedBy?: LoginAttemptKind;
+  /** 계정 한도 기준 이번 시도를 포함한 윈도우 내 시도 횟수 (D1 설정 시) */
+  accountAttempts?: number;
+};
+
+export async function reserveLoginAttempt(identifier: string, request?: Request): Promise<LoginAttemptReservation> {
   const keys = getLoginRateLimitKeys(identifier, request);
   const configured = Boolean(process.env.D1_DATA_SERVICE_URL && process.env.D1_DATA_SERVICE_TOKEN);
   if (!configured) {
@@ -86,11 +104,19 @@ export async function reserveLoginAttempt(identifier: string, request?: Request)
 
   const { callDataService } = await import("../d1/service-client");
   const results = await Promise.all(
-    (Object.entries(keys) as Array<["account" | "ip", string]>).map(async ([kind, keyHash]) =>
-      callDataService<DistributedLoginAttempt>("auth/consume-attempts", { keyHash, kind })),
+    (Object.entries(keys) as Array<[LoginAttemptKind, string]>).map(async ([kind, keyHash]) => ({
+      kind,
+      result: await callDataService<DistributedLoginAttempt>("auth/consume-attempts", { keyHash, kind }),
+    })),
   );
-  const blocked = results.find((result) => !result.allowed);
-  return blocked ?? { allowed: true };
+  const blocked = results.find(({ result }) => !result.allowed);
+  if (blocked) {
+    return { allowed: false, retryAfterSeconds: blocked.result.retryAfterSeconds, blockedBy: blocked.kind };
+  }
+  const accountFailures = results.find(({ kind }) => kind === "account")?.result.failures;
+  return typeof accountFailures === "number" && Number.isFinite(accountFailures)
+    ? { allowed: true, accountAttempts: accountFailures }
+    : { allowed: true };
 }
 
 export const loginRateLimitConfig = {

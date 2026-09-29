@@ -62,6 +62,16 @@ describe("shared D1 operations", () => {
     })).rejects.toMatchObject({ status: 429 });
   });
 
+  it("allows the next password reset SMS only after three minutes", async () => {
+    const { db } = setup();
+    const input = { cleanPhone: "01000000001", formattedPhone: "010-0000-0001", hashedPassword: "hashed-value" };
+    await sharedOperation(db, "password-reset-start", { ...input, now: 1_000_000 });
+    await expect(sharedOperation(db, "password-reset-start", { ...input, now: 1_000_000 + 3 * 60_000 - 1 }))
+      .rejects.toMatchObject({ status: 429 });
+    await expect(sharedOperation(db, "password-reset-start", { ...input, now: 1_000_000 + 3 * 60_000 + 1 }))
+      .resolves.toMatchObject({ id: "user-a" });
+  });
+
   it("uses bounded indexed pages for scheduled recipients", async () => {
     const { db, sqlite } = setup();
     await sharedOperation(db, "scheduled-notification-register", { fanoutKey: "tip-1" });

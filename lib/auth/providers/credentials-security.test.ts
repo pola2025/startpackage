@@ -4,6 +4,7 @@ const {
   authenticateUser,
   authenticateAdmin,
   getLoginRateLimitKey,
+  getLoginRetryAfterSeconds,
   isLoginRateLimited,
   recordLoginFailure,
   clearLoginFailures,
@@ -12,17 +13,23 @@ const {
   authenticateUser: vi.fn(),
   authenticateAdmin: vi.fn(),
   getLoginRateLimitKey: vi.fn(() => "local-key"),
+  getLoginRetryAfterSeconds: vi.fn(() => 600),
   isLoginRateLimited: vi.fn(() => false),
-  recordLoginFailure: vi.fn(),
+  recordLoginFailure: vi.fn(() => 1),
   clearLoginFailures: vi.fn(),
   reserveLoginAttempt: vi.fn(),
 }));
 
 vi.mock("../services/user-auth.service", () => ({ authenticateUser }));
 vi.mock("../services/admin-auth.service", () => ({ authenticateAdmin }));
+// next-auth 루트는 next/server를 불러와 vitest에서 해석되지 않는다. 실제와 같은 에러 클래스만 노출한다.
+vi.mock("next-auth", async () => ({
+  CredentialsSignin: (await import("@auth/core/errors")).CredentialsSignin,
+}));
 vi.mock("../login-rate-limit", () => ({
   clearLoginFailures,
   getLoginRateLimitKey,
+  getLoginRetryAfterSeconds,
   isLoginRateLimited,
   recordLoginFailure,
   reserveLoginAttempt,
@@ -41,21 +48,40 @@ describe("credentials provider security contract", () => {
     vi.clearAllMocks();
     reserveLoginAttempt.mockResolvedValue({ allowed: true });
     isLoginRateLimited.mockReturnValue(false);
+    recordLoginFailure.mockReturnValue(1);
   });
 
   it("does not look up credentials when the distributed budget is blocked", async () => {
-    reserveLoginAttempt.mockResolvedValue({ allowed: false, retryAfterSeconds: 60 });
-    await expect(userAuthorize({ emailOrPhone: "member@example.com", password: "bad" }, request)).resolves.toBeNull();
+    reserveLoginAttempt.mockResolvedValue({ allowed: false, retryAfterSeconds: 60, blockedBy: "ip" });
+    await expect(userAuthorize({ emailOrPhone: "member@example.com", password: "bad" }, request))
+      .rejects.toMatchObject({ type: "CredentialsSignin", code: "blocked_ip_60" });
     expect(authenticateUser).not.toHaveBeenCalled();
     expect(recordLoginFailure).not.toHaveBeenCalled();
   });
 
-  it("records one local failure after a failed lookup", async () => {
+  it("reports the local block without reserving another distributed attempt", async () => {
+    isLoginRateLimited.mockReturnValue(true);
+    await expect(userAuthorize({ emailOrPhone: "member@example.com", password: "bad" }, request))
+      .rejects.toMatchObject({ type: "CredentialsSignin", code: "blocked_account_600" });
+    expect(reserveLoginAttempt).not.toHaveBeenCalled();
+    expect(authenticateUser).not.toHaveBeenCalled();
+  });
+
+  it("records one local failure after a failed lookup and reports the attempt count", async () => {
     authenticateUser.mockResolvedValue(null);
-    await expect(userAuthorize({ emailOrPhone: "member@example.com", password: "bad" }, request)).resolves.toBeNull();
+    await expect(userAuthorize({ emailOrPhone: "member@example.com", password: "bad" }, request))
+      .rejects.toMatchObject({ type: "CredentialsSignin", code: "invalid_1" });
     expect(reserveLoginAttempt).toHaveBeenCalledTimes(1);
     expect(authenticateUser).toHaveBeenCalledTimes(1);
     expect(recordLoginFailure).toHaveBeenCalledTimes(1);
+  });
+
+  it("uses the larger of the distributed and local attempt counts", async () => {
+    authenticateUser.mockResolvedValue(null);
+    reserveLoginAttempt.mockResolvedValue({ allowed: true, accountAttempts: 3 });
+    recordLoginFailure.mockReturnValue(2);
+    await expect(userAuthorize({ emailOrPhone: "member@example.com", password: "bad" }, request))
+      .rejects.toMatchObject({ code: "invalid_3" });
   });
 
   it("clears only the local bucket after valid credentials", async () => {

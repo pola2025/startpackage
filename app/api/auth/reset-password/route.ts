@@ -3,8 +3,21 @@ import { hash } from "bcryptjs";
 import prisma from "@/lib/prisma";
 import { notifyAdmin } from "@/lib/notification/telegramClient";
 import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
-import { callDataService } from "@/lib/d1/service-client";
+import { callDataService, DataServiceRequestError } from "@/lib/d1/service-client";
 import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
+import { PASSWORD_RESET_COOLDOWN_SECONDS } from "@/lib/auth/login-attempt-policy";
+
+const COOLDOWN_MS = PASSWORD_RESET_COOLDOWN_SECONDS * 1000;
+const COOLDOWN_MESSAGE =
+  "임시 비밀번호는 3분에 1번만 받을 수 있습니다. 이미 받은 문자를 확인하시고, 잠시 후 다시 시도해주세요.";
+
+function cooldownResponse(retryAfterSeconds: number) {
+  const seconds = Math.min(PASSWORD_RESET_COOLDOWN_SECONDS, Math.max(1, Math.ceil(retryAfterSeconds)));
+  return NextResponse.json(
+    { error: COOLDOWN_MESSAGE, retryAfterSeconds: seconds },
+    { status: 429, headers: { "Retry-After": String(seconds) } },
+  );
+}
 
 // 임시 비밀번호 생성 (4자리 숫자)
 function generateTempPassword(): string {
@@ -111,16 +124,25 @@ export async function POST(request: NextRequest) {
     if (isD1RuntimeEnabled()) {
       const tempPassword = generateTempPassword();
       const hashedPassword = await hash(tempPassword, 10);
-      const reset = await callDataService<{
-        id: string;
-        이름: string;
-        연락처: string;
-        notificationId: string;
-      }>("shared-domain/password-reset-start", {
-        cleanPhone,
-        formattedPhone,
-        hashedPassword,
-      });
+      let reset: { id: string; 이름: string; 연락처: string; notificationId: string };
+      try {
+        reset = await callDataService<{
+          id: string;
+          이름: string;
+          연락처: string;
+          notificationId: string;
+        }>("shared-domain/password-reset-start", {
+          cleanPhone,
+          formattedPhone,
+          hashedPassword,
+        });
+      } catch (resetError) {
+        // D1 쿨다운(전화번호 기준 1회/3분) — 남은 시간은 알 수 없으므로 최대값으로 안내
+        if (resetError instanceof DataServiceRequestError && resetError.status === 429) {
+          return cooldownResponse(PASSWORD_RESET_COOLDOWN_SECONDS);
+        }
+        throw resetError;
+      }
       try {
         const { sendSMS } = await import("@/lib/sms/ncpSensClient");
         await sendSMS(
@@ -172,19 +194,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 전화번호 기준 쿨다운 5분 — 기존 Notification 테이블로 중복 발송 차단
+    // 전화번호 기준 쿨다운 3분 — 기존 Notification 테이블로 중복 발송 차단
     const recentReset = await prisma.notification.findFirst({
       where: {
         userId: user.id,
         type: "비밀번호재발급",
-        createdAt: { gte: new Date(Date.now() - 5 * 60 * 1000) },
+        createdAt: { gte: new Date(Date.now() - COOLDOWN_MS) },
       },
       orderBy: { createdAt: "desc" },
     });
     if (recentReset) {
-      return NextResponse.json(
-        { error: "최근 재발급 요청이 있습니다. 5분 후 다시 시도해주세요." },
-        { status: 429 },
+      return cooldownResponse(
+        (recentReset.createdAt.getTime() + COOLDOWN_MS - Date.now()) / 1000,
       );
     }
 

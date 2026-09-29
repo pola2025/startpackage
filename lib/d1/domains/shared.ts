@@ -206,7 +206,7 @@ async function startPasswordReset(db: Database, input: SharedInput): Promise<unk
     FROM "users" WHERE "연락처" IN (?, ?) LIMIT 1`, [cleanPhone, formattedPhone]);
   if (!user) throw new DataServiceError(404, "등록되지 않은 전화번호입니다.");
   if (!user.SMS수신동의) throw new DataServiceError(400, "SMS 수신 동의가 필요합니다. 관리자에게 문의하세요.");
-  const since = now(input) - 5 * 60 * 1000;
+  const since = now(input) - 3 * 60 * 1000;
   const timestamp = now(input);
   const notificationId = crypto.randomUUID();
   const notificationMessage = "임시 비밀번호가 발급되었습니다. SMS 발송 결과는 별도 확인하세요.";
@@ -217,7 +217,7 @@ async function startPasswordReset(db: Database, input: SharedInput): Promise<unk
     db.prepare('UPDATE "users" SET "password" = ?, "updatedAt" = ? WHERE "id" = ? AND EXISTS (SELECT 1 FROM "notifications" WHERE "id" = ?)').bind(hashedPassword, timestamp, user.id as string, notificationId),
   ]);
   if (results.some((result) => !result.success)) throw new DataServiceError(503, "Password reset failed");
-  if ((results[0]?.meta.changes ?? 0) !== 1) throw new DataServiceError(429, "최근 재발급 요청이 있습니다. 5분 후 다시 시도해주세요.");
+  if ((results[0]?.meta.changes ?? 0) !== 1) throw new DataServiceError(429, "최근 재발급 요청이 있습니다. 3분 후 다시 시도해주세요.");
   return { id: user.id, 이름: user.이름, 연락처: user.연락처, notificationId };
 }
 

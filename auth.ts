@@ -11,10 +11,12 @@ import { isAdminSessionCurrent } from "./lib/auth/admin-session";
 import {
   clearLoginFailures,
   getLoginRateLimitKey,
+  getLoginRetryAfterSeconds,
   isLoginRateLimited,
   recordLoginFailure,
   reserveLoginAttempt,
 } from "./lib/auth/login-rate-limit";
+import { LoginBlockedError, blockedLoginFor, invalidLoginFor } from "./lib/auth/login-errors";
 
 // ✅ Feature Flag: 새 Provider 사용 여부
 const USE_NEW_PROVIDER = process.env.NEXT_PUBLIC_USE_NEW_PROVIDER === "true";
@@ -47,9 +49,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             const emailOrPhone = credentials.email;
             const password = credentials.password;
             const key = getLoginRateLimitKey(emailOrPhone, request);
-            if (isLoginRateLimited(key)) return null;
+            if (isLoginRateLimited(key)) throw new LoginBlockedError("account", getLoginRetryAfterSeconds(key));
             const distributed = await reserveLoginAttempt(emailOrPhone, request);
-            if (!distributed.allowed) return null;
+            if (!distributed.allowed) throw blockedLoginFor(distributed);
 
             const authenticatedUser = await authenticateUser(emailOrPhone, password);
             if (authenticatedUser) {
@@ -67,9 +69,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 return authenticatedAdmin;
               }
             }
-            recordLoginFailure(key);
-            return null;
-
+            throw invalidLoginFor(recordLoginFailure(key), distributed);
           },
         }),
       ],

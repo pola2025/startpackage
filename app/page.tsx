@@ -15,6 +15,32 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { User, Phone, Lock, LogIn, KeyRound } from "lucide-react";
 import Link from "next/link";
+import {
+  PASSWORD_RESET_COOLDOWN_SECONDS,
+  describeLoginFailure,
+  formatCooldown,
+  parseLoginFailureCode,
+} from "@/lib/auth/login-attempt-policy";
+
+// 새로고침해도 재발급 버튼 쿨다운이 유지되도록 저장 (서버도 전화번호 기준 3분 쿨다운을 강제)
+const RESET_COOLDOWN_STORAGE_KEY = "startpackage.passwordResetCooldownUntil";
+
+function readStoredCooldown() {
+  try {
+    const value = Number(window.localStorage.getItem(RESET_COOLDOWN_STORAGE_KEY));
+    return Number.isFinite(value) && value > Date.now() ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+function storeCooldown(until: number) {
+  try {
+    window.localStorage.setItem(RESET_COOLDOWN_STORAGE_KEY, String(until));
+  } catch {
+    // 저장소를 쓸 수 없어도 화면 상태로는 쿨다운을 유지한다.
+  }
+}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -23,8 +49,11 @@ export default function LoginPage() {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [cooldownUntil, setCooldownUntil] = useState<number | null>(null);
+  const [now, setNow] = useState(() => Date.now());
 
   // ✅ 이미 로그인된 경우 리다이렉트
   useEffect(() => {
@@ -32,6 +61,24 @@ export default function LoginPage() {
       router.replace("/dashboard");
     }
   }, [status, router]);
+
+  useEffect(() => {
+    setCooldownUntil(readStoredCooldown());
+  }, []);
+
+  useEffect(() => {
+    if (!cooldownUntil) return;
+    setNow(Date.now());
+    const timer = window.setInterval(() => {
+      const current = Date.now();
+      setNow(current);
+      if (current >= cooldownUntil) setCooldownUntil(null);
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [cooldownUntil]);
+
+  const cooldownSeconds = cooldownUntil ? Math.max(0, Math.ceil((cooldownUntil - now) / 1000)) : 0;
+  const coolingDown = cooldownSeconds > 0;
 
   // 로딩 중이거나 이미 인증된 경우 렌더링하지 않음
   if (status === "loading" || status === "authenticated") {
@@ -41,6 +88,20 @@ export default function LoginPage() {
       </div>
     );
   }
+
+  const startCooldown = (seconds: number) => {
+    const until = Date.now() + Math.max(1, seconds) * 1000;
+    storeCooldown(until);
+    setCooldownUntil(until);
+  };
+
+  const goToReset = (message = "") => {
+    setMode("reset");
+    setError("");
+    setSuccess("");
+    setPassword("");
+    setNotice(message);
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,7 +125,13 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        setError("전화번호 또는 비밀번호가 일치하지 않습니다.");
+        const failure = describeLoginFailure(parseLoginFailureCode(result.code));
+        if (failure.goToReset) {
+          // 반복 실패/차단 → 전화번호는 유지한 채 비밀번호 재발급 화면으로 이동
+          goToReset(failure.message);
+        } else {
+          setError(failure.message);
+        }
       } else {
         router.push("/dashboard");
         router.refresh();
@@ -78,6 +145,7 @@ export default function LoginPage() {
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (coolingDown) return;
     setError("");
     setSuccess("");
     setLoading(true);
@@ -89,7 +157,16 @@ export default function LoginPage() {
         body: JSON.stringify({ 연락처: phone }),
       });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
+
+      if (response.status === 429) {
+        const retryAfter = Number(data.retryAfterSeconds);
+        startCooldown(
+          Number.isFinite(retryAfter) && retryAfter > 0
+            ? retryAfter
+            : PASSWORD_RESET_COOLDOWN_SECONDS,
+        );
+      }
 
       if (!response.ok) {
         throw new Error(
@@ -97,10 +174,12 @@ export default function LoginPage() {
         );
       }
 
+      // 문자 1회 발송 후 3분간 재요청 불가
+      startCooldown(PASSWORD_RESET_COOLDOWN_SECONDS);
+      setNotice("");
       setSuccess(data.message);
-      setPhone("");
 
-      // 3초 후 로그인 모드로 전환
+      // 3초 후 로그인 모드로 전환 (전화번호는 유지해 임시 비밀번호로 바로 로그인)
       setTimeout(() => {
         setMode("login");
         setSuccess("");
@@ -159,7 +238,7 @@ export default function LoginPage() {
                     disabled={loading}
                     className="bg-gold-50/50 border-gray-200 focus:border-gold-600 focus:ring-gold-600"
                   />
-                  <p className="text-xs text-gold-600">
+                  <p className="text-xs text-red-600">
                     숫자만 입력 (하이픈 자동 제거)
                   </p>
                 </div>
@@ -186,15 +265,18 @@ export default function LoginPage() {
 
                 <button
                   type="button"
-                  onClick={() => setMode("reset")}
-                  className="text-xs text-gold-600 hover:text-navy-800 flex items-center gap-1 transition-colors font-medium"
+                  onClick={() => goToReset()}
+                  className="text-xs text-red-600 hover:text-red-800 flex items-center gap-1 transition-colors font-medium"
                 >
                   <KeyRound className="w-3 h-3" />
                   비밀번호를 잊으셨나요?
                 </button>
 
                 {error && (
-                  <div className="rounded-md p-3 text-sm bg-red-50 text-red-700 border border-red-200">
+                  <div
+                    role="alert"
+                    className="whitespace-pre-line rounded-md p-3 text-sm bg-red-50 text-red-700 border border-red-200"
+                  >
                     {error}
                   </div>
                 )}
@@ -211,6 +293,15 @@ export default function LoginPage() {
               </form>
             ) : (
               <form onSubmit={handleResetPassword} className="space-y-5">
+                {notice && (
+                  <div
+                    role="alert"
+                    className="whitespace-pre-line rounded-md p-3 text-sm bg-red-50 text-red-700 border border-red-200"
+                  >
+                    {notice}
+                  </div>
+                )}
+
                 <div className="space-y-2">
                   <Label
                     htmlFor="reset-phone"
@@ -229,19 +320,25 @@ export default function LoginPage() {
                     disabled={loading}
                     className="bg-gold-50/50 border-gray-200 focus:border-gold-600 focus:ring-gold-600"
                   />
-                  <p className="text-xs text-gold-600">
+                  <p className="text-xs text-red-600">
                     숫자만 입력 (해당 번호로 4자리 임시 비밀번호 발송)
                   </p>
                 </div>
 
                 {error && (
-                  <div className="rounded-md p-3 text-sm bg-red-50 text-red-700 border border-red-200">
+                  <div
+                    role="alert"
+                    className="whitespace-pre-line rounded-md p-3 text-sm bg-red-50 text-red-700 border border-red-200"
+                  >
                     {error}
                   </div>
                 )}
 
                 {success && (
-                  <div className="rounded-md p-3 text-sm bg-green-50 text-green-700 border border-green-200">
+                  <div
+                    role="status"
+                    className="rounded-md p-3 text-sm bg-green-50 text-green-700 border border-green-200"
+                  >
                     {success}
                   </div>
                 )}
@@ -253,8 +350,8 @@ export default function LoginPage() {
                     onClick={() => {
                       setMode("login");
                       setError("");
+                      setNotice("");
                       setSuccess("");
-                      setPhone("");
                     }}
                     className="flex-1 border-gold-300 text-navy-700 hover:bg-gold-50"
                     disabled={loading}
@@ -264,11 +361,21 @@ export default function LoginPage() {
                   <Button
                     type="submit"
                     className="flex-1 bg-navy-800 text-white hover:bg-navy-900 transition-all font-semibold shadow-md"
-                    disabled={loading}
+                    disabled={loading || coolingDown}
                   >
-                    {loading ? "발송 중..." : "재발급 신청"}
+                    {loading
+                      ? "발송 중..."
+                      : coolingDown
+                        ? `${formatCooldown(cooldownSeconds)} 후 재요청`
+                        : "재발급 신청"}
                   </Button>
                 </div>
+
+                {coolingDown && (
+                  <p className="text-xs text-center text-red-600" aria-live="polite">
+                    문자 발송 후 3분이 지나야 다시 요청할 수 있습니다.
+                  </p>
+                )}
               </form>
             )}
 
@@ -284,7 +391,7 @@ export default function LoginPage() {
                   </Button>
                 </Link>
 
-                <p className="text-xs text-center text-gold-600">
+                <p className="text-xs text-center text-black">
                   계정이 없으신가요? 위 버튼을 클릭하여 가입해주세요
                 </p>
               </div>

@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   clearLoginFailures,
   getLoginRateLimitKey,
+  getLoginRetryAfterSeconds,
   isLoginRateLimited,
   recordLoginFailure,
   reserveLoginAttempt,
@@ -50,7 +51,7 @@ describe("login rate limit", () => {
 
     await expect(reserveLoginAttempt("member@example.com", new Request("https://example.test", {
       headers: { "x-forwarded-for": "203.0.113.10" },
-    }))).resolves.toEqual({ allowed: true });
+    }))).resolves.toEqual({ allowed: true, accountAttempts: 1 });
     expect(callDataService).toHaveBeenCalledTimes(2);
     expect(vi.mocked(callDataService).mock.calls.map(([operation, input]) => ({ operation, kind: (input as { kind: string }).kind }))).toEqual([
       { operation: "auth/consume-attempts", kind: "account" },
@@ -60,5 +61,33 @@ describe("login rate limit", () => {
     delete process.env.D1_DATA_SERVICE_URL;
     delete process.env.D1_DATA_SERVICE_TOKEN;
     vi.mocked(callDataService).mockReset();
+  });
+
+  it("reports which budget blocked the attempt", async () => {
+    process.env.D1_DATA_SERVICE_URL = "https://data.example.test";
+    process.env.D1_DATA_SERVICE_TOKEN = "x".repeat(32);
+    vi.mocked(callDataService).mockImplementation(async (_operation, input) =>
+      (input as { kind: string }).kind === "ip"
+        ? { allowed: false, retryAfterSeconds: 420, failures: 51 }
+        : { allowed: true, retryAfterSeconds: 900, failures: 2 });
+
+    await expect(reserveLoginAttempt("member@example.com")).resolves.toEqual({
+      allowed: false,
+      retryAfterSeconds: 420,
+      blockedBy: "ip",
+    });
+
+    delete process.env.D1_DATA_SERVICE_URL;
+    delete process.env.D1_DATA_SERVICE_TOKEN;
+    vi.mocked(callDataService).mockReset();
+  });
+
+  it("returns the running failure count and remaining block time", () => {
+    const key = getLoginRateLimitKey("counter@example.com");
+    expect(recordLoginFailure(key, 10_000)).toBe(1);
+    expect(recordLoginFailure(key, 10_500)).toBe(2);
+    expect(getLoginRetryAfterSeconds(key, 10_500)).toBe(900);
+    clearLoginFailures(key);
+    expect(getLoginRetryAfterSeconds(key, 10_500)).toBeUndefined();
   });
 });

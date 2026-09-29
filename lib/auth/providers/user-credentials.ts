@@ -6,10 +6,12 @@ import { authenticateUser } from "../services/user-auth.service";
 import {
   clearLoginFailures,
   getLoginRateLimitKey,
+  getLoginRetryAfterSeconds,
   isLoginRateLimited,
   recordLoginFailure,
   reserveLoginAttempt,
 } from "../login-rate-limit";
+import { LoginBlockedError, blockedLoginFor, invalidLoginFor } from "../login-errors";
 
 export const userCredentialsProvider = Credentials({
   id: "user-credentials",
@@ -24,9 +26,9 @@ export const userCredentialsProvider = Credentials({
     }
 
     const key = getLoginRateLimitKey(credentials.emailOrPhone, request);
-    if (isLoginRateLimited(key)) return null;
+    if (isLoginRateLimited(key)) throw new LoginBlockedError("account", getLoginRetryAfterSeconds(key));
     const distributed = await reserveLoginAttempt(credentials.emailOrPhone, request);
-    if (!distributed.allowed) return null;
+    if (!distributed.allowed) throw blockedLoginFor(distributed);
 
     const user = await authenticateUser(
       credentials.emailOrPhone,
@@ -34,8 +36,8 @@ export const userCredentialsProvider = Credentials({
     );
 
     if (!user) {
-      recordLoginFailure(key);
-      return null;
+      // 실패 횟수를 code로 전달 → 로그인 화면이 남은 시도/재발급 이동을 안내한다.
+      throw invalidLoginFor(recordLoginFailure(key), distributed);
     }
 
     clearLoginFailures(key);
