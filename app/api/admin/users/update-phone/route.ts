@@ -2,13 +2,14 @@ import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { recordId } from "@/lib/validation/schemas";
 import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
 import { callDataService } from "@/lib/d1/service-client";
 import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 // 전화번호 검증 스키마
 const updatePhoneSchema = z.object({
-  userId: z.string().cuid(),
+  userId: recordId(),
   연락처: z
     .string()
     .regex(

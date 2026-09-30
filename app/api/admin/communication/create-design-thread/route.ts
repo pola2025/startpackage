@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { notificationManager } from "@/lib/notifications/notification-manager";
 import { z } from "zod";
+import { recordId } from "@/lib/validation/schemas";
 import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
 import { callDataService, DataServiceRequestError } from "@/lib/d1/service-client";
 
@@ -14,13 +15,13 @@ import { callDataService, DataServiceRequestError } from "@/lib/d1/service-clien
  */
 
 const createDesignThreadSchema = z.object({
-  userId: z.string().cuid("유효하지 않은 사용자 ID입니다."),
+  userId: recordId("유효하지 않은 사용자 ID입니다."),
   workflowType: z.enum(["로고", "명함", "리플렛", "현수막", "배너", "기타"], {
     errorMap: () => ({ message: "유효한 워크플로우 타입을 선택해주세요." }),
   }),
   designUrl: z.string().url("유효한 시안 URL을 입력해주세요.").optional(), // 시안 파일 (선택)
   message: z.string().min(1, "메시지를 입력해주세요."),
-  communicationThreadId: z.string().cuid().optional(), // 연결할 문의하기 스레드 ID (선택)
+  communicationThreadId: recordId().optional(), // 연결할 문의하기 스레드 ID (선택)
 });
 
 export async function POST(request: Request) {

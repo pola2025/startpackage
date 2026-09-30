@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { notificationManager } from "@/lib/notifications/notification-manager";
 import { z } from "zod";
+import { recordId } from "@/lib/validation/schemas";
 import { sendEmail, getAdminMessageEmailHTML } from "@/lib/email/resendClient";
 import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
 import { callDataService } from "@/lib/d1/service-client";
@@ -15,7 +16,7 @@ import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
  */
 
 const createThreadSchema = z.object({
-  userId: z.string().cuid("유효하지 않은 사용자 ID입니다."),
+  userId: recordId("유효하지 않은 사용자 ID입니다."),
   title: z.string().min(1, "제목을 입력해주세요.").max(100, "제목은 100자 이내로 입력해주세요."),
   category: z.enum(["일반", "제작", "배송", "기타"], {
     errorMap: () => ({ message: "유효한 카테고리를 선택해주세요." }),

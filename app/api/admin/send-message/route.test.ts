@@ -22,11 +22,11 @@ import { POST } from "./route";
 
 const userId = "cjld2cjxh0000qzrmn831i7rn";
 
-function send(channel: "SMS" | "EMAIL") {
+function send(channel: "SMS" | "EMAIL", targetUserId = userId) {
   return POST(new Request("https://example.test/api/admin/send-message", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userId, channel, title: "디자인 확인", message: "시안을 확인해주세요." }),
+    body: JSON.stringify({ userId: targetUserId, channel, title: "디자인 확인", message: "시안을 확인해주세요." }),
   }));
 }
 
@@ -52,5 +52,17 @@ describe("POST /api/admin/send-message consent", () => {
     const response = await send("EMAIL");
     expect(response.status).toBe(400);
     expect(mocks.sendEmailWithAttachments).not.toHaveBeenCalled();
+  });
+
+  it("accepts UUID user IDs created after the D1 switch", async () => {
+    const response = await send("SMS", "0f8fad5b-d9cb-469f-a165-70867728950e");
+    expect(response.status).toBe(200);
+    expect(mocks.sendSMS).toHaveBeenCalledTimes(1);
+  });
+
+  it("rejects malformed user IDs", async () => {
+    const response = await send("SMS", "not-an-id");
+    expect(response.status).toBe(400);
+    expect(mocks.sendSMS).not.toHaveBeenCalled();
   });
 });

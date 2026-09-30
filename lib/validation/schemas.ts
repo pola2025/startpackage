@@ -11,6 +11,14 @@ import { z } from "zod";
 // Zod 스키마 (백엔드용)
 // ============================================
 
+// 레코드 ID: Prisma 시절 데이터는 CUID, D1 전환(2026-09) 이후 생성분은 UUID
+const RECORD_ID_REGEX =
+  /^(c[^\s-]{8,}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i;
+
+export function recordId(message = "유효하지 않은 ID입니다.") {
+  return z.string().regex(RECORD_ID_REGEX, message);
+}
+
 export const ValidationSchemas = {
   // 일반회원 비밀번호 (숫자 4자리)
   userPassword: z
@@ -50,8 +58,8 @@ export const ValidationSchemas = {
       "이름은 한글 또는 영문만 입력 가능합니다."
     ),
 
-  // Cohort ID (CUID 형식)
-  cohortId: z.string().cuid("유효하지 않은 기수 ID입니다."),
+  // Cohort ID (CUID 또는 UUID)
+  cohortId: recordId("유효하지 않은 기수 ID입니다."),
 };
 
 // ============================================

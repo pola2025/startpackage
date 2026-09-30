@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { z } from "zod";
+import { recordId } from "@/lib/validation/schemas";
 import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
 import { callDataService } from "@/lib/d1/service-client";
 import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
@@ -13,7 +14,7 @@ import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
  */
 
 const markReadSchema = z.object({
-  threadId: z.string().cuid("유효하지 않은 스레드 ID입니다."),
+  threadId: recordId("유효하지 않은 스레드 ID입니다."),
 });
 
 export async function POST(request: Request) {

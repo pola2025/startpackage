@@ -5,6 +5,7 @@ import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
 import { callDataService } from "@/lib/d1/service-client";
 import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 import { z } from "zod";
+import { recordId } from "@/lib/validation/schemas";
 
 /**
  * POST /api/admin/send-message
@@ -20,7 +21,7 @@ const attachmentSchema = z.object({
 });
 
 const sendMessageSchema = z.object({
-  userId: z.string().cuid("유효하지 않은 사용자 ID입니다."),
+  userId: recordId("유효하지 않은 사용자 ID입니다."),
   channel: z.enum(["SMS", "EMAIL"], {
     errorMap: () => ({ message: "SMS 또는 EMAIL을 선택해주세요." }),
   }),

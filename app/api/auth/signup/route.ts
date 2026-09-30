@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { hash } from "bcryptjs";
 import { z } from "zod";
+import { recordId } from "@/lib/validation/schemas";
 import prisma from "@/lib/prisma";
 import { signIn } from "@/auth";
 import { notifyAdmin } from "@/lib/notification/telegramClient";
@@ -33,7 +34,7 @@ const signupSchema = z.object({
     .string()
     .regex(/^\d{4}$/, "비밀번호는 숫자 4자리로 입력해주세요."),
 
-  cohortId: z.string().cuid("유효하지 않은 기수 ID입니다."),
+  cohortId: recordId("유효하지 않은 기수 ID입니다."),
 });
 
 // IP 기반 rate limit (best-effort 인메모리, 1시간에 5회)

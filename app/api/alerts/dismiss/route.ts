@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { recordId } from "@/lib/validation/schemas";
 import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
 import { callDataService } from "@/lib/d1/service-client";
 import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 const dismissSchema = z.object({
-  alertId: z.string().cuid(),
+  alertId: recordId(),
 });
 
 /**
