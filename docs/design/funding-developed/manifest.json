@@ -1,0 +1,167 @@
+{
+  "selection": {
+    "root_id": "concept-1",
+    "file": "selection/index.html",
+    "source": "selection/source.json",
+    "sha256": "933edfce7a9cd25fe05277ded04a87410719a58e5acd25a97807bcaff56d14b8",
+    "pageCount": 3,
+    "pages": {
+      "home": {
+        "file": "selection/index.html",
+        "sha256": "933edfce7a9cd25fe05277ded04a87410719a58e5acd25a97807bcaff56d14b8"
+      },
+      "guide": {
+        "file": "selection/guide.html",
+        "sha256": "97648f54307c8fa281ca3566ac191ccfd38d3da5223d46d39e8a7c9adad093e1"
+      },
+      "contact": {
+        "file": "selection/contact.html",
+        "sha256": "531ebc01c3345c4393bfd165ea53493a38bc3f64d45305879ce1761bcd7fe59e"
+      }
+    },
+    "changes": [
+      "승인된 사무실 실사와 3개 목적 선택 구조를 유지하면서 히어로 대비, 사진 크롭, 타이포 위계를 정돈했습니다.",
+      "목적별 안내를 현황 확인, 조건 검토, 준비 안내의 전문 상담 흐름으로 명확하게 연결했습니다.",
+      "단일 위임 클릭 리스너, aria-pressed와 aria-live, reduced-motion, 44px 모바일 메뉴 터치 영역을 적용했습니다.",
+      "리더 감사: 신규 자료 검토 실사를 상담 CTA 옆에 배정해 기존 한 페이지 밀도 안에서 전문 업무를 보여줌",
+      "리더 감사: 모바일 메뉴·제한 안내·검토 항목의 작은 글씨를 확대해 가독성 보강",
+      "상세페이지 구현: 자금 개요·목적·검토 기준·준비 자료·진행절차·FAQ와 홈/상세/상담 3페이지 연결",
+      "상세 컨셉 차별화: 공통 탭 구조 제거, 자연스러운 세로 읽기 흐름으로 변경",
+      "페르소나 UX 개선: 선택한 자금과 읽은 주제를 상담 화면으로 유지, 입력 전 제한 안내, 모바일 상세 상담 버튼 적용"
+    ]
+  },
+  "dialogue": {
+    "root_id": "concept-2",
+    "file": "dialogue/index.html",
+    "source": "dialogue/source.json",
+    "sha256": "7671a1c218ddf8fbf680f302a1b9b1b9a5e84d20bd26fa6c98bd62b96dd7ea4f",
+    "pageCount": 4,
+    "pages": {
+      "home": {
+        "file": "dialogue/index.html",
+        "sha256": "7671a1c218ddf8fbf680f302a1b9b1b9a5e84d20bd26fa6c98bd62b96dd7ea4f"
+      },
+      "guide": {
+        "file": "dialogue/guide.html",
+        "sha256": "ac039411051451cd4815acfe202f5e9b34b49c8da42adca67f4fe3fbc4183644"
+      },
+      "process": {
+        "file": "dialogue/process.html",
+        "sha256": "c318445faa5c16050759e49f37f27ebf41f726e8bd04ad09aa309bbefe83f93c"
+      },
+      "contact": {
+        "file": "dialogue/contact.html",
+        "sha256": "14a1423fbdb3413797519ab23f4955aee9037490abee9391e25c9963a64cce16"
+      }
+    },
+    "changes": [
+      "승인된 실사와 배치를 유지하면서 데스크톱 상담 패널 폭, 사진 대비, 타이포와 여백을 정돈",
+      "정책자금·정부지원사업·목적 정리와 안내 순서 조합별로 6개의 서로 다른 준비 설명 제공",
+      "단일 위임 클릭 리스너와 취소 가능한 포커스 프레임으로 빠른 연속 조작, 키보드, aria-live, reduced-motion 보강",
+      "리더 감사: 데스크톱 두 인물 크롭, 국문 제목 3줄, 로컬 폰트 적용 및 모바일 세로 밀도 수정",
+      "상세페이지 구현: 자금 개요·목적·검토 기준·준비 자료·진행절차·FAQ와 홈/상세/상담 3페이지 연결",
+      "상세 컨셉 차별화: 공통 탭 구조 제거, 자연스러운 세로 읽기 흐름으로 변경",
+      "사용자 추가 요청: 진행절차·상담준비 전용 페이지 추가, 대화형 4페이지/4개 메뉴",
+      "페르소나 UX 개선: 현재 자금과 질문 주제를 상담 화면으로 유지, 입력 전 제한 안내, 상세·진행절차 모바일 상담 버튼 적용"
+    ]
+  },
+  "proposal": {
+    "root_id": "concept-5",
+    "file": "proposal/index.html",
+    "source": "proposal/source.json",
+    "sha256": "f450bde372b52c7f08d400ad7bec5a50d271b6b270bc183b767f06e0d546c593",
+    "pageCount": 3,
+    "pages": {
+      "home": {
+        "file": "proposal/index.html",
+        "sha256": "f450bde372b52c7f08d400ad7bec5a50d271b6b270bc183b767f06e0d546c593"
+      },
+      "guide": {
+        "file": "proposal/guide.html",
+        "sha256": "4f9f2bf78ebcb18b4da6da15920e68fbafaf735c892a9f94fd7ac3c1445ee2da"
+      },
+      "contact": {
+        "file": "proposal/contact.html",
+        "sha256": "af77a80bffa5908c84c000014b75ad09c93fb6174f53b0632556eecbf4be05d8"
+      }
+    },
+    "changes": [
+      "승인된 도심 실사 히어로와 제안형 3방향 구조를 유지하면서 우측 제안 인덱스의 위계, 활성 상태, 정보 밀도를 강화했습니다.",
+      "운영·시설·지원사업 선택마다 제목, 설명, 제안 번호, 접근성 상태가 함께 바뀌도록 단일 위임 리스너로 상태를 일관되게 연결했습니다.",
+      "보조 실사는 준비 서류 안내 밴드에만 짧게 배치하고, 다섯 가지 접수 정보와 상담 제한 안내를 그대로 유지했습니다.",
+      "360px부터 1440px까지 44px 메뉴 터치 영역, 키보드 포커스, reduced-motion, 안정적인 사진 크롭을 반영했습니다.",
+      "리더 감사: 모바일 길이 축소 피드백 반영, 동적 스타일 삽입을 정식 CSS로 정리",
+      "상세페이지 구현: 자금 개요·목적·검토 기준·준비 자료·진행절차·FAQ와 홈/상세/상담 3페이지 연결",
+      "페르소나 UX 개선: 수동 스크롤에 따라 문서 위치와 목차 활성 상태 표시, 읽는 내용과 자금 맥락을 상담 화면으로 유지"
+    ]
+  },
+  "comparison": {
+    "root_id": "concept-compare",
+    "file": "comparison/index.html",
+    "source": "comparison/source.json",
+    "sha256": "d1628092fe3b87cc999fd2f4224e95ce001843c7d70389cbfa40d03f4bf59645",
+    "pageCount": 3,
+    "pages": {
+      "home": {
+        "file": "comparison/index.html",
+        "sha256": "d1628092fe3b87cc999fd2f4224e95ce001843c7d70389cbfa40d03f4bf59645"
+      },
+      "guide": {
+        "file": "comparison/guide.html",
+        "sha256": "3d7cc5069f75ca7c95453830d8c9d3822f9f880bcf29ea12be9e563cfe4f1268"
+      },
+      "contact": {
+        "file": "comparison/contact.html",
+        "sha256": "0f977bb142f36e247d0ec3a96c19bd453e1003f042e4fd6b102b3dabee3968c8"
+      }
+    },
+    "changes": [
+      "승인된 회의 실사와 홈·자금비교·간편상담 3페이지를 유지하며 두 열 비교표의 위계와 모바일 밀도를 정돈",
+      "동일 자금 선택 시 두 열 교환, 펼친 항목과 선택값 보존, 키보드와 빠른 페이지 이동 포커스 보강",
+      "리더 감사: 상담 사진 오버레이 강화, 모바일 비교 선택창 16px, 자금 목적과 준비 사항 중심의 안내 문구 수정",
+      "리더 최종 실행 감사: 화면 전환 후 예약 포커스가 사용자의 새 포커스를 덮어쓰지 않도록 경합 수정",
+      "상세 구현: 운전자금·시설자금·정부지원사업의 개요, 목적, 검토 기준, 준비 자료, 진행 순서와 FAQ를 두 열 비교 아코디언에 반영",
+      "통합 계약: 3개 실제 페이지 라우팅용 data-site-page와 _nativeShowPage를 추가하고 기존 선택 교환·펼친 행·5필드 상담 구조를 유지",
+      "내용 보강: 홈에 3개 자금의 쓰임·차이·준비 근거를 추가하고, 비교 화면의 선택 쌍 연동 핵심표·실제 상황 사례 연결을 위한 API를 추가",
+      "페르소나 UX 개선: 두 자금 준비 경로 시각화, 핵심 3기준 우선 표시와 나머지 3기준 펼치기, 비교 쌍과 읽은 주제의 상담 연결"
+    ]
+  },
+  "briefing": {
+    "root_id": "concept-brief",
+    "file": "briefing/index.html",
+    "source": "briefing/source.json",
+    "sha256": "a0c5ade03e6320162c13c432a21bd2540edc4d1f421706f364a8a1e3acf8db81",
+    "pageCount": 4,
+    "pages": {
+      "home": {
+        "file": "briefing/index.html",
+        "sha256": "a0c5ade03e6320162c13c432a21bd2540edc4d1f421706f364a8a1e3acf8db81"
+      },
+      "guide": {
+        "file": "briefing/guide.html",
+        "sha256": "7ebb6501a4bf7696b4819c10093f872ef4465b588de57ce6055158701a2fac07"
+      },
+      "prepare": {
+        "file": "briefing/prepare.html",
+        "sha256": "e5f6b4a50775421d02399bf5f15a8be910917a206e899a3794287690830889f5"
+      },
+      "contact": {
+        "file": "briefing/contact.html",
+        "sha256": "dcdddeb32f639359fbd852555f1cc61f18a8ff0f4544f745488a5b43386c5071"
+      }
+    },
+    "changes": [
+      "승인된 세 장면 실사를 한 브리핑 무대 안에서 교체하며 컨설턴트, 상담 활동, 준비 도구가 화면의 주 정보가 되도록 재구성",
+      "브리핑·자금안내·상담준비 메뉴와 장면 상태를 동기화하고 상담 페이지에서 직전 장면으로 일관되게 복귀",
+      "양끝 비루프 이전·다음, 장면 직접 선택, 키보드 Home·End·좌우 방향키, 마우스·터치 수평 드래그를 지원",
+      "수평 임계값 전에는 포인터를 점유하지 않고 세로 스크롤을 보존하며 AbortController와 취소 가능한 requestAnimationFrame으로 정리 경로 제공",
+      "모바일 홈 화면을 짧은 밀도로 조정하고 44px 메뉴·컨트롤, reduced-motion, aria-live, 실사 크롭을 보강",
+      "리더 최종 실행 감사: 화면 전환 후 예약 포커스가 사용자의 새 포커스를 덮어쓰지 않도록 경합 수정",
+      "상세페이지 구현: 자금 개요·목적·검토 기준·준비 자료·진행절차·FAQ와 홈/상세/상담 3페이지 연결",
+      "상세 컨셉 차별화: 공통 탭 구조 제거, 자연스러운 세로 읽기 흐름으로 변경",
+      "페르소나 UX 개선: 자금과 읽은 안내를 상담 화면으로 유지, 입력 전 제한 안내, 모바일 상세 상담 버튼 적용",
+      "사용자 수정 요청: 홈 장면 전환·드래그 제거, 브리핑/자금안내/간편상담의 3개 독립 페이지와 실제 링크 메뉴로 재구성. 상담준비는 자금안내 페이지에 포함.",
+      "사용자 추가 요청: 상담준비 독립 페이지를 더해 브리핑/자금안내/상담준비/간편상담 4페이지·4메뉴로 구성. 자금 성격과 준비 절차 시각화, 실사 이미지 2장 신규 생성·배정."
+    ]
+  }
+}

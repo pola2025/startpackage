@@ -53,6 +53,16 @@ const nextConfig: NextConfig = {
         headers: SECURITY_HEADERS,
       },
       {
+        source: "/samples/funding/:path*",
+        headers: [
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          {
+            key: "Content-Security-Policy",
+            value: "frame-ancestors 'self'; default-src 'self'; img-src 'self' data:; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'none'; base-uri 'self'; form-action 'none'",
+          },
+        ],
+      },
+      {
         source: "/education/:path*",
         headers: [
           ...SECURITY_HEADERS,

@@ -1,5 +1,7 @@
 "use client";
 
+import { getHomepageStyleName } from "@/lib/homepage-styles";
+
 import { useState } from "react";
 import {
   Dialog,
@@ -554,6 +556,7 @@ export default function SubmissionViewButton({
                                 "https://www.k-eai.kr/index.html": "스타일 6",
                               };
                               return (
+                                getHomepageStyleName(submission.홈페이지스타일) ||
                                 styles[submission.홈페이지스타일] ||
                                 submission.홈페이지스타일
                               );

@@ -1,0 +1,41 @@
+.concept-compare [data-cmp-expanded]{display:grid;gap:28px;margin:18px 0 24px}
+.concept-compare .cmp-core,.concept-compare .cmp-cases{min-width:0}
+.concept-compare .cmp-section-head{display:flex;align-items:end;justify-content:space-between;gap:28px;margin-bottom:13px}
+.concept-compare .cmp-section-head h2{margin:0;color:var(--cmp-green-dark);font-size:clamp(22px,2.2vw,30px);line-height:1.2;letter-spacing:-.025em}
+.concept-compare .cmp-section-head p{max-width:680px;margin:7px 0 0;color:var(--cmp-muted);font-size:14px;line-height:1.65}
+.concept-compare .cmp-pair-label{flex:0 0 auto!important;max-width:none!important;margin:0!important;padding:8px 11px;border:1px solid #aab5ae;border-radius:4px;background:#fff;color:var(--cmp-green-dark)!important;font-size:13px!important;white-space:nowrap}
+.concept-compare .cmp-pair-label span{padding:0 5px;color:#8a6e37}
+.concept-compare .cmp-table-wrap{min-width:0;border:1px solid #cfd7d1;background:#fff}
+.concept-compare .cmp-table-wrap table{width:100%;border-collapse:collapse;table-layout:fixed}
+.concept-compare .cmp-table-wrap th,.concept-compare .cmp-table-wrap td{padding:13px 14px;border-right:1px solid #d9dfda;border-bottom:1px solid #d9dfda;text-align:left;vertical-align:top;overflow-wrap:anywhere}
+.concept-compare .cmp-table-wrap tr:last-child>*{border-bottom:0}
+.concept-compare .cmp-table-wrap tr>*:last-child{border-right:0}
+.concept-compare .cmp-table-wrap thead th{background:var(--cmp-green-dark);color:#fff;font-size:14px;line-height:1.35}
+.concept-compare .cmp-table-wrap thead th:first-child{width:19%;background:#204c40;color:#e5eee9}
+.concept-compare .cmp-table-wrap tbody th{background:#edf2ef;color:var(--cmp-green-dark);font-size:13px;line-height:1.5}
+.concept-compare .cmp-table-wrap tbody td{color:#38443f;font-size:13px;line-height:1.6}
+.concept-compare .cmp-core-notice{margin:9px 0 0;color:var(--cmp-muted);font-size:12px;line-height:1.55}
+.concept-compare .cmp-case-list{border-top:1px solid #bdc8c1}
+.concept-compare .cmp-case{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:24px;padding:18px 0;border-bottom:1px solid #bdc8c1}
+.concept-compare .cmp-case h3{margin:0 0 9px;color:var(--cmp-green-dark);font-size:18px;line-height:1.35;letter-spacing:-.015em}
+.concept-compare .cmp-case p{display:grid;grid-template-columns:96px minmax(0,1fr);gap:10px;margin:5px 0 0;color:#3c4943;font-size:13px;line-height:1.6}
+.concept-compare .cmp-case p strong{color:var(--cmp-green-dark)}
+.concept-compare .cmp-case button{min-width:205px}
+.concept-compare .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+@media(max-width:720px){
+  .concept-compare [data-cmp-expanded]{gap:24px;margin:15px 0 22px}
+  .concept-compare .cmp-section-head{display:block;margin-bottom:11px}
+  .concept-compare .cmp-pair-label{display:inline-block;margin-top:9px!important;white-space:normal}
+  .concept-compare .cmp-table-wrap{border:0;background:transparent}
+  .concept-compare .cmp-table-wrap table,.concept-compare .cmp-table-wrap tbody,.concept-compare .cmp-table-wrap tr,.concept-compare .cmp-table-wrap th,.concept-compare .cmp-table-wrap td{display:block;width:100%}
+  .concept-compare .cmp-table-wrap thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+  .concept-compare .cmp-table-wrap tbody{display:grid;gap:10px}
+  .concept-compare .cmp-table-wrap tbody tr{border:1px solid #cfd7d1;background:#fff}
+  .concept-compare .cmp-table-wrap tbody th{padding:10px 12px;border-right:0;border-bottom:1px solid #d9dfda;font-size:14px}
+  .concept-compare .cmp-table-wrap tbody td{padding:11px 12px 12px;border-right:0;border-bottom:1px solid #d9dfda}
+  .concept-compare .cmp-table-wrap tbody td::before{content:attr(data-side-label);display:block;margin-bottom:4px;color:var(--cmp-green-dark);font-size:12px;font-weight:850}
+  .concept-compare .cmp-table-wrap tbody tr td:last-child{border-bottom:0}
+  .concept-compare .cmp-case{display:block;padding:17px 0}
+  .concept-compare .cmp-case p{grid-template-columns:1fr;gap:1px}
+  .concept-compare .cmp-case button{width:100%;min-width:0;margin-top:13px}
+}

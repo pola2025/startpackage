@@ -1,5 +1,7 @@
 "use client";
 
+import { getHomepageStyleName } from "@/lib/homepage-styles";
+
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -348,6 +350,7 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
                               },
                             ];
                             return (
+                              getHomepageStyleName(submission.홈페이지스타일) ||
                               styles.find(
                                 (s) => s.url === submission.홈페이지스타일,
                               )?.name || submission.홈페이지스타일
