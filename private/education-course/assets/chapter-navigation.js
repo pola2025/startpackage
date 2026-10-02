@@ -82,7 +82,7 @@
     {keywords:['입력양식','인스턴트 양식','양식 만들기','회사명','전화번호'],title:'인스턴트 양식 만들기',answer:'양식 만들기를 선택하고 회사명, 업종, 이름, 전화번호를 받습니다. 소개 설명과 개인정보처리방침 주소도 입력해야 합니다.',href:'chapter-07-ad-settings.html#/33'},
     {keywords:['콘텐츠','게시물','릴스','reels','쓰레드','threads','게시 실습'],title:'소셜 콘텐츠 게시 실습',answer:'Instagram 게시물, Reels, Threads의 실제 모바일 게시 과정을 콘텐츠 교육에서 확인합니다.',href:'social-content-training.html'},
     {keywords:['스타트패키지','로고','추상 로고','캘리그라피','인쇄물','명함','명찰','대봉투','계약서','홈페이지 스타일'],title:'스타트패키지 제작 범위',answer:'단순 엠블럼과 레퍼런스가 있는 로고를 기준으로 진행하며 홈페이지 9종과 인쇄물 예시를 확인할 수 있습니다.',href:'chapter-09-startpackage.html#/2'},
-    {keywords:['추가 인쇄','재인쇄','인쇄 비용','명함 비용','대봉투 비용','계약서 비용'],title:'추가 인쇄비',answer:'명함은 추가 22,000원, 대봉투는 220,000원, 자문계약서는 330,000원이며 모두 VAT 포함 기준입니다.',href:'chapter-09-startpackage.html#/26'},
+    {keywords:['추가 인쇄','재인쇄','인쇄 비용','명함 비용','대봉투 비용','계약서 비용'],title:'추가 인쇄비',answer:'명함은 추가 22,000원, 대봉투는 220,000원, 자문계약서는 330,000원이며 모두 VAT 포함 기준입니다.',href:'chapter-12-rules-costs.html#/13'},
     {keywords:['8주 지원','마케팅 지원','광고소재 등록','광고계정 설정','접수 알림','접수 자동화'],title:'8주 Meta 마케팅 지원',answer:'8주 동안 광고소재 등록, 광고계정 설정, Meta 양식 접수 알림 자동화를 지원합니다. 지원 종료 후 Meta 접수자동화는 종료되고 홈페이지 자체 접수 알림은 계속 작동합니다.',href:'chapter-10-marketing-support.html#/2'},
     {keywords:['텔레그램','telegram','텔레그램 알림','담당자 텔레그램'],title:'담당자 Telegram 접수 알림',answer:'Meta 양식으로 신규 고객이 접수되면 내부 접수관리 화면과 담당자 Telegram에 고객명, 연락처, 접수경로가 동시에 전달됩니다.',href:'chapter-10-marketing-support.html#/6'},
     {keywords:['접수 자동화','담당자 알림','알림톡','문자 알림','접수관리','고객 통계'],title:'Meta 접수자동화 작동 과정',answer:'광고소재 제작, 광고 설정, 접수폼 설정 후 내부 접수관리와 담당자 Telegram으로 동시에 전달됩니다. 이어서 고객 문자 또는 알림톡과 홈페이지 접수관리로 연결됩니다.',href:'chapter-10-marketing-support.html#/9'},
