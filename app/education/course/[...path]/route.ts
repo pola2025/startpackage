@@ -35,7 +35,7 @@ export async function GET(request:Request,{params}:{params:Promise<{path:string[
   if(range&&(ext===".mp4"||ext===".webm")){
     const match=/^bytes=(\d+)-(\d*)$/.exec(range);
     if(!match)return new NextResponse(null,{status:416,headers:{"Content-Range":`bytes */${info.size}`}});
-    const start=Number(match[1]);const end=match[2]?Math.min(Number(match[2]),info.size-1):Math.min(start+1024*1024-1,info.size-1);
+    const start=Number(match[1]);const end=Math.min(match[2]?Number(match[2]):Infinity,start+1024*1024-1,info.size-1);
     if(start>end||start>=info.size)return new NextResponse(null,{status:416,headers:{"Content-Range":`bytes */${info.size}`}});
     const full=await readFile(filePath);const body=full.subarray(start,end+1);
     return new NextResponse(body,{status:206,headers:{...headers(TYPES[ext]),"Accept-Ranges":"bytes","Content-Range":`bytes ${start}-${end}/${info.size}`,"Content-Length":String(body.length)}});

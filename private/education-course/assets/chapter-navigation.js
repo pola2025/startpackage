@@ -13,7 +13,9 @@
     ['08','콘텐츠 게시 실습','social-content-training.html','content'],
     ['09','스타트패키지','chapter-09-startpackage.html#/1','support'],
     ['10','Meta 마케팅 지원','chapter-10-marketing-support.html#/1','support'],
-    ['11','관련정보 제출안내','chapter-11-submission-guide.html#/1','support']
+    ['11','관련정보 제출안내','chapter-11-submission-guide.html#/1','support'],
+    ['12','진행 규칙과 비용','chapter-12-rules-costs.html#/1','support'],
+    ['13','알림 연결 준비','chapter-13-alert-setup.html#/1','support']
   ];
   const currentFile=location.pathname.split('/').pop().toLowerCase();
   const previous=bottom.querySelector('#prev');
@@ -41,7 +43,7 @@
   menu.setAttribute('aria-label','챕터 바로 이동');
   const legend=document.createElement('div');
   legend.className='chapter-jump-legend';
-  legend.innerHTML='<span class="main">01–07 Meta 본교육</span><span class="content">08 콘텐츠 별도교육</span><span class="support">09–11 스타트패키지 업무지원</span>';
+  legend.innerHTML='<span class="main">01–07 Meta 본교육</span><span class="content">08 콘텐츠 별도교육</span><span class="support">09–13 스타트패키지 업무지원</span>';
   menu.append(legend);
   chapters.forEach(([number,title,path,track])=>{
     const link=document.createElement('a');
@@ -85,7 +87,20 @@
     {keywords:['텔레그램','telegram','텔레그램 알림','담당자 텔레그램'],title:'담당자 Telegram 접수 알림',answer:'Meta 양식으로 신규 고객이 접수되면 내부 접수관리 화면과 담당자 Telegram에 고객명, 연락처, 접수경로가 동시에 전달됩니다.',href:'chapter-10-marketing-support.html#/6'},
     {keywords:['접수 자동화','담당자 알림','알림톡','문자 알림','접수관리','고객 통계'],title:'Meta 접수자동화 작동 과정',answer:'광고소재 제작, 광고 설정, 접수폼 설정 후 내부 접수관리와 담당자 Telegram으로 동시에 전달됩니다. 이어서 고객 문자 또는 알림톡과 홈페이지 접수관리로 연결됩니다.',href:'chapter-10-marketing-support.html#/9'},
     {keywords:['광고운영대행','운영대행','콘텐츠대행','대행 상품','99만원','66만원','165만원','33만원','22만원'],title:'폴라애드 대행상품',answer:'광고운영대행은 월 33만원 기준 3개월 99만원, 콘텐츠대행은 월 22만원 기준 3개월 66만원입니다. 함께 신청하면 3개월 합계 165만원입니다.',href:'chapter-10-marketing-support.html#/13'},
-    {keywords:['관련정보','자료 제출','gmail','지메일','도메인','cloudflare','클라우드플레어'],title:'관련정보 제출안내',answer:'홈페이지 연결용 Gmail ID/PW와 도메인 주소가 필요합니다. 도메인은 연간 약 13,000원부터 30,000원 내외이며 Cloudflare 구매를 권장합니다.',href:'chapter-11-submission-guide.html#/1'}
+    {keywords:['관련정보','자료 제출','gmail','지메일','도메인','cloudflare','클라우드플레어'],title:'관련정보 제출안내',answer:'홈페이지 연결용 Gmail ID/PW와 도메인 주소가 필요합니다. 도메인은 연간 약 13,000원부터 30,000원 내외이며 Cloudflare 구매를 권장합니다.',href:'chapter-11-submission-guide.html#/1'},
+    {keywords:['유지비','서버비','서버 비용','호스팅','월 비용','vercel','github','서버리스','정적 사이트'],title:'홈페이지 유지비',answer:'홈페이지 제작 후에는 매달 나가는 서버 비용이 없고 1년에 한 번 도메인 비용만 결제합니다. 사용량이 늘어 유료 구간에 들어가도 개인 사용자는 월 4만원을 넘기 어렵습니다.',href:'chapter-12-rules-costs.html#/3'},
+    {keywords:['디자인 요청','디자이너','문의하기','영업시간','전화 문의'],title:'디자인 요청 방법',answer:'스타트패키지 메뉴의 문의하기에 요청을 남기면 담당 디자이너가 영업시간(오전 9시~오후 6시) 안에 안내합니다. 개별 전화보다 문의 내용으로 남기는 것을 권장합니다.',href:'chapter-12-rules-costs.html#/7'},
+    {keywords:['고급스럽게','깔끔하게','로고 요청','ai 로고','ai 시안','로고 시안'],title:'로고 요청 기준',answer:'느낌 표현만으로는 로고를 제작할 수 없습니다. 정확한 모양과 들어갈 내용이 필요하며, 자료가 없으면 AI 시안을 만든 뒤 인쇄용 일러스트 파일로 단순화합니다.',href:'chapter-12-rules-costs.html#/9'},
+    {keywords:['인쇄 색상','색상 차이','색이 달라','모니터 색','컬러 프로파일'],title:'화면과 인쇄 색상 차이',answer:'모니터와 휴대폰은 디스플레이마다 컬러 프로파일이 달라 같은 시안도 색이 다르게 보이며 실제 인쇄 색상과도 차이가 날 수 있습니다.',href:'chapter-12-rules-costs.html#/12'},
+    {keywords:['도메인 구매','대리구매','도메인 대리','도메인 계정','인쇄 지연'],title:'인쇄 전 도메인 준비',answer:'명함과 봉투에 홈페이지 주소가 들어가므로 인쇄 전에 도메인을 확정해야 합니다. 이미 있으면 구매한 사이트의 ID와 PW를 전달하고, 없으면 폴라애드에 대리구매를 요청합니다. 결제는 대표자 본인 카드로 합니다.',href:'chapter-12-rules-costs.html#/13'},
+    {keywords:['8주 이후','지원 종료','지원 기간 이후','개별 비용'],title:'8주 이후 작업 비용',answer:'마케팅 지원기간은 8주입니다. 이후에도 상담은 가능하지만 실제 작업은 건별로 비용이 발생합니다.',href:'chapter-12-rules-costs.html#/15'},
+    {keywords:['시안 비용','추가 시안','시안 추가','2만원','20,000원'],title:'추가 시안 비용',answer:'최초 스타트패키지 디자인 작업은 별도 요금이 없습니다. 시안 작업이 2회 이상이면 회당 20,000원씩 추가됩니다.',href:'chapter-12-rules-costs.html#/16'},
+    {keywords:['시안 확정','발주 확정','오탈자','재인쇄 책임','본인 부담'],title:'시안 확정과 재인쇄 책임',answer:'시안 확정 화면의 시안 표기 정보, 배송지 확인, 최종 동의를 대표자가 직접 확인해야 발주가 확정됩니다. 확인 없이 확정해 오탈자가 인쇄되면 재인쇄 비용은 대표자 본인이 부담합니다.',href:'chapter-12-rules-costs.html#/17'},
+    {keywords:['네이버클라우드','네이버 클라우드','ncloud','sens','sms 발송'],title:'네이버클라우드 가입',answer:'문자와 알림톡은 네이버클라우드 SENS에서 보냅니다. Gmail로 가입한 뒤 사업자 정보를 바꾸고 결제수단을 등록하는 영상을 따라하세요.',href:'chapter-13-alert-setup.html#/3'},
+    {keywords:['발신번호','통신서비스 이용증명원','이용증명원','재직증명서','신분증'],title:'문자 발신번호 등록 서류',answer:'사업자등록증, 대표자 신분증, 통신서비스 이용증명원을 번호와 명의를 가리지 않고 제출합니다. 대표자와 발신번호 명의가 다르면 재직증명서도 필요합니다.',href:'chapter-13-alert-setup.html#/4'},
+    {keywords:['카카오 채널','카카오톡 채널','비즈니스 심사','채널 심사','알림톡 채널','관리자 초대'],title:'카카오톡 채널 개설과 심사',answer:'대표자 본인 카카오계정으로 채널을 만들고 비즈니스 심사를 신청한 뒤 polarad@kakao.com을 관리자로 초대합니다. 심사는 영업일 3~7일 걸립니다.',href:'chapter-13-alert-setup.html#/5'},
+    {keywords:['텔레그램 설정','텔레그램 알림 설정','전화번호 숨기기','텔레그램 진동','텔레그램 소리'],title:'텔레그램 기본설정',answer:'홈페이지 제작 후 받은 링크로 알림 채널에 참여한 뒤 전화번호 보호와 채널 알림을 설정합니다.',href:'chapter-13-alert-setup.html#/7'},
+    {keywords:['텔레그램 웹','pc 텔레그램','웹에서 보기','텔레그램 pc','qr 로그인'],title:'PC 웹에서 텔레그램 보기',answer:'프로그램 설치 없이 PC 브라우저에서 web.telegram.org를 열고 휴대폰 텔레그램의 설정 › 기기 › 기기 추가로 QR을 스캔합니다.',href:'chapter-13-alert-setup.html#/8'}
   ];
   const assistant=document.createElement('div');
   assistant.className='course-assistant-wrap';

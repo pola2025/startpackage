@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>비즈액터스쿨 온라인마케팅 교육 · 진행 규칙과 비용</title>
+  <link rel="stylesheet" href="./assets/service-course.css">
+  <link rel="stylesheet" href="./assets/chapter-navigation.css">
+</head>
+<body>
+<main class="deck">
+  <header class="top"><div class="brand"><b>비즈액터스쿨</b><span>온라인마케팅 교육</span></div><div class="chapter"></div></header>
+  <section class="stage" id="stage"></section>
+  <footer class="bottom"><button id="prev">이전</button><button class="primary" id="next">다음</button><button id="replay">다시 보기</button><button id="full">전체 화면</button><div class="counter"><b id="current">01</b>/<span id="total">01</span></div><div class="progress" id="progress"></div></footer>
+</main>
+<section class="mobile-gate"><div><h1>PC에서<br>열어주세요</h1><p>제작 진행 규칙과 비용 기준을 큰 화면으로 확인하는 교육자료입니다.</p><strong>노트북 또는 데스크탑 권장</strong></div></section>
+<script>
+window.COURSE={
+  number:'12',
+  name:'진행 규칙과 비용',
+  previous:'chapter-11-submission-guide.html#/12',
+  next:'chapter-13-alert-setup.html#/1',
+  nextLabel:'다음 챕터',
+  scenes:[
+    {type:'cover',eyebrow:'CHAPTER 12 · RULES & COSTS',title:'제작 전에 알아둘<br><em>진행 규칙과 비용</em>',copy:'홈페이지 유지비부터 디자인 요청, 로고와 인쇄 기준, 도메인 준비, 추가 비용과 시안 확정까지 순서대로 확인합니다.',pills:['홈페이지 유지비','디자인 요청','로고 · 인쇄','도메인','추가 비용','시안 확정']},
+    {eyebrow:'RULE MAP',title:'먼저 알아둘<br><em>여섯 가지</em>',copy:'스타트패키지를 진행하며 꼭 알아야 할 여섯 가지를 한 번에 정리했습니다.',mode:'6가지 진행 기준',visual:'automation',items:[['홈페이지 유지비','도메인 비용만 1년에 한 번'],['디자인 요청','문의하기로 남기기'],['로고 기준','모양과 들어갈 내용 필수'],['인쇄 색상','화면과 다를 수 있음'],['도메인','인쇄 전에 먼저 구매'],['비용과 확정','추가 비용 · 대표자 직접 확인']]},
+    {eyebrow:'HOSTING COST',title:'제작 후 유지비는<br><em>도메인 비용뿐</em>',copy:'홈페이지 제작이 끝난 뒤에는 매달 나가는 서버 비용이 없습니다. 1년에 한 번 도메인 비용만 결제합니다.',mode:'월 고정 서버비 없음',modeTone:'good',visual:'support',number:'1',numberLabel:'년에 한 번<br>도메인 결제',items:['매달 나가는 서버 비용 없음','호스팅 약정 없음','도메인 연 13,000원~30,000원 내외']},
+    {eyebrow:'INFRA STRUCTURE',title:'세 서비스로<br><em>나눠서 운영</em>',copy:'정적 사이트를 서버 없이 운영하는 서버리스 구조입니다. 세 서비스 모두 무료 구간에서 시작합니다.',mode:'정적 사이트 · 서버리스',visual:'flow',items:[['GitHub','홈페이지 원본 보관'],['Vercel','화면 배포와 접속 처리'],['Cloudflare','도메인 연결과 상담 접수']]},
+    {eyebrow:'SERVERLESS',title:'서버 임대 없이<br><em>고정비 0원</em>',copy:'방문자가 들어올 때만 미리 만들어 둔 화면을 전달하므로 24시간 서버를 빌릴 필요가 없습니다.',mode:'정적 사이트 방식',visual:'scopes',left:{kicker:'일반 서버형 홈페이지',title:'매달 서버 임대',items:['방문이 없어도 서버 가동','월 호스팅 비용 발생','서버 점검과 보안 관리 필요']},right:{kicker:'스타트패키지 홈페이지',title:'정적 사이트 · 서버리스',items:['미리 만든 화면을 바로 전달','사용한 만큼만 계산','개인 사용량은 무료 구간 안']}},
+    {eyebrow:'USAGE LIMIT',title:'사용량이 늘어도<br><em>월 4만원 이내</em>',copy:'개인 사용자는 무료 구간으로 충분합니다. 방문이 크게 늘어 유료 구간에 들어가도 월 결제액이 4만원을 넘기 어렵습니다.',mode:'개인 사용자 기준',visual:'costs',rows:[['무료 구간','개인 홈페이지 대부분','0원'],['유료 구간 진입','Vercel Pro · Cloudflare 유료','월 약 $25'],['개인 사용자 기준','두 서비스 합계','월 4만원 이내'],['도메인','1년에 한 번','13,000원~30,000원']]},
+    {eyebrow:'DESIGN REQUEST',title:'디자인 요청은<br><em>문의하기로</em>',copy:'스타트패키지 메뉴의 문의하기에 요청을 남기면 담당 디자이너를 안내해 드립니다.',mode:'영업시간 오전 9시~오후 6시',visual:'flow',items:[['문의하기','요청 내용 작성'],['담당 디자이너','요청 내용 확인'],['영업시간 안 답변','오전 9시~오후 6시']]},
+    {eyebrow:'WHY WRITTEN',title:'전화보다<br><em>글이 정확합니다</em>',copy:'요청 내용이 기록으로 남아야 담당 디자이너가 빠짐없이 반영합니다.',mode:'개별 전화보다 문의 내용 권장',visual:'decision',goodTitle:'문의하기로 요청',good:['요청 내용이 그대로 기록됩니다','답변 이력이 한곳에 남습니다','담당 디자이너가 바로 확인합니다'],badTitle:'개별 전화로 요청',bad:['말로 전한 내용은 빠지기 쉽습니다','담당자가 없으면 확인이 늦어집니다','수정 범위가 불분명해집니다']},
+    {eyebrow:'LOGO BRIEF',title:'느낌만으로는<br><em>제작 불가</em>',copy:'깔끔하게, 고급스럽게 같은 느낌 표현만으로는 제작할 수 없습니다. 로고의 정확한 모양과 들어갈 내용이 있어야 합니다.',mode:'모양과 내용 필수',modeTone:'warn',visual:'decision',goodTitle:'제작 가능한 요청',good:['참고 로고 이미지','들어갈 글자와 심볼','원하는 색상과 글꼴'],badTitle:'제작할 수 없는 요청',bad:['깔끔하게 만들어 주세요','고급스럽게 해 주세요','알아서 예쁘게 해 주세요']},
+    {eyebrow:'AI DRAFT',title:'자료가 없으면<br><em>AI 시안 제작</em>',copy:'정확한 모양이 없을 때는 AI로 시안을 만든 뒤 선택한 시안을 인쇄용 파일로 다시 그립니다.',mode:'AI 시안 → 인쇄용 재구성',visual:'flow',items:[['AI 시안 생성','방향 후보 확인'],['시안 선택','모양과 색상 확정'],['인쇄용 재구성','일러스트 파일로 단순화']]},
+    {eyebrow:'PRINT LIMIT',title:'AI 이미지 효과는<br><em>인쇄 불가</em>',copy:'AI 이미지의 흐린 경계, 그라데이션, 그림자는 명함과 봉투에 그대로 인쇄되지 않습니다.',mode:'인쇄용 일러스트 파일로 진행',visual:'printCompare',note:'색상 경계가 불분명한 부분은 명함 로고와 봉투에서 표현할 수 없어 단순한 면과 선으로 다시 그립니다.'},
+    {eyebrow:'COLOR PROFILE',title:'기기마다<br><em>색이 다릅니다</em>',copy:'모니터와 휴대폰은 디스플레이마다 컬러 프로파일이 달라서 같은 시안도 색이 다르게 보입니다. 실제 인쇄 색상도 화면과 다를 수 있습니다.',mode:'화면 색상과 인쇄 색상은 다릅니다',modeTone:'warn',visual:'scopes',left:{kicker:'디스플레이',title:'기기마다 다른 색',items:['기기별 컬러 프로파일 차이','밝기 · 색온도 설정 차이','빛으로 표현하는 RGB 색상']},right:{kicker:'인쇄물',title:'종이와 잉크의 색',items:['잉크로 표현하는 CMYK 색상','용지에 따라 밝기 변화','화면보다 채도가 낮아질 수 있음']}},
+    {eyebrow:'DOMAIN FIRST',title:'인쇄 전에<br><em>도메인부터 구매</em>',copy:'명함과 봉투에 홈페이지 주소가 들어가므로 도메인이 확정되어야 인쇄를 시작합니다. 스타트패키지에서 가장 많이 생기는 지연 사유입니다.',mode:'도메인 미확정 시 인쇄 대기',modeTone:'warn',visual:'scopes',left:{kicker:'이미 도메인이 있다면',title:'구매한 사이트 계정 전달',items:['도메인을 구매한 사이트 확인','해당 사이트 ID · PW 전달','폴라애드가 홈페이지에 연결']},right:{kicker:'아직 구매 전이라면',title:'폴라애드 대리구매',items:['폴라애드에 대리구매 요청','결제는 대표자 본인 카드','구매 후 주소 확정']}},
+    {eyebrow:'REPRINT COST',title:'재인쇄는<br><em>지정 금액 청구</em>',copy:'기본 수량을 다 쓴 뒤 같은 디자인으로 다시 인쇄하면 아래 금액으로 결제를 요청드립니다.',mode:'VAT 포함',visual:'costs',rows:[['명함','200매','22,000원'],['대봉투','500매','220,000원'],['자문계약서','500매','330,000원'],['한 세트 합계','세 항목','572,000원']]},
+    {eyebrow:'AFTER 8 WEEKS',title:'8주 이후 작업은<br><em>개별 비용</em>',copy:'마케팅 지원기간은 8주입니다. 이후에도 상담은 가능하지만 실제 작업은 건별로 비용이 발생합니다.',mode:'상담 가능 · 작업은 유료',visual:'scopes',left:{kicker:'8주 지원기간',title:'스타트패키지 지원',items:['광고소재 등록','광고계정 설정','Meta 접수 알림 자동화']},right:{kicker:'8주 이후',title:'상담 가능 · 작업 유료',items:['운영 상담 가능','실제 작업은 개별 비용','계속 운영은 10챕터 대행상품']}},
+    {eyebrow:'DESIGN FEE',title:'추가 시안은<br><em>회당 2만원</em>',copy:'스타트패키지의 최초 디자인 작업은 별도 요금이 없습니다. 시안 작업이 2회 이상이면 회당 20,000원씩 추가됩니다.',mode:'2회 이상 회당 20,000원',visual:'scopes',left:{kicker:'별도 요금 없음',title:'최초 스타트패키지 작업',items:['로고 · 인쇄물 · 홈페이지 기본 디자인','선택한 방향으로 시안 제작']},right:{kicker:'비용 발생',title:'시안 다수 작업',items:['시안 작업 2회 이상','회당 20,000원 추가']}},
+    {eyebrow:'FINAL CHECK',title:'대표자가<br><em>직접 확정</em>',copy:'시안 확정 화면의 세 단계를 대표자 본인이 직접 확인하고 체크해야 발주가 확정됩니다.',mode:'확정하면 되돌릴 수 없습니다',modeTone:'warn',visual:'flow',items:[['시안 표기 정보','상호 · 연락처 · 이메일 · 주소'],['배송지 확인','받는 분 · 연락처 · 주소'],['최종 동의','문구 · 색상 · 배치 확정']]},
+    {eyebrow:'TYPO CHECK',title:'오탈자 재인쇄는<br><em>본인 부담</em>',copy:'대표자가 확인하지 않고 확정해 오탈자가 인쇄되면 재인쇄와 재발주 비용은 대표자 본인이 부담합니다.',mode:'오탈자 재인쇄 비용 본인 부담',modeTone:'warn',visual:'decision',goodTitle:'확정 전에 볼 것',good:['상호 · 대표자명 철자','전화번호 · 이메일 · 주소','도메인 주소와 로고'],badTitle:'확인 없이 확정하면',bad:['오탈자가 그대로 인쇄','재인쇄 비용 본인 부담','재발주로 일정 지연']},
+    {type:'closing',eyebrow:'CHAPTER 12 COMPLETE',title:'규칙을 알면<br><em>추가 비용이 줄어듭니다</em>',copy:'도메인은 인쇄 전에 준비하고 시안은 대표자가 직접 확인한 뒤 확정해 주세요.',foot:'비즈액터스쿨 온라인마케팅 교육 · 다음 13 알림 연결 준비'}
+  ]
+};
+</script>
+<script src="./assets/service-course.js"></script>
+<script src="./assets/chapter-navigation.js"></script>
+</body>
+</html>

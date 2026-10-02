@@ -23,7 +23,12 @@
   const dashboardMock=(scene)=>`<div class="app-mock lead-dashboard-app zoomable" data-detail="${scene.detail}"><div class="app-topbar"><div><img class="polarad-mini" src="${A+'../polarad-profile-logo.png'}" alt="폴라애드"><b>홈페이지 접수관리</b></div><em>고객 접수 통계</em><button type="button">내보내기</button></div><div class="dashboard-body"><aside class="mock-side"><strong>접수관리</strong><span class="selected">전체 고객</span><span>상담 대기</span><span>상담 완료</span><span>통계</span></aside><main class="dashboard-main"><div class="metric-row"><div><span>오늘 접수</span><b>12</b></div><div><span>상담 대기</span><b>8</b></div><div><span>전환율</span><b>18.4%</b></div></div><div class="lead-chart"><span style="--h:38%"></span><span style="--h:64%"></span><span style="--h:49%"></span><span style="--h:82%"></span><span style="--h:72%"></span><span style="--h:96%"></span><b>최근 6일 접수 추이</b></div><div class="lead-table"><div class="table-head"><span>고객</span><span>접수경로</span><span>상태</span><span>접수시간</span></div><div><span>김**</span><span>Meta 양식</span><span class="waiting">상담 대기</span><span>방금 전</span></div><div><span>이**</span><span>홈페이지</span><span class="done">확인 완료</span><span>10:14</span></div></div></main></div></div>`;
   const processMapMock=(scene)=>`<div class="surface process-map">${scene.items.map((item,i)=>`<div class="process-screen ${item.kind} reveal" style="animation-delay:${i*.1}s"><div class="mini-screen">${item.kind==='creative'?`<img src="${A+'../social-content/polarad-post-01.png'}" alt="광고소재">`:item.kind==='ads'?'<div class="mini-rows"><i></i><i></i><i></i></div>':item.kind==='form'?'<div class="mini-form"><i></i><i></i><i></i><b></b></div>':item.kind==='alert'?'<div class="mini-alert"><b>T</b><i></i><i></i></div>':item.kind==='talk'?'<div class="mini-talk"><i></i><i></i></div>':'<div class="mini-dashboard"><b></b><i></i><i></i><i></i></div>'}</div><span>${String(i+1).padStart(2,'0')}</span><strong>${item.label}</strong></div>`).join('')}</div>`;
   const scopes=(scene)=>`<div class="scope-compare"><section class="scope reveal"><small>${scene.left.kicker}</small><h2>${scene.left.title}</h2><ul>${scene.left.items.map(x=>`<li>${x}</li>`).join('')}</ul></section><section class="scope reveal"><small>${scene.right.kicker}</small><h2>${scene.right.title}</h2><ul>${scene.right.items.map(x=>`<li>${x}</li>`).join('')}</ul></section></div>`;
+  const checklist=(scene)=>`<div class="surface checklist">${scene.items.map((item,i)=>`<div class="checklist-row reveal ${item[2]||''}" style="animation-delay:${i*.1}s"><b>${String(i+1).padStart(2,'0')}</b><div><strong>${item[0]}</strong><span>${item[1]}</span></div></div>`).join('')}</div>`;
+  const G='./assets/guides/';
+  const clock=(seconds)=>`${Math.floor(seconds/60)}:${String(Math.floor(seconds%60)).padStart(2,'0')}`;
+  const videoLesson=(scene)=>`<div class="video-lesson"><div class="lesson-copy"><span class="step-no">${scene.eyebrow}</span><h1>${scene.title}</h1><p>${scene.copy}</p>${scene.mode?`<span class="mode ${scene.modeTone||'info'}">${scene.mode}</span>`:''}${scene.prereq?`<p class="video-prereq">${scene.prereq}</p>`:''}<div class="video-steps">${scene.steps.map(([time,label])=>`<button type="button" data-time="${time}"><time>${clock(time)}</time><span>${label}</span></button>`).join('')}</div></div><div class="visual"><div class="video-panel"><div class="video-frame"><video controls muted playsinline preload="metadata" src="${G+scene.video}.mp4" poster="${G+scene.video}-poster.jpg" aria-label="${scene.label}"></video></div><div class="video-bar"><span>무음 화면 안내 · 구간 버튼으로 바로 이동</span><button type="button" class="video-big">크게 보기</button></div></div></div></div>`;
   const visual=(scene)=>{
+    if(scene.visual==='checklist')return checklist(scene);
     if(scene.visual==='gallery')return imageGrid(scene);
     if(scene.visual==='browser')return browser(scene);
     if(scene.visual==='support')return support(scene);
@@ -48,6 +53,7 @@
   };
   const slide=(scene,i)=>{
     if(scene.type==='cover')return `<section class="slide${i===0?' active':''}"><div class="hero"><span class="eyebrow">${scene.eyebrow}</span><h1>${scene.title}</h1><p>${scene.copy}</p><div class="hero-pills">${scene.pills.map(x=>`<span>${x}</span>`).join('')}</div></div></section>`;
+    if(scene.visual==='video')return `<section class="slide">${videoLesson(scene)}</section>`;
     if(scene.type==='closing')return `<section class="slide"><div class="closing"><span class="step-no">${scene.eyebrow}</span><h1>${scene.title}</h1><p>${scene.copy}</p><strong>${scene.foot}</strong></div></section>`;
     return `<section class="slide"><div class="lesson"><div class="lesson-copy"><span class="step-no">${scene.eyebrow}</span><h1>${scene.title}</h1><p>${scene.copy}</p>${scene.mode?`<span class="mode ${scene.modeTone||'info'}">${scene.mode}</span>`:''}</div><div class="visual">${visual(scene)}</div></div></section>`;
   };
@@ -58,6 +64,17 @@
   const previous=document.querySelector('#prev'),next=document.querySelector('#next'),replay=document.querySelector('#replay'),full=document.querySelector('#full');
   let index=Math.max(0,Math.min(slides.length-1,(parseInt(location.hash.replace(/\D/g,''),10)||1)-1));
   total.textContent=String(slides.length).padStart(2,'0');
+  stage.querySelectorAll('.video-lesson').forEach(lesson=>{
+    const video=lesson.querySelector('video');
+    const steps=[...lesson.querySelectorAll('.video-steps button')];
+    steps.forEach(step=>step.addEventListener('click',()=>{video.currentTime=Number(step.dataset.time);video.play().catch(()=>{})}));
+    video.addEventListener('timeupdate',()=>{
+      let current=-1;
+      steps.forEach((step,i)=>{if(video.currentTime>=Number(step.dataset.time)-.05)current=i});
+      steps.forEach((step,i)=>step.classList.toggle('on',i===current));
+    });
+    lesson.querySelector('.video-big').addEventListener('click',()=>video.requestFullscreen?.());
+  });
   const detail=document.createElement('section');
   detail.className='detail-overlay';
   detail.innerHTML='<div class="detail-head"><strong>자세히보기</strong><button class="detail-close" type="button">확대 닫기</button></div><div class="detail-slot"></div>';
@@ -106,7 +123,10 @@
   });
   const show=(value,replace=true)=>{
     index=Math.max(0,Math.min(slides.length-1,value));
-    slides.forEach((slide,i)=>slide.classList.toggle('active',i===index));
+    slides.forEach((slide,i)=>{
+      slide.classList.toggle('active',i===index);
+      if(i!==index)slide.querySelectorAll('video').forEach(video=>video.pause());
+    });
     current.textContent=String(index+1).padStart(2,'0');
     progress.style.width=`${(index+1)/slides.length*100}%`;
     previous.textContent=index===0?'이전 챕터':'이전';
@@ -128,6 +148,7 @@
   const previousKeys=new Set(['ArrowLeft','ArrowUp','PageUp','Backspace','MediaTrackPrevious']);
   document.addEventListener('keydown',event=>{
     if(event.key==='Escape'&&detail.classList.contains('open')){event.preventDefault();closeDetail();return}
+    if((event.key===' '||event.key==='Enter')&&event.target instanceof Element&&event.target.closest('.video-lesson video,.video-lesson button'))return;
     if(detail.classList.contains('open')&&detailItems.length){
       if(nextKeys.has(event.key)){event.preventDefault();moveDetail(1);return}
       if(previousKeys.has(event.key)){event.preventDefault();moveDetail(-1);return}
