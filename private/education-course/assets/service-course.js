@@ -26,7 +26,7 @@
   const checklist=(scene)=>`<div class="surface checklist">${scene.items.map((item,i)=>`<div class="checklist-row reveal ${item[2]||''}" style="animation-delay:${i*.1}s"><b>${String(i+1).padStart(2,'0')}</b><div><strong>${item[0]}</strong><span>${item[1]}</span></div></div>`).join('')}</div>`;
   const G='./assets/guides/';
   const clock=(seconds)=>`${Math.floor(seconds/60)}:${String(Math.floor(seconds%60)).padStart(2,'0')}`;
-  const videoLesson=(scene)=>`<div class="video-lesson"><div class="lesson-copy"><span class="step-no">${scene.eyebrow}</span><h1>${scene.title}</h1><p>${scene.copy}</p>${scene.mode?`<span class="mode ${scene.modeTone||'info'}">${scene.mode}</span>`:''}${scene.prereq?`<p class="video-prereq">${scene.prereq}</p>`:''}<div class="video-steps">${scene.steps.map(([time,label])=>`<button type="button" data-time="${time}"><time>${clock(time)}</time><span>${label}</span></button>`).join('')}</div></div><div class="visual"><div class="video-panel"><div class="video-frame"><video controls muted playsinline preload="metadata" src="${G+scene.video}.mp4" poster="${G+scene.video}-poster.jpg" aria-label="${scene.label}"></video></div><div class="video-bar"><span>무음 화면 안내 · 구간 버튼으로 바로 이동</span><button type="button" class="video-big">크게 보기</button></div></div></div></div>`;
+  const videoLesson=(scene)=>`<div class="video-lesson"><div class="lesson-copy"><span class="step-no">${scene.eyebrow}</span><h1>${scene.title}</h1><p>${scene.copy}</p>${scene.mode?`<span class="mode ${scene.modeTone||'info'}">${scene.mode}</span>`:''}${scene.prereq?`<p class="video-prereq">${scene.prereq}</p>`:''}<div class="video-steps">${scene.steps.map(([time,label])=>`<button type="button" data-time="${time}"><time>${clock(time)}</time><span>${label}</span></button>`).join('')}</div></div><div class="visual"><div class="video-panel"><div class="video-frame"><video muted playsinline preload="metadata" src="${G+scene.video}.mp4" poster="${G+scene.video}-poster.jpg" aria-label="${scene.label}"></video></div><div class="video-controls"><button type="button" class="video-play" aria-label="재생">▶</button><input class="video-seek" type="range" min="0" max="100" step="0.1" value="0" aria-label="재생 위치"><span class="video-time">0:00 / 0:00</span><button type="button" class="video-speed">1배속</button><button type="button" class="video-big">크게 보기</button></div><p class="video-note">무음 화면 안내 · 구간 버튼으로 바로 이동</p></div></div></div>`;
   const visual=(scene)=>{
     if(scene.visual==='checklist')return checklist(scene);
     if(scene.visual==='gallery')return imageGrid(scene);
@@ -55,7 +55,7 @@
     if(scene.type==='cover')return `<section class="slide${i===0?' active':''}"><div class="hero"><span class="eyebrow">${scene.eyebrow}</span><h1>${scene.title}</h1><p>${scene.copy}</p><div class="hero-pills">${scene.pills.map(x=>`<span>${x}</span>`).join('')}</div></div></section>`;
     if(scene.visual==='video')return `<section class="slide">${videoLesson(scene)}</section>`;
     if(scene.type==='closing')return `<section class="slide"><div class="closing"><span class="step-no">${scene.eyebrow}</span><h1>${scene.title}</h1><p>${scene.copy}</p><strong>${scene.foot}</strong></div></section>`;
-    return `<section class="slide"><div class="lesson"><div class="lesson-copy"><span class="step-no">${scene.eyebrow}</span><h1>${scene.title}</h1><p>${scene.copy}</p>${scene.mode?`<span class="mode ${scene.modeTone||'info'}">${scene.mode}</span>`:''}</div><div class="visual">${visual(scene)}</div></div></section>`;
+    return `<section class="slide"><div class="lesson"><div class="lesson-copy"><span class="step-no">${scene.eyebrow}</span><h1>${scene.title}</h1><p>${scene.copy}</p>${scene.mode?`<span class="mode ${scene.modeTone||'info'}">${scene.mode}</span>`:''}${scene.link?`<a class="scene-link" href="${scene.link.href}" target="_blank" rel="noopener noreferrer">${scene.link.label}</a>`:''}</div><div class="visual">${visual(scene)}</div></div></section>`;
   };
   stage.innerHTML=config.scenes.map(slide).join('');
   document.querySelector('.chapter').textContent=`CHAPTER ${config.number} · ${config.name}`;
@@ -73,7 +73,17 @@
       steps.forEach((step,i)=>{if(video.currentTime>=Number(step.dataset.time)-.05)current=i});
       steps.forEach((step,i)=>step.classList.toggle('on',i===current));
     });
-    lesson.querySelector('.video-big').addEventListener('click',()=>video.requestFullscreen?.());
+    const play=lesson.querySelector('.video-play'),seek=lesson.querySelector('.video-seek'),time=lesson.querySelector('.video-time'),speed=lesson.querySelector('.video-speed');
+    const toggle=()=>video.paused?video.play().catch(()=>{}):video.pause();
+    const syncPlay=()=>{play.textContent=video.paused?'▶':'❚❚';play.setAttribute('aria-label',video.paused?'재생':'일시정지')};
+    const syncTime=()=>{const duration=video.duration||0;seek.value=duration?String(video.currentTime/duration*100):'0';time.textContent=`${clock(video.currentTime)} / ${clock(duration)}`};
+    play.addEventListener('click',toggle);
+    video.addEventListener('click',toggle);
+    ['play','pause','ended'].forEach(type=>video.addEventListener(type,syncPlay));
+    ['timeupdate','loadedmetadata'].forEach(type=>video.addEventListener(type,syncTime));
+    seek.addEventListener('input',()=>{if(video.duration)video.currentTime=Number(seek.value)/100*video.duration});
+    speed.addEventListener('click',()=>{video.playbackRate=video.playbackRate===1?.75:1;speed.textContent=video.playbackRate===1?'1배속':'0.75배속'});
+    lesson.querySelector('.video-big').addEventListener('click',()=>lesson.querySelector('.video-panel').requestFullscreen?.());
   });
   const detail=document.createElement('section');
   detail.className='detail-overlay';
@@ -148,7 +158,8 @@
   const previousKeys=new Set(['ArrowLeft','ArrowUp','PageUp','Backspace','MediaTrackPrevious']);
   document.addEventListener('keydown',event=>{
     if(event.key==='Escape'&&detail.classList.contains('open')){event.preventDefault();closeDetail();return}
-    if((event.key===' '||event.key==='Enter')&&event.target instanceof Element&&event.target.closest('.video-lesson video,.video-lesson button'))return;
+    if((event.key===' '||event.key==='Enter')&&event.target instanceof Element&&event.target.closest('.video-lesson video,.video-lesson button,.scene-link'))return;
+    if(event.target instanceof Element&&event.target.closest('.video-seek'))return;
     if(detail.classList.contains('open')&&detailItems.length){
       if(nextKeys.has(event.key)){event.preventDefault();moveDetail(1);return}
       if(previousKeys.has(event.key)){event.preventDefault();moveDetail(-1);return}

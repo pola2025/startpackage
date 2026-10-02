@@ -18,6 +18,23 @@
     ['13','알림 연결 준비','chapter-13-alert-setup.html#/1','support']
   ];
   const currentFile=location.pathname.split('/').pop().toLowerCase();
+  const progressKey='polarad-course-progress';
+  const saveProgress=()=>{
+    try{
+      const scene=parseInt(bottom.querySelector('#current')?.textContent||'',10);
+      const total=parseInt(bottom.querySelector('#total')?.textContent||'',10);
+      if(!scene||!total||!currentFile)return;
+      const data=JSON.parse(localStorage.getItem(progressKey)||'{}');
+      data.seen=data.seen||{};data.totals=data.totals||{};
+      data.seen[currentFile]=Math.max(data.seen[currentFile]||0,scene);
+      data.totals[currentFile]=total;
+      data.last={file:currentFile,scene,at:Date.now()};
+      localStorage.setItem(progressKey,JSON.stringify(data));
+    }catch{}
+  };
+  const currentNode=bottom.querySelector('#current');
+  if(currentNode)new MutationObserver(saveProgress).observe(currentNode,{childList:true,characterData:true,subtree:true});
+  setTimeout(saveProgress,0);
   const previous=bottom.querySelector('#prev');
   const next=bottom.querySelector('#next');
   const replay=bottom.querySelector('#replay');
@@ -65,7 +82,7 @@
 
   const assistantEntries=[
     {keywords:['온라인 db','db','고객 데이터','잠재고객'],title:'온라인 DB와 잠재 고객',answer:'Meta 광고는 검색 직후의 고객만 만나는 구조가 아닙니다. 관심과 행동 신호로 발견한 고객에게 광고가 노출되므로 첫 연락에서 거절 응답이 나올 수 있습니다.',href:'chapter-01-online-db.html#/2'},
-    {keywords:['용어','광고 세트','캠페인','비즈니스 포트폴리오','잠재고객센터'],title:'Meta 광고 용어집',answer:'캠페인은 목표, 광고 세트는 타겟과 예산, 광고는 고객에게 보이는 소재입니다. 기본 용어 화면에서 메뉴별 역할을 확인하세요.',href:'chapter-01-online-db.html#/26'},
+    {keywords:['용어','광고 세트','캠페인','비즈니스 포트폴리오','잠재고객센터'],title:'Meta 광고 용어집',answer:'캠페인은 목표, 광고 세트는 타겟과 예산, 광고는 고객에게 보이는 소재입니다. 기본 용어 화면에서 메뉴별 역할을 확인하세요.',href:'chapter-01-online-db.html#/24'},
     {keywords:['페이스북 페이지','페이지 만들기','개인 프로필','바둑판 메뉴'],title:'Facebook 페이지 만들기',answer:'Facebook 개인 프로필로 로그인한 홈 화면에서 오른쪽 위 메뉴를 열고 만들기의 페이지를 선택합니다.',href:'chapter-02-facebook-page.html#/2'},
     {keywords:['인스타그램 계정','새 계정','이메일 가입','프로페셔널','크리에이터'],title:'Instagram 계정 만들기',answer:'스마트폰 Instagram 앱에서 사업별 전용 이메일로 새 계정을 만들고 프로페셔널 크리에이터 계정으로 전환합니다.',href:'chapter-03-instagram-account.html#/3'},
     {keywords:['미디어 품질','고화질','화질','업로드 품질'],title:'고화질 업로드 설정',answer:'프로필 오른쪽 위 메뉴에서 설정 및 활동을 열고 앱 및 미디어의 미디어 품질로 이동해 고화질 업로드를 켭니다.',href:'chapter-03-instagram-account.html#/27'},
@@ -81,26 +98,30 @@
     {keywords:['예산','일일 예산','20달러','$20','입찰'],title:'광고 예산 기본값',answer:'캠페인 일일 예산은 $20로 설정하고 입찰 전략은 최고 볼륨을 유지합니다. 시작일과 종료일은 기본값을 사용합니다.',href:'chapter-07-ad-settings.html#/13'},
     {keywords:['입력양식','인스턴트 양식','양식 만들기','회사명','전화번호'],title:'인스턴트 양식 만들기',answer:'양식 만들기를 선택하고 회사명, 업종, 이름, 전화번호를 받습니다. 소개 설명과 개인정보처리방침 주소도 입력해야 합니다.',href:'chapter-07-ad-settings.html#/33'},
     {keywords:['콘텐츠','게시물','릴스','reels','쓰레드','threads','게시 실습'],title:'소셜 콘텐츠 게시 실습',answer:'Instagram 게시물, Reels, Threads의 실제 모바일 게시 과정을 콘텐츠 교육에서 확인합니다.',href:'social-content-training.html'},
-    {keywords:['스타트패키지','로고','추상 로고','캘리그라피','인쇄물','명함','명찰','대봉투','계약서','홈페이지 스타일'],title:'스타트패키지 제작 범위',answer:'단순 엠블럼과 레퍼런스가 있는 로고를 기준으로 진행하며 홈페이지 9종과 인쇄물 예시를 확인할 수 있습니다.',href:'chapter-09-startpackage.html#/2'},
-    {keywords:['추가 인쇄','재인쇄','인쇄 비용','명함 비용','대봉투 비용','계약서 비용'],title:'추가 인쇄비',answer:'명함은 추가 22,000원, 대봉투는 220,000원, 자문계약서는 330,000원이며 모두 VAT 포함 기준입니다.',href:'chapter-12-rules-costs.html#/13'},
+    {keywords:['스타트패키지','로고','추상 로고','캘리그라피','인쇄물','명함','명찰','대봉투','계약서','홈페이지 스타일'],title:'스타트패키지 제작 범위',answer:'단순 엠블럼과 레퍼런스가 있는 로고를 기준으로 진행하며 홈페이지 10종과 인쇄물 예시를 확인할 수 있습니다.',href:'chapter-09-startpackage.html#/2'},
+    {keywords:['추가 인쇄','재인쇄','인쇄 비용','명함 비용','대봉투 비용','계약서 비용'],title:'추가 인쇄비',answer:'명함은 추가 22,000원, 대봉투는 220,000원, 자문계약서는 330,000원이며 모두 VAT 포함 기준입니다.',href:'chapter-12-rules-costs.html#/14'},
     {keywords:['8주 지원','마케팅 지원','광고소재 등록','광고계정 설정','접수 알림','접수 자동화'],title:'8주 Meta 마케팅 지원',answer:'8주 동안 광고소재 등록, 광고계정 설정, Meta 양식 접수 알림 자동화를 지원합니다. 지원 종료 후 Meta 접수자동화는 종료되고 홈페이지 자체 접수 알림은 계속 작동합니다.',href:'chapter-10-marketing-support.html#/2'},
     {keywords:['텔레그램','telegram','텔레그램 알림','담당자 텔레그램'],title:'담당자 Telegram 접수 알림',answer:'Meta 양식으로 신규 고객이 접수되면 내부 접수관리 화면과 담당자 Telegram에 고객명, 연락처, 접수경로가 동시에 전달됩니다.',href:'chapter-10-marketing-support.html#/6'},
     {keywords:['접수 자동화','담당자 알림','알림톡','문자 알림','접수관리','고객 통계'],title:'Meta 접수자동화 작동 과정',answer:'광고소재 제작, 광고 설정, 접수폼 설정 후 내부 접수관리와 담당자 Telegram으로 동시에 전달됩니다. 이어서 고객 문자 또는 알림톡과 홈페이지 접수관리로 연결됩니다.',href:'chapter-10-marketing-support.html#/9'},
     {keywords:['광고운영대행','운영대행','콘텐츠대행','대행 상품','99만원','66만원','165만원','33만원','22만원'],title:'폴라애드 대행상품',answer:'광고운영대행은 월 33만원 기준 3개월 99만원, 콘텐츠대행은 월 22만원 기준 3개월 66만원입니다. 함께 신청하면 3개월 합계 165만원입니다.',href:'chapter-10-marketing-support.html#/13'},
     {keywords:['관련정보','자료 제출','gmail','지메일','도메인','cloudflare','클라우드플레어'],title:'관련정보 제출안내',answer:'홈페이지 연결용 Gmail ID/PW와 도메인 주소가 필요합니다. 도메인은 연간 약 13,000원부터 30,000원 내외이며 Cloudflare 구매를 권장합니다.',href:'chapter-11-submission-guide.html#/1'},
     {keywords:['유지비','서버비','서버 비용','호스팅','월 비용','vercel','github','서버리스','정적 사이트'],title:'홈페이지 유지비',answer:'홈페이지 제작 후에는 매달 나가는 서버 비용이 없고 1년에 한 번 도메인 비용만 결제합니다. 사용량이 늘어 유료 구간에 들어가도 개인 사용자는 월 4만원을 넘기 어렵습니다.',href:'chapter-12-rules-costs.html#/3'},
-    {keywords:['디자인 요청','디자이너','문의하기','영업시간','전화 문의'],title:'디자인 요청 방법',answer:'스타트패키지 메뉴의 문의하기에 요청을 남기면 담당 디자이너가 영업시간(오전 9시~오후 6시) 안에 안내합니다. 개별 전화보다 문의 내용으로 남기는 것을 권장합니다.',href:'chapter-12-rules-costs.html#/7'},
-    {keywords:['고급스럽게','깔끔하게','로고 요청','ai 로고','ai 시안','로고 시안'],title:'로고 요청 기준',answer:'느낌 표현만으로는 로고를 제작할 수 없습니다. 정확한 모양과 들어갈 내용이 필요하며, 자료가 없으면 AI 시안을 만든 뒤 인쇄용 일러스트 파일로 단순화합니다.',href:'chapter-12-rules-costs.html#/9'},
-    {keywords:['인쇄 색상','색상 차이','색이 달라','모니터 색','컬러 프로파일'],title:'화면과 인쇄 색상 차이',answer:'모니터와 휴대폰은 디스플레이마다 컬러 프로파일이 달라 같은 시안도 색이 다르게 보이며 실제 인쇄 색상과도 차이가 날 수 있습니다.',href:'chapter-12-rules-costs.html#/12'},
-    {keywords:['도메인 구매','대리구매','도메인 대리','도메인 계정','인쇄 지연'],title:'인쇄 전 도메인 준비',answer:'명함과 봉투에 홈페이지 주소가 들어가므로 인쇄 전에 도메인을 확정해야 합니다. 이미 있으면 구매한 사이트의 ID와 PW를 전달하고, 없으면 폴라애드에 대리구매를 요청합니다. 결제는 대표자 본인 카드로 합니다.',href:'chapter-11-submission-guide.html#/5'},
-    {keywords:['8주 이후','지원 종료','지원 기간 이후','개별 비용'],title:'8주 이후 작업 비용',answer:'마케팅 지원기간은 8주입니다. 이후에도 상담은 가능하지만 실제 작업은 건별로 비용이 발생합니다.',href:'chapter-12-rules-costs.html#/14'},
-    {keywords:['시안 비용','추가 시안','시안 추가','2만원','20,000원'],title:'추가 시안 비용',answer:'최초 스타트패키지 디자인 작업은 별도 요금이 없습니다. 시안 작업이 2회 이상이면 회당 20,000원씩 추가됩니다.',href:'chapter-12-rules-costs.html#/15'},
-    {keywords:['시안 확정','발주 확정','오탈자','재인쇄 책임','본인 부담'],title:'시안 확정과 재인쇄 책임',answer:'시안 확정 화면의 시안 표기 정보, 배송지 확인, 최종 동의를 대표자가 직접 확인해야 발주가 확정됩니다. 확인 없이 확정해 오탈자가 인쇄되면 재인쇄 비용은 대표자 본인이 부담합니다.',href:'chapter-12-rules-costs.html#/16'},
+    {keywords:['디자인 요청','디자이너','문의하기','영업시간','전화 문의'],title:'디자인 요청 방법',answer:'스타트패키지 메뉴의 문의하기에 요청을 남기면 담당 디자이너가 영업시간(오전 9시~오후 6시) 안에 안내합니다. 개별 전화보다 문의 내용으로 남기는 것을 권장합니다.',href:'chapter-12-rules-costs.html#/8'},
+    {keywords:['고급스럽게','깔끔하게','로고 요청','ai 로고','ai 시안','로고 시안'],title:'로고 요청 기준',answer:'느낌 표현만으로는 로고를 제작할 수 없습니다. 정확한 모양과 들어갈 내용이 필요하며, 자료가 없으면 AI 시안을 만든 뒤 인쇄용 일러스트 파일로 단순화합니다.',href:'chapter-12-rules-costs.html#/10'},
+    {keywords:['인쇄 색상','색상 차이','색이 달라','모니터 색','컬러 프로파일'],title:'화면과 인쇄 색상 차이',answer:'모니터와 휴대폰은 디스플레이마다 컬러 프로파일이 달라 같은 시안도 색이 다르게 보이며 실제 인쇄 색상과도 차이가 날 수 있습니다.',href:'chapter-12-rules-costs.html#/13'},
+    {keywords:['도메인 구매','대리구매','도메인 대리','도메인 계정','인쇄 지연'],title:'인쇄 전 도메인 준비',answer:'명함과 봉투에 홈페이지 주소가 들어가므로 인쇄 전에 도메인을 확정해야 합니다. 이미 있으면 구매한 사이트의 ID와 PW를 전달하고, 없으면 폴라애드에 대리구매를 요청합니다. 결제는 대표자 본인 카드로 합니다.',href:'chapter-11-submission-guide.html#/6'},
+    {keywords:['8주 이후','지원 종료','지원 기간 이후','개별 비용'],title:'8주 이후 작업 비용',answer:'마케팅 지원기간은 8주입니다. 이후에도 상담은 가능하지만 실제 작업은 건별로 비용이 발생합니다.',href:'chapter-12-rules-costs.html#/15'},
+    {keywords:['시안 비용','추가 시안','시안 추가','2만원','20,000원'],title:'추가 시안 비용',answer:'최초 스타트패키지 디자인 작업은 별도 요금이 없습니다. 시안 작업이 2회 이상이면 회당 20,000원씩 추가됩니다.',href:'chapter-12-rules-costs.html#/16'},
+    {keywords:['시안 확정','발주 확정','오탈자','재인쇄 책임','본인 부담'],title:'시안 확정과 재인쇄 책임',answer:'시안 확정 화면의 시안 표기 정보, 배송지 확인, 최종 동의를 대표자가 직접 확인해야 발주가 확정됩니다. 확인 없이 확정해 오탈자가 인쇄되면 재인쇄 비용은 대표자 본인이 부담합니다.',href:'chapter-12-rules-costs.html#/17'},
     {keywords:['네이버클라우드','네이버 클라우드','ncloud','sens','sms 발송'],title:'네이버클라우드 가입',answer:'문자와 알림톡은 네이버클라우드 SENS에서 보냅니다. Gmail로 가입한 뒤 사업자 정보를 바꾸고 결제수단을 등록하는 영상을 따라하세요.',href:'chapter-13-alert-setup.html#/3'},
     {keywords:['발신번호','통신서비스 이용증명원','이용증명원','재직증명서','신분증'],title:'문자 발신번호 등록 서류',answer:'사업자등록증, 대표자 신분증, 통신서비스 이용증명원을 번호와 명의를 가리지 않고 제출합니다. 대표자와 발신번호 명의가 다르면 재직증명서도 필요합니다.',href:'chapter-13-alert-setup.html#/4'},
     {keywords:['카카오 채널','카카오톡 채널','비즈니스 심사','채널 심사','알림톡 채널','관리자 초대'],title:'카카오톡 채널 개설과 심사',answer:'대표자 본인 카카오계정으로 채널을 만들고 비즈니스 심사를 신청한 뒤 polarad@kakao.com을 관리자로 초대합니다. 심사는 영업일 3~7일 걸립니다.',href:'chapter-13-alert-setup.html#/5'},
     {keywords:['텔레그램 설정','텔레그램 알림 설정','전화번호 숨기기','텔레그램 진동','텔레그램 소리'],title:'텔레그램 기본설정',answer:'홈페이지 제작 후 받은 링크로 알림 채널에 참여한 뒤 전화번호 보호와 채널 알림을 설정합니다.',href:'chapter-13-alert-setup.html#/7'},
-    {keywords:['텔레그램 웹','pc 텔레그램','웹에서 보기','텔레그램 pc','qr 로그인'],title:'PC 웹에서 텔레그램 보기',answer:'프로그램 설치 없이 PC 브라우저에서 web.telegram.org를 열고 휴대폰 텔레그램의 설정 › 기기 › 기기 추가로 QR을 스캔합니다.',href:'chapter-13-alert-setup.html#/8'}
+    {keywords:['텔레그램 웹','pc 텔레그램','웹에서 보기','텔레그램 pc','qr 로그인'],title:'PC 웹에서 텔레그램 보기',answer:'프로그램 설치 없이 PC 브라우저에서 web.telegram.org를 열고 휴대폰 텔레그램의 설정 › 기기 › 기기 추가로 QR을 스캔합니다.',href:'chapter-13-alert-setup.html#/8'},
+    {keywords:['자료 제출 위치','어디에 제출','제출 위치','자료 제출','문의하기','보내는 곳'],title:'자료를 보내는 곳',answer:'사업 정보와 디자인 자료는 자료 제출 메뉴에, 홈페이지 스타일과 Gmail은 홈페이지 제작요청 메뉴에 입력합니다. 디자인 요청과 도메인 정보는 문의하기로, 진행 일정 문의는 카카오톡으로 보냅니다.',href:'chapter-11-submission-guide.html#/13'},
+    {keywords:['계정 보안','비밀번호 보안','비밀번호 전달','암호화','계정 정보'],title:'계정 정보 보관',answer:'제출 화면에 입력한 비밀번호는 암호화되어 저장되고, 신분증과 통신서비스 이용증명원은 서버에 저장하지 않고 담당자에게만 전달됩니다. 연결이 끝나면 비밀번호 변경을 권장합니다.',href:'chapter-11-submission-guide.html#/5'},
+    {keywords:['광고비','문자 비용','알림톡 비용','발송비','카드 결제','나가는 비용'],title:'대표님 카드로 나가는 비용',answer:'도메인은 1년에 한 번, Meta 광고비는 설정한 일 예산만큼, 문자와 알림톡은 보낸 건수만큼 대표님 카드로 결제됩니다. 홈페이지 서버는 대부분 0원입니다.',href:'chapter-12-rules-costs.html#/7'},
+    {keywords:['제작 기간','시안 언제','인쇄 기간','배송 기간','며칠'],title:'시안과 인쇄물 제작 기간',answer:'시안은 오전 11시 전 요청 시 영업일 2일차, 이후 요청 시 3일차에 전달됩니다. 인쇄물은 발주 확정 후 명함 2~3일, 명찰 3~4일, 대봉투 4~5일, 자문계약서 7일이 걸립니다.',href:'chapter-12-rules-costs.html#/18'}
   ];
   const assistant=document.createElement('div');
   assistant.className='course-assistant-wrap';
@@ -114,7 +135,7 @@
   assistantPanel.className='course-assistant-panel';
   assistantPanel.setAttribute('role','dialog');
   assistantPanel.setAttribute('aria-label','교육 도우미 챗봇');
-  assistantPanel.innerHTML='<div class="assistant-head"><div><b>교육 도우미</b><span>메뉴명이나 궁금한 내용을 입력하세요.</span></div><button type="button" class="assistant-close" aria-label="교육 도우미 닫기">×</button></div><div class="assistant-quick"><button type="button">페이지 만들기</button><button type="button">고화질 업로드</button><button type="button">결제수단</button><button type="button">지역 타겟팅</button></div><form class="assistant-form"><input type="text" aria-label="교육 질문" placeholder="예: 지역 타겟팅은 어디서 설정하나요?"><button type="submit">찾기</button></form><div class="assistant-answer" aria-live="polite"><strong>교육내용을 바로 찾아드립니다.</strong><p>질문과 가장 가까운 설명과 이동할 페이지를 표시합니다.</p></div>';
+  assistantPanel.innerHTML='<div class="assistant-head"><div><b>교육 도우미</b><span>메뉴명이나 궁금한 내용을 입력하세요.</span></div><button type="button" class="assistant-close" aria-label="교육 도우미 닫기">×</button></div><div class="assistant-quick"><button type="button">페이지 만들기</button><button type="button">고화질 업로드</button><button type="button">결제수단</button><button type="button">지역 타겟팅</button><button type="button">자료 제출 위치</button><button type="button">시안 비용</button></div><form class="assistant-form"><input type="text" aria-label="교육 질문" placeholder="예: 지역 타겟팅은 어디서 설정하나요?"><button type="submit">찾기</button></form><div class="assistant-answer" aria-live="polite"><strong>교육내용을 바로 찾아드립니다.</strong><p>질문과 가장 가까운 설명과 이동할 페이지를 표시합니다.</p></div>';
   assistant.append(assistantToggle,assistantPanel);
   const assistantInput=assistantPanel.querySelector('input');
   const assistantAnswer=assistantPanel.querySelector('.assistant-answer');
