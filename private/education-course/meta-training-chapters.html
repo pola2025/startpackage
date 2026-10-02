@@ -34,7 +34,7 @@
       <a class="chapter track-main" href="chapter-04-account-integration.html"><div class="no">04</div><div><strong>Facebook · Instagram 계정 통합</strong><span>페이지 연결과 Business Suite 로그인 상태 확인</span></div><b>열기</b></a>
       <a class="chapter track-main" href="chapter-05-ad-payment.html"><div class="no">05</div><div><strong>광고 계정 · 결제 설정</strong><span>광고 계정 만들기부터 결제수단 등록까지</span></div><b>열기</b></a>
       <a class="chapter track-main" href="chapter-06-advertiser-safety.html"><div class="no">06</div><div><strong>Meta 광고운영 주의사항</strong><span>Meta 사칭 피싱 구분과 공식 확인 경로</span></div><b>열기</b></a>
-      <a class="chapter track-main" href="chapter-07-ad-settings.html"><div class="no">07</div><div><strong>잠재 고객 광고 설정</strong><span>캠페인 목표 · 지역 타겟팅 · Meta 인스턴트 양식</span></div><b>열기</b></a>
+      <a class="chapter track-main" href="chapter-07-ad-settings.html"><div class="no">07</div><div><strong>잠재 고객 광고 설정</strong><span>07A 캠페인 · 광고 세트 → 07B 광고 · 인스턴트 양식</span></div><b>열기</b></a>
       <a class="chapter track-content" href="social-content-training.html"><div class="no">08</div><div><strong>소셜 콘텐츠 게시 실습</strong><span>Instagram 게시물 · Reels · Threads</span></div><b>열기</b></a>
       <a class="chapter track-support" href="chapter-09-startpackage.html"><div class="no">09</div><div><strong>스타트패키지</strong><span>로고 · 홈페이지 10종 · 인쇄물</span></div><b>열기</b></a>
       <a class="chapter track-support" href="chapter-10-marketing-support.html"><div class="no">10</div><div><strong>Meta 마케팅 지원사항</strong><span>8주 기본 지원 · 광고운영대행 · 콘텐츠대행</span></div><b>열기</b></a>
@@ -50,14 +50,15 @@
   </script>
   <script>
     (()=>{
-      const COUNTS={"chapter-01-online-db.html":37,"chapter-02-facebook-page.html":15,"chapter-03-instagram-account.html":30,"chapter-04-account-integration.html":27,"chapter-05-ad-payment.html":18,"chapter-06-advertiser-safety.html":14,"chapter-07-ad-settings.html":45,"social-01-instagram-post.html":14,"social-02-instagram-reels.html":14,"social-03-threads.html":15,"chapter-09-startpackage.html":20,"chapter-10-marketing-support.html":18,"chapter-11-submission-guide.html":14,"chapter-12-rules-costs.html":20,"chapter-13-alert-setup.html":9};
+      const COUNTS={"chapter-01-online-db.html":36,"chapter-02-facebook-page.html":15,"chapter-03-instagram-account.html":30,"chapter-04-account-integration.html":27,"chapter-05-ad-payment.html":18,"chapter-06-advertiser-safety.html":14,"chapter-07-ad-settings.html":25,"chapter-07b-ad-form.html":18,"social-01-instagram-post.html":14,"social-02-instagram-reels.html":14,"social-03-threads.html":15,"chapter-09-startpackage.html":20,"chapter-10-marketing-support.html":16,"chapter-11-submission-guide.html":14,"chapter-12-rules-costs.html":20,"chapter-13-alert-setup.html":9};
       const SOCIAL=['social-01-instagram-post.html','social-02-instagram-reels.html','social-03-threads.html'];
+      const GROUPS={'social-content-training.html':SOCIAL,'chapter-07-ad-settings.html':['chapter-07-ad-settings.html','chapter-07b-ad-form.html']};
       let data={};try{data=JSON.parse(localStorage.getItem('polarad-course-progress')||'{}')}catch{}
       const seen=data.seen||{};
       const cards=[...document.querySelectorAll('.chapter')];
       cards.forEach(card=>{
         const href=card.getAttribute('href');
-        const files=href==='social-content-training.html'?SOCIAL:[href];
+        const files=GROUPS[href]||[href];
         const total=files.reduce((sum,file)=>sum+(COUNTS[file]||0),0);
         const done=files.reduce((sum,file)=>sum+Math.min(seen[file]||0,COUNTS[file]||0),0);
         const tag=document.createElement('i');
@@ -67,7 +68,7 @@
       });
       const last=data.last;
       if(last&&last.file){
-        const card=cards.find(item=>item.getAttribute('href')===last.file)||(SOCIAL.includes(last.file)?cards.find(item=>item.getAttribute('href')==='social-content-training.html'):null);
+        const card=cards.find(item=>(GROUPS[item.getAttribute('href')]||[item.getAttribute('href')]).includes(last.file));
         const resume=document.querySelector('#resume');
         if(card&&resume){resume.href=`${last.file}#/${last.scene}`;resume.textContent=`이어서 보기 · ${card.querySelector('.no').textContent} ${card.querySelector('strong').textContent} ${last.scene}장면`;resume.hidden=false}
       }

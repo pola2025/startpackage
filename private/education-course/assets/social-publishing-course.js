@@ -9,7 +9,7 @@
     document.addEventListener('keydown',event=>{
       if(skipNavigation(event))return;
       if(nextKeys.has(event.key)){event.preventDefault();location.href=courses[0].href;return}
-      if(previousKeys.has(event.key)){event.preventDefault();location.href='chapter-07-ad-settings.html#/999';return}
+      if(previousKeys.has(event.key)){event.preventDefault();location.href='chapter-07b-ad-form.html#/999';return}
       const number=Number(event.key);
       if(number>=1&&number<=courses.length){event.preventDefault();location.href=courses[number-1].href}
     });
@@ -78,6 +78,20 @@
     });
     stage.append(button);
   };
+  const phoneDesignHeight=590;
+  const fitPhone=()=>{
+    const stage=slides[index].querySelector('.phone-stage');
+    const phone=stage&&stage.querySelector(':scope>.phone');
+    if(!phone)return;
+    stage.classList.remove('phone-fit');
+    const rendered=phone.getBoundingClientRect().height;
+    const zoom=parseFloat(getComputedStyle(phone).zoom)||1;
+    if(!rendered||rendered/zoom>=phoneDesignHeight)return;
+    stage.style.setProperty('--phone-design',`${phoneDesignHeight}px`);
+    stage.style.setProperty('--phone-fit',String(rendered/phoneDesignHeight));
+    stage.classList.add('phone-fit');
+  };
+  window.addEventListener('resize',fitPhone);
   const render=(replaceHash=false)=>{
     slides.forEach((slide,i)=>slide.classList.toggle('active',i===index));
     current.textContent=String(index+1).padStart(2,'0');
@@ -89,6 +103,7 @@
     const hash=`#/${index+1}`;
     if(replaceHash)history.replaceState(null,'',hash);else if(location.hash!==hash)history.pushState(null,'',hash);
     slides.forEach((slide,i)=>slide.querySelectorAll('video').forEach(video=>{if(i===index){video.play().catch(()=>{})}else{video.pause()}}));
+    fitPhone();
     addDetailButton();
   };
   const go=value=>{index=Math.max(0,Math.min(slides.length-1,value));closeDetail();render()};

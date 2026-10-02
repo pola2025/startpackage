@@ -247,7 +247,7 @@
       else if(title.includes('Meta 계정 통합'))scale=Math.min(1.55,Math.max(1.42,frame.clientWidth/(surfaceRect.width*.82)));
       else if(title.includes('광고 결제 설정'))scale=page===5?1.55:1.48;
       else if(title.includes('Meta 광고운영 주의사항'))scale=page===10?1.72:page===4?1.4:1.55;
-      else if(title.includes('잠재 고객 광고 설정'))scale=[9,10,11,16,17,18,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37].includes(page)?1.58:1.48;
+      else if(title.includes('잠재 고객 광고 설정'))scale=slide.dataset.detailScale==='wide'?1.58:1.48;
       else scale=Math.min(2.25,Math.max(1.8,frame.clientWidth/(surfaceRect.width*.62)));
       const x=targetRect.left-surfaceRect.left+targetRect.width/2;
       const y=targetRect.top-surfaceRect.top+targetRect.height/2;
@@ -287,7 +287,7 @@
     const frame=layer.querySelector('.detail-focus-window');
     const canvas=layer.querySelector('.detail-focus-canvas');
     const scope=detailScope(target);
-    const chapterSevenPanel=document.title.includes('잠재 고객 광고 설정')&&[13,14,15,20,21,22,23,24,27,28,29,30,31,32,33,34,35,36,37,38,39].includes(slideNumber(slide));
+    const chapterSevenPanel=document.title.includes('잠재 고객 광고 설정');
     if(chapterSevenPanel)addCroppedDetail(canvas,frame,surface,target,slide);
     else if(needsScreenContext(slide))addCroppedDetail(canvas,frame,surface,target,slide);
     else if(scope)addIsolatedDetail(canvas,frame,scope,target,slide);
