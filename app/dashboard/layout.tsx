@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { redirect } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
@@ -12,6 +12,7 @@ import { SystemAlertModal } from "@/components/ui/system-alert-modal";
 import { CohortAnnouncementPopup } from "@/components/ui/cohort-announcement-popup";
 import { MobileMoreMenu } from "@/components/ui/mobile-more-menu";
 import { SupportContactPopup } from "@/components/ui/support-contact-notice";
+import { loginPathFor } from "@/lib/auth/return-path";
 
 export default function UserLayout({
   children,
@@ -25,6 +26,8 @@ export default function UserLayout({
   const [pendingDesignCount, setPendingDesignCount] = useState(0);
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
+  // 로그인한 적이 있으면 로그아웃·세션 만료이므로 돌아갈 화면을 남기지 않는다.
+  const wasAuthenticated = useRef(false);
 
   // 미확인 메시지 가져오기
   const fetchUnreadCount = async () => {
@@ -53,8 +56,10 @@ export default function UserLayout({
   };
 
   useEffect(() => {
+    if (status === "authenticated") wasAuthenticated.current = true;
     if (status === "unauthenticated") {
-      router.push("/");
+      // 알림톡 버튼 등으로 바로 들어온 방문자는 로그인 뒤 이 화면으로 돌아온다.
+      router.push(wasAuthenticated.current ? "/" : loginPathFor(pathname, window.location.search));
     } else if (
       status === "authenticated" &&
       (session?.user as any)?.role === "admin"

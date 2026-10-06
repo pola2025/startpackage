@@ -25,6 +25,7 @@ describe("LoginPage", () => {
     mocks.signIn.mockReset();
     mocks.router.push.mockReset();
     window.localStorage.clear();
+    window.history.pushState({}, "", "/");
     vi.stubGlobal("fetch", vi.fn());
   });
 
@@ -104,5 +105,28 @@ describe("LoginPage", () => {
     expect(screen.getByText("계정이 없으신가요? 위 버튼을 클릭하여 가입해주세요")).toHaveClass("text-black");
     fireEvent.click(screen.getByRole("button", { name: /비밀번호를 잊으셨나요/ }));
     expect(screen.getByText("숫자만 입력 (해당 번호로 4자리 임시 비밀번호 발송)")).toHaveClass("text-red-600");
+  });
+
+  it("returns the student to the screen they came for after login", async () => {
+    window.history.pushState({}, "", "/?next=%2Fdashboard%2Fcommunication%3Fnew%3Ddesign");
+    mocks.signIn.mockResolvedValue({ error: null });
+    render(<LoginPage />);
+    submitLogin("01012345678", "1234");
+    await waitFor(() => expect(mocks.router.push).toHaveBeenCalledWith("/dashboard/communication?new=design"));
+  });
+
+  it("goes to the dashboard home when no screen was asked for", async () => {
+    mocks.signIn.mockResolvedValue({ error: null });
+    render(<LoginPage />);
+    submitLogin("01012345678", "1234");
+    await waitFor(() => expect(mocks.router.push).toHaveBeenCalledWith("/dashboard"));
+  });
+
+  it("goes to the dashboard home when the address points outside the dashboard", async () => {
+    window.history.pushState({}, "", "/?next=%2F%2Fevil.example%2Fdashboard");
+    mocks.signIn.mockResolvedValue({ error: null });
+    render(<LoginPage />);
+    submitLogin("01012345678", "1234");
+    await waitFor(() => expect(mocks.router.push).toHaveBeenCalledWith("/dashboard"));
   });
 });

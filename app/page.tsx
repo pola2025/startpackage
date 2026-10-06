@@ -21,6 +21,12 @@ import {
   formatCooldown,
   parseLoginFailureCode,
 } from "@/lib/auth/login-attempt-policy";
+import { RETURN_PATH_PARAM, safeReturnPath } from "@/lib/auth/return-path";
+
+// 알림톡 버튼처럼 대시보드 안쪽 주소로 들어왔다가 로그인 화면으로 온 경우 그 화면으로 돌려보낸다.
+function readReturnPath() {
+  return safeReturnPath(new URLSearchParams(window.location.search).get(RETURN_PATH_PARAM));
+}
 
 // 새로고침해도 재발급 버튼 쿨다운이 유지되도록 저장 (서버도 전화번호 기준 3분 쿨다운을 강제)
 const RESET_COOLDOWN_STORAGE_KEY = "startpackage.passwordResetCooldownUntil";
@@ -58,7 +64,7 @@ export default function LoginPage() {
   // ✅ 이미 로그인된 경우 리다이렉트
   useEffect(() => {
     if (status === "authenticated") {
-      router.replace("/dashboard");
+      router.replace(readReturnPath());
     }
   }, [status, router]);
 
@@ -133,7 +139,7 @@ export default function LoginPage() {
           setError(failure.message);
         }
       } else {
-        router.push("/dashboard");
+        router.push(readReturnPath());
         router.refresh();
       }
     } catch (err) {
