@@ -35,7 +35,7 @@ export async function POST(
       try {
         const { sendEmail } = await import("@/lib/email/resendClient");
         await sendEmail({ to: email, subject: "[스타트패키지] 마케팅 지원 연장 신청이 거부되었습니다", html: `<h2>마케팅 지원 연장 거부</h2><p>안녕하세요, ${name}님!</p><p>마케팅 지원 연장 신청이 거부되었습니다.</p><p><strong>거부 사유:</strong> ${adminResponse}</p><p>문의사항이 있으시면 관리자에게 연락 부탁드립니다.</p>` });
-        if (phone) { const { sendSMS, getSenderPhoneByAdmin } = await import("@/lib/sms/ncpSensClient"); const from = getSenderPhoneByAdmin(session.user?.email); await sendSMS(phone, `[스타트패키지] 마케팅 지원 연장 신청이 거부되었습니다.\n\n사유: ${adminResponse}`, from ? { from } : undefined); }
+        if (phone) { const { getSenderPhoneByAdmin } = await import("@/lib/sms/ncpSensClient"); const { sendMemberNotice } = await import("@/lib/notification/memberNotice"); const { marketingExtensionRejectedTemplate } = await import("@/lib/sms/alimtalkTemplates"); const notice = marketingExtensionRejectedTemplate({ reason: String(adminResponse ?? "") }); await sendMemberNotice({ to: phone, alimtalk: notice, sms: { content: notice.content, from: getSenderPhoneByAdmin(session.user?.email) } }); }
       } catch (notificationError) { console.error("알림 발송 실패:", notificationError); }
       return NextResponse.json({ success: true, message: "연장 신청이 거부되었습니다" });
     }

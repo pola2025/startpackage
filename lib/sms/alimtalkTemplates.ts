@@ -53,3 +53,26 @@ export function shippingStartTemplate(input: {
     buttons: [{ type: "DS", name: "배송 조회" }],
   };
 }
+
+/** 마케팅 지원 연장 승인 안내. 결제 계좌는 템플릿에 고정돼 있어 바뀌면 다시 검수받아야 한다. */
+export function marketingExtensionApprovedTemplate(input: {
+  endDate: string;
+  amount: string;
+}): AlimtalkMessage {
+  return {
+    templateCode: "spMktExtApproved01",
+    content: `[스타트패키지] 마케팅 지원 연장이 승인되었습니다.\n\n새로운 종료일: ${input.endDate}\n\n결제 정보: 우리은행 1005-302-954803 폴라애드(이재호) / ${input.amount}(VAT포함)`,
+    buttons: [link("내용 확인하기", `${SITE}/dashboard`)],
+  };
+}
+
+/** 마케팅 지원 연장 거부 안내 */
+export function marketingExtensionRejectedTemplate(input: {
+  reason: string;
+}): AlimtalkMessage {
+  return {
+    templateCode: "spMktExtRejected01",
+    content: `[스타트패키지] 마케팅 지원 연장 신청이 거부되었습니다.\n\n사유: ${input.reason}`,
+    buttons: [link("문의하기", `${SITE}/dashboard/communication`)],
+  };
+}

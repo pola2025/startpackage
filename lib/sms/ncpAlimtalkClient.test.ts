@@ -6,6 +6,8 @@ import {
 } from "./ncpAlimtalkClient";
 import {
   designReadyTemplate,
+  marketingExtensionApprovedTemplate,
+  marketingExtensionRejectedTemplate,
   orderCompleteTemplate,
   shippingStartTemplate,
 } from "./alimtalkTemplates";
@@ -187,5 +189,40 @@ describe("alimtalkTemplates", () => {
       "[스타트패키지] 배송이 시작되었습니다.\n\n제작물: 명함, 명찰\n택배: CJ대한통운\n운송장: 123456789012\n\n배송 조회를 통해 확인하세요.",
     );
     expect(message.buttons).toEqual([{ type: "DS", name: "배송 조회" }]);
+  });
+
+  it("matches the registered marketing extension templates", () => {
+    const approved = marketingExtensionApprovedTemplate({
+      endDate: "2026. 12. 31.",
+      amount: "99만원",
+    });
+    expect(approved.templateCode).toBe("spMktExtApproved01");
+    expect(approved.content).toBe(
+      "[스타트패키지] 마케팅 지원 연장이 승인되었습니다.\n\n새로운 종료일: 2026. 12. 31.\n\n결제 정보: 우리은행 1005-302-954803 폴라애드(이재호) / 99만원(VAT포함)",
+    );
+    expect(approved.buttons).toEqual([
+      {
+        type: "WL",
+        name: "내용 확인하기",
+        linkMobile: "https://www.polaai.co.kr/dashboard",
+        linkPc: "https://www.polaai.co.kr/dashboard",
+      },
+    ]);
+
+    const rejected = marketingExtensionRejectedTemplate({
+      reason: "신청 기간이 지났습니다",
+    });
+    expect(rejected.templateCode).toBe("spMktExtRejected01");
+    expect(rejected.content).toBe(
+      "[스타트패키지] 마케팅 지원 연장 신청이 거부되었습니다.\n\n사유: 신청 기간이 지났습니다",
+    );
+    expect(rejected.buttons).toEqual([
+      {
+        type: "WL",
+        name: "문의하기",
+        linkMobile: "https://www.polaai.co.kr/dashboard/communication",
+        linkPc: "https://www.polaai.co.kr/dashboard/communication",
+      },
+    ]);
   });
 });
