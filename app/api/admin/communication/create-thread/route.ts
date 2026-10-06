@@ -17,7 +17,10 @@ import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 const createThreadSchema = z.object({
   userId: recordId("유효하지 않은 사용자 ID입니다."),
-  title: z.string().min(1, "제목을 입력해주세요.").max(100, "제목은 100자 이내로 입력해주세요."),
+  title: z
+    .string()
+    .min(1, "제목을 입력해주세요.")
+    .max(100, "제목은 100자 이내로 입력해주세요."),
   category: z.enum(["일반", "제작", "배송", "기타"], {
     errorMap: () => ({ message: "유효한 카테고리를 선택해주세요." }),
   }),
@@ -25,6 +28,64 @@ const createThreadSchema = z.object({
   attachments: z.array(z.string().url()).optional(),
   expectedCompletionDate: z.string().optional(),
 });
+
+// 관리자가 먼저 보낸 메시지를 사용자에게 알린다. 알림이 실패해도 스레드 생성은 유지한다.
+async function notifyNewAdminThread(input: {
+  userId: string;
+  userName: string;
+  email: string | null;
+  threadId: string;
+  title: string;
+  category: string;
+  content: string;
+}) {
+  const { userId, userName, email, threadId, title, category, content } = input;
+
+  // ✅ 실시간 알림 전송 (SSE)
+  console.log("[CREATE THREAD] SSE 알림 전송 중...", userId);
+  notificationManager.notifyUser(userId, {
+    type: "new_message",
+    data: {
+      threadId,
+      count: 1,
+      timestamp: new Date().toISOString(),
+    },
+  });
+
+  // ✅ 이메일 알림 발송 (새 스레드 생성 시에만, 서비스 알림이므로 수신동의 무관)
+  if (email) {
+    try {
+      console.log("[CREATE THREAD] 이메일 발송 시작:", email);
+
+      const emailHtml = getAdminMessageEmailHTML({
+        userName,
+        title,
+        message: content,
+        category,
+      });
+
+      const emailResult = await sendEmail({
+        to: email,
+        subject: `[스타트패키지] 새로운 메시지: ${title}`,
+        html: emailHtml,
+      });
+
+      if (emailResult) {
+        console.log("[CREATE THREAD] 이메일 알림 발송 성공:", email);
+      } else {
+        console.error(
+          "[CREATE THREAD] 이메일 알림 발송 실패 (false 반환):",
+          email,
+        );
+      }
+    } catch (emailError) {
+      // 이메일 발송 실패해도 스레드 생성은 성공으로 처리
+      console.error("[CREATE THREAD] 이메일 알림 발송 에러:", emailError);
+    }
+  } else {
+    console.log("[CREATE THREAD] 사용자 이메일 없음");
+  }
+}
 
 export async function POST(request: Request) {
   try {
@@ -47,13 +108,42 @@ export async function POST(request: Request) {
           error: "입력값이 유효하지 않습니다.",
           details: validation.error.errors,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    const { userId, title, category, content, attachments, expectedCompletionDate } =
-      validation.data;
-    if (isD1RuntimeEnabled()) return NextResponse.json(await callDataService("communication-domain/admin-create-thread", { adminId, targetUserId: userId, title, category, content, attachments, expectedCompletionDate }));
+    const {
+      userId,
+      title,
+      category,
+      content,
+      attachments,
+      expectedCompletionDate,
+    } = validation.data;
+    if (isD1RuntimeEnabled()) {
+      const created = await callDataService<{
+        thread: { id: string };
+        targetUser?: { name?: string | null; email?: string | null } | null;
+      }>("communication-domain/admin-create-thread", {
+        adminId,
+        targetUserId: userId,
+        title,
+        category,
+        content,
+        attachments,
+        expectedCompletionDate,
+      });
+      await notifyNewAdminThread({
+        userId,
+        userName: created.targetUser?.name ?? "",
+        email: created.targetUser?.email ?? null,
+        threadId: created.thread.id,
+        title,
+        category,
+        content,
+      });
+      return NextResponse.json(created);
+    }
 
     // 사용자 존재 확인 (이메일 수신 동의 여부 포함)
     const user = await prisma.user.findUnique({
@@ -69,7 +159,7 @@ export async function POST(request: Request) {
     if (!user) {
       return NextResponse.json(
         { error: "사용자를 찾을 수 없습니다." },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -105,47 +195,15 @@ export async function POST(request: Request) {
       return { thread, message };
     });
 
-    // ✅ 실시간 알림 전송 (SSE)
-    console.log("[CREATE THREAD] SSE 알림 전송 중...", userId);
-    notificationManager.notifyUser(userId, {
-      type: "new_message",
-      data: {
-        threadId: result.thread.id,
-        count: 1,
-        timestamp: new Date().toISOString(),
-      },
+    await notifyNewAdminThread({
+      userId,
+      userName: user.이름,
+      email: user.email,
+      threadId: result.thread.id,
+      title,
+      category,
+      content,
     });
-
-    // ✅ 이메일 알림 발송 (새 스레드 생성 시에만, 서비스 알림이므로 수신동의 무관)
-    if (user.email) {
-      try {
-        console.log("[CREATE THREAD] 이메일 발송 시작:", user.email);
-
-        const emailHtml = getAdminMessageEmailHTML({
-          userName: user.이름,
-          title,
-          message: content,
-          category,
-        });
-
-        const emailResult = await sendEmail({
-          to: user.email,
-          subject: `[스타트패키지] 새로운 메시지: ${title}`,
-          html: emailHtml,
-        });
-
-        if (emailResult) {
-          console.log("[CREATE THREAD] 이메일 알림 발송 성공:", user.email);
-        } else {
-          console.error("[CREATE THREAD] 이메일 알림 발송 실패 (false 반환):", user.email);
-        }
-      } catch (emailError) {
-        // 이메일 발송 실패해도 스레드 생성은 성공으로 처리
-        console.error("[CREATE THREAD] 이메일 알림 발송 에러:", emailError);
-      }
-    } else {
-      console.log("[CREATE THREAD] 사용자 이메일 없음");
-    }
 
     console.log("[CREATE THREAD] 스레드 생성 성공:", result.thread.id);
 
@@ -163,7 +221,7 @@ export async function POST(request: Request) {
         error: "스레드 생성 중 오류가 발생했습니다.",
         details: error instanceof Error ? error.message : String(error),
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

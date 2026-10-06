@@ -4,7 +4,8 @@ import prisma from "@/lib/prisma";
 import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
 import { callDataService } from "@/lib/d1/service-client";
 import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
-import { sendSMS, getSenderPhoneByAdmin } from "@/lib/sms/ncpSensClient";
+import { sendSMS, getSenderPhoneByAdmin, smsTypeFor } from "@/lib/sms/ncpSensClient";
+import { logOutboundNotice } from "@/lib/notification/notificationService";
 
 export async function POST(request: NextRequest) {
   try {
@@ -37,6 +38,7 @@ export async function POST(request: NextRequest) {
       const adminFrom = getSenderPhoneByAdmin(session.user?.email);
       await sendSMS(data.user.연락처, message, adminFrom ? { from: adminFrom } : undefined);
       await Promise.all(data.workflows.map((workflow) => callDataService("admin-notifications/notification-create", { adminId, userId, type: "배송알림", channel: "SMS", title: "[스타트패키지] 배송 시작", message: `${String(workflow.type)} - ${String(workflow.택배회사)} ${String(workflow.운송장번호)}`, status: "성공", sentBy: adminId, sentByName: (session.user as any).name || "관리자" })));
+      await logOutboundNotice({ userId, notice: "배송 시작 안내", channel: smsTypeFor(message), items: data.workflows.map((workflow) => String(workflow.type)), sentByName: (session.user as any).name || "관리자" });
       return NextResponse.json({ success: true, message: `${data.workflows.length}개 제작물의 배송 정보를 SMS로 발송했습니다.`, workflows: data.workflows.map((w) => ({ type: w.type, 택배회사: w.택배회사, 운송장번호: w.운송장번호 })) });
     }
 

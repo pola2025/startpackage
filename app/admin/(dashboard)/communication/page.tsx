@@ -57,6 +57,12 @@ import {
 } from "lucide-react";
 import { ImageModal } from "@/components/ui/image-modal";
 import Image from "next/image";
+import { AttachmentFileChip } from "@/components/communication/attachment-file-chip";
+import {
+  COMMUNICATION_UPLOAD_MAX_BYTES,
+  COMMUNICATION_UPLOAD_MAX_LABEL,
+  isImageAttachment,
+} from "@/lib/communication/attachments";
 
 interface CommunicationThread {
   id: string;
@@ -334,10 +340,10 @@ export default function AdminCommunicationPage() {
       return;
     }
 
-    // 10MB 제한 (서버에서 자동으로 WebP로 압축됨)
-    if (file.size > 10 * 1024 * 1024) {
+    // 서버 함수 본문 한도 때문에 이보다 큰 파일은 메일로 받는다. (서버에서 자동으로 WebP로 압축됨)
+    if (file.size > COMMUNICATION_UPLOAD_MAX_BYTES) {
       alert(
-        "파일 크기는 10MB 이하여야 합니다.\n더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.",
+        `파일 크기는 ${COMMUNICATION_UPLOAD_MAX_LABEL} 이하여야 합니다.\n더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.`,
       );
       return;
     }
@@ -356,7 +362,7 @@ export default function AdminCommunicationPage() {
       if (!response.ok) {
         if (response.status === 413) {
           alert(
-            "파일이 너무 큽니다. 10MB 이하의 파일만 업로드 가능합니다.\n더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.",
+            `파일이 너무 큽니다. ${COMMUNICATION_UPLOAD_MAX_LABEL} 이하의 파일만 업로드 가능합니다.\n더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.`,
           );
           return;
         }
@@ -517,7 +523,7 @@ export default function AdminCommunicationPage() {
 
       if (!response.ok) {
         if (response.status === 413) {
-          alert("파일이 너무 큽니다. 10MB 이하의 파일만 업로드 가능합니다. 더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.");
+          alert(`파일이 너무 큽니다. ${COMMUNICATION_UPLOAD_MAX_LABEL} 이하의 파일만 업로드 가능합니다. 더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.`);
           return;
         }
         const data = await response.json();
@@ -706,6 +712,8 @@ export default function AdminCommunicationPage() {
                 </SelectTrigger>
                 <SelectContent className="bg-white border-gray-200">
                   <SelectItem value="all">전체 카테고리</SelectItem>
+                  <SelectItem value="디자인">디자인</SelectItem>
+                  <SelectItem value="추가자료">추가자료</SelectItem>
                   <SelectItem value="홈페이지">홈페이지</SelectItem>
                   <SelectItem value="로고">로고</SelectItem>
                   <SelectItem value="인쇄물">인쇄물</SelectItem>
@@ -1017,13 +1025,25 @@ export default function AdminCommunicationPage() {
                               </p>
                               {message.attachments.length > 0 && (
                                 <div className="space-y-2 mt-3">
-                                  {message.attachments.map((url, idx) => (
+                                  {message.attachments.map((url, idx) =>
+                                    !isImageAttachment(url) ? (
+                                      <div key={idx}>
+                                        <AttachmentFileChip url={url} />
+                                      </div>
+                                    ) : (
                                     <div key={idx} className="relative w-full">
                                       <div
                                         className="cursor-pointer"
                                         onClick={() => {
-                                          setModalImages(message.attachments);
-                                          setModalInitialIndex(idx);
+                                          // 문서 첨부는 이미지 보기 창에서 뺀다.
+                                          const images =
+                                            message.attachments.filter(
+                                              isImageAttachment,
+                                            );
+                                          setModalImages(images);
+                                          setModalInitialIndex(
+                                            images.indexOf(url),
+                                          );
                                           setImageModalOpen(true);
                                         }}
                                       >
@@ -1072,7 +1092,8 @@ export default function AdminCommunicationPage() {
                                         다운로드
                                       </a>
                                     </div>
-                                  ))}
+                                    ),
+                                  )}
                                 </div>
                               )}
                               {message.authorType === "admin" &&

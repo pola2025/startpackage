@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -48,6 +49,16 @@ import { ImageModal } from "@/components/ui/image-modal";
 import Image from "next/image";
 import { useIsMobile } from "@/hooks/use-media-query";
 import { DraggableBottomSheet } from "@/components/ui/bottom-sheet";
+import {
+  AttachmentFileChip,
+  AttachmentPreview,
+} from "@/components/communication/attachment-file-chip";
+import {
+  COMMUNICATION_UPLOAD_ACCEPT,
+  COMMUNICATION_UPLOAD_MAX_BYTES,
+  COMMUNICATION_UPLOAD_MAX_LABEL,
+  isImageAttachment,
+} from "@/lib/communication/attachments";
 
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
@@ -80,7 +91,59 @@ interface CommunicationMessage {
   readByAdminAt: string | null;
 }
 
+// 버튼으로 들어온 문의(/dashboard/communication?new=design 등)의 작성창 설정
+type NewThreadPresetKey = "general" | "design" | "materials";
+const NEW_THREAD_PRESETS: Record<
+  NewThreadPresetKey,
+  {
+    category: string;
+    title: string;
+    heading: string;
+    description: string;
+    placeholder: string;
+    submitLabel: string;
+  }
+> = {
+  general: {
+    category: "일반",
+    title: "",
+    heading: "새 문의 작성",
+    description: "문의 내용을 작성하시면 관리자가 확인 후 답변드립니다",
+    placeholder: "문의 내용을 자세히 입력해주세요",
+    submitLabel: "등록",
+  },
+  design: {
+    category: "디자인",
+    title: "디자인 문의",
+    heading: "디자인 문의",
+    description: "내용을 남기시면 담당 디자이너가 확인한 뒤 답변드립니다",
+    placeholder:
+      "어떤 제작물의 어느 부분이 궁금하신지 적어주세요.\n예) 명함 뒷면 연락처 글씨 크기",
+    submitLabel: "등록",
+  },
+  materials: {
+    category: "추가자료",
+    title: "추가 자료 전달",
+    heading: "자료·정보 추가 전달",
+    description: "제출 이후에 더 보내실 서류나 바뀐 정보를 남겨주세요",
+    placeholder:
+      "어떤 자료인지, 어디에 반영하면 되는지 적어주세요.\n예) 바뀐 사업자등록증, 명함에 넣을 새 주소",
+    submitLabel: "보내기",
+  },
+};
+
 export default function UserCommunicationPage() {
+  // useSearchParams 는 Suspense 경계 안에서만 쓸 수 있다.
+  return (
+    <Suspense fallback={null}>
+      <UserCommunicationContent />
+    </Suspense>
+  );
+}
+
+function UserCommunicationContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [threads, setThreads] = useState<CommunicationThread[]>([]);
   const [selectedThread, setSelectedThread] =
     useState<CommunicationThread | null>(null);
@@ -93,6 +156,34 @@ export default function UserCommunicationPage() {
   const [newContent, setNewContent] = useState("");
   const [newAttachments, setNewAttachments] = useState<string[]>([]);
   const [creating, setCreating] = useState(false);
+  const [newPresetKey, setNewPresetKey] =
+    useState<NewThreadPresetKey>("general");
+  const newPreset = NEW_THREAD_PRESETS[newPresetKey];
+
+  // 작성창을 닫거나 등록을 마치면 입력값과 프리셋을 처음 상태로 돌린다.
+  const resetNewThreadForm = () => {
+    setNewTitle("");
+    setNewCategory("일반");
+    setNewContent("");
+    setNewAttachments([]);
+    setNewPresetKey("general");
+  };
+
+  // ?new=design|materials 로 들어오면 해당 프리셋으로 작성창을 연다.
+  const newParam = searchParams.get("new");
+  useEffect(() => {
+    if (newParam !== "design" && newParam !== "materials") return;
+    const preset = NEW_THREAD_PRESETS[newParam];
+    setNewPresetKey(newParam);
+    setNewTitle(preset.title);
+    setNewCategory(preset.category);
+    setNewContent("");
+    setNewAttachments([]);
+    setSelectedThread(null);
+    setNewThreadOpen(true);
+    // 새로고침할 때 작성창이 다시 열리지 않게 주소에서 값을 뺀다.
+    router.replace("/dashboard/communication", { scroll: false });
+  }, [newParam, router]);
 
   // 답글 작성
   const [replyContent, setReplyContent] = useState("");
@@ -177,11 +268,13 @@ export default function UserCommunicationPage() {
   const fetchThreads = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/communication/threads?pageSize=20${threadCursor ? `&cursor=${encodeURIComponent(threadCursor)}` : ""}`);
+      const response = await fetch(
+        `/api/communication/threads?pageSize=20${threadCursor ? `&cursor=${encodeURIComponent(threadCursor)}` : ""}`,
+      );
       const data = await response.json();
 
       if (response.ok) {
-        setThreads(Array.isArray(data) ? data : data.items ?? []);
+        setThreads(Array.isArray(data) ? data : (data.items ?? []));
         setThreadCursor(data.nextCursor ?? null);
         // 선택된 스레드 업데이트
         if (selectedThread) {
@@ -191,7 +284,9 @@ export default function UserCommunicationPage() {
           if (response.ok) {
             const updated = await response.json();
 
-            const updatedMessages = Array.isArray(updated.messages) ? updated.messages : updated.messages?.items ?? [];
+            const updatedMessages = Array.isArray(updated.messages)
+              ? updated.messages
+              : (updated.messages?.items ?? []);
             setMessageCursor(updated.messages?.nextCursor ?? null);
             updated.messages = updatedMessages;
             // 새 메시지 감지
@@ -218,19 +313,27 @@ export default function UserCommunicationPage() {
     if (!threadCursor || loadingMoreThreads) return;
     setLoadingMoreThreads(true);
     try {
-      const response = await fetch(`/api/communication/threads?pageSize=20&cursor=${encodeURIComponent(threadCursor)}`);
+      const response = await fetch(
+        `/api/communication/threads?pageSize=20&cursor=${encodeURIComponent(threadCursor)}`,
+      );
       if (!response.ok) return;
       const page = await response.json();
       setThreads((current) => [...current, ...(page.items ?? [])]);
       setThreadCursor(page.nextCursor ?? null);
-    } finally { setLoadingMoreThreads(false); }
+    } finally {
+      setLoadingMoreThreads(false);
+    }
   };
 
   // 스레드 선택 시 읽음 처리
   const handleSelectThread = async (thread: CommunicationThread) => {
-    const response = await fetch(`/api/communication/threads/${thread.id}?pageSize=50`);
+    const response = await fetch(
+      `/api/communication/threads/${thread.id}?pageSize=50`,
+    );
     const detail = response.ok ? await response.json() : thread;
-    const messages = Array.isArray(detail.messages) ? detail.messages : detail.messages?.items ?? [];
+    const messages = Array.isArray(detail.messages)
+      ? detail.messages
+      : (detail.messages?.items ?? []);
     setSelectedThread({ ...thread, ...detail, messages });
     setMessageCursor(detail.messages?.nextCursor ?? null);
     setLastMessageCount(messages.length);
@@ -252,13 +355,30 @@ export default function UserCommunicationPage() {
     if (!selectedThread || !messageCursor || loadingMoreMessages) return;
     setLoadingMoreMessages(true);
     try {
-      const response = await fetch(`/api/communication/threads/${selectedThread.id}?pageSize=50&cursor=${encodeURIComponent(messageCursor)}`);
+      const response = await fetch(
+        `/api/communication/threads/${selectedThread.id}?pageSize=50&cursor=${encodeURIComponent(messageCursor)}`,
+      );
       if (!response.ok) return;
       const page = await response.json();
-      const older = Array.isArray(page.messages) ? page.messages : page.messages?.items ?? [];
-      setSelectedThread((current) => current ? { ...current, messages: [...current.messages, ...older].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()) } : current);
+      const older = Array.isArray(page.messages)
+        ? page.messages
+        : (page.messages?.items ?? []);
+      setSelectedThread((current) =>
+        current
+          ? {
+              ...current,
+              messages: [...current.messages, ...older].sort(
+                (a, b) =>
+                  new Date(a.createdAt).getTime() -
+                  new Date(b.createdAt).getTime(),
+              ),
+            }
+          : current,
+      );
       setMessageCursor(page.messages?.nextCursor ?? null);
-    } finally { setLoadingMoreMessages(false); }
+    } finally {
+      setLoadingMoreMessages(false);
+    }
   };
 
   useEffect(() => {
@@ -300,10 +420,10 @@ export default function UserCommunicationPage() {
       return;
     }
 
-    // 10MB 제한
-    if (file.size > 10 * 1024 * 1024) {
+    // 서버 함수 본문 한도 때문에 이보다 큰 파일은 메일로 받는다.
+    if (file.size > COMMUNICATION_UPLOAD_MAX_BYTES) {
       alert(
-        "파일 크기는 10MB 이하여야 합니다.\n더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.",
+        `파일 크기는 ${COMMUNICATION_UPLOAD_MAX_LABEL} 이하여야 합니다.\n더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.`,
       );
       return;
     }
@@ -322,7 +442,7 @@ export default function UserCommunicationPage() {
       if (!response.ok) {
         if (response.status === 413) {
           alert(
-            "파일이 너무 큽니다. 10MB 이하의 파일만 업로드 가능합니다.\n더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.",
+            `파일이 너무 큽니다. ${COMMUNICATION_UPLOAD_MAX_LABEL} 이하의 파일만 업로드 가능합니다.\n더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.`,
           );
           return;
         }
@@ -372,10 +492,7 @@ export default function UserCommunicationPage() {
       });
 
       if (response.ok) {
-        setNewTitle("");
-        setNewCategory("일반");
-        setNewContent("");
-        setNewAttachments([]);
+        resetNewThreadForm();
         setNewThreadOpen(false);
         fetchThreads();
       } else {
@@ -497,7 +614,13 @@ export default function UserCommunicationPage() {
                 관리자와 1:1 문의 및 답변
               </p>
             </div>
-            <Dialog open={newThreadOpen} onOpenChange={setNewThreadOpen}>
+            <Dialog
+              open={newThreadOpen}
+              onOpenChange={(open) => {
+                setNewThreadOpen(open);
+                if (!open) resetNewThreadForm();
+              }}
+            >
               <DialogTrigger asChild>
                 <Button
                   className="bg-navy-900 hover:bg-navy-800"
@@ -510,10 +633,8 @@ export default function UserCommunicationPage() {
               </DialogTrigger>
               <DialogContent className="sm:max-w-[600px]">
                 <DialogHeader>
-                  <DialogTitle>새 문의 작성</DialogTitle>
-                  <DialogDescription>
-                    문의 내용을 작성하시면 관리자가 확인 후 답변드립니다
-                  </DialogDescription>
+                  <DialogTitle>{newPreset.heading}</DialogTitle>
+                  <DialogDescription>{newPreset.description}</DialogDescription>
                 </DialogHeader>
 
                 {/* 입력 영역 */}
@@ -534,9 +655,9 @@ export default function UserCommunicationPage() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="디자인">디자인</SelectItem>
+                        <SelectItem value="추가자료">추가자료</SelectItem>
                         <SelectItem value="홈페이지">홈페이지</SelectItem>
-                        <SelectItem value="로고">로고</SelectItem>
-                        <SelectItem value="인쇄물">인쇄물</SelectItem>
                         <SelectItem value="일반">일반</SelectItem>
                       </SelectContent>
                     </Select>
@@ -547,7 +668,7 @@ export default function UserCommunicationPage() {
                       id="content"
                       value={newContent}
                       onChange={(e) => setNewContent(e.target.value)}
-                      placeholder="문의 내용을 자세히 입력해주세요"
+                      placeholder={newPreset.placeholder}
                       rows={6}
                       className="resize-none"
                     />
@@ -556,14 +677,7 @@ export default function UserCommunicationPage() {
                     <div className="flex flex-wrap gap-2">
                       {newAttachments.map((url, idx) => (
                         <div key={idx} className="relative w-20 h-20">
-                          <Image
-                            src={url}
-                            alt="첨부"
-                            width={80}
-                            height={80}
-                            className="w-20 h-20 object-cover rounded border"
-                            unoptimized
-                          />
+                          <AttachmentPreview url={url} className="w-20 h-20" />
                           <button
                             onClick={() =>
                               setNewAttachments(
@@ -582,7 +696,7 @@ export default function UserCommunicationPage() {
                     <input
                       type="file"
                       id="new-thread-file"
-                      accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.hwp,.txt,.zip,.rar"
+                      accept={COMMUNICATION_UPLOAD_ACCEPT}
                       className="hidden"
                       onChange={(e) => {
                         const file = e.target.files?.[0];
@@ -606,15 +720,21 @@ export default function UserCommunicationPage() {
                 </div>
 
                 {/* 안내 영역 (아코디언) */}
-                <details className="rounded-lg border border-gray-200 bg-gray-50">
+                <details
+                  className="rounded-lg border border-gray-200 bg-gray-50"
+                  open={newPresetKey === "materials"}
+                >
                   <summary className="flex items-center gap-2 px-4 py-3 cursor-pointer text-sm font-medium text-gray-700 select-none list-none">
                     <MessageSquare className="w-4 h-4 text-gray-400 shrink-0" />
                     파일 첨부 안내
                   </summary>
                   <div className="px-4 pb-3 text-xs text-gray-500 space-y-1 border-t border-gray-200 pt-3">
-                    <p>• 10MB 이하, 영상 파일 제외 모든 형식 가능</p>
                     <p>
-                      • 영상 파일은{" "}
+                      • 이미지와 문서(PDF·한글·오피스·ZIP), 파일당{" "}
+                      {COMMUNICATION_UPLOAD_MAX_LABEL}까지 가능
+                    </p>
+                    <p>
+                      • {COMMUNICATION_UPLOAD_MAX_LABEL}가 넘는 파일과 영상은{" "}
                       <a
                         href="mailto:mkt@polarad.co.kr"
                         className="text-gold-600 underline font-medium"
@@ -629,7 +749,10 @@ export default function UserCommunicationPage() {
                 <div className="flex justify-end gap-2 pt-2">
                   <Button
                     variant="outline"
-                    onClick={() => setNewThreadOpen(false)}
+                    onClick={() => {
+                      setNewThreadOpen(false);
+                      resetNewThreadForm();
+                    }}
                   >
                     취소
                   </Button>
@@ -643,7 +766,7 @@ export default function UserCommunicationPage() {
                     {creating ? (
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     ) : null}
-                    {creating ? "등록 중..." : "등록"}
+                    {creating ? "등록 중..." : newPreset.submitLabel}
                   </Button>
                 </div>
               </DialogContent>
@@ -767,7 +890,17 @@ export default function UserCommunicationPage() {
                     </div>
                   </div>
                 ))}
-                {threadCursor && <Button type="button" variant="outline" size="sm" onClick={loadMoreThreads} disabled={loadingMoreThreads}>{loadingMoreThreads ? "불러오는 중..." : "이전 문의 더보기"}</Button>}
+                {threadCursor && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={loadMoreThreads}
+                    disabled={loadingMoreThreads}
+                  >
+                    {loadingMoreThreads ? "불러오는 중..." : "이전 문의 더보기"}
+                  </Button>
+                )}
               </div>
             )}
           </CardContent>
@@ -838,7 +971,21 @@ export default function UserCommunicationPage() {
                 </div>
               )}
 
-              {messageCursor && <div className="px-3 sm:px-6"><Button type="button" variant="outline" size="sm" onClick={loadMoreMessages} disabled={loadingMoreMessages}>{loadingMoreMessages ? "불러오는 중..." : "이전 메시지 더보기"}</Button></div>}
+              {messageCursor && (
+                <div className="px-3 sm:px-6">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={loadMoreMessages}
+                    disabled={loadingMoreMessages}
+                  >
+                    {loadingMoreMessages
+                      ? "불러오는 중..."
+                      : "이전 메시지 더보기"}
+                  </Button>
+                </div>
+              )}
 
               {/* 메시지 목록 - 모바일 패딩 최적화 */}
               <CardContent
@@ -960,61 +1107,77 @@ export default function UserCommunicationPage() {
                                 )}
                               {message.attachments.length > 0 && (
                                 <div className="space-y-2 mt-3">
-                                  {message.attachments.map((url, idx) => (
-                                    <div key={idx} className="relative w-full">
-                                      <Image
-                                        src={url}
-                                        alt="첨부 이미지"
-                                        width={800}
-                                        height={600}
-                                        className="rounded-lg max-w-full h-auto border"
-                                        unoptimized
-                                      />
-                                      <a
-                                        href={url}
-                                        download
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className={`mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                                          message.authorType === "admin"
-                                            ? "bg-gold-100 text-navy-700 hover:bg-gold-200"
-                                            : "bg-white/20 text-white hover:bg-white/30"
-                                        }`}
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          // 직접 다운로드 시도
-                                          fetch(url)
-                                            .then((res) => res.blob())
-                                            .then((blob) => {
-                                              const blobUrl =
-                                                window.URL.createObjectURL(
-                                                  blob,
-                                                );
-                                              const a =
-                                                document.createElement("a");
-                                              a.href = blobUrl;
-                                              a.download =
-                                                url.split("/").pop() ||
-                                                "download";
-                                              document.body.appendChild(a);
-                                              a.click();
-                                              document.body.removeChild(a);
-                                              window.URL.revokeObjectURL(
-                                                blobUrl,
-                                              );
-                                            })
-                                            .catch(() => {
-                                              // fallback: 새 탭에서 열기
-                                              window.open(url, "_blank");
-                                            });
-                                          e.preventDefault();
-                                        }}
+                                  {message.attachments.map((url, idx) =>
+                                    !isImageAttachment(url) ? (
+                                      <div key={idx}>
+                                        <AttachmentFileChip
+                                          url={url}
+                                          tone={
+                                            message.authorType === "admin"
+                                              ? "light"
+                                              : "dark"
+                                          }
+                                        />
+                                      </div>
+                                    ) : (
+                                      <div
+                                        key={idx}
+                                        className="relative w-full"
                                       >
-                                        <Download className="w-3.5 h-3.5" />
-                                        다운로드
-                                      </a>
-                                    </div>
-                                  ))}
+                                        <Image
+                                          src={url}
+                                          alt="첨부 이미지"
+                                          width={800}
+                                          height={600}
+                                          className="rounded-lg max-w-full h-auto border"
+                                          unoptimized
+                                        />
+                                        <a
+                                          href={url}
+                                          download
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className={`mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                                            message.authorType === "admin"
+                                              ? "bg-gold-100 text-navy-700 hover:bg-gold-200"
+                                              : "bg-white/20 text-white hover:bg-white/30"
+                                          }`}
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            // 직접 다운로드 시도
+                                            fetch(url)
+                                              .then((res) => res.blob())
+                                              .then((blob) => {
+                                                const blobUrl =
+                                                  window.URL.createObjectURL(
+                                                    blob,
+                                                  );
+                                                const a =
+                                                  document.createElement("a");
+                                                a.href = blobUrl;
+                                                a.download =
+                                                  url.split("/").pop() ||
+                                                  "download";
+                                                document.body.appendChild(a);
+                                                a.click();
+                                                document.body.removeChild(a);
+                                                window.URL.revokeObjectURL(
+                                                  blobUrl,
+                                                );
+                                              })
+                                              .catch(() => {
+                                                // fallback: 새 탭에서 열기
+                                                window.open(url, "_blank");
+                                              });
+                                            e.preventDefault();
+                                          }}
+                                        >
+                                          <Download className="w-3.5 h-3.5" />
+                                          다운로드
+                                        </a>
+                                      </div>
+                                    ),
+                                  )}
                                 </div>
                               )}
                               {/* 연속 메시지일 때는 상대 시간 표시 */}
@@ -1071,13 +1234,9 @@ export default function UserCommunicationPage() {
                           key={idx}
                           className="relative w-14 h-14 sm:w-16 sm:h-16"
                         >
-                          <Image
-                            src={url}
-                            alt="첨부"
-                            width={64}
-                            height={64}
-                            className="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded border"
-                            unoptimized
+                          <AttachmentPreview
+                            url={url}
+                            className="w-14 h-14 sm:w-16 sm:h-16"
                           />
                           <button
                             onClick={() =>
@@ -1101,7 +1260,7 @@ export default function UserCommunicationPage() {
                       <input
                         type="file"
                         id="reply-file"
-                        accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.hwp,.txt,.zip,.rar"
+                        accept={COMMUNICATION_UPLOAD_ACCEPT}
                         capture="environment"
                         className="hidden"
                         onChange={(e) => {
@@ -1160,7 +1319,7 @@ export default function UserCommunicationPage() {
                           <input
                             type="file"
                             id="reply-file-desktop"
-                            accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.hwp,.txt,.zip,.rar"
+                            accept={COMMUNICATION_UPLOAD_ACCEPT}
                             className="hidden"
                             onChange={(e) => {
                               const file = e.target.files?.[0];
@@ -1285,7 +1444,7 @@ export default function UserCommunicationPage() {
             <input
               type="file"
               id="file-input-comm"
-              accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.hwp,.txt,.zip,.rar"
+              accept={COMMUNICATION_UPLOAD_ACCEPT}
               className="hidden"
               onChange={(e) => {
                 const file = e.target.files?.[0];

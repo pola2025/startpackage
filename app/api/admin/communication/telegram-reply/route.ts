@@ -8,6 +8,104 @@ import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
 const WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET || "";
 
+// 텔레그램에서 등록한 답변을 사용자와 슬랙에 알린다. 알림이 실패해도 답변 저장은 유지한다.
+async function notifyTelegramReply(input: {
+  threadId: string;
+  userId: string;
+  title: string;
+  userName: string | null;
+  telegramChatId: string | null;
+  content: string;
+}) {
+  const { threadId, userId, title, userName, telegramChatId, content } = input;
+
+  // SSE 알림 전송
+  notificationManager.notifyUser(userId, {
+    type: "new_message",
+    data: {
+      threadId,
+      count: 1,
+      timestamp: new Date().toISOString(),
+    },
+  });
+
+  // 사용자에게 텔레그램 알림 (telegramChatId가 있는 경우) - 문의하기 전용 봇 사용
+  if (telegramChatId) {
+    try {
+      const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_INQUIRY_BOT_TOKEN || "";
+      const escapeHtml = (text: string) =>
+        text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+      await fetch(
+        `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: telegramChatId,
+            text: `💬 <b>관리자 답변</b>\n\n<b>제목:</b> ${escapeHtml(title)}\n\n<b>내용:</b>\n${escapeHtml(content)}`,
+            parse_mode: "HTML",
+          }),
+        },
+      );
+    } catch (error) {
+      console.error("사용자 텔레그램 알림 실패:", error);
+    }
+  }
+
+  // SP_Q&A 슬랙 채널에 텔레그램 답변 기록
+  try {
+    const SLACK_QNA_CHANNEL_ID = process.env.SLACK_QNA_CHANNEL_ID;
+    if (SLACK_QNA_CHANNEL_ID) {
+      const { postMessage } = await import("@/lib/notification/slackClient");
+      await postMessage({
+        channelId: SLACK_QNA_CHANNEL_ID,
+        text: `📤 [관리자] → [${userName}] 답변 (텔레그램)`,
+        blocks: [
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: `📤 *[관리자] → [${userName || "사용자"}] 답변*\n━━━━━━━━━━━━━━━━━━━━`,
+            },
+          },
+          {
+            type: "section",
+            fields: [
+              {
+                type: "mrkdwn",
+                text: `*담당자:* 텔레그램 관리자`,
+              },
+              {
+                type: "mrkdwn",
+                text: `*제목:* ${title}`,
+              },
+            ],
+          },
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: `*내용:*\n${content}`,
+            },
+          },
+          {
+            type: "context",
+            elements: [
+              {
+                type: "mrkdwn",
+                text: `📱 텔레그램에서 답변 · 📅 ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`,
+              },
+            ],
+          },
+        ],
+      });
+    }
+  } catch (error) {
+    console.error("슬랙 SP_Q&A 기록 실패:", error);
+  }
+}
+
 // 텔레그램에서 답변 등록 (Cloudflare Worker에서 호출)
 export async function POST(request: Request) {
   try {
@@ -48,7 +146,19 @@ export async function POST(request: Request) {
     }
 
     if (isD1RuntimeEnabled()) {
-      return NextResponse.json(await callDataService("communication-domain/telegram-reply", { threadId, content }));
+      // notify 는 알림에만 쓰고 응답에서는 뺀다.
+      const { notify, ...saved } = await callDataService<
+        {
+          notify?: {
+            userId: string;
+            title: string;
+            userName: string | null;
+            telegramChatId: string | null;
+          };
+        } & Record<string, unknown>
+      >("communication-domain/telegram-reply", { threadId, content });
+      if (notify) await notifyTelegramReply({ threadId, ...notify, content });
+      return NextResponse.json(saved);
     }
 
     // 스레드 확인
@@ -94,94 +204,14 @@ export async function POST(request: Request) {
       },
     });
 
-    // SSE 알림 전송
-    notificationManager.notifyUser(thread.userId, {
-      type: "new_message",
-      data: {
-        threadId,
-        count: 1,
-        timestamp: new Date().toISOString(),
-      },
+    await notifyTelegramReply({
+      threadId,
+      userId: thread.userId,
+      title: thread.title,
+      userName: thread.user?.이름 ?? null,
+      telegramChatId: thread.user?.telegramChatId ?? null,
+      content,
     });
-
-    // 사용자에게 텔레그램 알림 (telegramChatId가 있는 경우) - 문의하기 전용 봇 사용
-    if (thread.user?.telegramChatId) {
-      try {
-        const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_INQUIRY_BOT_TOKEN || "";
-        const escapeHtml = (text: string) =>
-          text
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;");
-
-        await fetch(
-          `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              chat_id: thread.user.telegramChatId,
-              text: `💬 <b>관리자 답변</b>\n\n<b>제목:</b> ${escapeHtml(thread.title)}\n\n<b>내용:</b>\n${escapeHtml(content)}`,
-              parse_mode: "HTML",
-            }),
-          },
-        );
-      } catch (error) {
-        console.error("사용자 텔레그램 알림 실패:", error);
-      }
-    }
-
-    // SP_Q&A 슬랙 채널에 텔레그램 답변 기록
-    try {
-      const SLACK_QNA_CHANNEL_ID = process.env.SLACK_QNA_CHANNEL_ID;
-      if (SLACK_QNA_CHANNEL_ID) {
-        const { postMessage } = await import("@/lib/notification/slackClient");
-        await postMessage({
-          channelId: SLACK_QNA_CHANNEL_ID,
-          text: `📤 [관리자] → [${thread.user?.이름}] 답변 (텔레그램)`,
-          blocks: [
-            {
-              type: "section",
-              text: {
-                type: "mrkdwn",
-                text: `📤 *[관리자] → [${thread.user?.이름 || "사용자"}] 답변*\n━━━━━━━━━━━━━━━━━━━━`,
-              },
-            },
-            {
-              type: "section",
-              fields: [
-                {
-                  type: "mrkdwn",
-                  text: `*담당자:* 텔레그램 관리자`,
-                },
-                {
-                  type: "mrkdwn",
-                  text: `*제목:* ${thread.title}`,
-                },
-              ],
-            },
-            {
-              type: "section",
-              text: {
-                type: "mrkdwn",
-                text: `*내용:*\n${content}`,
-              },
-            },
-            {
-              type: "context",
-              elements: [
-                {
-                  type: "mrkdwn",
-                  text: `📱 텔레그램에서 답변 · 📅 ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`,
-                },
-              ],
-            },
-          ],
-        });
-      }
-    } catch (error) {
-      console.error("슬랙 SP_Q&A 기록 실패:", error);
-    }
 
     console.log("[TELEGRAM-REPLY] 답변 등록 완료:", threadId);
 

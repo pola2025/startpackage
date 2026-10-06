@@ -3,6 +3,7 @@
 import { PrintColorNotice } from "@/components/design/print-color-notice";
 import { PRINT_COLOR_AGREEMENT } from "@/lib/design-confirm";
 import { useEffect, useState, useCallback } from "react";
+import Link from "next/link";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import {
@@ -40,6 +41,7 @@ import {
   AlertCircle,
   Check,
   ChevronLeft,
+  MessageSquare,
   Camera,
   Image as ImageIcon,
   FolderOpen,
@@ -557,6 +559,12 @@ export default function UserDesignThreadsPage() {
                 시안 확인 및 피드백
               </p>
             </div>
+            <Button asChild variant="outline" size="sm" className="shrink-0">
+              <Link href="/dashboard/communication?new=design">
+                <MessageSquare className="w-4 h-4 mr-1.5" />
+                디자인 문의하기
+              </Link>
+            </Button>
           </div>
 
           {/* 안내 - 아코디언으로 압축 */}

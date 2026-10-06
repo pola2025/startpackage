@@ -421,6 +421,50 @@ export async function logProgress(params: {
   }
 }
 
+export type OutboundNoticeChannel = "알림톡" | "SMS" | "LMS";
+
+/**
+ * 수강생에게 나간 안내(알림톡·문자)를 그 수강생의 슬랙 채널에 남긴다.
+ * 관리자가 누구에게 어떤 안내가 어떤 경로로 나갔는지 채널에서 확인한다.
+ * 기록에 실패해도 발송 결과에는 영향을 주지 않는다.
+ */
+export async function logOutboundNotice(params: {
+  userId: string;
+  notice: string;
+  channel: OutboundNoticeChannel;
+  items?: string[];
+  sentByName?: string;
+  /** 예: 알림톡이 실패해 문자로 대신 나간 경우의 설명 */
+  note?: string;
+}): Promise<void> {
+  try {
+    const user = await getNotificationUser(params.userId);
+    if (!user?.slackChannelId) return;
+
+    const route = params.channel === "알림톡" ? "알림톡" : `문자(${params.channel})`;
+    const items = (params.items ?? []).filter((item) => item && item.trim());
+    const fields = [
+      { type: "mrkdwn", text: `*받는 사람:*\n${user.이름}` },
+      { type: "mrkdwn", text: `*발송 경로:*\n${route}` },
+      ...(items.length ? [{ type: "mrkdwn", text: `*제작물:*\n${items.join(", ")}` }] : []),
+      ...(params.sentByName ? [{ type: "mrkdwn", text: `*보낸 사람:*\n${params.sentByName}` }] : []),
+      ...(params.note ? [{ type: "mrkdwn", text: `*비고:*\n${params.note}` }] : []),
+    ];
+
+    await slack.postMessage({
+      channelId: user.slackChannelId,
+      text: `📨 ${params.notice} 발송 · ${route}`,
+      blocks: [
+        { type: "section", text: { type: "mrkdwn", text: `📨 *${params.notice} 발송*` } },
+        { type: "section", fields },
+        { type: "context", elements: [{ type: "mrkdwn", text: `📅 ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}` }] },
+      ],
+    });
+  } catch (error) {
+    console.error("발송 기록 슬랙 전송 실패:", error);
+  }
+}
+
 export default {
   handleSubmissionComplete,
   handleStateChange,

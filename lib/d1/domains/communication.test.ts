@@ -69,4 +69,17 @@ describe("communicationOperation", () => {
     expect(database.raw.prepare('SELECT COUNT(*) AS count FROM communication_thread_counters WHERE threadId = ?').get(created.thread.id)).toMatchObject({ count: 0 });
     expect(database.raw.prepare('SELECT unreadByAdmin FROM communication_global_counters WHERE id = 1').get()).toMatchObject({ unreadByAdmin: 0 });
   });
+  it("returns the notify context routes need after a reply is saved", async () => {
+    const database = db();
+    database.raw.prepare('UPDATE users SET telegramChatId = ? WHERE id = ?').run("tg-1", "user");
+    const created = await communicationOperation(database, "user-create-thread", { userId: "user", title: "시안 문의", content: "내용" }) as { thread: { id: string } };
+    const threadId = created.thread.id;
+    const userReply = await communicationOperation(database, "user-create-message", { userId: "user", threadId, content: "추가 내용" }) as { notify: unknown };
+    expect(userReply.notify).toEqual({ title: "시안 문의" });
+    const expected = { userId: "user", title: "시안 문의", userName: "사용자", telegramChatId: "tg-1" };
+    const adminReply = await communicationOperation(database, "admin-reply", { adminId: "admin", threadId, content: "답변" }) as { notify: unknown };
+    expect(adminReply.notify).toEqual(expected);
+    const telegramReply = await communicationOperation(database, "telegram-reply", { threadId, content: "텔레그램 답변" }) as { notify: unknown };
+    expect(telegramReply.notify).toEqual(expected);
+  });
 });

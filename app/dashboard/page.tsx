@@ -586,6 +586,16 @@ export default async function UserDashboard() {
           자료 준비와 실제 제작은 별도로 진행됩니다. 아래에서 필요한 자료를
           확인하거나 수정할 수 있습니다.
         </p>
+        <p className="mt-2 text-xs leading-relaxed text-slate-600">
+          제출한 뒤에 더 보낼 서류나 바뀐 정보가 있으면{" "}
+          <a
+            href="/dashboard/communication?new=materials"
+            className="font-semibold text-navy-700 underline"
+          >
+            자료·정보 추가 전달
+          </a>
+          로 남겨주세요.
+        </p>
       </section>
 
       {/* 인쇄물별 필요 정보 카드 — outcome 중심 (이걸 만들려면 이런 게 필요해요) */}

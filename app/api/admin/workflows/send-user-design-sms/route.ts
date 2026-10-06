@@ -4,7 +4,8 @@ import prisma from "@/lib/prisma";
 import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
 import { callDataService } from "@/lib/d1/service-client";
 import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
-import { sendSMS, getSenderPhoneByAdmin } from "@/lib/sms/ncpSensClient";
+import { sendSMS, getSenderPhoneByAdmin, smsTypeFor } from "@/lib/sms/ncpSensClient";
+import { logOutboundNotice } from "@/lib/notification/notificationService";
 import {
   sendEmail,
   getDesignCompleteEmailHTML,
@@ -40,6 +41,7 @@ export async function POST(request: NextRequest) {
       await sendSMS(data.user.연락처, smsMessage, adminFrom ? { from: adminFrom } : undefined);
       if (data.user.email) await sendEmail({ to: data.user.email, subject: "[스타트패키지] 디자인 시안이 업로드되었습니다", html: getDesignCompleteEmailHTML({ userName: data.user.이름 || "사용자", workflowCount: data.workflows.length }) });
       await callDataService("admin-notifications/notification-create", { adminId, userId, type: "시안완료", channel: "SMS", title: "[스타트패키지] 시안 완료", message: smsMessage, status: "성공", sentBy: adminId, sentByName: (session.user as any).name || "관리자" });
+      await logOutboundNotice({ userId, notice: "시안 완료·확정 요청 안내", channel: smsTypeFor(smsMessage), items: data.workflows.map((w) => String(w.type)), sentByName: (session.user as any).name || "관리자" });
       return NextResponse.json({ success: true, message: "SMS 발송 완료", count: data.workflows.length });
     }
 

@@ -5,6 +5,7 @@ import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
 import { callDataService } from "@/lib/d1/service-client";
 import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 import { getSMSClient, getSenderPhoneByAdmin } from "@/lib/sms/ncpSensClient";
+import { logOutboundNotice } from "@/lib/notification/notificationService";
 
 interface SendData {
   userId: string;
@@ -38,6 +39,7 @@ export async function POST(request: NextRequest) {
       let successCount = 0;
       let failedCount = 0;
       const smsClient = getSMSClient();
+      const slackLogs: Promise<void>[] = [];
       for (const item of data) {
         try {
           const result = await callDataService<{ user: { id: string; 이름: string; 연락처: string | null }; workflows: Array<Record<string, unknown>> }>("admin-notifications/grouped-design-data", { adminId, userId: item.userId, workflowIds: item.workflowIds });
@@ -48,9 +50,11 @@ export async function POST(request: NextRequest) {
           const adminFrom = getSenderPhoneByAdmin(session.user?.email);
           await smsClient.sendSMS(result.user.연락처, message, "LMS", adminFrom ? { from: adminFrom } : undefined);
           await callDataService("admin-notifications/notification-create", { adminId, userId: result.user.id, type: "시안완료", channel: "SMS", title: "[스타트패키지] 시안 완료 알림", message, status: "성공", sentBy: adminId, sentByName: (session.user as any).name || "관리자" });
+          slackLogs.push(logOutboundNotice({ userId: result.user.id, notice: "시안 완료·확정 요청 안내", channel: "LMS", items: types, sentByName: (session.user as any).name || "관리자" }));
           successCount++; results.push({ userName: result.user.이름, types, success: true });
         } catch (error) { failedCount++; results.push({ userName: "처리 중 오류", types: [], success: false, error: "LMS 발송 실패" }); console.error("LMS 발송 실패:", error); }
       }
+      await Promise.all(slackLogs);
       return NextResponse.json({ success: successCount, failed: failedCount, details: results });
     }
 

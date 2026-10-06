@@ -31,6 +31,14 @@ export interface SMSResponse {
   requestTime: string;
 }
 
+/**
+ * 내용 길이에 따른 문자 유형. 자동 발송(sendAuto)과 발송 기록이 같은 기준을 쓴다.
+ * SMS: 한글 45자(90byte), 영문 80자 / LMS: 한글 1000자(2000byte), 영문 2000자
+ */
+export function smsTypeFor(content: string): "SMS" | "LMS" {
+  return Buffer.byteLength(content, "utf-8") <= 90 ? "SMS" : "LMS";
+}
+
 // ============================================
 // NCP SENS Client
 // ============================================
@@ -209,13 +217,7 @@ export class NCPSensClient {
     content: string,
     options?: { from?: string },
   ): Promise<SMSResponse> {
-    // SMS: 한글 45자(90byte), 영문 80자
-    // LMS: 한글 1000자(2000byte), 영문 2000자
-    const byteLength = Buffer.byteLength(content, "utf-8");
-
-    const type = byteLength <= 90 ? "SMS" : "LMS";
-
-    return this.sendSMS(to, content, type, options);
+    return this.sendSMS(to, content, smsTypeFor(content), options);
   }
 }
 

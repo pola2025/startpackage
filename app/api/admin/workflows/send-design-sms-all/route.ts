@@ -4,7 +4,8 @@ import prisma from "@/lib/prisma";
 import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
 import { callDataService } from "@/lib/d1/service-client";
 import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
-import { sendSMS, getSenderPhoneByAdmin } from "@/lib/sms/ncpSensClient";
+import { sendSMS, getSenderPhoneByAdmin, smsTypeFor } from "@/lib/sms/ncpSensClient";
+import { logOutboundNotice } from "@/lib/notification/notificationService";
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,15 +39,18 @@ export async function POST(request: NextRequest) {
       let successCount = 0; let failedCount = 0;
       const results: Array<Record<string, unknown>> = [];
       const message = `[스타트패키지]\n\n디자인 시안이 업로드되었습니다.\n확인 부탁드립니다.`;
+      const slackLogs: Promise<void>[] = [];
       for (const workflow of data.workflows) {
         try {
           if (!workflow.연락처) { failedCount++; results.push({ workflowId: workflow.id, userName: workflow.이름, success: false, error: "연락처 없음" }); continue; }
           const adminFrom = getSenderPhoneByAdmin(session.user?.email);
           await sendSMS(String(workflow.연락처), message, adminFrom ? { from: adminFrom } : undefined);
           await callDataService("admin-notifications/notification-create", { adminId, userId: String(workflow.userId), type: "시안완료", channel: "SMS", title: `[스타트패키지] ${String(workflow.type)} 시안 완료`, message, status: "성공", sentBy: adminId, sentByName: (session.user as any).name || "관리자" });
+          slackLogs.push(logOutboundNotice({ userId: String(workflow.userId), notice: "시안 완료·확정 요청 안내", channel: smsTypeFor(message), items: [String(workflow.type)], sentByName: (session.user as any).name || "관리자" }));
           successCount++; results.push({ workflowId: workflow.id, userName: workflow.이름, success: true });
         } catch (error) { failedCount++; results.push({ workflowId: workflow.id, userName: workflow.이름, success: false, error: "SMS 발송 실패" }); console.error("SMS 발송 실패:", error); }
       }
+      await Promise.all(slackLogs);
       return NextResponse.json({ success: successCount, failed: failedCount, results });
     }
 

@@ -27,6 +27,7 @@ import {
   ChevronDown,
   Images,
   PenTool,
+  Paperclip,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -201,6 +202,18 @@ export function MobileMoreMenu({
             icon: MessageSquare,
             label: "문의하기",
             badge: unreadCount > 0 ? unreadCount : null,
+          })}
+          {renderLink({
+            href: "/dashboard/communication?new=design",
+            icon: Palette,
+            label: "디자인 문의하기",
+            badge: null,
+          })}
+          {renderLink({
+            href: "/dashboard/communication?new=materials",
+            icon: Paperclip,
+            label: "자료·정보 추가 전달",
+            badge: null,
           })}
 
           {/* 가이드 그룹 */}

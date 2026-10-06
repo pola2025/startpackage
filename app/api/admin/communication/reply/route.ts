@@ -6,6 +6,119 @@ import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
 import { callDataService } from "@/lib/d1/service-client";
 import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 
+// 관리자 답변을 사용자와 운영 채널에 알린다. 알림이 실패해도 답변 저장은 유지한다.
+async function notifyAdminReply(input: {
+  threadId: string;
+  userId: string;
+  title: string;
+  userName: string | null;
+  telegramChatId: string | null;
+  adminName: string;
+  content: string;
+}) {
+  const {
+    threadId,
+    userId,
+    title,
+    userName,
+    telegramChatId,
+    adminName,
+    content,
+  } = input;
+  const escapeHtml = (text: string) =>
+    text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+  // ✅ 실시간 알림 전송 (SSE)
+  console.log("[REPLY API] SSE 알림 전송 중...", userId);
+  notificationManager.notifyUser(userId, {
+    type: "new_message",
+    data: {
+      threadId,
+      count: 1,
+      timestamp: new Date().toISOString(),
+    },
+  });
+
+  // 사용자에게 텔레그램 알림
+  try {
+    if (telegramChatId) {
+      const { sendTelegramMessage } =
+        await import("@/lib/notification/telegramClient");
+
+      await sendTelegramMessage(
+        `💬 <b>관리자 답변</b>\n\n<b>제목:</b> ${escapeHtml(title)}\n\n<b>내용:</b>\n${escapeHtml(content)}`,
+        telegramChatId,
+      );
+    }
+  } catch (error) {
+    console.error("텔레그램 사용자 알림 실패:", error);
+  }
+
+  // 문의하기 전용 그룹에 알림 (답장 가능하도록 스레드 ID 포함)
+  try {
+    const { sendInquiryTelegramMessage } =
+      await import("@/lib/notification/telegramClient");
+
+    await sendInquiryTelegramMessage(
+      `📤 <b>관리자 답변</b> [ID: ${threadId}]\n\n<b>담당자:</b> ${escapeHtml(adminName || "관리자")}\n<b>사용자:</b> ${escapeHtml(userName || "")}\n<b>제목:</b> ${escapeHtml(title)}\n\n<b>내용:</b>\n${escapeHtml(content)}\n\n💡 이 메시지에 답장하면 추가 답변이 등록됩니다.`,
+    );
+  } catch (error) {
+    console.error("텔레그램 그룹 알림 실패:", error);
+  }
+
+  // SP_Q&A 슬랙 채널에 관리자 답변 기록
+  try {
+    const SLACK_QNA_CHANNEL_ID = process.env.SLACK_QNA_CHANNEL_ID;
+    if (SLACK_QNA_CHANNEL_ID) {
+      const { postMessage } = await import("@/lib/notification/slackClient");
+      await postMessage({
+        channelId: SLACK_QNA_CHANNEL_ID,
+        text: `📤 [관리자] → [${userName}] 답변`,
+        blocks: [
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: `📤 *[관리자] → [${userName || "사용자"}] 답변*\n━━━━━━━━━━━━━━━━━━━━`,
+            },
+          },
+          {
+            type: "section",
+            fields: [
+              {
+                type: "mrkdwn",
+                text: `*담당자:* ${adminName}`,
+              },
+              {
+                type: "mrkdwn",
+                text: `*제목:* ${title}`,
+              },
+            ],
+          },
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: `*내용:*\n${content}`,
+            },
+          },
+          {
+            type: "context",
+            elements: [
+              {
+                type: "mrkdwn",
+                text: `📅 ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`,
+              },
+            ],
+          },
+        ],
+      });
+    }
+  } catch (error) {
+    console.error("슬랙 SP_Q&A 기록 실패:", error);
+  }
+}
+
 // POST: 관리자 답글 작성
 export async function POST(request: Request) {
   console.log("[REPLY API] 요청 받음");
@@ -28,13 +141,34 @@ export async function POST(request: Request) {
     console.log("[REPLY API] Body:", body);
 
     const { threadId, content, attachments, expectedCompletionDate } = body;
-    if (isD1RuntimeEnabled()) return NextResponse.json(await callDataService("communication-domain/admin-reply", { adminId, threadId, content, attachments, expectedCompletionDate }));
+    if (isD1RuntimeEnabled()) {
+      // notify 는 알림에만 쓰고 브라우저 응답에서는 뺀다.
+      const { notify, ...saved } = await callDataService<
+        {
+          notify?: {
+            userId: string;
+            title: string;
+            userName: string | null;
+            telegramChatId: string | null;
+          };
+        } & Record<string, unknown>
+      >("communication-domain/admin-reply", {
+        adminId,
+        threadId,
+        content,
+        attachments,
+        expectedCompletionDate,
+      });
+      if (notify)
+        await notifyAdminReply({ threadId, ...notify, adminName, content });
+      return NextResponse.json(saved);
+    }
 
     if (!threadId || !content) {
       console.log("[REPLY API] threadId 또는 content 없음");
       return NextResponse.json(
         { error: "스레드 ID와 내용을 입력해주세요" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -48,6 +182,7 @@ export async function POST(request: Request) {
             이름: true,
             email: true,
             연락처: true,
+            telegramChatId: true,
           },
         },
       },
@@ -55,7 +190,10 @@ export async function POST(request: Request) {
 
     if (!thread) {
       console.log("[REPLY API] 스레드 찾을 수 없음");
-      return NextResponse.json({ error: "스레드를 찾을 수 없습니다" }, { status: 404 });
+      return NextResponse.json(
+        { error: "스레드를 찾을 수 없습니다" },
+        { status: 404 },
+      );
     }
 
     console.log("[REPLY API] 메시지 생성 중...");
@@ -84,102 +222,15 @@ export async function POST(request: Request) {
       },
     });
 
-    // ✅ 실시간 알림 전송 (SSE)
-    console.log("[REPLY API] SSE 알림 전송 중...", thread.userId);
-    notificationManager.notifyUser(thread.userId, {
-      type: "new_message",
-      data: {
-        threadId,
-        count: 1,
-        timestamp: new Date().toISOString(),
-      },
+    await notifyAdminReply({
+      threadId,
+      userId: thread.userId,
+      title: thread.title,
+      userName: thread.user?.이름 ?? null,
+      telegramChatId: thread.user?.telegramChatId ?? null,
+      adminName,
+      content,
     });
-
-    // 사용자에게 텔레그램 알림
-    try {
-      const userForTelegram = await prisma.user.findUnique({
-        where: { id: thread.userId },
-        select: { telegramChatId: true, 이름: true },
-      });
-
-      if (userForTelegram?.telegramChatId) {
-        const { sendTelegramMessage } = await import("@/lib/notification/telegramClient");
-        const escapeHtml = (text: string) =>
-          text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
-        await sendTelegramMessage(
-          `💬 <b>관리자 답변</b>\n\n<b>제목:</b> ${escapeHtml(thread.title)}\n\n<b>내용:</b>\n${escapeHtml(content)}`,
-          userForTelegram.telegramChatId
-        );
-      }
-    } catch (error) {
-      console.error("텔레그램 사용자 알림 실패:", error);
-    }
-
-    // 문의하기 전용 그룹에 알림 (답장 가능하도록 스레드 ID 포함)
-    try {
-      const { sendInquiryTelegramMessage } = await import("@/lib/notification/telegramClient");
-      const escapeHtml = (text: string) =>
-        text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
-      await sendInquiryTelegramMessage(
-        `📤 <b>관리자 답변</b> [ID: ${threadId}]\n\n<b>담당자:</b> ${escapeHtml(adminName || "관리자")}\n<b>사용자:</b> ${escapeHtml(thread.user?.이름 || "")}\n<b>제목:</b> ${escapeHtml(thread.title)}\n\n<b>내용:</b>\n${escapeHtml(content)}\n\n💡 이 메시지에 답장하면 추가 답변이 등록됩니다.`
-      );
-    } catch (error) {
-      console.error("텔레그램 그룹 알림 실패:", error);
-    }
-
-    // SP_Q&A 슬랙 채널에 관리자 답변 기록
-    try {
-      const SLACK_QNA_CHANNEL_ID = process.env.SLACK_QNA_CHANNEL_ID;
-      if (SLACK_QNA_CHANNEL_ID) {
-        const { postMessage } = await import("@/lib/notification/slackClient");
-        await postMessage({
-          channelId: SLACK_QNA_CHANNEL_ID,
-          text: `📤 [관리자] → [${thread.user?.이름}] 답변`,
-          blocks: [
-            {
-              type: "section",
-              text: {
-                type: "mrkdwn",
-                text: `📤 *[관리자] → [${thread.user?.이름 || "사용자"}] 답변*\n━━━━━━━━━━━━━━━━━━━━`,
-              },
-            },
-            {
-              type: "section",
-              fields: [
-                {
-                  type: "mrkdwn",
-                  text: `*담당자:* ${adminName}`,
-                },
-                {
-                  type: "mrkdwn",
-                  text: `*제목:* ${thread.title}`,
-                },
-              ],
-            },
-            {
-              type: "section",
-              text: {
-                type: "mrkdwn",
-                text: `*내용:*\n${content}`,
-              },
-            },
-            {
-              type: "context",
-              elements: [
-                {
-                  type: "mrkdwn",
-                  text: `📅 ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`,
-                },
-              ],
-            },
-          ],
-        });
-      }
-    } catch (error) {
-      console.error("슬랙 SP_Q&A 기록 실패:", error);
-    }
 
     console.log("[REPLY API] 성공");
     return NextResponse.json({
@@ -190,9 +241,12 @@ export async function POST(request: Request) {
     const serviceError = dataServiceErrorResponse(error);
     if (serviceError) return serviceError;
     console.error("[REPLY API] 에러:", error);
-    return NextResponse.json({
-      error: "Internal server error",
-      details: error instanceof Error ? error.message : String(error)
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: "Internal server error",
+        details: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 },
+    );
   }
 }
