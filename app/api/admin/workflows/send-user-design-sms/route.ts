@@ -4,8 +4,10 @@ import prisma from "@/lib/prisma";
 import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
 import { callDataService } from "@/lib/d1/service-client";
 import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
-import { sendSMS, getSenderPhoneByAdmin, smsTypeFor } from "@/lib/sms/ncpSensClient";
+import { sendSMS, getSenderPhoneByAdmin } from "@/lib/sms/ncpSensClient";
 import { logOutboundNotice } from "@/lib/notification/notificationService";
+import { resolveNoticeOutcome, sendMemberNotice } from "@/lib/notification/memberNotice";
+import { designReadyTemplate } from "@/lib/sms/alimtalkTemplates";
 import {
   sendEmail,
   getDesignCompleteEmailHTML,
@@ -38,10 +40,11 @@ export async function POST(request: NextRequest) {
       if (data.workflows.length === 0) return NextResponse.json({ error: "시안이 업로드된 워크플로우가 없습니다." }, { status: 400 });
       const smsMessage = `[스타트패키지]\n\n디자인 시안이 업로드되었습니다.\n확인 부탁드립니다.`;
       const adminFrom = getSenderPhoneByAdmin(session.user?.email);
-      await sendSMS(data.user.연락처, smsMessage, adminFrom ? { from: adminFrom } : undefined);
+      const sent = await sendMemberNotice({ to: data.user.연락처, alimtalk: designReadyTemplate({ name: data.user.이름 || "회원", items: data.workflows.map((w) => String(w.type)) }), sms: { content: smsMessage, from: adminFrom } });
       if (data.user.email) await sendEmail({ to: data.user.email, subject: "[스타트패키지] 디자인 시안이 업로드되었습니다", html: getDesignCompleteEmailHTML({ userName: data.user.이름 || "사용자", workflowCount: data.workflows.length }) });
       await callDataService("admin-notifications/notification-create", { adminId, userId, type: "시안완료", channel: "SMS", title: "[스타트패키지] 시안 완료", message: smsMessage, status: "성공", sentBy: adminId, sentByName: (session.user as any).name || "관리자" });
-      await logOutboundNotice({ userId, notice: "시안 완료·확정 요청 안내", channel: smsTypeFor(smsMessage), items: data.workflows.map((w) => String(w.type)), sentByName: (session.user as any).name || "관리자" });
+      const outcome = await resolveNoticeOutcome(sent);
+      await logOutboundNotice({ userId, notice: "시안 완료·확정 요청 안내", channel: outcome.channel, note: outcome.note, items: data.workflows.map((w) => String(w.type)), sentByName: (session.user as any).name || "관리자" });
       return NextResponse.json({ success: true, message: "SMS 발송 완료", count: data.workflows.length });
     }
 
