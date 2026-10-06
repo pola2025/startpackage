@@ -7,6 +7,10 @@
 import { WebClient } from "@slack/web-api";
 import { toSlackChannelName } from "@/lib/utils/koreanToRoman";
 import { formatPhoneNumber } from "@/lib/utils";
+import {
+  clearPendingProfileOriginal,
+  loadPendingProfileOriginal,
+} from "@/lib/storage/profileOriginal";
 
 function formatPhoneSafe(phone: unknown): string {
   if (!phone) return "";
@@ -492,6 +496,29 @@ export async function uploadProfilePhotoToSlack(params: {
 }
 
 /**
+ * 슬랙에 아직 못 보낸 프로필 원본이 있으면 올리고, 올라가면 서버 보관분을 지운다.
+ * 표시용 webp 는 슬랙에 올리지 않으므로 프로필 사진은 원본 전송 경로로만 보낸다.
+ * @returns 이번에 원본을 올렸으면 true
+ */
+export async function sendPendingProfileOriginal(params: {
+  userId: string;
+  channelId: string;
+  userName?: string;
+}): Promise<boolean> {
+  const pending = await loadPendingProfileOriginal(params.userId);
+  if (!pending) return false;
+
+  const sent = await uploadProfilePhotoToSlack({
+    channelId: params.channelId,
+    buffer: pending.buffer,
+    fileName: `프로필사진_원본_${Date.now()}.${pending.extension}`,
+    userName: params.userName,
+  });
+  if (sent) await clearPendingProfileOriginal(params.userId);
+  return sent;
+}
+
+/**
  * 슬랙에 파일 업로드
  */
 export async function uploadFileToSlack(params: {
@@ -601,6 +628,8 @@ export async function uploadFileToSlack(params: {
 export async function pushSubmissionData(params: {
   channelId: string;
   submissionData: Record<string, any>;
+  /** 프로필 원본을 찾을 수강생. 없으면 submissionData.userId 를 쓴다. */
+  userId?: string;
 }): Promise<boolean> {
   const { channelId, submissionData } = params;
 
@@ -693,7 +722,6 @@ export async function pushSubmissionData(params: {
       label: "사업자등록증",
       fileName: "사업자등록증.jpg",
     },
-    { key: "프로필사진URL", label: "프로필사진", fileName: "프로필사진.jpg" },
     { key: "로고URL", label: "로고파일", fileName: "로고.jpg" },
   ];
 
@@ -707,6 +735,12 @@ export async function pushSubmissionData(params: {
         title: label,
       });
     }
+  }
+
+  // 프로필 사진은 표시용 webp 대신 아직 못 보낸 원본만 올린다.
+  const profileOwnerId = params.userId ?? submissionData.userId;
+  if (submissionData.프로필사진URL && typeof profileOwnerId === "string") {
+    await sendPendingProfileOriginal({ userId: profileOwnerId, channelId });
   }
 
   return messageResult;

@@ -18,7 +18,7 @@ export async function notifySubmissionChanges(
     channelId = await slack.createSlackChannel({ cohortName, userName, brandName, userEmail: person.email || "", userPhone: person.연락처 || "" }) || undefined;
     if (channelId) {
       await persistChannel(channelId);
-      await slack.pushSubmissionData({ channelId, submissionData: submission });
+      await slack.pushSubmissionData({ channelId, submissionData: submission, userId });
     }
   }
   if (!channelId) return;
@@ -45,10 +45,16 @@ export async function notifySubmissionChanges(
     await slack.postMessage({ channelId, text: "✅ Gmail 계정 정보 등록" }).catch(() => undefined);
   }
   const fileFields = [
-    ["사업자등록증URL", "사업자등록증", "사업자등록증.pdf"], ["프로필사진URL", "프로필사진", "프로필사진.jpg"], ["로고URL", "로고 파일", "로고.png"],
+    ["사업자등록증URL", "사업자등록증", "사업자등록증.pdf"], ["로고URL", "로고 파일", "로고.png"],
     ["대표자신분증URL", "대표자신분증", "대표자신분증.jpg"], ["통신서비스이용증명원URL", "통신서비스이용증명원", "통신서비스이용증명원.pdf"],
     ["신용카드앞면URL", "신용카드앞면", "신용카드앞면.jpg"], ["로고예시디자인URL", "로고예시디자인", "로고예시디자인.jpg"], ["로고예시디자인2URL", "로고예시디자인2", "로고예시디자인2.jpg"],
   ] as const;
+  // 프로필 사진은 표시용 webp 를 슬랙에 올리지 않는다. 아직 못 보낸 원본이 있으면 그것만 올린다.
+  if (touched("프로필사진URL") && submission.프로필사진URL && submission.프로필사진URL !== previous.프로필사진URL) {
+    await slack.sendPendingProfileOriginal({ userId, channelId, userName: person.이름 }).catch(() => false);
+    const telegram = await import("@/lib/notification/telegramClient");
+    await telegram.sendTelegramMessage(`📤 *파일 업로드*\n\n*사용자:* ${userName}\n*파일:* 프로필사진`).catch(() => undefined);
+  }
   for (const [key, label, fileName] of fileFields) {
     if (touched(key) && submission[key] && submission[key] !== previous[key]) {
       await slack.uploadFileToSlack({ channelId, filePath: String(submission[key]), fileName, title: label }).catch(() => undefined);

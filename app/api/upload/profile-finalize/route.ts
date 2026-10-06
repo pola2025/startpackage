@@ -21,7 +21,7 @@ const ALLOWED_MIME = ["image/jpeg", "image/png", "image/webp"];
  * POST: R2에 직접 업로드된 프로필 원본을 후처리
  * - R2 임시 원본 읽기 → 파일타입/크기 재검증
  * - 원본을 슬랙으로 전송(디자인용) + 표시용 webp(~200KB) R2 저장
- * - 임시 원본 삭제
+ * - 임시 원본 삭제 (슬랙에 못 올린 원본은 따로 보관했다가 채널이 생기면 올리고 지운다)
  */
 export async function POST(request: Request) {
   let tempKey: string | undefined;
@@ -95,6 +95,7 @@ export async function POST(request: Request) {
       userId,
       buffer,
       originalFilename: filename,
+      contentType: detected.mime,
     });
 
     // 임시 원본 삭제 (표시용 webp만 R2에 남김)

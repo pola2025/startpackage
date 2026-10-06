@@ -5,8 +5,9 @@ const uploadFileToSlack = vi.fn().mockResolvedValue(undefined);
 const sendTelegramMessage = vi.fn().mockResolvedValue(undefined);
 const createSlackChannel = vi.fn().mockResolvedValue("C123");
 const pushSubmissionData = vi.fn().mockResolvedValue(undefined);
+const sendPendingProfileOriginal = vi.fn().mockResolvedValue(true);
 
-vi.mock("./slackClient", () => ({ postMessage, uploadFileToSlack, createSlackChannel, pushSubmissionData }));
+vi.mock("./slackClient", () => ({ postMessage, uploadFileToSlack, createSlackChannel, pushSubmissionData, sendPendingProfileOriginal }));
 vi.mock("./telegramClient", () => ({ sendTelegramMessage }));
 
 describe("submission notification parity", () => {
@@ -19,6 +20,7 @@ describe("submission notification parity", () => {
     }, {}, { 이름: "사용자", email: "user@example.com", cohortName: "Cohort" }, async () => undefined);
     expect(createSlackChannel).toHaveBeenCalledTimes(1);
     expect(pushSubmissionData).toHaveBeenCalledTimes(1);
+    expect(pushSubmissionData).toHaveBeenCalledWith(expect.objectContaining({ channelId: "C123", userId: "u1" }));
     expect(postMessage).toHaveBeenCalledTimes(4);
     expect(uploadFileToSlack).toHaveBeenCalledTimes(1);
     expect(sendTelegramMessage).toHaveBeenCalledTimes(1);
@@ -31,5 +33,14 @@ describe("submission notification parity", () => {
     expect(postMessage).toHaveBeenCalledTimes(1);
     expect(uploadFileToSlack).not.toHaveBeenCalled();
     expect(sendTelegramMessage).not.toHaveBeenCalled();
+  });
+
+  it("sends the waiting profile original instead of the display webp when the photo changes", async () => {
+    vi.clearAllMocks();
+    const { notifySubmissionChanges } = await import("./submissionNotifications");
+    await notifySubmissionChanges("u1", { 프로필사진URL: "https://files.example.com/u1/new.webp" }, { 프로필사진URL: "https://files.example.com/u1/old.webp" }, { slackChannelId: "C123", 이름: "사용자" }, async () => undefined, ["프로필사진URL"]);
+    expect(sendPendingProfileOriginal).toHaveBeenCalledWith({ userId: "u1", channelId: "C123", userName: "사용자" });
+    expect(uploadFileToSlack).not.toHaveBeenCalled();
+    expect(sendTelegramMessage).toHaveBeenCalledTimes(1);
   });
 });

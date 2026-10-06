@@ -2,6 +2,7 @@
  * 프로필 사진 처리 (서버 전용)
  * - 원본은 슬랙으로 전송 (디자인 작업용 원본 해상도)
  * - 표시용 webp(~200KB)는 R2에 저장
+ * - 슬랙에 못 올린 원본은 채널이 생길 때까지 R2 에 보관하고, 올라가면 지운다
  *
  * 원칙: 원본은 슬랙에 확보되므로 R2 webp는 언제든 재생성 가능한 파생물.
  *       따라서 슬랙 전송 성공 = 성공 처리. R2 일시장애여도 원본 손실 없음.
@@ -14,6 +15,10 @@ import { callDataService } from "@/lib/d1/service-client";
 import { uploadToR2, generateFileName } from "@/lib/storage/r2Client";
 import { uploadProfilePhotoToSlack } from "@/lib/notification/slackClient";
 import { SLACK_ONLY_MARKER } from "@/lib/constants/sensitiveFields";
+import {
+  clearPendingProfileOriginal,
+  savePendingProfileOriginal,
+} from "@/lib/storage/profileOriginal";
 
 /**
  * 프로필 사진을 표시용 webp로 압축 (목표 ~200KB)
@@ -94,8 +99,10 @@ export async function processProfilePhoto(params: {
   userId: string;
   buffer: Buffer;
   originalFilename: string;
+  /** 파일 내용으로 확인한 형식 (image/jpeg 등) */
+  contentType: string;
 }): Promise<ProfilePhotoResult> {
-  const { userId, buffer, originalFilename } = params;
+  const { userId, buffer, originalFilename, contentType } = params;
 
   const user = isD1RuntimeEnabled()
     ? await callDataService<{ slackChannelId: string | null; 이름: string }>(
@@ -119,8 +126,17 @@ export async function processProfilePhoto(params: {
     });
   } else {
     console.log(
-      "📸 [profileUpload] 슬랙 채널 없음 - 원본 전송 스킵 (webp만 저장)",
+      "📸 [profileUpload] 슬랙 채널 없음 - 원본은 채널이 생길 때까지 보관",
     );
+  }
+
+  // 슬랙에 올라갔으면 서버에 원본을 남기지 않는다.
+  // 못 올렸으면(채널 없음·전송 실패) 보관해 두고 채널이 생기거나 다음 저장 때 올린다.
+  try {
+    if (slackSent) await clearPendingProfileOriginal(userId);
+    else await savePendingProfileOriginal({ userId, buffer, contentType });
+  } catch (error) {
+    console.error("📸 [profileUpload] 원본 보관 처리 실패:", error);
   }
 
   // 2) 표시용 webp(~200KB) 압축 후 R2 저장 (일시 장애 대비 재시도)

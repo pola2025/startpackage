@@ -178,6 +178,7 @@ export async function POST(request: Request) {
               .pushSubmissionData({
                 channelId,
                 submissionData: submission,
+                userId,
               })
               .catch((error) => {
                 console.error("슬랙 데이터 푸시 실패:", error);
@@ -193,6 +194,7 @@ export async function POST(request: Request) {
         .pushSubmissionData({
           channelId: user.slackChannelId,
           submissionData: submission,
+          userId,
         })
         .catch((error) => {
           console.error("슬랙 업데이트 알림 실패:", error);

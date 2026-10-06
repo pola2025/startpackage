@@ -113,6 +113,7 @@ export async function handleSubmissionComplete(params: {
       await slack.pushSubmissionData({
         channelId: slackChannelId,
         submissionData,
+        userId,
       });
 
       console.log(`✅ 제작 정보 푸시 완료`);
