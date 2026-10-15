@@ -13,6 +13,7 @@ import { CohortAnnouncementPopup } from "@/components/ui/cohort-announcement-pop
 import { MobileMoreMenu } from "@/components/ui/mobile-more-menu";
 import { SupportContactPopup } from "@/components/ui/support-contact-notice";
 import { loginPathFor } from "@/lib/auth/return-path";
+import { PrintOrderGuideStrip } from "@/components/ui/print-order-guide-notice";
 
 export default function UserLayout({
   children,
@@ -168,6 +169,9 @@ export default function UserLayout({
 
       {/* Main Content */}
       <main className="relative lg:ml-64 pt-16 lg:pt-0 min-h-screen pb-bottom-bar">
+        {/* 인쇄물 발주 안내 띠 - 수료생 제외 */}
+        {!isGraduated && <PrintOrderGuideStrip />}
+
         <div className="mx-auto p-3 sm:p-4 md:p-6 lg:max-w-[1200px]">
           {children}
         </div>

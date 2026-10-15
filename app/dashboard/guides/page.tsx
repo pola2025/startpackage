@@ -1,7 +1,8 @@
 "use client";
 
 import { PrintColorNotice } from "@/components/design/print-color-notice";
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import {
   Card,
@@ -88,20 +89,32 @@ const guideMenus = [
 ];
 
 export default function GuidesPage() {
+  // useSearchParams 는 Suspense 경계 안에서만 쓸 수 있다.
+  return (
+    <Suspense fallback={null}>
+      <GuidesContent />
+    </Suspense>
+  );
+}
+
+function GuidesContent() {
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get("tab");
   const [activeTab, setActiveTab] = useState("telegram");
 
-  // URL 해시에서 탭 읽기
+  // ?tab=design 으로 들어오면 해당 탭을 연다. 가이드 화면 안에서 띠를 눌러도
+  // 쿼리가 바뀌므로 다시 반영된다. 예전 #design 링크도 계속 받는다.
   useEffect(() => {
-    const hash = window.location.hash.slice(1); // # 제거
-    if (hash) {
-      setActiveTab(hash);
+    const requested = tabParam ?? window.location.hash.slice(1);
+    if (requested) {
+      setActiveTab(requested);
     }
-  }, []);
+  }, [tabParam]);
 
-  // 탭 변경 시 URL 해시 업데이트
+  // 탭 변경 시 URL 쿼리 업데이트
   const handleTabChange = (value: string) => {
     setActiveTab(value);
-    window.history.pushState(null, "", `#${value}`);
+    window.history.pushState(null, "", `?tab=${value}`);
   };
 
   return (

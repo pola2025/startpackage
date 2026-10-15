@@ -29,6 +29,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { SupportContactCard } from "@/components/ui/support-contact-notice";
+import { PrintOrderGuideBanner } from "@/components/ui/print-order-guide-notice";
 
 interface SidebarProps {
   userName: string;
@@ -309,6 +310,9 @@ export function Sidebar({
             closeMobile,
           )}
       </nav>
+
+      {/* 인쇄물 발주 안내 - 문의처 위에 고정 */}
+      {!isGraduated && <PrintOrderGuideBanner onClick={closeMobile} />}
 
       {/* PC 고정 문의처 */}
       <div className="hidden lg:block">

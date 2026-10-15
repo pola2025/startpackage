@@ -28,8 +28,10 @@ import {
   Images,
   PenTool,
   Paperclip,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { PRINT_ORDER_GUIDE_HREF } from "@/components/ui/print-order-guide-notice";
 
 interface MobileMoreMenuProps {
   open: boolean;
@@ -193,6 +195,14 @@ export function MobileMoreMenu({
               href: "/dashboard/online-marketing",
               icon: Megaphone,
               label: "온라인마케팅(유료)",
+              badge: null,
+            })}
+
+          {!isGraduated &&
+            renderLink({
+              href: PRINT_ORDER_GUIDE_HREF,
+              icon: FileText,
+              label: "인쇄물 발주 안내",
               badge: null,
             })}
 
