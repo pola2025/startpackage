@@ -2,9 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -238,16 +236,6 @@ export default function ContentSamplesPage() {
           </div>
         </TabsContent>
       </Tabs>
-
-      <div className="flex flex-col gap-2 rounded-lg border border-gray-200 bg-gray-50 p-4 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-xs text-gray-600 md:text-sm">
-          콘텐츠 대행 조건과 시작 시점은 온라인마케팅 안내에서 확인하실 수
-          있습니다.
-        </p>
-        <Button asChild variant="outline" className="border-navy-900">
-          <Link href="/dashboard/online-marketing">온라인마케팅 안내</Link>
-        </Button>
-      </div>
 
       {/* 본문 모달 */}
       <Dialog open={!!post} onOpenChange={(o) => !o && setPost(null)}>

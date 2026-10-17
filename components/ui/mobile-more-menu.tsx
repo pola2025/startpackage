@@ -15,7 +15,6 @@ import { Button } from "@/components/ui/button";
 import {
   Globe,
   BookOpen,
-  Facebook,
   MessageSquare,
   Megaphone,
   Lightbulb,
@@ -82,12 +81,6 @@ export function MobileMoreMenu({
           href: "/dashboard/guides",
           icon: BookOpen,
           label: "참고가이드",
-          badge: null,
-        },
-        {
-          href: "/dashboard/meta-ads",
-          icon: Facebook,
-          label: "Meta 광고",
           badge: null,
         },
         {
@@ -216,14 +209,6 @@ export function MobileMoreMenu({
               {productionItems.map(renderLink)}
             </div>
           )}
-
-          {!isGraduated &&
-            renderLink({
-              href: "/dashboard/online-marketing",
-              icon: Megaphone,
-              label: "온라인마케팅(유료)",
-              badge: null,
-            })}
 
           {!isGraduated &&
             renderLink({

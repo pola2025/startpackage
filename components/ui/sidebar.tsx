@@ -12,7 +12,6 @@ import {
   MessageSquare,
   Megaphone,
   Lightbulb,
-  Facebook,
   LogOut,
   Menu,
   X,
@@ -77,7 +76,6 @@ export function Sidebar({
   // 가이드 그룹의 하위 경로에 있으면 자동으로 열림
   const isInGuideGroup = [
     "/dashboard/guides",
-    "/dashboard/meta-ads",
     "/dashboard/design-threads",
     "/dashboard/announcements",
     "/dashboard/content-tips",
@@ -122,12 +120,6 @@ export function Sidebar({
         href: "/dashboard/guides",
         icon: BookOpen,
         label: "참고가이드",
-        badge: null,
-      },
-      {
-        href: "/dashboard/meta-ads",
-        icon: Facebook,
-        label: "Meta 광고",
         badge: null,
       },
       {
@@ -294,24 +286,6 @@ export function Sidebar({
             setProductionOpen,
             closeMobile,
           )}
-
-        {/* 온라인마케팅 - 독립 항목 */}
-        {!isGraduated && (
-          <Link href="/dashboard/online-marketing" onClick={closeMobile}>
-            <Button
-              variant="ghost"
-              className={cn(
-                "w-full justify-start h-9",
-                pathname.startsWith("/dashboard/online-marketing")
-                  ? "bg-gold-50 text-gold-600 font-semibold hover:bg-gold-100"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100",
-              )}
-            >
-              <Megaphone className="w-5 h-5 mr-3" />
-              온라인마케팅(유료)
-            </Button>
-          </Link>
-        )}
 
         {/* 문의하기 - 독립 항목 */}
         <Link href="/dashboard/communication" onClick={closeMobile}>
