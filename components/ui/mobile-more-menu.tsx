@@ -29,9 +29,11 @@ import {
   PenTool,
   Paperclip,
   FileText,
+  Smartphone,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PRINT_ORDER_GUIDE_HREF } from "@/components/ui/print-order-guide-notice";
+import type { MetaSetupStage } from "@/lib/submission/parts";
 
 interface MobileMoreMenuProps {
   open: boolean;
@@ -39,6 +41,7 @@ interface MobileMoreMenuProps {
   userName: string;
   isGraduated: boolean;
   unreadCount: number;
+  metaSetupStage?: MetaSetupStage | null;
 }
 
 export function MobileMoreMenu({
@@ -47,6 +50,7 @@ export function MobileMoreMenu({
   userName,
   isGraduated,
   unreadCount,
+  metaSetupStage = null,
 }: MobileMoreMenuProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -113,11 +117,23 @@ export function MobileMoreMenu({
       ]
     : [];
 
+  const metaSetupTag =
+    metaSetupStage === "none" ? (
+      <span className="bg-red-500 text-white text-xs font-bold rounded px-1.5 py-0.5">
+        필수
+      </span>
+    ) : metaSetupStage === "requested" ? (
+      <span className="bg-gray-100 text-gray-500 text-xs font-semibold rounded px-1.5 py-0.5">
+        요청 완료
+      </span>
+    ) : null;
+
   const renderLink = (item: {
     href: string;
     icon: any;
     label: string;
     badge: number | null;
+    tag?: React.ReactNode;
   }) => {
     const Icon = item.icon;
     const isActive = pathname === item.href;
@@ -141,6 +157,7 @@ export function MobileMoreMenu({
             {item.badge > 9 ? "9+" : item.badge}
           </span>
         )}
+        {item.tag}
       </Link>
     );
   };
@@ -179,6 +196,16 @@ export function MobileMoreMenu({
 
         {/* 메뉴 목록 */}
         <nav className="space-y-1 overflow-y-auto max-h-[40vh]">
+          {/* Meta 설정요청 - 마케팅 교육 전에 요청해야 하므로 맨 위 */}
+          {!isGraduated &&
+            renderLink({
+              href: "/dashboard/meta-setup",
+              icon: Smartphone,
+              label: "Meta 설정요청",
+              badge: null,
+              tag: metaSetupTag,
+            })}
+
           {/* 제작진행 - 하단탭에 없는 항목 */}
           {productionItems.length > 0 && (
             <div className="pb-1">

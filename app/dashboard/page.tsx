@@ -14,6 +14,16 @@ import { normalizeDashboardDates } from "@/lib/dashboard/serialization";
 import ProjectProgress from "@/components/dashboard/project-progress";
 import DashboardAlertsClient from "./_components/dashboard-alerts-client";
 import PrintDeliverableCards from "./_components/print-deliverable-cards";
+import CurrentStageCards from "./_components/current-stage-cards";
+import {
+  isExistingLogo,
+  isLogoConfirmed,
+  isLogoInfoComplete,
+  logoChecklist,
+  logoStage,
+  metaSetupStage,
+  toEpochMs,
+} from "@/lib/submission/parts";
 import { isHomepageCompleteStatus } from "@/lib/workflow/homepage-status";
 import {
   calculateMarketingSupportEndDate,
@@ -170,8 +180,8 @@ export default async function UserDashboard() {
   // 2. 로고 정보 미입력
   const hasBasicInfo =
     user.submission?.브랜드명 && user.submission?.사업자등록증URL;
-  const hasLogoInfo =
-    user.submission?.로고선호스타일 || user.submission?.로고선호폰트;
+  // 로고 정보는 파트 기준(스타일·폰트·색상·설명 20자·참고 로고 1장, 기존 로고는 파일)을 모두 채워야 완료
+  const hasLogoInfo = isLogoInfoComplete(user.submission as Record<string, unknown> | null);
   if (hasBasicInfo && !hasLogoInfo) {
     notifications.push({
       id: "logo-info",
@@ -203,7 +213,7 @@ export default async function UserDashboard() {
 
   // 4. 인쇄물 type별 자료 입력 알림 (로고 확정 + 기본정보 입력 후)
   const logoConfirmed = user.workflows.some(
-    (w) => w.type === "로고" && w.status === "시안확정",
+    (w) => w.type === "로고" && isLogoConfirmed(w.status),
   );
 
   // 4-1. 명함/대봉투: 명함시안 + 명함색상 (둘이 한 묶음, 한쪽 입력하면 양쪽 ✓)
@@ -457,6 +467,23 @@ export default async function UserDashboard() {
     submissionExpired = submissionDaysRemaining <= 0;
   }
 
+  // 내 진행 단계 카드 (로고 · Meta 설정)
+  const stageSubmission = user.submission as Record<string, unknown> | null;
+  const logoWorkflow = user.workflows.find((w) => w.type === "로고");
+  const metaType = stageSubmission?.MetaSetupType;
+  const logoStageProps = logoWorkflow
+    ? {
+        stage: logoStage(stageSubmission, logoWorkflow.status),
+        existing: isExistingLogo(stageSubmission),
+        items: logoChecklist(stageSubmission),
+      }
+    : null;
+  const metaStageProps = {
+    stage: metaSetupStage(stageSubmission),
+    requestedAt: toEpochMs(stageSubmission?.MetaSetupRequestedAt),
+    type: metaType === "instagram" || metaType === "google" ? metaType : null,
+  } as const;
+
   return (
     <div className="space-y-6">
       {/* 진행 현황과 기존 제출·지원 마감 안내 */}
@@ -538,6 +565,15 @@ export default async function UserDashboard() {
             })()}
         </div>
       </div>
+
+      {/* 내 진행 단계 — 지금 낼 것과 현재 단계를 카드로 (2026-10-17) */}
+      <CurrentStageCards
+        logo={logoStageProps}
+        meta={metaStageProps}
+        submission={stageSubmission}
+        representativeName={user.이름}
+        accountEmail={user.email}
+      />
 
       {/* 내가 처리해야 할 것 (To-do 패널) — 알림 클릭 시 위자드 모달 */}
       <DashboardAlertsClient

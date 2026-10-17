@@ -42,6 +42,7 @@ import {
   FileText,
   ChevronDown,
 } from "lucide-react";
+import { metaSetupStage, toEpochMs } from "@/lib/submission/parts";
 
 // 이메일 템플릿 정의
 const EMAIL_TEMPLATES = [
@@ -184,6 +185,15 @@ export default function UserActions({ user }: UserActionsProps) {
   const [updatingPhone, setUpdatingPhone] = useState(false);
   const [newPhone, setNewPhone] = useState("");
 
+  // Meta 설정 완료 처리 (토큰 2개 저장 → 교육생 메일)
+  const [metaSystemUserToken, setMetaSystemUserToken] = useState("");
+  const [metaThreadsToken, setMetaThreadsToken] = useState("");
+  const [completingMetaSetup, setCompletingMetaSetup] = useState(false);
+  const [metaSetupResult, setMetaSetupResult] = useState<{
+    ok: boolean;
+    message: string;
+  } | null>(null);
+
   const fetchSubmission = async () => {
     setLoadingSubmission(true);
     try {
@@ -191,6 +201,9 @@ export default function UserActions({ user }: UserActionsProps) {
       if (response.ok) {
         const data = await response.json();
         setSubmission(data);
+        // 저장된 토큰은 가림 값으로 채워 두면 서버가 그 토큰으로 메일만 다시 보낸다
+        setMetaSystemUserToken(data?.MetaSystemUserToken ? MASKED_SECRET : "");
+        setMetaThreadsToken(data?.MetaThreadsToken ? MASKED_SECRET : "");
       }
     } catch (error) {
       console.error("Failed to fetch submission:", error);
@@ -219,7 +232,70 @@ export default function UserActions({ user }: UserActionsProps) {
 
   const handleViewDetails = () => {
     setShowDetailDialog(true);
+    setMetaSetupResult(null);
     fetchSubmission();
+  };
+
+  const metaStage = submission ? metaSetupStage(submission) : "none";
+  const metaAccountType =
+    submission?.MetaSetupType === "google"
+      ? "google"
+      : submission?.MetaSetupType === "instagram"
+        ? "instagram"
+        : null;
+  const metaTokensUnchanged =
+    metaSystemUserToken === MASKED_SECRET && metaThreadsToken === MASKED_SECRET;
+  const formatMetaDate = (value: unknown) => {
+    const ms = toEpochMs(value);
+    return ms
+      ? new Date(ms).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })
+      : "-";
+  };
+
+  const handleCompleteMetaSetup = async () => {
+    if (completingMetaSetup) return;
+    const systemUserToken = metaSystemUserToken.trim();
+    const threadsToken = metaThreadsToken.trim();
+    if (!systemUserToken || !threadsToken) {
+      setMetaSetupResult({ ok: false, message: "토큰 2개를 모두 입력해 주세요." });
+      return;
+    }
+    setCompletingMetaSetup(true);
+    setMetaSetupResult(null);
+    try {
+      const response = await fetch(`/api/admin/meta-setup/${user.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ systemUserToken, threadsToken }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        setMetaSetupResult({
+          ok: false,
+          message: data.error || "완료 처리에 실패했습니다.",
+        });
+        return;
+      }
+      await fetchSubmission();
+      setMetaSetupResult(
+        data.emailSent
+          ? {
+              ok: true,
+              message: `설정 완료로 저장했고 ${data.email}(으)로 토큰 메일을 보냈습니다.`,
+            }
+          : {
+              ok: false,
+              message: `설정 완료는 저장했지만 메일을 보내지 못했습니다: ${data.emailError || "원인을 알 수 없습니다"}`,
+            },
+      );
+    } catch {
+      setMetaSetupResult({
+        ok: false,
+        message: "완료 처리 중 오류가 발생했습니다.",
+      });
+    } finally {
+      setCompletingMetaSetup(false);
+    }
   };
 
   const handleDelete = async () => {
@@ -1066,6 +1142,157 @@ export default function UserActions({ user }: UserActionsProps) {
                       <SecretValue field="InstagramPW" value={revealedSecrets.InstagramPW || submission.InstagramPW} onReveal={handleRevealSecret} />
                     </p>
                   </div>
+                </div>
+              </div>
+
+              {/* Meta 설정요청 */}
+              <div className="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                  Meta 설정요청
+                  <span
+                    className={
+                      metaStage === "done"
+                        ? "px-2 py-0.5 rounded text-xs font-semibold bg-green-50 text-green-700"
+                        : metaStage === "requested"
+                          ? "px-2 py-0.5 rounded text-xs font-semibold bg-blue-50 text-blue-700"
+                          : "px-2 py-0.5 rounded text-xs font-semibold bg-red-50 text-red-700"
+                    }
+                  >
+                    {metaStage === "done"
+                      ? "설정 완료"
+                      : metaStage === "requested"
+                        ? "요청 완료"
+                        : "요청 전"}
+                  </span>
+                </h3>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <span className="text-gray-600">요청 일시:</span>
+                    <p className="font-medium text-gray-900">
+                      {formatMetaDate(submission.MetaSetupRequestedAt)}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">계정 유형:</span>
+                    <p className="font-medium text-gray-900">
+                      {metaAccountType === "google"
+                        ? "구글 (인스타그램 없음)"
+                        : metaAccountType === "instagram"
+                          ? "인스타그램"
+                          : "-"}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">아이디:</span>
+                    <p className="font-medium text-gray-900 break-all">
+                      {(metaAccountType === "google"
+                        ? submission.MetaGoogleID
+                        : metaAccountType === "instagram"
+                          ? submission.InstagramID
+                          : null) || "-"}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">비밀번호:</span>
+                    <p className="font-medium text-gray-900">
+                      {metaAccountType === "google" ? (
+                        <SecretValue field="MetaGooglePW" value={revealedSecrets.MetaGooglePW || submission.MetaGooglePW} onReveal={handleRevealSecret} />
+                      ) : metaAccountType === "instagram" ? (
+                        <SecretValue field="InstagramPW" value={revealedSecrets.InstagramPW || submission.InstagramPW} onReveal={handleRevealSecret} />
+                      ) : (
+                        "-"
+                      )}
+                    </p>
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-gray-600">전달 내용:</span>
+                    <p className="font-medium text-gray-900 whitespace-pre-wrap break-words">
+                      {submission.MetaSetupMemo || "-"}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">설정 완료:</span>
+                    <p className="font-medium text-gray-900">
+                      {formatMetaDate(submission.MetaSetupDoneAt)}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">토큰 메일 발송:</span>
+                    <p className="font-medium text-gray-900">
+                      {formatMetaDate(submission.MetaTokenEmailSentAt)}
+                    </p>
+                  </div>
+                </div>
+                <div className="space-y-2 pt-3 border-t border-gray-200">
+                  <label className="block text-sm">
+                    <span className="text-gray-600">시스템사용자 토큰</span>
+                    <textarea
+                      value={metaSystemUserToken}
+                      onChange={(e) => setMetaSystemUserToken(e.target.value)}
+                      onFocus={() => {
+                        if (metaSystemUserToken === MASKED_SECRET) setMetaSystemUserToken("");
+                      }}
+                      onBlur={() => {
+                        if (!metaSystemUserToken && submission.MetaSystemUserToken) setMetaSystemUserToken(MASKED_SECRET);
+                      }}
+                      rows={2}
+                      spellCheck={false}
+                      autoComplete="off"
+                      className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 font-mono text-xs"
+                      placeholder="EAA로 시작하는 시스템사용자 토큰"
+                    />
+                  </label>
+                  <label className="block text-sm">
+                    <span className="text-gray-600">쓰레드 토큰</span>
+                    <textarea
+                      value={metaThreadsToken}
+                      onChange={(e) => setMetaThreadsToken(e.target.value)}
+                      onFocus={() => {
+                        if (metaThreadsToken === MASKED_SECRET) setMetaThreadsToken("");
+                      }}
+                      onBlur={() => {
+                        if (!metaThreadsToken && submission.MetaThreadsToken) setMetaThreadsToken(MASKED_SECRET);
+                      }}
+                      rows={2}
+                      spellCheck={false}
+                      autoComplete="off"
+                      className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 font-mono text-xs"
+                      placeholder="Threads 액세스 토큰"
+                    />
+                  </label>
+                  <Button
+                    type="button"
+                    onClick={handleCompleteMetaSetup}
+                    disabled={
+                      completingMetaSetup ||
+                      !metaSystemUserToken.trim() ||
+                      !metaThreadsToken.trim()
+                    }
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                  >
+                    {completingMetaSetup && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                    {metaStage === "done"
+                      ? metaTokensUnchanged
+                        ? "토큰 메일 다시 보내기"
+                        : "토큰 바꾸고 메일 보내기"
+                      : "설정 완료 처리"}
+                  </Button>
+                  <p className="text-xs text-gray-500">
+                    누르면 토큰을 저장하고 교육생 가입 메일로 토큰 2개를
+                    보냅니다(보내는 주소 mkt@polarad.co.kr). 교육생 Meta 화면에도
+                    토큰이 표시됩니다.
+                  </p>
+                  {metaSetupResult && (
+                    <p
+                      className={
+                        metaSetupResult.ok
+                          ? "text-sm text-green-700"
+                          : "text-sm text-red-600"
+                      }
+                    >
+                      {metaSetupResult.message}
+                    </p>
+                  )}
                 </div>
               </div>
 

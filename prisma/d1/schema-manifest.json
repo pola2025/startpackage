@@ -536,6 +536,13 @@
           "prismaRequired": false
         },
         {
+          "name": "로고제작방식",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
           "name": "로고URL",
           "type": "String",
           "array": false,
@@ -613,6 +620,13 @@
           "prismaRequired": false
         },
         {
+          "name": "문자발송사용여부",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
           "name": "대표자생년월일",
           "type": "String",
           "array": false,
@@ -678,6 +692,69 @@
         {
           "name": "우편번호",
           "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "MetaSetupType",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "MetaGoogleID",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "MetaGooglePW",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "MetaSetupMemo",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "MetaSetupRequestedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "MetaSetupDoneAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "MetaSystemUserToken",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "MetaThreadsToken",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "MetaTokenEmailSentAt",
+          "type": "DateTime",
           "array": false,
           "nullable": true,
           "prismaRequired": false

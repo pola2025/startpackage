@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 import { getSignedUploadUrl, validateR2Config } from "@/lib/storage/r2Client";
 import { fileSizeExceededPayload } from "@/lib/storage/uploadLimits";
+import { DISPLAY_IMAGE_FIELDS, isDisplayImageField } from "@/lib/constants/displayImageFields";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -38,7 +39,7 @@ export async function POST(request: Request) {
     const { field, filename, contentType, size } = body || {};
 
     // 프로필 전용 엔드포인트
-    if (field !== "프로필사진URL") {
+    if (field !== "프로필사진URL" && !isDisplayImageField(String(field))) {
       return NextResponse.json(
         { error: "지원하지 않는 필드입니다" },
         { status: 400 },
@@ -70,7 +71,8 @@ export async function POST(request: Request) {
         .toLowerCase()
         .replace(/[^a-z0-9]/g, "")
         .slice(0, 5) || "jpg";
-    const tempKey = `${userId}/_tmp/profile_${Date.now()}.${ext}`;
+    const prefix = isDisplayImageField(String(field)) ? DISPLAY_IMAGE_FIELDS[field as keyof typeof DISPLAY_IMAGE_FIELDS].key : "profile";
+    const tempKey = `${userId}/_tmp/${prefix}_${Date.now()}.${ext}`;
 
     const uploadUrl = await getSignedUploadUrl(
       tempKey,

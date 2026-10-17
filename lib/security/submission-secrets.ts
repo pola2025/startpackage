@@ -19,6 +19,9 @@ const SECRET_FIELDS = [
   "해외결제카드앞면URL",
   "해외결제카드뒷면URL",
   "신용카드앞면URL",
+  "MetaGooglePW",
+  "MetaSystemUserToken",
+  "MetaThreadsToken",
 ] as const;
 
 type SecretField = (typeof SECRET_FIELDS)[number];

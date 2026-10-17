@@ -11,6 +11,15 @@ import {
   clearPendingProfileOriginal,
   loadPendingProfileOriginal,
 } from "@/lib/storage/profileOriginal";
+import {
+  clearPendingDisplayOriginal,
+  loadPendingDisplayOriginal,
+} from "@/lib/storage/displayOriginal";
+import {
+  DISPLAY_IMAGE_FIELDS,
+  isDisplayWebpUrl,
+  type DisplayImageField,
+} from "@/lib/constants/displayImageFields";
 
 function formatPhoneSafe(phone: unknown): string {
   if (!phone) return "";
@@ -519,6 +528,60 @@ export async function sendPendingProfileOriginal(params: {
 }
 
 /**
+ * 이미지 원본을 슬랙에 업로드 (로고 참고 이미지·기존 로고·사업자등록증)
+ * 관리자 화면에는 webp 를 두고, 슬랙에는 이 원본만 올린다.
+ */
+export async function uploadOriginalImageToSlack(params: {
+  channelId: string;
+  buffer: Buffer;
+  fileName: string;
+  title: string;
+  userName?: string;
+}): Promise<boolean> {
+  try {
+    const client = initSlackClient();
+    if (!client) return false;
+    const result = await client.files.uploadV2({
+      channel_id: params.channelId,
+      file: params.buffer,
+      filename: params.fileName,
+      title: params.title,
+      initial_comment: `🖼️ *${params.title}*${params.userName ? ` - ${params.userName}` : ""}`,
+    });
+    return Boolean(result.ok);
+  } catch (error) {
+    console.error(`❌ [Slack] ${params.title} 업로드 실패:`, error);
+    return false;
+  }
+}
+
+/** 채널이 생기기 전에 올라와 보관 중이던 이미지 원본을 모두 슬랙에 올리고 지운다. */
+export async function sendPendingDisplayOriginals(params: {
+  userId: string;
+  channelId: string;
+  userName?: string;
+}): Promise<number> {
+  let sentCount = 0;
+  for (const field of Object.keys(DISPLAY_IMAGE_FIELDS) as DisplayImageField[]) {
+    const pending = await loadPendingDisplayOriginal(params.userId, field);
+    if (!pending) continue;
+    const label = DISPLAY_IMAGE_FIELDS[field].label;
+    const sent = await uploadOriginalImageToSlack({
+      channelId: params.channelId,
+      buffer: pending.buffer,
+      fileName: `${label.replace(/s+/g, "_")}_원본_${Date.now()}.${pending.extension}`,
+      title: `${label} (원본)`,
+      userName: params.userName,
+    });
+    if (sent) {
+      await clearPendingDisplayOriginal(params.userId, field).catch(() => undefined);
+      sentCount += 1;
+    }
+  }
+  return sentCount;
+}
+
+/**
  * 슬랙에 파일 업로드
  */
 export async function uploadFileToSlack(params: {
@@ -727,7 +790,8 @@ export async function pushSubmissionData(params: {
 
   for (const { key, label, fileName } of fileFields) {
     const filePath = submissionData[key];
-    if (filePath) {
+    // 표시용 webp 는 올리지 않는다. 원본은 업로드 때 보냈거나 아래에서 보관분을 보낸다.
+    if (filePath && !isDisplayWebpUrl(filePath)) {
       await uploadFileToSlack({
         channelId,
         filePath,
@@ -741,6 +805,9 @@ export async function pushSubmissionData(params: {
   const profileOwnerId = params.userId ?? submissionData.userId;
   if (submissionData.프로필사진URL && typeof profileOwnerId === "string") {
     await sendPendingProfileOriginal({ userId: profileOwnerId, channelId });
+  }
+  if (typeof profileOwnerId === "string") {
+    await sendPendingDisplayOriginals({ userId: profileOwnerId, channelId }).catch(() => 0);
   }
 
   return messageResult;

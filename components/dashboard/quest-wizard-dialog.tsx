@@ -31,6 +31,18 @@ import {
 } from "@/lib/submission/uploadProfile";
 import { LogoColorSelector } from "@/components/submission/logo-style-selector";
 import { ImageModal } from "@/components/ui/image-modal";
+import { uploadDisplayImage } from "@/lib/submission/uploadDisplayImage";
+import { isDisplayImageField } from "@/lib/constants/displayImageFields";
+import {
+  checkImageReadable,
+  checkUploadFile,
+  isImageFile,
+} from "@/lib/submission/uploadValidation";
+import {
+  LOGO_DESCRIPTION_MIN_LENGTH,
+  logoChecklist,
+  missingItems,
+} from "@/lib/submission/parts";
 
 /** 인쇄물 시안 옵션 (명함 6종 / 자문계약서 2종) */
 export interface PrintStyleOption {
@@ -61,7 +73,8 @@ export interface QuestStep {
     | "account-holder"
     | "shipping"
     | "color-picker"
-    | "style-grid";
+    | "style-grid"
+    | "password";
   placeholder?: string;
   required?: boolean;
   options?: { value: string; label: string }[];
@@ -79,6 +92,19 @@ export interface QuestStep {
   showPcRecommendation?: boolean;
   /** mkt@polarad.co.kr 메일 안내 박스 표시 여부 (파일 첨부 step) */
   showMailHint?: boolean;
+  /** 최소 글자 수 (text·textarea). 글자 수를 함께 보여 준다 */
+  minLength?: number;
+  /** 입력 칸 위에 보이는 주의 안내 */
+  notice?: string;
+  /** 앞 단계 답에 따라 이 단계를 보일지 (없으면 항상 보임) */
+  showIf?: (values: Record<string, string>) => boolean;
+}
+
+/** 마지막 단계 뒤 접수 확인 화면. check 는 빠진 항목 목록을 돌려준다 */
+export interface QuestCompletion {
+  title: string;
+  message: string;
+  check: (values: Record<string, string>) => { key: string; label: string; hint?: string }[];
 }
 
 /** shipping step 이 한 화면에서 함께 저장하는 필드들 (대표 field = 인쇄물받을주소) */
@@ -353,6 +379,8 @@ interface QuestWizardDialogProps {
   onComplete?: () => void;
   /** 열 때 특정 항목(field)의 스텝으로 바로 진입 (없으면 첫 스텝) */
   initialField?: string | null;
+  /** 마지막 단계 저장 뒤 보여 줄 접수 확인 화면 (없으면 바로 닫힘) */
+  completion?: QuestCompletion;
 }
 
 export default function QuestWizardDialog({
@@ -366,6 +394,7 @@ export default function QuestWizardDialog({
   accountEmail,
   onComplete,
   initialField,
+  completion,
 }: QuestWizardDialogProps) {
   const router = useRouter();
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -375,6 +404,14 @@ export default function QuestWizardDialog({
   const [holderSame, setHolderSame] = useState<Record<string, boolean>>({});
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  /** 마지막 단계 저장 뒤 접수 확인 화면 (missing 이 비어 있으면 접수 완료) */
+  const [finished, setFinished] = useState<{
+    missing: { key: string; label: string; hint?: string }[];
+  } | null>(null);
+  /** 고른 파일을 여는 중 (크기·열림 확인) */
+  const [fileChecking, setFileChecking] = useState(false);
+  /** 방금 저장한 값까지 반영한 값 (접수 판단용) */
+  const latestValuesRef = useRef<Record<string, string>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
   /** 시안 확대 모달 상태 (style-grid step) */
   const [previewState, setPreviewState] = useState<{
@@ -409,22 +446,28 @@ export default function QuestWizardDialog({
       setPendingFiles({});
       setHolderSame(holderInit);
       // 특정 항목으로 진입 요청이 있으면 해당 스텝부터, 없으면 첫 스텝
+      const visibleAtStart = steps.filter((s) => !s.showIf || s.showIf(init));
       const startIdx = initialField
-        ? steps.findIndex((s) => s.field === initialField)
+        ? visibleAtStart.findIndex((s) => s.field === initialField)
         : -1;
       setCurrentIdx(startIdx >= 0 ? startIdx : 0);
       setError(null);
+      setFinished(null);
+      latestValuesRef.current = init;
     }
   }, [open, steps, initialValues, initialField, accountEmail]);
 
-  if (steps.length === 0) return null;
+  // 앞 단계 답(예: 로고 새로 제작/기존 로고)에 따라 보이는 단계만 진행한다
+  const visibleSteps = steps.filter((s) => !s.showIf || s.showIf(values));
+  if (visibleSteps.length === 0) return null;
 
-  const step = steps[currentIdx];
+  const safeIdx = Math.min(currentIdx, visibleSteps.length - 1);
+  const step = visibleSteps[safeIdx];
   const currentValue = values[step.field] ?? "";
   const pendingFile = pendingFiles[step.field];
-  const isLast = currentIdx === steps.length - 1;
-  const isFirst = currentIdx === 0;
-  const progress = ((currentIdx + 1) / steps.length) * 100;
+  const isLast = safeIdx === visibleSteps.length - 1;
+  const isFirst = safeIdx === 0;
+  const progress = ((safeIdx + 1) / visibleSteps.length) * 100;
 
   const setValue = (v: string) => {
     setValues((prev) => ({ ...prev, [step.field]: v }));
@@ -505,6 +548,11 @@ export default function QuestWizardDialog({
       setError("필수 입력 항목입니다.");
       return false;
     }
+    const trimmedLength = currentValue.trim().length;
+    if (step.minLength && (step.required || trimmedLength > 0) && trimmedLength < step.minLength) {
+      setError(`${step.minLength}자 이상 적어 주세요. (지금 ${trimmedLength}자)`);
+      return false;
+    }
     if (step.validate) {
       const msg = step.validate(currentValue);
       if (msg) {
@@ -520,6 +568,16 @@ export default function QuestWizardDialog({
     if (step.field === "프로필사진URL") {
       try {
         return await uploadProfilePhoto(file);
+      } catch (err) {
+        setError(toUploadMessage(err));
+        return null;
+      }
+    }
+
+    // 이미지는 R2 직접 업로드: 원본은 슬랙, 관리자 화면 표시용은 webp
+    if (isDisplayImageField(step.field) && isImageFile(file)) {
+      try {
+        return await uploadDisplayImage(file, step.field);
       } catch (err) {
         setError(toUploadMessage(err));
         return null;
@@ -561,6 +619,7 @@ export default function QuestWizardDialog({
           setError(data?.error || "저장에 실패했습니다.");
           return false;
         }
+        latestValuesRef.current = { ...values };
         return true;
       }
 
@@ -597,6 +656,7 @@ export default function QuestWizardDialog({
         setError(data?.error || "저장에 실패했습니다.");
         return false;
       }
+      latestValuesRef.current = { ...values, [step.field]: valueToSave };
       return true;
     } catch (e) {
       setError("네트워크 오류가 발생했습니다.");
@@ -607,30 +667,53 @@ export default function QuestWizardDialog({
   };
 
   const handleNext = async () => {
+    if (fileChecking) return;
     if (!validate()) return;
     const ok = await saveCurrent();
     if (!ok) return;
     if (isLast) {
+      if (completion) {
+        // 저장이 끝난 값으로 접수 여부를 판단한다 (파일은 저장 뒤 주소로 바뀜)
+        setFinished({ missing: completion.check(latestValuesRef.current) });
+        return;
+      }
       onComplete?.();
       onClose();
       router.refresh();
     } else {
-      setCurrentIdx((i) => i + 1);
+      setCurrentIdx(safeIdx + 1);
     }
   };
 
   const handlePrev = () => {
     if (!isFirst) {
-      setCurrentIdx((i) => i - 1);
+      setCurrentIdx(safeIdx - 1);
       setError(null);
     }
+  };
+
+  const closeAfterFinish = () => {
+    onComplete?.();
+    onClose();
+    router.refresh();
+  };
+
+  const goToMissing = () => {
+    const firstMissing = finished?.missing[0]?.key;
+    const index = visibleSteps.findIndex((s) => s.field === firstMissing);
+    setFinished(null);
+    setCurrentIdx(index >= 0 ? index : 0);
   };
 
   return (
     <>
       <Dialog
         open={open}
-        onOpenChange={(v) => !v && onClose()}
+        onOpenChange={(v) => {
+          if (v) return;
+          if (finished) closeAfterFinish();
+          else onClose();
+        }}
         // 시안 미리보기가 떠 있을 때는 modal=false로 풀어서
         // ImageModal 안의 X/배경 클릭 등 외부 pointer 이벤트가 통과되게 함
         modal={!previewState}
@@ -657,11 +740,47 @@ export default function QuestWizardDialog({
             )}
           </DialogHeader>
 
+          {finished ? (
+            finished.missing.length === 0 ? (
+              <div className="space-y-3 py-4 text-center">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+                  <Check className="h-6 w-6" />
+                </div>
+                <p className="text-lg font-bold text-navy-900">{completion?.title}</p>
+                <p className="text-sm leading-relaxed text-gray-600">{completion?.message}</p>
+                <Button onClick={closeAfterFinish} className="w-full bg-gov-blue hover:bg-gov-blue-700">
+                  대시보드로 돌아가기
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-3 py-4">
+                <p className="text-base font-bold text-rose-700">아직 접수되지 않았어요</p>
+                <p className="text-sm text-gray-600">아래 항목을 채워야 디자이너에게 전달됩니다.</p>
+                <ul className="space-y-1 text-sm">
+                  {finished.missing.map((m) => (
+                    <li key={m.key} className="text-rose-700">
+                      ✕ {m.label}
+                      {m.hint ? ` (${m.hint})` : ""}
+                    </li>
+                  ))}
+                </ul>
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={closeAfterFinish} className="flex-1">
+                    나중에 하기
+                  </Button>
+                  <Button onClick={goToMissing} className="flex-1 bg-gov-blue hover:bg-gov-blue-700">
+                    빠진 항목 입력
+                  </Button>
+                </div>
+              </div>
+            )
+          ) : (
+          <>
           {/* 진행 표시 */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between text-xs">
               <span className="font-medium text-gov-blue">
-                {currentIdx + 1} / {steps.length} 단계
+                {safeIdx + 1} / {visibleSteps.length} 단계
               </span>
               <span className="text-gray-500">{Math.round(progress)}%</span>
             </div>
@@ -683,6 +802,11 @@ export default function QuestWizardDialog({
               <p className="text-xs text-gray-600 -mt-1.5">
                 {step.description}
               </p>
+            )}
+            {step.notice && (
+              <div className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold leading-relaxed text-rose-800">
+                {step.notice}
+              </div>
             )}
 
             {/* 시안 선택 step: PC 권장 안내 */}
@@ -719,15 +843,27 @@ export default function QuestWizardDialog({
                 title={step.label}
               />
             ) : step.type === "textarea" ? (
-              <Textarea
-                id={step.field}
-                value={currentValue}
-                onChange={(e) => setValue(e.target.value)}
-                placeholder={step.placeholder}
-                rows={4}
-                className="resize-none"
-                autoFocus
-              />
+              <div className="space-y-1">
+                <Textarea
+                  id={step.field}
+                  value={currentValue}
+                  onChange={(e) => setValue(e.target.value)}
+                  placeholder={step.placeholder}
+                  rows={step.minLength ? 5 : 4}
+                  className="resize-none"
+                  autoFocus
+                />
+                {step.minLength ? (
+                  <p
+                    className={cn(
+                      "text-right text-[11px]",
+                      currentValue.trim().length >= step.minLength ? "text-emerald-600" : "text-gray-500",
+                    )}
+                  >
+                    {currentValue.trim().length} / {step.minLength}자 이상
+                  </p>
+                ) : null}
+              </div>
             ) : step.type === "select" ? (
               <select
                 id={step.field}
@@ -880,8 +1016,25 @@ export default function QuestWizardDialog({
                   type="file"
                   accept={step.accept}
                   className="hidden"
-                  onChange={(e) => {
+                  onChange={async (e) => {
                     const f = e.target.files?.[0] ?? null;
+                    e.target.value = "";
+                    if (!f) return;
+                    // 고른 즉시 검사: 형식·크기, 이미지가 열리는지와 최소 크기
+                    const problem = checkUploadFile(f, {
+                      allowPdf: (step.accept ?? "").includes("pdf"),
+                    });
+                    if (problem) {
+                      setError(problem);
+                      return;
+                    }
+                    setFileChecking(true);
+                    const unreadable = await checkImageReadable(f);
+                    setFileChecking(false);
+                    if (unreadable) {
+                      setError(unreadable);
+                      return;
+                    }
                     setFile(f);
                   }}
                 />
@@ -928,8 +1081,9 @@ export default function QuestWizardDialog({
                   >
                     <Upload className="w-5 h-5 text-gray-400" />
                     <span className="text-xs text-gray-600">
-                      파일 선택 (이미지 또는 PDF, 최대{" "}
-                      {step.field === "프로필사진URL" ? "20" : "10"}MB)
+                      {(step.accept ?? "").includes("pdf")
+                        ? "파일 선택 (이미지 20MB · PDF 4MB까지)"
+                        : "파일 선택 (이미지 20MB까지)"}
                     </span>
                   </button>
                 )}
@@ -977,14 +1131,14 @@ export default function QuestWizardDialog({
               이전
             </Button>
             <div className="flex items-center gap-1.5">
-              {steps.map((_, idx) => (
+              {visibleSteps.map((_, idx) => (
                 <span
                   key={idx}
                   className={cn(
                     "w-1.5 h-1.5 rounded-full transition-colors",
-                    idx < currentIdx
+                    idx < safeIdx
                       ? "bg-gov-blue"
-                      : idx === currentIdx
+                      : idx === safeIdx
                         ? "bg-gov-blue-300"
                         : "bg-gray-200",
                   )}
@@ -994,7 +1148,7 @@ export default function QuestWizardDialog({
             <Button
               size="sm"
               onClick={handleNext}
-              disabled={saving}
+              disabled={saving || fileChecking}
               className="gap-1 bg-gov-blue hover:bg-gov-blue-700"
             >
               {saving ? (
@@ -1010,6 +1164,8 @@ export default function QuestWizardDialog({
               )}
             </Button>
           </div>
+          </>
+          )}
         </DialogContent>
       </Dialog>
 
@@ -1095,11 +1251,15 @@ export const BASIC_INFO_STEPS: QuestStep[] = [
         ? null
         : "올바른 이메일 형식으로 입력해주세요.",
   },
+];
+
+/** 발주 전 확인: 배송 정보 (기본 정보에서 분리, 2026-10-17) */
+export const SHIPPING_STEPS: QuestStep[] = [
   {
     field: "인쇄물받을주소",
     label: "인쇄물 받을 곳",
     description:
-      "명함·대봉투 등 인쇄물을 배송받으실 주소입니다. 시안 확정 후에는 변경할 수 없습니다.",
+      "명함·대봉투 등 인쇄물을 배송받으실 주소입니다. 시안을 확정하고 발주하기 전에 확인해 주세요.",
     type: "shipping",
     required: true,
   },
@@ -1164,13 +1324,38 @@ export const CONTRACT_STEPS: QuestStep[] = [
   },
 ];
 
+const isNewLogo = (v: Record<string, string>) => v.로고제작방식 !== "기존로고";
+
 export const LOGO_INFO_STEPS: QuestStep[] = [
+  {
+    field: "로고제작방식",
+    label: "로고를 새로 만드시나요?",
+    description:
+      "이미 쓰고 있는 로고를 그대로 쓰실 거면 '기존 로고를 쓸게요'를 고르고 로고 파일만 올려 주세요.",
+    type: "select",
+    required: true,
+    options: [
+      { value: "신규제작", label: "새로 만들어 주세요" },
+      { value: "기존로고", label: "기존 로고를 쓸게요" },
+    ],
+  },
+  {
+    field: "로고URL",
+    label: "기존 로고 파일",
+    description:
+      "지금 쓰고 있는 로고 파일을 올려 주세요. AI·EPS 같은 원본 파일이 있으면 mkt@polarad.co.kr로도 보내 주세요.",
+    type: "file",
+    accept: "image/*,application/pdf",
+    required: true,
+    showIf: (v) => v.로고제작방식 === "기존로고",
+  },
   {
     field: "로고선호스타일",
     label: "로고 스타일",
     description: "원하는 로고 스타일을 선택해주세요.",
     type: "select",
     required: true,
+    showIf: isNewLogo,
     options: [
       { value: "심볼형 (도형기반)", label: "심볼형 (도형 기반)" },
       { value: "워드마크형 (텍스트)", label: "워드마크형 (텍스트 중심)" },
@@ -1182,6 +1367,7 @@ export const LOGO_INFO_STEPS: QuestStep[] = [
     description: "로고에 사용할 폰트 스타일을 선택해주세요.",
     type: "select",
     required: true,
+    showIf: isNewLogo,
     options: [
       { value: "고딕체 (깔끔한)", label: "고딕체 (깔끔한)" },
       { value: "명조체 (전통적인)", label: "명조체 (전통적인)" },
@@ -1195,33 +1381,112 @@ export const LOGO_INFO_STEPS: QuestStep[] = [
     description: "아래 무지개 바를 눌러 원하시는 색을 자유롭게 골라주세요.",
     type: "color-picker",
     required: true,
+    showIf: isNewLogo,
   },
   {
     field: "로고제작요청사항",
-    label: "추가 요청사항",
+    label: "원하는 로고 설명",
     description:
-      "로고에 반영하고 싶은 키워드, 분위기, 참고 사례 등을 자유롭게 적어주세요.",
+      "업종, 꼭 넣을 글자·심볼, 원하는 느낌과 피하고 싶은 느낌을 구체적으로 적어 주세요.",
+    notice:
+      "‘예쁘게’, ‘깔끔하게’, ‘고급스럽게’만으로는 로고를 제작할 수 없습니다. 디자이너가 방향을 잡을 수 있게 구체적으로 적어 주세요.",
     type: "textarea",
-    placeholder: "예) 신뢰감 + 전문성 강조, 참고: 폴라애드 로고",
-    required: false,
+    placeholder:
+      "예) 세무사무소입니다. 회사 영문 이니셜 TS를 넣고, 신뢰감 있는 남색 계열로 단정하게 만들어 주세요. 귀여운 느낌은 피하고 싶어요.",
+    required: true,
+    minLength: LOGO_DESCRIPTION_MIN_LENGTH,
+    showIf: isNewLogo,
   },
   {
     field: "로고예시디자인URL",
-    label: "참고 로고 1 (선택)",
+    label: "참고 로고 이미지 1",
     description:
-      "강제는 아니에요. 마음에 드는 참고 로고 이미지를 첨부해주시면 디자인 방향 잡는 데 큰 도움이 됩니다.",
+      "마음에 드는 다른 로고 캡처도 괜찮습니다. 디자이너가 방향을 잡는 데 가장 중요한 자료입니다.",
     type: "file",
     accept: "image/*,application/pdf",
-    required: false,
+    required: true,
+    showIf: isNewLogo,
   },
   {
     field: "로고예시디자인2URL",
-    label: "참고 로고 2 (선택)",
-    description: "추가로 첨부하고 싶은 참고 로고가 있으면 한 장 더 올려주세요.",
+    label: "참고 로고 이미지 2 (선택)",
+    description: "추가로 첨부하고 싶은 참고 로고가 있으면 한 장 더 올려 주세요.",
     type: "file",
     accept: "image/*,application/pdf",
     required: false,
     showMailHint: true,
+    showIf: isNewLogo,
+  },
+];
+
+/** 로고 마지막 단계 뒤 접수 확인 (파트 완료 기준은 lib/submission/parts.ts) */
+export const LOGO_COMPLETION: QuestCompletion = {
+  title: "로고 정보가 접수되었습니다",
+  message: "디자이너에게 전달했습니다. 시안은 1~2일 안에 대시보드와 슬랙으로 전달됩니다.",
+  check: (values) => missingItems(logoChecklist(values)),
+};
+
+const usesSms = (v: Record<string, string>) => v.문자발송사용여부 === "사용";
+
+/** 문자발송 정보: 쓰는 사람만 서류·계정을 낸다 (2026-10-17) */
+export const SMS_INFO_STEPS: QuestStep[] = [
+  {
+    field: "문자발송사용여부",
+    label: "문자·알림톡 자동 발송을 쓰시나요?",
+    description:
+      "고객이 상담을 신청하면 자동 안내 문자를 보내는 기능입니다. 쓰지 않으면 아래 서류는 필요 없습니다.",
+    type: "select",
+    required: true,
+    options: [
+      { value: "사용", label: "쓸게요" },
+      { value: "미사용", label: "쓰지 않을게요" },
+    ],
+  },
+  {
+    field: "대표자신분증URL",
+    label: "대표자 신분증",
+    description:
+      "번호를 가리지 않은 사진을 올려 주세요. 서버에 저장하지 않고 담당자에게 슬랙으로만 전달됩니다.",
+    type: "file",
+    accept: "image/*,application/pdf",
+    required: true,
+    showIf: usesSms,
+  },
+  {
+    field: "통신서비스이용증명원URL",
+    label: "통신서비스 이용증명원",
+    description:
+      "발신번호로 쓸 번호의 이용증명원입니다. 통신사 모바일 앱이나 고객센터에서 발급받을 수 있습니다.",
+    type: "file",
+    accept: "image/*,application/pdf",
+    required: true,
+    showIf: usesSms,
+  },
+  {
+    field: "신용카드앞면URL",
+    label: "신용카드 번호 면",
+    description:
+      "네이버클라우드 결제수단 등록에 씁니다. CVC 번호가 보이게 올려 주세요. 슬랙으로만 전달됩니다.",
+    type: "file",
+    accept: "image/*,application/pdf",
+    required: true,
+    showIf: usesSms,
+  },
+  {
+    field: "네이버클라우드ID",
+    label: "네이버클라우드 아이디",
+    description: "문자 발송을 연결할 네이버클라우드 계정입니다.",
+    type: "text",
+    required: true,
+    showIf: usesSms,
+  },
+  {
+    field: "네이버클라우드PW",
+    label: "네이버클라우드 비밀번호",
+    description: "암호화해 저장하고 설정 담당자만 확인합니다.",
+    type: "password",
+    required: true,
+    showIf: usesSms,
   },
 ];
 
@@ -1273,11 +1538,10 @@ export const MARKETING_INFO_STEPS: QuestStep[] = [
     required: false,
   },
   {
-    field: "InstagramID",
-    label: "인스타그램 ID",
-    description: "사업장 공식 인스타그램 계정이 있으면 입력해주세요.",
-    type: "text",
-    placeholder: "예) @brand_official",
+    field: "네이버검색광고PW",
+    label: "네이버 검색광고 비밀번호",
+    description: "ID를 입력했다면 비밀번호도 입력해 주세요. 암호화해 저장합니다.",
+    type: "password",
     required: false,
   },
 ];

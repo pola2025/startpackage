@@ -10,7 +10,27 @@ const actor = z.object({ userId: identifier });
 const paging = { pageSize: z.number().int().min(1).max(50).optional(), cursor: z.string().max(2048).optional() };
 const categories = ["instagram", "meta_ads", "naver_blog", "ai"] as const;
 const HOMEPAGE_FIELDS = ["홈페이지제작방식", "홈페이지스타일", "홈페이지컬러컨셉", "해외결제카드앞면URL", "해외결제카드뒷면URL", "해외결제카드유효기간", "해외결제카드CVC", "GmailID", "GmailPW"] as const;
+const META_SETUP_FIELDS = ["MetaSetupType", "InstagramID", "InstagramPW", "MetaGoogleID", "MetaGooglePW", "MetaSetupMemo", "MetaSetupRequestedAt", "MetaSetupDoneAt", "MetaSystemUserToken", "MetaThreadsToken", "MetaTokenEmailSentAt"] as const;
+const NOTIFICATION_CONTEXT_SQL = 'SELECT u."이름" AS "name", u."email", u."연락처" AS "phone", u."slackChannelId", c."name" AS "cohortName", s."브랜드명" AS "brandName" FROM "users" u LEFT JOIN "cohorts" c ON c."id" = u."cohortId" LEFT JOIN "submissions" s ON s."userId" = u."id" WHERE u."id" = ? LIMIT 1';
 const countCache = new Map<string, { value: number; expiresAt: number }>();
+
+async function requireAdmin(db: Database, adminId: string) {
+  const admin = await db.prepare('SELECT "id", "role" FROM "admins" WHERE "id" = ? LIMIT 1').bind(adminId).first<{ id: string; role: string }>();
+  if (!admin || !["super", "designer", "operator"].includes(admin.role)) throw new DataServiceError(403, "Forbidden");
+  return admin;
+}
+
+/** submissions 행이 있으면 UPDATE, 없으면 INSERT (값은 이미 암호화된 상태) */
+async function upsertSubmissionColumns(db: Database, userId: string, columns: Record<string, SqlValue>) {
+  const keys = Object.keys(columns);
+  const now = Date.now();
+  const existing = await db.prepare('SELECT "id" FROM "submissions" WHERE "userId" = ? LIMIT 1').bind(userId).first<{ id: string }>();
+  if (existing) {
+    await db.prepare(`UPDATE "submissions" SET ${keys.map((key) => `"${key}" = ?`).join(",")}, "updatedAt" = ? WHERE "userId" = ?`).bind(...keys.map((key) => columns[key]), now, userId).all();
+  } else {
+    await db.prepare(`INSERT INTO "submissions" ("id","userId",${keys.map((key) => `"${key}"`).join(",")},"createdAt","updatedAt") VALUES (?, ?, ${keys.map(() => "?").join(",")}, ?, ?)`).bind(randomUUID(), userId, ...keys.map((key) => columns[key]), now, now).all();
+  }
+}
 
 async function requireUser(db: Database, userId: string) {
   const user = await db.prepare('SELECT "id", "cohortId" FROM "users" WHERE "id" = ? LIMIT 1')
@@ -85,6 +105,45 @@ export async function contentOperation(db: Database, operation: string, input: u
     }
     const notification = await db.prepare('SELECT u."이름" AS "name", u."email", u."연락처" AS "phone", u."slackChannelId", c."name" AS "cohortName", s."브랜드명" AS "brandName" FROM "users" u LEFT JOIN "cohorts" c ON c."id" = u."cohortId" LEFT JOIN "submissions" s ON s."userId" = u."id" WHERE u."id" = ? LIMIT 1').bind(data.userId).first<Record<string, unknown>>();
     return { success: true, notification };
+  }
+  if (operation === "meta-setup-get") {
+    const data = parse(actor.strict(), input);
+    await requireUser(db, data.userId);
+    const row = await db.prepare(`SELECT ${META_SETUP_FIELDS.map((field) => `"${field}"`).join(",")} FROM "submissions" WHERE "userId" = ? LIMIT 1`).bind(data.userId).first<Record<string, unknown>>();
+    return row ? decodeRow("submissions", row) : {};
+  }
+  if (operation === "meta-setup-request") {
+    const data = parse(actor.extend({ request: z.object({
+      type: z.enum(["instagram", "google"]), loginId: z.string().trim().min(1).max(256), password: z.string().min(1).max(256), memo: z.string().max(1000).nullable(),
+    }).strict() }).strict(), input);
+    await requireUser(db, data.userId);
+    const before = await db.prepare('SELECT "MetaSetupRequestedAt" FROM "submissions" WHERE "userId" = ? LIMIT 1').bind(data.userId).first<{ MetaSetupRequestedAt: number | null }>();
+    const account: Record<string, string> = data.request.type === "instagram"
+      ? { InstagramID: data.request.loginId, InstagramPW: data.request.password }
+      : { MetaGoogleID: data.request.loginId, MetaGooglePW: data.request.password };
+    const encrypted = encryptSubmissionSecrets(account, data.userId, _encryptionKey) as Record<string, SqlValue>;
+    const requestedAt = Date.now();
+    await upsertSubmissionColumns(db, data.userId, { ...encrypted, MetaSetupType: data.request.type, MetaSetupMemo: data.request.memo, MetaSetupRequestedAt: requestedAt });
+    const notification = await db.prepare(NOTIFICATION_CONTEXT_SQL).bind(data.userId).first<Record<string, unknown>>();
+    return { success: true, updated: Boolean(before?.MetaSetupRequestedAt), requestedAt, notification };
+  }
+  if (operation === "meta-setup-complete") {
+    const data = parse(z.object({ adminId: identifier, userId: identifier, tokens: z.object({
+      MetaSystemUserToken: z.string().trim().min(20).max(4096), MetaThreadsToken: z.string().trim().min(20).max(4096),
+    }).strict() }).strict(), input);
+    await requireAdmin(db, data.adminId);
+    await requireUser(db, data.userId);
+    const encrypted = encryptSubmissionSecrets(data.tokens, data.userId, _encryptionKey) as Record<string, SqlValue>;
+    const doneAt = Date.now();
+    await upsertSubmissionColumns(db, data.userId, { ...encrypted, MetaSetupDoneAt: doneAt });
+    const notification = await db.prepare(NOTIFICATION_CONTEXT_SQL).bind(data.userId).first<Record<string, unknown>>();
+    return { success: true, doneAt, notification };
+  }
+  if (operation === "meta-setup-email-sent") {
+    const data = parse(z.object({ adminId: identifier, userId: identifier, sentAt: z.number().int().positive() }).strict(), input);
+    await requireAdmin(db, data.adminId);
+    await db.prepare('UPDATE "submissions" SET "MetaTokenEmailSentAt" = ?, "updatedAt" = ? WHERE "userId" = ?').bind(data.sentAt, Date.now(), data.userId).all();
+    return { success: true };
   }
   if (operation === "public-tips" || operation === "announcements" || operation === "category-tips") {
     const data = parse(z.object({ ...paging, userId: identifier.optional(), category: z.enum(categories).optional(), subCategory: z.string().max(128).nullable().optional() }).strict(), input);

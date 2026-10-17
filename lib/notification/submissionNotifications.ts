@@ -1,3 +1,7 @@
+import { isLogoInfoComplete } from "@/lib/submission/parts";
+import { isDisplayWebpUrl } from "@/lib/constants/displayImageFields";
+import { notifyLogoInfoSubmitted } from "@/lib/notification/logoInfoSubmitted";
+
 type SubmissionNotificationPerson = { email?: string; 이름?: string; englishName?: string; 연락처?: string; slackChannelId?: string | null; cohortName?: string; cohortEnglishName?: string; cohort?: { name?: string; englishName?: string } | null };
 
 export async function notifySubmissionChanges(
@@ -20,6 +24,10 @@ export async function notifySubmissionChanges(
       await persistChannel(channelId);
       await slack.pushSubmissionData({ channelId, submissionData: submission, userId });
     }
+  }
+  // 로고 정보가 처음으로 다 모인 순간 한 번: 디자이너 작업 시작 신호 (채널이 없어도 텔레그램은 보냄)
+  if (!isLogoInfoComplete(previous) && isLogoInfoComplete(submission)) {
+    await notifyLogoInfoSubmitted({ channelId, submission, person }).catch((error: unknown) => console.error("로고 접수 알림 실패:", error));
   }
   if (!channelId) return;
   if (touched("홈페이지스타일") || touched("홈페이지컬러컨셉")) {
@@ -56,7 +64,8 @@ export async function notifySubmissionChanges(
     await telegram.sendTelegramMessage(`📤 *파일 업로드*\n\n*사용자:* ${userName}\n*파일:* 프로필사진`).catch(() => undefined);
   }
   for (const [key, label, fileName] of fileFields) {
-    if (touched(key) && submission[key] && submission[key] !== previous[key]) {
+    // 표시용 webp 는 슬랙에 올리지 않는다 (원본은 업로드 때 슬랙으로 갔거나 채널이 생기면 보관분이 올라감)
+    if (touched(key) && submission[key] && submission[key] !== previous[key] && !isDisplayWebpUrl(submission[key])) {
       await slack.uploadFileToSlack({ channelId, filePath: String(submission[key]), fileName, title: label }).catch(() => undefined);
       const telegram = await import("@/lib/notification/telegramClient");
       await telegram.sendTelegramMessage(`📤 *파일 업로드*\\n\\n*사용자:* ${userName}\\n*파일:* ${label}`).catch(() => undefined);

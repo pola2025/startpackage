@@ -14,6 +14,7 @@ import { MobileMoreMenu } from "@/components/ui/mobile-more-menu";
 import { SupportContactPopup } from "@/components/ui/support-contact-notice";
 import { loginPathFor } from "@/lib/auth/return-path";
 import { PrintOrderGuideStrip } from "@/components/ui/print-order-guide-notice";
+import type { MetaSetupStage } from "@/lib/submission/parts";
 
 export default function UserLayout({
   children,
@@ -27,6 +28,9 @@ export default function UserLayout({
   const [pendingDesignCount, setPendingDesignCount] = useState(0);
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const [metaSetupStage, setMetaSetupStage] = useState<MetaSetupStage | null>(
+    null,
+  );
   // 로그인한 적이 있으면 로그아웃·세션 만료이므로 돌아갈 화면을 남기지 않는다.
   const wasAuthenticated = useRef(false);
 
@@ -55,6 +59,31 @@ export default function UserLayout({
       console.error("Failed to fetch pending design count:", error);
     }
   };
+
+  // Meta 설정요청 단계 (메뉴의 "필수" 표시용)
+  const fetchMetaSetupStage = async () => {
+    try {
+      const response = await fetch("/api/meta-setup");
+      if (response.ok) {
+        const data = await response.json();
+        setMetaSetupStage(data.stage ?? null);
+      }
+    } catch (error) {
+      console.error("Failed to fetch meta setup stage:", error);
+    }
+  };
+
+  // 로그인 직후 1회만 부르고, 요청 화면이 보내는 이벤트 때만 다시 부른다 (폴링 없음)
+  const userRole = (session?.user as any)?.role;
+  const userGraduated = (session?.user as any)?.isGraduated === true;
+  useEffect(() => {
+    if (status !== "authenticated" || userRole === "admin" || userGraduated)
+      return;
+    fetchMetaSetupStage();
+    const onUpdated = () => fetchMetaSetupStage();
+    window.addEventListener("meta-setup-updated", onUpdated);
+    return () => window.removeEventListener("meta-setup-updated", onUpdated);
+  }, [status, userRole, userGraduated]);
 
   useEffect(() => {
     if (status === "authenticated") wasAuthenticated.current = true;
@@ -165,6 +194,7 @@ export default function UserLayout({
         isGraduated={isGraduated}
         unreadCount={unreadCount}
         pendingDesignCount={pendingDesignCount}
+        metaSetupStage={metaSetupStage}
       />
 
       {/* Main Content */}
@@ -199,6 +229,7 @@ export default function UserLayout({
         userName={session?.user?.name || "사용자"}
         isGraduated={isGraduated}
         unreadCount={unreadCount}
+        metaSetupStage={metaSetupStage}
       />
     </div>
   );

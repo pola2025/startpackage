@@ -23,6 +23,7 @@ import {
   GraduationCap,
   Images,
   PenTool,
+  Smartphone,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -30,12 +31,14 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { SupportContactCard } from "@/components/ui/support-contact-notice";
 import { PrintOrderGuideBanner } from "@/components/ui/print-order-guide-notice";
+import type { MetaSetupStage } from "@/lib/submission/parts";
 
 interface SidebarProps {
   userName: string;
   isGraduated: boolean;
   unreadCount: number;
   pendingDesignCount: number;
+  metaSetupStage?: MetaSetupStage | null;
 }
 
 interface MenuItem {
@@ -57,6 +60,7 @@ export function Sidebar({
   isGraduated,
   unreadCount,
   pendingDesignCount,
+  metaSetupStage = null,
 }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -252,6 +256,34 @@ export function Sidebar({
             대시보드
           </Button>
         </Link>
+
+        {/* Meta 설정요청 - 마케팅 교육 전에 요청해야 하므로 대시보드 바로 아래 */}
+        {!isGraduated && (
+          <Link href="/dashboard/meta-setup" onClick={closeMobile}>
+            <Button
+              variant="ghost"
+              className={cn(
+                "w-full justify-start h-9",
+                pathname.startsWith("/dashboard/meta-setup")
+                  ? "bg-gold-50 text-gold-600 font-semibold hover:bg-gold-100"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100",
+              )}
+            >
+              <Smartphone className="w-5 h-5 mr-3" />
+              Meta 설정요청
+              {metaSetupStage === "none" && (
+                <span className="ml-auto bg-red-500 text-white text-[11px] font-bold rounded px-1.5 py-0.5">
+                  필수
+                </span>
+              )}
+              {metaSetupStage === "requested" && (
+                <span className="ml-auto bg-gray-100 text-gray-500 text-[11px] font-semibold rounded px-1.5 py-0.5">
+                  요청 완료
+                </span>
+              )}
+            </Button>
+          </Link>
+        )}
 
         {/* 제작진행 그룹 - 일반 사용자만 */}
         {!isGraduated &&

@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import QuestWizardDialog, {
   BASIC_INFO_STEPS,
   LOGO_INFO_STEPS,
+  LOGO_COMPLETION,
+  type QuestCompletion,
   MARKETING_INFO_STEPS,
   NAMECARD_ENVELOPE_STEPS,
   CONTRACT_STEPS,
@@ -42,7 +44,7 @@ interface Props {
 
 const QUEST_MAP: Record<
   string,
-  { title: string; description: string; steps: QuestStep[] }
+  { title: string; description: string; steps: QuestStep[]; completion?: QuestCompletion }
 > = {
   "basic-info": {
     title: "기본 정보 입력",
@@ -52,8 +54,9 @@ const QUEST_MAP: Record<
   },
   "logo-info": {
     title: "로고 제작 정보",
-    description: "로고 시안 제작에 필요한 4가지 항목을 입력합니다.",
+    description: "로고 시안 제작에 필요한 항목을 입력합니다.",
     steps: LOGO_INFO_STEPS,
+    completion: LOGO_COMPLETION,
   },
   "marketing-info": {
     title: "마케팅 채널 정보",
@@ -244,6 +247,7 @@ export default function DashboardAlertsClient({
           }
           representativeName={representativeName}
           accountEmail={accountEmail}
+          completion={quest.completion}
         />
       )}
     </>

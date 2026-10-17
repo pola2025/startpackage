@@ -28,6 +28,8 @@ export const submissionSchema = z.object({
   로고선호색상: z.string().optional(),
   로고선호폰트: z.string().optional(),
   로고제작요청사항: z.string().optional(),
+  로고제작방식: z.union([z.enum(["신규제작", "기존로고"]), z.literal("")]).optional(),
+  문자발송사용여부: z.union([z.enum(["사용", "미사용"]), z.literal("")]).optional(),
 
   // 명함 (16진수 색상값 검증)
   명함색상: z

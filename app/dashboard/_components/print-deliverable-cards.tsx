@@ -15,6 +15,8 @@ import {
   Circle,
   ChevronRight,
   X,
+  MessageSquare,
+  Truck,
 } from "lucide-react";
 import QuestWizardDialog, {
   BASIC_INFO_STEPS,
@@ -23,8 +25,20 @@ import QuestWizardDialog, {
   MARKETING_INFO_STEPS,
   NAMECARD_ENVELOPE_STEPS,
   CONTRACT_STEPS,
+  SHIPPING_STEPS,
+  SMS_INFO_STEPS,
+  LOGO_COMPLETION,
   type QuestStep,
+  type QuestCompletion,
 } from "@/components/dashboard/quest-wizard-dialog";
+import {
+  LOGO_CONFIRMED_STATUSES,
+  logoChecklist,
+  shippingChecklist,
+  smsChecklist,
+  smsUsage,
+  type PartItem,
+} from "@/lib/submission/parts";
 
 type Submission = Record<string, unknown> | null;
 
@@ -40,7 +54,15 @@ interface FieldSpec {
   label: string;
   /** 자동 채움 (기본 정보·로고)인지 */
   auto?: boolean;
+  /** 완료 여부를 미리 계산한 항목 (파트 기준 lib/submission/parts.ts) */
+  done?: boolean;
 }
+
+const toField = (item: PartItem): FieldSpec => ({
+  key: item.key,
+  label: item.hint ? `${item.label} (${item.hint})` : item.label,
+  done: item.done,
+});
 
 interface DeliverableSpec {
   /** 모달에 사용할 wizard ID */
@@ -50,7 +72,9 @@ interface DeliverableSpec {
     | "contract-info"
     | "website-info"
     | "basic-info"
-    | "marketing-info";
+    | "marketing-info"
+    | "sms-info"
+    | "shipping-info";
   title: string;
   /** 매칭되는 workflow.type 배열 (한쪽이라도 보유 시 카드 표시) */
   workflowTypes: string[];
@@ -63,6 +87,8 @@ interface DeliverableSpec {
   fields: FieldSpec[];
   /** 카드 한 줄 부제 */
   subtitle: string;
+  /** 제출 값에 따라 항목이 달라지는 카드 (로고 신규/기존, 문자 사용/미사용) */
+  checklist?: (submission: Submission) => FieldSpec[];
 }
 
 const DELIVERABLES: DeliverableSpec[] = [
@@ -81,7 +107,6 @@ const DELIVERABLES: DeliverableSpec[] = [
       { key: "주소", label: "사업장 주소" },
       { key: "대표번호", label: "대표 연락처" },
       { key: "이메일", label: "이메일" },
-      { key: "인쇄물받을주소", label: "인쇄물 받을 곳" },
     ],
   },
   {
@@ -90,11 +115,10 @@ const DELIVERABLES: DeliverableSpec[] = [
     subtitle: "모든 인쇄물·홈페이지의 시작점",
     workflowTypes: ["로고"],
     icon: <Sparkles className="w-5 h-5" />,
-    fields: [
+    fields: [],
+    checklist: (sub) => [
       { key: "브랜드명", label: "브랜드명", auto: true },
-      { key: "로고선호스타일", label: "로고 스타일" },
-      { key: "로고선호폰트", label: "선호 폰트" },
-      { key: "로고선호색상", label: "선호 색상" },
+      ...logoChecklist(sub).map(toField),
     ],
   },
   {
@@ -162,16 +186,37 @@ const DELIVERABLES: DeliverableSpec[] = [
     alwaysShow: true,
     optional: true,
     icon: <Megaphone className="w-5 h-5" />,
-    fields: [
-      { key: "네이버검색광고ID", label: "네이버 검색광고 ID" },
-      { key: "InstagramID", label: "인스타그램 ID" },
-    ],
+    fields: [{ key: "네이버검색광고ID", label: "네이버 검색광고 ID" }],
+  },
+  {
+    wizardId: "sms-info",
+    title: "문자발송",
+    subtitle: "문자·알림톡 자동 발송을 쓰는 경우에만 서류가 필요합니다",
+    workflowTypes: [],
+    alwaysShow: true,
+    icon: <MessageSquare className="w-5 h-5" />,
+    fields: [],
+    checklist: (sub) =>
+      smsChecklist(sub).map((item) =>
+        item.key === "문자발송사용여부" && smsUsage(sub) === "미사용"
+          ? { key: item.key, label: "사용 안 함 (서류 필요 없음)", done: true }
+          : toField(item),
+      ),
+  },
+  {
+    wizardId: "shipping-info",
+    title: "배송 정보",
+    subtitle: "발주 전 확인 · 시안 확정 뒤 인쇄물을 받을 곳",
+    workflowTypes: ["명함", "명찰", "대봉투", "자문계약서 표지", "자문계약서 내지"],
+    icon: <Truck className="w-5 h-5" />,
+    fields: [],
+    checklist: (sub) => shippingChecklist(sub).map(toField),
   },
 ];
 
 const QUEST_MAP: Record<
   string,
-  { title: string; description: string; steps: QuestStep[] }
+  { title: string; description: string; steps: QuestStep[]; completion?: QuestCompletion }
 > = {
   "basic-info": {
     title: "기본 정보 입력",
@@ -182,6 +227,7 @@ const QUEST_MAP: Record<
     title: "로고 제작 정보",
     description: "로고 시안 제작에 필요한 항목을 입력합니다.",
     steps: LOGO_INFO_STEPS,
+    completion: LOGO_COMPLETION,
   },
   "website-info": {
     title: "홈페이지 제작 정보",
@@ -203,6 +249,16 @@ const QUEST_MAP: Record<
     description: "이미 운영 중인 광고 ID가 있으면 입력해주세요. (선택)",
     steps: MARKETING_INFO_STEPS,
   },
+  "sms-info": {
+    title: "문자발송 정보",
+    description: "문자·알림톡 자동 발송을 쓰는지 고르고, 쓰는 경우에만 서류와 계정을 입력합니다.",
+    steps: SMS_INFO_STEPS,
+  },
+  "shipping-info": {
+    title: "배송 정보 (발주 전 확인)",
+    description: "시안을 확정한 인쇄물을 받을 곳을 확인합니다.",
+    steps: SHIPPING_STEPS,
+  },
 };
 
 function fieldFilled(
@@ -211,10 +267,16 @@ function fieldFilled(
   workflows: WorkflowSummary[],
 ): boolean {
   if (key === "로고-확정") {
-    return workflows.some((w) => w.type === "로고" && w.status === "시안확정");
+    return workflows.some(
+      (w) => w.type === "로고" && (LOGO_CONFIRMED_STATUSES as readonly string[]).includes(w.status),
+    );
   }
   const v = submission?.[key];
   return !!v;
+}
+
+function isFieldDone(field: FieldSpec, submission: Submission, workflows: WorkflowSummary[]): boolean {
+  return field.done ?? fieldFilled(field.key, submission, workflows);
 }
 
 interface Props {
@@ -263,11 +325,16 @@ export default function PrintDeliverableCards({
         };
 
   // 항상 노출(alwaysShow) 또는 사용자가 보유한 워크플로우 type 매칭 시 카드 노출
-  const visibleDeliverables = DELIVERABLES.map(applyShippingPolicy).filter(
-    (d) =>
-      d.alwaysShow ||
-      d.workflowTypes.some((t) => workflows.some((w) => w.type === t)),
-  );
+  const visibleDeliverables = DELIVERABLES.map((d) =>
+    d.checklist ? { ...d, fields: d.checklist(submission) } : d,
+  )
+    .map(applyShippingPolicy)
+    .filter((d) => d.wizardId !== "shipping-info" || shippingRequired)
+    .filter(
+      (d) =>
+        d.alwaysShow ||
+        d.workflowTypes.some((t) => workflows.some((w) => w.type === t)),
+    );
 
   // 직전 완료 카드의 정보 + 다음 추천 카드 (미완성 첫 번째)
   const completionBanner = useMemo(() => {
@@ -279,7 +346,7 @@ export default function PrintDeliverableCards({
     const next = visibleDeliverables.find((d) => {
       if (d.wizardId === justCompleted) return false;
       const filled = d.fields.filter((f) =>
-        fieldFilled(f.key, submission, workflows),
+        isFieldDone(f, submission, workflows),
       ).length;
       return filled < d.fields.length;
     });
@@ -355,7 +422,7 @@ export default function PrintDeliverableCards({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-3 auto-rows-fr">
           {visibleDeliverables.map((d) => {
             const filled = d.fields.filter((f) =>
-              fieldFilled(f.key, submission, workflows),
+              isFieldDone(f, submission, workflows),
             ).length;
             const total = d.fields.length;
             const complete = filled === total;
@@ -363,7 +430,7 @@ export default function PrintDeliverableCards({
 
             // 직접 입력 필드 중 미입력
             const userMissing = d.fields.filter(
-              (f) => !f.auto && !fieldFilled(f.key, submission, workflows),
+              (f) => !f.auto && !isFieldDone(f, submission, workflows),
             );
 
             const openField = (field: string | null) => {
@@ -453,7 +520,7 @@ export default function PrintDeliverableCards({
                 {/* 필요 항목 리스트 — flex-1로 남은 공간 흡수 → 푸터를 카드 바닥에 고정 */}
                 <ul className="flex-1 space-y-0.5 mb-2">
                   {d.fields.map((f) => {
-                    const has = fieldFilled(f.key, submission, workflows);
+                    const has = isFieldDone(f, submission, workflows);
                     return (
                       <li
                         key={f.key}
@@ -569,6 +636,7 @@ export default function PrintDeliverableCards({
           }
           representativeName={representativeName}
           accountEmail={accountEmail}
+          completion={quest.completion}
         />
       )}
     </>

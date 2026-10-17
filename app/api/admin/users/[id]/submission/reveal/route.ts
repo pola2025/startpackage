@@ -14,6 +14,7 @@ const SECRET_FIELDS = new Set([
   "도메인관리PW", "네이버검색광고PW", "네이버클라우드PW", "InstagramPW",
   "아임웹PW", "아임웹관리자PW", "GmailPW", "해외결제카드CVC",
   "해외결제카드유효기간", "해외결제카드앞면URL", "해외결제카드뒷면URL", "신용카드앞면URL",
+  "MetaGooglePW", "MetaSystemUserToken", "MetaThreadsToken",
 ]);
 
 export async function POST(

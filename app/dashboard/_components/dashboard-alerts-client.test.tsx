@@ -21,6 +21,7 @@ vi.mock("@/components/dashboard/quest-wizard-dialog", () => ({
   ),
   BASIC_INFO_STEPS: [{ type: "text" }, { type: "shipping" }],
   LOGO_INFO_STEPS: [],
+  LOGO_COMPLETION: { title: "", message: "", check: () => [] },
   MARKETING_INFO_STEPS: [],
   NAMECARD_ENVELOPE_STEPS: [],
   CONTRACT_STEPS: [],

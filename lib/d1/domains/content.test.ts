@@ -81,3 +81,133 @@ describe("content D1 operations", () => {
     expect(() => db.raw.prepare('INSERT INTO "marketing_extension_requests" ("id","userId","requestDate","currentEndDate","newEndDate","requestMessage","status","createdAt","updatedAt") VALUES (?,?,?,?,?,?,?,?,?)').run("request-2", "user-1", timestamp, timestamp, timestamp, "", "pending", timestamp, timestamp)).toThrow();
   });
 });
+
+describe("content D1 Meta setup operations", () => {
+  const secret = "s".repeat(32);
+  const encryptionKey = Buffer.alloc(32, 7).toString("base64");
+  const TOKEN_A = "EAAB-system-user-token-1234567890";
+  const TOKEN_B = "THQW-threads-token-abcdefghijk";
+  const op = (db: SQLiteDatabase, name: string, input: unknown) => contentOperation(db, name, input, secret, encryptionKey) as Promise<Record<string, any>>;
+  const submissionRow = (db: SQLiteDatabase) => db.raw.prepare('SELECT * FROM "submissions" WHERE "userId" = ?').get("user-1") as Record<string, unknown> | undefined;
+  const addAdmin = (db: SQLiteDatabase, id = "admin-1", role = "operator") => db.raw.prepare('INSERT INTO "admins" ("id","email","password","name","role","updatedAt") VALUES (?,?,?,?,?,?)').run(id, id + "@example.com", "hash", "운영자", role, 0);
+  const request = { type: "instagram", loginId: "my_insta", password: "Sup3r-Secret-PW!", memo: "부탁드립니다" };
+  const tokens = { MetaSystemUserToken: TOKEN_A, MetaThreadsToken: TOKEN_B };
+
+  it("meta-setup-get returns an empty object before any submission row exists", async () => {
+    expect(await op(seed(), "meta-setup-get", { userId: "user-1" })).toEqual({});
+  });
+
+  it("meta-setup-get rejects an unknown user and extra fields", async () => {
+    await expect(op(seed(), "meta-setup-get", { userId: "nobody" })).rejects.toMatchObject({ status: 401 });
+    await expect(op(seed(), "meta-setup-get", { userId: "user-1", extra: 1 })).rejects.toMatchObject({ status: 400 });
+  });
+
+  it("meta-setup-request stores the password encrypted and never as plain text", async () => {
+    const db = seed();
+    const result = await op(db, "meta-setup-request", { userId: "user-1", request });
+    expect(result).toMatchObject({ success: true, updated: false, notification: { name: "홍길동", cohortName: "26기", email: "user@example.com" } });
+    expect(typeof result.requestedAt).toBe("number");
+    const row = submissionRow(db)!;
+    expect(row.MetaSetupType).toBe("instagram");
+    expect(row.InstagramID).toBe("my_insta");
+    expect(row.MetaSetupMemo).toBe("부탁드립니다");
+    expect(row.MetaSetupRequestedAt).toBe(result.requestedAt);
+    expect(String(row.InstagramPW).startsWith("spenc:v1:")).toBe(true);
+    expect(JSON.stringify(row)).not.toContain("Sup3r-Secret-PW!");
+  });
+
+  it("meta-setup-request uses the google columns for a google account", async () => {
+    const db = seed();
+    await op(db, "meta-setup-request", { userId: "user-1", request: { ...request, type: "google", loginId: "me@gmail.com" } });
+    const row = submissionRow(db)!;
+    expect(row.MetaSetupType).toBe("google");
+    expect(row.MetaGoogleID).toBe("me@gmail.com");
+    expect(String(row.MetaGooglePW).startsWith("spenc:v1:")).toBe(true);
+    expect(row.InstagramPW ?? null).toBeNull();
+  });
+
+  it("meta-setup-request reports updated: true on the second request and keeps one row", async () => {
+    const db = seed();
+    const first = await op(db, "meta-setup-request", { userId: "user-1", request });
+    const second = await op(db, "meta-setup-request", { userId: "user-1", request: { ...request, memo: null } });
+    expect(first.updated).toBe(false);
+    expect(second.updated).toBe(true);
+    expect((db.raw.prepare('SELECT COUNT(*) AS n FROM "submissions" WHERE "userId" = ?').get("user-1") as { n: number }).n).toBe(1);
+    expect(submissionRow(db)!.MetaSetupMemo).toBeNull();
+  });
+
+  it("meta-setup-request rejects invalid input and unknown users", async () => {
+    const db = seed();
+    await expect(op(db, "meta-setup-request", { userId: "user-1", request: { ...request, type: "naver" } })).rejects.toMatchObject({ status: 400 });
+    await expect(op(db, "meta-setup-request", { userId: "user-1", request: { ...request, password: "" } })).rejects.toMatchObject({ status: 400 });
+    await expect(op(db, "meta-setup-request", { userId: "nobody", request })).rejects.toMatchObject({ status: 401 });
+    expect(submissionRow(db)).toBeUndefined();
+  });
+
+  it("meta-setup-get returns only the Meta columns", async () => {
+    const db = seed();
+    await op(db, "meta-setup-request", { userId: "user-1", request });
+    db.raw.prepare('UPDATE "submissions" SET "브랜드명" = ? WHERE "userId" = ?').run("브랜드", "user-1");
+    const row = await op(db, "meta-setup-get", { userId: "user-1" });
+    expect(Object.keys(row).sort()).toEqual(["InstagramID", "InstagramPW", "MetaGoogleID", "MetaGooglePW", "MetaSetupDoneAt", "MetaSetupMemo", "MetaSetupRequestedAt", "MetaSetupType", "MetaSystemUserToken", "MetaThreadsToken", "MetaTokenEmailSentAt"]);
+    expect(row.브랜드명).toBeUndefined();
+    expect(row.InstagramID).toBe("my_insta");
+  });
+
+  it("meta-setup-complete requires an admin id", async () => {
+    const db = seed();
+    await expect(op(db, "meta-setup-complete", { adminId: "user-1", userId: "user-1", tokens })).rejects.toMatchObject({ status: 403 });
+    await expect(op(db, "meta-setup-complete", { adminId: "ghost", userId: "user-1", tokens })).rejects.toMatchObject({ status: 403 });
+    expect(submissionRow(db)).toBeUndefined();
+  });
+
+  it("meta-setup-complete rejects an admin row with an unknown role", async () => {
+    const db = seed();
+    addAdmin(db, "admin-x", "viewer");
+    await expect(op(db, "meta-setup-complete", { adminId: "admin-x", userId: "user-1", tokens })).rejects.toMatchObject({ status: 403 });
+  });
+
+  it("meta-setup-complete rejects short tokens", async () => {
+    const db = seed();
+    addAdmin(db);
+    await expect(op(db, "meta-setup-complete", { adminId: "admin-1", userId: "user-1", tokens: { ...tokens, MetaSystemUserToken: "short" } })).rejects.toMatchObject({ status: 400 });
+  });
+
+  it("meta-setup-complete stores both tokens encrypted and records the done time", async () => {
+    const db = seed();
+    addAdmin(db);
+    await op(db, "meta-setup-request", { userId: "user-1", request });
+    const result = await op(db, "meta-setup-complete", { adminId: "admin-1", userId: "user-1", tokens });
+    expect(result).toMatchObject({ success: true, notification: { email: "user@example.com" } });
+    const row = submissionRow(db)!;
+    expect(row.MetaSetupDoneAt).toBe(result.doneAt);
+    expect(String(row.MetaSystemUserToken).startsWith("spenc:v1:")).toBe(true);
+    expect(String(row.MetaThreadsToken).startsWith("spenc:v1:")).toBe(true);
+    expect(JSON.stringify(row)).not.toContain(TOKEN_A);
+    expect(JSON.stringify(row)).not.toContain(TOKEN_B);
+    expect(row.MetaSetupRequestedAt).toBeTruthy();
+  });
+
+  it("meta-setup-complete creates the submission row when the student never requested", async () => {
+    const db = seed();
+    addAdmin(db);
+    await op(db, "meta-setup-complete", { adminId: "admin-1", userId: "user-1", tokens });
+    expect(submissionRow(db)!.MetaSetupDoneAt).toBeTruthy();
+  });
+
+  it("meta-setup-email-sent requires an admin and records the sent time", async () => {
+    const db = seed();
+    addAdmin(db);
+    await op(db, "meta-setup-request", { userId: "user-1", request });
+    await expect(op(db, "meta-setup-email-sent", { adminId: "user-1", userId: "user-1", sentAt: 1_760_000_000_000 })).rejects.toMatchObject({ status: 403 });
+    expect(submissionRow(db)!.MetaTokenEmailSentAt ?? null).toBeNull();
+    expect(await op(db, "meta-setup-email-sent", { adminId: "admin-1", userId: "user-1", sentAt: 1_760_000_000_000 })).toEqual({ success: true });
+    expect(submissionRow(db)!.MetaTokenEmailSentAt).toBe(1_760_000_000_000);
+  });
+
+  it("meta-setup-email-sent rejects a non-positive sentAt", async () => {
+    const db = seed();
+    addAdmin(db);
+    await expect(op(db, "meta-setup-email-sent", { adminId: "admin-1", userId: "user-1", sentAt: 0 })).rejects.toMatchObject({ status: 400 });
+  });
+});

@@ -41,7 +41,7 @@ export function toUploadMessage(err: unknown): string {
 }
 
 /** R2로 원본 직접 PUT (진행률/타임아웃/끊김 감지) */
-function putToR2(
+export function putToR2(
   url: string,
   file: File,
   onProgress?: (ratio: number) => void,
