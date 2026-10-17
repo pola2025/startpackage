@@ -370,7 +370,7 @@
         concept: 1,
         ey: "CHECKLIST",
         title: "직접 설정할<br><em>10가지</em>",
-        desc: "블로그 설정은 모두 교육생이 직접 합니다. Codex는 블로그 설정을 바꾸지 않고 이미지 제작만 돕습니다.",
+        desc: "블로그 설정은 모두 직접 합니다. Codex는 블로그 설정을 바꾸지 않고 이미지 제작만 돕습니다.",
         html: checklistHtml,
       },
       {

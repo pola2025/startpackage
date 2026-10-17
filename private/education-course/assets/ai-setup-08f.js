@@ -386,7 +386,7 @@ const review = (n, o = {}) => {
 
     /* ---------- concept: roles ---------- */
     const rolesHtml = `<div class="f-roles">
-      <div class="f-roles-col"><h5>교육생이 하는 일 <em>답 세 번</em></h5>
+      <div class="f-roles-col"><h5>직접 하는 일 <em>답 세 번</em></h5>
         <div class="card on"><small>01 · 공고 고르기</small><strong>후보 표에서 번호 답하기</strong><p>Codex가 접수 중인 공고 5개를 보여 주면 글로 쓸 번호를 고릅니다.</p><span class="f-say">3번으로 해 줘</span></div>
         <div class="card on"><small>02 · 사실 확인</small><strong>사실 카드와 공고 원문 비교</strong><p>사업명·금액·기간·비율이 공고 원문과 같은지 확인합니다.</p><span class="f-say">확인</span></div>
         <div class="card on"><small>03 · 검수 · 발행</small><strong>검수 화면 확인 후 발행 답하기</strong><p>체크리스트 5개로 확인하고, 고칠 곳은 말로 요청합니다.</p><span class="f-say">발행</span></div>
@@ -420,14 +420,14 @@ const review = (n, o = {}) => {
         cover: 1,
         ey: "CHAPTER 08F · BLOG POST",
         title: "기업마당 공고로<br><em>블로그 글 만들기</em>",
-        desc: "기업마당의 정부지원사업 공고를 우리 회사가 전하는 소식으로 다시 써서 네이버 블로그에 올립니다. 조사·원고·이미지·검사는 Codex가 하고, 교육생은 고르고 확인하고 승인합니다.",
+        desc: "기업마당의 정부지원사업 공고를 우리 회사가 전하는 소식으로 다시 써서 네이버 블로그에 올립니다. 조사·원고·이미지·검사는 Codex가 맡고, 직접 하는 일은 공고 고르기·사실 확인·발행 승인입니다.",
         route: ["회사 정보", "공고 고르기", "사실 확인", "검수", "발행"],
       },
       {
         concept: 1,
         ey: "ROLES",
-        title: "교육생은<br><em>세 번 답합니다</em>",
-        desc: "글의 품질 기준은 키트 안의 규칙과 검사 도구에 들어 있습니다. 그래서 교육생이 보내는 문장은 짧아도 됩니다.",
+        title: "세 번만<br><em>답하면 됩니다</em>",
+        desc: "글의 품질 기준은 키트 안의 규칙과 검사 도구에 들어 있습니다. 그래서 Codex에게 보내는 문장은 짧아도 됩니다.",
         html: rolesHtml,
       },
       {
@@ -561,7 +561,7 @@ const review = (n, o = {}) => {
       {
         ey: "STEP 09",
         title: "작업이 끝나면<br><em>검수 화면 열기</em>",
-        desc: "교육생은 기다리기만 합니다. Codex가 검사까지 통과하면 review.html 경로를 보내 줍니다. 경로를 복사해 Chrome 주소창에 붙여 넣습니다.",
+        desc: "이 단계에서는 기다리기만 하면 됩니다. Codex가 검사까지 통과하면 review.html 경로를 보내 줍니다. 경로를 복사해 Chrome 주소창에 붙여 넣습니다.",
         mode: "review.html 경로 → Chrome",
         tone: "keep",
         note: "실사 이미지 6장을 만드는 동안 시간이 걸립니다. 이미지 생성은 ChatGPT 사용 한도를 글보다 빨리 쓰므로, 한도가 얼마 남지 않았으면 다음 날 진행합니다.",
