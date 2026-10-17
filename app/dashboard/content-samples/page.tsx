@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -54,7 +53,6 @@ export default function ContentSamplesPage() {
       <div>
         <div className="mb-2 flex items-center gap-2">
           <Palette className="h-5 w-5 text-gold-600 md:h-6 md:w-6" />
-          <Badge className="bg-green-600 text-white">콘텐츠 대행</Badge>
         </div>
         <h1 className="text-xl font-bold text-gray-900 md:text-2xl">
           콘텐츠 제작사례
