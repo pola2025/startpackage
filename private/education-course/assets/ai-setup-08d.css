@@ -1,0 +1,1023 @@
+/* 08D 에이전트 키트 연결 */
+body[data-part="D"] .deck:before {
+  background:
+    linear-gradient(
+      105deg,
+      rgba(8, 10, 40, 0.96),
+      rgba(42, 26, 110, 0.78) 50%,
+      rgba(96, 64, 220, 0.45)
+    ),
+    url("./screen-concept-09-ai-agent.png") center/cover;
+}
+
+/* 개념 장면: 두 칼럼 목록 */
+.d-roles .card {
+  padding: 22px 26px;
+}
+.d-list {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+.d-list li {
+  position: relative;
+  padding-left: 30px;
+  font-size: clamp(18px, 1.2vw, 23px);
+  line-height: 1.4;
+  color: #f1edff;
+}
+.d-list li:before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  top: 1px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #7c5cff;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 900;
+  display: grid;
+  place-items: center;
+}
+.d-roles .card:not(.on) .d-list li:before {
+  background: #3a4a8c;
+}
+.d-kit-dl {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: #2f7bff;
+  color: #fff;
+  font-weight: 900;
+  text-decoration: none;
+}
+.d-kit-dl:hover {
+  background: #1f66e0;
+}
+
+/* 공통 */
+.d-dim {
+  position: absolute;
+  inset: 0;
+  z-index: 23;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* STEP 01 키트 페이지 */
+.d-kitpage {
+  padding: 7cqw 8cqw;
+  font-family: "Malgun Gothic", "Segoe UI", sans-serif;
+  color: #1b1b1b;
+}
+.d-kitpage small {
+  font-size: 1.1cqw;
+  font-weight: 800;
+  color: #6b4ce6;
+  letter-spacing: 0.06em;
+}
+.d-kitpage h2 {
+  margin: 0.8cqw 0;
+  font-size: 3.2cqw;
+  letter-spacing: -0.04em;
+}
+.d-kitpage p {
+  margin: 0 0 2cqw;
+  font-size: 1.35cqw;
+  color: #555;
+}
+.d-kitbtn {
+  display: inline-block;
+  padding: 1.1cqw 2.2cqw;
+  border-radius: 0.8cqw;
+  background: #2f7bff;
+  color: #fff;
+  font-size: 1.4cqw;
+  font-weight: 700;
+}
+.dl-item {
+  grid-template-columns: 3.2cqw 1fr auto;
+}
+.dl-item svg {
+  width: 3cqw;
+  height: 3cqw;
+}
+.dl-item b {
+  font-size: 1.15cqw;
+}
+.dl-item span {
+  font-size: 1cqw;
+}
+.dl-bubble {
+  width: 34cqw;
+}
+.dl-bubble h6 {
+  font-size: 1.25cqw;
+}
+.dl-bubble .all {
+  font-size: 1.05cqw;
+}
+
+/* STEP 03 UAC */
+.d-uac {
+  position: absolute;
+  z-index: 24;
+  left: 50%;
+  top: 46%;
+  width: 52cqw;
+  transform: translate(-50%, -50%);
+  background: #f2f2f2;
+  border: 1px solid #6d6d6d;
+  box-shadow: 0 1.4cqw 4cqw rgba(0, 0, 0, 0.55);
+  font-family: "Malgun Gothic", "Segoe UI", sans-serif;
+  color: #1b1b1b;
+}
+.d-uac-h {
+  display: flex;
+  align-items: center;
+  gap: 0.9cqw;
+  padding: 0.9cqw 1.6cqw;
+  background: #fff;
+  font-size: 1.25cqw;
+}
+.d-uac-h svg {
+  width: 1.8cqw;
+  height: 1.8cqw;
+}
+.d-uac-q {
+  padding: 1.6cqw 1.8cqw;
+  background: #0067c0;
+  color: #fff;
+  font-size: 1.9cqw;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+}
+.d-uac-app {
+  display: flex;
+  align-items: center;
+  gap: 1.4cqw;
+  padding: 2cqw 1.8cqw 1cqw;
+}
+.d-uac-app i {
+  display: block;
+  width: 5.4cqw;
+  height: 5.4cqw;
+  flex: 0 0 auto;
+}
+.d-uac-app b {
+  display: block;
+  font-size: 1.7cqw;
+  font-weight: 700;
+  margin-bottom: 0.4cqw;
+}
+.d-uac-app span {
+  display: block;
+  font-size: 1.3cqw;
+  line-height: 1.55;
+  color: #333;
+}
+.d-uac-more {
+  display: block;
+  padding: 0.6cqw 1.8cqw 1.8cqw;
+  font-size: 1.25cqw;
+  color: #0067c0;
+}
+.d-uac-btn {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6cqw;
+  padding: 1.6cqw 1.8cqw;
+  background: #e6e6e6;
+}
+.d-uac-btn span {
+  display: block;
+  text-align: center;
+  padding: 1.1cqw;
+  font-size: 1.5cqw;
+  background: #cfcfcf;
+  border: 1px solid #adadad;
+}
+.d-uac-btn span.go {
+  background: #0067c0;
+  border-color: #0067c0;
+  color: #fff;
+  font-weight: 600;
+}
+
+/* STEP 04 시작 메뉴 */
+.d-startico {
+  display: block;
+  width: 3.4cqw;
+  height: 3.4cqw;
+}
+.d-startico.big {
+  width: 5cqw;
+  height: 5cqw;
+  margin: 0 auto;
+}
+.startm {
+  width: 60cqw;
+  height: 44cqw;
+  font-size: 1.2cqw;
+}
+.startm .sbox {
+  height: 3.6cqw;
+  font-size: 1.4cqw;
+}
+.startm .best {
+  font-size: 1.2cqw;
+  margin-top: 1.8cqw;
+}
+.startm .hit {
+  padding: 1.2cqw;
+  gap: 1.2cqw;
+}
+.startm .hit b {
+  font-size: 1.5cqw;
+}
+.startm .hit span {
+  font-size: 1.15cqw;
+}
+.startm .right {
+  width: 21cqw;
+  top: 7cqw;
+  font-size: 1.1cqw;
+}
+.startm .right b {
+  font-size: 1.4cqw;
+}
+.startm .right div {
+  padding: 0.6cqw 0.8cqw;
+}
+
+/* 앱 창 */
+.d-app {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  color: #1b1b1b;
+  font-family: "Segoe UI", "Malgun Gothic", Pretendard, sans-serif;
+}
+.d-atitle {
+  display: flex;
+  align-items: center;
+  gap: 1.3cqw;
+  height: 3.1cqw;
+  padding-left: 1.2cqw;
+  flex: 0 0 auto;
+  font-size: 1.05cqw;
+  color: #555;
+  background: #f1f3f8;
+}
+.d-atitle .arrows {
+  font-size: 1.3cqw;
+  color: #888;
+  letter-spacing: 0.1em;
+}
+.d-atitle .wctl i {
+  color: #222;
+}
+.d-abody {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 3.8cqw minmax(0, 1fr);
+  background: linear-gradient(180deg, #f1f3f8, #f6eff8);
+}
+.d-abody.with-nav {
+  grid-template-columns: 3.8cqw 19.5cqw minmax(0, 1fr);
+}
+.d-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9cqw;
+  padding: 1.2cqw 0 1cqw;
+}
+.d-rail i {
+  position: relative;
+  width: 2.2cqw;
+  height: 2.2cqw;
+  display: grid;
+  place-items: center;
+  font-style: normal;
+}
+.d-rail i svg {
+  width: 1.5cqw;
+  height: 1.5cqw;
+}
+.d-rail i.dotted:after {
+  content: "";
+  position: absolute;
+  right: 0.1cqw;
+  top: 0;
+  width: 0.6cqw;
+  height: 0.6cqw;
+  border-radius: 50%;
+  background: #2f7bff;
+}
+.d-rail .grow {
+  flex: 1;
+}
+.d-rail i.dlb {
+  width: 2cqw;
+  height: 2cqw;
+  border-radius: 50%;
+  background: #3b82f6;
+}
+.d-rail i.dlb svg {
+  width: 1.1cqw;
+  height: 1.1cqw;
+}
+.d-rail i.av {
+  width: 2.2cqw;
+  height: 2.2cqw;
+  border-radius: 50%;
+  background: #3c7fb4;
+  color: #fff;
+  font-size: 0.95cqw;
+  font-weight: 700;
+}
+.d-rail i.av.open {
+  box-shadow: 0 0 0 0.35cqw #dfe6f3;
+}
+.d-nav {
+  padding: 1.2cqw 0.7cqw 0;
+  overflow: hidden;
+  font-size: 1cqw;
+  color: #222;
+}
+.d-nav h4 {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0.6cqw 0.6cqw;
+  font-size: 1.3cqw;
+  font-weight: 700;
+}
+.d-nav h4 i {
+  font-style: normal;
+  font-weight: 400;
+  color: #888;
+}
+.d-nav .d-search {
+  height: 2.4cqw;
+  display: flex;
+  align-items: center;
+  margin: 0 0.2cqw 0.6cqw;
+  padding: 0 1cqw;
+  border-radius: 1.2cqw;
+  background: #e9e9ee;
+  color: #777;
+  font-size: 1cqw;
+}
+.d-nav h5 {
+  margin: 0.7cqw 0.9cqw 0.2cqw;
+  font-size: 0.95cqw;
+  font-weight: 400;
+  color: #888;
+}
+.d-nav div:not(.d-search) {
+  display: flex;
+  align-items: center;
+  gap: 0.8cqw;
+  height: 1.95cqw;
+  padding: 0 0.9cqw;
+  border-radius: 0.7cqw;
+  white-space: nowrap;
+}
+.d-nav div i {
+  flex: 0 0 auto;
+  width: 0.95cqw;
+  height: 0.95cqw;
+  border: 1.5px solid #666;
+  border-radius: 0.3cqw;
+}
+.d-nav div.on {
+  background: #e4e4ea;
+}
+.d-main {
+  background: #fff;
+  min-width: 0;
+  overflow: hidden;
+  border-top-left-radius: 1cqw;
+}
+
+/* 설정 본문 */
+.d-page {
+  width: 52cqw;
+  max-width: calc(100% - 4cqw);
+  margin: 5.2cqw auto 0;
+}
+.d-page h1 {
+  margin: 0;
+  font-size: 2.4cqw;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.d-sub {
+  margin: 0.8cqw 0 3.6cqw;
+  font-size: 1.1cqw;
+  color: #777;
+}
+.d-page h3 {
+  margin: 0 0 1.2cqw;
+  font-size: 1.1cqw;
+  font-weight: 600;
+}
+.d-card {
+  border: 1px solid #e4e4ea;
+  border-radius: 1.2cqw;
+  background: #fff;
+}
+.d-card.first {
+  margin-top: -1.4cqw;
+}
+.d-row {
+  display: grid;
+  grid-template-columns: 3.4cqw minmax(0, 1fr) auto;
+  gap: 1.2cqw;
+  align-items: center;
+  min-height: 4.6cqw;
+  padding: 0.6cqw 1.2cqw;
+  border-bottom: 1px solid #ececf0;
+}
+.d-row:last-child {
+  border-bottom: 0;
+}
+.d-ic {
+  display: block;
+  width: 3cqw;
+  height: 3cqw;
+}
+.d-ic svg {
+  width: 100%;
+  height: 100%;
+}
+.d-rt b {
+  display: block;
+  font-size: 1.1cqw;
+  font-weight: 600;
+}
+.d-rt span {
+  display: block;
+  margin-top: 0.2cqw;
+  font-size: 0.95cqw;
+  color: #777;
+}
+.d-dot {
+  display: inline-block;
+  width: 0.7cqw;
+  height: 0.7cqw;
+  margin-right: 0.7cqw;
+  border-radius: 50%;
+  vertical-align: middle;
+}
+.d-dot.red {
+  background: #e5484d;
+}
+.d-dot.green {
+  background: #18a957;
+}
+.d-ra {
+  display: flex;
+  align-items: center;
+  gap: 1cqw;
+}
+.d-btn {
+  display: inline-block;
+  padding: 0.55cqw 1.1cqw;
+  border-radius: 0.8cqw;
+  background: #f0f0f3;
+  font-size: 1cqw;
+  color: #222;
+  white-space: nowrap;
+}
+.d-tog {
+  position: relative;
+  display: inline-block;
+  width: 3cqw;
+  height: 1.7cqw;
+  border-radius: 1cqw;
+  background: #d4d6dc;
+  flex: 0 0 auto;
+  transition: none;
+}
+.d-tog i {
+  position: absolute;
+  left: 0.2cqw;
+  top: 0.2cqw;
+  width: 1.3cqw;
+  height: 1.3cqw;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0.1cqw 0.3cqw rgba(0, 0, 0, 0.3);
+}
+.d-tog.on {
+  background: #3b72f0;
+}
+.d-tog.on i {
+  left: 1.5cqw;
+}
+.d-tog.ring,
+.d-btn.ring {
+  border-radius: 1cqw;
+}
+.d-btn.ring {
+  border-radius: 0.8cqw;
+}
+
+/* 앱 홈 + 프로필 메뉴 */
+.d-home {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.6cqw;
+  padding-bottom: 6cqw;
+}
+.d-home b {
+  font-size: 2.2cqw;
+  font-weight: 500;
+}
+.d-gmark {
+  width: 4.4cqw;
+  height: 4.4cqw;
+}
+.d-gmark.lg {
+  width: 7cqw;
+  height: 7cqw;
+}
+.d-composer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 44cqw;
+  padding: 1.3cqw 1.6cqw;
+  border: 1px solid #e2e2e8;
+  border-radius: 1.6cqw;
+  box-shadow: 0 0.3cqw 1.4cqw rgba(0, 0, 0, 0.08);
+  font-size: 1.15cqw;
+  color: #888;
+}
+.d-composer i {
+  display: grid;
+  place-items: center;
+  width: 2.3cqw;
+  height: 2.3cqw;
+  border-radius: 50%;
+  background: #111;
+  color: #fff;
+  font-style: normal;
+}
+.d-avmenu {
+  position: absolute;
+  z-index: 20;
+  left: 3.4cqw;
+  bottom: 1.2cqw;
+  width: 19.5cqw;
+  padding: 0.6cqw;
+  border: 1px solid #e3e3e8;
+  border-radius: 1.2cqw;
+  background: #fff;
+  box-shadow: 0 0.6cqw 2.6cqw rgba(0, 0, 0, 0.18);
+  font-size: 1.05cqw;
+  color: #222;
+}
+.d-avmenu .hd {
+  display: flex;
+  align-items: center;
+  gap: 0.8cqw;
+  padding: 0.8cqw 0.9cqw;
+}
+.d-avmenu .hd i {
+  display: grid;
+  place-items: center;
+  width: 1.7cqw;
+  height: 1.7cqw;
+  border-radius: 50%;
+  background: #3c7fb4;
+  color: #fff;
+  font-size: 0.8cqw;
+  font-style: normal;
+}
+.d-avmenu .hd b {
+  font-weight: 500;
+}
+.d-avmenu .mi {
+  display: flex;
+  align-items: center;
+  gap: 0.9cqw;
+  height: 2.7cqw;
+  padding: 0 0.9cqw;
+  border-radius: 0.7cqw;
+}
+.d-avmenu .mi svg {
+  width: 1.4cqw;
+  height: 1.4cqw;
+  flex: 0 0 auto;
+}
+.d-avmenu .mi em {
+  margin-left: auto;
+  font-style: normal;
+  font-size: 0.9cqw;
+  color: #8a8a93;
+}
+.d-avmenu hr {
+  border: 0;
+  border-top: 1px solid #ececf0;
+  margin: 0.4cqw 0;
+}
+.d-avmenu .mi.ring {
+  background: #fff7e6;
+}
+
+/* STEP 05 로그인 */
+.d-signin {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2cqw;
+  background: #fff;
+}
+.d-signin h2 {
+  margin: 0;
+  font-size: 2.8cqw;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.d-signin p {
+  margin: 0 0 1.2cqw;
+  font-size: 1.3cqw;
+  color: #666;
+}
+.d-signbtn {
+  display: block;
+  width: 26cqw;
+  padding: 1.2cqw 0;
+  border-radius: 2cqw;
+  background: #0d0d0d;
+  color: #fff;
+  text-align: center;
+  font-size: 1.45cqw;
+  font-weight: 600;
+}
+
+/* 크롬 웹 스토어 */
+.d-cwsfav {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: conic-gradient(#ea4335 0 33%, #fbbc05 0 66%, #34a853 0);
+}
+.d-cws {
+  height: 100%;
+  font-family: "Segoe UI", "Malgun Gothic", sans-serif;
+  color: #202124;
+  background: #fff;
+}
+.d-cws-top {
+  display: flex;
+  align-items: center;
+  gap: 3cqw;
+  height: 4.6cqw;
+  padding: 0 3cqw;
+  border-bottom: 1px solid #e3e3e3;
+}
+.d-cws-top b {
+  display: flex;
+  align-items: center;
+  gap: 0.8cqw;
+  font-size: 1.5cqw;
+  font-weight: 500;
+}
+.d-cws-top b i {
+  width: 2.2cqw;
+  height: 2.2cqw;
+  border-radius: 50%;
+  background: conic-gradient(#ea4335 0 33%, #fbbc05 0 66%, #34a853 0);
+}
+.d-cws-top .s {
+  flex: 1;
+  max-width: 44cqw;
+  padding: 0.8cqw 1.4cqw;
+  border-radius: 1.4cqw;
+  background: #f1f3f4;
+  font-size: 1.1cqw;
+  color: #5f6368;
+}
+.d-cws-main {
+  display: grid;
+  grid-template-columns: 9cqw minmax(0, 1fr) auto;
+  gap: 2.2cqw;
+  align-items: center;
+  padding: 3.4cqw 6cqw 2.4cqw;
+}
+.d-cws-ico {
+  width: 9cqw;
+  height: 9cqw;
+  border-radius: 1.4cqw;
+  overflow: hidden;
+  box-shadow: 0 0.2cqw 0.8cqw rgba(0, 0, 0, 0.2);
+}
+.d-cws-info h2 {
+  margin: 0;
+  font-size: 2.8cqw;
+  font-weight: 500;
+}
+.d-cws-info p {
+  margin: 0.7cqw 0 0;
+  font-size: 1.25cqw;
+  color: #5f6368;
+}
+.d-cws-info p.by u {
+  color: #1a73e8;
+}
+.d-cws-info p.kind {
+  display: inline-block;
+  margin-top: 1cqw;
+  padding: 0.3cqw 1cqw;
+  border-radius: 0.5cqw;
+  background: #f1f3f4;
+  font-size: 1.05cqw;
+}
+.d-cws-add {
+  display: inline-block;
+  padding: 1cqw 2.4cqw;
+  border-radius: 2cqw;
+  background: #1a73e8;
+  color: #fff;
+  font-size: 1.4cqw;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.d-cws-tabs {
+  display: flex;
+  gap: 3cqw;
+  margin: 0 6cqw;
+  border-bottom: 1px solid #e3e3e3;
+  font-size: 1.25cqw;
+  color: #5f6368;
+}
+.d-cws-tabs span {
+  padding: 1cqw 0;
+}
+.d-cws-tabs span.on {
+  color: #1a73e8;
+  border-bottom: 0.3cqw solid #1a73e8;
+}
+.d-cws-desc {
+  padding: 2.4cqw 6cqw;
+}
+.d-cws-desc h4 {
+  margin: 0 0 1cqw;
+  font-size: 1.6cqw;
+  font-weight: 500;
+}
+.d-cws-desc p {
+  margin: 0;
+  font-size: 1.3cqw;
+  color: #3c4043;
+}
+.d-cdlg {
+  position: absolute;
+  z-index: 20;
+  left: 9cqw;
+  top: 7.6cqw;
+  width: 42cqw;
+  padding: 2cqw 2.2cqw 1.8cqw;
+  border-radius: 1.2cqw;
+  background: #fff;
+  box-shadow: 0 0.5cqw 2.6cqw rgba(0, 0, 0, 0.35);
+  border: 1px solid #dadce0;
+  font-family: "Segoe UI", "Malgun Gothic", sans-serif;
+  color: #202124;
+}
+.d-cdlg h5 {
+  margin: 0 0 2cqw;
+  font-size: 1.6cqw;
+  font-weight: 500;
+}
+.d-cdlg .bt {
+  display: flex;
+  gap: 1cqw;
+  justify-content: flex-end;
+}
+.d-cdlg .bt span {
+  display: inline-block;
+  padding: 0.8cqw 1.8cqw;
+  border-radius: 2cqw;
+  font-size: 1.25cqw;
+}
+.d-cdlg .bt .add {
+  background: #1a73e8;
+  color: #fff;
+}
+.d-cdlg .bt .cancel {
+  border: 1px solid #dadce0;
+  color: #1a73e8;
+}
+.d-cdlg .bt .add.ring {
+  border-radius: 2cqw;
+}
+
+/* 네이버 */
+.d-nvfav {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 20%;
+  background: #03c75a;
+  color: #fff;
+  font-size: 0.8cqw;
+  font-weight: 900;
+}
+.d-nv {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  background: #f7f8fa;
+  font-family: "Malgun Gothic", "Segoe UI", sans-serif;
+  color: #222;
+}
+.d-nvbox {
+  width: 38cqw;
+  padding: 3cqw 0 0;
+}
+.d-nvbox.dev {
+  padding-top: 5cqw;
+  text-align: center;
+}
+.d-nvlogo {
+  display: block;
+  height: 3.4cqw;
+  margin: 0 auto 2.6cqw;
+}
+.d-nvtabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid #dadada;
+  background: #fff;
+  font-size: 1.2cqw;
+  text-align: center;
+  border-bottom: 0;
+}
+.d-nvtabs span {
+  padding: 1.1cqw 0;
+  color: #888;
+  border-bottom: 1px solid #dadada;
+  background: #fafafa;
+}
+.d-nvtabs span.on {
+  color: #03c75a;
+  font-weight: 700;
+  border-bottom: 0.25cqw solid #03c75a;
+  background: #fff;
+}
+.d-nvin {
+  display: flex;
+  align-items: center;
+  gap: 1cqw;
+  height: 4.8cqw;
+  padding: 0 1.6cqw;
+  border: 1px solid #dadada;
+  background: #fff;
+  font-size: 1.4cqw;
+}
+.d-nvin + .d-nvin {
+  border-top: 0;
+}
+.d-nvin i {
+  display: block;
+  width: 1.8cqw;
+  height: 1.8cqw;
+  border-radius: 50%;
+  border: 2px solid #b7b7b7;
+}
+.d-nvin.pw span {
+  letter-spacing: 0.1em;
+}
+.d-nvopt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 1.8cqw 0.2cqw;
+  font-size: 1.2cqw;
+  color: #444;
+}
+.d-nvopt .keep {
+  display: flex;
+  align-items: center;
+  gap: 0.8cqw;
+}
+.d-nvopt .ck {
+  display: grid;
+  place-items: center;
+  width: 1.8cqw;
+  height: 1.8cqw;
+  border-radius: 50%;
+  background: #03c75a;
+  color: #fff;
+  font-size: 1.1cqw;
+  font-style: normal;
+  font-weight: 900;
+}
+.d-nvopt .ip {
+  display: flex;
+  align-items: center;
+  gap: 0.8cqw;
+  color: #666;
+}
+.d-nvtog {
+  position: relative;
+  display: inline-block;
+  width: 3.2cqw;
+  height: 1.7cqw;
+  border-radius: 1cqw;
+  background: #03c75a;
+}
+.d-nvtog b {
+  position: absolute;
+  right: 0.2cqw;
+  top: 0.2cqw;
+  width: 1.3cqw;
+  height: 1.3cqw;
+  border-radius: 50%;
+  background: #fff;
+}
+.d-nvbtn {
+  display: grid;
+  place-items: center;
+  height: 5.4cqw;
+  border-radius: 0.6cqw;
+  background: #03c75a;
+  color: #fff;
+  font-size: 1.7cqw;
+  font-weight: 700;
+}
+.d-nvbtn.ring {
+  border-radius: 0.6cqw;
+}
+.d-nvlinks {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2cqw;
+  margin-top: 2cqw;
+  font-size: 1.15cqw;
+  color: #666;
+}
+.d-nvlinks i {
+  display: block;
+  width: 1px;
+  height: 1.1cqw;
+  background: #ccc;
+}
+.d-nvbox.dev h2 {
+  margin: 0 0 1.2cqw;
+  font-size: 2.3cqw;
+  line-height: 1.35;
+  letter-spacing: -0.03em;
+}
+.d-nvbox.dev p {
+  margin: 0 0 3cqw;
+  font-size: 1.35cqw;
+  color: #666;
+}
+.d-nvbtns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1cqw;
+}
+.d-nvbtns span {
+  display: grid;
+  place-items: center;
+  height: 5cqw;
+  border-radius: 0.6cqw;
+  font-size: 1.5cqw;
+  font-weight: 700;
+}
+.d-nvbtns .reg {
+  background: #03c75a;
+  color: #fff;
+}
+.d-nvbtns .off {
+  background: #fff;
+  border: 1px solid #cfcfcf;
+  color: #333;
+}
+.d-nvbtns .off.ring {
+  border-radius: 0.6cqw;
+}
+.startm .hit{margin-right:22.5cqw}

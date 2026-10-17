@@ -9,7 +9,7 @@
 </head>
 <body data-chapter="03">
 <main class="deck">
-  <header class="top"><div class="brand"><b>비즈액터스쿨</b><span>온라인마케팅 교육</span></div><div class="chapter">폴라애드 · 08-3 Threads 계정과 게시물</div></header>
+  <header class="top"><div class="brand"><b>비즈액터스쿨</b><span>온라인마케팅 교육</span></div><div class="chapter">폴라애드 · 09-3 Threads 계정과 게시물</div></header>
   <div class="stage" id="stage"></div>
   <footer class="bottom"><button id="prev">이전</button><button id="next" class="primary">다음</button><button id="replay">다시 보기</button><button id="full">전체 화면</button><div class="counter"><b id="current">1</b> / <span id="total">1</span></div><div class="progress" id="progress"></div></footer>
 </main>
@@ -34,7 +34,7 @@ const chainComposer=(go,mode='add')=>{
 };
 const published=()=>phone(`<div class="thread-home-head"><img src="${A}threads-2026-logo.svg" alt="Threads"></div><div class="published-chain"><div class="thread-unit first"><div class="thread-avatar-rail"><span class="avatar"></span><i></i></div><div class="thread-unit-body"><b>polarad_official <span>· 방금</span></b><p>광고대행사를 비교할 때는 금액보다 먼저, 업무 범위를 확인하세요.</p><div class="thread-actions"><span>♡</span><span>답글</span><span>재게시</span></div></div></div><div class="thread-unit second"><div class="thread-avatar-rail"><span class="avatar"></span></div><div class="thread-unit-body"><b>polarad_official <span>· 방금</span></b><p>좋은 광고 운영은 소재 제작, 문의 확인, 후속 응대까지 한 흐름으로 연결됩니다.</p><div class="published-support"><img src="${A}polarad-post-02.png" alt="폴라애드 콘텐츠"><b>관련 자료 보기</b><span>polarad.co.kr</span></div><div class="thread-actions"><span>♡</span><span>답글</span><span>재게시</span></div></div></div></div>${staticThreadTabs}`);
 const scenes=[
-  {cover:1,ey:'CONTENT COURSE · 08-3',title:'Threads<br><em>계정과 게시물</em>',desc:'Instagram 계정을 이어받아 Threads 프로필을 만들고 글과 이미지를 게시합니다.'},
+  {cover:1,ey:'CONTENT COURSE · 09-3',title:'Threads<br><em>계정과 게시물</em>',desc:'Instagram 계정을 이어받아 Threads 프로필을 만들고 글과 이미지를 게시합니다.'},
   {concept:1,ey:'ACCOUNT STRUCTURE',title:'Instagram 계정 하나에<br><em>Threads 프로필 하나</em>',desc:'이름, 사용자 이름, 프로필 정보를 가져와 별도 입력을 줄일 수 있습니다.'},
   {ey:'STEP 01',title:'Threads에서<br><em>Instagram 계정으로 계속</em>',desc:'새 전화번호나 이메일을 만들지 않고 운영할 Instagram 계정을 선택합니다.',say:'polarad_official 계정 확인',screen:()=>start(3)},
   {ey:'STEP 02',title:'프로필 정보를<br><em>Instagram에서 가져오기</em>',desc:'프로필 사진, 소개, 링크를 그대로 불러옵니다.',say:'필요하면 Threads에서 수정 가능',screen:()=>importProfile(4)},

@@ -9,7 +9,7 @@
 </head>
 <body data-chapter="02">
 <main class="deck">
-  <header class="top"><div class="brand"><b>비즈액터스쿨</b><span>온라인마케팅 교육</span></div><div class="chapter">폴라애드 · 08-2 Instagram Reels</div></header>
+  <header class="top"><div class="brand"><b>비즈액터스쿨</b><span>온라인마케팅 교육</span></div><div class="chapter">폴라애드 · 09-2 Instagram Reels</div></header>
   <div class="stage" id="stage"></div>
   <footer class="bottom"><button id="prev">이전</button><button id="next" class="primary">다음</button><button id="replay">다시 보기</button><button id="full">전체 화면</button><div class="counter"><b id="current">1</b> / <span id="total">1</span></div><div class="progress" id="progress"></div></footer>
 </main>
@@ -28,7 +28,7 @@ const shareScreen=go=>phone(`<div class="app-head"><span class="back">‹</span>
 const coverEditor=go=>phone(`<div class="cover-editor"><div class="cover-main"><div class="cover-preview"><img src="${A}reel-frame-02.jpg" alt="릴스 커버"><div class="cover-safe"></div></div></div><div class="cover-strip">${[1,2,3,2,1].map((n,i)=>i===1?target(`<img class="selected" src="${A}reel-frame-0${n}.jpg" alt="">`,go,''):`<img src="${A}reel-frame-0${n}.jpg" alt="">`).join('')}</div></div>`,true);
 const finalShare=go=>phone(`<div class="app-head"><span class="back">‹</span>새 릴스</div><div class="share-form"><div class="share-top"><img class="share-thumb" src="${A}reel-frame-02.jpg" alt=""><div class="caption-box"><b>polarad_official</b><br>브랜드 마케팅은 기준부터 시작합니다.<br><br>#폴라애드 #브랜드마케팅</div></div><div class="setting-row">커버<span>설정 완료</span></div><div class="setting-row">프로필 그리드에 표시<span>켜짐</span></div><div class="setting-row">Facebook에도 공유<span>선택</span></div><div class="setting-row">고급 설정<span>확인</span></div></div>${target('공유',go,'share-button')}`);
 const scenes=[
-  {cover:1,ey:'CONTENT COURSE · 08-2',title:'Instagram<br><em>Reels 올리기</em>',desc:'15초 폴라애드 영상을 실제 Reels 게시 화면에 맞춰 올립니다.'},
+  {cover:1,ey:'CONTENT COURSE · 09-2',title:'Instagram<br><em>Reels 올리기</em>',desc:'15초 폴라애드 영상을 실제 Reels 게시 화면에 맞춰 올립니다.'},
   {concept:'ratio',ey:'REELS SIZE',title:'화면을 꽉 채우는<br><em>9:16 세로 영상</em>',desc:'1080 × 1920 픽셀로 만들면 스마트폰 전체 화면에 맞습니다.'},
   {concept:'time',ey:'COURSE STANDARD',title:'권장 길이는<br><em>15초부터 45초</em>',desc:'플랫폼의 업로드 한도가 아니라 교육에서 권장하는 사업 홍보 영상 길이입니다.'},
   {ey:'CONTENT RULE 01',title:'첫 3초에<br><em>멈출 이유</em>',desc:'문제, 질문, 결과처럼 바로 이해되는 문장으로 시선을 붙잡습니다.',say:'3초 후킹 실패 시 이탈',screen:()=>hookScreen('공간 계약 전 확인할 3가지','첫 화면 문구 · 확인할 개수로 시선 정지',3)},

@@ -1,0 +1,11 @@
+{
+  "name": "bas-mkt-blog-tools",
+  "private": true,
+  "type": "module",
+  "description": "Bizinfo collection, image build and content checks for bas_mkt blog posts",
+  "dependencies": {
+    "cfb": "1.2.2",
+    "playwright": "1.57.0",
+    "unpdf": "1.8.1"
+  }
+}

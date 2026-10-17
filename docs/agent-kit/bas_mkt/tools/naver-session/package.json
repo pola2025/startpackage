@@ -1,0 +1,9 @@
+{
+  "name": "bas-mkt-naver-session",
+  "private": true,
+  "type": "module",
+  "description": "Naver login session tools for the bas_mkt agent workspace",
+  "dependencies": {
+    "playwright": "1.57.0"
+  }
+}

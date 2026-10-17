@@ -248,6 +248,7 @@
       else if(title.includes('광고 결제 설정'))scale=page===5?1.55:1.48;
       else if(title.includes('Meta 광고운영 주의사항'))scale=page===10?1.72:page===4?1.4:1.55;
       else if(title.includes('잠재 고객 광고 설정'))scale=slide.dataset.detailScale==='wide'?1.58:1.48;
+      else if(title.includes('AI 자동화 설정'))scale=Math.max(1.2,Math.min(2.2,frame.clientWidth*.84/targetRect.width,frame.clientHeight*.7/targetRect.height));
       else scale=Math.min(2.25,Math.max(1.8,frame.clientWidth/(surfaceRect.width*.62)));
       const x=targetRect.left-surfaceRect.left+targetRect.width/2;
       const y=targetRect.top-surfaceRect.top+targetRect.height/2;

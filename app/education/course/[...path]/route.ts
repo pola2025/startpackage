@@ -9,8 +9,8 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const ROOT = path.resolve(process.cwd(), "private", "education-course");
-const ALLOWED = new Set([".html", ".css", ".js", ".png", ".jpg", ".jpeg", ".webp", ".svg", ".woff", ".woff2", ".mp4", ".webm"]);
-const TYPES: Record<string,string> = { ".html":"text/html; charset=utf-8", ".css":"text/css; charset=utf-8", ".js":"text/javascript; charset=utf-8", ".png":"image/png", ".jpg":"image/jpeg", ".jpeg":"image/jpeg", ".webp":"image/webp", ".svg":"image/svg+xml", ".woff":"font/woff", ".woff2":"font/woff2", ".mp4":"video/mp4", ".webm":"video/webm" };
+const ALLOWED = new Set([".html", ".css", ".js", ".png", ".jpg", ".jpeg", ".webp", ".svg", ".woff", ".woff2", ".mp4", ".webm", ".zip"]);
+const TYPES: Record<string,string> = { ".html":"text/html; charset=utf-8", ".css":"text/css; charset=utf-8", ".js":"text/javascript; charset=utf-8", ".png":"image/png", ".jpg":"image/jpeg", ".jpeg":"image/jpeg", ".webp":"image/webp", ".svg":"image/svg+xml", ".woff":"font/woff", ".woff2":"font/woff2", ".mp4":"video/mp4", ".webm":"video/webm", ".zip":"application/zip" };
 
 function headers(type:string){return {"Content-Type":type,"Cache-Control":"private, no-store, max-age=0","X-Robots-Tag":"noindex, nofollow, noarchive, nosnippet, noimageindex","X-Content-Type-Options":"nosniff","Referrer-Policy":"no-referrer","X-Frame-Options":"SAMEORIGIN","Content-Security-Policy":"default-src 'self'; img-src 'self' data: https:; media-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'"};}
 
@@ -41,6 +41,7 @@ export async function GET(request:Request,{params}:{params:Promise<{path:string[
     return new NextResponse(body,{status:206,headers:{...headers(TYPES[ext]),"Accept-Ranges":"bytes","Content-Range":`bytes ${start}-${end}/${info.size}`,"Content-Length":String(body.length)}});
   }
   const buffer=await readFile(filePath);
+  if(ext===".zip")return new NextResponse(buffer,{headers:{...headers(TYPES[ext]),"Content-Length":String(buffer.length),"Content-Disposition":`attachment; filename="${path.basename(filePath)}"`}});
   if(ext!==".html")return new NextResponse(buffer,{headers:{...headers(TYPES[ext]),"Content-Length":String(buffer.length)}});
   let html=buffer.toString("utf8");
   const guard=`<script>(()=>{const expiresAt=${session.expiresAt};const close=()=>{if(Date.now()>=expiresAt)top.location.replace('/education?expired=1')};setTimeout(close,Math.max(0,expiresAt-Date.now())+250);document.addEventListener('visibilitychange',()=>{if(!document.hidden)close()});})();</script>`;

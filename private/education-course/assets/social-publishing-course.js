@@ -9,7 +9,7 @@
     document.addEventListener('keydown',event=>{
       if(skipNavigation(event))return;
       if(nextKeys.has(event.key)){event.preventDefault();location.href=courses[0].href;return}
-      if(previousKeys.has(event.key)){event.preventDefault();location.href='chapter-07b-ad-form.html#/999';return}
+      if(previousKeys.has(event.key)){event.preventDefault();location.href='chapter-08f-blog-write.html#/999';return}
       const number=Number(event.key);
       if(number>=1&&number<=courses.length){event.preventDefault();location.href=courses[number-1].href}
     });

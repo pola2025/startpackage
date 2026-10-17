@@ -70,7 +70,7 @@
   z-index:120;
 }
 .chapter-jump-wrap.open .chapter-jump-menu{opacity:1;visibility:visible;transform:none}
-.chapter-jump-legend{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:7px;padding-bottom:2px}.chapter-jump-legend span{display:inline-flex;align-items:center;min-height:28px;padding:0 9px;border-radius:999px;background:rgba(255,255,255,.08);font-size:11px;font-weight:900}.chapter-jump-legend span:before{content:"";width:8px;height:8px;margin-right:6px;border-radius:50%;background:#5ca6ff}.chapter-jump-legend .content:before{background:#ff6ac1}.chapter-jump-legend .support:before{background:#ffb22e}
+.chapter-jump-legend{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:7px;padding-bottom:2px}.chapter-jump-legend span{display:inline-flex;align-items:center;min-height:28px;padding:0 9px;border-radius:999px;background:rgba(255,255,255,.08);font-size:11px;font-weight:900}.chapter-jump-legend span:before{content:"";width:8px;height:8px;margin-right:6px;border-radius:50%;background:#5ca6ff}.chapter-jump-legend .content:before{background:#ff6ac1}.chapter-jump-legend .support:before{background:#ffb22e}.chapter-jump-legend .ai:before{background:#a78bfa}
 .chapter-jump-link{
   min-height:68px;
   border:1px solid rgba(255,255,255,.18);
@@ -86,7 +86,7 @@
   text-align:left;
   transition:background .18s ease,border-color .18s ease,transform .18s ease;
 }
-.chapter-jump-link.track-main{border-top:3px solid #5ca6ff}.chapter-jump-link.track-content{border-top:3px solid #ff6ac1}.chapter-jump-link.track-support{border-top:3px solid #ffb22e}
+.chapter-jump-link.track-main{border-top:3px solid #5ca6ff}.chapter-jump-link.track-content{border-top:3px solid #ff6ac1}.chapter-jump-link.track-support{border-top:3px solid #ffb22e}.chapter-jump-link.track-ai{border-top:3px solid #a78bfa}
 .chapter-jump-link:hover,.chapter-jump-link:focus-visible{background:rgba(255,255,255,.15);border-color:#9ec5ff;transform:translateY(-1px);outline:0}
 .chapter-jump-link.current{background:#fff;color:#0866ff;border-color:#fff}
 .chapter-jump-link b{font-size:24px;letter-spacing:-.04em}

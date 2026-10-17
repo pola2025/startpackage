@@ -11,12 +11,18 @@
     ['06','Meta 광고운영 주의사항','chapter-06-advertiser-safety.html#/1','main'],
     ['07A','광고 설정 · 캠페인','chapter-07-ad-settings.html#/1','main'],
     ['07B','광고 설정 · 양식','chapter-07b-ad-form.html#/1','main'],
-    ['08','콘텐츠 게시 실습','social-content-training.html','content'],
-    ['09','스타트패키지','chapter-09-startpackage.html#/1','support'],
-    ['10','Meta 마케팅 지원','chapter-10-marketing-support.html#/1','support'],
-    ['11','관련정보 제출안내','chapter-11-submission-guide.html#/1','support'],
-    ['12','진행 규칙과 비용','chapter-12-rules-costs.html#/1','support'],
-    ['13','알림 연결 준비','chapter-13-alert-setup.html#/1','support']
+    ['08A','AI 설정 · VS Code','chapter-08-ai-vscode.html#/1','ai'],
+    ['08B','AI 설정 · Codex','chapter-08b-ai-codex.html#/1','ai'],
+    ['08C','AI 설정 · 세션과 한도','chapter-08c-ai-session.html#/1','ai'],
+    ['08D','AI 설정 · 에이전트 키트','chapter-08d-ai-kit.html#/1','ai'],
+    ['08E','블로그 기본 설정','chapter-08e-blog-setup.html#/1','ai'],
+    ['08F','블로그 글 만들기','chapter-08f-blog-write.html#/1','ai'],
+    ['09','콘텐츠 게시 실습','social-content-training.html','content'],
+    ['10','스타트패키지','chapter-09-startpackage.html#/1','support'],
+    ['11','Meta 마케팅 지원','chapter-10-marketing-support.html#/1','support'],
+    ['12','관련정보 제출안내','chapter-11-submission-guide.html#/1','support'],
+    ['13','진행 규칙과 비용','chapter-12-rules-costs.html#/1','support'],
+    ['14','알림 연결 준비','chapter-13-alert-setup.html#/1','support']
   ];
   const currentFile=location.pathname.split('/').pop().toLowerCase();
   const progressKey='polarad-course-progress';
@@ -61,7 +67,7 @@
   menu.setAttribute('aria-label','챕터 바로 이동');
   const legend=document.createElement('div');
   legend.className='chapter-jump-legend';
-  legend.innerHTML='<span class="main">01–07 Meta 본교육</span><span class="content">08 콘텐츠 별도교육</span><span class="support">09–13 스타트패키지 업무지원</span>';
+  legend.innerHTML='<span class="main">01–07 Meta 본교육</span><span class="ai">08 AI 자동화 설정</span><span class="content">09 콘텐츠 별도교육</span><span class="support">10–14 스타트패키지 업무지원</span>';
   menu.append(legend);
   chapters.forEach(([number,title,path,track])=>{
     const link=document.createElement('a');
@@ -98,6 +104,12 @@
     {keywords:['지역 타겟팅','지역 타게팅','위치 타겟','지역 설정','대한민국','반경'],title:'지역 타겟팅 설정',answer:'타겟의 관리 옵션 표시를 누르고 위치를 엽니다. 전국 광고는 대한민국을 유지하고 지역 광고는 영업지역을 검색해 정확한 도시·구와 반경을 확인합니다.',href:'chapter-07-ad-settings.html#/17'},
     {keywords:['예산','일일 예산','20달러','$20','28,000원','28000','입찰'],title:'광고 예산 기본값',answer:'캠페인 일일 예산은 원화 계정 28,000원, 달러 계정 $20로 설정하고 입찰 전략은 최고 볼륨을 유지합니다. 시작일과 종료일은 기본값을 사용합니다.',href:'chapter-07-ad-settings.html#/9'},
     {keywords:['입력양식','인스턴트 양식','양식 만들기','회사명','전화번호'],title:'인스턴트 양식 만들기',answer:'양식 만들기를 선택하고 회사명, 업종, 이름, 전화번호를 받습니다. 소개 설명과 개인정보처리방침 주소도 입력해야 합니다.',href:'chapter-07b-ad-form.html#/6'},
+    {keywords:['vs code','vscode','비주얼 스튜디오','bas_mkt','작업 폴더','add folder','워크스페이스'],title:'VS Code 설치와 작업 폴더 연결',answer:'VS Code를 설치하고 C 드라이브에 bas_mkt 폴더를 만든 뒤 ☰ 메뉴의 File › Add Folder to Workspace로 연결합니다. 폴더 신뢰 질문에는 Yes를 누릅니다.',href:'chapter-08-ai-vscode.html#/19'},
+    {keywords:['codex','코덱스','codex 설치','chatgpt 로그인','모델 설정','full access','권한 설정'],title:'Codex 설치와 첫 설정',answer:'VS Code 터미널에 설치 명령을 붙여넣고 codex를 실행해 ChatGPT로 로그인합니다. /model에서 GPT-6.1-Sol과 Extra high를, /permissions에서 Full Access를 선택합니다. 권한은 세션마다 다시 선택해야 합니다.',href:'chapter-08b-ai-codex.html#/2'},
+    {keywords:['세션','컨텍스트','핸드오프','clear','사용 한도','남은 한도','status'],title:'세션과 사용 한도',answer:'컨텍스트가 차면 핸드오프 정리를 요청하고 /clear로 비운 뒤 정리한 파일로 이어서 진행합니다. 남은 사용 한도는 /status로 확인합니다.',href:'chapter-08c-ai-session.html#/2'},
+    {keywords:['에이전트 키트','키트','agents.md','관리자 승인','chatgpt 앱','컴퓨터 사용','크롬 확장','네이버 첫 로그인'],title:'에이전트 키트 연결',answer:'교육자료에서 키트를 내려받아 Codex에게 전달합니다. 설치 중 관리자 승인 창에는 예를 누르고, ChatGPT 앱의 설정 › 컴퓨터 사용과 브라우저를 켠 뒤 Codex가 연 창에서 네이버에 직접 로그인합니다.',href:'chapter-08d-ai-kit.html#/2'},
+    {keywords:['블로그 기본 설정','블로그 아이디','블로그 주소','상단 배경','스킨배경','모바일 배경','커버 이미지','프로필 이미지','블로그씨','레이아웃','위젯','리모콘'],title:'네이버 블로그 기본 설정',answer:'블로그 아이디(주소)를 만들고 블로그 정보에서 프로필 이미지·소개글·모바일 배경을 등록합니다. 블로그씨 질문 배달을 끄고 레이아웃을 2단·넓게·중앙으로 맞춘 뒤, 세부 디자인 설정의 스킨배경에 3000×500 상단 배경을 올립니다.',href:'chapter-08e-blog-setup.html#/2'},
+    {keywords:['블로그 글','블로그 글 만들기','기업마당','지원사업 공고','정책자금 글','사실 카드','facts.html','검수 화면','review.html','CTA','회사 정보','발행'],title:'기업마당 공고로 블로그 글 만들기',answer:'회사 정보를 한 번 등록한 뒤 기업마당 지원사업 공고 주소를 Codex에게 보냅니다. 후보 표에서 공고 번호를 고르고, 사실 카드가 공고 원문과 같으면 확인이라고 답합니다. 검수 화면을 체크리스트로 확인한 뒤 발행이라고 답하면 Codex가 올립니다.',href:'chapter-08f-blog-write.html#/2'},
     {keywords:['콘텐츠','게시물','릴스','reels','쓰레드','threads','게시 실습'],title:'소셜 콘텐츠 게시 실습',answer:'Instagram 게시물, Reels, Threads의 실제 모바일 게시 과정을 콘텐츠 교육에서 확인합니다.',href:'social-content-training.html'},
     {keywords:['스타트패키지','로고','추상 로고','캘리그라피','인쇄물','명함','명찰','대봉투','계약서','홈페이지 스타일'],title:'스타트패키지 제작 범위',answer:'단순 엠블럼과 레퍼런스가 있는 로고를 기준으로 진행하며 홈페이지 10종과 인쇄물 예시를 확인할 수 있습니다.',href:'chapter-09-startpackage.html#/2'},
     {keywords:['추가 인쇄','재인쇄','인쇄 비용','명함 비용','대봉투 비용','계약서 비용'],title:'추가 인쇄비',answer:'명함은 추가 22,000원, 대봉투는 220,000원, 자문계약서는 330,000원이며 모두 VAT 포함 기준입니다.',href:'chapter-12-rules-costs.html#/14'},

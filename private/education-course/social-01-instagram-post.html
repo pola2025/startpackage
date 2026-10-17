@@ -9,7 +9,7 @@
 </head>
 <body data-chapter="01">
 <main class="deck">
-  <header class="top"><div class="brand"><b>비즈액터스쿨</b><span>온라인마케팅 교육</span></div><div class="chapter">폴라애드 · 08-1 Instagram 게시물</div></header>
+  <header class="top"><div class="brand"><b>비즈액터스쿨</b><span>온라인마케팅 교육</span></div><div class="chapter">폴라애드 · 09-1 Instagram 게시물</div></header>
   <div class="stage" id="stage"></div>
   <footer class="bottom"><button id="prev">이전</button><button id="next" class="primary">다음</button><button id="replay">다시 보기</button><button id="full">전체 화면</button><div class="counter"><b id="current">1</b> / <span id="total">1</span></div><div class="progress" id="progress"></div></footer>
 </main>
@@ -33,7 +33,7 @@ const shareScreen=go=>phone(`<div class="app-head"><span class="back">‹</span>
 const gridPreview=()=>phone(`<div class="profile"><div class="profile-main"><span class="avatar"></span><div><b>polarad_official</b><div style="font-size:11px;color:#687282;margin-top:4px">폴라애드</div></div><div class="profile-stats"><div><b>15</b><small>게시물</small></div><div><b>328</b><small>팔로워</small></div></div></div><div class="profile-buttons"><span>프로필 편집</span><span>프로필 공유</span></div></div><div class="profile-tabs"><b>▦</b><span>▣</span></div><div class="profile-grid">${[1,2,3,4,5,1,2,3,4].map(n=>`<img src="${A}polarad-post-0${n}.png" alt="">`).join('')}</div><div class="bottom-tabs"><span class="tab-icon">⌂</span><span class="tab-icon">⌕</span><span class="tab-icon">＋</span><span class="tab-icon">▣</span><span class="tab-icon avatar"></span></div>`);
 const safePreview=()=>phone(`<div class="app-head"><span class="back">‹</span>미리보기</div><div class="safe-preview"><div class="safe-image"><img src="${A}polarad-post-01.png" alt="폴라애드 콘텐츠"><div class="safe-frame"></div></div></div>`);
 const scenes=[
-  {cover:1,ey:'CONTENT COURSE · 08-1',title:'Instagram<br><em>게시물 올리기</em>',desc:'폴라애드 콘텐츠를 실제 Instagram 화면 흐름에 맞춰 게시합니다.'},
+  {cover:1,ey:'CONTENT COURSE · 09-1',title:'Instagram<br><em>게시물 올리기</em>',desc:'폴라애드 콘텐츠를 실제 Instagram 화면 흐름에 맞춰 게시합니다.'},
   {concept:1,ey:'CURRENT SIZE · 2026.09',title:'현재 그리드는<br><em>3:4 세로형</em>',desc:'폴라애드 원본도 1080 × 1440으로 제작되어 현재 프로필 그리드에 자연스럽게 맞습니다.'},
   {ey:'BEFORE UPLOAD',title:'핵심 문구는<br><em>가운데 안전 영역</em>',desc:'화면마다 잘리는 범위가 달라질 수 있으므로 중요한 글자와 얼굴은 가장자리에 붙이지 않습니다.',say:'3:4 · 1080 × 1440',screen:safePreview},
   {ey:'STEP 01',title:'하단 가운데<br><em>＋ 버튼</em>',desc:'Instagram 홈 화면 아래쪽 가운데에서 게시물 만들기를 시작합니다.',say:'스마트폰 Instagram 앱',screen:()=>home(4)},
