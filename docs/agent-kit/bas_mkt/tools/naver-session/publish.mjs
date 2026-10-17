@@ -1,11 +1,13 @@
 // Naver blog publisher. Uses the profile saved by bootstrap.mjs; it never types an ID or password.
-// Editor steps follow the verified SmartEditor ONE publisher (selectors calibrated 2026-07).
+// Editor steps follow our production SmartEditor ONE engine (naver_blog_sectioned_draft.js, 2026-09-15).
 //   node publish.mjs <계정> <글폴더> --check                  format check + preview.html only, no browser
-//   node publish.mjs <계정> <글폴더>                          type the post, then schedule it 3 hours later (default)
+//   node publish.mjs <계정> <글폴더>                          type the post, then schedule it about 3 hours later (default)
 //   node publish.mjs <계정> <글폴더> --at "YYYY-MM-DD HH:MM"  schedule at that KST time (rounded up to 10 minutes)
 //   node publish.mjs <계정> <글폴더> --now                    publish right away (only when the person asks for it)
+//   node publish.mjs <계정> <글폴더> --repost                 skip only the local ledger block, after the person deleted the reservation
 // Title and body are typed one character at a time. Never paste into the Naver editor
-// (no clipboard, no insertText, no DOM writes): pasted text can be flagged as automated.
+// (no clipboard, no DOM writes): pasted text can be flagged as automated.
+// Nothing is published unless the editor shows the title, every paragraph and every image first.
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
@@ -14,20 +16,27 @@ import { accountArg, openProfile, nidAuth, readMeta, writeMeta, PRIVATE } from "
 const LINE_MAX = 20; // Hangul width units per line (mobile column ~19 chars)
 const PARAGRAPH_MAX_LINES = 4; // longer runs read as a wall of text
 const TAG_MAX = 10;
+const DEFAULT_DELAY_HOURS = 3;
+const GAP_HOURS = 3; // minimum distance between this account's reservations
+const RESERVE_LIMIT = 95; // Naver silently drops reservations past 100 (2026-07-21: 32 posts lost)
+const FORBIDDEN = ["## ", "**", "|---"]; // markdown left in a manuscript shows up as raw symbols
+const BARE_DOMAIN = /^(?:[a-z0-9-]+\.)+[a-z]{2,}(?:\/[^\s]*)?$/i; // a domain-only line turns into a link card
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const rnd = (a, b) => a + Math.floor(Math.random() * (b - a));
 const width = (s) => [...s].reduce((w, ch) => w + (ch.charCodeAt(0) <= 0xff ? 0.5 : 1), 0);
+const ZWSP = String.fromCharCode(0x200b); // SmartEditor leaves zero-width spaces in empty paragraphs
+const squash = (s) => String(s || "").split(ZWSP).join("").replace(/\s+/g, " ").trim();
 
 const acct = accountArg(process.argv);
 const postDir = process.argv[3] ? path.resolve(process.argv[3]) : "";
 const checkOnly = process.argv.includes("--check");
 const nowMode = process.argv.includes("--now");
+const repost = process.argv.includes("--repost"); // Naver-side duplicate checks (reservation list, RSS) still apply
 const atIndex = process.argv.indexOf("--at");
 const atArg = atIndex > 0 ? process.argv[atIndex + 1] || "" : "";
-const DEFAULT_DELAY_HOURS = 3;
 if (!postDir || !fs.existsSync(path.join(postDir, "post.json"))) {
-  console.error('사용법: node publish.mjs <계정> <글폴더> [--check | --at "YYYY-MM-DD HH:MM" | --now]  (글폴더 안에 post.json이 있어야 합니다)');
+  console.error('사용법: node publish.mjs <계정> <글폴더> [--check | --at "YYYY-MM-DD HH:MM" | --now] [--repost]  (글폴더 안에 post.json이 있어야 합니다)');
   process.exit(64);
 }
 const slug = path.basename(postDir);
@@ -51,6 +60,7 @@ function validate(post) {
   const errors = [];
   if (typeof post.title !== "string" || !post.title.trim()) errors.push("title이 비어 있습니다.");
   else if (post.title.length > 100) errors.push("title은 100자 이하여야 합니다.");
+  else if (FORBIDDEN.some((m) => post.title.includes(m))) errors.push("title에 마크다운 기호(##, **, |---)가 있습니다.");
   if (!Array.isArray(post.blocks) || !post.blocks.length) errors.push("blocks가 비어 있습니다.");
   (post.blocks || []).forEach((blk, i) => {
     const at = `blocks[${i}]`;
@@ -58,12 +68,15 @@ function validate(post) {
     if (blk.text) {
       if (blk.link) errors.push(`${at}: link는 image 블록에만 넣습니다.`);
       if (/https?:\/\//i.test(blk.text)) errors.push(`${at}: 본문에 주소를 넣지 않습니다. 링크는 image 블록의 link로 겁니다.`);
+      const marks = FORBIDDEN.filter((m) => blk.text.includes(m));
+      if (marks.length) errors.push(`${at}: 마크다운 기호(${marks.join(", ").trim()})가 그대로 보입니다. 지웁니다.`);
       let run = 0, blanks = 0;
       blk.text.replace(/\r/g, "").trim().split("\n").forEach((line, n) => {
         if (!line.trim()) { blanks++; run = 0; if (blanks > 1) errors.push(`${at} ${n + 1}줄: 빈 줄은 한 줄만 둡니다.`); return; }
         blanks = 0; run++;
         if (width(line) > LINE_MAX) errors.push(`${at} ${n + 1}줄: 한 줄이 깁니다(한글 ${LINE_MAX}자 이하). "${line.slice(0, 24)}…"`);
         if (run === PARAGRAPH_MAX_LINES + 1) errors.push(`${at} ${n + 1}줄: 빈 줄 없이 ${PARAGRAPH_MAX_LINES}줄을 넘었습니다. 문단을 나눕니다.`);
+        if (BARE_DOMAIN.test(line.trim())) errors.push(`${at} ${n + 1}줄: 주소만 있는 줄은 링크 카드로 바뀝니다. 문장 안에 넣거나 지웁니다. "${line.trim()}"`);
       });
     }
     if (blk.image) {
@@ -74,6 +87,7 @@ function validate(post) {
       if (!size) errors.push(`${at}: 이미지 크기를 읽지 못했습니다(${blk.image}).`);
       else if (size.h > size.w * 1.05) errors.push(`${at}: 세로 이미지입니다(${size.w}x${size.h}). 가로 이미지만 올립니다.`);
       if (blk.link && !/^https:\/\/\S+$/.test(blk.link)) errors.push(`${at}: link는 https:// 주소여야 합니다.`);
+      if (post.blocks[i + 1]?.image) errors.push(`${at}: 이미지 바로 뒤에 이미지가 있습니다. 사이에 문단을 넣습니다.`);
     }
   });
   const tags = post.tags || [];
@@ -109,8 +123,8 @@ const hash = crypto.createHash("sha256").update(JSON.stringify({ title: post.tit
 const ledger = path.join(PRIVATE, "logs", `naver-published-${acct}.jsonl`);
 const published = fs.existsSync(ledger) ? fs.readFileSync(ledger, "utf8").trim().split("\n").filter(Boolean).map((l) => JSON.parse(l)) : [];
 const already = published.find((p) => p.hash === hash || p.slug === slug);
-if (already) {
-  console.error(`[${slug}] 이미 발행한 글입니다(${already.at} · ${already.url || "주소 미확인"}). 다시 발행하지 않습니다.`);
+if (already && !repost) {
+  console.error(`[${slug}] 이미 발행·예약한 글입니다(${already.at} · ${already.scheduledAt ? `${already.scheduledAt} 예약` : already.url || "주소 미확인"}). 다시 올리지 않습니다.`);
   process.exit(8);
 }
 if (checkOnly) {
@@ -118,32 +132,43 @@ if (checkOnly) {
   process.exit(0);
 }
 
-// Reservation time in KST, rounded up to the editor's 10-minute steps.
+// Reservation time in KST, rounded up to the editor's 10-minute steps, kept GAP_HOURS away
+// from this account's other reservations so posts never pile up on one slot.
 const KST = 9 * 3600e3;
+const ceil10 = (t) => Math.ceil(t / 600e3) * 600e3;
+const pad = (n) => String(n).padStart(2, "0");
+const kstLabel = (t) => { const k = new Date(t + KST); return `${k.getUTCFullYear()}-${pad(k.getUTCMonth() + 1)}-${pad(k.getUTCDate())} ${pad(k.getUTCHours())}:${pad(k.getUTCMinutes())}`; };
+const fromLabel = (s) => Date.UTC(+s.slice(0, 4), +s.slice(5, 7) - 1, +s.slice(8, 10), +s.slice(11, 13), +s.slice(14, 16)) - KST;
+const taken = [...new Set(published.map((p) => p.scheduledAt).filter(Boolean))].map(fromLabel);
+const clash = (t) => taken.find((x) => Math.abs(x - t) < GAP_HOURS * 3600e3);
+function daytime(t) {
+  const k = new Date(t + KST);
+  const h = k.getUTCHours();
+  if (h < 23 && h >= 7) return t;
+  // Late-night slots move to the next morning, 08:00~08:50.
+  if (h >= 23) k.setUTCDate(k.getUTCDate() + 1);
+  k.setUTCHours(8, rnd(0, 6) * 10, 0, 0);
+  return k.getTime() - KST;
+}
 function scheduleTime() {
-  let t;
+  const slot = (t) => { const k = new Date(t + KST); return { y: k.getUTCFullYear(), mo: k.getUTCMonth() + 1, d: k.getUTCDate(), h: k.getUTCHours(), mi: k.getUTCMinutes(), label: kstLabel(t) }; };
   if (atArg) {
     const m = atArg.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})$/);
     if (!m) return { error: `--at 형식은 "YYYY-MM-DD HH:MM"입니다(현재 "${atArg}").` };
-    t = Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]) - KST;
-  } else {
-    t = Math.ceil((Date.now() + DEFAULT_DELAY_HOURS * 3600e3) / 600e3) * 600e3;
-    const k = new Date(t + KST);
-    const h = k.getUTCHours();
-    if (h >= 23 || h < 7) {
-      // Late-night slots move to 08:00 the next morning.
-      if (h >= 23) k.setUTCDate(k.getUTCDate() + 1);
-      k.setUTCHours(8, 0, 0, 0);
-      t = k.getTime() - KST;
-    }
+    const t = ceil10(Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]) - KST);
+    // Typing the post takes about 10 minutes, so the slot must stay in the future after that.
+    if (t < Date.now() + 30 * 60e3) return { error: "예약 시각은 지금부터 30분 이후여야 합니다." };
+    const c = clash(t);
+    if (c) return { error: `같은 계정의 다른 예약(${kstLabel(c)})과 ${GAP_HOURS}시간 이상 떨어뜨려야 합니다.` };
+    return slot(t);
   }
-  t = Math.ceil(t / 600e3) * 600e3;
-  // Typing the post takes about 10 minutes, so the slot must stay in the future after that.
-  if (t < Date.now() + 30 * 60e3) return { error: "예약 시각은 지금부터 30분 이후여야 합니다." };
-  const k = new Date(t + KST);
-  const p = (n) => String(n).padStart(2, "0");
-  const v = { y: k.getUTCFullYear(), mo: k.getUTCMonth() + 1, d: k.getUTCDate(), h: k.getUTCHours(), mi: k.getUTCMinutes() };
-  return { ...v, label: `${v.y}-${p(v.mo)}-${p(v.d)} ${p(v.h)}:${p(v.mi)}` };
+  let t = daytime(ceil10(Date.now() + DEFAULT_DELAY_HOURS * 3600e3));
+  for (let i = 0; i < 30; i++) {
+    const c = clash(t);
+    if (!c) return slot(t);
+    t = daytime(ceil10(c + GAP_HOURS * 3600e3));
+  }
+  return { error: "비어 있는 예약 시각을 찾지 못했습니다. --at으로 시각을 정합니다." };
 }
 const sched = nowMode ? null : scheduleTime();
 if (sched?.error) {
@@ -151,18 +176,40 @@ if (sched?.error) {
   process.exit(64);
 }
 
+const decode = (s) => String(s).replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+const readTitle = (t) => {
+  let v = String(t || "");
+  try { v = decodeURIComponent(v.replace(/\+/g, " ")); } catch {}
+  return squash(decode(v));
+};
+const logFile = path.join(PRIVATE, "logs", `publish-${slug}.log`);
+const log = (m) => {
+  fs.mkdirSync(path.dirname(logFile), { recursive: true });
+  fs.appendFileSync(logFile, `${new Date().toISOString()} ${m}\n`);
+};
 const record = (entry) => {
   fs.mkdirSync(path.dirname(ledger), { recursive: true });
   fs.appendFileSync(ledger, JSON.stringify({ at: new Date().toISOString(), slug, hash, title: post.title, ...entry }) + "\n");
 };
+const shot = async (page, name) => page?.screenshot({ path: path.join(PRIVATE, "logs", `publish-${slug}-${name}.png`) }).catch(() => {});
 const stop = async (ctx, page, code, message) => {
   console.error(`[${slug}] ${message}`);
+  log(`STOP ${code} ${message}`);
   fs.mkdirSync(path.join(PRIVATE, "logs"), { recursive: true });
-  if (page) await page.screenshot({ path: path.join(PRIVATE, "logs", `publish-${slug}-stop.png`) }).catch(() => {});
+  await shot(page, "stop");
   await ctx.close().catch(() => {});
   process.exit(code);
 };
 
+// A post with the same title already public on the blog is never posted again.
+const knownBlog = readMeta(acct).blogId;
+const rss = knownBlog ? await fetch(`https://rss.blog.naver.com/${knownBlog}.xml`, { headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" } }).catch(() => null) : null;
+if (rss?.ok && (await rss.text()).split("<title>").some((t) => readTitle(t.split("</title>")[0].replace(/^<!\[CDATA\[|\]\]>$/g, "")) === squash(post.title))) {
+  console.error(`[${slug}] 블로그에 같은 제목의 글이 이미 공개되어 있습니다. 다시 올리지 않습니다.`);
+  process.exit(8);
+}
+
+log(`START ${sched ? `예약 ${sched.label}` : "바로 발행"} · ${post.title}`);
 let ctx;
 try {
   ctx = await openProfile(acct, { headless: false });
@@ -175,6 +222,14 @@ if (!auth) await stop(ctx, null, 2, "세션 없음 · 다시 로그인하지 않
 if (!auth.persistent) await stop(ctx, null, 3, "세션 쿠키 상태라 발행하지 않습니다. 내일 사람이 bootstrap.mjs로 다시 로그인합니다.");
 
 const page = ctx.pages()[0] || (await ctx.newPage());
+page.setDefaultTimeout(25000);
+// Browser confirm boxes: accept only publish confirmations, dismiss everything else (production rule).
+page.on("dialog", async (d) => {
+  log(`DIALOG ${d.type()} ${d.message().slice(0, 120)}`);
+  try { if (/발행|등록|공개|게시/.test(d.message())) await d.accept(); else await d.dismiss(); } catch {}
+});
+// locator.isVisible() ignores its timeout and answers at once, so every wait goes through waitFor.
+const visible = (loc, timeout = 1500) => loc.waitFor({ state: "visible", timeout }).then(() => true, () => false);
 const challenge = async () => /자동입력 방지|보안문자|보호조치|captcha|2단계 인증|새로운 기기/i
   .test(await page.evaluate(() => document.body?.innerText.slice(0, 800) || "").catch(() => ""));
 
@@ -189,35 +244,87 @@ if (!blogId) {
   if (!blogId) await stop(ctx, page, 11, `블로그 아이디를 확인하지 못했습니다(${page.url()}).`);
   writeMeta(acct, { ...meta, blogId });
 }
+const blogUrl = `https://blog.naver.com/${blogId}`;
 
-await page.goto(`https://blog.naver.com/${blogId}?Redirect=Write&`, { waitUntil: "domcontentloaded", timeout: 45000 }).catch(() => {});
+// Reservation list (same-origin fetch on blog.naver.com). postDate is epoch ms.
+async function reservations() {
+  const j = await page.evaluate(async (id) => {
+    const r = await fetch(`/PrePostList.naver?blogId=${encodeURIComponent(id)}&editorVersion=4&onlyCount=false`, { credentials: "include" });
+    return JSON.parse(await r.text());
+  }, blogId).catch(() => null);
+  if (!j) return null;
+  const list = j.result?.prePostList || j.prePostList || [];
+  return { total: Number(j.result?.totalCount ?? j.totalCount ?? list.length), rows: list.map((p) => ({ title: readTitle(p.title), at: p.postDate ? kstLabel(Number(p.postDate)) : "", logNo: p.logNo })) };
+}
+
+await page.goto(`${blogUrl}?Redirect=Write&`, { waitUntil: "domcontentloaded", timeout: 45000 }).catch(() => {});
 await sleep(rnd(2500, 3500));
 if (/nidlogin/.test(page.url())) await stop(ctx, page, 2, "로그인 화면으로 넘어갔습니다. 세션이 끝났습니다. 다시 로그인하지 않습니다.");
 if (await challenge()) await stop(ctx, page, 12, "보안문자 또는 보호조치 화면이 나왔습니다. 오늘은 자동화를 멈춥니다.");
 
-const frame = page.frameLocator("iframe#mainFrame");
-const clickExact = async (names, timeout = 1200) => {
-  for (const name of names) {
-    const b = frame.getByRole("button", { name, exact: true }).first();
-    if (await b.isVisible({ timeout }).catch(() => false)) { await b.click({ delay: 60 }); await sleep(900); return name; }
-  }
-  return "";
-};
-// "작성 중인 글" → 취소(new post). Exact names only: has-text('취소') once hit the 취소선 toolbar button.
-for (let pass = 0; pass < 3 && (await clickExact(["새로 작성", "새 글 작성", "취소", "닫기", "나중에"])); pass++);
+const before = await reservations();
+log(`RESERVATIONS ${before ? before.total : "unknown"}`);
+if (before?.rows.some((r) => r.title === squash(post.title))) await stop(ctx, page, 8, "같은 제목의 글이 이미 예약되어 있습니다. 다시 올리지 않습니다.");
+if (sched && before && before.total >= RESERVE_LIMIT) await stop(ctx, page, 15, `예약 대기 글이 ${before.total}건입니다. 100건을 넘으면 네이버가 알림 없이 예약을 버리므로 새로 예약하지 않습니다.`);
 
+const frame = page.frameLocator("iframe#mainFrame");
+const editor = () => page.frames().find((f) => /PostWriteForm|SmartEditor|blog\.editor/i.test(f.url())) || page.frame({ name: "mainFrame" });
 const title = frame.locator(".se-section-documentTitle .se-text-paragraph, span.se-placeholder, .se_title").first();
-if (!(await title.isVisible({ timeout: 20000 }).catch(() => false))) await stop(ctx, page, 11, "글쓰기 화면의 제목 칸을 찾지 못했습니다. 네이버 편집기 화면이 바뀌었을 수 있습니다.");
-await title.click({ delay: 80 });
-await typeChars(post.title, 70, 150);
-await page.keyboard.press("Enter");
-await sleep(rnd(600, 1000));
-await frame.locator(".se-component-content .se-text-paragraph, .se-module-text").first().click({ delay: 80, timeout: 15000 }).catch(() => {});
-// Formatting toggles left on (취소선·굵게 등) would apply to the whole post.
-for (const name of ["취소선", "굵게", "기울임꼴", "기울임", "밑줄"]) {
-  const b = frame.getByRole("button", { name, exact: true }).first();
-  if ((await b.getAttribute("aria-pressed", { timeout: 800 }).catch(() => null)) === "true") await b.click({ delay: 50 }).catch(() => {});
+if (!(await visible(title, 45000))) await stop(ctx, page, 11, "글쓰기 화면의 제목 칸을 찾지 못했습니다. 네이버 편집기 화면이 바뀌었을 수 있습니다.");
+
+// "작성 중인 글" → 취소 (start a new post); help/guide layers → 닫기. Popups can appear late, so watch a few seconds.
+async function closePopups(waitMs) {
+  const end = Date.now() + waitMs;
+  let closed = 0;
+  while (Date.now() < end) {
+    let hit = false;
+    for (const f of page.frames()) {
+      const text = await f.evaluate(() => document.body?.innerText || "").catch(() => "");
+      const labels = /작성 중인 글|이어서 작성/.test(text) ? ["취소", "닫기"] : /도움말|가이드|불러오기|복원/.test(text) ? ["닫기", "취소", "나중에"] : null;
+      if (!labels) continue;
+      for (const name of labels) {
+        const b = f.getByRole("button", { name, exact: true }).first();
+        if (!(await b.isVisible().catch(() => false))) continue;
+        await b.click({ delay: 60 }).catch(() => {});
+        log(`POPUP ${name}`);
+        hit = true; closed++;
+        await sleep(1000);
+        break;
+      }
+    }
+    if (closed && !hit) break;
+    await sleep(hit ? 300 : 700);
+  }
 }
+await closePopups(6000);
+
+// Editor state read from the SmartEditor DOM (same selectors as the production engine).
+async function editorState() {
+  const f = editor();
+  if (!f) return null;
+  return f.evaluate(() => {
+    const zw = String.fromCharCode(0x200b);
+    // Placeholder hints ("제목", "본문에 #을 …") are not content.
+    const plain = (el) => {
+      if (!el) return "";
+      const c = el.cloneNode(true);
+      c.querySelectorAll(".se-placeholder, .__se_placeholder").forEach((n) => n.remove());
+      return (c.textContent || "").split(zw).join("").trim();
+    };
+    let txt = 0;
+    document.querySelectorAll(".se-component:not(.se-documentTitle) .se-component-content .se-text-paragraph").forEach((p) => { txt += plain(p).length; });
+    return {
+      title: plain(document.querySelector(".se-section-documentTitle, .se-documentTitle")),
+      text: (document.querySelector(".se-main-container") || document.body).innerText || "",
+      txt,
+      images: document.querySelectorAll(".se-module-image").length,
+      uploaded: [...document.querySelectorAll(".se-module-image img")].filter((i) => /se-image-resource/.test(i.className) || /pstatic\.net/.test(i.src)).length,
+    };
+  }).catch(() => null);
+}
+const empty = await editorState();
+if (!empty) await stop(ctx, page, 11, "글쓰기 화면을 읽지 못했습니다. 발행하지 않았습니다.");
+if (empty.images || empty.txt || empty.title) await stop(ctx, page, 11, "편집기에 이전 글 내용이 남아 있습니다. 발행하지 않았습니다. 글쓰기 화면의 임시저장 글을 사람이 정리한 뒤 다시 실행합니다.");
 
 // One character at a time with uneven gaps, the way a person types.
 async function typeChars(text, min = 45, max = 120) {
@@ -238,11 +345,25 @@ async function typeText(text, blankAfter) {
   await sleep(rnd(300, 700));
 }
 
-async function uploadImage(file) {
+// Upload, then wait until the editor really holds one more image (production waited 9.5 s blind).
+async function uploadImage(file, expected) {
+  const started = Date.now();
   const btn = frame.locator("button.se-image-toolbar-button, button.se-toolbar-button-image, button[data-name='image']").first();
-  const [chooser] = await Promise.all([page.waitForEvent("filechooser", { timeout: 15000 }), btn.click({ timeout: 10000 })]);
-  await chooser.setFiles(file);
-  await sleep(rnd(3000, 4200));
+  try {
+    const [chooser] = await Promise.all([page.waitForEvent("filechooser", { timeout: 20000 }), btn.click({ delay: 80, timeout: 10000 })]);
+    await chooser.setFiles(file);
+  } catch {
+    await frame.locator('input[type="file"]').first().setInputFiles(file, { timeout: 10000 });
+  }
+  let s = null;
+  while (Date.now() - started < 30000) {
+    s = await editorState();
+    if (s && s.images >= expected) break;
+    await sleep(500);
+  }
+  if (!s || s.images < expected) return false;
+  await sleep(Math.max(0, 9500 - (Date.now() - started))); // let the upload settle before the next keystroke
+  return true;
 }
 
 // SmartEditor stores image links in its document model only, so verify by reopening the link layer.
@@ -251,7 +372,7 @@ async function linkLastImage(href) {
     await frame.locator(".se-component.se-image, .se-image").last().click({ delay: 60, timeout: 3000 });
     await sleep(600);
     const btn = frame.locator("button.se-link-toolbar-button").first();
-    if (!(await btn.isVisible({ timeout: 2500 }).catch(() => false))) return false;
+    if (!(await visible(btn, 4000))) return false;
     await btn.click({ delay: 50 });
     await sleep(700);
     return true;
@@ -259,7 +380,7 @@ async function linkLastImage(href) {
   try {
     if (!(await open())) return false;
     const input = frame.locator("input.se-custom-layer-link-input").first();
-    await input.click({ delay: 40, timeout: 2500 });
+    await input.click({ delay: 40, timeout: 4000 });
     await typeChars(href, 30, 70);
     await frame.locator("button.se-custom-layer-link-apply-button").first().click({ delay: 50 });
     await sleep(800);
@@ -276,145 +397,254 @@ async function linkLastImage(href) {
   }
 }
 
+// Title, then the first body paragraph (never the title paragraph).
+await title.click({ delay: 80 });
+await typeChars(post.title, 70, 150);
+await sleep(rnd(600, 1000));
+const bodyStart = frame.locator(".se-component:not(.se-documentTitle) .se-text-paragraph").first();
+if (await visible(bodyStart, 5000)) await bodyStart.click({ delay: 80 }).catch(() => {});
+else await page.keyboard.press("Enter");
+// Formatting toggles left on (취소선·굵게 등) would apply to the whole post.
+for (const name of ["취소선", "굵게", "기울임꼴", "기울임", "밑줄"]) {
+  const b = frame.getByRole("button", { name, exact: true }).first();
+  if ((await b.getAttribute("aria-pressed", { timeout: 800 }).catch(() => null)) === "true") await b.click({ delay: 50 }).catch(() => {});
+}
+
 const warnings = [];
+const imageTotal = post.blocks.filter((b) => b.image).length;
+let uploaded = 0;
 try {
   for (let i = 0; i < post.blocks.length; i++) {
     const blk = post.blocks[i];
-    if (blk.text) await typeText(blk.text, Boolean(post.blocks[i + 1]?.text));
-    else {
-      await uploadImage(path.join(postDir, blk.image));
-      if (blk.link && !(await linkLastImage(blk.link))) warnings.push(`이미지 링크 미확인: ${blk.image}`);
+    if (blk.text) {
+      await typeText(blk.text, Boolean(post.blocks[i + 1]?.text));
+      continue;
     }
+    uploaded++;
+    if (!(await uploadImage(path.join(postDir, blk.image), uploaded))) await stop(ctx, page, 11, `이미지가 올라가지 않았습니다(${blk.image}). 발행하지 않았습니다.`);
+    if (blk.link && !(await linkLastImage(blk.link)) && !(await linkLastImage(blk.link))) await stop(ctx, page, 11, `이미지 링크를 넣지 못했습니다(${blk.image}). 발행하지 않았습니다.`);
+    // The uploaded image stays selected, so keystrokes would not reach the body (production fix 2026-08-07).
+    await page.keyboard.press("ArrowDown").catch(() => {});
+    await page.keyboard.press("End").catch(() => {});
+    await page.keyboard.press("Enter").catch(() => {});
+    await sleep(400);
+    log(`IMAGE ${uploaded}/${imageTotal} ${blk.image}`);
   }
 } catch (e) {
   await stop(ctx, page, 11, `본문을 입력하지 못했습니다(${String(e.message).split("\n")[0].slice(0, 120)}). 발행하지 않았습니다.`);
 }
-await clickExact(["확인"], 1500);
 
-// 1st 발행 opens the settings layer; exact "발행" avoids 예약 발행.
+// Nothing is published unless the editor matches the manuscript. Production retypes a missing
+// tail paragraph, but these posts end with the CTA image, so a retype would land after it: stop instead.
+const textBlocks = post.blocks.filter((b) => b.text);
+const firstLine = (b) => squash(b.text.replace(/\r/g, "").split("\n").find((l) => l.trim()) || "");
+await sleep(1200);
+const state = await editorState();
+const problems = [];
+if (!state) problems.push("편집기 내용을 읽지 못함");
+else {
+  if (state.title && squash(state.title) !== squash(post.title)) problems.push(`제목이 다름("${state.title.slice(0, 30)}")`);
+  if (!squash(state.text).includes(squash(post.title)) && !state.title) problems.push("제목이 없음");
+  const missing = textBlocks.filter((b) => !squash(state.text).includes(firstLine(b)));
+  if (missing.length) problems.push(`빠진 문단 ${missing.length}개("${firstLine(missing[0]).slice(0, 20)}…")`);
+  if (state.images < imageTotal) problems.push(`이미지 ${state.images}/${imageTotal}장`);
+  const marks = FORBIDDEN.filter((m) => state.text.includes(m));
+  if (marks.length) problems.push(`마크다운 기호 ${marks.join(" ")}`);
+  log(`EDITOR title=${Boolean(state.title)} images=${state.images}/${imageTotal} uploaded=${state.uploaded} missing=${missing.length}`);
+}
+await shot(page, "typed");
+if (problems.length) await stop(ctx, page, 11, `편집기 내용이 원고와 다릅니다(${problems.join(" · ")}). 발행하지 않았습니다.`);
+
+// 1st 발행 opens the settings layer; exact "발행" avoids 예약 발행 N건.
 try {
   await frame.getByRole("button", { name: "발행", exact: true }).first().click({ timeout: 15000 });
 } catch {
   await stop(ctx, page, 11, "발행 버튼을 찾지 못했습니다. 발행하지 않았습니다.");
 }
-await sleep(rnd(1600, 2400));
-const tagInput = frame.locator("input#tag-input, input[placeholder*='태그']").first();
-if (await tagInput.isVisible({ timeout: 4000 }).catch(() => false)) {
-  for (const t of post.tags || []) {
-    await tagInput.pressSequentially(String(t).replace(/^#/, "").trim(), { delay: rnd(25, 55) });
-    await page.keyboard.press("Enter");
-    await sleep(rnd(150, 350));
+const panelReady = async () => {
+  for (const f of page.frames()) {
+    const t = await f.evaluate(() => document.body?.innerText || "").catch(() => "");
+    if (/발행 설정|공개 설정|태그 편집|발행 시간/.test(t)) return f;
   }
-} else if ((post.tags || []).length) warnings.push("태그 입력칸을 찾지 못해 태그 없이 발행했습니다.");
-
-// Reservation controls, as verified on the 2026-09-11 live run (34 posts). Naver rotates the
-// CSS-module suffixes, so match class prefixes. The final button stays labelled 발행 when 예약 is on.
-async function frameWith(selector) {
-  for (const f of page.frames()) if (await f.locator(selector).count().catch(() => 0)) return f;
   return null;
+};
+let panel = null;
+for (let waited = 0; waited < 15000 && !(panel = await panelReady()); waited += 500) await sleep(500);
+if (!panel) await stop(ctx, page, 11, "발행 설정 창이 열리지 않았습니다. 발행하지 않았습니다.");
+await sleep(rnd(1500, 2500));
+
+// Tags: remove chips Naver pre-fills (예: #첫글), type ours, read them back.
+async function applyTags(want) {
+  for (const f of page.frames()) {
+    const input = f.locator('input#tag-input, input[id*="tag"], .tag_input input, input[placeholder*="태그"]').first();
+    if (!(await visible(input, 1500))) continue;
+    for (let i = 0; i < 12; i++) {
+      const del = f.locator('.tag_area button, [class*="tag"] button[class*="del"], [class*="tag"] .btn_del').first();
+      if (!(await del.isVisible().catch(() => false))) break;
+      await del.click({ timeout: 1500 }).catch(() => {});
+      await sleep(250);
+    }
+    for (const t of want) {
+      await input.click({ delay: 60 }).catch(() => {});
+      await typeChars(t, 40, 90);
+      await sleep(200);
+      await page.keyboard.press("Enter");
+      await sleep(rnd(250, 450));
+    }
+    const after = await f.evaluate(() => [...document.querySelectorAll('[class*="tag"] .ell, [class*="tag"] span, .tag_area a')].map((e) => e.textContent.trim()).filter((t) => t.startsWith("#"))).catch(() => []);
+    return { found: true, ok: want.every((t) => after.some((a) => a.replace(/^#/, "") === t)) };
+  }
+  return { found: false, ok: false };
 }
+const wantTags = (post.tags || []).map((t) => String(t).replace(/^#/, "").trim()).filter(Boolean);
+if (wantTags.length) {
+  const tags = await applyTags(wantTags);
+  if (!tags.found) await stop(ctx, page, 11, "발행 설정 창에서 태그 입력칸을 찾지 못했습니다. 발행하지 않았습니다.");
+  if (!tags.ok) warnings.push("태그를 다시 읽어 확인하지 못했습니다. 발행된 글의 태그를 확인합니다.");
+}
+
+// Reservation controls from the production engine (2026-09-15). Naver rotates CSS-module
+// suffixes, so match class prefixes; wait for the sub-panel instead of a fixed delay.
 async function setReserve(s) {
-  const f = await frameWith("#radio_time2");
+  let f = null;
+  for (const x of page.frames()) if (await x.locator("#radio_time2").count().catch(() => 0)) { f = x; break; }
   if (!f) return { ok: false, reason: "예약 선택 버튼 없음" };
   await f.locator("#radio_time2").click({ force: true }).catch(() => {});
-  await sleep(900);
-  if (!(await f.locator("#radio_time2").isChecked().catch(() => false))) return { ok: false, reason: "예약이 선택되지 않음" };
-  const hourSel = f.locator('select[class*="hour_option__"]');
-  const minSel = f.locator('select[class*="minute_option__"]');
-  if (!(await hourSel.count()) || !(await minSel.count())) return { ok: false, reason: "시·분 선택 칸 없음" };
-  const hh = String(s.h).padStart(2, "0"), mm = String(s.mi).padStart(2, "0");
-  const setTime = async () => {
-    await hourSel.selectOption(hh).catch(() => hourSel.selectOption(String(s.h)).catch(() => {}));
-    await minSel.selectOption(mm).catch(() => minSel.selectOption(String(s.mi)).catch(() => {}));
-    await sleep(500);
+  let ready = false;
+  for (let waited = 0; waited <= 10000 && !ready; waited += 100) {
+    ready = await f.evaluate(() => {
+      const r = document.querySelector("#radio_time2");
+      const h = document.querySelector('select[class^="hour_option__"]');
+      const m = document.querySelector('select[class^="minute_option__"]');
+      const d = document.querySelector('input[class^="input_date__"]');
+      return !!(r?.checked && h?.options.length && m?.options.length && d?.value);
+    }).catch(() => false);
+    if (!ready) await sleep(100);
+  }
+  if (!ready) return { ok: false, reason: "예약 시각 칸이 준비되지 않음" };
+  const hourSel = f.locator('select[class^="hour_option__"]');
+  const minSel = f.locator('select[class^="minute_option__"]');
+  // The minute list only has fixed steps; snap to the nearest one that exists.
+  const minutes = await minSel.evaluate((el) => [...el.options].map((o) => o.value)).catch(() => []);
+  let mm = pad(s.mi);
+  if (minutes.length && !minutes.includes(mm)) {
+    const nums = minutes.map(Number).filter((n) => !Number.isNaN(n));
+    if (nums.length) mm = pad(nums.reduce((a, b) => (Math.abs(b - s.mi) < Math.abs(a - s.mi) ? b : a)));
+  }
+  const setSel = async (sel, want) => {
+    for (let i = 0; i < 3; i++) {
+      await sel.selectOption(want).catch(() => sel.selectOption(String(Number(want))).catch(() => {}));
+      await sleep(200);
+      const got = await sel.inputValue().catch(() => "");
+      if (got !== "" && Number(got) === Number(want)) return true;
+      await sleep(300);
+    }
+    return false;
   };
-  await setTime();
-  const dateInput = f.locator('input[class*="input_date__"]');
-  const want = `${s.y}.${String(s.mo).padStart(2, "0")}.${String(s.d).padStart(2, "0")}`;
+  if (!(await setSel(hourSel, pad(s.h))) || !(await setSel(minSel, mm))) return { ok: false, reason: "시·분을 넣지 못함" };
+  s.mi = Number(mm);
+  s.label = `${s.label.slice(0, 11)}${pad(s.h)}:${mm}`;
+  await sleep(600);
+  const dateInput = f.locator('input[class^="input_date__"]');
+  const want = `${s.y}.${pad(s.mo)}.${pad(s.d)}`;
   const dateOk = async () => String(await dateInput.inputValue().catch(() => "")).replace(/\s+/g, "").includes(want);
   if (!(await dateOk())) {
     await dateInput.click({ force: true }).catch(() => {});
     await sleep(900);
-    const shown = () => f.evaluate(() => {
-      for (const el of document.querySelectorAll("strong,span,em,b,div,th,caption,button,a")) {
-        const t = (el.innerText || "").trim();
-        const m = t.match(/(\d{4})\s*[.\-/년]\s*(\d{1,2})\s*월?/);
-        if (m && t.length <= 24) return +m[1] * 12 + (+m[2] - 1);
-      }
-      return null;
-    }).catch(() => null);
-    const target = s.y * 12 + (s.mo - 1);
-    for (let g = 0; g < 3 && ((await shown()) ?? target) < target; g++) {
-      const before = await shown();
-      for (const sel of ['button[aria-label*="다음"]', 'button[title*="다음"]', '[class*="btn_next" i]', '[class*="next" i]']) {
-        const loc = f.locator(sel).first();
-        if (!(await loc.isVisible().catch(() => false))) continue;
-        await loc.click({ force: true }).catch(() => {});
-        await sleep(450);
-        if ((await shown()) !== before) break;
-      }
+    // Move only with the calendar's own header and arrows; other "다음" buttons exist on the page.
+    const target = s.y * 12 + s.mo;
+    let monthReady = false;
+    for (let g = 0; g < 12; g++) {
+      const m = (await f.locator(".ui-datepicker-title").first().innerText().catch(() => "")).match(/(\d{4})년\s*(\d{1,2})월/);
+      if (!m) break;
+      const cur = Number(m[1]) * 12 + Number(m[2]);
+      if (cur === target) { monthReady = true; break; }
+      const nav = f.locator(cur < target ? "button.ui-datepicker-next" : "button.ui-datepicker-prev").first();
+      if (!(await nav.count())) break;
+      await nav.click({ force: true });
+      await sleep(350);
     }
-    const days = f.locator("button.ui-state-default, table a.ui-state-default");
-    for (let i = 0, n = await days.count().catch(() => 0); i < n; i++) {
-      if ((await days.nth(i).innerText().catch(() => "")).trim() !== String(s.d)) continue;
-      await days.nth(i).click({ force: true }).catch(() => {});
-      break;
-    }
+    if (!monthReady) return { ok: false, reason: `달력을 ${s.y}년 ${s.mo}월로 옮기지 못함` };
+    const days = f.locator(".ui-datepicker table td:not(.ui-state-disabled) button.ui-state-default").filter({ hasText: new RegExp(`^\\s*${s.d}\\s*$`) });
+    if (!(await days.count())) return { ok: false, reason: `${s.d}일을 고를 수 없음` };
+    await days.first().click({ force: true });
     await sleep(800);
-    await setTime(); // picking a day can clear the hour/minute selects
+    await setSel(hourSel, pad(s.h)); // picking a day can clear the hour/minute selects
+    await setSel(minSel, mm);
   }
   const hv = await hourSel.inputValue().catch(() => ""), mv = await minSel.inputValue().catch(() => "");
-  const ok = (await dateOk()) && +hv === s.h && +mv === s.mi;
+  const ok = (await f.locator("#radio_time2").isChecked().catch(() => false)) && (await dateOk()) && Number(hv) === s.h && Number(mv) === s.mi;
   return { ok, reason: `날짜 ${await dateInput.inputValue().catch(() => "")} · ${hv}:${mv}` };
 }
 
 if (sched) {
   const set = await setReserve(sched);
+  log(`RESERVE ${set.ok ? "ok" : "fail"} ${set.reason}`);
   if (!set.ok) await stop(ctx, page, 14, `예약 시각을 ${sched.label}로 맞추지 못했습니다(${set.reason}). 발행하지 않았습니다.`);
+  await shot(page, "reserve-set");
 }
-try {
-  await frame.getByRole("button", { name: "발행", exact: true }).last().click({ timeout: 15000 });
-} catch {
-  await stop(ctx, page, 11, "발행 설정 창의 발행 버튼을 찾지 못했습니다. 발행하지 않았습니다.");
+
+// Final button in the settings layer. With 예약 on it is still labelled 발행.
+async function clickFinal() {
+  const started = Date.now();
+  while (Date.now() - started < 90000) {
+    for (const f of page.frames()) {
+      const btn = f.locator('button[class^="confirm_btn__"]').first();
+      if (await btn.count().catch(() => 0)) {
+        await btn.click({ force: true }).catch(() => {});
+        return (await btn.innerText().catch(() => "")).trim() || "confirm_btn";
+      }
+    }
+    const f = await panelReady();
+    const all = f?.getByRole("button", { name: "발행", exact: true });
+    if (all && (await all.count().catch(() => 0)) > 1) {
+      await all.last().click({ force: true }).catch(() => {});
+      return "발행(last)";
+    }
+    await sleep(2000);
+  }
+  return "";
 }
+const clicked = await clickFinal();
+if (!clicked) await stop(ctx, page, 11, "발행 설정 창의 마지막 발행 버튼을 찾지 못했습니다. 발행하지 않았습니다.");
+log(`FINAL_CLICK ${clicked}`);
 await page.waitForLoadState("domcontentloaded", { timeout: 45000 }).catch(() => {});
 await sleep(8000);
-const decode = (s) => s.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+await shot(page, "after-click");
+const landed = page.url();
+const logNo = (landed.match(/[?&]logNo=(\d+)/) || landed.match(/\/(\d{6,})(?:[/?#]|$)/) || [])[1] || "";
 const marker = post.title.trim().slice(0, 20);
 
 if (sched) {
-  const blogUrl = `https://blog.naver.com/${blogId}`;
+  // After a reservation Naver also lands on PostList…&logNo=…&isAfterWrite=true, so the URL proves nothing.
   record({ url: blogUrl, scheduledAt: sched.label, verified: false }); // written first so a rerun can never schedule twice
-  const readTitle = (t) => {
-    let v = String(t || "");
-    try { v = decodeURIComponent(v.replace(/\+/g, " ")); } catch {}
-    return decode(v);
-  };
   let found = null;
   for (let i = 0; i < 6 && !found; i++) {
     if (i) await sleep(5000);
     await page.goto(`https://blog.naver.com/PostList.naver?blogId=${blogId}`, { waitUntil: "domcontentloaded", timeout: 30000 }).catch(() => {});
-    const rows = await page.evaluate(async (id) => {
-      const r = await fetch(`/PrePostList.naver?blogId=${encodeURIComponent(id)}&editorVersion=4&onlyCount=false`, { credentials: "include" });
-      const j = JSON.parse(await r.text());
-      return j.prePostList || j.result?.prePostList || [];
-    }, blogId).catch(() => []);
-    found = rows.find((r) => readTitle(r.title).includes(marker)) || null;
+    found = (await reservations())?.rows.find((r) => r.title === squash(post.title)) || null;
   }
   await ctx.close().catch(() => {});
-  record({ url: blogUrl, scheduledAt: sched.label, logNo: found?.logNo || "", verified: Boolean(found) });
+  record({ url: blogUrl, scheduledAt: sched.label, reservedAt: found?.at || "", logNo: found?.logNo || "", verified: Boolean(found && found.at === sched.label) });
+  log(`VERIFY ${found ? `${found.at} ${found.logNo}` : "not found"}`);
   warnings.forEach((w) => console.warn(`[${slug}] 주의 · ${w}`));
   if (!found) {
-    console.error(`[${slug}] 예약 버튼은 눌렀지만 예약 목록에서 제목을 확인하지 못했습니다. 다시 실행하지 말고 글쓰기 화면의 예약 발행 목록을 사람이 확인합니다(${blogUrl}).`);
+    const res = await fetch(`https://rss.blog.naver.com/${blogId}.xml`, { headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" } }).catch(() => null);
+    const publishedNow = Boolean(res?.ok && decode(await res.text()).includes(marker));
+    console.error(publishedNow
+      ? `[${slug}] 예약 목록에는 없고 공개 글에 올라왔습니다. 예약 대신 바로 발행된 것으로 보입니다. 다시 실행하지 말고 사람에게 알립니다(${blogUrl}).`
+      : `[${slug}] 예약 버튼은 눌렀지만 예약 목록에서 제목을 확인하지 못했습니다. 다시 실행하지 말고 글쓰기 화면의 예약 발행 목록을 사람이 확인합니다(${blogUrl}).`);
+    process.exit(9);
+  }
+  if (found.at !== sched.label) {
+    console.error(`[${slug}] 예약은 됐지만 시각이 다릅니다(목표 ${sched.label} · 실제 ${found.at}). 다시 실행하지 말고 사람에게 알립니다.`);
     process.exit(9);
   }
   console.log(`[${slug}] 예약 완료 · ${sched.label} 발행 예정 · ${post.title}`);
   process.exit(0);
 }
 
-const landed = page.url();
-const logNo = (landed.match(/[?&]logNo=(\d+)/) || landed.match(/\/(\d{6,})(?:[/?#]|$)/) || [])[1] || "";
-const url = logNo ? `https://blog.naver.com/PostView.naver?blogId=${blogId}&logNo=${logNo}` : `https://blog.naver.com/${blogId}`;
+const url = logNo ? `https://blog.naver.com/PostView.naver?blogId=${blogId}&logNo=${logNo}` : blogUrl;
 record({ url, verified: false }); // written before verification so a rerun can never post twice
 await ctx.close().catch(() => {});
 
@@ -428,6 +658,7 @@ for (let i = 0; i < 12 && !verified; i++) {
   }
 }
 record({ url, verified });
+log(`VERIFY public=${verified}`);
 warnings.forEach((w) => console.warn(`[${slug}] 주의 · ${w}`));
 if (!verified) {
   console.error(`[${slug}] 발행 버튼은 눌렀지만 공개 글에서 제목을 확인하지 못했습니다. 다시 발행하지 말고 블로그(${url})를 사람이 확인합니다.`);
