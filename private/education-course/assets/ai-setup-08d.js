@@ -205,7 +205,7 @@ window.AI_SETUP_PARTS.D = (h) => {
           `<span class="d-cwsfav"></span>`,
           `polaai.co.kr<span class="path">/education/course</span>`,
           `<div class="d-kitpage"><small>CHAPTER 08D</small><h2>에이전트 키트</h2><p>Codex에게 전달할 파일입니다.</p><span class="d-kitbtn">에이전트 키트 내려받기 (zip)</span></div>`,
-          `<div class="dl-bubble"><h6>최근 다운로드 기록</h6>${tg(`<span>${zipIco}</span><span><b>bas_mkt-agent-kit.zip</b><span>61.1 KB · 완료</span></span><span style="color:#5f6368">📁</span>`, n, "bas_mkt-agent-kit.zip 파일", "dl-item", "div")}<div class="all">전체 다운로드 기록</div></div>`,
+          `<div class="dl-bubble"><h6>최근 다운로드 기록</h6>${tg(`<span>${zipIco}</span><span><b>bas_mkt-agent-kit.zip</b><span>61.9 KB · 완료</span></span><span style="color:#5f6368">📁</span>`, n, "bas_mkt-agent-kit.zip 파일", "dl-item", "div")}<div class="all">전체 다운로드 기록</div></div>`,
         ),
     },
     {

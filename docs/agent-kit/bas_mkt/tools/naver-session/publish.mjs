@@ -5,6 +5,7 @@
 //   node publish.mjs <계정> <글폴더> --at "YYYY-MM-DD HH:MM"  schedule at that KST time (rounded up to 10 minutes)
 //   node publish.mjs <계정> <글폴더> --now                    publish right away (only when the person asks for it)
 //   node publish.mjs <계정> <글폴더> --repost                 skip only the local ledger block, after the person deleted the reservation
+//   node publish.mjs <계정> <글폴더> --dry-run                do everything up to the last button, then stop: nothing is published or recorded
 // Title and body are typed one character at a time. Never paste into the Naver editor
 // (no clipboard, no DOM writes): pasted text can be flagged as automated.
 // Nothing is published unless the editor shows the title, every paragraph and every image first.
@@ -33,10 +34,11 @@ const postDir = process.argv[3] ? path.resolve(process.argv[3]) : "";
 const checkOnly = process.argv.includes("--check");
 const nowMode = process.argv.includes("--now");
 const repost = process.argv.includes("--repost"); // Naver-side duplicate checks (reservation list, RSS) still apply
+const dryRun = process.argv.includes("--dry-run");
 const atIndex = process.argv.indexOf("--at");
 const atArg = atIndex > 0 ? process.argv[atIndex + 1] || "" : "";
 if (!postDir || !fs.existsSync(path.join(postDir, "post.json"))) {
-  console.error('사용법: node publish.mjs <계정> <글폴더> [--check | --at "YYYY-MM-DD HH:MM" | --now] [--repost]  (글폴더 안에 post.json이 있어야 합니다)');
+  console.error('사용법: node publish.mjs <계정> <글폴더> [--check | --at "YYYY-MM-DD HH:MM" | --now] [--repost] [--dry-run]  (글폴더 안에 post.json이 있어야 합니다)');
   process.exit(64);
 }
 const slug = path.basename(postDir);
@@ -313,9 +315,18 @@ async function editorState() {
     };
     let txt = 0;
     document.querySelectorAll(".se-component:not(.se-documentTitle) .se-component-content .se-text-paragraph").forEach((p) => { txt += plain(p).length; });
+    // The outer .se-documentTitle also holds editor buttons (위치이동·제목 배경 사진 삭제), so read the inner section only.
+    // .se-main-container no longer exists (2026-10-17), so body text is gathered from every non-title component.
+    const body = [...document.querySelectorAll(".se-component:not(.se-documentTitle) .se-component-content")];
+    // Component order: I = image, T = text with content (empty paragraphs skipped, runs of text merged).
+    const seq = [...document.querySelectorAll(".se-component:not(.se-documentTitle)")]
+      .map((c) => (c.querySelector(".se-module-image") ? "I" : plain(c) ? "T" : ""))
+      .join("")
+      .replace(/T+/g, "T");
     return {
-      title: plain(document.querySelector(".se-section-documentTitle, .se-documentTitle")),
-      text: (document.querySelector(".se-main-container") || document.body).innerText || "",
+      seq,
+      title: plain(document.querySelector(".se-section-documentTitle")),
+      text: body.map((c) => c.innerText || "").join("\n"),
       txt,
       images: document.querySelectorAll(".se-module-image").length,
       uploaded: [...document.querySelectorAll(".se-module-image img")].filter((i) => /se-image-resource/.test(i.className) || /pstatic\.net/.test(i.src)).length,
@@ -448,9 +459,11 @@ else {
   const missing = textBlocks.filter((b) => !squash(state.text).includes(firstLine(b)));
   if (missing.length) problems.push(`빠진 문단 ${missing.length}개("${firstLine(missing[0]).slice(0, 20)}…")`);
   if (state.images < imageTotal) problems.push(`이미지 ${state.images}/${imageTotal}장`);
+  const wantSeq = post.blocks.map((b) => (b.image ? "I" : "T")).join("").replace(/T+/g, "T");
+  if (state.seq !== wantSeq) problems.push(`문단·이미지 순서가 다름(편집기 ${state.seq.slice(0, 24)} · 원고 ${wantSeq.slice(0, 24)})`);
   const marks = FORBIDDEN.filter((m) => state.text.includes(m));
   if (marks.length) problems.push(`마크다운 기호 ${marks.join(" ")}`);
-  log(`EDITOR title=${Boolean(state.title)} images=${state.images}/${imageTotal} uploaded=${state.uploaded} missing=${missing.length}`);
+  log(`EDITOR title=${Boolean(state.title)} images=${state.images}/${imageTotal} uploaded=${state.uploaded} missing=${missing.length} order=${state.seq}`);
 }
 await shot(page, "typed");
 if (problems.length) await stop(ctx, page, 11, `편집기 내용이 원고와 다릅니다(${problems.join(" · ")}). 발행하지 않았습니다.`);
@@ -582,6 +595,16 @@ if (sched) {
   log(`RESERVE ${set.ok ? "ok" : "fail"} ${set.reason}`);
   if (!set.ok) await stop(ctx, page, 14, `예약 시각을 ${sched.label}로 맞추지 못했습니다(${set.reason}). 발행하지 않았습니다.`);
   await shot(page, "reserve-set");
+}
+
+if (dryRun) {
+  log("DRY_RUN stop before the final button");
+  await shot(page, "dry-run");
+  warnings.forEach((w) => console.warn(`[${slug}] 주의 · ${w}`));
+  console.log(`[${slug}] 검증 완료 · 발행하지 않았습니다. 제목, 문단 ${textBlocks.length}개, 이미지 ${imageTotal}장, 태그 ${wantTags.length}개를 편집기에서 확인했습니다${sched ? `. 예약 칸은 ${sched.label}로 맞췄습니다` : ""}. 입력한 글은 네이버 임시저장 목록에 남을 수 있습니다.`);
+  await sleep(5000);
+  await ctx.close().catch(() => {});
+  process.exit(0);
 }
 
 // Final button in the settings layer. With 예약 on it is still labelled 발행.
