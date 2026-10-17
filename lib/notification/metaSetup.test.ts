@@ -163,25 +163,22 @@ describe("buildMetaTokenEmail", () => {
     expect(mail.html).toContain("&lt;script&gt;");
   });
 
-  it("토큰마다 따로 담긴 상자는 한 번 누르면 전체가 선택되고, 옆의 복사 버튼은 그 토큰을 복사하는 대시보드로 간다", () => {
+  it("토큰마다 따로 담긴 상자는 한 번 누르면 전체가 선택되고, 사이트로 이동하는 버튼은 없다", () => {
     const mail = buildMetaTokenEmail({ name: "홍길동", ...tokens });
     for (const token of [tokens.systemUserToken, tokens.threadsToken]) {
       expect(mail.html).toMatch(
         new RegExp(`user-select:all;">${token}</td>`),
       );
     }
-    for (const key of ["system", "threads"]) {
-      expect(mail.html).toContain(
-        `href="https://www.polaai.co.kr/dashboard/meta-setup?copy=${key}"`,
-      );
-    }
-    expect(mail.html.match(/>복사<\/a>/g)).toHaveLength(2);
+    // 메일에는 사이트로 이동하는 복사 버튼을 두지 않는다
+    expect(mail.html).not.toContain("?copy=");
+    expect(mail.html).not.toContain("복사 버튼으로 토큰 복사하기");
     expect(mail.html).toContain("max-width:580px");
     expect(mail.html).toContain("background:#0d1b2a");
     expect(mail.html).not.toMatch(/<script|onclick/i);
-    expect(mail.text).toContain(
-      `① 시스템사용자 토큰\n${tokens.systemUserToken}\n`,
-    );
+    expect(mail.text).toContain(`① 시스템사용자 토큰
+${tokens.systemUserToken}
+`);
   });
 });
 

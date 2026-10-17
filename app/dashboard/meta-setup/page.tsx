@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -53,68 +53,27 @@ const formatDateTime = (ms: number | null) => {
 const maskToken = (token: string) =>
   token.length > 12 ? `${token.slice(0, 6)}••••••${token.slice(-4)}` : "••••••";
 
-type CopyTarget = "system" | "threads";
-
-function TokenRow({
-  label,
-  token,
-  autoCopy = false,
-}: {
-  label: string;
-  token: string;
-  /** 메일의 복사 버튼으로 들어왔을 때: 이 상자로 스크롤해 강조하고 바로 복사를 시도한다 */
-  autoCopy?: boolean;
-}) {
-  const rowRef = useRef<HTMLDivElement>(null);
+function TokenRow({ label, token }: { label: string; token: string }) {
   const [visible, setVisible] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [highlight, setHighlight] = useState(autoCopy);
-  const [autoCopyBlocked, setAutoCopyBlocked] = useState(false);
 
-  const copy = useCallback(
-    async (auto = false) => {
-      try {
-        await navigator.clipboard.writeText(token);
-        setCopied(true);
-        setAutoCopyBlocked(false);
-        setTimeout(() => setCopied(false), auto ? 4000 : 2000);
-      } catch {
-        // 아이폰처럼 누르기 전 자동 복사를 막는 브라우저는 상자를 누르도록 안내한다
-        if (auto) setAutoCopyBlocked(true);
-        else alert("복사하지 못했습니다. 토큰을 길게 눌러 직접 복사해 주세요.");
-      }
-    },
-    [token],
-  );
-
-  useEffect(() => {
-    if (!autoCopy) return;
-    rowRef.current?.scrollIntoView?.({ block: "center", behavior: "smooth" });
-    void copy(true);
-    const timer = setTimeout(() => setHighlight(false), 6000);
-    return () => clearTimeout(timer);
-  }, [autoCopy, copy]);
-
-  const hint = copied
-    ? "복사했어요. Codex에 붙여 넣으세요."
-    : autoCopyBlocked
-      ? "이 브라우저는 자동 복사를 막아요. 상자를 한 번 누르면 복사됩니다."
-      : "누르면 전체가 복사됩니다.";
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(token);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      alert("복사하지 못했습니다. 토큰을 길게 눌러 직접 복사해 주세요.");
+    }
+  };
 
   return (
-    <div
-      ref={rowRef}
-      className={`rounded-lg border p-3 transition-shadow ${
-        highlight
-          ? "border-navy-400 ring-2 ring-navy-300 ring-offset-2"
-          : "border-gray-200"
-      }`}
-    >
+    <div className="rounded-lg border border-gray-200 p-3">
       <p className="text-sm font-bold text-gray-900">{label}</p>
       {/* 상자 어디를 눌러도 전체 토큰이 복사된다 (가려져 보여도 복사되는 값은 전체 토큰) */}
       <button
         type="button"
-        onClick={() => copy()}
+        onClick={copy}
         aria-label={`${label} 복사`}
         className={`mt-2 flex w-full items-stretch overflow-hidden rounded-md border text-left transition-colors ${
           copied
@@ -140,19 +99,8 @@ function TokenRow({
           {copied ? "복사했어요" : "복사"}
         </span>
       </button>
-      <div className="mt-1.5 flex items-center justify-between gap-2 text-xs">
-        <span
-          role={autoCopy ? "status" : undefined}
-          className={
-            copied
-              ? "font-medium text-green-700"
-              : autoCopyBlocked
-                ? "font-medium text-amber-700"
-                : "text-gray-500"
-          }
-        >
-          {hint}
-        </span>
+      <div className="mt-1.5 flex items-center justify-between gap-2 text-xs text-gray-500">
+        <span>누르면 전체가 복사됩니다.</span>
         <button
           type="button"
           onClick={() => setVisible(!visible)}
@@ -177,8 +125,6 @@ export default function MetaSetupPage() {
   const [editing, setEditing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-  // 메일의 토큰 옆 복사 버튼은 ?copy=system|threads 로 이 화면을 연다
-  const [copyTarget, setCopyTarget] = useState<CopyTarget | null>(null);
 
   const [type, setType] = useState<AccountType | null>(null);
   const [loginId, setLoginId] = useState("");
@@ -208,14 +154,6 @@ export default function MetaSetupPage() {
   useEffect(() => {
     fetchView();
   }, [fetchView]);
-
-  useEffect(() => {
-    const target = new URLSearchParams(window.location.search).get("copy");
-    if (target !== "system" && target !== "threads") return;
-    setCopyTarget(target);
-    // 새로 고침해도 다시 복사하지 않게 주소에서 뺀다
-    window.history.replaceState(null, "", window.location.pathname);
-  }, []);
 
   // 저장된 값으로 입력 칸을 채운다. 비밀번호는 원문 대신 가림 값을 넣어 두면 서버가 기존 값을 쓴다.
   const fillFromView = (
@@ -364,12 +302,10 @@ export default function MetaSetupPage() {
                 <TokenRow
                   label="시스템사용자 토큰"
                   token={view.tokens.systemUserToken}
-                  autoCopy={copyTarget === "system"}
                 />
                 <TokenRow
                   label="쓰레드 토큰"
                   token={view.tokens.threadsToken}
-                  autoCopy={copyTarget === "threads"}
                 />
               </div>
             ) : (
