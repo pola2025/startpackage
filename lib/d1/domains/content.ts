@@ -12,6 +12,8 @@ const categories = ["instagram", "meta_ads", "naver_blog", "ai"] as const;
 const HOMEPAGE_FIELDS = ["홈페이지제작방식", "홈페이지스타일", "홈페이지컬러컨셉", "해외결제카드앞면URL", "해외결제카드뒷면URL", "해외결제카드유효기간", "해외결제카드CVC", "GmailID", "GmailPW"] as const;
 const META_SETUP_FIELDS = ["MetaSetupType", "InstagramID", "InstagramPW", "MetaGoogleID", "MetaGooglePW", "MetaSetupMemo", "MetaSetupRequestedAt", "MetaSetupDoneAt", "MetaSystemUserToken", "MetaThreadsToken", "MetaTokenEmailSentAt"] as const;
 const NOTIFICATION_CONTEXT_SQL = 'SELECT u."이름" AS "name", u."email", u."연락처" AS "phone", u."slackChannelId", c."name" AS "cohortName", s."브랜드명" AS "brandName" FROM "users" u LEFT JOIN "cohorts" c ON c."id" = u."cohortId" LEFT JOIN "submissions" s ON s."userId" = u."id" WHERE u."id" = ? LIMIT 1';
+/** 처리 대기·완료 인원 (0013 부분 인덱스만 읽는다) */
+const META_SETUP_COUNTS_SQL = 'SELECT (SELECT COUNT(*) FROM "submissions" WHERE "MetaSetupRequestedAt" IS NOT NULL AND "MetaSetupDoneAt" IS NULL) AS "pending", (SELECT COUNT(*) FROM "submissions" WHERE "MetaSetupDoneAt" IS NOT NULL) AS "done"';
 const countCache = new Map<string, { value: number; expiresAt: number }>();
 
 async function requireAdmin(db: Database, adminId: string) {
@@ -144,6 +146,53 @@ export async function contentOperation(db: Database, operation: string, input: u
     await requireAdmin(db, data.adminId);
     await db.prepare('UPDATE "submissions" SET "MetaTokenEmailSentAt" = ?, "updatedAt" = ? WHERE "userId" = ?').bind(data.sentAt, Date.now(), data.userId).all();
     return { success: true };
+  }
+  if (operation === "meta-setup-admin-count") {
+    const data = parse(z.object({ adminId: identifier }).strict(), input);
+    await requireAdmin(db, data.adminId);
+    const counts = await db.prepare(META_SETUP_COUNTS_SQL).first<{ pending: number; done: number }>();
+    return { pending: Number(counts?.pending ?? 0), done: Number(counts?.done ?? 0) };
+  }
+  if (operation === "meta-setup-admin-list") {
+    const data = parse(z.object({ adminId: identifier, stage: z.enum(["pending", "done"]), ...paging }).strict(), input);
+    await requireAdmin(db, data.adminId);
+    const size = parsePageSize(data.pageSize);
+    const pending = data.stage === "pending";
+    // 처리 대기는 요청이 오래된 사람부터, 완료는 최근 완료부터 보여 준다
+    const column = pending ? "MetaSetupRequestedAt" : "MetaSetupDoneAt";
+    const order = pending ? "ASC" : "DESC";
+    const scope = `meta-setup-admin:${data.stage}`;
+    const params: SqlValue[] = [];
+    let continuation = "";
+    if (data.cursor) {
+      const cursor = verifyCursor(cursorSecret, data.cursor, scope, ["at", "id"]);
+      const at = Number(cursor.sort[0].value);
+      if (!Number.isSafeInteger(at)) throw new DataServiceError(400, "Invalid cursor");
+      continuation = ` AND (s."${column}", s."id") ${pending ? ">" : "<"} (?, ?)`;
+      params.push(at, cursor.sort[1].value);
+    }
+    const where = pending ? 's."MetaSetupRequestedAt" IS NOT NULL AND s."MetaSetupDoneAt" IS NULL' : 's."MetaSetupDoneAt" IS NOT NULL';
+    const rows = await db.prepare(`SELECT s."id", s."userId", s."MetaSetupType", s."InstagramID", s."MetaGoogleID", s."InstagramPW" IS NOT NULL AS "hasInstagramPW", s."MetaGooglePW" IS NOT NULL AS "hasGooglePW", s."MetaSetupMemo", s."MetaSetupRequestedAt", s."MetaSetupDoneAt", s."MetaTokenEmailSentAt", s."브랜드명" AS "brandName", u."이름" AS "name", u."email", c."name" AS "cohortName" FROM "submissions" s JOIN "users" u ON u."id" = s."userId" LEFT JOIN "cohorts" c ON c."id" = u."cohortId" WHERE ${where}${continuation} ORDER BY s."${column}" ${order}, s."id" ${order} LIMIT ?`)
+      .bind(...params, size + 1).all<Record<string, unknown>>();
+    const page = rows.results.slice(0, size);
+    const last = rows.results.length > size ? page[size - 1] : undefined;
+    const counts = await db.prepare(META_SETUP_COUNTS_SQL).first<{ pending: number; done: number }>();
+    const epoch = (value: unknown) => (value === null || value === undefined ? null : Number(value));
+    // 비밀번호·토큰은 목록에 싣지 않는다. 비밀번호는 관리자가 "보기"를 누를 때 reveal API 로 꺼낸다
+    const items = page.map((row) => {
+      const type = row.MetaSetupType === "google" ? "google" : row.MetaSetupType === "instagram" ? "instagram" : null;
+      return {
+        userId: row.userId, name: row.name ?? null, cohortName: row.cohortName ?? null, brandName: row.brandName ?? null, email: row.email ?? null, type,
+        loginId: type === "google" ? row.MetaGoogleID ?? null : type === "instagram" ? row.InstagramID ?? null : null,
+        hasPassword: Boolean(type === "google" ? row.hasGooglePW : type === "instagram" ? row.hasInstagramPW : 0),
+        memo: row.MetaSetupMemo ?? null, requestedAt: epoch(row.MetaSetupRequestedAt), doneAt: epoch(row.MetaSetupDoneAt), emailSentAt: epoch(row.MetaTokenEmailSentAt),
+      };
+    });
+    return {
+      items,
+      counts: { pending: Number(counts?.pending ?? 0), done: Number(counts?.done ?? 0) },
+      nextCursor: last ? signCursor(cursorSecret, { version: 1, scope, sort: [{ field: "at", value: String(last[column]) }, { field: "id", value: String(last.id) }] }) : null,
+    };
   }
   if (operation === "public-tips" || operation === "announcements" || operation === "category-tips") {
     const data = parse(z.object({ ...paging, userId: identifier.optional(), category: z.enum(categories).optional(), subCategory: z.string().max(128).nullable().optional() }).strict(), input);

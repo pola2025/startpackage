@@ -211,3 +211,96 @@ describe("content D1 Meta setup operations", () => {
     await expect(op(db, "meta-setup-email-sent", { adminId: "admin-1", userId: "user-1", sentAt: 0 })).rejects.toMatchObject({ status: 400 });
   });
 });
+
+describe("content D1 Meta setup admin list", () => {
+  const secret = "s".repeat(32);
+  const op = (db: SQLiteDatabase, name: string, input: unknown) => contentOperation(db, name, input, secret) as Promise<Record<string, any>>;
+  const PENDING_INDEX = "submissions_meta_setup_pending_requested_id";
+  const DONE_INDEX = "submissions_meta_setup_done_done_id";
+
+  function seedRequests() {
+    const db = seed();
+    db.raw.exec(readFileSync("prisma/d1/0013_meta_setup_admin_indexes.sql", "utf8"));
+    db.raw.prepare('INSERT INTO "admins" ("id","email","password","name","role","updatedAt") VALUES (?,?,?,?,?,?)').run("admin-1", "admin-1@example.com", "hash", "운영자", "operator", 0);
+    const addUser = (id: string, name: string) => db.raw.prepare('INSERT INTO "users" ("id","email","password","이름","연락처","cohortId","updatedAt") VALUES (?,?,?,?,?,?,?)').run(id, `${id}@example.com`, "hash", name, "01000000000", "cohort-1", 0);
+    const addSubmission = (userId: string, columns: Record<string, string | number | null>) => {
+      const keys = Object.keys(columns);
+      db.raw.prepare(`INSERT INTO "submissions" ("id","userId",${keys.map((key) => `"${key}"`).join(",")},"createdAt","updatedAt") VALUES (?,?,${keys.map(() => "?").join(",")},0,0)`)
+        .run(`sub-${userId}`, userId, ...keys.map((key) => columns[key]));
+    };
+    addUser("user-a", "가요청");
+    addUser("user-b", "나요청");
+    addUser("user-c", "다완료");
+    addUser("user-d", "라없음");
+    addSubmission("user-a", { MetaSetupType: "instagram", InstagramID: "insta_a", InstagramPW: "spenc:v1:aaa", MetaSetupMemo: "2단계 인증", MetaSetupRequestedAt: 3000, 브랜드명: "가브랜드" });
+    addSubmission("user-b", { MetaSetupType: "google", MetaGoogleID: "b@gmail.com", MetaGooglePW: "spenc:v1:bbb", MetaSetupRequestedAt: 1000 });
+    addSubmission("user-c", { MetaSetupType: "instagram", InstagramID: "insta_c", InstagramPW: "spenc:v1:ccc", MetaSetupRequestedAt: 2000, MetaSetupDoneAt: 5000, MetaTokenEmailSentAt: 5001, MetaSystemUserToken: "spenc:v1:tok1", MetaThreadsToken: "spenc:v1:tok2" });
+    addSubmission("user-d", { 브랜드명: "요청 안 함" });
+    return db;
+  }
+
+  it("requires an admin for the list and the count", async () => {
+    const db = seedRequests();
+    await expect(op(db, "meta-setup-admin-list", { adminId: "user-a", stage: "pending" })).rejects.toMatchObject({ status: 403 });
+    await expect(op(db, "meta-setup-admin-count", { adminId: "ghost" })).rejects.toMatchObject({ status: 403 });
+    await expect(op(db, "meta-setup-admin-list", { adminId: "admin-1", stage: "all" })).rejects.toMatchObject({ status: 400 });
+  });
+
+  it("lists pending requests oldest first without passwords or tokens", async () => {
+    const result = await op(seedRequests(), "meta-setup-admin-list", { adminId: "admin-1", stage: "pending" });
+    expect(result.items.map((item: { name: string }) => item.name)).toEqual(["나요청", "가요청"]);
+    expect(result.counts).toEqual({ pending: 2, done: 1 });
+    expect(result.nextCursor).toBeNull();
+    expect(result.items[0]).toMatchObject({ userId: "user-b", type: "google", loginId: "b@gmail.com", hasPassword: true, cohortName: "26기", email: "user-b@example.com", requestedAt: 1000, doneAt: null });
+    expect(result.items[1]).toMatchObject({ type: "instagram", loginId: "insta_a", memo: "2단계 인증", brandName: "가브랜드" });
+    expect(JSON.stringify(result)).not.toContain("spenc:");
+  });
+
+  it("lists completed setups newest first with the mail time", async () => {
+    const result = await op(seedRequests(), "meta-setup-admin-list", { adminId: "admin-1", stage: "done" });
+    expect(result.items).toHaveLength(1);
+    expect(result.items[0]).toMatchObject({ userId: "user-c", doneAt: 5000, emailSentAt: 5001, hasPassword: true });
+    expect(JSON.stringify(result)).not.toContain("spenc:");
+  });
+
+  it("pages with a signed cursor that only works for the same tab", async () => {
+    const db = seedRequests();
+    const first = await op(db, "meta-setup-admin-list", { adminId: "admin-1", stage: "pending", pageSize: 1 });
+    expect(first.items.map((item: { userId: string }) => item.userId)).toEqual(["user-b"]);
+    expect(typeof first.nextCursor).toBe("string");
+    const second = await op(db, "meta-setup-admin-list", { adminId: "admin-1", stage: "pending", pageSize: 1, cursor: first.nextCursor });
+    expect(second.items.map((item: { userId: string }) => item.userId)).toEqual(["user-a"]);
+    expect(second.nextCursor).toBeNull();
+    await expect(op(db, "meta-setup-admin-list", { adminId: "admin-1", stage: "done", pageSize: 1, cursor: first.nextCursor })).rejects.toThrow();
+  });
+
+  it("counts pending and done with the partial indexes", async () => {
+    const db = seedRequests();
+    expect(await op(db, "meta-setup-admin-count", { adminId: "admin-1" })).toEqual({ pending: 2, done: 1 });
+    const plan = db.raw.prepare('EXPLAIN QUERY PLAN SELECT (SELECT COUNT(*) FROM "submissions" WHERE "MetaSetupRequestedAt" IS NOT NULL AND "MetaSetupDoneAt" IS NULL), (SELECT COUNT(*) FROM "submissions" WHERE "MetaSetupDoneAt" IS NOT NULL)').all() as Array<{ detail: string }>;
+    const details = plan.map((row) => row.detail).join("\n");
+    expect(details).toContain(PENDING_INDEX);
+    expect(details).toContain(DONE_INDEX);
+  });
+
+  it("reads each tab through its partial index without a temporary sort", async () => {
+    for (const [stage, index] of [["pending", PENDING_INDEX], ["done", DONE_INDEX]] as const) {
+      const db = seedRequests();
+      const seen: Array<{ sql: string; values: SqlValue[] }> = [];
+      const prepare = db.prepare.bind(db);
+      db.prepare = (sql: string) => {
+        const statement = prepare(sql);
+        const bind = statement.bind.bind(statement);
+        statement.bind = (...values: SqlValue[]) => { seen.push({ sql, values }); return bind(...values); };
+        return statement;
+      };
+      await op(db, "meta-setup-admin-list", { adminId: "admin-1", stage });
+      const list = seen.find((entry) => entry.sql.includes("ORDER BY s."));
+      expect(list).toBeDefined();
+      const plan = db.raw.prepare(`EXPLAIN QUERY PLAN ${list!.sql}`).all(...list!.values) as Array<{ detail: string }>;
+      const details = plan.map((row) => row.detail).join("\n");
+      expect(details).toContain(index);
+      expect(details).not.toContain("TEMP B-TREE");
+    }
+  });
+});

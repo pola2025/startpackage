@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
@@ -27,9 +27,11 @@ import {
   Loader2,
   BookOpenCheck,
   LockOpen,
+  Facebook,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { hasAdminAccess } from "@/lib/auth/admin-session";
+import { META_SETUP_CHANGED_EVENT } from "@/lib/admin/meta-setup-events";
 
 const navigation = [
   {
@@ -77,6 +79,11 @@ const navigation = [
     name: "가입 신청",
     href: "/admin/requests",
     icon: UserPlus,
+  },
+  {
+    name: "Meta 설정요청",
+    href: "/admin/meta-setup",
+    icon: Facebook,
   },
   {
     name: "마케팅 연장",
@@ -130,6 +137,8 @@ export default function AdminLayout({
   const { data: session, status } = useSession();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [unreadMessageCount, setUnreadMessageCount] = useState(0);
+  const [metaPendingCount, setMetaPendingCount] = useState(0);
+  const metaCountedAtRef = useRef(0);
   const isAdmin = hasAdminAccess(session?.user);
 
   // 인증 및 권한 체크 (Middleware 대체)
@@ -171,6 +180,35 @@ export default function AdminLayout({
     const interval = setInterval(fetchUnreadCount, 30000);
     return () => clearInterval(interval);
   }, [status, isAdmin]);
+
+  // Meta 설정요청 처리 대기 인원: 화면을 옮길 때 30초에 한 번만 다시 세고, 완료 처리하면 바로 다시 센다
+  const refreshMetaPendingCount = useCallback(async (force = false) => {
+    if (!force && Date.now() - metaCountedAtRef.current < 30000) return;
+    metaCountedAtRef.current = Date.now();
+    try {
+      const response = await fetch("/api/admin/meta-setup?count=1", {
+        cache: "no-store",
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setMetaPendingCount(Number(data.pending) || 0);
+      }
+    } catch (error) {
+      console.error("Failed to fetch Meta setup count:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (status !== "authenticated" || !isAdmin) return;
+    refreshMetaPendingCount();
+  }, [status, isAdmin, pathname, refreshMetaPendingCount]);
+
+  useEffect(() => {
+    const handleChanged = () => refreshMetaPendingCount(true);
+    window.addEventListener(META_SETUP_CHANGED_EVENT, handleChanged);
+    return () =>
+      window.removeEventListener(META_SETUP_CHANGED_EVENT, handleChanged);
+  }, [refreshMetaPendingCount]);
 
   const handleLogout = async () => {
     await signOut({ redirect: false });
@@ -256,8 +294,13 @@ export default function AdminLayout({
             {navigation.map((item) => {
               const isActive = pathname === item.href;
               const Icon = item.icon;
-              const showBadge =
-                item.href === "/admin/communication" && unreadMessageCount > 0;
+              const badgeCount =
+                item.href === "/admin/communication"
+                  ? unreadMessageCount
+                  : item.href === "/admin/meta-setup"
+                    ? metaPendingCount
+                    : 0;
+              const showBadge = badgeCount > 0;
 
               return (
                 <Link
@@ -277,7 +320,7 @@ export default function AdminLayout({
                   <span className="font-medium">{item.name}</span>
                   {showBadge && (
                     <span className="ml-auto bg-navy-900 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                      {unreadMessageCount > 99 ? "99+" : unreadMessageCount}
+                      {badgeCount > 99 ? "99+" : badgeCount}
                     </span>
                   )}
                 </Link>
