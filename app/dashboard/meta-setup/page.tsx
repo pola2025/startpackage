@@ -70,31 +70,49 @@ function TokenRow({ label, token }: { label: string; token: string }) {
   return (
     <div className="rounded-lg border border-gray-200 p-3">
       <p className="text-sm font-bold text-gray-900">{label}</p>
-      <p className="mt-2 break-all rounded bg-gray-50 px-3 py-2 font-mono text-xs text-gray-800">
-        {visible ? token : maskToken(token)}
-      </p>
-      <div className="mt-2 flex gap-2">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => setVisible(!visible)}
+      {/* 상자 어디를 눌러도 전체 토큰이 복사된다 (가려져 보여도 복사되는 값은 전체 토큰) */}
+      <button
+        type="button"
+        onClick={copy}
+        aria-label={`${label} 복사`}
+        className={`mt-2 flex w-full items-stretch overflow-hidden rounded-md border text-left transition-colors ${
+          copied
+            ? "border-green-300 bg-green-50"
+            : "border-gray-200 bg-gray-50 hover:border-navy-300 hover:bg-white"
+        }`}
+      >
+        <span className="min-w-0 flex-1 break-all px-3 py-2.5 font-mono text-xs text-gray-800">
+          {visible ? token : maskToken(token)}
+        </span>
+        <span
+          className={`flex shrink-0 items-center gap-1.5 border-l px-3 text-sm font-semibold ${
+            copied
+              ? "border-green-300 text-green-700"
+              : "border-gray-200 bg-white text-navy-800"
+          }`}
         >
-          {visible ? (
-            <EyeOff className="mr-1.5 h-4 w-4" />
-          ) : (
-            <Eye className="mr-1.5 h-4 w-4" />
-          )}
-          {visible ? "가리기" : "보기"}
-        </Button>
-        <Button type="button" variant="outline" size="sm" onClick={copy}>
           {copied ? (
-            <CheckCircle2 className="mr-1.5 h-4 w-4 text-green-600" />
+            <CheckCircle2 className="h-4 w-4" />
           ) : (
-            <Copy className="mr-1.5 h-4 w-4" />
+            <Copy className="h-4 w-4" />
           )}
           {copied ? "복사했어요" : "복사"}
-        </Button>
+        </span>
+      </button>
+      <div className="mt-1.5 flex items-center justify-between gap-2 text-xs text-gray-500">
+        <span>누르면 전체가 복사됩니다.</span>
+        <button
+          type="button"
+          onClick={() => setVisible(!visible)}
+          className="inline-flex shrink-0 items-center gap-1 font-medium text-gray-600 hover:text-gray-900"
+        >
+          {visible ? (
+            <EyeOff className="h-3.5 w-3.5" />
+          ) : (
+            <Eye className="h-3.5 w-3.5" />
+          )}
+          {visible ? "가리기" : "전체 보기"}
+        </button>
       </div>
     </div>
   );

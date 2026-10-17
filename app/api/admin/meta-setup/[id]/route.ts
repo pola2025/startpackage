@@ -24,7 +24,10 @@ const tokenField = (label: string) =>
     z
       .string()
       .trim()
-      .min(20, `${label}을 확인해 주세요.`)
+      .min(
+        20,
+        `${label}은 20자 이상이어야 합니다. 토큰 전체를 붙여 넣었는지 확인해 주세요.`,
+      )
       .max(4096, `${label}이 너무 깁니다.`),
   ]);
 

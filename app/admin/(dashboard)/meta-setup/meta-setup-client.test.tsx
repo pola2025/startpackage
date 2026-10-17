@@ -66,12 +66,12 @@ describe("MetaSetupClient", () => {
   it("keeps the card and shows the server error when completion fails", async () => {
     vi.mocked(fetch)
       .mockResolvedValueOnce(list([pendingItem]))
-      .mockResolvedValueOnce(Response.json({ error: "두 토큰이 같습니다. 각각 맞는 토큰을 넣어 주세요." }, { status: 400 }));
+      .mockResolvedValueOnce(Response.json({ error: "완료 처리에 실패했습니다." }, { status: 500 }));
     render(<MetaSetupClient />);
     fireEvent.change(await screen.findByLabelText("시스템사용자 토큰"), { target: { value: SYSTEM_TOKEN } });
-    fireEvent.change(screen.getByLabelText("쓰레드 토큰"), { target: { value: SYSTEM_TOKEN } });
+    fireEvent.change(screen.getByLabelText("쓰레드 토큰"), { target: { value: THREADS_TOKEN } });
     fireEvent.click(screen.getByRole("button", { name: "설정 완료 처리" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("두 토큰이 같습니다.");
+    expect(await screen.findByRole("alert")).toHaveTextContent("완료 처리에 실패했습니다.");
     expect(screen.getByRole("heading", { name: "이재호" })).toBeInTheDocument();
     expect(fetch).toHaveBeenCalledTimes(2);
   });
@@ -103,6 +103,20 @@ describe("MetaSetupClient", () => {
     fireEvent.click(screen.getByRole("button", { name: "메일 다시" }));
     await waitFor(() => expect(screen.getByText("메일 발송")).toBeInTheDocument());
     expect(JSON.parse(String(vi.mocked(fetch).mock.calls[2][1]?.body))).toEqual({ systemUserToken: MASKED_SECRET, threadsToken: MASKED_SECRET });
+  });
+
+  it("explains a too-short token before sending anything", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(list([pendingItem]));
+    render(<MetaSetupClient />);
+    fireEvent.change(await screen.findByLabelText("시스템사용자 토큰"), { target: { value: "short-token" } });
+    fireEvent.change(screen.getByLabelText("쓰레드 토큰"), { target: { value: THREADS_TOKEN } });
+    fireEvent.click(screen.getByRole("button", { name: "설정 완료 처리" }));
+    expect(screen.getByRole("alert")).toHaveTextContent("시스템사용자 토큰은 20자 이상이어야 합니다.");
+    fireEvent.change(screen.getByLabelText("시스템사용자 토큰"), { target: { value: THREADS_TOKEN } });
+    fireEvent.click(screen.getByRole("button", { name: "설정 완료 처리" }));
+    expect(screen.getByRole("alert")).toHaveTextContent("두 토큰이 같습니다.");
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(window.confirm).not.toHaveBeenCalled();
   });
 
   it("shows load errors", async () => {

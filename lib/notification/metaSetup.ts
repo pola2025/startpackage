@@ -109,49 +109,82 @@ export async function sendMetaSetupRequestNotifications(
   }
 }
 
-/** 토큰 안내 메일 (왼쪽 정렬, 문단 구조: 인사 → 목적 → 토큰 → 다음 행동 → 맺음말) */
+/**
+ * 토큰 안내 메일 (폭 580px, 인라인 스타일, 네이비 머리띠, 왼쪽 정렬)
+ * 메일 프로그램은 스크립트를 막아 복사 버튼이 동작하지 않는다. 토큰을 상자 하나에 하나씩 담아
+ * 길게 누르거나 세 번 클릭하면 그 토큰만 선택되게 하고, 복사 버튼이 있는 대시보드로 가는 버튼을 둔다.
+ */
 export function buildMetaTokenEmail(params: {
   name?: string | null;
   systemUserToken: string;
   threadsToken: string;
 }): { subject: string; html: string; text: string } {
   const name = params.name || "대표";
-  const p = (content: string) =>
-    `<p style="margin:0 0 14px;text-align:left;line-height:1.7;">${content}</p>`;
-  const tokenCell = (title: string, token: string) =>
-    `<tr><td style="padding:10px 12px;text-align:left;border:1px solid #d7dde5;background:#f8fafc;width:140px;font-weight:700;">${escapeHtml(title)}</td>` +
-    `<td style="padding:10px 12px;text-align:left;border:1px solid #d7dde5;font-family:Consolas,monospace;font-size:12px;word-break:break-all;">${escapeHtml(token)}</td></tr>`;
+  const p = (content: string, extra = "") =>
+    `<p style="margin:0 0 14px;text-align:left;line-height:1.7;${extra}">${content}</p>`;
+  const note = (content: string, extra = "") =>
+    `<p style="margin:6px 0 0;text-align:left;font-size:12px;line-height:1.6;color:#64748b;${extra}">${content}</p>`;
+  const tokenBlock = (step: string, title: string, token: string) =>
+    `<p style="margin:18px 0 6px;text-align:left;font-size:13px;font-weight:700;color:#0d1b2a;">${step} ${escapeHtml(title)}</p>` +
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:separate;">' +
+    `<tr><td style="padding:14px 16px;background:#f8fafc;border:1px solid #cbd5e1;border-left:4px solid #c9a84c;border-radius:6px;text-align:left;font-family:Consolas,'Courier New',monospace;font-size:13px;line-height:1.6;color:#0f172a;word-break:break-all;-webkit-user-select:all;user-select:all;">${escapeHtml(token)}</td></tr>` +
+    "</table>";
 
   const html = [
-    "<div style=\"max-width:640px;margin:0;text-align:left;font-family:'Malgun Gothic',sans-serif;font-size:14px;color:#1e293b;\">",
+    '<div style="margin:0;padding:24px 12px;background:#f1f5f9;">',
+    "<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"max-width:580px;margin:0 auto;background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;font-size:14px;color:#1e293b;\">",
+    '<tr><td style="padding:22px 28px;background:#0d1b2a;border-radius:10px 10px 0 0;text-align:left;">',
+    '<p style="margin:0 0 6px;font-size:12px;font-weight:700;color:#c9a84c;">폴라애드 · 스타트패키지</p>',
+    '<p style="margin:0;font-size:20px;font-weight:700;line-height:1.4;color:#ffffff;">Meta 설정을 마쳤습니다</p>',
+    '<p style="margin:6px 0 0;font-size:13px;line-height:1.6;color:#c5cfd9;">교육 08G·08H에서 쓰는 토큰 2개를 보내 드립니다.</p>',
+    "</td></tr>",
+    '<tr><td style="padding:26px 28px 8px;text-align:left;">',
     p(`안녕하세요, ${escapeHtml(name)}님. 폴라애드입니다.`),
     p(
-      "요청하신 Meta(페이스북·인스타그램) 설정을 마쳤습니다. 교육 08G Meta SNS 자동화와 08H Meta 광고 자동화에서 쓰는 토큰 2개를 보내 드립니다.",
+      "요청하신 Meta(페이스북·인스타그램) 설정을 마쳤습니다. 아래 토큰 2개는 교육 08G Meta SNS 자동화와 08H Meta 광고 자동화에서 Codex에게 붙여 넣는 값입니다.",
     ),
-    `<table style="border-collapse:collapse;width:100%;margin:0 0 14px;">${tokenCell("시스템사용자 토큰", params.systemUserToken)}${tokenCell("쓰레드 토큰", params.threadsToken)}</table>`,
-    '<p style="margin:0 0 6px;text-align:left;line-height:1.7;font-weight:700;">다음에 하실 일</p>',
-    '<ol style="margin:0 0 14px;padding-left:20px;text-align:left;">',
+    '<table role="presentation" cellpadding="0" cellspacing="0" style="margin:4px 0 0;"><tr><td style="background:#1b2838;border-radius:6px;">',
+    `<a href="${DASHBOARD_URL}" style="display:inline-block;padding:12px 22px;font-size:14px;font-weight:700;color:#ffffff;text-decoration:none;border-radius:6px;">복사 버튼으로 토큰 복사하기 →</a>`,
+    "</td></tr></table>",
+    note("스타트패키지 대시보드에 로그인하면 토큰마다 복사 버튼이 있습니다."),
+    tokenBlock("①", "시스템사용자 토큰", params.systemUserToken),
+    tokenBlock("②", "쓰레드 토큰", params.threadsToken),
+    note(
+      "메일에서 바로 복사할 때는 상자 안을 길게 누르거나(휴대폰) 세 번 클릭하면(PC) 토큰 전체가 선택됩니다.",
+      "margin-top:8px;",
+    ),
+    '<p style="margin:22px 0 6px;text-align:left;font-weight:700;color:#0d1b2a;">다음에 하실 일</p>',
+    '<ol style="margin:0 0 16px;padding-left:20px;text-align:left;">',
     '<li style="text-align:left;line-height:1.7;">교육 08G STEP 01~02를 따라 두 토큰을 Codex에게 붙여 넣습니다.</li>',
     `<li style="text-align:left;line-height:1.7;">이 메일을 찾기 어려우면 스타트패키지 대시보드의 <a href="${DASHBOARD_URL}" style="color:#003876;">Meta 설정요청</a> 화면에서도 같은 토큰을 볼 수 있습니다.</li>`,
-    '<li style="text-align:left;line-height:1.7;">토큰은 대표님 계정을 다루는 열쇠라서 다른 사람에게 전달하지 않습니다.</li>',
     "</ol>",
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 18px;"><tr><td style="padding:12px 14px;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;text-align:left;font-size:13px;line-height:1.6;color:#92400e;">토큰은 대표님 계정을 다루는 열쇠입니다. 다른 사람에게 전달하지 말아 주세요.</td></tr></table>',
     p("궁금한 점은 이 메일에 회신하시거나 카카오톡 채널로 문의해 주세요."),
-    p("감사합니다.<br>폴라애드 드림"),
+    p("감사합니다.<br>폴라애드 드림", "margin-bottom:22px;"),
+    "</td></tr>",
+    '<tr><td style="padding:14px 28px;background:#f8fafc;border-top:1px solid #e2e8f0;border-radius:0 0 10px 10px;text-align:left;font-size:11px;line-height:1.6;color:#94a3b8;">이 메일은 스타트패키지 Meta 설정요청에 따라 보내 드렸습니다.</td></tr>',
+    "</table>",
     "</div>",
   ].join("");
 
   const text = [
     `안녕하세요, ${name}님. 폴라애드입니다.`,
     "",
-    "요청하신 Meta(페이스북·인스타그램) 설정을 마쳤습니다. 교육 08G Meta SNS 자동화와 08H Meta 광고 자동화에서 쓰는 토큰 2개를 보내 드립니다.",
+    "요청하신 Meta(페이스북·인스타그램) 설정을 마쳤습니다. 아래 토큰 2개는 교육 08G Meta SNS 자동화와 08H Meta 광고 자동화에서 Codex에게 붙여 넣는 값입니다.",
     "",
-    `시스템사용자 토큰: ${params.systemUserToken}`,
-    `쓰레드 토큰: ${params.threadsToken}`,
+    `복사 버튼이 있는 대시보드 화면: ${DASHBOARD_URL}`,
+    "",
+    "① 시스템사용자 토큰",
+    params.systemUserToken,
+    "",
+    "② 쓰레드 토큰",
+    params.threadsToken,
     "",
     "다음에 하실 일",
     "1. 교육 08G STEP 01~02를 따라 두 토큰을 Codex에게 붙여 넣습니다.",
     `2. 대시보드 Meta 설정요청 화면(${DASHBOARD_URL})에서도 같은 토큰을 볼 수 있습니다.`,
-    "3. 토큰은 대표님 계정을 다루는 열쇠라서 다른 사람에게 전달하지 않습니다.",
+    "",
+    "토큰은 대표님 계정을 다루는 열쇠입니다. 다른 사람에게 전달하지 말아 주세요.",
     "",
     "궁금한 점은 이 메일에 회신하시거나 카카오톡 채널로 문의해 주세요.",
     "",

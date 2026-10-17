@@ -61,6 +61,17 @@ function timeAgo(ms: number | null) {
   return `${Math.floor(hours / 24)}일 전`;
 }
 
+/** 서버와 같은 기준(각 20자 이상, 서로 다름)으로 누르기 전에 먼저 알려 준다 */
+function tokenProblem(system: string, threads: string) {
+  if (!system || !threads) return "토큰 2개를 모두 입력해 주세요.";
+  if (system.length < 20)
+    return "시스템사용자 토큰은 20자 이상이어야 합니다. 토큰 전체를 붙여 넣었는지 확인해 주세요.";
+  if (threads.length < 20)
+    return "쓰레드 토큰은 20자 이상이어야 합니다. 토큰 전체를 붙여 넣었는지 확인해 주세요.";
+  if (system === threads) return "두 토큰이 같습니다. 각각 맞는 토큰을 넣어 주세요.";
+  return null;
+}
+
 /** 토큰 2개 저장 → 교육생 메일 → 슬랙·텔레그램 (토큰 칸에 가림 값을 보내면 저장된 토큰으로 메일만 다시 보낸다) */
 async function completeMetaSetup(
   userId: string,
@@ -226,8 +237,9 @@ function PendingCard({
     if (busy) return;
     const system = systemUserToken.trim();
     const threads = threadsToken.trim();
-    if (!system || !threads) {
-      setError("토큰 2개를 모두 입력해 주세요.");
+    const problem = tokenProblem(system, threads);
+    if (problem) {
+      setError(problem);
       return;
     }
     const target = item.email
@@ -446,8 +458,9 @@ function DoneCard({
               onClick={() => {
                 const system = systemUserToken.trim();
                 const threads = threadsToken.trim();
-                if (!system || !threads) {
-                  setError("토큰 2개를 모두 입력해 주세요.");
+                const problem = tokenProblem(system, threads);
+                if (problem) {
+                  setError(problem);
                   return;
                 }
                 run(

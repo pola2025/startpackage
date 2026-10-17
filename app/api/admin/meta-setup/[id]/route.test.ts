@@ -140,7 +140,9 @@ describe("PATCH /api/admin/meta-setup/[id]", () => {
       threadsToken: THREADS_TOKEN,
     });
     expect(response.status).toBe(400);
-    expect((await response.json()).error).toContain("시스템사용자 토큰");
+    expect((await response.json()).error).toBe(
+      "시스템사용자 토큰은 20자 이상이어야 합니다. 토큰 전체를 붙여 넣었는지 확인해 주세요.",
+    );
     const second = await patch({
       systemUserToken: SYSTEM_TOKEN,
       threadsToken: "x".repeat(19),
