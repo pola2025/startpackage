@@ -72,3 +72,7 @@ nul
 /NEXT_SESSION_*.md
 /exports/
 /workspace.code-workspace
+# local guides with real credentials, agent scratch and worktrees
+*.local.html
+/.workspace/
+/.worktrees/
