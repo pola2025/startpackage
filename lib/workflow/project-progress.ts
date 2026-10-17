@@ -17,6 +17,15 @@ export type ProjectProgressKind =
   | "waiting"
   | "unknown";
 
+/** 카드의 "누구 차례" 표지 */
+export type ProjectProgressTurn =
+  | "mine"
+  | "polarad"
+  | "printer"
+  | "waiting"
+  | "done"
+  | "unknown";
+
 export interface ProjectProgressStage {
   label: string;
   state: "done" | "current" | "pending";
@@ -31,6 +40,8 @@ export interface ProjectProgressView {
   href: string;
   stages: ProjectProgressStage[];
   currentLabel: string;
+  turn: ProjectProgressTurn;
+  note: string;
 }
 
 const KNOWN_STATUSES = new Set([
@@ -99,6 +110,47 @@ function getOwner(
   if (workflow.status === "최종확정") return "폴라애드 발주 준비";
   if (kind === "unknown") return "상태 확인 필요";
   return workflow.type === "홈페이지" ? "폴라애드 제작" : "폴라애드 디자인";
+}
+
+function getTurn(
+  workflow: ProjectProgressWorkflow,
+  kind: ProjectProgressKind,
+): ProjectProgressTurn {
+  if (kind === "customer") return "mine";
+  if (kind === "complete") return "done";
+  if (kind === "waiting") return "waiting";
+  if (kind === "unknown") return "unknown";
+  if (isPrint(workflow.type) && workflow.status === "발주완료")
+    return "printer";
+  return "polarad";
+}
+
+function getNote(workflow: ProjectProgressWorkflow, kind: ProjectProgressKind) {
+  if (kind === "customer") {
+    if (workflow.status === "발주대기")
+      return "시안을 보고 발주 전 내용을 확인해 주세요.";
+    if (workflow.status === "시안확정") return "발주할 수 있는지 확인해 주세요.";
+    return "시안을 보고 확정하거나 수정 의견을 남겨 주세요.";
+  }
+  if (kind === "complete") {
+    if (workflow.type === "로고") return "확정한 로고로 인쇄물을 만들어요.";
+    if (workflow.type === "홈페이지") return "홈페이지 제작을 마쳤어요.";
+    return "발송을 마쳤어요.";
+  }
+  if (kind === "waiting")
+    return workflow.type === "홈페이지"
+      ? "제작 자료를 입력하면 제작을 시작해요."
+      : "시안 제작 순서를 기다리고 있어요.";
+  if (kind === "unknown") return `현재 상태: ${workflow.status}`;
+  if (workflow.status === "발주완료") return "인쇄소에서 제작하고 있어요.";
+  if (workflow.status === "제작완료")
+    return "제작을 마치고 발송을 준비하고 있어요.";
+  if (workflow.status === "발주요청")
+    return "폴라애드가 발주 내용을 확인하고 있어요.";
+  if (workflow.status === "최종확정")
+    return "폴라애드가 발주를 준비하고 있어요.";
+  if (workflow.type === "홈페이지") return "폴라애드가 홈페이지를 만들고 있어요.";
+  return "디자이너가 시안을 만들고 있어요.";
 }
 
 function getHref(workflow: ProjectProgressWorkflow) {
@@ -200,6 +252,8 @@ export function getProjectProgressView(
     href: getHref(workflow),
     stages,
     currentLabel: getCurrentLabel(workflow, kind),
+    turn: getTurn(workflow, kind),
+    note: getNote(workflow, kind),
   };
 }
 

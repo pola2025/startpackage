@@ -31,6 +31,7 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { SupportContactCard } from "@/components/ui/support-contact-notice";
 import { PrintOrderGuideBanner } from "@/components/ui/print-order-guide-notice";
+import { MetaSetupBanner } from "@/components/ui/meta-setup-notice";
 import type { MetaSetupStage } from "@/lib/submission/parts";
 
 interface SidebarProps {
@@ -343,7 +344,10 @@ export function Sidebar({
           )}
       </nav>
 
-      {/* 인쇄물 발주 안내 - 문의처 위에 고정 */}
+      {/* Meta 설정요청 · 인쇄물 발주 안내 - 문의처 위에 고정 */}
+      {!isGraduated && (
+        <MetaSetupBanner stage={metaSetupStage} onClick={closeMobile} />
+      )}
       {!isGraduated && <PrintOrderGuideBanner onClick={closeMobile} />}
 
       {/* PC 고정 문의처 */}

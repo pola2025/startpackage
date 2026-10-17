@@ -659,28 +659,6 @@ export default async function UserDashboard() {
         />
       </div>
 
-      <section
-        className="rounded-xl border border-navy-700 bg-navy-900 p-5 text-white"
-        aria-labelledby="meta-request-title"
-      >
-        <h2 id="meta-request-title" className="font-bold text-white">
-          Meta 광고 신청 안내
-        </h2>
-        <p className="mt-2 text-sm leading-relaxed text-slate-200">
-          전화·문자·문의로 직접 신청 필수
-        </p>
-        <p className="mt-1 text-sm leading-relaxed text-slate-200">
-          직접 신청 → 관리자 승인 순서로 진행됩니다. 인쇄물·홈페이지 제작과
-          별도로 신청해주세요.
-        </p>
-        <a
-          href="/dashboard/communication"
-          className="mt-4 inline-flex rounded-lg bg-white px-4 py-2 text-sm font-semibold text-navy-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-300"
-        >
-          광고 신청 문의
-        </a>
-      </section>
-
       {/* Marketing Support — 아코디언 (기본 접힘) */}
       {marketingStartDate && marketingEndDate && (
         <details
