@@ -1,0 +1,12 @@
+{
+  "name": "bas-mkt-meta",
+  "private": true,
+  "type": "module",
+  "description": "Instagram · Facebook Page · Threads publishing for the bas_mkt kit (Node 20+, no dependencies)",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node test.mjs"
+  }
+}

@@ -541,6 +541,33 @@ button {
 .copy-btn.done {
   background: #13a36d;
 }
+.scene-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 1.4vh;
+}
+.scene-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: #fff;
+  color: #1b1446;
+  font-size: clamp(14px, 0.95vw, 17px);
+  font-weight: 900;
+  text-decoration: none;
+  box-shadow: 0 10px 26px rgba(1, 11, 34, 0.3);
+}
+.scene-link:after {
+  content: "↗";
+}
+.scene-link:hover,
+.scene-link:focus-visible {
+  background: #ffd17c;
+  outline: none;
+}
 .screen-stage {
   height: 100%;
   min-width: 0;

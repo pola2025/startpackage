@@ -273,6 +273,12 @@
     `<div class="screen light"><div class="chr"><div class="chr-tabs"><div class="chr-tab"><span class="fav">${fav}</span>${tabTitle}</div><span class="plus">＋</span><div class="wctl"><i>—</i><i>▢</i><i class="x">✕</i></div></div><div class="chr-bar"><span class="nav">←&nbsp;→&nbsp;⟳</span><div class="chr-url"><span class="lock">⊜</span><span class="host">${url}</span></div><span class="icons">☆ ⤓ ⋮</span></div><div class="chr-body">${body}</div>${extra}</div></div>`;
   const vfav = `<span style="display:block;width:100%;height:100%">${I.vsc}</span>`;
 
+  /* ---------- links: buttons that open the real page in a new tab ---------- */
+  const linkBlock = (items) =>
+    items && items.length
+      ? `<div class="scene-links">${items.map((l) => `<a class="scene-link" href="${esc(l.href)}" target="_blank" rel="noopener noreferrer">${l.label}</a>`).join("")}</div>`
+      : "";
+
   /* ---------- copy ---------- */
   const copyBlock = (items) =>
     items && items.length
@@ -313,8 +319,8 @@
       concept: 1,
       ey: "BEFORE YOU START",
       title: "시작 전에<br><em>준비할 것</em>",
-      desc: "08A·08B·08C를 순서대로 따라하면 Codex를 켜고 모델과 권한까지 설정한 상태가 됩니다.",
-      html: `<div class="cards two"><div class="card"><small>PC</small><strong>Windows 10 · 11 PC</strong><p>노트북 또는 데스크탑에서 진행합니다. 휴대폰으로는 설정할 수 없습니다.</p></div><div class="card"><small>GOOGLE</small><strong>Google 계정</strong><p>VS Code 첫 화면에서 구글로 로그인할 때 사용합니다.</p></div><div class="card on"><small>CHATGPT</small><strong>ChatGPT 유료 요금제</strong><p>Codex는 ChatGPT 계정으로 로그인합니다. Plus 이상 요금제를 기준으로 안내합니다.</p></div><div class="card"><small>ORDER</small><strong>08A → 08B → 08C</strong><p>VS Code 준비 → Codex 설치·설정 → 세션과 사용 한도 순서입니다.</p></div></div>`,
+      desc: "08장 AI 자동화 전체(블로그, Meta SNS, Meta 광고)에는 노트북과 ChatGPT Plus 이상 구독이 필요합니다. 08A·08B·08C를 순서대로 따라하면 Codex를 켜고 모델과 권한까지 설정한 상태가 됩니다.",
+      html: `<div class="cards two"><div class="card"><small>LAPTOP</small><strong>노트북 (Windows 10 · 11)</strong><p>자동화는 이 노트북이 켜져 있을 때 실행됩니다. 휴대폰으로는 설정할 수 없습니다.</p></div><div class="card"><small>GOOGLE</small><strong>Google 계정</strong><p>VS Code 첫 화면에서 구글로 로그인할 때 사용합니다.</p></div><div class="card on"><small>CHATGPT</small><strong>ChatGPT Plus 이상 구독</strong><p>Codex는 ChatGPT 계정으로 로그인합니다. Plus 이상 구독이 있어야 자동화를 진행할 수 있습니다.</p></div><div class="card"><small>ORDER</small><strong>08A → 08B → 08C</strong><p>VS Code 준비 → Codex 설치·설정 → 세션과 사용 한도 순서입니다.</p></div></div>`,
     },
     {
       ey: "STEP 01",
@@ -1406,7 +1412,7 @@
   ];
 
   /* ================= RENDER ================= */
-  // Parts D, E and F live in their own files and register a builder before this script runs.
+  // Parts D to H live in their own files and register a builder before this script runs.
   const extraPart = (window.AI_SETUP_PARTS || {})[part];
   if (!SC[part] && extraPart)
     SC[part] = extraPart({
@@ -1425,7 +1431,7 @@
     });
   const scenes = SC[part];
   const lessonSlide = (s, i) =>
-    `<section class="slide" data-title="${esc(s.ey)}"><div class="lesson"><div class="lesson-copy"><span class="step-no">${s.ey}</span><h1>${s.title}</h1><p>${s.desc}</p>${s.mode ? `<span class="mode ${s.tone || "set"}">${s.mode}</span>` : ""}${s.note ? `<div class="note">${s.note}</div>` : ""}${copyBlock(s.copy)}</div><div class="screen-stage">${s.screen(Math.min(i + 1, scenes.length - 1))}</div></div></section>`;
+    `<section class="slide" data-title="${esc(s.ey)}"><div class="lesson"><div class="lesson-copy"><span class="step-no">${s.ey}</span><h1>${s.title}</h1><p>${s.desc}</p>${s.mode ? `<span class="mode ${s.tone || "set"}">${s.mode}</span>` : ""}${s.note ? `<div class="note">${s.note}</div>` : ""}${copyBlock(s.copy)}${linkBlock(s.links)}</div><div class="screen-stage">${s.screen(Math.min(i + 1, scenes.length - 1))}</div></div></section>`;
   const stage = document.getElementById("stage");
   stage.innerHTML = scenes
     .map((s, i) => {
@@ -1515,6 +1521,16 @@
     },
     F: {
       prev: "chapter-08e-blog-setup.html#/999",
+      next: "chapter-08g-sns.html#/1",
+      nextLabel: "08G 이어서",
+    },
+    G: {
+      prev: "chapter-08f-blog-write.html#/999",
+      next: "chapter-08h-ads.html#/1",
+      nextLabel: "08H 이어서",
+    },
+    H: {
+      prev: "chapter-08g-sns.html#/999",
       next: "social-content-training.html",
       nextLabel: "다음 챕터",
     },
@@ -1572,7 +1588,7 @@
     ]);
   addEventListener("keydown", (e) => {
     if (e.repeat) return;
-    if (e.target.closest?.(".copy-btn")) return;
+    if (e.target.closest?.(".copy-btn, .scene-link")) return;
     if (nextKeys.has(e.key)) {
       e.preventDefault();
       move(1);

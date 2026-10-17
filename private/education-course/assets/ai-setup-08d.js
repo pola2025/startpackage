@@ -205,7 +205,7 @@ window.AI_SETUP_PARTS.D = (h) => {
           `<span class="d-cwsfav"></span>`,
           `polaai.co.kr<span class="path">/education/course</span>`,
           `<div class="d-kitpage"><small>CHAPTER 08D</small><h2>에이전트 키트</h2><p>Codex에게 전달할 파일입니다.</p><span class="d-kitbtn">에이전트 키트 내려받기 (zip)</span></div>`,
-          `<div class="dl-bubble"><h6>최근 다운로드 기록</h6>${tg(`<span>${zipIco}</span><span><b>bas_mkt-agent-kit.zip</b><span>61.9 KB · 완료</span></span><span style="color:#5f6368">📁</span>`, n, "bas_mkt-agent-kit.zip 파일", "dl-item", "div")}<div class="all">전체 다운로드 기록</div></div>`,
+          `<div class="dl-bubble"><h6>최근 다운로드 기록</h6>${tg(`<span>${zipIco}</span><span><b>bas_mkt-agent-kit.zip</b><span>117.9 KB · 완료</span></span><span style="color:#5f6368">📁</span>`, n, "bas_mkt-agent-kit.zip 파일", "dl-item", "div")}<div class="all">전체 다운로드 기록</div></div>`,
         ),
     },
     {
@@ -357,7 +357,7 @@ window.AI_SETUP_PARTS.D = (h) => {
       desc: "로그인이 끝나면 Codex가 네이버 세션을 확인하고 결과를 터미널에 알려 줍니다. ‘성공’이 보이면 첫 로그인이 끝난 것입니다.",
       mode: "성공 · NID_AUT 영속",
       tone: "keep",
-      note: "매일 세션 연장은 24시간 뒤 Codex가 등록합니다. 사람이 따로 할 일은 없습니다.",
+      note: "매일 세션 연장은 첫 로그인 24시간 뒤, Codex에게 다음 작업을 맡길 때 Codex가 등록합니다. 사람이 따로 할 일은 없습니다.",
       screen: (n) =>
         termBase([
           ...head(),

@@ -729,3 +729,200 @@ body[data-part="F"] .deck:before {
   color: #ffd98a;
   font-weight: 700;
 }
+
+/* naver blog editor · reserve list (STEP 18–19) */
+.f-nbfav {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 22%;
+  background: #03c75a;
+  color: #fff;
+  font:
+    900 0.9cqw/1 Arial,
+    sans-serif;
+}
+.f-ed {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  color: #222;
+  font-family: "Malgun Gothic", Pretendard, sans-serif;
+}
+.f-ed-top {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 3.4cqw;
+  padding: 0 1.4cqw;
+  border-bottom: 1px solid #e5e5e5;
+}
+.f-ed-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.35cqw;
+  font:
+    800 1.3cqw/1 Arial,
+    sans-serif;
+  letter-spacing: -0.02em;
+}
+.f-ed-logo i {
+  display: grid;
+  place-items: center;
+  width: 1.55cqw;
+  height: 1.55cqw;
+  border-radius: 50%;
+  background: #1e1e1e;
+  color: #fff;
+  font-style: normal;
+  font-size: 0.85cqw;
+}
+.f-ed-act {
+  display: flex;
+  align-items: center;
+  gap: 0.6cqw;
+  font-size: 0.82cqw;
+}
+.f-ed-resv,
+.f-ed-save {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45cqw 0.75cqw;
+  border: 1px solid #d5d5d5;
+  border-radius: 0.2cqw;
+  background: #fff;
+  color: #333;
+}
+.f-ed-resv b {
+  margin: 0 0.15cqw;
+  color: #03c75a;
+}
+.f-ed-resv.on {
+  border-color: #03c75a;
+}
+.f-ed-save em {
+  margin-left: 0.45cqw;
+  padding-left: 0.45cqw;
+  border-left: 1px solid #ddd;
+  color: #03c75a;
+  font-style: normal;
+}
+.f-ed-pub {
+  padding: 0.5cqw 1.2cqw;
+  border-radius: 0.2cqw;
+  background: #03c75a;
+  color: #fff;
+  font-weight: 700;
+}
+.f-ed-tools {
+  flex: none;
+  display: flex;
+  gap: 1.2cqw;
+  padding: 0.65cqw 1.4cqw;
+  border-bottom: 1px solid #eee;
+  color: #555;
+  font-size: 0.62cqw;
+}
+.f-ed-tools span {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3cqw;
+}
+.f-ed-tools i {
+  width: 1.2cqw;
+  height: 1.2cqw;
+  border: 0.12cqw solid #8a8a8a;
+  border-radius: 0.2cqw;
+}
+.f-ed-body {
+  flex: 1;
+  padding: 3.2cqw 18cqw 0;
+}
+.f-ed-title {
+  padding-bottom: 1.2cqw;
+  border-bottom: 1px solid #eee;
+  color: #bbb;
+  font-size: 2cqw;
+}
+.f-ed-text {
+  margin-top: 1.4cqw;
+  color: #bbb;
+  font-size: 1cqw;
+}
+.f-ed-layer {
+  position: absolute;
+  top: 3.1cqw;
+  right: 6.2cqw;
+  width: 31cqw;
+  border: 1px solid #ddd;
+  border-radius: 0.3cqw;
+  background: #fff;
+  box-shadow: 0 0.5cqw 1.6cqw rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+}
+.f-ed-layer-h {
+  display: flex;
+  align-items: center;
+  gap: 0.45cqw;
+  padding: 0.95cqw 1.2cqw;
+  border-bottom: 1px solid #eee;
+  font-size: 0.92cqw;
+}
+.f-ed-layer-h span {
+  color: #03c75a;
+  font-weight: 700;
+}
+.f-ed-layer-h i {
+  margin-left: auto;
+  color: #999;
+  font-style: normal;
+}
+.f-ed-layer ul {
+  margin: 0;
+  padding: 0.35cqw 0;
+  list-style: none;
+}
+.f-ed-layer li {
+  display: flex;
+  align-items: center;
+  gap: 0.8cqw;
+  padding: 0.85cqw 1.2cqw;
+}
+.f-ed-layer li.hover {
+  background: #f4f7f5;
+}
+.f-ed-layer li > div {
+  flex: 1;
+  min-width: 0;
+}
+.f-ed-layer li b {
+  display: block;
+  overflow: hidden;
+  font-size: 0.84cqw;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.f-ed-layer li span {
+  display: block;
+  margin-top: 0.3cqw;
+  color: #888;
+  font-size: 0.7cqw;
+}
+.f-ed-del {
+  display: grid;
+  place-items: center;
+  width: 1.9cqw;
+  height: 1.9cqw;
+  border-radius: 0.25cqw;
+  color: #555;
+}
+.f-ed-del svg {
+  width: 1.15cqw;
+  height: 1.15cqw;
+}

@@ -1,4 +1,5 @@
 // Session health check: reads cookies only, never opens a page or the login form.
+import { spawnSync } from "node:child_process";
 import { accountArg, openProfile, nidAuth, readMeta, formatExpiry, hoursSince } from "./common.mjs";
 
 const acct = accountArg(process.argv);
@@ -20,4 +21,10 @@ const daysLeft = Math.floor((auth.expires * 1000 - Date.now()) / 86400000);
 const age = hoursSince(meta.bootstrapAt);
 const ageText = Number.isFinite(age) ? `${age.toFixed(1)}시간` : "기록 없음";
 console.log(`[${acct}] 정상 · NID_AUT 영속 · 만료 ${formatExpiry(auth.expires)} (${daysLeft}일 남음) · 첫 로그인 후 ${ageText}`);
+// The kit is usually set up in class on day one, so the daily touch can only be registered on a later run.
+if (age >= 24 && process.platform === "win32") {
+  const task = `bas_mkt-naver-touch-${acct}`;
+  const query = spawnSync("schtasks", ["/Query", "/TN", task], { stdio: "ignore", windowsHide: true });
+  if (query.status !== 0) console.log(`[${acct}] 매일 연장 미등록 · AGENTS.md 5.2대로 "${task}" 작업을 등록해야 합니다.`);
+}
 process.exit(daysLeft < 30 ? 4 : 0);

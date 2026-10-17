@@ -290,7 +290,7 @@ const LIST5 = [
 const review = (n, o = {}) => {
   const T = o.target;
   const FIVE = ["cover", "card-1", "card-2", "card-3", "card-4"];
-  const feed = `<div class="f-card"><h6>앞 5칸 미리보기 (네이버 피드)</h6><div class="f-feed">${FIVE.map((x) => `<span>${img(x)}</span>`).join("")}</div><div class="f-feed big">${FIVE.slice(
+  const feed = `<div class="f-card"><h6>최초 5장 이미지 미리보기 (네이버 검색 결과)</h6><div class="f-feed">${FIVE.map((x) => `<span>${img(x)}</span>`).join("")}</div><div class="f-feed big">${FIVE.slice(
     0,
     4,
   )
@@ -306,7 +306,7 @@ const review = (n, o = {}) => {
     T === "cta"
       ? (html) => tg(html, n, "CTA 회사 정보 확인", "f-cta-t", "div")
       : null;
-  const right = `${notice("아래 체크리스트로 확인한 뒤, 이대로 올리려면 Codex에게 <b>발행</b>이라고 답해 주세요. 고칠 곳이 있으면 어느 이미지·문단인지 알려 주세요.")}${T === "feed" ? tg(feed, n, "앞 5칸 미리보기", "f-rv-t", "div") : feed}${list}${T === "checks" ? tg(checks, n, "자동 검사 결과", "f-rv-t", "div") : checks}`;
+  const right = `${notice("아래 체크리스트로 확인한 뒤, 이대로 올리려면 Codex에게 <b>발행</b>이라고 답해 주세요. 고칠 곳이 있으면 어느 이미지·문단인지 알려 주세요.")}${T === "feed" ? tg(feed, n, "최초 5장 이미지 미리보기", "f-rv-t", "div") : feed}${list}${T === "checks" ? tg(checks, n, "자동 검사 결과", "f-rv-t", "div") : checks}`;
   return chrome(
     "발행 전 검수",
     FILE_FAV,
@@ -404,7 +404,7 @@ const review = (n, o = {}) => {
       `<div class="f-bars">${Array.from({ length: k }, (_, i) => `<i style="width:${[92, 78, 86, 64][i % 4]}%"></i>`).join("")}</div>`;
     const PARTS = [
       ["cover", "표지", "1", "대형 타이포 + 주제 실사 배경"],
-      ["card-1", "메시지 카드", "4", "앞 5칸 · 가운데 대형 타이포"],
+      ["card-1", "메시지 카드", "4", "최초 5장 이미지 · 대형 타이포"],
       ["band-1", "소제목", "7", "회사 · 소제목 · 번호 3구역"],
       ["chart-bar", "차트", "4", "공고·출처 자료의 숫자로 그린 그림"],
       ["photo-1", "실사", "5", "Codex가 만든 업무현장 사진"],
@@ -412,8 +412,43 @@ const review = (n, o = {}) => {
     ];
     const structHtml = `<div class="f-struct">
       <div class="f-sphone"><div class="f-sphone-scr">${img("cover")}${bars()}${img("card-1")}${bars(2)}${img("card-2")}${bars(3)}${img("card-3")}${bars(2)}${img("card-4")}${bars(3)}${img("band-1")}${bars(3)}${img("photo-1")}${bars(2)}${img("chart-bar")}</div></div>
-      <div class="f-sparts"><div class="f-sparts-h"><b>이미지 22장</b><span>모든 이미지 사이에 문단이 들어갑니다</span></div>${PARTS.map(([f, name, cnt, d]) => `<div class="f-spart">${img(f)}<div><b>${name} <em>${cnt}</em></b><span>${d}</span></div></div>`).join("")}<p class="f-snote">표지와 카드 4장은 네이버 피드 미리보기 5칸에 그대로 걸립니다.</p></div>
+      <div class="f-sparts"><div class="f-sparts-h"><b>이미지 22장</b><span>모든 이미지 사이에 문단이 들어갑니다</span></div>${PARTS.map(([f, name, cnt, d]) => `<div class="f-spart">${img(f)}<div><b>${name} <em>${cnt}</em></b><span>${d}</span></div></div>`).join("")}<p class="f-snote">최초 5장 이미지(표지 + 카드 4장)는 네이버 검색 결과의 이미지 5개 미리보기에 그대로 걸립니다. 글을 열지 않아도 메시지가 전달되도록 대형 타이포로 만듭니다.</p></div>
     </div>`;
+
+    /* ---------- 네이버 블로그 글쓰기 화면 · 예약 발행 목록 ---------- */
+    // Header follows the 2026-10-17 editor capture. The reserve list (reserve_btn → item rows, trash shown on hover,
+    // native confirm) follows the production reserve tool notes; compare once on a real reserved account.
+    const NBFAV = '<span class="f-nbfav">b</span>';
+    const RESERVE_AT = "2026. 10. 17. 18:30";
+    const TOOLS = [
+      "사진",
+      "MYBOX",
+      "동영상",
+      "스티커",
+      "인용구",
+      "구분선",
+      "링크",
+      "파일",
+      "일정",
+      "소스코드",
+      "표",
+      "수식",
+      "장소",
+    ];
+    const TRASH =
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10 11v6M14 11v6"/></svg>';
+    const ASK_MANUAL = [
+      "[[dim|•]] 예약했거나 올라간 글은 제가 고치지 않습니다.",
+      "  네이버 블로그 수정 화면에서 직접 고치시는 것이 가장 정확합니다.",
+      "  에이전트가 네이버 글을 고치면 실패할 때가 많습니다.",
+    ];
+    const nvWrite = (n) =>
+      chrome(
+        "블로그 글쓰기",
+        NBFAV,
+        'blog.naver.com<span class="path">/myblog?Redirect=Write&amp;</span>',
+        `<div class="f-ed"><div class="f-ed-top"><span class="f-ed-logo"><i>N</i>blog</span><div class="f-ed-act"><span class="f-ed-resv on">예약 발행 <b>1</b>건</span><span class="f-ed-save">저장<em>3</em></span><span class="f-ed-pub">발행</span></div></div><div class="f-ed-tools">${TOOLS.map((t) => `<span><i></i>${t}</span>`).join("")}</div><div class="f-ed-body"><div class="f-ed-title">제목</div><div class="f-ed-text">글감과 함께 나의 일상을 기록해보세요!</div></div><div class="f-ed-layer"><div class="f-ed-layer-h"><b>예약 발행</b><span>1건</span><i>✕</i></div><ul><li class="hover"><div><b>${TITLE}</b><span>${RESERVE_AT} 발행 예정</span></div>${tg(`<span class="f-ed-del">${TRASH}</span>`, n, "삭제", "f-ed-delt")}</li></ul></div></div>`,
+      );
 
     return [
       {
@@ -602,11 +637,11 @@ const review = (n, o = {}) => {
       },
       {
         ey: "STEP 12",
-        title: "앞 5칸과<br><em>이미지 글자</em>",
-        desc: "앞 5칸 미리보기에서 표지와 카드 문구가 본문 내용과 맞는지 검토합니다. 이미지 속 글자가 깨지거나 잘린 곳이 없는지도 확인합니다.",
+        title: "최초 5장 이미지<br><em>대형 타이포</em>",
+        desc: "최초 5장 이미지 미리보기에서 표지와 카드 문구가 본문 내용과 맞는지 검토합니다. 작게 보여도 글자가 읽히는지, 깨지거나 잘린 곳이 없는지도 확인합니다.",
         mode: "체크리스트 3 · 4",
         tone: "keep",
-        note: "네이버 피드는 글의 이미지 1~5번을 작게 보여 줍니다. 글을 열지 않은 사람도 이 다섯 칸으로 무슨 공고인지 알 수 있어야 합니다.",
+        note: "<b>최초 5장 이미지를 대형 타이포로 만드는 이유:</b> 네이버에서 검색하면 글마다 이미지 5개가 미리보기로 나옵니다. 글을 열지 않은 사람에게도 이 다섯 장만으로 메시지가 전달되게 하려는 것입니다.",
         screen: (n) => review(n, { target: "feed", done: 2 }),
       },
       {
@@ -686,10 +721,39 @@ const review = (n, o = {}) => {
           ]),
       },
       {
+        ey: "STEP 17",
+        title: "올라간 글은<br><em>직접 고치기</em>",
+        desc: "예약했거나 이미 올라간 글은 네이버 블로그에서 직접 고칩니다. Codex에게 고쳐 달라고 하면 Codex는 고치지 않고 직접 고치도록 안내합니다.",
+        mode: "네이버에서 직접 수정",
+        tone: "keep",
+        note: "<b>에이전트가 네이버 글을 고치면 실패할 때가 많고, 자동 수정으로 문제가 생길 수도 있습니다.</b> 고칠 곳은 ‘발행’이라고 답하기 전에 검수 화면에서 모두 요청합니다.",
+        screen: (n) =>
+          termBase([
+            ...head(),
+            "[[b|›]] 예약한 글에서 카드 2번 문구를 고쳐 줘",
+            "",
+            ASK_MANUAL[0],
+            tline(ASK_MANUAL[1], n, "직접 수정 안내"),
+            ASK_MANUAL[2],
+            "",
+            inputLine(),
+            ...footerTyping().slice(0, 2),
+          ]),
+      },
+      {
+        ey: "STEP 18",
+        title: "예약 글 확인은<br><em>예약 발행 목록</em>",
+        desc: "글쓰기 화면 위쪽의 ‘예약 발행 1건’을 누르면 예약해 둔 글 목록이 나옵니다. 올리지 않기로 한 글은 줄에 마우스를 올려 휴지통을 누르고 확인합니다.",
+        mode: "예약 발행 1건 → 휴지통",
+        tone: "set",
+        note: "고칠 곳이 있으면 글이 올라간 뒤 그 글의 수정 화면에서 직접 고칩니다. 예약을 지우기 전에는 제목을 확인합니다.",
+        screen: (n) => nvWrite(n),
+      },
+      {
         final: 1,
         ey: "CHAPTER 08F COMPLETE",
         title: "블로그 글<br><em>예약 완료</em>",
-        desc: "회사 정보 등록부터 공고 고르기, 사실 확인, 검수, 예약 발행까지 마쳤습니다. 다음 공고부터는 STEP 05 문장 하나로 같은 과정을 반복합니다. 다음 챕터에서는 콘텐츠 게시를 실습합니다.",
+        desc: "회사 정보 등록부터 공고 고르기, 사실 확인, 검수, 예약 발행까지 마쳤습니다. 다음 공고부터는 STEP 05 문장 하나로 같은 과정을 반복합니다. 다음은 Meta SNS 자동화입니다.",
         route: [
           "회사 정보",
           "공고 고르기",

@@ -186,7 +186,7 @@ const allTexts = [
 {
   const e = [];
   const cards = plan.cards || [], secs = plan.sections || [];
-  if (cards.length !== 4) warnings.push(`카드 ${cards.length}장 · 권장은 4장입니다(피드 미리보기 5칸 = 표지 + 카드 4장)`);
+  if (cards.length !== 4) warnings.push(`카드 ${cards.length}장 · 권장은 4장입니다(최초 5장 이미지 = 표지 + 카드 4장)`);
   cards.forEach((c, i) => {
     if ((c.lines || []).length !== 2) e.push(`카드 ${i + 1}: lines는 2줄`);
     (c.lines || []).forEach((l) => width(l) > CARD_LINE_MAX && e.push(`카드 ${i + 1}: "${l}" ${CARD_LINE_MAX}자 초과`));
@@ -222,7 +222,7 @@ const allTexts = [
   const rr = readJson(path.join(postDir, "out", "render-report.json"), { report: {} });
   for (const [file, r] of Object.entries(rr.report)) for (const [key, v] of Object.entries(r)) {
     if (v.overflow) e.push(`${file}: 글자가 칸을 넘칩니다(${key})`);
-    else if ((key === "cover" || key === "card") && v.size < 100) warnings.push(`${file}: 글자 ${v.size}px · 피드 미리보기에서 작게 보입니다`);
+    else if ((key === "cover" || key === "card") && v.size < 100) warnings.push(`${file}: 글자 ${v.size}px · 검색 결과 미리보기에서 작게 보입니다`);
   }
   add("구조", 22, e, `이미지 ${imgs.length}장(카드 ${cards.length}·소제목 ${secs.length}·실사 ${photoNums.size}·차트 ${charts.length}) · CTA 맨 아래`);
 

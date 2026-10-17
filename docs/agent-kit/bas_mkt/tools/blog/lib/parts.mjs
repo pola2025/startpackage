@@ -213,3 +213,59 @@ const CTA = {
     </div></div>`,
 };
 export const cta = (brand) => page(brand, 1080, 480, CTA[brand.cta](brand));
+
+/* ---------- 인스타 카드뉴스 1080×1440 (3:4 프로필 그리드) ---------- */
+// The first image is what search and the profile grid show, so the key message is set in large type.
+// h 1350 renders the same cover as a 4:5 Instagram feed ad image (cards.mjs --ad).
+export function igCover(brand, plan, photo, h = 1440) {
+  const c = plan.cover;
+  const lines = [...c.lines.map((t) => ({ t, a: false })), ...(c.accent || []).map((t) => ({ t, a: true }))];
+  return page(
+    brand,
+    1080,
+    h,
+    `<img class="ph" src="${photo}"><div class="scrim"></div>
+    <div style="position:absolute;left:70px;right:70px;top:150px;bottom:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff">
+      <div style="font-size:40px;font-weight:700;border:3px solid var(--accent-light);padding:10px 34px;border-radius:999px;background:color-mix(in srgb,var(--accent) 35%,transparent)">${esc(plan.category || "정부지원사업 소식")}</div>
+      <div data-fit="940" data-fit-h="${h - 680}" data-min="72" data-key="cover" style="margin-top:40px;font-size:140px;font-weight:900;line-height:1.1;letter-spacing:-4px">${lines
+        .map((l) => `<div class="nowrap" style="${l.a ? "color:var(--accent-light)" : ""}">${esc(l.t)}</div>`)
+        .join("")}</div>
+      <div data-fit="940" data-min="28" class="nowrap" style="margin-top:36px;font-size:46px;font-weight:600;opacity:.92">${esc(c.sub || "")}</div>
+      <div style="margin-top:22px;font-size:36px;font-weight:700;opacity:.85">${esc(brand.company)}</div>
+    </div><div class="ai">AI 생성 이미지</div>`,
+  );
+}
+
+export function igCard(brand, c, n, total, photo, pageNo = n) {
+  return page(
+    brand,
+    1080,
+    1440,
+    `<img class="ph" src="${photo}"><div class="scrim"></div>
+    <div style="position:absolute;left:70px;right:70px;top:150px;bottom:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff">
+      <div style="font-size:48px;font-weight:800;color:var(--accent-light);letter-spacing:1px">${String(n).padStart(2, "0")} · ${esc(c.label)}</div>
+      <div data-fit="940" data-fit-h="560" data-min="80" data-key="card" style="margin-top:44px;font-size:148px;font-weight:900;line-height:1.12;letter-spacing:-4px">${c.lines
+        .map((t) => `<div class="nowrap">${esc(t)}</div>`)
+        .join("")}</div>
+      <div style="margin-top:56px;width:140px;height:10px;border-radius:10px;background:var(--accent-light)"></div>
+    </div>
+    <div style="position:absolute;left:0;right:0;bottom:64px;text-align:center;color:#fff;font-size:30px;font-weight:600;opacity:.75">${pageNo} / ${total}</div><div class="ai">AI 생성 이미지</div>`,
+  );
+}
+
+export function igEnd(brand) {
+  return page(
+    brand,
+    1080,
+    1440,
+    `<div style="position:absolute;inset:0;background:linear-gradient(160deg,var(--navy),var(--accent-dark))"></div>
+    <div style="position:absolute;left:80px;right:80px;top:150px;bottom:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff">
+      ${logoBox(brand, 220, 48, "#fff", "var(--accent)", 120)}
+      <div data-fit="920" data-min="64" class="nowrap" style="margin-top:56px;font-size:96px;font-weight:900;letter-spacing:-3px">${esc(brand.company)}</div>
+      <div style="margin-top:28px;font-size:44px;font-weight:700;color:var(--accent-light)">정책자금 · 지원사업 상담</div>
+      <div style="margin-top:72px;font-size:56px;font-weight:800">☎ ${esc(brand.phone)}</div>
+      <div style="margin-top:20px;font-size:40px;font-weight:600;opacity:.85">${esc(host(brand.homepage))}</div>
+      <div style="margin-top:72px;font-size:36px;font-weight:500;opacity:.8">자세한 신청 방법은 블로그에 정리했습니다</div>
+    </div>`,
+  );
+}

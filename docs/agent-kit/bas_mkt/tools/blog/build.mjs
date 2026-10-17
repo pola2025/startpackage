@@ -120,7 +120,7 @@ const warnings = [];
 for (const [file, r] of Object.entries(report)) {
   for (const [key, v] of Object.entries(r)) {
     if (v.overflow) warnings.push(`${file}: 글자가 칸을 넘칩니다(${key}). 문구를 줄입니다.`);
-    else if ((key === "cover" || key === "card") && v.size < 100) warnings.push(`${file}: 글자가 ${v.size}px로 작아져 피드 미리보기에서 읽기 어렵습니다. 문구를 줄입니다.`);
+    else if ((key === "cover" || key === "card") && v.size < 100) warnings.push(`${file}: 글자가 ${v.size}px로 작아져 검색 결과 미리보기에서 읽기 어렵습니다. 문구를 줄입니다.`);
   }
 }
 fs.writeFileSync(path.join(out, "render-report.json"), JSON.stringify({ report, warnings }, null, 2));

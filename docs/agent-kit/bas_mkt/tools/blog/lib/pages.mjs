@@ -74,7 +74,7 @@ label{display:flex;gap:8px;align-items:flex-start;font-size:14px;line-height:1.6
 <div class="phone"><h1>${esc(post.title)}</h1><div class="post">${body}<p class="tags">${(post.tags || []).map((t) => `#${esc(String(t).replace(/^#/, ""))}`).join(" ")}</p></div></div>
 <div class="side">
 <div class="hint">아래 체크리스트로 확인한 뒤, 이대로 올리려면 Codex에게 <b>발행</b>이라고 답해 주세요. 고칠 곳이 있으면 어느 이미지·문단인지 알려 주세요.</div>
-<div class="box"><h2>앞 5칸 미리보기 (네이버 피드)</h2><div class="feed">${feed("s1")}</div><div class="feed" style="margin-top:8px">${feed("s2")}</div></div>
+<div class="box"><h2>최초 5장 이미지 미리보기 (네이버 검색 결과)</h2><div class="feed">${feed("s1")}</div><div class="feed" style="margin-top:8px">${feed("s2")}</div></div>
 <div class="box"><h2>발행 전 체크리스트</h2>${CHECKLIST.map((c) => `<label><input type="checkbox"> ${esc(c)}</label>`).join("")}</div>
 <div class="box"><h2>자동 검사 결과</h2><ul class="r">${checks}</ul></div>
 </div></div></body></html>`;
