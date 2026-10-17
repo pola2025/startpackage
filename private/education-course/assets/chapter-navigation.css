@@ -48,15 +48,18 @@
 }
 .bottom .counter b{margin-right:6px;color:#fff;font-size:25px}
 .bottom .progress{position:absolute;left:0;bottom:-1px;height:3px;background:#fff;transition:width .35s ease}
-.chapter-jump-wrap{position:relative;display:flex;align-items:center}
+.chapter-jump-wrap{position:static;display:flex;align-items:center}
 .chapter-jump-menu{
   position:absolute;
   left:0;
-  bottom:58px;
-  width:min(650px,72vw);
+  bottom:calc(100% + 12px);
+  width:min(1040px,100%);
+  max-height:calc(100vh - 150px);
+  overflow-y:auto;
+  overscroll-behavior:contain;
   padding:16px;
   display:grid;
-  grid-template-columns:repeat(4,minmax(125px,1fr));
+  grid-template-columns:repeat(4,minmax(0,1fr));
   gap:9px;
   border:1px solid rgba(255,255,255,.32);
   border-radius:16px;
@@ -72,12 +75,12 @@
 .chapter-jump-wrap.open .chapter-jump-menu{opacity:1;visibility:visible;transform:none}
 .chapter-jump-legend{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:7px;padding-bottom:2px}.chapter-jump-legend span{display:inline-flex;align-items:center;min-height:28px;padding:0 9px;border-radius:999px;background:rgba(255,255,255,.08);font-size:11px;font-weight:900}.chapter-jump-legend span:before{content:"";width:8px;height:8px;margin-right:6px;border-radius:50%;background:#5ca6ff}.chapter-jump-legend .content:before{background:#ff6ac1}.chapter-jump-legend .support:before{background:#ffb22e}.chapter-jump-legend .ai:before{background:#a78bfa}
 .chapter-jump-link{
-  min-height:68px;
+  min-height:60px;
   border:1px solid rgba(255,255,255,.18);
   border-radius:11px;
   padding:10px 12px;
   display:grid;
-  grid-template-columns:42px 1fr;
+  grid-template-columns:56px minmax(0,1fr);
   align-items:center;
   gap:9px;
   background:rgba(255,255,255,.07);
@@ -96,11 +99,14 @@
 .bottom .course-kakao-contact{height:46px;display:inline-flex;align-items:center;justify-content:center;padding:0 16px;border:1px solid #ffe162;border-radius:9px;background:#fee500;color:#211a00;text-decoration:none;font-family:Pretendard,system-ui,sans-serif;font-size:15px;font-weight:900;line-height:1;white-space:nowrap}.bottom .course-kakao-contact:hover,.bottom .course-kakao-contact:focus-visible{background:#fff19b;outline:3px solid #fff6bd}
 @media(max-width:1500px){
   .bottom>button,.bottom .chapter-jump-toggle,.bottom .course-assistant-toggle,.bottom .course-kakao-contact{height:44px;padding:0 14px;font-size:14px}
-  .chapter-jump-menu{width:min(610px,76vw)}
+  .chapter-jump-menu{width:min(980px,100%)}
 }
 @media(max-width:1050px){
   .bottom{gap:6px}
   .bottom>button,.bottom .chapter-jump-toggle,.bottom .course-assistant-toggle,.bottom .course-kakao-contact{height:40px;padding:0 10px;font-size:13px}
-  .chapter-jump-menu{grid-template-columns:repeat(2,minmax(150px,1fr));width:min(430px,82vw)}
+  .chapter-jump-menu{grid-template-columns:repeat(3,minmax(0,1fr));width:100%}
+}
+@media(max-width:700px){
+  .chapter-jump-menu{grid-template-columns:repeat(2,minmax(0,1fr));width:min(100%,calc(100vw - 32px))}
 }
 @media(prefers-reduced-motion:reduce){.bottom>button,.chapter-jump-menu,.chapter-jump-link{transition:none!important}}
