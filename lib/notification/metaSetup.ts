@@ -112,7 +112,7 @@ export async function sendMetaSetupRequestNotifications(
 /**
  * 토큰 안내 메일 (폭 580px, 인라인 스타일, 네이비 머리띠, 왼쪽 정렬)
  * 메일 프로그램은 스크립트를 막아 복사 버튼이 동작하지 않는다. 토큰을 상자 하나에 하나씩 담아
- * 길게 누르거나 세 번 클릭하면 그 토큰만 선택되게 하고, 복사 버튼이 있는 대시보드로 가는 버튼을 둔다.
+ * 길게 누르거나 세 번 클릭하면 그 토큰만 선택되게 하고, 토큰 옆에 대시보드(그 토큰 자동 복사)로 가는 복사 버튼을 둔다.
  */
 export function buildMetaTokenEmail(params: {
   name?: string | null;
@@ -124,10 +124,12 @@ export function buildMetaTokenEmail(params: {
     `<p style="margin:0 0 14px;text-align:left;line-height:1.7;${extra}">${content}</p>`;
   const note = (content: string, extra = "") =>
     `<p style="margin:6px 0 0;text-align:left;font-size:12px;line-height:1.6;color:#64748b;${extra}">${content}</p>`;
-  const tokenBlock = (step: string, title: string, token: string) =>
+  // 메일 속 버튼은 복사를 직접 하지 못한다. 대시보드를 열면 그 토큰을 강조하고 자동 복사를 시도한다
+  const tokenBlock = (step: string, title: string, token: string, copyKey: "system" | "threads") =>
     `<p style="margin:18px 0 6px;text-align:left;font-size:13px;font-weight:700;color:#0d1b2a;">${step} ${escapeHtml(title)}</p>` +
     '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:separate;">' +
-    `<tr><td style="padding:14px 16px;background:#f8fafc;border:1px solid #cbd5e1;border-left:4px solid #c9a84c;border-radius:6px;text-align:left;font-family:Consolas,'Courier New',monospace;font-size:13px;line-height:1.6;color:#0f172a;word-break:break-all;-webkit-user-select:all;user-select:all;">${escapeHtml(token)}</td></tr>` +
+    `<tr><td style="padding:14px 16px;background:#f8fafc;border:1px solid #cbd5e1;border-right:0;border-left:4px solid #c9a84c;border-radius:6px 0 0 6px;text-align:left;font-family:Consolas,'Courier New',monospace;font-size:13px;line-height:1.6;color:#0f172a;word-break:break-all;-webkit-user-select:all;user-select:all;">${escapeHtml(token)}</td>` +
+    `<td width="76" style="width:76px;background:#1b2838;border-radius:0 6px 6px 0;text-align:center;vertical-align:middle;"><a href="${DASHBOARD_URL}?copy=${copyKey}" style="display:block;padding:14px 0;font-size:14px;font-weight:700;color:#ffffff;text-decoration:none;">복사</a></td></tr>` +
     "</table>";
 
   const html = [
@@ -143,14 +145,10 @@ export function buildMetaTokenEmail(params: {
     p(
       "요청하신 Meta(페이스북·인스타그램) 설정을 마쳤습니다. 아래 토큰 2개는 교육 08G Meta SNS 자동화와 08H Meta 광고 자동화에서 Codex에게 붙여 넣는 값입니다.",
     ),
-    '<table role="presentation" cellpadding="0" cellspacing="0" style="margin:4px 0 0;"><tr><td style="background:#1b2838;border-radius:6px;">',
-    `<a href="${DASHBOARD_URL}" style="display:inline-block;padding:12px 22px;font-size:14px;font-weight:700;color:#ffffff;text-decoration:none;border-radius:6px;">복사 버튼으로 토큰 복사하기 →</a>`,
-    "</td></tr></table>",
-    note("스타트패키지 대시보드에 로그인하면 토큰마다 복사 버튼이 있습니다."),
-    tokenBlock("①", "시스템사용자 토큰", params.systemUserToken),
-    tokenBlock("②", "쓰레드 토큰", params.threadsToken),
+    tokenBlock("①", "시스템사용자 토큰", params.systemUserToken, "system"),
+    tokenBlock("②", "쓰레드 토큰", params.threadsToken, "threads"),
     note(
-      "메일에서 바로 복사할 때는 상자 안을 길게 누르거나(휴대폰) 세 번 클릭하면(PC) 토큰 전체가 선택됩니다.",
+      "복사 버튼을 누르면 스타트패키지 대시보드가 열리고 그 토큰이 복사됩니다. 메일에서 바로 복사할 때는 상자 안을 길게 누르거나(휴대폰) 세 번 클릭하면(PC) 토큰 전체가 선택됩니다.",
       "margin-top:8px;",
     ),
     '<p style="margin:22px 0 6px;text-align:left;font-weight:700;color:#0d1b2a;">다음에 하실 일</p>',
@@ -172,13 +170,13 @@ export function buildMetaTokenEmail(params: {
     "",
     "요청하신 Meta(페이스북·인스타그램) 설정을 마쳤습니다. 아래 토큰 2개는 교육 08G Meta SNS 자동화와 08H Meta 광고 자동화에서 Codex에게 붙여 넣는 값입니다.",
     "",
-    `복사 버튼이 있는 대시보드 화면: ${DASHBOARD_URL}`,
-    "",
     "① 시스템사용자 토큰",
     params.systemUserToken,
+    `(대시보드에서 복사: ${DASHBOARD_URL}?copy=system)`,
     "",
     "② 쓰레드 토큰",
     params.threadsToken,
+    `(대시보드에서 복사: ${DASHBOARD_URL}?copy=threads)`,
     "",
     "다음에 하실 일",
     "1. 교육 08G STEP 01~02를 따라 두 토큰을 Codex에게 붙여 넣습니다.",

@@ -36,6 +36,31 @@ describe("MetaSetupPage tokens", () => {
     await waitFor(() => expect(writeText).toHaveBeenLastCalledWith(THREADS_TOKEN));
   });
 
+  it("opened from the mail copy button, copies that token right away and drops the flag from the address", async () => {
+    window.history.replaceState(null, "", "/dashboard/meta-setup?copy=threads");
+    render(<MetaSetupPage />);
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith(THREADS_TOKEN));
+    expect(writeText).toHaveBeenCalledTimes(1);
+    expect(window.location.search).toBe("");
+    expect(await screen.findByText("복사했어요. Codex에 붙여 넣으세요.")).toBeInTheDocument();
+  });
+
+  it("asks for one tap when the browser blocks the automatic copy", async () => {
+    writeText.mockRejectedValueOnce(new Error("NotAllowedError"));
+    window.history.replaceState(null, "", "/dashboard/meta-setup?copy=system");
+    render(<MetaSetupPage />);
+    expect(await screen.findByText("이 브라우저는 자동 복사를 막아요. 상자를 한 번 누르면 복사됩니다.")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "시스템사용자 토큰 복사" }));
+    await waitFor(() => expect(writeText).toHaveBeenLastCalledWith(SYSTEM_TOKEN));
+  });
+
+  it("does not copy anything without the mail flag", async () => {
+    window.history.replaceState(null, "", "/dashboard/meta-setup");
+    render(<MetaSetupPage />);
+    await screen.findByRole("button", { name: "시스템사용자 토큰 복사" });
+    expect(writeText).not.toHaveBeenCalled();
+  });
+
   it("shows the full token only when asked", async () => {
     render(<MetaSetupPage />);
     const box = await screen.findByRole("button", { name: "시스템사용자 토큰 복사" });
