@@ -1,7 +1,11 @@
 // Naver blog publisher. Uses the profile saved by bootstrap.mjs; it never types an ID or password.
 // Editor steps follow the verified SmartEditor ONE publisher (selectors calibrated 2026-07).
-//   node publish.mjs <계정> <글폴더> --check   format check + preview.html only, no browser
-//   node publish.mjs <계정> <글폴더>           check, then publish in a visible Chrome window
+//   node publish.mjs <계정> <글폴더> --check                  format check + preview.html only, no browser
+//   node publish.mjs <계정> <글폴더>                          type the post, then schedule it 3 hours later (default)
+//   node publish.mjs <계정> <글폴더> --at "YYYY-MM-DD HH:MM"  schedule at that KST time (rounded up to 10 minutes)
+//   node publish.mjs <계정> <글폴더> --now                    publish right away (only when the person asks for it)
+// Title and body are typed one character at a time. Never paste into the Naver editor
+// (no clipboard, no insertText, no DOM writes): pasted text can be flagged as automated.
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
@@ -18,8 +22,12 @@ const width = (s) => [...s].reduce((w, ch) => w + (ch.charCodeAt(0) <= 0xff ? 0.
 const acct = accountArg(process.argv);
 const postDir = process.argv[3] ? path.resolve(process.argv[3]) : "";
 const checkOnly = process.argv.includes("--check");
+const nowMode = process.argv.includes("--now");
+const atIndex = process.argv.indexOf("--at");
+const atArg = atIndex > 0 ? process.argv[atIndex + 1] || "" : "";
+const DEFAULT_DELAY_HOURS = 3;
 if (!postDir || !fs.existsSync(path.join(postDir, "post.json"))) {
-  console.error("사용법: node publish.mjs <계정> <글폴더> [--check]  (글폴더 안에 post.json이 있어야 합니다)");
+  console.error('사용법: node publish.mjs <계정> <글폴더> [--check | --at "YYYY-MM-DD HH:MM" | --now]  (글폴더 안에 post.json이 있어야 합니다)');
   process.exit(64);
 }
 const slug = path.basename(postDir);
@@ -110,6 +118,39 @@ if (checkOnly) {
   process.exit(0);
 }
 
+// Reservation time in KST, rounded up to the editor's 10-minute steps.
+const KST = 9 * 3600e3;
+function scheduleTime() {
+  let t;
+  if (atArg) {
+    const m = atArg.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})$/);
+    if (!m) return { error: `--at 형식은 "YYYY-MM-DD HH:MM"입니다(현재 "${atArg}").` };
+    t = Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]) - KST;
+  } else {
+    t = Math.ceil((Date.now() + DEFAULT_DELAY_HOURS * 3600e3) / 600e3) * 600e3;
+    const k = new Date(t + KST);
+    const h = k.getUTCHours();
+    if (h >= 23 || h < 7) {
+      // Late-night slots move to 08:00 the next morning.
+      if (h >= 23) k.setUTCDate(k.getUTCDate() + 1);
+      k.setUTCHours(8, 0, 0, 0);
+      t = k.getTime() - KST;
+    }
+  }
+  t = Math.ceil(t / 600e3) * 600e3;
+  // Typing the post takes about 10 minutes, so the slot must stay in the future after that.
+  if (t < Date.now() + 30 * 60e3) return { error: "예약 시각은 지금부터 30분 이후여야 합니다." };
+  const k = new Date(t + KST);
+  const p = (n) => String(n).padStart(2, "0");
+  const v = { y: k.getUTCFullYear(), mo: k.getUTCMonth() + 1, d: k.getUTCDate(), h: k.getUTCHours(), mi: k.getUTCMinutes() };
+  return { ...v, label: `${v.y}-${p(v.mo)}-${p(v.d)} ${p(v.h)}:${p(v.mi)}` };
+}
+const sched = nowMode ? null : scheduleTime();
+if (sched?.error) {
+  console.error(`[${slug}] ${sched.error}`);
+  process.exit(64);
+}
+
 const record = (entry) => {
   fs.mkdirSync(path.dirname(ledger), { recursive: true });
   fs.appendFileSync(ledger, JSON.stringify({ at: new Date().toISOString(), slug, hash, title: post.title, ...entry }) + "\n");
@@ -168,7 +209,7 @@ for (let pass = 0; pass < 3 && (await clickExact(["새로 작성", "새 글 작�
 const title = frame.locator(".se-section-documentTitle .se-text-paragraph, span.se-placeholder, .se_title").first();
 if (!(await title.isVisible({ timeout: 20000 }).catch(() => false))) await stop(ctx, page, 11, "글쓰기 화면의 제목 칸을 찾지 못했습니다. 네이버 편집기 화면이 바뀌었을 수 있습니다.");
 await title.click({ delay: 80 });
-await page.keyboard.type(post.title, { delay: rnd(30, 60) });
+await typeChars(post.title, 70, 150);
 await page.keyboard.press("Enter");
 await sleep(rnd(600, 1000));
 await frame.locator(".se-component-content .se-text-paragraph, .se-module-text").first().click({ delay: 80, timeout: 15000 }).catch(() => {});
@@ -178,11 +219,20 @@ for (const name of ["취소선", "굵게", "기울임꼴", "기울임", "밑줄"
   if ((await b.getAttribute("aria-pressed", { timeout: 800 }).catch(() => null)) === "true") await b.click({ delay: 50 }).catch(() => {});
 }
 
+// One character at a time with uneven gaps, the way a person types.
+async function typeChars(text, min = 45, max = 120) {
+  for (const ch of text) {
+    await page.keyboard.type(ch);
+    await sleep(rnd(min, max) + (/[.,!?]/.test(ch) ? rnd(150, 400) : 0));
+  }
+}
+
 async function typeText(text, blankAfter) {
   const lines = text.replace(/\r/g, "").trim().split("\n");
   for (let i = 0; i < lines.length; i++) {
-    if (lines[i].trim()) await page.keyboard.type(lines[i], { delay: rnd(10, 26) });
+    if (lines[i].trim()) await typeChars(lines[i]);
     await page.keyboard.press("Enter");
+    await sleep(rnd(150, 450));
   }
   if (blankAfter) await page.keyboard.press("Enter");
   await sleep(rnd(300, 700));
@@ -210,7 +260,7 @@ async function linkLastImage(href) {
     if (!(await open())) return false;
     const input = frame.locator("input.se-custom-layer-link-input").first();
     await input.click({ delay: 40, timeout: 2500 });
-    await page.keyboard.type(href, { delay: 16 });
+    await typeChars(href, 30, 70);
     await frame.locator("button.se-custom-layer-link-apply-button").first().click({ delay: 50 });
     await sleep(800);
     let ok = false;
@@ -257,6 +307,71 @@ if (await tagInput.isVisible({ timeout: 4000 }).catch(() => false)) {
   }
 } else if ((post.tags || []).length) warnings.push("태그 입력칸을 찾지 못해 태그 없이 발행했습니다.");
 
+// Reservation controls, as verified on the 2026-09-11 live run (34 posts). Naver rotates the
+// CSS-module suffixes, so match class prefixes. The final button stays labelled 발행 when 예약 is on.
+async function frameWith(selector) {
+  for (const f of page.frames()) if (await f.locator(selector).count().catch(() => 0)) return f;
+  return null;
+}
+async function setReserve(s) {
+  const f = await frameWith("#radio_time2");
+  if (!f) return { ok: false, reason: "예약 선택 버튼 없음" };
+  await f.locator("#radio_time2").click({ force: true }).catch(() => {});
+  await sleep(900);
+  if (!(await f.locator("#radio_time2").isChecked().catch(() => false))) return { ok: false, reason: "예약이 선택되지 않음" };
+  const hourSel = f.locator('select[class*="hour_option__"]');
+  const minSel = f.locator('select[class*="minute_option__"]');
+  if (!(await hourSel.count()) || !(await minSel.count())) return { ok: false, reason: "시·분 선택 칸 없음" };
+  const hh = String(s.h).padStart(2, "0"), mm = String(s.mi).padStart(2, "0");
+  const setTime = async () => {
+    await hourSel.selectOption(hh).catch(() => hourSel.selectOption(String(s.h)).catch(() => {}));
+    await minSel.selectOption(mm).catch(() => minSel.selectOption(String(s.mi)).catch(() => {}));
+    await sleep(500);
+  };
+  await setTime();
+  const dateInput = f.locator('input[class*="input_date__"]');
+  const want = `${s.y}.${String(s.mo).padStart(2, "0")}.${String(s.d).padStart(2, "0")}`;
+  const dateOk = async () => String(await dateInput.inputValue().catch(() => "")).replace(/\s+/g, "").includes(want);
+  if (!(await dateOk())) {
+    await dateInput.click({ force: true }).catch(() => {});
+    await sleep(900);
+    const shown = () => f.evaluate(() => {
+      for (const el of document.querySelectorAll("strong,span,em,b,div,th,caption,button,a")) {
+        const t = (el.innerText || "").trim();
+        const m = t.match(/(\d{4})\s*[.\-/년]\s*(\d{1,2})\s*월?/);
+        if (m && t.length <= 24) return +m[1] * 12 + (+m[2] - 1);
+      }
+      return null;
+    }).catch(() => null);
+    const target = s.y * 12 + (s.mo - 1);
+    for (let g = 0; g < 3 && ((await shown()) ?? target) < target; g++) {
+      const before = await shown();
+      for (const sel of ['button[aria-label*="다음"]', 'button[title*="다음"]', '[class*="btn_next" i]', '[class*="next" i]']) {
+        const loc = f.locator(sel).first();
+        if (!(await loc.isVisible().catch(() => false))) continue;
+        await loc.click({ force: true }).catch(() => {});
+        await sleep(450);
+        if ((await shown()) !== before) break;
+      }
+    }
+    const days = f.locator("button.ui-state-default, table a.ui-state-default");
+    for (let i = 0, n = await days.count().catch(() => 0); i < n; i++) {
+      if ((await days.nth(i).innerText().catch(() => "")).trim() !== String(s.d)) continue;
+      await days.nth(i).click({ force: true }).catch(() => {});
+      break;
+    }
+    await sleep(800);
+    await setTime(); // picking a day can clear the hour/minute selects
+  }
+  const hv = await hourSel.inputValue().catch(() => ""), mv = await minSel.inputValue().catch(() => "");
+  const ok = (await dateOk()) && +hv === s.h && +mv === s.mi;
+  return { ok, reason: `날짜 ${await dateInput.inputValue().catch(() => "")} · ${hv}:${mv}` };
+}
+
+if (sched) {
+  const set = await setReserve(sched);
+  if (!set.ok) await stop(ctx, page, 14, `예약 시각을 ${sched.label}로 맞추지 못했습니다(${set.reason}). 발행하지 않았습니다.`);
+}
 try {
   await frame.getByRole("button", { name: "발행", exact: true }).last().click({ timeout: 15000 });
 } catch {
@@ -264,6 +379,39 @@ try {
 }
 await page.waitForLoadState("domcontentloaded", { timeout: 45000 }).catch(() => {});
 await sleep(8000);
+const decode = (s) => s.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+const marker = post.title.trim().slice(0, 20);
+
+if (sched) {
+  const blogUrl = `https://blog.naver.com/${blogId}`;
+  record({ url: blogUrl, scheduledAt: sched.label, verified: false }); // written first so a rerun can never schedule twice
+  const readTitle = (t) => {
+    let v = String(t || "");
+    try { v = decodeURIComponent(v.replace(/\+/g, " ")); } catch {}
+    return decode(v);
+  };
+  let found = null;
+  for (let i = 0; i < 6 && !found; i++) {
+    if (i) await sleep(5000);
+    await page.goto(`https://blog.naver.com/PostList.naver?blogId=${blogId}`, { waitUntil: "domcontentloaded", timeout: 30000 }).catch(() => {});
+    const rows = await page.evaluate(async (id) => {
+      const r = await fetch(`/PrePostList.naver?blogId=${encodeURIComponent(id)}&editorVersion=4&onlyCount=false`, { credentials: "include" });
+      const j = JSON.parse(await r.text());
+      return j.prePostList || j.result?.prePostList || [];
+    }, blogId).catch(() => []);
+    found = rows.find((r) => readTitle(r.title).includes(marker)) || null;
+  }
+  await ctx.close().catch(() => {});
+  record({ url: blogUrl, scheduledAt: sched.label, logNo: found?.logNo || "", verified: Boolean(found) });
+  warnings.forEach((w) => console.warn(`[${slug}] 주의 · ${w}`));
+  if (!found) {
+    console.error(`[${slug}] 예약 버튼은 눌렀지만 예약 목록에서 제목을 확인하지 못했습니다. 다시 실행하지 말고 글쓰기 화면의 예약 발행 목록을 사람이 확인합니다(${blogUrl}).`);
+    process.exit(9);
+  }
+  console.log(`[${slug}] 예약 완료 · ${sched.label} 발행 예정 · ${post.title}`);
+  process.exit(0);
+}
+
 const landed = page.url();
 const logNo = (landed.match(/[?&]logNo=(\d+)/) || landed.match(/\/(\d{6,})(?:[/?#]|$)/) || [])[1] || "";
 const url = logNo ? `https://blog.naver.com/PostView.naver?blogId=${blogId}&logNo=${logNo}` : `https://blog.naver.com/${blogId}`;
@@ -271,8 +419,6 @@ record({ url, verified: false }); // written before verification so a rerun can 
 await ctx.close().catch(() => {});
 
 // Public check from outside the logged-in browser.
-const decode = (s) => s.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'");
-const marker = post.title.trim().slice(0, 20);
 let verified = false;
 for (let i = 0; i < 12 && !verified; i++) {
   await sleep(5000);

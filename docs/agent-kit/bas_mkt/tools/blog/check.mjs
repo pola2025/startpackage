@@ -186,7 +186,7 @@ const allTexts = [
 {
   const e = [];
   const cards = plan.cards || [], secs = plan.sections || [];
-  if (cards.length !== 4) e.push(`카드 ${cards.length}개(4개 필요)`);
+  if (cards.length !== 4) warnings.push(`카드 ${cards.length}장 · 권장은 4장입니다(피드 미리보기 5칸 = 표지 + 카드 4장)`);
   cards.forEach((c, i) => {
     if ((c.lines || []).length !== 2) e.push(`카드 ${i + 1}: lines는 2줄`);
     (c.lines || []).forEach((l) => width(l) > CARD_LINE_MAX && e.push(`카드 ${i + 1}: "${l}" ${CARD_LINE_MAX}자 초과`));
@@ -196,16 +196,17 @@ const allTexts = [
   const coverLines = [...(plan.cover?.lines || []), ...(plan.cover?.accent || [])];
   if (!coverLines.length || coverLines.length > 4) e.push("표지 lines+accent는 1~4줄");
   coverLines.forEach((l) => width(l) > COVER_LINE_MAX && e.push(`표지 "${l}" ${COVER_LINE_MAX}자 초과`));
-  if (secs.length !== 7) e.push(`소제목 ${secs.length}개(7개 필요)`);
+  if (!secs.length) e.push("소제목(sections)이 없습니다");
+  else if (secs.length !== 7) warnings.push(`소제목 ${secs.length}개 · 권장은 7개입니다`);
   secs.forEach((s, i) => {
     if (!s.heading || [...s.heading].length > HEADING_MAX) e.push(`소제목 ${i + 1}: 1~${HEADING_MAX}자`);
     if (/(는지|인지|을지|ㄹ지)\s*$/.test(s.heading || "")) e.push(`소제목 ${i + 1}: "~는지/~인지"로 끝내지 않습니다`);
     if (!(s.blocks || []).some((b) => b.text)) e.push(`섹션 ${i + 1}: 문단이 없습니다`);
   });
   const photoNums = new Set(secs.flatMap((s) => (s.blocks || []).filter((b) => b.photo).map((b) => b.photo)));
-  if (photoNums.size < 4 || photoNums.size > 5) e.push(`실사 ${photoNums.size}장(4~5장 필요)`);
+  if (photoNums.size < 4 || photoNums.size > 5) warnings.push(`실사 ${photoNums.size}장 · 권장은 4~5장입니다`);
   const charts = secs.flatMap((s) => (s.blocks || []).filter((b) => b.chart).map((b) => b.chart));
-  if (charts.length < 2) e.push(`차트 ${charts.length}개(2개 이상 필요)`);
+  if (charts.length < 2) warnings.push(`차트 ${charts.length}개 · 권장은 2개 이상입니다`);
   charts.forEach((c, i) => !CHART_TYPES.includes(c.type) && e.push(`차트 ${i + 1}: 종류 "${c.type}"`));
   const tags = plan.tags || [];
   if (tags.length < 5 || tags.length > 10) e.push(`태그 ${tags.length}개(5~10개)`);
@@ -214,7 +215,8 @@ const allTexts = [
   const kinds = post.blocks.map((b) => (b.text ? "text" : (b.image.match(/-(cover|card|band|photo|chart|cta)/) || [])[1] || "image"));
   kinds.forEach((k, i) => i && k !== "text" && kinds[i - 1] !== "text" && e.push(`${i}·${i + 1}번째 블록: 이미지끼리 붙어 있습니다`));
   const imgs = kinds.filter((k) => k !== "text");
-  if (imgs.slice(0, 5).join(",") !== "cover,card,card,card,card") e.push("1~5번 이미지는 표지 + 카드 4장이어야 합니다");
+  if (imgs[0] !== "cover") e.push("1번 이미지는 표지여야 합니다");
+  if (imgs.slice(1, 1 + cards.length).some((k) => k !== "card")) e.push("카드는 표지 바로 다음에 놓아야 합니다");
   if (imgs.at(-1) !== "cta" || kinds.at(-1) !== "cta") e.push("CTA가 맨 아래가 아닙니다");
   for (const b of post.blocks) if (b.image && !fs.existsSync(path.join(postDir, b.image))) e.push(`${b.image} 파일이 없습니다`);
   const rr = readJson(path.join(postDir, "out", "render-report.json"), { report: {} });
@@ -222,7 +224,7 @@ const allTexts = [
     if (v.overflow) e.push(`${file}: 글자가 칸을 넘칩니다(${key})`);
     else if ((key === "cover" || key === "card") && v.size < 100) warnings.push(`${file}: 글자 ${v.size}px · 피드 미리보기에서 작게 보입니다`);
   }
-  add("구조", 22, e, `이미지 ${imgs.length}장(카드 4·소제목 7·실사 ${photoNums.size}·차트 ${charts.length}) · CTA 맨 아래`);
+  add("구조", 22, e, `이미지 ${imgs.length}장(카드 ${cards.length}·소제목 ${secs.length}·실사 ${photoNums.size}·차트 ${charts.length}) · CTA 맨 아래`);
 
   // warnings: card wording should come from its section
   cards.forEach((c, i) => {

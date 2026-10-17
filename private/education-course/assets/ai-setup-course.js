@@ -1434,7 +1434,7 @@
       if (s.final)
         return `<section class="slide"><div class="final-stage"><p class="eyebrow">${s.ey}</p><h1>${s.title}</h1><p>${s.desc}</p><div class="final-route">${s.route.map((x) => `<span>${x}</span>`).join("")}</div></div></section>`;
       if (s.concept)
-        return `<section class="slide"><div class="concept"><div class="concept-copy"><span class="step-no">${s.ey}</span><h1>${s.title}</h1><p>${s.desc}</p></div><div>${s.html}</div></div></section>`;
+        return `<section class="slide"><div class="concept"><div class="concept-copy"><span class="step-no">${s.ey}</span><h1>${s.title}</h1><p>${s.desc}</p>${s.note ? `<div class="note">${s.note}</div>` : ""}</div><div>${s.html}</div></div></section>`;
       return lessonSlide(s, i);
     })
     .join("");
