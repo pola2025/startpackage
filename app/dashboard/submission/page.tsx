@@ -454,6 +454,9 @@ export default function SubmissionPage() {
 
     const formData = new FormData(e.target as HTMLFormElement);
     const data = Object.fromEntries(formData.entries());
+    if (section === "basic" && sameAddress) {
+      data.인쇄물받을주소 = data.주소;
+    }
 
     console.log(`📤 [제출정보 저장] 섹션: ${section}`);
     console.log("📋 FormData 수집 결과:", data);

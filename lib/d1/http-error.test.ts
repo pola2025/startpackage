@@ -19,6 +19,22 @@ describe("getDataServiceErrorResponse", () => {
     expect(JSON.stringify(response)).not.toContain("secret");
   });
 
+  it("passes on the Korean message the data service wrote for a 4xx", () => {
+    const response = getDataServiceErrorResponse(
+      new DataServiceRequestError(403, "Data service request failed (403)", "시안 수정은 2회까지만 가능합니다."),
+    );
+
+    expect(response).toEqual({ status: 403, body: { error: "시안 수정은 2회까지만 가능합니다." } });
+  });
+
+  it("never passes on a message for 5xx errors", () => {
+    const response = getDataServiceErrorResponse(
+      new DataServiceRequestError(503, "Data service request failed (503)", "내부 문구"),
+    );
+
+    expect(response?.body.error).toBe("서비스를 일시적으로 사용할 수 없습니다. 잠시 후 다시 시도해주세요.");
+  });
+
   it("redacts upstream diagnostics for 5xx errors", () => {
     const response = getDataServiceErrorResponse(
       new DataServiceRequestError(500, "D1 SQL failed: token=super-secret"),

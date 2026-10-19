@@ -27,6 +27,7 @@ export function getDataServiceErrorResponse(error: unknown): DataServiceHttpErro
   if (!(error instanceof DataServiceRequestError)) return null;
 
   const status = normalizeStatus(error.status);
+  if (status < 500 && error.publicMessage) return { status, body: { error: error.publicMessage } };
   const message = SAFE_MESSAGES[status] ?? (status >= 500 ? DEFAULT_MESSAGE : "요청을 처리할 수 없습니다.");
   return { status, body: { error: message } };
 }

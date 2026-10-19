@@ -2,10 +2,18 @@ import "server-only";
 import { isMigrationMaintenance } from "./maintenance";
 
 export class DataServiceRequestError extends Error {
-  constructor(public readonly status: number, message: string) {
+  constructor(public readonly status: number, message: string, public readonly publicMessage?: string) {
     super(message);
     this.name = "DataServiceRequestError";
   }
+}
+
+// Only short Korean 4xx messages written for users are passed on; English diagnostics stay hidden.
+async function publicErrorMessage(result: Response): Promise<string | undefined> {
+  if (result.status < 400 || result.status >= 500) return undefined;
+  const body = await result.json().catch(() => null) as { error?: unknown } | null;
+  const message = body?.error;
+  return typeof message === "string" && message.length <= 200 && /[가-힣]/.test(message) ? message : undefined;
 }
 
 export async function callDataService<T>(operation: string, input: unknown): Promise<T> {
@@ -35,7 +43,7 @@ export async function callDataService<T>(operation: string, input: unknown): Pro
   }
   if (!result.ok) {
     // Do not forward upstream diagnostics or credential-bearing request data.
-    throw new DataServiceRequestError(result.status, `Data service request failed (${result.status})`);
+    throw new DataServiceRequestError(result.status, `Data service request failed (${result.status})`, await publicErrorMessage(result));
   }
   return result.json() as Promise<T>;
 }

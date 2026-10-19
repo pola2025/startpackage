@@ -947,7 +947,7 @@ function UserCommunicationContent() {
                           {selectedThread.category}
                         </Badge>
                         <span className="text-xs text-gray-400">
-                          {selectedThread._count.messages}개 메시지 ·{" "}
+                          {selectedThread._count?.messages ?? selectedThread.messages.length}개 메시지 ·{" "}
                           {formatTime(selectedThread.lastReplyAt)}
                         </span>
                       </div>

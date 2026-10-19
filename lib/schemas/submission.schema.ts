@@ -20,7 +20,7 @@ export const submissionSchema = z.object({
 
   // === 선택 항목 ===
   대표번호: z.string().optional(),
-  이메일: z.string().email("유효한 이메일을 입력해주세요").optional(),
+  이메일: z.union([z.literal(""), z.string().email("유효한 이메일을 입력해주세요")]).optional(),
 
   // 로고
   로고URL: z.string().optional(),
