@@ -23,7 +23,10 @@ import {
 } from "lucide-react";
 // toast 대신 alert 사용
 import Image from "next/image";
-import imageCompression from "browser-image-compression";
+import {
+  DOCUMENT_MAX_BYTES,
+  UPLOAD_CONTACT,
+} from "@/lib/submission/uploadValidation";
 import { HomepageStyleExplorer } from "@/components/submission/homepage-style-explorer";
 import {
   HOMEPAGE_STYLE_OPTIONS,
@@ -131,31 +134,19 @@ export default function HomepageSettingsPage() {
 
   // 이미지 업로드 핸들러
   const handleImageUpload = async (file: File) => {
+    // 슬랙에는 원본을 보내므로 줄이지 않는다. 일반 업로드 본문 한도(4.5MB)를 넘으면 메일로 받는다.
+    if (file.size > DOCUMENT_MAX_BYTES) {
+      alert(
+        `카드 사진은 4MB 이하만 올릴 수 있습니다. 더 큰 파일은 ${UPLOAD_CONTACT}로 보내 주세요.`,
+      );
+      return;
+    }
+
     setUploadingFront(true);
 
     try {
-      // 이미지 자동 압축 (GIF 제외)
-      let processedFile = file;
-      if (file.type.startsWith("image/") && file.type !== "image/gif") {
-        try {
-          const options = {
-            maxSizeMB: 1,
-            maxWidthOrHeight: 1920,
-            useWebWorker: true,
-            fileType: file.type as string,
-          };
-          const compressedFile = await imageCompression(file, options);
-          processedFile = new File([compressedFile], file.name, {
-            type: compressedFile.type,
-            lastModified: Date.now(),
-          });
-        } catch (compressionError) {
-          console.error("[압축] 이미지 압축 실패:", compressionError);
-        }
-      }
-
       const formData = new FormData();
-      formData.append("file", processedFile);
+      formData.append("file", file);
       formData.append("field", "해외결제카드앞면URL");
 
       const response = await fetch("/api/upload", {

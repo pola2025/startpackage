@@ -26,11 +26,13 @@ import {
   Shield,
 } from "lucide-react";
 import { SLACK_ONLY_MARKER } from "@/lib/constants/sensitiveFields";
-import imageCompression from "browser-image-compression";
 import {
   uploadProfilePhoto,
   toUploadMessage,
 } from "@/lib/submission/uploadProfile";
+import { uploadDisplayImage } from "@/lib/submission/uploadDisplayImage";
+import { isDisplayImageField } from "@/lib/constants/displayImageFields";
+import { isImageFile } from "@/lib/submission/uploadValidation";
 // ProgressBar removed - progress integrated into tab triggers
 import {
   calculateProgress,
@@ -346,39 +348,22 @@ export default function SubmissionPage() {
       return;
     }
 
-    // 사업자등록증URL 이미지는 자동 압축
-    // (프로필사진URL은 원본을 슬랙으로 전송해야 하므로 압축하지 않음 — 서버에서 webp 압축본을 별도 생성)
-    if (
-      field === "사업자등록증URL" &&
-      file.type.startsWith("image/") &&
-      file.type !== "image/gif"
-    ) {
+    // 사업자등록증·로고 이미지: 브라우저에서 줄이지 않고 R2 직접 업로드 (원본→슬랙, 표시용 webp→R2, 최대 20MB)
+    if (isDisplayImageField(field) && isImageFile(file)) {
       try {
-        console.log(
-          `[압축] 원본 파일 크기: ${(file.size / 1024 / 1024).toFixed(2)}MB`,
-        );
-
-        const options = {
-          maxSizeMB: 2, // 최대 2MB로 압축
-          maxWidthOrHeight: 1920, // 최대 해상도
-          useWebWorker: true,
-          fileType: file.type,
-        };
-
-        const compressedFile = await imageCompression(file, options);
-        console.log(
-          `[압축] 압축 후 파일 크기: ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`,
-        );
-
-        // 압축된 파일로 교체
-        file = new File([compressedFile], file.name, {
-          type: compressedFile.type,
-          lastModified: Date.now(),
-        });
-      } catch (compressionError) {
-        console.error("[압축] 이미지 압축 실패:", compressionError);
-        // 압축 실패 시 원본 파일 사용
+        const url = await uploadDisplayImage(file, field);
+        const success = await updateSubmission(field, url);
+        if (success) {
+          alert("파일이 성공적으로 업로드되었습니다!");
+        } else {
+          alert("파일 업로드는 성공했지만 저장에 실패했습니다.");
+        }
+      } catch (err) {
+        alert(toUploadMessage(err));
+      } finally {
+        setUploading(false);
       }
+      return;
     }
 
     const formData = new FormData();
