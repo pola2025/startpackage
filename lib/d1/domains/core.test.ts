@@ -157,6 +157,19 @@ describe("coreOperation", () => {
     expect(db.raw.prepare('SELECT COUNT(*) AS count FROM design_history WHERE workflowId = ?').get("workflow-test")).toEqual({ count: 1 });
   });
 
+  it("keeps the thread status when a plain message is posted", async () => {
+    const db = database();
+    db.raw.prepare('INSERT INTO "workflows" ("id", "userId", "type", "status", "updatedAt") VALUES (?, ?, ?, ?, ?)').run("workflow-test", "user-test", "로고", "최종확정", 0);
+    const thread = await coreOperation(db, "design-thread-create", { workflowId: "workflow-test" }) as { id: string };
+    db.raw.prepare('UPDATE "design_threads" SET "status" = ? WHERE "id" = ?').run("confirmed", thread.id);
+    const fromUser = await coreOperation(db, "design-thread-message", { userId: "user-test", threadId: thread.id, messageType: "message", content: "감사합니다" }) as { thread: { status: string } };
+    expect(fromUser.thread.status).toBe("confirmed");
+    const fromAdmin = await coreOperation(db, "design-thread-message", { userId: "admin-test", actorType: "admin", threadId: thread.id, messageType: "message", content: "최종 파일 올려드릴게요" }) as { thread: { status: string } };
+    expect(fromAdmin.thread.status).toBe("confirmed");
+    const revision = await coreOperation(db, "design-thread-message", { userId: "user-test", threadId: thread.id, messageType: "revision_request", content: "수정" }) as { thread: { status: string } };
+    expect(revision.thread.status).toBe("revision_requested");
+  });
+
   it("enforces workflow order, feedback, save, and modal ownership rules", async () => {
     const db = database();
     db.raw.prepare('INSERT INTO "workflows" ("id", "userId", "type", "status", "updatedAt") VALUES (?, ?, ?, ?, ?)').run("workflow-test", "user-test", "명함", "발주대기", 0);

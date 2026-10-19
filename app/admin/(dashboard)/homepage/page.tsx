@@ -244,19 +244,19 @@ export default function HomepageManagementPage() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [usersRes, cohortsRes] = await Promise.all([
-        fetch("/api/admin/homepage"),
-        fetch("/api/admin/cohorts"),
-      ]);
+      const usersRes = await fetch("/api/admin/homepage");
 
       if (usersRes.ok) {
-        const data = await usersRes.json();
+        const data: User[] = await usersRes.json();
         setUsers(data);
-      }
-
-      if (cohortsRes.ok) {
-        const data = await cohortsRes.json();
-        setCohorts(data);
+        // 기수 필터는 목록에 나온 회원의 기수로 채운다
+        const cohortMap = new Map<string, Cohort>();
+        for (const user of data) {
+          if (user.cohort) cohortMap.set(user.cohort.id, user.cohort);
+        }
+        setCohorts(
+          [...cohortMap.values()].sort((a, b) => b.name.localeCompare(a.name, "ko", { numeric: true })),
+        );
       }
     } catch (error) {
       console.error("Failed to fetch data:", error);

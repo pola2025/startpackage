@@ -519,15 +519,26 @@ export default function WorkflowsClient({
     workflowId: string,
     newStatus: WorkflowStatus,
   ) => {
+    const workflow = allWorkflows.find((w) => w.id === workflowId);
     try {
-      const response = await fetch(`/api/workflows/${workflowId}`, {
-        method: "PATCH",
+      const response = await fetch("/api/admin/workflows/update", {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify({
+          workflowId,
+          status: newStatus,
+          expectedUpdatedAt: workflow?.updatedAt,
+        }),
       });
 
+      if (response.status === 409) {
+        const data = await response.json().catch(() => ({}));
+        alert(data.error || "다른 곳에서 바뀐 항목입니다. 새로고침한 뒤 다시 시도해주세요.");
+        window.location.reload();
+        return;
+      }
       if (!response.ok) {
         throw new Error("상태 업데이트 실패");
       }

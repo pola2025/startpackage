@@ -576,7 +576,7 @@ export default function WorkflowsPage() {
                                 <div className="flex flex-col gap-1.5 md:gap-2">
                                   {/* 로고: 시안 확정 버튼 */}
                                   {workflow.type === "로고" &&
-                                    workflow.status !== "최종확정" && (
+                                    workflow.status === "시안컨펌요청" && (
                                       <Button
                                         size="sm"
                                         onClick={() => {
