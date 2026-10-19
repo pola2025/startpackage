@@ -51,6 +51,21 @@ export function getConfirmAgreements(workflowType: string) {
     : CONFIRM_AGREEMENTS;
 }
 
+/** 발주가 시작된 상태 — 여기서 시안을 다시 확정하면 진행 중인 품목이 발주요청으로 되돌아간다 */
+export const ORDER_STARTED_STATUSES = [
+  "발주요청",
+  "발주완료",
+  "제작완료",
+  "제작 완료",
+  "배송중",
+  "발송완료",
+  "최종확정",
+];
+
+export function canConfirmDesign(workflowStatus: string) {
+  return !ORDER_STARTED_STATUSES.includes(workflowStatus);
+}
+
 export interface ShippingSnapshot {
   인쇄물받을주소: string;
   받는분이름: string;

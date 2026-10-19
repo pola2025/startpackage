@@ -1,7 +1,7 @@
 "use client";
 
 import { PrintColorNotice } from "@/components/design/print-color-notice";
-import { PRINT_COLOR_AGREEMENT } from "@/lib/design-confirm";
+import { PRINT_COLOR_AGREEMENT, canConfirmDesign } from "@/lib/design-confirm";
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -540,7 +540,8 @@ export default function UserDesignThreadsPage() {
     selectedThread &&
     (selectedThread.status === "uploaded" ||
       selectedThread.status === "feedback_waiting") &&
-    selectedThread.currentVersion > 0;
+    selectedThread.currentVersion > 0 &&
+    canConfirmDesign(selectedThread.workflow.status);
 
   return (
     <div

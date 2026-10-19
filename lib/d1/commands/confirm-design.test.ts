@@ -119,6 +119,15 @@ describe("confirmDesign", () => {
     expect(counts(badShipping.raw)).toEqual({ messages: { count: 1 }, logs: { count: 0 } });
   });
 
+  it("does not reopen a workflow whose order has already started", async () => {
+    const { raw, db } = seed();
+    raw.prepare('UPDATE "workflows" SET "status" = ? WHERE "id" = ?').run("발송완료", "workflow-1");
+    await expect(confirmDesign(db, validInput)).rejects.toMatchObject({ status: 409 });
+    expect(counts(raw)).toEqual({ messages: { count: 1 }, logs: { count: 0 } });
+    expect(raw.prepare('SELECT "status" FROM "workflows" WHERE "id" = ?').get("workflow-1")).toEqual({ status: "발송완료" });
+    expect(raw.prepare('SELECT "status" FROM "design_threads" WHERE "id" = ?').get("thread-1")).toEqual({ status: "uploaded" });
+  });
+
   it("rejects a second confirmation and preserves one message", async () => {
     const { raw, db } = seed();
     await confirmDesign(db, validInput);

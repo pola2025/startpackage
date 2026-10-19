@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import {
   buildConfirmSnapshot,
+  canConfirmDesign,
   validateConfirmPayload,
   type ShippingSnapshot,
 } from "@/lib/design-confirm";
@@ -99,6 +100,14 @@ export async function POST(
       return NextResponse.json(
         { error: "Already confirmed" },
         { status: 400 }
+      );
+    }
+
+    // 발주가 시작된 품목은 다시 확정하지 않는다
+    if (!canConfirmDesign(thread.workflow.status)) {
+      return NextResponse.json(
+        { error: "Order already started" },
+        { status: 409 }
       );
     }
 

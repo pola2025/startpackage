@@ -1,5 +1,6 @@
 import {
   buildConfirmSnapshot,
+  canConfirmDesign,
   validateConfirmPayload,
   type ShippingSnapshot,
 } from "@/lib/design-confirm";
@@ -84,6 +85,7 @@ export async function confirmDesign(
 
   if (!thread) throw new DataServiceError(404, "Thread not found");
   if (thread.status === "confirmed") throw new DataServiceError(400, "Already confirmed");
+  if (!canConfirmDesign(thread.workflowStatus)) throw new DataServiceError(409, "Order already started");
 
   const latestDesign = await db
     .prepare(
