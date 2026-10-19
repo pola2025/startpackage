@@ -432,6 +432,8 @@ function UserCommunicationContent() {
     try {
       const formData = new FormData();
       formData.append("file", file);
+      // 1:1 문의 첨부 이미지는 슬랙 Q&A 채널에 원본을 올린다.
+      formData.append("purpose", "inquiry");
 
       const response = await fetch("/api/communication/upload", {
         method: "POST",

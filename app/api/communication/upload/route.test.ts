@@ -2,9 +2,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   uploadToR2: vi.fn(),
+  saveCommunicationOriginal: vi.fn(),
 }));
 
 vi.mock("@/auth", () => ({ auth: async () => ({ user: { id: "user-1" } }) }));
+vi.mock("@/lib/storage/communicationOriginal", () => ({
+  saveCommunicationOriginal: mocks.saveCommunicationOriginal,
+}));
 vi.mock("@/lib/storage/r2Client", () => ({
   uploadToR2: mocks.uploadToR2,
   generateFileName: (field: string, name: string) =>
@@ -25,6 +29,7 @@ function upload(
   type: string,
   bytes: Uint8Array,
   size = bytes.length,
+  purpose?: string,
 ) {
   const file = {
     name,
@@ -34,7 +39,9 @@ function upload(
       bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength),
   };
   return POST({
-    formData: async () => ({ get: () => file }),
+    formData: async () => ({
+      get: (key: string) => (key === "file" ? file : (purpose ?? null)),
+    }),
   } as unknown as Request);
 }
 
@@ -43,6 +50,7 @@ const pdfBytes = new TextEncoder().encode("%PDF-1.7 sample");
 describe("POST /api/communication/upload", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.saveCommunicationOriginal.mockResolvedValue(undefined);
     mocks.uploadToR2.mockImplementation(
       async (
         _buffer: Buffer,
@@ -69,6 +77,7 @@ describe("POST /api/communication/upload", () => {
     expect(folder).toBe("communication/user-1");
     expect(body.url).toContain("%EC%82%AC%EC%97%85%EC%9E%90");
     expect(body.url).not.toMatch(/[가-힣\s]/);
+    expect(mocks.saveCommunicationOriginal).not.toHaveBeenCalled();
   });
 
   it("rejects a file whose content does not match its extension", async () => {
@@ -120,5 +129,33 @@ describe("POST /api/communication/upload", () => {
     expect(Buffer.from(buffer).toString()).toBe("webp-bytes");
     expect(fileName).toBe("communication_1.webp");
     expect(contentType).toBe("image/webp");
+  });
+
+  it("keeps the student's original image for the Slack Q&A channel", async () => {
+    const pngBytes = new Uint8Array([0x89, 0x50, 0x4e, 0x47]);
+    const response = await upload(
+      "photo.png",
+      "image/png",
+      pngBytes,
+      pngBytes.length,
+      "inquiry",
+    );
+
+    expect(response.status).toBe(200);
+    const saved = mocks.saveCommunicationOriginal.mock.calls[0][0];
+    expect(saved.webpKey).toBe("communication/user-1/communication_1.webp");
+    expect([...saved.buffer]).toEqual([...pngBytes]);
+    expect(saved.contentType).toBe("image/png");
+  });
+
+  it("does not keep originals for uploads outside the inquiry screen", async () => {
+    const response = await upload(
+      "photo.png",
+      "image/png",
+      new Uint8Array([0x89, 0x50, 0x4e, 0x47]),
+    );
+
+    expect(response.status).toBe(200);
+    expect(mocks.saveCommunicationOriginal).not.toHaveBeenCalled();
   });
 });

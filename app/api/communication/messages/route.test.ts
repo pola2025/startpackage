@@ -4,6 +4,8 @@ const mocks = vi.hoisted(() => ({
   callDataService: vi.fn(),
   sendInquiryTelegramMessage: vi.fn(),
   postMessage: vi.fn(),
+  loadCommunicationOriginals: vi.fn(),
+  sendCommunicationOriginals: vi.fn(),
 }));
 
 vi.mock("@/auth", () => ({
@@ -30,6 +32,10 @@ vi.mock("@/lib/notification/telegramClient", () => ({
 vi.mock("@/lib/notification/slackClient", () => ({
   postMessage: mocks.postMessage,
 }));
+vi.mock("@/lib/storage/communicationOriginal", () => ({
+  loadCommunicationOriginals: mocks.loadCommunicationOriginals,
+  sendCommunicationOriginals: mocks.sendCommunicationOriginals,
+}));
 
 import { POST } from "./route";
 
@@ -54,6 +60,13 @@ describe("POST /api/communication/messages with D1 runtime", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     process.env.SLACK_QNA_CHANNEL_ID = "C_TEST_QNA";
+    mocks.loadCommunicationOriginals.mockResolvedValue([]);
+    mocks.sendCommunicationOriginals.mockResolvedValue(0);
+    mocks.callDataService.mockResolvedValue({
+      success: true,
+      message: { id: "message-1" },
+      notify: { title: "추가 자료 전달" },
+    });
   });
 
   it("notifies Telegram and Slack with the thread title and hides notify from the response", async () => {
@@ -86,6 +99,35 @@ describe("POST /api/communication/messages with D1 runtime", () => {
     expect(JSON.stringify(mocks.postMessage.mock.calls[0][0].blocks)).toContain(
       `<${pdfUrl}|사업자등록증.pdf>`,
     );
+  });
+
+  it("sends image originals to Slack instead of the webp link", async () => {
+    const imageUrl =
+      "https://files.example.test/communication/user-1/communication_1.webp";
+    const original = {
+      url: imageUrl,
+      key: "communication/user-1/_original/communication_1",
+      buffer: Buffer.from("original"),
+      extension: "jpg",
+    };
+    mocks.loadCommunicationOriginals.mockResolvedValue([original]);
+
+    await reply([pdfUrl, imageUrl]);
+
+    expect(mocks.loadCommunicationOriginals).toHaveBeenCalledWith("user-1", [
+      pdfUrl,
+      imageUrl,
+    ]);
+    const slack = JSON.stringify(mocks.postMessage.mock.calls[0][0].blocks);
+    expect(slack).toContain(`<${pdfUrl}|사업자등록증.pdf>`);
+    expect(slack).not.toContain(imageUrl);
+    expect(mocks.sendCommunicationOriginals).toHaveBeenCalledWith({
+      channelId: "C_TEST_QNA",
+      originals: [original],
+      sender: "27기 홍길동",
+    });
+    // 화면과 텔레그램은 지금처럼 웹 표시용 주소를 쓴다.
+    expect(mocks.sendInquiryTelegramMessage.mock.calls[0][0]).toContain(imageUrl);
   });
 
   it("still notifies when the data service has not been updated to return notify", async () => {

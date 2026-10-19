@@ -7,6 +7,7 @@ import {
 } from "@/lib/storage/r2Client";
 import sharp from "sharp";
 import { fileSizeExceededPayload } from "@/lib/storage/uploadLimits";
+import { saveCommunicationOriginal } from "@/lib/storage/communicationOriginal";
 import {
   COMMUNICATION_UPLOAD_MAX_BYTES,
   DOCUMENT_CONTENT_TYPES,
@@ -74,6 +75,8 @@ export async function POST(request: Request) {
     const userId = (session.user as any).id;
     const formData = await request.formData();
     const file = formData.get("file") as File;
+    // 1:1 문의 화면에서 올린 이미지만 원본을 따로 둔다. 시안 수정 요청·관리자 첨부는 슬랙 Q&A 채널로 가지 않는다.
+    const keepOriginal = formData.get("purpose") === "inquiry";
 
     if (!file) {
       return NextResponse.json(
@@ -154,6 +157,8 @@ export async function POST(request: Request) {
       });
     }
 
+    const originalBuffer = buffer;
+
     // WebP로 자동 압축 (품질 85%, 메타데이터 제거)
     try {
       const compressedBuffer = await sharp(buffer)
@@ -173,7 +178,7 @@ export async function POST(request: Request) {
     // 파일명을 .webp 확장자로 변경
     const originalName = file.name.replace(/\.[^/.]+$/, ".webp");
     const filename = generateFileName("communication", originalName);
-    const { url } = await uploadToR2(
+    const { url, key } = await uploadToR2(
       buffer,
       filename,
       "image/webp",
@@ -181,6 +186,17 @@ export async function POST(request: Request) {
     );
 
     console.log("[Upload Communication] R2 업로드 완료:", url);
+
+    // 화면에는 webp 를 쓰고, 슬랙 Q&A 채널에는 문의가 접수될 때 이 원본을 올린다.
+    if (keepOriginal) {
+      await saveCommunicationOriginal({
+        webpKey: key,
+        buffer: originalBuffer,
+        contentType: file.type,
+      }).catch((error) =>
+        console.error("[Upload Communication] 원본 보관 실패:", error),
+      );
+    }
 
     return NextResponse.json({
       success: true,

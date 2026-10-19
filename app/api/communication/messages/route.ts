@@ -9,13 +9,14 @@ import { attachmentLinks } from "@/lib/communication/attachments";
 // 사용자가 남긴 답글을 관리자에게 알린다. 알림이 실패해도 답글 저장은 유지한다.
 async function notifyInquiryReply(input: {
   threadId: string;
+  userId: string;
   userName: string;
   cohortName?: string | null;
   title: string;
   content: string;
   attachments?: unknown;
 }) {
-  const { threadId, userName, cohortName, title, content } = input;
+  const { threadId, userId, userName, cohortName, title, content } = input;
   // 누가 보낸 답글인지 바로 알 수 있게 기수를 이름 앞에 붙인다.
   const sender = cohortName ? `${cohortName} ${userName}` : userName;
   const files = attachmentLinks(input.attachments);
@@ -42,6 +43,16 @@ async function notifyInquiryReply(input: {
     const SLACK_QNA_CHANNEL_ID = process.env.SLACK_QNA_CHANNEL_ID;
     if (SLACK_QNA_CHANNEL_ID) {
       const { postMessage } = await import("@/lib/notification/slackClient");
+      // 이미지 원본은 파일로 올리므로 링크에는 원본이 없는 첨부(문서·예전 이미지)만 남긴다.
+      const { loadCommunicationOriginals, sendCommunicationOriginals } =
+        await import("@/lib/storage/communicationOriginal");
+      const originals = await loadCommunicationOriginals(
+        userId,
+        files.map((file) => file.url),
+      );
+      const linkFiles = files.filter(
+        (file) => !originals.some((original) => original.url === file.url),
+      );
       await postMessage({
         channelId: SLACK_QNA_CHANNEL_ID,
         text: `💬 [${sender}] 추가 메시지`,
@@ -67,13 +78,13 @@ async function notifyInquiryReply(input: {
               text: `*내용:*\n${content}`,
             },
           },
-          ...(files.length
+          ...(linkFiles.length
             ? [
                 {
                   type: "section",
                   text: {
                     type: "mrkdwn",
-                    text: `*첨부:*\n${files.map((file) => `• <${file.url}|${file.name}>`).join("\n")}`,
+                    text: `*첨부:*\n${linkFiles.map((file) => `• <${file.url}|${file.name}>`).join("\n")}`,
                   },
                 },
               ]
@@ -88,6 +99,11 @@ async function notifyInquiryReply(input: {
             ],
           },
         ],
+      });
+      await sendCommunicationOriginals({
+        channelId: SLACK_QNA_CHANNEL_ID,
+        originals,
+        sender,
       });
     }
   } catch (error) {
@@ -122,6 +138,7 @@ export async function POST(request: Request) {
         attachments,
       });
       await notifyInquiryReply({
+        userId,
         threadId,
         userName,
         cohortName,
@@ -174,6 +191,7 @@ export async function POST(request: Request) {
     });
 
     await notifyInquiryReply({
+      userId,
       threadId,
       userName,
       cohortName,
