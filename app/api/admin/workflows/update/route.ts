@@ -11,6 +11,7 @@ import {
   logProgress,
 } from "@/lib/notification/notificationService";
 import { calculateExpectedArrival } from "@/lib/utils/businessDays";
+import { toEpochMs } from "@/lib/submission/parts";
 import {
   HOMEPAGE_COMPLETE_STATUS,
   hasHomepageResultUrl,
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { workflowId, status, 택배회사, 운송장번호, 시안URL, feedbackRead } =
+    const { workflowId, status, 택배회사, 운송장번호, 시안URL, feedbackRead, expectedUpdatedAt } =
       body;
 
     if (!workflowId) {
@@ -51,6 +52,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "워크플로우를 찾을 수 없습니다." },
         { status: 404 },
+      );
+    }
+
+    // 화면을 연 뒤 교육생이나 다른 관리자가 바꾼 항목을 옛 값으로 덮지 않는다
+    if (
+      expectedUpdatedAt !== undefined &&
+      toEpochMs(expectedUpdatedAt) !== toEpochMs(currentWorkflow.updatedAt)
+    ) {
+      return NextResponse.json(
+        { error: "화면을 연 뒤 이 항목이 바뀌었습니다. 새로고침한 뒤 다시 저장해주세요." },
+        { status: 409 },
       );
     }
 

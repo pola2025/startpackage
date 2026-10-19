@@ -32,6 +32,7 @@ interface Workflow {
   feedbackRead?: boolean;
   feedbackDate?: string | null;
   자료제출일?: string | null;
+  updatedAt?: string | number | null;
   user: {
     id: string;
     이름: string;
@@ -82,7 +83,8 @@ export default function UrgentAlertModal({
   });
 
   // 피드백 확인 처리
-  const handleMarkFeedbackRead = async (workflowId: string) => {
+  const handleMarkFeedbackRead = async (workflow: Workflow) => {
+    const workflowId = workflow.id;
     setLoading(workflowId);
     try {
       const response = await fetch("/api/admin/workflows/update", {
@@ -90,12 +92,17 @@ export default function UrgentAlertModal({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           workflowId,
+          status: workflow.status,
           feedbackRead: true,
+          expectedUpdatedAt: workflow.updatedAt,
         }),
       });
 
       if (response.ok) {
         setMarkedAsRead((prev) => new Set(prev).add(workflowId));
+      } else if (response.status === 409) {
+        alert("다른 곳에서 바뀐 항목입니다. 목록을 새로 불러옵니다.");
+        onRefresh();
       }
     } catch (error) {
       console.error("피드백 확인 처리 실패:", error);
@@ -105,7 +112,8 @@ export default function UrgentAlertModal({
   };
 
   // 발주 승인 처리
-  const handleApproveOrder = async (workflowId: string) => {
+  const handleApproveOrder = async (workflow: Workflow) => {
+    const workflowId = workflow.id;
     setLoading(workflowId);
     try {
       const response = await fetch("/api/admin/workflows/update", {
@@ -114,10 +122,14 @@ export default function UrgentAlertModal({
         body: JSON.stringify({
           workflowId,
           status: "발주완료",
+          expectedUpdatedAt: workflow.updatedAt,
         }),
       });
 
       if (response.ok) {
+        onRefresh();
+      } else if (response.status === 409) {
+        alert("다른 곳에서 바뀐 항목입니다. 목록을 새로 불러옵니다.");
         onRefresh();
       }
     } catch (error) {
@@ -275,7 +287,7 @@ export default function UrgentAlertModal({
                     {alertType === "발주요청" && (
                       <Button
                         size="sm"
-                        onClick={() => handleApproveOrder(workflow.id)}
+                        onClick={() => handleApproveOrder(workflow)}
                         disabled={loading === workflow.id}
                         className="bg-ok-600 hover:bg-ok-700"
                       >
@@ -291,7 +303,7 @@ export default function UrgentAlertModal({
                     {alertType === "피드백" && (
                       <Button
                         size="sm"
-                        onClick={() => handleMarkFeedbackRead(workflow.id)}
+                        onClick={() => handleMarkFeedbackRead(workflow)}
                         disabled={loading === workflow.id}
                         className="bg-terra-500 hover:bg-terra-600"
                       >

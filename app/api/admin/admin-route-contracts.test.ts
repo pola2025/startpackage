@@ -105,4 +105,13 @@ describe("admin route security and D1 contracts", () => {
     expect(response.status).toBe(503);
     expect(state.workflowUpdate).not.toHaveBeenCalled();
   });
+
+  it("rejects a workflow save made from a stale admin screen", async () => {
+    state.d1Enabled = true;
+    state.callDataService.mockResolvedValueOnce({ id: "workflow-1", userId: "user-1", type: "명함", status: "발주요청", updatedAt: "1970-01-01T00:00:02.000Z", 시안URL: "https://r2.example/a.jpg" });
+    const response = await workflowUpdate(postRequest({ workflowId: "workflow-1", status: "발주대기", 운송장번호: "123", expectedUpdatedAt: "1970-01-01T00:00:01.000Z" }));
+    expect(response.status).toBe(409);
+    expect(state.callDataService).toHaveBeenCalledTimes(1);
+    expect(state.callDataService).not.toHaveBeenCalledWith("admin-domain/workflow-save", expect.anything());
+  });
 });

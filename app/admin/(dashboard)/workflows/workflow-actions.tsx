@@ -67,6 +67,12 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
   // 시안 이력 불러오기
   useEffect(() => {
     if (open) {
+      // 처음 렌더한 값이 아니라 지금 목록에 있는 값으로 다시 맞춘다
+      setStatus(workflow.status);
+      set택배회사(workflow.택배회사 || "");
+      set운송장번호(workflow.운송장번호 || "");
+      set홈페이지URL(workflow.시안URL || "");
+      set시안파일(null);
       fetchDesignHistory();
       if (workflow.type === "홈페이지") {
         fetchSubmission();
@@ -172,9 +178,17 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
           workflowId: workflow.id,
           status: workflow.status,
           feedbackRead: true,
+          expectedUpdatedAt: workflow.updatedAt,
         }),
       });
 
+      if (response.status === 409) {
+        const data = await response.json().catch(() => ({}));
+        alert(data.error || "다른 곳에서 바뀐 항목입니다. 새로고침한 뒤 다시 시도해주세요.");
+        setOpen(false);
+        router.refresh();
+        return;
+      }
       if (!response.ok) {
         throw new Error("피드백 확인 처리 실패");
       }
@@ -221,9 +235,17 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
           택배회사: 택배회사 || null,
           운송장번호: 운송장번호 || null,
           시안URL: 시안URL || null,
+          expectedUpdatedAt: workflow.updatedAt,
         }),
       });
 
+      if (response.status === 409) {
+        const data = await response.json().catch(() => ({}));
+        alert(data.error || "다른 곳에서 바뀐 항목입니다. 새로고침한 뒤 다시 저장해주세요.");
+        setOpen(false);
+        router.refresh();
+        return;
+      }
       if (!response.ok) {
         throw new Error("업데이트 실패");
       }
