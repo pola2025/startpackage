@@ -61,6 +61,7 @@ const SUBMISSION_FIELDS = new Set([
 
 const SHIPPING_FIELDS = ["인쇄물받을주소", "받는분이름", "수령연락처", "우편번호"] as const;
 const LOCKED_PRINT_STATUSES = ["발주요청", "발주완료", "제작완료", "발송완료"] as const;
+const PRINT_TYPES = ["명함", "명찰", "대봉투", "자문계약서 표지", "자문계약서 내지"] as const;
 
 async function assertShippingFieldsUnchanged(
   db: Database,
@@ -87,6 +88,18 @@ function shippingLockPredicate(entries: Array<[string, unknown]>): { sql: string
     sql: ` AND (NOT EXISTS (SELECT 1 FROM \"workflows\" WHERE \"userId\" = ? AND \"type\" IN ('명함', '명찰', '대봉투', '자문계약서 표지', '자문계약서 내지') AND \"status\" IN (${LOCKED_PRINT_STATUSES.map(() => "?").join(", ")})) OR (${fields.map(([key]) => `\"${key}\" IS ?`).join(" AND ")}))`,
     values: ["__LOCK_USER__", ...LOCKED_PRINT_STATUSES, ...fields.map(([, value]) => sqlValue(value))],
   };
+}
+
+async function waitingPrintTypes(db: Database, userId: string, types: readonly string[]): Promise<string[]> {
+  const rows = await db.prepare(`SELECT "type", "status" FROM "workflows" WHERE "userId" = ? AND "type" IN (${types.map(() => "?").join(", ")}) LIMIT ${types.length}`).bind(userId, ...types).all<{ type: string; status: string }>();
+  const status = new Map(rows.results.map((row) => [row.type, row.status]));
+  return types.filter((type) => !status.has(type) || status.get(type) === "대기");
+}
+
+// 이미 진행 중인 품목은 그대로 두고 대기 품목만 시안중으로 넘긴다.
+function printRequestStatement(db: Database, userId: string, type: string, now: number) {
+  return db.prepare(`INSERT INTO "workflows" ("id", "userId", "type", "status", "자료제출일", "createdAt", "updatedAt") VALUES (?, ?, ?, '시안중', ?, ?, ?)
+    ON CONFLICT ("userId", "type") DO UPDATE SET "status" = '시안중', "자료제출일" = excluded."자료제출일", "updatedAt" = excluded."updatedAt" WHERE "workflows"."status" = '대기'`).bind(crypto.randomUUID(), userId, type, now, now, now);
 }
 
 function stringValue(input: CoreInput, key: string): string {
@@ -187,21 +200,28 @@ async function saveSubmission(db: Database, input: CoreInput): Promise<unknown> 
     statements.push(db.prepare(`INSERT INTO "workflows" ("id", "userId", "type", "status", "isDraft", "자료제출일", "createdAt", "updatedAt")
       SELECT ?, ?, '홈페이지', '제작 진행 중', 0, ?, ?, ? WHERE NOT EXISTS (SELECT 1 FROM "workflows" WHERE "userId" = ? AND "type" = '홈페이지')`).bind(homepageId, id, now, now, now, id));
   }
-  if (merged.isComplete === true) {
-    const deadline = calculateDesignDeadline(new Date(now));
-    statements.push(db.prepare('UPDATE "submissions" SET "isComplete" = 1, "completedAt" = COALESCE("completedAt", ?), "시안예정일" = ?, "updatedAt" = ? WHERE "userId" = ?').bind(now, deadline.getTime(), now, id));
-    for (const type of ["명함", "명찰", "대봉투", "자문계약서 표지", "자문계약서 내지"]) {
-      statements.push(db.prepare(`INSERT INTO "workflows" ("id", "userId", "type", "status", "자료제출일", "createdAt", "updatedAt") VALUES (?, ?, ?, '시안중', ?, ?, ?)
-        ON CONFLICT ("userId", "type") DO UPDATE SET "status" = '시안중', "자료제출일" = excluded."자료제출일", "updatedAt" = excluded."updatedAt"`).bind(crypto.randomUUID(), id, type, now, now, now));
+  let printStart = 0;
+  let printCount = 0;
+  if (merged.isComplete === true && !current?.isComplete) {
+    const waiting = await waitingPrintTypes(db, id, PRINT_TYPES);
+    statements.push(db.prepare('UPDATE "submissions" SET "isComplete" = 1, "completedAt" = COALESCE("completedAt", ?), "updatedAt" = ? WHERE "userId" = ?').bind(now, now, id));
+    if (waiting.length) {
+      const deadline = calculateDesignDeadline(new Date(now));
+      statements.push(db.prepare('UPDATE "submissions" SET "시안예정일" = ? WHERE "userId" = ?').bind(deadline.getTime(), id));
+      printStart = statements.length;
+      printCount = waiting.length;
+      for (const type of waiting) statements.push(printRequestStatement(db, id, type, now));
     }
   }
+  let printRequested = false;
   if (statements.length) {
     const result = await db.batch(statements);
     if (shippingGuard.values.length && (result[1]?.meta.changes ?? 0) !== 1) throw new DataServiceError(409, "발주 요청 이후 배송지는 변경할 수 없습니다.");
+    printRequested = result.slice(printStart, printStart + printCount).some((item) => (item?.meta.changes ?? 0) > 0);
   }
   const saved = await submission(db, input) as Record<string, unknown>;
   const person = await db.prepare('SELECT u."email", u."이름", u."englishName", u."연락처", u."slackChannelId", c."name" AS "cohortName", c."englishName" AS "cohortEnglishName" FROM "users" u LEFT JOIN "cohorts" c ON c."id" = u."cohortId" WHERE u."id" = ? LIMIT 1').bind(id).first();
-  return { ...saved, __d1Meta: { previous: current, user: person } };
+  return { ...saved, __d1Meta: { previous: current, user: person, printRequested } };
 }
 
 async function requestPrint(db: Database, input: CoreInput): Promise<unknown> {
@@ -213,12 +233,13 @@ async function requestPrint(db: Database, input: CoreInput): Promise<unknown> {
   const current = await db.prepare('SELECT * FROM "submissions" WHERE "userId" = ? LIMIT 1').bind(id).first<Record<string, unknown>>();
   if (!current) throw new DataServiceError(404, "Submission not found");
   const now = typeof input.now === "number" && Number.isSafeInteger(input.now) ? input.now : Date.now();
-  const statements = (printTypes as string[]).map((type) => db.prepare(`INSERT INTO "workflows" ("id", "userId", "type", "status", "자료제출일", "createdAt", "updatedAt") VALUES (?, ?, ?, '시안중', ?, ?, ?)
-    ON CONFLICT ("userId", "type") DO UPDATE SET "status" = '시안중', "자료제출일" = excluded."자료제출일", "updatedAt" = excluded."updatedAt"`).bind(crypto.randomUUID(), id, type, now, now, now));
+  const waiting = await waitingPrintTypes(db, id, printTypes as string[]);
+  const statements = waiting.map((type) => printRequestStatement(db, id, type, now));
   statements.push(db.prepare('UPDATE "submissions" SET "isComplete" = 1, "completedAt" = COALESCE("completedAt", ?), "updatedAt" = ? WHERE "userId" = ?').bind(now, now, id));
-  await db.batch(statements);
+  const result = await db.batch(statements);
+  const printRequested = result.slice(0, waiting.length).some((item) => (item?.meta.changes ?? 0) > 0);
   const rows = await db.prepare('SELECT "id", "type", "status", "자료제출일" FROM "workflows" WHERE "userId" = ? AND "type" IN (' + printTypes.map(() => '?').join(',') + ') ORDER BY "type"').bind(id, ...printTypes as string[]).all();
-  return { workflows: rows.results.map((row) => decodeRow("workflows", row)) };
+  return { workflows: rows.results.map((row) => decodeRow("workflows", row)), printRequested };
 }
 
 async function listWorkflows(db: Database, input: CoreInput): Promise<unknown> {

@@ -107,6 +107,47 @@ describe("coreOperation", () => {
     expect(db.raw.prepare('SELECT isComplete, completedAt FROM submissions WHERE userId = ?').get("user-test")).toEqual({ isComplete: 1, completedAt: 100 });
   });
 
+  it("moves only waiting print items to 시안중 when the print request is sent", async () => {
+    const db = database();
+    db.raw.prepare('UPDATE submissions SET 브랜드명 = ?, 업종 = ?, 주소 = ?, 사업자등록증URL = ?, 프로필사진URL = ?, 명함시안 = ? WHERE userId = ?').run("브랜드", "업종", "주소", "https://example.com/biz.png", "https://example.com/me.png", "A", "user-test");
+    const insert = db.raw.prepare('INSERT INTO "workflows" ("id", "userId", "type", "status", "updatedAt") VALUES (?, ?, ?, ?, ?)');
+    insert.run("wf-card", "user-test", "명함", "발송완료", 0);
+    insert.run("wf-badge", "user-test", "명찰", "발주대기", 0);
+    insert.run("wf-envelope", "user-test", "대봉투", "대기", 0);
+
+    const first = await coreOperation(db, "submission-save", { userId: "user-test", data: { isComplete: true }, now: 100 }) as { __d1Meta: { printRequested: boolean } };
+    expect(first.__d1Meta.printRequested).toBe(true);
+    expect(db.raw.prepare("SELECT type, status FROM workflows WHERE userId = ? AND type NOT IN ('로고', '홈페이지') ORDER BY type").all("user-test")).toEqual([
+      { type: "대봉투", status: "시안중" },
+      { type: "명찰", status: "발주대기" },
+      { type: "명함", status: "발송완료" },
+      { type: "자문계약서 내지", status: "시안중" },
+      { type: "자문계약서 표지", status: "시안중" },
+    ]);
+    expect(db.raw.prepare('SELECT isComplete FROM submissions WHERE userId = ?').get("user-test")).toEqual({ isComplete: 1 });
+
+    db.raw.prepare('UPDATE workflows SET status = ? WHERE id = ?').run("발주요청", "wf-envelope");
+    const again = await coreOperation(db, "submission-save", { userId: "user-test", data: { isComplete: true }, now: 200 }) as { __d1Meta: { printRequested: boolean } };
+    expect(again.__d1Meta.printRequested).toBe(false);
+    expect(db.raw.prepare('SELECT status FROM workflows WHERE id = ?').get("wf-envelope")).toEqual({ status: "발주요청" });
+  });
+
+  it("does not reopen print items that are already in progress", async () => {
+    const db = database();
+    db.raw.prepare('UPDATE submissions SET 브랜드명 = ?, 업종 = ?, 주소 = ?, 사업자등록증URL = ?, 프로필사진URL = ?, 명함시안 = ? WHERE userId = ?').run("브랜드", "업종", "주소", "https://example.com/biz.png", "https://example.com/me.png", "A", "user-test");
+    const insert = db.raw.prepare('INSERT INTO "workflows" ("id", "userId", "type", "status", "updatedAt") VALUES (?, ?, ?, ?, ?)');
+    for (const type of ["명함", "명찰", "대봉투", "자문계약서 표지", "자문계약서 내지"]) insert.run(`wf-${type}`, "user-test", type, "발송완료", 0);
+
+    const result = await coreOperation(db, "submission-save", { userId: "user-test", data: { isComplete: true }, now: 100 }) as { __d1Meta: { printRequested: boolean } };
+    expect(result.__d1Meta.printRequested).toBe(false);
+    expect(db.raw.prepare("SELECT DISTINCT status FROM workflows WHERE userId = ? AND type NOT IN ('로고', '홈페이지')").all("user-test")).toEqual([{ status: "발송완료" }]);
+    expect(db.raw.prepare('SELECT isComplete, 시안예정일 FROM submissions WHERE userId = ?').get("user-test")).toEqual({ isComplete: 1, 시안예정일: null });
+
+    const printed = await coreOperation(db, "request-print", { userId: "user-test", printTypes: ["명함", "명찰"], now: 200 }) as { printRequested: boolean };
+    expect(printed.printRequested).toBe(false);
+    expect(db.raw.prepare("SELECT DISTINCT status FROM workflows WHERE userId = ? AND type NOT IN ('로고', '홈페이지')").all("user-test")).toEqual([{ status: "발송완료" }]);
+  });
+
   it("keeps design messages and thread state in one write batch", async () => {
     const db = database();
     db.raw.prepare('INSERT INTO "workflows" ("id", "userId", "type", "status", "updatedAt") VALUES (?, ?, ?, ?, ?)').run("workflow-test", "user-test", "로고", "시안중", 0);

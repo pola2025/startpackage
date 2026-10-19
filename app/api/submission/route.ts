@@ -133,14 +133,14 @@ export async function POST(request: Request) {
           userId,
           data: validatedData,
         });
-        const meta = storedResult.__d1Meta as { user?: { email?: string; 이름?: string; englishName?: string; 연락처?: string; slackChannelId?: string | null; cohortName?: string; cohortEnglishName?: string }; previous?: Record<string, unknown> } | undefined;
+        const meta = storedResult.__d1Meta as { user?: { email?: string; 이름?: string; englishName?: string; 연락처?: string; slackChannelId?: string | null; cohortName?: string; cohortEnglishName?: string }; previous?: Record<string, unknown>; printRequested?: boolean } | undefined;
         delete storedResult.__d1Meta;
         const result = decryptSubmissionSecrets(storedResult, userId);
         if (meta?.previous) meta.previous = decryptSubmissionSecrets(meta.previous, userId);
         if (meta?.user) {
           await notifySubmissionChanges(userId, result, meta.previous, meta.user, (channelId: string) => callCore("user-slack-channel-update", userId, { userId, slackChannelId: channelId }), Object.keys(validatedData)).catch((error: unknown) => console.error("제출 변경 알림 실패:", error));
         }
-        if (validatedData.isComplete === true && meta?.user) {
+        if (validatedData.isComplete === true && meta?.printRequested && meta.user) {
           await handleSubmissionComplete({
             userId,
             cohortName: meta.user.cohortEnglishName || meta.user.cohortName || "unknown",

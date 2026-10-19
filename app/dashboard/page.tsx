@@ -655,7 +655,13 @@ export default async function UserDashboard() {
       <div className="flex justify-end">
         <PrintRequestButton
           completionRate={completionPercent}
-          hasWorkflows={user.submission?.isComplete ?? false}
+          hasWorkflows={
+            (user.submission?.isComplete ?? false) ||
+            user.workflows.some(
+              (w) =>
+                w.type !== "로고" && w.type !== "홈페이지" && w.status !== "대기",
+            )
+          }
         />
       </div>
 

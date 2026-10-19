@@ -50,8 +50,8 @@ export async function POST(request: Request) {
         if (error instanceof ZodError) return NextResponse.json({ error: "필수 항목을 모두 입력해주세요", details: error.errors }, { status: 400 });
         throw error;
       }
-      const result = await callCore<{ workflows: Array<Record<string, unknown>> }>("request-print", userId, { userId, printTypes });
-      await handleSubmissionComplete({ userId, cohortName: "unknown", userName: session.user.name || "unknown", brandName: String(submission.brandNameEnglish || submission.브랜드명 || "unknown"), userEmail: session.user.email || "", userPhone: String((session.user as { phone?: string }).phone || ""), submissionData: submission }).catch((error) => console.error("알림 발송 실패:", error));
+      const result = await callCore<{ workflows: Array<Record<string, unknown>>; printRequested?: boolean }>("request-print", userId, { userId, printTypes });
+      if (result.printRequested) await handleSubmissionComplete({ userId, cohortName: "unknown", userName: session.user.name || "unknown", brandName: String(submission.brandNameEnglish || submission.브랜드명 || "unknown"), userEmail: session.user.email || "", userPhone: String((session.user as { phone?: string }).phone || ""), submissionData: submission }).catch((error) => console.error("알림 발송 실패:", error));
       return NextResponse.json({ success: true, message: `${printTypes.length}개 인쇄물 제작요청이 완료되었습니다.`, workflows: result.workflows });
     }
 
