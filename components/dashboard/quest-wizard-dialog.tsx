@@ -43,6 +43,12 @@ import {
   logoChecklist,
   missingItems,
 } from "@/lib/submission/parts";
+import {
+  UPLOAD_TOO_LARGE_MESSAGE,
+  VERCEL_UPLOAD_MAX_BYTES,
+  shrinkImageForUpload,
+  uploadErrorMessage,
+} from "@/lib/upload/clientUpload";
 
 /** 인쇄물 시안 옵션 (명함 6종 / 자문계약서 2종) */
 export interface PrintStyleOption {
@@ -584,13 +590,18 @@ export default function QuestWizardDialog({
       }
     }
 
+    // Vercel 을 거치므로 4MB 를 넘는 사진은 줄여서 보낸다
+    const sendable = await shrinkImageForUpload(file);
+    if (sendable.size > VERCEL_UPLOAD_MAX_BYTES) {
+      setError(UPLOAD_TOO_LARGE_MESSAGE);
+      return null;
+    }
     const fd = new FormData();
-    fd.append("file", file);
+    fd.append("file", sendable);
     fd.append("field", step.field);
     const res = await fetch("/api/upload", { method: "POST", body: fd });
     if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      setError(data?.error || "업로드에 실패했습니다.");
+      setError(await uploadErrorMessage(res, "업로드에 실패했습니다."));
       return null;
     }
     const data = await res.json().catch(() => ({}));

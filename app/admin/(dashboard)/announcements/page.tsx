@@ -25,6 +25,12 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import Image from "next/image";
+import {
+  UPLOAD_TOO_LARGE_MESSAGE,
+  VERCEL_UPLOAD_MAX_BYTES,
+  shrinkImageForUpload,
+  uploadErrorMessage,
+} from "@/lib/upload/clientUpload";
 
 type Announcement = {
   id: string;
@@ -117,13 +123,12 @@ export default function AdminAnnouncementsPage() {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    // 여러 파일 업로드 지원
-    const fileArray = Array.from(files);
+    // 여러 파일 업로드 지원. Vercel 을 거치므로 4MB 를 넘는 사진은 줄여서 보낸다
+    const fileArray = await Promise.all(Array.from(files).map(shrinkImageForUpload));
 
-    // 각 파일 크기 체크 (10MB)
     for (const file of fileArray) {
-      if (file.size > 10 * 1024 * 1024) {
-        alert(`${file.name} 파일 크기는 10MB 이하여야 합니다. 더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.`);
+      if (file.size > VERCEL_UPLOAD_MAX_BYTES) {
+        alert(`${file.name} ${UPLOAD_TOO_LARGE_MESSAGE}`);
         return;
       }
     }
@@ -138,6 +143,7 @@ export default function AdminAnnouncementsPage() {
           method: "POST",
           body: formDataToUpload,
         });
+        if (!res.ok) throw new Error(await uploadErrorMessage(res, "이미지 업로드 실패"));
 
         const data = await res.json();
 
@@ -500,7 +506,7 @@ export default function AdminAnnouncementsPage() {
                         클릭하여 이미지 추가 (여러 개 선택 가능)
                       </p>
                       <p className="text-xs text-gray-500 mt-1">
-                        JPG, PNG, GIF, WEBP (최대 10MB)
+                        JPG, PNG, GIF, WEBP (최대 4MB)
                       </p>
                     </>
                   )}

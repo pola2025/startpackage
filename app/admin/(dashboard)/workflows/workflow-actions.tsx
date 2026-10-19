@@ -35,6 +35,11 @@ import {
   Trash2,
 } from "lucide-react";
 import { resolveAdminWorkflowStatus } from "@/lib/workflow/homepage-status";
+import {
+  UPLOAD_TOO_LARGE_MESSAGE,
+  VERCEL_UPLOAD_MAX_BYTES,
+  uploadErrorMessage,
+} from "@/lib/upload/clientUpload";
 
 interface DesignHistory {
   id: string;
@@ -144,6 +149,10 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
 
   const handleFileUpload = async () => {
     if (!시안파일) return null;
+    if (시안파일.size > VERCEL_UPLOAD_MAX_BYTES) {
+      alert(`시안 파일은 4MB 이하만 올릴 수 있습니다. JPG로 저장하거나 압축해서 올려 주세요.\n${UPLOAD_TOO_LARGE_MESSAGE}`);
+      return null;
+    }
 
     setUploading(true);
     try {
@@ -156,7 +165,10 @@ export default function WorkflowActions({ workflow }: WorkflowActionsProps) {
         body: formData,
       });
 
-      if (!response.ok) throw new Error("업로드 실패");
+      if (!response.ok) {
+        alert(await uploadErrorMessage(response, "시안 업로드에 실패했습니다."));
+        return null;
+      }
 
       const data = await response.json();
       return data.url;

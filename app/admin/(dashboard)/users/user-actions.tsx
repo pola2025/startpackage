@@ -43,6 +43,12 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { metaSetupStage, toEpochMs } from "@/lib/submission/parts";
+import {
+  UPLOAD_TOO_LARGE_MESSAGE,
+  VERCEL_UPLOAD_MAX_BYTES,
+  shrinkImageForUpload,
+  uploadErrorMessage,
+} from "@/lib/upload/clientUpload";
 
 // 이메일 템플릿 정의
 const EMAIL_TEMPLATES = [
@@ -362,9 +368,9 @@ export default function UserActions({ user }: UserActionsProps) {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
 
-        // 파일 크기 체크 (10MB)
-        if (file.size > 10 * 1024 * 1024) {
-          alert(`"${file.name}" 파일 크기가 10MB를 초과합니다. 더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.`);
+        // Vercel 을 거치므로 4MB 가 한도다
+        if (file.size > VERCEL_UPLOAD_MAX_BYTES) {
+          alert(`"${file.name}" ${UPLOAD_TOO_LARGE_MESSAGE}`);
           continue;
         }
 
@@ -377,8 +383,7 @@ export default function UserActions({ user }: UserActionsProps) {
         });
 
         if (!response.ok) {
-          const data = await response.json();
-          alert(data.error || `"${file.name}" 업로드에 실패했습니다.`);
+          alert(await uploadErrorMessage(response, `"${file.name}" 업로드에 실패했습니다.`));
           continue;
         }
 
@@ -485,15 +490,15 @@ export default function UserActions({ user }: UserActionsProps) {
       return;
     }
 
-    if (file.size > 10 * 1024 * 1024) {
-      alert("파일 크기는 10MB 이하여야 합니다. 더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.");
-      return;
-    }
-
     setUploadingCommAttachment(true);
     try {
+      const sendable = await shrinkImageForUpload(file);
+      if (sendable.size > VERCEL_UPLOAD_MAX_BYTES) {
+        alert(UPLOAD_TOO_LARGE_MESSAGE);
+        return;
+      }
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", sendable);
 
       const response = await fetch("/api/communication/upload", {
         method: "POST",
@@ -501,7 +506,8 @@ export default function UserActions({ user }: UserActionsProps) {
       });
 
       if (!response.ok) {
-        throw new Error("파일 업로드 실패");
+        alert(await uploadErrorMessage(response, "파일 업로드에 실패했습니다."));
+        return;
       }
 
       const data = await response.json();
@@ -1536,7 +1542,7 @@ export default function UserActions({ user }: UserActionsProps) {
                     </label>
                     <p className="text-xs text-gray-500 mt-1">
                       이미지, PDF, 문서, 엑셀, PPT, 텍스트, ZIP (파일당 최대
-                      10MB, 여러 파일 선택 가능)
+                      4MB, 여러 파일 선택 가능)
                     </p>
                   </div>
 
@@ -1810,7 +1816,7 @@ export default function UserActions({ user }: UserActionsProps) {
                     )}
                   </label>
                   <p className="text-xs text-gray-500 mt-1">
-                    이미지 파일만 가능 (최대 10MB)
+                    이미지 파일만 가능 (최대 4MB)
                   </p>
                 </div>
 

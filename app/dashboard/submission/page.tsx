@@ -58,6 +58,12 @@ import {
 import { LogoColorSelector } from "@/components/submission/logo-style-selector";
 import { MySubmissionStatus } from "@/components/submission/my-submission-status";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import {
+  UPLOAD_TOO_LARGE_MESSAGE,
+  VERCEL_UPLOAD_MAX_BYTES,
+  shrinkImageForUpload,
+  uploadErrorMessage,
+} from "@/lib/upload/clientUpload";
 // ColorPaletteSelector는 홈페이지 탭 추가 시 사용 예정
 
 export default function SubmissionPage() {
@@ -366,8 +372,15 @@ export default function SubmissionPage() {
       return;
     }
 
+    // Vercel 을 거치므로 4MB 를 넘는 사진은 줄여서 보내고, 그래도 크면 안내한다
+    const sendable = await shrinkImageForUpload(file);
+    if (sendable.size > VERCEL_UPLOAD_MAX_BYTES) {
+      alert(UPLOAD_TOO_LARGE_MESSAGE);
+      setUploading(false);
+      return;
+    }
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("file", sendable);
     formData.append("field", field);
 
     try {
@@ -400,18 +413,7 @@ export default function SubmissionPage() {
           alert("파일 업로드는 성공했지만 저장에 실패했습니다.");
         }
       } else {
-        const errorData = await res.json();
-        console.error("[클라이언트] 업로드 실패:", errorData);
-
-        let errorMessage = "파일 업로드에 실패했습니다.";
-        if (errorData.error) {
-          errorMessage = errorData.error;
-        }
-        if (errorData.details) {
-          errorMessage += "\n상세: " + errorData.details;
-        }
-
-        alert(errorMessage);
+        alert(await uploadErrorMessage(res, "파일 업로드에 실패했습니다."));
       }
     } catch (error) {
       console.error("[클라이언트] 네트워크 오류:", error);

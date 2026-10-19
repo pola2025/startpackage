@@ -52,6 +52,12 @@ import { ImageModal } from "@/components/ui/image-modal";
 import Image from "next/image";
 import { useIsMobile } from "@/hooks/use-media-query";
 import { DraggableBottomSheet } from "@/components/ui/bottom-sheet";
+import {
+  UPLOAD_TOO_LARGE_MESSAGE,
+  VERCEL_UPLOAD_MAX_BYTES,
+  shrinkImageForUpload,
+  uploadErrorMessage,
+} from "@/lib/upload/clientUpload";
 
 // 워크플로우 타입 매핑
 const WORKFLOW_TYPE_LABELS: Record<string, string> = {
@@ -276,15 +282,15 @@ export default function UserDesignThreadsPage() {
       return;
     }
 
-    if (file.size > 10 * 1024 * 1024) {
-      alert("파일 크기는 10MB 이하여야 합니다. 더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.");
-      return;
-    }
-
     setUploading(true);
     try {
+      const sendable = await shrinkImageForUpload(file);
+      if (sendable.size > VERCEL_UPLOAD_MAX_BYTES) {
+        alert(UPLOAD_TOO_LARGE_MESSAGE);
+        return;
+      }
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", sendable);
 
       const response = await fetch("/api/communication/upload", {
         method: "POST",
@@ -292,12 +298,7 @@ export default function UserDesignThreadsPage() {
       });
 
       if (!response.ok) {
-        if (response.status === 413) {
-          alert("파일이 너무 큽니다. 10MB 이하의 파일만 업로드 가능합니다. 더 큰 파일은 mkt@polarad.co.kr로 메일 발송 부탁드립니다.");
-          return;
-        }
-        const data = await response.json();
-        alert(data.error || "업로드 실패");
+        alert(await uploadErrorMessage(response, "업로드 실패"));
         return;
       }
 
