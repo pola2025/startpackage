@@ -1212,7 +1212,12 @@
         html,
         body {
           height: auto;
+        }
+        html {
           overflow: auto;
+        }
+        body {
+          overflow: visible;
         }
         .deck {
           display: block;
@@ -1256,6 +1261,7 @@
           border-bottom: 1px solid #ffffff1f;
           animation: none;
           overflow: visible;
+          scroll-margin-top: 56px;
         }
         .slide.active .lesson-copy,
         .slide.active .reveal {
