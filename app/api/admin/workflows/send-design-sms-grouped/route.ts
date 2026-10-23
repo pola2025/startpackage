@@ -6,7 +6,7 @@ import { callDataService } from "@/lib/d1/service-client";
 import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 import { getSMSClient, getSenderPhoneByAdmin } from "@/lib/sms/ncpSensClient";
 import { logOutboundNotice } from "@/lib/notification/notificationService";
-import { resolveNoticeOutcome, sendMemberNotice } from "@/lib/notification/memberNotice";
+import { recordMemberNotice, resolveNoticeOutcome, sendMemberNotice } from "@/lib/notification/memberNotice";
 import { designReadyTemplate } from "@/lib/sms/alimtalkTemplates";
 
 interface SendData {
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       const results: { userName: string; types: string[]; success: boolean; error?: string }[] = [];
       let successCount = 0;
       let failedCount = 0;
-      const slackLogs: Promise<void>[] = [];
+      const followUps: Promise<void>[] = [];
       for (const item of data) {
         try {
           const result = await callDataService<{ user: { id: string; 이름: string; 연락처: string | null }; workflows: Array<Record<string, unknown>> }>("admin-notifications/grouped-design-data", { adminId, userId: item.userId, workflowIds: item.workflowIds });
@@ -50,12 +50,11 @@ export async function POST(request: NextRequest) {
           const message = types.length === 1 ? `[스타트패키지]\n\n${result.user.이름}님, ${types[0]} 디자인 시안이 업로드되었습니다.\n\n확인 부탁드립니다.` : `[스타트패키지]\n\n${result.user.이름}님, 디자인 시안이 업로드되었습니다.\n\n▶ 완료된 시안\n${types.map((t) => `- ${t}`).join("\n")}\n\n확인 부탁드립니다.`;
           const adminFrom = getSenderPhoneByAdmin(session.user?.email);
           const sent = await sendMemberNotice({ to: result.user.연락처, alimtalk: designReadyTemplate({ name: result.user.이름 || "회원", items: types }), sms: { content: message, from: adminFrom, forceLms: true } });
-          await callDataService("admin-notifications/notification-create", { adminId, userId: result.user.id, type: "시안완료", channel: "SMS", title: "[스타트패키지] 시안 완료 알림", message, status: "성공", sentBy: adminId, sentByName: (session.user as any).name || "관리자" });
-          slackLogs.push(resolveNoticeOutcome(sent).then((outcome) => logOutboundNotice({ userId: result.user.id, notice: "시안 완료·확정 요청 안내", channel: outcome.channel, note: outcome.note, items: types, sentByName: (session.user as any).name || "관리자" })));
+          followUps.push(resolveNoticeOutcome(sent).then(async (outcome) => { await recordMemberNotice({ adminId, userId: result.user.id, type: "시안완료", title: "[스타트패키지] 시안 완료 알림", message, sentByName: (session.user as any).name || "관리자", send: sent, outcome }); await logOutboundNotice({ userId: result.user.id, notice: "시안 완료·확정 요청 안내", channel: outcome.channel, note: outcome.note, items: types, sentByName: (session.user as any).name || "관리자" }); }).catch((error) => console.error("발송 기록 실패:", error)));
           successCount++; results.push({ userName: result.user.이름, types, success: true });
         } catch (error) { failedCount++; results.push({ userName: "처리 중 오류", types: [], success: false, error: "LMS 발송 실패" }); console.error("LMS 발송 실패:", error); }
       }
-      await Promise.all(slackLogs);
+      await Promise.all(followUps);
       return NextResponse.json({ success: successCount, failed: failedCount, details: results });
     }
 

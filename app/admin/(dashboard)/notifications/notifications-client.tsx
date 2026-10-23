@@ -18,8 +18,10 @@ import {
   Bell,
   Mail,
   MessageSquare,
+  MessageCircle,
   CheckCircle2,
   XCircle,
+  Clock,
   Calendar,
   ChevronDown,
   ChevronRight,
@@ -32,6 +34,7 @@ interface Notification {
   title: string;
   message: string;
   status: string;
+  errorMessage?: string | null;
   createdAt: Date;
   user: {
     이름: string | null;
@@ -43,6 +46,55 @@ interface Notification {
 interface NotificationsClientProps {
   notifications: Notification[];
   nextCursor?: string | null;
+}
+
+// 알림톡은 카카오톡으로 나간 안내다. 문자는 SMS 로 기록된다.
+function channelBadgeClass(channel: string) {
+  if (channel === "SMS") return "border-gold-300 text-gold-700 bg-gold-50";
+  if (channel === "알림톡")
+    return "border-yellow-300 text-yellow-800 bg-yellow-50";
+  return "border-orange-300 text-orange-700 bg-orange-50";
+}
+
+function ChannelIcon({ channel }: { channel: string }) {
+  if (channel === "SMS") return <MessageSquare className="w-3 h-3 mr-1" />;
+  if (channel === "알림톡") return <MessageCircle className="w-3 h-3 mr-1" />;
+  return <Mail className="w-3 h-3 mr-1" />;
+}
+
+// 대체 발송·실패 사유(errorMessage)를 상태 아래에 함께 보여 준다.
+function NotificationStatus({
+  notification,
+  textSize,
+}: {
+  notification: Notification;
+  textSize: "text-xs" | "text-sm";
+}) {
+  const { status, errorMessage } = notification;
+  const label =
+    status === "성공" ? (
+      <div className="flex items-center gap-1 text-green-700">
+        <CheckCircle2 className="w-4 h-4" />
+        <span className={textSize}>성공</span>
+      </div>
+    ) : status === "실패" ? (
+      <div className="flex items-center gap-1 text-red-600">
+        <XCircle className="w-4 h-4" />
+        <span className={textSize}>실패</span>
+      </div>
+    ) : (
+      <div className="flex items-center gap-1 text-gray-500">
+        <Clock className="w-4 h-4" />
+        <span className={textSize}>{status}</span>
+      </div>
+    );
+  if (!errorMessage) return label;
+  return (
+    <div className="flex flex-col items-end gap-0.5 lg:items-start">
+      {label}
+      <span className="text-xs text-gray-500">{errorMessage}</span>
+    </div>
+  );
 }
 
 export default function NotificationsClient({
@@ -180,31 +232,16 @@ export default function NotificationsClient({
                               </span>
                               <Badge
                                 variant="outline"
-                                className={`text-xs ${
-                                  notification.channel === "SMS"
-                                    ? "border-gold-300 text-gold-700 bg-gold-50"
-                                    : "border-orange-300 text-orange-700 bg-orange-50"
-                                }`}
+                                className={`text-xs ${channelBadgeClass(notification.channel)}`}
                               >
-                                {notification.channel === "SMS" ? (
-                                  <MessageSquare className="w-3 h-3 mr-1" />
-                                ) : (
-                                  <Mail className="w-3 h-3 mr-1" />
-                                )}
+                                <ChannelIcon channel={notification.channel} />
                                 {notification.channel}
                               </Badge>
                             </div>
-                            {notification.status === "성공" ? (
-                              <div className="flex items-center gap-1 text-green-700">
-                                <CheckCircle2 className="w-4 h-4" />
-                                <span className="text-xs">성공</span>
-                              </div>
-                            ) : (
-                              <div className="flex items-center gap-1 text-red-600">
-                                <XCircle className="w-4 h-4" />
-                                <span className="text-xs">실패</span>
-                              </div>
-                            )}
+                            <NotificationStatus
+                              notification={notification}
+                              textSize="text-xs"
+                            />
                           </div>
 
                           {/* 유형 + 제목 */}
@@ -273,17 +310,9 @@ export default function NotificationsClient({
                             <TableCell>
                               <Badge
                                 variant="outline"
-                                className={
-                                  notification.channel === "SMS"
-                                    ? "border-gold-300 text-gold-700 bg-gold-50"
-                                    : "border-orange-300 text-orange-700 bg-orange-50"
-                                }
+                                className={channelBadgeClass(notification.channel)}
                               >
-                                {notification.channel === "SMS" ? (
-                                  <MessageSquare className="w-3 h-3 mr-1" />
-                                ) : (
-                                  <Mail className="w-3 h-3 mr-1" />
-                                )}
+                                <ChannelIcon channel={notification.channel} />
                                 {notification.channel}
                               </Badge>
                             </TableCell>
@@ -302,17 +331,10 @@ export default function NotificationsClient({
                               {notification.message}
                             </TableCell>
                             <TableCell>
-                              {notification.status === "성공" ? (
-                                <div className="flex items-center gap-1 text-green-700">
-                                  <CheckCircle2 className="w-4 h-4" />
-                                  <span className="text-sm">성공</span>
-                                </div>
-                              ) : (
-                                <div className="flex items-center gap-1 text-red-600">
-                                  <XCircle className="w-4 h-4" />
-                                  <span className="text-sm">실패</span>
-                                </div>
-                              )}
+                              <NotificationStatus
+                                notification={notification}
+                                textSize="text-sm"
+                              />
                             </TableCell>
                           </TableRow>
                         ))}

@@ -6,7 +6,7 @@ import { callDataService } from "@/lib/d1/service-client";
 import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 import { sendSMS, getSenderPhoneByAdmin } from "@/lib/sms/ncpSensClient";
 import { logOutboundNotice } from "@/lib/notification/notificationService";
-import { resolveNoticeOutcome, sendMemberNotice } from "@/lib/notification/memberNotice";
+import { recordMemberNotice, resolveNoticeOutcome, sendMemberNotice } from "@/lib/notification/memberNotice";
 import { shippingStartTemplate } from "@/lib/sms/alimtalkTemplates";
 
 export async function POST(request: NextRequest) {
@@ -40,8 +40,8 @@ export async function POST(request: NextRequest) {
       const adminFrom = getSenderPhoneByAdmin(session.user?.email);
       const parcels = new Set(data.workflows.map((workflow) => `${String(workflow.택배회사)}|${String(workflow.운송장번호)}`));
       const sent = await sendMemberNotice({ to: data.user.연락처, alimtalk: parcels.size === 1 ? shippingStartTemplate({ items: data.workflows.map((workflow) => String(workflow.type)), courier: String(data.workflows[0].택배회사), tracking: String(data.workflows[0].운송장번호) }) : null, sms: { content: message, from: adminFrom } });
-      await Promise.all(data.workflows.map((workflow) => callDataService("admin-notifications/notification-create", { adminId, userId, type: "배송알림", channel: "SMS", title: "[스타트패키지] 배송 시작", message: `${String(workflow.type)} - ${String(workflow.택배회사)} ${String(workflow.운송장번호)}`, status: "성공", sentBy: adminId, sentByName: (session.user as any).name || "관리자" })));
       const outcome = await resolveNoticeOutcome(sent);
+      await Promise.all(data.workflows.map((workflow) => recordMemberNotice({ adminId, userId, type: "배송알림", title: "[스타트패키지] 배송 시작", message: `${String(workflow.type)} - ${String(workflow.택배회사)} ${String(workflow.운송장번호)}`, sentByName: (session.user as any).name || "관리자", send: sent, outcome })));
       await logOutboundNotice({ userId, notice: "배송 시작 안내", channel: outcome.channel, note: outcome.note, items: data.workflows.map((workflow) => String(workflow.type)), sentByName: (session.user as any).name || "관리자" });
       return NextResponse.json({ success: true, message: `${data.workflows.length}개 제작물의 배송 정보를 SMS로 발송했습니다.`, workflows: data.workflows.map((w) => ({ type: w.type, 택배회사: w.택배회사, 운송장번호: w.운송장번호 })) });
     }

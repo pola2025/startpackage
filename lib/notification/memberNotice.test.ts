@@ -6,8 +6,12 @@ const mocks = vi.hoisted(() => ({
   isAlimtalkConfigured: vi.fn(),
   requestAlimtalk: vi.fn(),
   getAlimtalkResult: vi.fn(),
+  callDataService: vi.fn(),
 }));
 
+vi.mock("@/lib/d1/service-client", () => ({
+  callDataService: mocks.callDataService,
+}));
 vi.mock("@/lib/sms/ncpSensClient", () => ({
   sendSMS: mocks.sendSMS,
   getSMSClient: () => ({ sendSMS: mocks.clientSendSMS }),
@@ -19,7 +23,11 @@ vi.mock("@/lib/sms/ncpAlimtalkClient", () => ({
   getAlimtalkResult: mocks.getAlimtalkResult,
 }));
 
-import { resolveNoticeOutcome, sendMemberNotice } from "./memberNotice";
+import {
+  recordMemberNotice,
+  resolveNoticeOutcome,
+  sendMemberNotice,
+} from "./memberNotice";
 
 const template = { templateCode: "spDesignReady01", content: "알림톡 본문" };
 const sms = {
@@ -141,6 +149,19 @@ describe("resolveNoticeOutcome", () => {
     mocks.getAlimtalkResult.mockResolvedValue({ state: "delivered" });
     expect(await resolveNoticeOutcome(accepted, { sleep: noSleep })).toEqual({
       channel: "알림톡",
+      status: "성공",
+    });
+  });
+
+  it("marks an alimtalk that failed without a substitute SMS as failed", async () => {
+    mocks.getAlimtalkResult.mockResolvedValue({
+      state: "failed",
+      description: "톡유저가 아님",
+    });
+    expect(await resolveNoticeOutcome(accepted, { sleep: noSleep })).toEqual({
+      channel: "알림톡",
+      status: "실패",
+      note: "알림톡 실패(톡유저가 아님), 문자 대체 발송도 확인되지 않음",
     });
   });
 
@@ -151,6 +172,7 @@ describe("resolveNoticeOutcome", () => {
     });
     expect(await resolveNoticeOutcome(accepted, { sleep: noSleep })).toEqual({
       channel: "LMS",
+      status: "성공",
       note: "알림톡 실패(템플릿을 찾을 수 없음)로 문자 대체 발송",
     });
   });
@@ -160,6 +182,7 @@ describe("resolveNoticeOutcome", () => {
 
     expect(await resolveNoticeOutcome(accepted, { sleep: noSleep })).toEqual({
       channel: "알림톡",
+      status: "확인 전",
       note: "결과 확인 전, 실패하면 문자로 대체 발송",
     });
     expect(mocks.getAlimtalkResult).toHaveBeenCalledTimes(2);
@@ -174,8 +197,115 @@ describe("resolveNoticeOutcome", () => {
       }),
     ).toEqual({
       channel: "SMS",
+      status: "성공",
       note: "알림톡 요청 거절(x)로 문자 발송",
     });
     expect(mocks.getAlimtalkResult).not.toHaveBeenCalled();
+  });
+});
+
+describe("recordMemberNotice", () => {
+  const base = {
+    adminId: "admin-1",
+    userId: "user-1",
+    type: "시안완료",
+    title: "[스타트패키지] 명함 시안 완료",
+    message: "디자인 시안이 업로드되었습니다.",
+    sentByName: "디자이너",
+  };
+  const accepted = {
+    via: "alimtalk" as const,
+    messageId: "m-1",
+    smsChannel: "LMS" as const,
+    requestedAt: 0,
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mocks.callDataService.mockResolvedValue({ id: "notification-1" });
+  });
+
+  it("records a delivered alimtalk as 알림톡 with its message id", async () => {
+    await recordMemberNotice({
+      ...base,
+      send: accepted,
+      outcome: { channel: "알림톡", status: "성공" },
+    });
+
+    expect(mocks.callDataService).toHaveBeenCalledTimes(1);
+    expect(mocks.callDataService).toHaveBeenCalledWith(
+      "admin-notifications/notification-create",
+      {
+        adminId: "admin-1",
+        userId: "user-1",
+        type: "시안완료",
+        title: "[스타트패키지] 명함 시안 완료",
+        message: "디자인 시안이 업로드되었습니다.",
+        sentByName: "디자이너",
+        channel: "알림톡",
+        status: "성공",
+        sentBy: "admin-1",
+        metadata: JSON.stringify({ alimtalkMessageId: "m-1" }),
+      },
+    );
+  });
+
+  it("records a substitute LMS as SMS and keeps the reason", async () => {
+    await recordMemberNotice({
+      ...base,
+      send: accepted,
+      outcome: {
+        channel: "LMS",
+        status: "성공",
+        note: "알림톡 실패(톡유저가 아님)로 문자 대체 발송",
+      },
+    });
+
+    expect(mocks.callDataService.mock.calls[0][1]).toMatchObject({
+      channel: "SMS",
+      status: "성공",
+    });
+    expect(mocks.callDataService).toHaveBeenLastCalledWith(
+      "admin-notifications/notification-update",
+      {
+        adminId: "admin-1",
+        notificationId: "notification-1",
+        status: "성공",
+        errorMessage: "알림톡 실패(톡유저가 아님)로 문자 대체 발송",
+      },
+    );
+  });
+
+  it("records a failed or unconfirmed alimtalk with that status, not as a success", async () => {
+    await recordMemberNotice({
+      ...base,
+      send: accepted,
+      outcome: { channel: "알림톡", status: "실패", note: "알림톡 실패(x)" },
+    });
+    await recordMemberNotice({
+      ...base,
+      send: accepted,
+      outcome: { channel: "알림톡", status: "확인 전", note: "결과 확인 전" },
+    });
+
+    const creates = mocks.callDataService.mock.calls.filter(
+      ([operation]) => operation === "admin-notifications/notification-create",
+    );
+    expect(creates.map(([, input]) => input.status)).toEqual([
+      "실패",
+      "확인 전",
+    ]);
+  });
+
+  it("does not attach an alimtalk id to a plain SMS", async () => {
+    await recordMemberNotice({
+      ...base,
+      send: { via: "sms", channel: "SMS" },
+      outcome: { channel: "SMS", status: "성공" },
+    });
+
+    expect(mocks.callDataService.mock.calls[0][1]).not.toHaveProperty(
+      "metadata",
+    );
   });
 });

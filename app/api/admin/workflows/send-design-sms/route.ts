@@ -6,7 +6,7 @@ import { callDataService } from "@/lib/d1/service-client";
 import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 import { sendSMS, getSenderPhoneByAdmin } from "@/lib/sms/ncpSensClient";
 import { logOutboundNotice } from "@/lib/notification/notificationService";
-import { resolveNoticeOutcome, sendMemberNotice } from "@/lib/notification/memberNotice";
+import { recordMemberNotice, resolveNoticeOutcome, sendMemberNotice } from "@/lib/notification/memberNotice";
 import { designReadyTemplate } from "@/lib/sms/alimtalkTemplates";
 
 export async function POST(request: NextRequest) {
@@ -38,8 +38,8 @@ export async function POST(request: NextRequest) {
       const message = `[스타트패키지]\n\n디자인 시안이 업로드되었습니다.\n확인 부탁드립니다.`;
       const adminFrom = getSenderPhoneByAdmin(session.user?.email);
       const sent = await sendMemberNotice({ to: String(workflow.연락처), alimtalk: designReadyTemplate({ name: String(workflow.이름 || "회원"), items: [String(workflow.type)] }), sms: { content: message, from: adminFrom } });
-      await callDataService("admin-notifications/notification-create", { adminId, userId: String(workflow.userId), type: "시안완료", channel: "SMS", title: `[스타트패키지] ${String(workflow.type)} 시안 완료`, message, status: "성공", sentBy: adminId, sentByName: (session.user as any).name || "관리자" });
       const outcome = await resolveNoticeOutcome(sent);
+      await recordMemberNotice({ adminId, userId: String(workflow.userId), type: "시안완료", title: `[스타트패키지] ${String(workflow.type)} 시안 완료`, message, sentByName: (session.user as any).name || "관리자", send: sent, outcome });
       await logOutboundNotice({ userId: String(workflow.userId), notice: "시안 완료·확정 요청 안내", channel: outcome.channel, note: outcome.note, items: [String(workflow.type)], sentByName: (session.user as any).name || "관리자" });
       return NextResponse.json({ success: true, message: "SMS 발송 완료" });
     }

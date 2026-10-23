@@ -4,6 +4,7 @@ const mocks = vi.hoisted(() => ({
   callDataService: vi.fn(),
   sendMemberNotice: vi.fn(),
   resolveNoticeOutcome: vi.fn(),
+  recordMemberNotice: vi.fn(),
   logOutboundNotice: vi.fn(),
 }));
 
@@ -37,6 +38,7 @@ vi.mock("@/lib/sms/ncpSensClient", () => ({
 vi.mock("@/lib/notification/memberNotice", () => ({
   sendMemberNotice: mocks.sendMemberNotice,
   resolveNoticeOutcome: mocks.resolveNoticeOutcome,
+  recordMemberNotice: mocks.recordMemberNotice,
 }));
 vi.mock("@/lib/notification/notificationService", () => ({
   logOutboundNotice: mocks.logOutboundNotice,
@@ -80,8 +82,36 @@ describe("POST /api/admin/workflows/send-design-sms with D1 runtime", () => {
     });
     mocks.resolveNoticeOutcome.mockResolvedValue({
       channel: "LMS",
+      status: "성공",
       note: "알림톡 실패(템플릿을 찾을 수 없음)로 문자 대체 발송",
     });
+  });
+
+  it("records the route and result the notice actually took, after checking it", async () => {
+    await send();
+
+    expect(mocks.recordMemberNotice).toHaveBeenCalledWith({
+      adminId: "admin-1",
+      userId: "user-1",
+      type: "시안완료",
+      title: "[스타트패키지] 명함 시안 완료",
+      message:
+        "[스타트패키지]\n\n디자인 시안이 업로드되었습니다.\n확인 부탁드립니다.",
+      sentByName: "디자이너",
+      send: await mocks.sendMemberNotice.mock.results[0].value,
+      outcome: {
+        channel: "LMS",
+        status: "성공",
+        note: "알림톡 실패(템플릿을 찾을 수 없음)로 문자 대체 발송",
+      },
+    });
+    expect(mocks.resolveNoticeOutcome.mock.invocationCallOrder[0]).toBeLessThan(
+      mocks.recordMemberNotice.mock.invocationCallOrder[0],
+    );
+    expect(mocks.callDataService).not.toHaveBeenCalledWith(
+      "admin-notifications/notification-create",
+      expect.anything(),
+    );
   });
 
   it("sends the alimtalk template with the existing SMS text as its fallback", async () => {
@@ -118,6 +148,7 @@ describe("POST /api/admin/workflows/send-design-sms with D1 runtime", () => {
     const response = await send();
 
     expect(response.status).toBe(500);
+    expect(mocks.recordMemberNotice).not.toHaveBeenCalled();
     expect(mocks.logOutboundNotice).not.toHaveBeenCalled();
   });
 });

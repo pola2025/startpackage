@@ -6,7 +6,7 @@ import { callDataService } from "@/lib/d1/service-client";
 import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
 import { sendSMS, getSenderPhoneByAdmin } from "@/lib/sms/ncpSensClient";
 import { logOutboundNotice } from "@/lib/notification/notificationService";
-import { resolveNoticeOutcome, sendMemberNotice } from "@/lib/notification/memberNotice";
+import { recordMemberNotice, resolveNoticeOutcome, sendMemberNotice } from "@/lib/notification/memberNotice";
 import { designReadyTemplate } from "@/lib/sms/alimtalkTemplates";
 
 export async function POST(request: NextRequest) {
@@ -41,18 +41,17 @@ export async function POST(request: NextRequest) {
       let successCount = 0; let failedCount = 0;
       const results: Array<Record<string, unknown>> = [];
       const message = `[스타트패키지]\n\n디자인 시안이 업로드되었습니다.\n확인 부탁드립니다.`;
-      const slackLogs: Promise<void>[] = [];
+      const followUps: Promise<void>[] = [];
       for (const workflow of data.workflows) {
         try {
           if (!workflow.연락처) { failedCount++; results.push({ workflowId: workflow.id, userName: workflow.이름, success: false, error: "연락처 없음" }); continue; }
           const adminFrom = getSenderPhoneByAdmin(session.user?.email);
           const sent = await sendMemberNotice({ to: String(workflow.연락처), alimtalk: designReadyTemplate({ name: String(workflow.이름 || "회원"), items: [String(workflow.type)] }), sms: { content: message, from: adminFrom } });
-          await callDataService("admin-notifications/notification-create", { adminId, userId: String(workflow.userId), type: "시안완료", channel: "SMS", title: `[스타트패키지] ${String(workflow.type)} 시안 완료`, message, status: "성공", sentBy: adminId, sentByName: (session.user as any).name || "관리자" });
-          slackLogs.push(resolveNoticeOutcome(sent).then((outcome) => logOutboundNotice({ userId: String(workflow.userId), notice: "시안 완료·확정 요청 안내", channel: outcome.channel, note: outcome.note, items: [String(workflow.type)], sentByName: (session.user as any).name || "관리자" })));
+          followUps.push(resolveNoticeOutcome(sent).then(async (outcome) => { await recordMemberNotice({ adminId, userId: String(workflow.userId), type: "시안완료", title: `[스타트패키지] ${String(workflow.type)} 시안 완료`, message, sentByName: (session.user as any).name || "관리자", send: sent, outcome }); await logOutboundNotice({ userId: String(workflow.userId), notice: "시안 완료·확정 요청 안내", channel: outcome.channel, note: outcome.note, items: [String(workflow.type)], sentByName: (session.user as any).name || "관리자" }); }).catch((error) => console.error("발송 기록 실패:", error)));
           successCount++; results.push({ workflowId: workflow.id, userName: workflow.이름, success: true });
         } catch (error) { failedCount++; results.push({ workflowId: workflow.id, userName: workflow.이름, success: false, error: "SMS 발송 실패" }); console.error("SMS 발송 실패:", error); }
       }
-      await Promise.all(slackLogs);
+      await Promise.all(followUps);
       return NextResponse.json({ success: successCount, failed: failedCount, results });
     }
 
