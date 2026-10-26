@@ -105,6 +105,15 @@ export default function DashboardAlertsClient({
   if (notifications.length === 0) return null;
 
   const quest = questId ? QUEST_MAP[questId] : null;
+  const questSteps = !quest
+    ? []
+    : shippingRequired
+      ? quest.steps
+      : quest.steps.filter((s) => s.type !== "shipping" && !s.policyOnly);
+  // 비어 있는 첫 필수 단계부터 연다 (기본 정보 끝의 배송지·계좌만 빠졌으면 그 단계로 바로 간다)
+  const firstMissingField =
+    questSteps.find((s) => s.required && !submission?.[s.field])?.field ??
+    null;
   const nextAction = notifications.find(
     (n) => n.type === "urgent" || n.type === "warning",
   );
@@ -237,11 +246,8 @@ export default function DashboardAlertsClient({
           onClose={() => setQuestId(null)}
           title={quest.title}
           description={quest.description}
-          steps={
-            shippingRequired
-              ? quest.steps
-              : quest.steps.filter((s) => s.type !== "shipping")
-          }
+          steps={questSteps}
+          initialField={firstMissingField}
           initialValues={
             (submission as Record<string, string | null | undefined>) ?? {}
           }

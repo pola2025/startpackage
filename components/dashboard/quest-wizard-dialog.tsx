@@ -104,6 +104,8 @@ export interface QuestStep {
   notice?: string;
   /** 앞 단계 답에 따라 이 단계를 보일지 (없으면 항상 보임) */
   showIf?: (values: Record<string, string>) => boolean;
+  /** 배송지 필수 정책 대상 기수에만 보이는 단계 (shipping step 과 같은 기준) */
+  policyOnly?: boolean;
 }
 
 /** 마지막 단계 뒤 접수 확인 화면. check 는 빠진 항목 목록을 돌려준다 */
@@ -620,6 +622,15 @@ export default function QuestWizardDialog({
         SHIPPING_SUBFIELDS.forEach((sub) => {
           payload[sub] = (values[sub] || "").trim();
         });
+        // 바뀐 값이 없으면 보내지 않는다. 발주 뒤에는 배송지가 잠겨서
+        // 비어 있던 칸을 빈 문자열로 다시 보내도 409 로 막힌다
+        const unchanged = SHIPPING_SUBFIELDS.every(
+          (sub) => payload[sub] === String(initialValues?.[sub] ?? "").trim(),
+        );
+        if (unchanged) {
+          latestValuesRef.current = { ...values };
+          return true;
+        }
         const shippingRes = await fetch("/api/submission", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -1198,6 +1209,46 @@ export default function QuestWizardDialog({
 
 // === 미리 정의된 step 묶음 ===
 
+/** 인쇄물 받을 곳 (2026-10-26 기본 정보로 다시 합침, 정책 대상 기수에만 보인다) */
+const SHIPPING_STEPS: QuestStep[] = [
+  {
+    field: "인쇄물받을주소",
+    label: "인쇄물 받을 곳",
+    description:
+      "명함·대봉투 등 인쇄물을 배송받으실 주소입니다. 시안을 확정하고 발주하기 전에 확인해 주세요.",
+    type: "shipping",
+    required: true,
+  },
+];
+
+/** 자문계약서에 들어갈 입금 계좌 (기본 정보와 자문계약서 카드가 같이 쓴다) */
+const ACCOUNT_STEPS: QuestStep[] = [
+  {
+    field: "은행명",
+    label: "은행명",
+    description: "자문계약서에 기재될 입금 계좌의 은행명을 입력해주세요.",
+    type: "text",
+    placeholder: "예) 국민은행",
+    required: true,
+  },
+  {
+    field: "계좌번호",
+    label: "계좌번호",
+    description: "자문계약서에 기재될 입금 계좌번호를 입력해주세요.",
+    type: "text",
+    placeholder: "예) 123-456-7890123",
+    required: true,
+  },
+  {
+    field: "계좌명의자명",
+    label: "계좌 명의자",
+    description:
+      "사업자 대표와 동일하면 그대로 다음으로, 다르면 체크 해제 후 명의자명을 입력해주세요.",
+    type: "account-holder",
+    required: false,
+  },
+];
+
 export const BASIC_INFO_STEPS: QuestStep[] = [
   {
     field: "사업자등록증URL",
@@ -1262,18 +1313,8 @@ export const BASIC_INFO_STEPS: QuestStep[] = [
         ? null
         : "올바른 이메일 형식으로 입력해주세요.",
   },
-];
-
-/** 발주 전 확인: 배송 정보 (기본 정보에서 분리, 2026-10-17) */
-export const SHIPPING_STEPS: QuestStep[] = [
-  {
-    field: "인쇄물받을주소",
-    label: "인쇄물 받을 곳",
-    description:
-      "명함·대봉투 등 인쇄물을 배송받으실 주소입니다. 시안을 확정하고 발주하기 전에 확인해 주세요.",
-    type: "shipping",
-    required: true,
-  },
+  ...SHIPPING_STEPS,
+  ...ACCOUNT_STEPS.map((step) => ({ ...step, policyOnly: true })),
 ];
 
 export const NAMECARD_ENVELOPE_STEPS: QuestStep[] = [
@@ -1309,30 +1350,7 @@ export const CONTRACT_STEPS: QuestStep[] = [
     accentColor: "indigo",
     showPcRecommendation: true,
   },
-  {
-    field: "은행명",
-    label: "은행명",
-    description: "자문계약서에 기재될 입금 계좌의 은행명을 입력해주세요.",
-    type: "text",
-    placeholder: "예) 국민은행",
-    required: true,
-  },
-  {
-    field: "계좌번호",
-    label: "계좌번호",
-    description: "자문계약서에 기재될 입금 계좌번호를 입력해주세요.",
-    type: "text",
-    placeholder: "예) 123-456-7890123",
-    required: true,
-  },
-  {
-    field: "계좌명의자명",
-    label: "계좌 명의자",
-    description:
-      "사업자 대표와 동일하면 그대로 다음으로, 다르면 체크 해제 후 명의자명을 입력해주세요.",
-    type: "account-holder",
-    required: false,
-  },
+  ...ACCOUNT_STEPS,
 ];
 
 const isNewLogo = (v: Record<string, string>) => v.로고제작방식 !== "기존로고";

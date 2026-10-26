@@ -16,7 +16,6 @@ import {
   ChevronRight,
   X,
   MessageSquare,
-  Truck,
 } from "lucide-react";
 import QuestWizardDialog, {
   BASIC_INFO_STEPS,
@@ -25,7 +24,6 @@ import QuestWizardDialog, {
   MARKETING_INFO_STEPS,
   NAMECARD_ENVELOPE_STEPS,
   CONTRACT_STEPS,
-  SHIPPING_STEPS,
   SMS_INFO_STEPS,
   LOGO_COMPLETION,
   type QuestStep,
@@ -34,7 +32,6 @@ import QuestWizardDialog, {
 import {
   LOGO_CONFIRMED_STATUSES,
   logoChecklist,
-  shippingChecklist,
   smsChecklist,
   smsUsage,
   type PartItem,
@@ -56,6 +53,8 @@ interface FieldSpec {
   auto?: boolean;
   /** 완료 여부를 미리 계산한 항목 (파트 기준 lib/submission/parts.ts) */
   done?: boolean;
+  /** 배송지 필수 정책 대상 기수에만 보이는 항목 */
+  policyOnly?: boolean;
 }
 
 const toField = (item: PartItem): FieldSpec => ({
@@ -73,8 +72,7 @@ interface DeliverableSpec {
     | "website-info"
     | "basic-info"
     | "marketing-info"
-    | "sms-info"
-    | "shipping-info";
+    | "sms-info";
   title: string;
   /** 매칭되는 workflow.type 배열 (한쪽이라도 보유 시 카드 표시) */
   workflowTypes: string[];
@@ -99,7 +97,8 @@ const DELIVERABLES: DeliverableSpec[] = [
     workflowTypes: [],
     alwaysShow: true,
     icon: <Briefcase className="w-5 h-5" />,
-    fields: [
+    fields: [],
+    checklist: (sub) => [
       { key: "사업자등록증URL", label: "사업자등록증" },
       { key: "프로필사진URL", label: "프로필 사진" },
       { key: "브랜드명", label: "브랜드명" },
@@ -107,6 +106,16 @@ const DELIVERABLES: DeliverableSpec[] = [
       { key: "주소", label: "사업장 주소" },
       { key: "대표번호", label: "대표 연락처" },
       { key: "이메일", label: "이메일" },
+      // 배송지 단계가 필수로 받는 세 칸이 모두 있어야 완료
+      {
+        key: "인쇄물받을주소",
+        label: "인쇄물 받을 곳",
+        done: ["인쇄물받을주소", "받는분이름", "수령연락처"].every(
+          (key) => !!sub?.[key],
+        ),
+      },
+      { key: "은행명", label: "계좌 은행명", policyOnly: true },
+      { key: "계좌번호", label: "계좌번호", policyOnly: true },
     ],
   },
   {
@@ -203,15 +212,6 @@ const DELIVERABLES: DeliverableSpec[] = [
           : toField(item),
       ),
   },
-  {
-    wizardId: "shipping-info",
-    title: "배송 정보",
-    subtitle: "발주 전 확인 · 시안 확정 뒤 인쇄물을 받을 곳",
-    workflowTypes: ["명함", "명찰", "대봉투", "자문계약서 표지", "자문계약서 내지"],
-    icon: <Truck className="w-5 h-5" />,
-    fields: [],
-    checklist: (sub) => shippingChecklist(sub).map(toField),
-  },
 ];
 
 const QUEST_MAP: Record<
@@ -253,11 +253,6 @@ const QUEST_MAP: Record<
     title: "문자발송 정보",
     description: "문자·알림톡 자동 발송을 쓰는지 고르고, 쓰는 경우에만 서류와 계정을 입력합니다.",
     steps: SMS_INFO_STEPS,
-  },
-  "shipping-info": {
-    title: "배송 정보 (발주 전 확인)",
-    description: "시안을 확정한 인쇄물을 받을 곳을 확인합니다.",
-    steps: SHIPPING_STEPS,
   },
 };
 
@@ -313,7 +308,7 @@ export default function PrintDeliverableCards({
     return () => clearTimeout(t);
   }, [justCompleted]);
 
-  // 배송지 필수 정책 미적용 기수는 체크리스트에서 배송지 항목을 뺀다
+  // 배송지 필수 정책 미적용 기수는 체크리스트에서 배송지·계좌 항목을 뺀다
   const applyShippingPolicy = <T extends { fields: FieldSpec[] }>(
     spec: T,
   ): T =>
@@ -321,7 +316,9 @@ export default function PrintDeliverableCards({
       ? spec
       : {
           ...spec,
-          fields: spec.fields.filter((f) => f.key !== "인쇄물받을주소"),
+          fields: spec.fields.filter(
+            (f) => f.key !== "인쇄물받을주소" && !f.policyOnly,
+          ),
         };
 
   // 항상 노출(alwaysShow) 또는 사용자가 보유한 워크플로우 type 매칭 시 카드 노출
@@ -329,7 +326,6 @@ export default function PrintDeliverableCards({
     d.checklist ? { ...d, fields: d.checklist(submission) } : d,
   )
     .map(applyShippingPolicy)
-    .filter((d) => d.wizardId !== "shipping-info" || shippingRequired)
     .filter(
       (d) =>
         d.alwaysShow ||
@@ -629,7 +625,9 @@ export default function PrintDeliverableCards({
           steps={
             shippingRequired
               ? quest.steps
-              : quest.steps.filter((s) => s.type !== "shipping")
+              : quest.steps.filter(
+                  (s) => s.type !== "shipping" && !s.policyOnly,
+                )
           }
           initialValues={
             (submission as Record<string, string | null | undefined>) ?? {}

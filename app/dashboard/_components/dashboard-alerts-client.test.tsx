@@ -12,14 +12,29 @@ import DashboardAlertsClient, {
 } from "./dashboard-alerts-client";
 
 vi.mock("@/components/dashboard/quest-wizard-dialog", () => ({
-  default: ({ title, steps }: { title: string; steps: { type: string }[] }) => (
+  default: ({
+    title,
+    steps,
+  }: {
+    title: string;
+    steps: { type: string; policyOnly?: boolean }[];
+  }) => (
     <div role="dialog" aria-label={title}>
       {steps.some((step) => step.type === "shipping")
         ? "배송지 입력 유지"
         : "배송지 정책 미적용"}
+      <span>
+        {steps.some((step) => step.policyOnly)
+          ? "계좌 입력 유지"
+          : "계좌 정책 미적용"}
+      </span>
     </div>
   ),
-  BASIC_INFO_STEPS: [{ type: "text" }, { type: "shipping" }],
+  BASIC_INFO_STEPS: [
+    { type: "text" },
+    { type: "shipping" },
+    { type: "text", policyOnly: true },
+  ],
   LOGO_INFO_STEPS: [],
   LOGO_COMPLETION: { title: "", message: "", check: () => [] },
   MARKETING_INFO_STEPS: [],
@@ -113,10 +128,14 @@ describe("dashboard action preservation", () => {
     (required) => {
       setup(required);
       fireEvent.click(screen.getByRole("button", { name: "필요 정보 입력" }));
+      const dialog = within(
+        screen.getByRole("dialog", { name: "기본 정보 입력" }),
+      );
       expect(
-        within(
-          screen.getByRole("dialog", { name: "기본 정보 입력" }),
-        ).getByText(required ? "배송지 입력 유지" : "배송지 정책 미적용"),
+        dialog.getByText(required ? "배송지 입력 유지" : "배송지 정책 미적용"),
+      ).toBeInTheDocument();
+      expect(
+        dialog.getByText(required ? "계좌 입력 유지" : "계좌 정책 미적용"),
       ).toBeInTheDocument();
     },
   );

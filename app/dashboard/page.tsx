@@ -5,6 +5,7 @@ import type { Prisma } from "@prisma/client";
 import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
 import { callDataService } from "@/lib/d1/service-client";
 import { isShippingPolicyCohort } from "@/lib/shipping-policy";
+import { canConfirmDesign, requiresShippingStep } from "@/lib/design-confirm";
 import { redirect } from "next/navigation";
 import { formatDday } from "@/lib/utils";
 import PrintRequestButton from "./print-request-button";
@@ -116,6 +117,10 @@ export default async function UserDashboard() {
     ? formatDday(user.cohort.자료제출마감일)
     : null;
 
+  // 배송지 필수 정책은 최근 2개 기수부터 적용한다 (지난 기수는 진행률을 건드리지 않는다)
+  // 정책 대상 기수는 기본 정보에서 인쇄물 받을 곳과 자문계약서 계좌까지 받는다
+  const 배송지필수 = isShippingPolicyCohort(user.cohort?.교육시작일);
+
   // Submission completion percentage
   const submissionFields = [
     user.submission?.사업자등록증URL,
@@ -124,6 +129,13 @@ export default async function UserDashboard() {
     user.submission?.업종,
     user.submission?.주소,
     user.submission?.명함시안,
+    ...(배송지필수
+      ? [
+          user.submission?.인쇄물받을주소,
+          user.submission?.은행명,
+          user.submission?.계좌번호,
+        ]
+      : []),
   ];
   const completedFields = submissionFields.filter(Boolean).length;
   const totalFields = submissionFields.length;
@@ -162,10 +174,21 @@ export default async function UserDashboard() {
   const notifications: Notification[] = [];
 
   // 1. 기본 정보 미입력 (최우선)
+  // 배송지·계좌는 발주 전 인쇄물이 남아 있을 때만 묻는다 (이미 받은 고객에게 다시 묻지 않는다)
+  const printOrderPending = user.workflows.some(
+    (w) => requiresShippingStep(w.type) && canConfirmDesign(w.status),
+  );
+  const printInfoMissing =
+    배송지필수 &&
+    printOrderPending &&
+    (!user.submission?.인쇄물받을주소 ||
+      !user.submission?.은행명 ||
+      !user.submission?.계좌번호);
   if (
     !user.submission?.브랜드명 ||
     !user.submission?.사업자등록증URL ||
-    !user.submission?.프로필사진URL
+    !user.submission?.프로필사진URL ||
+    printInfoMissing
   ) {
     notifications.push({
       id: "basic-info",
@@ -418,9 +441,6 @@ export default async function UserDashboard() {
   notifications.sort((a, b) => a.priority - b.priority);
 
   // 인쇄물 정보 (5종 인쇄물 자료에 필요한 필드)
-  // 배송지 필수 정책은 최근 2개 기수부터 적용한다 (지난 기수는 진행률을 건드리지 않는다)
-  const 배송지필수 = isShippingPolicyCohort(user.cohort?.교육시작일);
-
   const printFields = [
     user.submission?.브랜드명,
     user.submission?.사업자등록증URL,
@@ -429,7 +449,13 @@ export default async function UserDashboard() {
     user.submission?.주소,
     user.submission?.대표번호,
     user.submission?.이메일,
-    ...(배송지필수 ? [user.submission?.인쇄물받을주소] : []),
+    ...(배송지필수
+      ? [
+          user.submission?.인쇄물받을주소,
+          user.submission?.은행명,
+          user.submission?.계좌번호,
+        ]
+      : []),
     user.submission?.명함시안,
   ];
   const printFilled = printFields.filter(Boolean).length;
