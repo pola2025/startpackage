@@ -10,6 +10,7 @@ import {
 import QuestWizardDialog, {
   BASIC_INFO_STEPS,
   CONTRACT_STEPS,
+  LOGO_INFO_STEPS,
 } from "./quest-wizard-dialog";
 
 const refresh = vi.fn();
@@ -106,4 +107,42 @@ describe("배송지 단계 저장", () => {
       우편번호: "",
     });
   });
+});
+
+describe("로고 설명 단계", () => {
+  const descriptionSteps = LOGO_INFO_STEPS.filter(
+    (s) => s.field === "로고제작요청사항",
+  );
+
+  function setup(description: string) {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    render(
+      <QuestWizardDialog
+        open
+        onClose={vi.fn()}
+        title="로고 제작 정보"
+        steps={descriptionSteps}
+        initialValues={{ 로고제작요청사항: description }}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: /완료/ }));
+    return fetchMock;
+  }
+
+  it.each([
+    ["", 0],
+    ["깔끔하게 해주세요", 9],
+  ])(
+    "설명이 비었거나 짧으면(%j) 제작 불가 안내를 띄우고 저장하지 않는다",
+    async (description, length) => {
+      const fetchMock = setup(description);
+      expect(
+        await screen.findByText(
+          `⚠ 로고 설명 및 요청내용 없이는 제작이 불가능합니다. 20자 이상 적어 주세요. (지금 ${length}자)`,
+        ),
+      ).toBeInTheDocument();
+      expect(fetchMock).not.toHaveBeenCalled();
+    },
+  );
 });

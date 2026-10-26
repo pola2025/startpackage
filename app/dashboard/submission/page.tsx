@@ -27,6 +27,10 @@ import {
 } from "lucide-react";
 import { SLACK_ONLY_MARKER } from "@/lib/constants/sensitiveFields";
 import {
+  LOGO_DESCRIPTION_MIN_LENGTH,
+  LOGO_DESCRIPTION_REQUIRED_MESSAGE,
+} from "@/lib/submission/parts";
+import {
   uploadProfilePhoto,
   toUploadMessage,
 } from "@/lib/submission/uploadProfile";
@@ -461,8 +465,21 @@ export default function SubmissionPage() {
     console.log(`📤 [제출정보 저장] 섹션: ${section}`);
     console.log("📋 FormData 수집 결과:", data);
 
-    // 로고 섹션 저장 시 색상 필수 검증
+    // 로고 섹션 저장 시 설명·색상 필수 검증
     if (section === "logo") {
+      // 입력칸이 잠겨 있으면 FormData 에 빠지므로 저장된 값으로 판단한다
+      const description = String(
+        data.로고제작요청사항 ?? submission?.로고제작요청사항 ?? "",
+      ).trim();
+      if (
+        submission?.로고제작방식 !== "기존로고" &&
+        description.length < LOGO_DESCRIPTION_MIN_LENGTH
+      ) {
+        alert(
+          `${LOGO_DESCRIPTION_REQUIRED_MESSAGE}\n\n상세 제작 요청사항을 ${LOGO_DESCRIPTION_MIN_LENGTH}자 이상 구체적으로 적어 주세요. (지금 ${description.length}자)`,
+        );
+        return;
+      }
       const logoColor = data.명함색상 as string;
       if (!logoColor || logoColor.trim() === "" || logoColor === "#3B82F6") {
         alert(

@@ -6,6 +6,10 @@
 
 export const LOGO_DESCRIPTION_MIN_LENGTH = 20;
 
+/** 로고 설명이 비었거나 짧을 때 교육생에게 보이는 안내 (입력 창·제출 화면·단계 카드 공통) */
+export const LOGO_DESCRIPTION_REQUIRED_MESSAGE =
+  "로고 설명 및 요청내용 없이는 제작이 불가능합니다.";
+
 /** 로고 확정으로 보는 상태값 (시안확정은 레거시) */
 export const LOGO_CONFIRMED_STATUSES = ["최종확정", "시안확정"] as const;
 export const LOGO_REVIEW_STATUSES = ["시안컨펌요청"] as const;

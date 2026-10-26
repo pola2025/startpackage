@@ -40,6 +40,7 @@ import {
 } from "@/lib/submission/uploadValidation";
 import {
   LOGO_DESCRIPTION_MIN_LENGTH,
+  LOGO_DESCRIPTION_REQUIRED_MESSAGE,
   logoChecklist,
   missingItems,
 } from "@/lib/submission/parts";
@@ -100,6 +101,8 @@ export interface QuestStep {
   showMailHint?: boolean;
   /** 최소 글자 수 (text·textarea). 글자 수를 함께 보여 준다 */
   minLength?: number;
+  /** 비었거나 minLength 보다 짧을 때 앞에 붙일 안내 (비우면 제작할 수 없는 이유) */
+  requiredMessage?: string;
   /** 입력 칸 위에 보이는 주의 안내 */
   notice?: string;
   /** 앞 단계 답에 따라 이 단계를 보일지 (없으면 항상 보임) */
@@ -552,13 +555,22 @@ export default function QuestWizardDialog({
       }
       return true;
     }
-    if (step.required && !currentValue.trim()) {
+    const trimmedLength = currentValue.trim().length;
+    const tooShort =
+      !!step.minLength &&
+      (step.required || trimmedLength > 0) &&
+      trimmedLength < step.minLength;
+    const lengthHint = `${step.minLength}자 이상 적어 주세요. (지금 ${trimmedLength}자)`;
+    if (step.requiredMessage && step.required && (trimmedLength === 0 || tooShort)) {
+      setError(step.minLength ? `${step.requiredMessage} ${lengthHint}` : step.requiredMessage);
+      return false;
+    }
+    if (step.required && trimmedLength === 0) {
       setError("필수 입력 항목입니다.");
       return false;
     }
-    const trimmedLength = currentValue.trim().length;
-    if (step.minLength && (step.required || trimmedLength > 0) && trimmedLength < step.minLength) {
-      setError(`${step.minLength}자 이상 적어 주세요. (지금 ${trimmedLength}자)`);
+    if (tooShort) {
+      setError(lengthHint);
       return false;
     }
     if (step.validate) {
@@ -1424,6 +1436,7 @@ export const LOGO_INFO_STEPS: QuestStep[] = [
       "예) 세무사무소입니다. 회사 영문 이니셜 TS를 넣고, 신뢰감 있는 남색 계열로 단정하게 만들어 주세요. 귀여운 느낌은 피하고 싶어요.",
     required: true,
     minLength: LOGO_DESCRIPTION_MIN_LENGTH,
+    requiredMessage: LOGO_DESCRIPTION_REQUIRED_MESSAGE,
     showIf: isNewLogo,
   },
   {

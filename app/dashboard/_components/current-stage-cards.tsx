@@ -12,6 +12,7 @@ import type {
   MetaSetupStage,
   PartItem,
 } from "@/lib/submission/parts";
+import { LOGO_DESCRIPTION_REQUIRED_MESSAGE } from "@/lib/submission/parts";
 
 export interface LogoStageProps {
   stage: LogoStage;
@@ -146,6 +147,9 @@ export default function CurrentStageCards({
     let node: React.ReactNode;
     if (logo.stage === "info" || logo.stage === "partial") {
       const partial = logo.stage === "partial";
+      const descriptionMissing = missing.some(
+        (item) => item.key === "로고제작요청사항",
+      );
       node = (
         <article
           className={`rounded-xl border-4 bg-white p-5 ${partial ? "border-red-300" : "border-gold-500"}`}
@@ -170,6 +174,11 @@ export default function CurrentStageCards({
               ? "일부만 입력한 상태로는 디자이너에게 전달되지 않습니다."
               : `아래 ${logo.items.length}가지를 모두 내야 디자이너가 작업을 시작합니다.`}
           </p>
+          {partial && descriptionMissing && (
+            <p role="alert" className="mt-2 text-[13px] font-bold text-red-700">
+              {LOGO_DESCRIPTION_REQUIRED_MESSAGE}
+            </p>
+          )}
           <Checklist items={logo.items} />
           <button
             type="button"
