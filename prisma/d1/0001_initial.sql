@@ -582,6 +582,37 @@ CREATE INDEX "ad_automation_payments_userId_idx" ON "ad_automation_payments" ("u
 CREATE INDEX "ad_automation_payments_paymentDate_idx" ON "ad_automation_payments" ("paymentDate");
 CREATE INDEX "ad_automation_payments_status_idx" ON "ad_automation_payments" ("status");
 
+CREATE TABLE "cohort_roster" (
+  "id" TEXT PRIMARY KEY NOT NULL,
+  "cohortId" TEXT NOT NULL,
+  "name" TEXT NOT NULL,
+  "phone" TEXT NOT NULL,
+  "createdBy" TEXT,
+  "createdAt" INTEGER NOT NULL DEFAULT (unixepoch('now') * 1000),
+  "updatedAt" INTEGER NOT NULL,
+  FOREIGN KEY ("cohortId") REFERENCES "cohorts" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE UNIQUE INDEX "cohort_roster_cohortId_phone_key_unique" ON "cohort_roster" ("cohortId", "phone");
+
+CREATE TABLE "cohort_reminders" (
+  "id" TEXT PRIMARY KEY NOT NULL,
+  "cohortId" TEXT NOT NULL,
+  "kind" TEXT NOT NULL,
+  "phone" TEXT NOT NULL,
+  "name" TEXT NOT NULL,
+  "userId" TEXT,
+  "reason" TEXT NOT NULL,
+  "status" TEXT NOT NULL DEFAULT '발송중',
+  "channel" TEXT,
+  "note" TEXT,
+  "createdAt" INTEGER NOT NULL DEFAULT (unixepoch('now') * 1000),
+  "updatedAt" INTEGER NOT NULL,
+  FOREIGN KEY ("cohortId") REFERENCES "cohorts" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE UNIQUE INDEX "cohort_reminders_cohortId_kind_phone_key_unique" ON "cohort_reminders" ("cohortId", "kind", "phone");
+
 CREATE INDEX "users_cohort_status_created_id_keyset" ON "users" ("cohortId", "status", "createdAt", "id");
 CREATE INDEX "workflows_user_status_created_id_keyset" ON "workflows" ("userId", "status", "createdAt", "id");
 CREATE INDEX "workflow_logs_workflow_created_id_keyset" ON "workflow_logs" ("workflowId", "createdAt", "id");

@@ -2884,6 +2884,151 @@
           "prismaRequired": true
         }
       ]
+    },
+    {
+      "name": "cohort_roster",
+      "model": "CohortRoster",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "cohortId",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "name",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "phone",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "createdBy",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        }
+      ]
+    },
+    {
+      "name": "cohort_reminders",
+      "model": "CohortReminder",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "cohortId",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "kind",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "phone",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "name",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "userId",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "reason",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "status",
+          "type": "String",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "channel",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "note",
+          "type": "String",
+          "array": false,
+          "nullable": true,
+          "prismaRequired": false
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime",
+          "array": false,
+          "nullable": false,
+          "prismaRequired": true
+        }
+      ]
     }
   ]
 }

@@ -28,7 +28,9 @@ model Cohort {
   isActive Boolean @default(true)
 
   // 관계
-  users User[]
+  users     User[]
+  roster    CohortRoster[]
+  reminders CohortReminder[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1013,4 +1015,46 @@ model AdAutomationPayment {
   @@index([paymentDate])
   @@index([status])
   @@map("ad_automation_payments")
+}
+
+
+// ============================================
+// 기수 대상자 명단 · 기수 자동 안내 기록
+// ============================================
+
+// 관리자가 기수를 열 때 미리 등록하는 교육생 명단. 가입 연락처 확인과 2주차 안내 대상 판정에 쓴다.
+model CohortRoster {
+  id        String  @id @default(cuid())
+  cohortId  String
+  cohort    Cohort  @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  name      String
+  phone     String // 숫자만 (01012345678)
+  createdBy String? // Admin ID
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([cohortId, phone])
+  @@map("cohort_roster")
+}
+
+// 기수 자동 안내 발송 기록. 같은 기수·종류·연락처에는 한 번만 보낸다.
+model CohortReminder {
+  id       String  @id @default(cuid())
+  cohortId String
+  cohort   Cohort  @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  kind     String // "week2"
+  phone    String
+  name     String
+  userId   String?
+  reason   String // "미가입" | "자료 미제출"
+  status   String  @default("발송중") // "발송중" | "성공" | "실패" | "확인 전"
+  channel  String? // "알림톡" | "SMS" | "LMS"
+  note     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([cohortId, kind, phone])
+  @@map("cohort_reminders")
 }

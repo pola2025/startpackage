@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
 import { callDataService } from "@/lib/d1/service-client";
 import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
+import { parseRosterText } from "@/lib/cohort-roster";
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,6 +18,15 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const { name, 교육요일, 교육시작일, 자료제출마감일 } = body;
+    const rosterText =
+      typeof body.rosterText === "string" ? body.rosterText.slice(0, 30_000) : "";
+    const roster = parseRosterText(rosterText);
+    if (roster.errors.length > 0) {
+      return NextResponse.json(
+        { error: "교육생 명단 형식을 확인해주세요.", errors: roster.errors },
+        { status: 400 },
+      );
+    }
 
     if (!name) {
       return NextResponse.json(
@@ -42,8 +52,12 @@ export async function POST(request: NextRequest) {
     const adminName = (session.user as any)?.name || "관리자";
 
     if (isD1RuntimeEnabled()) {
-      const cohort = await callDataService<Record<string, unknown>>("admin-domain/cohort-create", { adminId: (session.user as { id: string }).id, name, 교육요일, 교육시작일: new Date(교육시작일).getTime(), 자료제출마감일: new Date(자료제출마감일).getTime(), isActive: true });
-      return NextResponse.json({ success: true, cohort });
+      const adminId = (session.user as { id: string }).id;
+      const cohort = await callDataService<Record<string, unknown>>("admin-domain/cohort-create", { adminId, name, 교육요일, 교육시작일: new Date(교육시작일).getTime(), 자료제출마감일: new Date(자료제출마감일).getTime(), isActive: true });
+      const rosterResult = roster.entries.length
+        ? await callDataService<{ added: number; duplicates: number }>("roster-domain/add", { adminId, cohortId: String(cohort.id), entries: roster.entries })
+        : { added: 0, duplicates: 0 };
+      return NextResponse.json({ success: true, cohort, roster: rosterResult });
     }
 
     // Create cohort

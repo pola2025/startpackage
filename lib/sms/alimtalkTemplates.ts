@@ -66,6 +66,21 @@ export function marketingExtensionApprovedTemplate(input: {
   };
 }
 
+/**
+ * 2주차 가입·자료 제출 안내. 아직 가입하지 않은 명단 대상자에게도 가므로 이름 변수를 두지 않는다.
+ * 알림톡이 실패하면 같은 문구가 문자로 나간다.
+ */
+export const SIGNUP_REMIND_TEXT =
+  "비즈액터스쿨 스타트패키지 운영주관사\n폴라애드에서 안내드립니다.\n\n스타트패키지 가입 및 자료제출 바랍니다.\n인쇄물 제작 및 홈페이지 제작은 가입 후\n자료제출이 되어야만 진행이 가능합니다.";
+
+export function signupRemindTemplate(): AlimtalkMessage {
+  return {
+    templateCode: "spSignupRemind01",
+    content: SIGNUP_REMIND_TEXT,
+    buttons: [link("스타트패키지 바로가기", SITE)],
+  };
+}
+
 /** 마케팅 지원 연장 거부 안내 */
 export function marketingExtensionRejectedTemplate(input: {
   reason: string;

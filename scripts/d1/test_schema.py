@@ -15,7 +15,7 @@ def run() -> None:
     connection.execute("PRAGMA foreign_keys = ON")
     connection.executescript(SQL.read_text(encoding="utf-8"))
     tables = connection.execute("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name").fetchall()
-    assert len(tables) == 28, len(tables)
+    assert len(tables) == 30, len(tables)
     assert not connection.execute("PRAGMA foreign_key_check").fetchall()
     for table, key in [("education_ip_blocks", "ipHash"), ("education_rate_windows", "keyHash")]:
         columns = connection.execute(f"PRAGMA table_info({table})").fetchall()
@@ -26,7 +26,7 @@ def run() -> None:
     assert any(row[2] == "users" and row[6] == "CASCADE" and row[5] == "CASCADE" for row in workflow_fk), workflow_fk
 
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
-    assert len(manifest["tables"]) == 28
+    assert len(manifest["tables"]) == 30
     message_fields = {field["name"]: field for table in manifest["tables"] if table["name"] == "design_thread_messages" for field in table["fields"]}
     assert message_fields["attachments"] == {"name": "attachments", "type": "String", "array": True, "nullable": True, "prismaRequired": True}
 

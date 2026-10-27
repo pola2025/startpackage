@@ -5,6 +5,11 @@ vi.mock("./cohort-actions", () => ({
   default: () => null,
 }));
 
+// 명단 요약 요청은 따로 시험한다. 여기서는 "더 보기" 요청 횟수만 센다
+vi.mock("./use-roster-counts", () => ({
+  useRosterCounts: () => ({}),
+}));
+
 import CohortsList from "./cohorts-list";
 
 const cohort = (id: string, name: string, startDate: string) => ({

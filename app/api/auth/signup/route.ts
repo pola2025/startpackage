@@ -8,6 +8,16 @@ import { notifyAdmin } from "@/lib/notification/telegramClient";
 import { isD1RuntimeEnabled } from "@/lib/d1/runtime";
 import { callDataService } from "@/lib/d1/service-client";
 import { dataServiceErrorResponse } from "@/lib/d1/route-errors";
+import { NOT_ON_ROSTER_MESSAGE } from "@/lib/cohort-roster";
+
+const escapeHtml = (value: string) =>
+  value.replace(
+    /[&<>"']/g,
+    (char) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
+        char
+      ] as string,
+  );
 
 // 회원가입 유효성 검증 스키마
 const signupSchema = z.object({
@@ -134,6 +144,38 @@ export async function POST(request: NextRequest) {
     const { 이름, 연락처, 이메일, password, cohortId } = validationResult.data;
 
     if (isD1RuntimeEnabled()) {
+      // 명단을 등록한 기수는 명단의 연락처로만 가입할 수 있다
+      const roster = await callDataService<{
+        rosterSize: number;
+        cohortName: string;
+        matched: boolean;
+        sameName: Array<{ name: string; phone: string }>;
+      }>("roster-domain/signup-check", {
+        cohortId,
+        phone: 연락처,
+        name: 이름,
+      });
+      if (roster.rosterSize > 0 && !roster.matched) {
+        await notifyAdmin({
+          title: "[startpackage/signup] 명단에 없는 연락처로 가입 시도",
+          message: `${escapeHtml(roster.cohortName)} 가입을 막았습니다. 교육생 명단에 없는 연락처입니다.`,
+          details: {
+            기수: escapeHtml(roster.cohortName),
+            이름: escapeHtml(이름),
+            연락처: escapeHtml(연락처),
+            이메일: escapeHtml(이메일),
+            "명단의 같은 이름": roster.sameName.length
+              ? roster.sameName.map((row) => `${escapeHtml(row.name)} ${row.phone}`).join(", ")
+              : "없음",
+            IP: escapeHtml(ip),
+          },
+        }).catch((error) => console.error("텔레그램 알림 발송 실패:", error));
+        return NextResponse.json(
+          { error: NOT_ON_ROSTER_MESSAGE, code: "NOT_ON_ROSTER" },
+          { status: 403 },
+        );
+      }
+
       const d1User = await callDataService<{
         userId: string;
         cohortName: string;
@@ -148,7 +190,13 @@ export async function POST(request: NextRequest) {
       await notifyAdmin({
         title: "🎉 신규 회원 가입",
         message: `${d1User.cohortName} 신규 회원이 가입했습니다.`,
-        details: { 기수: d1User.cohortName, 이름, 연락처, 이메일 },
+        details: {
+          기수: d1User.cohortName,
+          이름,
+          연락처,
+          이메일,
+          ...(roster.matched ? { 명단: "확인됨" } : {}),
+        },
       }).catch((error) => console.error("텔레그램 알림 발송 실패:", error));
 
       return NextResponse.json({

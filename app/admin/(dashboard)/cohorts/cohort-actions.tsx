@@ -19,14 +19,26 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, Power, PowerOff, Trash2, Edit } from "lucide-react";
+import {
+  MoreVertical,
+  Power,
+  PowerOff,
+  Trash2,
+  Edit,
+  ListChecks,
+} from "lucide-react";
 import EditCohortDialog from "./edit-cohort-dialog";
 
 interface CohortActionsProps {
   cohort: any;
+  /** 대상자 명단 다이얼로그 열기 */
+  onOpenRoster?: () => void;
 }
 
-export default function CohortActions({ cohort }: CohortActionsProps) {
+export default function CohortActions({
+  cohort,
+  onOpenRoster,
+}: CohortActionsProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -103,6 +115,16 @@ export default function CohortActions({ cohort }: CohortActionsProps) {
             <Edit className="w-4 h-4 mr-2 text-gold-600" />
             수정
           </DropdownMenuItem>
+          {onOpenRoster && (
+            <DropdownMenuItem
+              onClick={onOpenRoster}
+              disabled={loading}
+              className="text-gray-700 hover:bg-gray-100 cursor-pointer"
+            >
+              <ListChecks className="w-4 h-4 mr-2 text-gold-600" />
+              대상자 명단
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem
             onClick={toggleActivation}
             disabled={loading}

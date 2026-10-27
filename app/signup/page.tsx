@@ -29,6 +29,15 @@ import {
   Calendar,
 } from "lucide-react";
 import { ValidationRegex, ValidationMessages } from "@/lib/validation/schemas";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Cohort {
   id: string;
@@ -42,6 +51,8 @@ export default function HomePage() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  // 명단을 등록한 기수에 명단 밖 연락처로 가입하려 할 때 띄우는 안내
+  const [rosterNotice, setRosterNotice] = useState("");
   const [cohorts, setCohorts] = useState<Cohort[]>([]);
 
   const [formData, setFormData] = useState({
@@ -122,6 +133,10 @@ export default function HomePage() {
       const data = await response.json();
 
       if (!response.ok) {
+        if (data.code === "NOT_ON_ROSTER") {
+          setRosterNotice(data.error);
+          return;
+        }
         // 상세 에러 정보가 있으면 표시
         if (data.details && Array.isArray(data.details)) {
           const errorMessages = data.details
@@ -399,6 +414,27 @@ export default function HomePage() {
           </CardContent>
         </Card>
       </div>
+
+      <AlertDialog
+        open={Boolean(rosterNotice)}
+        onOpenChange={(open) => {
+          if (!open) setRosterNotice("");
+        }}
+      >
+        <AlertDialogContent className="bg-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle>가입할 수 없는 연락처입니다</AlertDialogTitle>
+            <AlertDialogDescription className="text-base text-gray-700">
+              {rosterNotice}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction className="bg-navy-900 text-white hover:bg-navy-800">
+              확인
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

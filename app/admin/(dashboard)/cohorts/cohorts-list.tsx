@@ -27,6 +27,8 @@ import {
   ChevronUp,
 } from "lucide-react";
 import CohortActions from "./cohort-actions";
+import CohortRosterDialog from "./cohort-roster-dialog";
+import { useRosterCounts } from "./use-roster-counts";
 import {
   calculateMarketingSupportEndDate,
   getMarketingSupportDurationLabel,
@@ -50,6 +52,7 @@ interface CohortsListProps {
 }
 
 const MAX_LOAD_MORE_PAGES = 20;
+const MAX_ROSTER_SUMMARY_IDS = 50;
 const MAX_COHORT_ROWS = 1000;
 
 export default function CohortsList({
@@ -95,6 +98,42 @@ export default function CohortsList({
   });
   const activeCohorts = orderedCohorts.filter((cohort) => cohort.isActive);
   const inactiveCohorts = orderedCohorts.filter((cohort) => !cohort.isActive);
+
+  const [rosterCohort, setRosterCohort] = useState<Cohort | null>(null);
+  const [rosterVersion, setRosterVersion] = useState(0);
+  const rosterIds = activeCohorts
+    .slice(0, MAX_ROSTER_SUMMARY_IDS)
+    .map((cohort) => cohort.id)
+    .join(",");
+  // 활성 기수의 명단 요약. 기수 목록이나 명단이 바뀔 때만 다시 부른다
+  const rosterCounts = useRosterCounts(rosterIds, rosterVersion);
+
+  const renderRosterSummary = (cohort: Cohort) => {
+    const counts = rosterCounts[cohort.id];
+    const hasRoster = Boolean(counts && counts.roster > 0);
+    return (
+      <div className="flex flex-col gap-1">
+        {counts && (
+          <span
+            className={`text-xs ${cohort.isActive ? "text-gray-700" : "text-gray-400"}`}
+          >
+            {hasRoster
+              ? `명단 ${counts.roster} · 가입 ${counts.joined} · 제출 ${counts.complete}`
+              : "명단 없음"}
+          </span>
+        )}
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => setRosterCohort(cohort)}
+          className="h-7 w-fit px-2.5 text-xs font-bold border-gold-300 text-gold-800 hover:bg-gold-50"
+        >
+          {hasRoster || !counts ? "명단 관리" : "명단 등록"}
+        </Button>
+      </div>
+    );
+  };
 
   const loadMore = async () => {
     if (!nextCursor || loadingMore || loadingMoreRef.current) return;
@@ -207,7 +246,10 @@ export default function CohortsList({
               </Badge>
             )}
           </div>
-          <CohortActions cohort={cohort} />
+          <CohortActions
+            cohort={cohort}
+            onOpenRoster={() => setRosterCohort(cohort)}
+          />
         </div>
 
         {/* Info Grid */}
@@ -241,6 +283,12 @@ export default function CohortsList({
               {new Date(cohort.자료제출마감일).toLocaleDateString("ko-KR")}
             </span>
           )}
+        </div>
+
+        {/* 대상자 명단 */}
+        <div className="flex items-center gap-2 text-xs">
+          <span className="text-gray-500">대상자:</span>
+          {renderRosterSummary(cohort)}
         </div>
 
         {/* Marketing Support Status */}
@@ -348,6 +396,7 @@ export default function CohortsList({
             <span className="text-gray-400">-</span>
           )}
         </TableCell>
+        <TableCell>{renderRosterSummary(cohort)}</TableCell>
         <TableCell className="text-sm">
           {cohort.교육시작일 ? (
             (() => {
@@ -401,7 +450,10 @@ export default function CohortsList({
           )}
         </TableCell>
         <TableCell>
-          <CohortActions cohort={cohort} />
+          <CohortActions
+            cohort={cohort}
+            onOpenRoster={() => setRosterCohort(cohort)}
+          />
         </TableCell>
       </TableRow>
     );
@@ -461,6 +513,9 @@ export default function CohortsList({
                     자료 마감일
                   </TableHead>
                   <TableHead className="text-gray-700 font-semibold">
+                    대상자
+                  </TableHead>
+                  <TableHead className="text-gray-700 font-semibold">
                     마케팅 지원 기간
                   </TableHead>
                   <TableHead className="text-gray-700 font-semibold">
@@ -474,7 +529,7 @@ export default function CohortsList({
                 ) : (
                   <TableRow>
                     <TableCell
-                      colSpan={8}
+                      colSpan={9}
                       className="text-center text-gray-500 py-4"
                     >
                       활성 기수가 없습니다
@@ -536,6 +591,9 @@ export default function CohortsList({
                           자료 마감일
                         </TableHead>
                         <TableHead className="text-gray-700 font-semibold">
+                          대상자
+                        </TableHead>
+                        <TableHead className="text-gray-700 font-semibold">
                           마케팅 지원 기간
                         </TableHead>
                         <TableHead className="text-gray-700 font-semibold">
@@ -560,6 +618,13 @@ export default function CohortsList({
           </div>
         )}
       </CardContent>
+      <CohortRosterDialog
+        cohort={rosterCohort}
+        onOpenChange={(open) => {
+          if (!open) setRosterCohort(null);
+        }}
+        onChanged={() => setRosterVersion((value) => value + 1)}
+      />
     </Card>
   );
 }

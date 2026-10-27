@@ -13,7 +13,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Plus, CheckCircle2 } from "lucide-react";
+import { parseRosterText } from "@/lib/cohort-roster";
 
 export default function AddCohortButton() {
   const router = useRouter();
@@ -24,6 +26,8 @@ export default function AddCohortButton() {
   const [교육요일, set교육요일] = useState("");
   const [교육시작일, set교육시작일] = useState("");
   const [자료제출마감일, set자료제출마감일] = useState("");
+  const [rosterText, setRosterText] = useState("");
+  const roster = parseRosterText(rosterText);
 
   const handle교육시작일Change = (value: string) => {
     set교육시작일(value);
@@ -37,6 +41,7 @@ export default function AddCohortButton() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (roster.errors.length > 0) return;
     setLoading(true);
 
     try {
@@ -50,11 +55,13 @@ export default function AddCohortButton() {
           자료제출마감일: 자료제출마감일
             ? new Date(자료제출마감일).toISOString()
             : null,
+          rosterText,
         }),
       });
 
       if (!response.ok) {
-        throw new Error("생성 실패");
+        const data = await response.json().catch(() => null);
+        throw new Error(data?.error || "기수 생성 중 오류가 발생했습니다.");
       }
 
       setOpen(false);
@@ -62,9 +69,14 @@ export default function AddCohortButton() {
       set교육요일("");
       set교육시작일("");
       set자료제출마감일("");
+      setRosterText("");
       router.refresh();
     } catch (error) {
-      alert("기수 생성 중 오류가 발생했습니다.");
+      alert(
+        error instanceof Error
+          ? error.message
+          : "기수 생성 중 오류가 발생했습니다.",
+      );
     } finally {
       setLoading(false);
     }
@@ -138,6 +150,43 @@ export default function AddCohortButton() {
             />
           </div>
 
+          <div className="space-y-2 rounded-lg border-2 border-gold-300 bg-gold-50 p-3">
+            <Label className="text-gray-900 font-medium">
+              교육생 명단
+              <span className="text-xs text-gray-500 font-normal ml-1">
+                (선택 · 나중에 추가 가능)
+              </span>
+            </Label>
+            <Textarea
+              value={rosterText}
+              onChange={(e) => setRosterText(e.target.value)}
+              placeholder={
+                "한 줄에 한 명씩: 이름 연락처\n예) 홍길동 010-1234-5678"
+              }
+              rows={4}
+              className="bg-white border-2 border-gray-300 focus:border-gold-500 text-gray-900 font-mono text-sm"
+            />
+            <p className="text-xs text-gray-600">
+              명단을 등록하면 이 기수는 명단의 연락처로만 가입할 수 있고, 2주차
+              교육일 오전 10시에 미가입·자료 미제출 대상자에게 알림톡이
+              나갑니다.
+            </p>
+            {roster.entries.length > 0 && (
+              <p className="text-xs font-semibold text-green-700">
+                {roster.entries.length}명 인식됨
+              </p>
+            )}
+            {roster.errors.map((error) => (
+              <p
+                key={`${error.line}-${error.text}`}
+                className="text-xs font-semibold text-red-600"
+              >
+                {error.line > 0 ? `${error.line}번째 줄: ` : ""}
+                {error.message}
+              </p>
+            ))}
+          </div>
+
           <div className="flex gap-2 pt-4">
             <Button
               type="button"
@@ -150,7 +199,7 @@ export default function AddCohortButton() {
             </Button>
             <Button
               type="submit"
-              disabled={loading}
+              disabled={loading || roster.errors.length > 0}
               className="flex-1 bg-navy-900 text-white hover:bg-navy-800 shadow-md"
             >
               {loading ? "생성 중..." : "생성"}
