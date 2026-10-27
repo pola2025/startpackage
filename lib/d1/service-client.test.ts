@@ -54,4 +54,18 @@ describe("callDataService errors", () => {
     failWith(503, { error: "서비스 내부 오류" });
     expect((await rejection()).publicMessage).toBeUndefined();
   });
+
+  it("sends every domain the data worker routes, including roster-domain", async () => {
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ rosterSize: 0 }), { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+    for (const operation of ["roster-domain/signup-check", "roster-domain/reminder-candidates", "education-domain/student-login"]) {
+      await callDataService(operation, {});
+    }
+    expect(fetchMock.mock.calls.map(([url]) => String(url))).toEqual([
+      "https://data.example.com/v1/roster-domain/signup-check",
+      "https://data.example.com/v1/roster-domain/reminder-candidates",
+      "https://data.example.com/v1/education-domain/student-login",
+    ]);
+    await expect(callDataService("unknown-domain/x", {})).rejects.toThrow("Unknown D1 operation");
+  });
 });
