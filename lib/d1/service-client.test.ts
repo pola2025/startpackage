@@ -56,7 +56,7 @@ describe("callDataService errors", () => {
   });
 
   it("sends every domain the data worker routes, including roster-domain", async () => {
-    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ rosterSize: 0 }), { status: 200 }));
+    const fetchMock = vi.fn(async (_url: string | URL, _init?: RequestInit) => new Response(JSON.stringify({ rosterSize: 0 }), { status: 200 }));
     vi.stubGlobal("fetch", fetchMock);
     for (const operation of ["roster-domain/signup-check", "roster-domain/reminder-candidates", "education-domain/student-login"]) {
       await callDataService(operation, {});

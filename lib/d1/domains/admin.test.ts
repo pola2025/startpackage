@@ -157,4 +157,15 @@ describe("admin marketing extension operations", () => {
     await expect(adminOperation(db, "extension-reject", { adminId: "admin-1", id: "request-1", adminResponse: "재검토" })).rejects.toMatchObject({ status: 400 });
     expect(raw.prepare('SELECT "marketingSupportEndDate" FROM "users" WHERE "id" = ?').get("user-1")).toEqual({ marketingSupportEndDate: 2000 });
   });
+
+  it("creates the cohort together with its deadline popup for that cohort only", async () => {
+    const { raw, db } = fixture();
+    const startAt = Date.parse("2026-10-29T09:00:00+09:00");
+    const deadlineAt = Date.parse("2026-11-19T09:00:00+09:00");
+    const cohort = await adminOperation(db, "cohort-create", { adminId: "admin-1", name: "28기", 교육요일: "목", 교육시작일: startAt, 자료제출마감일: deadlineAt, isActive: true }) as { id: string; name: string };
+    expect(cohort.name).toBe("28기");
+    expect(raw.prepare('SELECT "title", "content", "type", "priority", "startDate", "endDate", "isActive", "cohortId", "phoneNumber", "createdBy", "createdByName" FROM "system_alerts" WHERE "cohortId" = ?').all(cohort.id)).toEqual([
+      { title: "자료제출 마감일 안내", content: "2026년 11월 19일(목)", type: "urgent", priority: 100, startDate: startAt, endDate: deadlineAt, isActive: 1, cohortId: cohort.id, phoneNumber: "010-9897-9834", createdBy: "admin-1", createdByName: "운영자" },
+    ]);
+  });
 });
