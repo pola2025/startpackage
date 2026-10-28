@@ -576,7 +576,7 @@ export default function StartPackagePage() {
               </span>
               명찰
             </h3>
-            <p className="text-gray-600 mb-4">제작 기간: 3~4일</p>
+            <p className="text-gray-600 mb-4">제작 기간: 영업일 기준 2~3일</p>
             <div className="max-w-md">
               <div
                 className="border border-gray-200 rounded-xl overflow-hidden cursor-pointer hover:border-amber-400 hover:shadow-lg transition-all"

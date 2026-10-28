@@ -1037,14 +1037,14 @@ function GuidesContent() {
 
               <div>
                 <h3 className="text-sm md:text-base text-gold-600 font-semibold mb-2 md:mb-3">
-                  ⏱️ 제작 기간 (발주 확정 후)
+                  ⏱️ 제작 기간 (발주 확정 후, 영업일 기준)
                 </h3>
                 <div className="grid gap-2 md:gap-3 grid-cols-2">
                   <div className="p-2.5 md:p-3 bg-gray-50 border border-gray-200 rounded-lg">
                     <p className="text-sm md:text-base font-medium text-gray-900">
                       명찰
                     </p>
-                    <p className="text-xs md:text-sm text-gray-600">3~4일</p>
+                    <p className="text-xs md:text-sm text-gray-600">2~3일</p>
                   </div>
                   <div className="p-2.5 md:p-3 bg-gray-50 border border-gray-200 rounded-lg">
                     <p className="text-sm md:text-base font-medium text-gray-900">
@@ -1062,9 +1062,13 @@ function GuidesContent() {
                     <p className="text-sm md:text-base font-medium text-gray-900">
                       자문계약서
                     </p>
-                    <p className="text-xs md:text-sm text-gray-600">7일</p>
+                    <p className="text-xs md:text-sm text-gray-600">7~8일</p>
                   </div>
                 </div>
+                <p className="mt-2 text-xs md:text-sm text-gray-600">
+                  인쇄 공정에 꼭 필요한 기간이라 일정을 앞당길 수 없습니다. 주말과
+                  공휴일은 영업일에서 빠집니다.
+                </p>
               </div>
 
               <div>

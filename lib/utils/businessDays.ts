@@ -98,9 +98,9 @@ export const PRODUCTION_DAYS: Record<string, { min: number; max: number }> = {
   '명함': { min: 2, max: 3 },
   '명찰': { min: 2, max: 3 },
   '대봉투': { min: 4, max: 5 },
-  '자문계약서': { min: 7, max: 7 },
-  '자문계약서 표지': { min: 7, max: 7 },
-  '자문계약서 내지': { min: 7, max: 7 },
+  '자문계약서': { min: 7, max: 8 },
+  '자문계약서 표지': { min: 7, max: 8 },
+  '자문계약서 내지': { min: 7, max: 8 },
 };
 
 /**

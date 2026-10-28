@@ -396,7 +396,7 @@ export default function WorkflowsPage() {
           <span>제작 안내</span>
           <span className="ml-auto flex items-center gap-3 text-xs font-normal text-gray-500">
             <span className="hidden sm:inline">
-              명함 2~3일 | 대봉투 4~5일 | 계약서 7일
+              명함·명찰 2~3일 | 대봉투 4~5일 | 계약서 7~8일
             </span>
             <ChevronDown className="w-3.5 h-3.5 transition-transform group-open:rotate-180" />
           </span>
@@ -426,7 +426,7 @@ export default function WorkflowsPage() {
                   대봉투: <strong className="text-terra-500">4~5일</strong>
                 </span>
                 <span className="px-2 py-1 bg-white border border-gray-200 rounded font-medium">
-                  자문계약서 내지: <strong className="text-ok-700">7일</strong>
+                  자문계약서: <strong className="text-ok-700">7~8일</strong>
                 </span>
               </div>
             </div>
@@ -434,7 +434,8 @@ export default function WorkflowsPage() {
           <div className="flex items-start gap-1.5 text-xs text-navy-800 bg-white border border-gray-200 px-2 py-1.5 rounded">
             <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
             <span>
-              주말 및 공휴일은 제외되며, 실제 도착일은 제작 완료 후 안내됩니다.
+              인쇄 공정에 꼭 필요한 기간이라 일정을 앞당길 수 없습니다. 주말 및
+              공휴일은 제외되며 실제 도착일은 제작 완료 후 안내됩니다.
             </span>
           </div>
         </div>
