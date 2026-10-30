@@ -20,6 +20,11 @@ import {
   isDisplayWebpUrl,
   type DisplayImageField,
 } from "@/lib/constants/displayImageFields";
+import {
+  SUBMISSION_SLACK_FIELDS,
+  submissionFieldText,
+  toFieldSections,
+} from "@/lib/notification/submissionSlackFields";
 
 function formatPhoneSafe(phone: unknown): string {
   if (!phone) return "";
@@ -696,38 +701,13 @@ export async function pushSubmissionData(params: {
 }): Promise<boolean> {
   const { channelId, submissionData } = params;
 
-  const fields: any[] = [];
-
-  // 텍스트 정보만 필드로 추가 (짧은 필드들)
-  const textFields = [
-    { key: "브랜드명", label: "브랜드명" },
-    { key: "업종", label: "업종" },
-    { key: "주소", label: "주소" },
-    { key: "인쇄물받을주소", label: "배송받을곳 주소" },
-    { key: "받는분이름", label: "인쇄물 수령인" },
-    { key: "수령연락처", label: "수령 연락처" },
-    { key: "우편번호", label: "우편번호" },
-    { key: "대표번호", label: "대표번호" },
-    { key: "이메일", label: "이메일" },
-    { key: "홈페이지컬러컨셉", label: "홈페이지 컬러" },
-    { key: "로고선호스타일", label: "로고 스타일" },
-    { key: "로고선호색상", label: "로고 색상" },
-    { key: "로고선호폰트", label: "로고 폰트" },
-    { key: "명함색상", label: "명함 색상" },
-    { key: "명함시안", label: "명함 스타일" },
-  ];
-
-  textFields.forEach(({ key, label }) => {
-    const value = submissionData[key];
-    // 빈 값 필터링
-    if (value && value.toString().trim()) {
-      const displayValue = key === "대표번호" ? formatPhoneSafe(value) : value;
-      fields.push({
-        type: "mrkdwn",
-        text: `*${label}:*\n${displayValue}`,
-      });
-    }
-  });
+  // 관리자 제출정보 화면에 보이는 글자 항목 중 값이 있는 것 전부
+  const fields = SUBMISSION_SLACK_FIELDS.filter(
+    ([key]) => submissionData[key] && String(submissionData[key]).trim(),
+  ).map(([key, label]) => ({
+    type: "mrkdwn" as const,
+    text: submissionFieldText(key, label, submissionData[key]),
+  }));
 
   // 블록 구성
   const blocks: any[] = [
@@ -740,13 +720,7 @@ export async function pushSubmissionData(params: {
     },
   ];
 
-  // 슬랙 section 한 개에는 fields 를 10개까지만 넣을 수 있다. 넘기면 메시지 전체가 invalid_blocks 로 거절된다.
-  for (let i = 0; i < fields.length; i += 10) {
-    blocks.push({
-      type: "section",
-      fields: fields.slice(i, i + 10),
-    });
-  }
+  blocks.push(...toFieldSections(fields));
 
   // 로고 제작 요청사항은 긴 텍스트일 수 있으므로 별도 섹션으로 추가
   if (submissionData["로고제작요청사항"]) {

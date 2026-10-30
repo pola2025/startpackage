@@ -53,6 +53,14 @@ describe("submission notification parity", () => {
     expect(pushSubmissionData).toHaveBeenCalledWith(expect.objectContaining({ channelId: "C_META", userId: "u1" }));
   });
 
+  it("sends the changed values themselves, not just which fields changed", async () => {
+    vi.clearAllMocks();
+    const { notifySubmissionChanges } = await import("./submissionNotifications");
+    await notifySubmissionChanges("u1", { 은행명: "국민은행", 계좌번호: "123-456", 로고제작방식: "신규제작" }, {}, { slackChannelId: "C1" }, async () => undefined, ["은행명", "계좌번호", "로고제작방식"]);
+    const texts = postMessage.mock.calls[0][0].blocks.flatMap((block: any) => block.fields.map((field: any) => field.text));
+    expect(texts).toEqual(["*은행명:*\n국민은행", "*계좌번호:*\n123-456", "*로고 제작 방식:*\n신규제작"]);
+  });
+
   it("does not repost the registration info once basic info was already complete", async () => {
     vi.clearAllMocks();
     const { notifySubmissionChanges } = await import("./submissionNotifications");

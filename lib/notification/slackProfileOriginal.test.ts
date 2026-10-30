@@ -131,6 +131,7 @@ describe("profile photo originals in Slack", () => {
       받는분이름: "홍길동", 수령연락처: "010-6624-6615", 우편번호: "06000", 대표번호: "0212345678",
       이메일: "a@example.com", 홈페이지컬러컨셉: "블루", 로고선호스타일: "심플", 로고선호색상: "남색",
       로고선호폰트: "고딕", 명함색상: "흰색", 명함시안: "style3",
+      은행명: "국민은행", 계좌번호: "123-456", 계좌명의자명: "홍길동", 로고제작방식: "신규제작", 계약서시안: "A",
     };
 
     await pushSubmissionData({ channelId: "C1", userId: "user-1", submissionData });
@@ -138,6 +139,9 @@ describe("profile photo originals in Slack", () => {
     const message = mocks.postMessage.mock.calls.find(([args]) => args.text === "📋 제작 정보")?.[0];
     const sections = message.blocks.filter((block: any) => block.type === "section" && block.fields);
     expect(sections.every((block: any) => block.fields.length <= 10)).toBe(true);
-    expect(sections.flatMap((block: any) => block.fields)).toHaveLength(15);
+    const texts = sections.flatMap((block: any) => block.fields.map((field: any) => field.text));
+    expect(texts).toHaveLength(20);
+    // 관리자 화면에 보이는 계좌·로고 제작 방식도 값으로 들어간다
+    expect(texts).toEqual(expect.arrayContaining(["*계좌번호:*\n123-456", "*로고 제작 방식:*\n신규제작", "*수령 연락처:*\n010-6624-6615"]));
   });
 });

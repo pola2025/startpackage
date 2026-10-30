@@ -1,6 +1,7 @@
 import { isLogoInfoComplete } from "@/lib/submission/parts";
 import { isDisplayWebpUrl } from "@/lib/constants/displayImageFields";
 import { notifyLogoInfoSubmitted } from "@/lib/notification/logoInfoSubmitted";
+import { SUBMISSION_SLACK_FIELDS, submissionFieldText, toFieldSections } from "@/lib/notification/submissionSlackFields";
 
 type SubmissionNotificationPerson = { email?: string; 이름?: string; englishName?: string; 연락처?: string; slackChannelId?: string | null; cohortName?: string; cohortEnglishName?: string; cohort?: { name?: string; englishName?: string } | null };
 
@@ -40,18 +41,13 @@ export async function notifySubmissionChanges(
     await slack.postMessage({ channelId, text: "✅ 홈페이지 스타일 & 컬러 선택", blocks: [{ type: "section", text: { type: "mrkdwn", text: `*✅ 홈페이지 스타일 & 컬러 선택*\\n\\n*선택한 스타일:* ${styleNames[style] || style || "-"}\\n*컬러 컨셉:* ${submission.홈페이지컬러컨셉 || "-"}` } }] }).catch(() => undefined);
   }
   if (!previous) return;
-  const fields = [
-    ["브랜드명", "브랜드명"], ["업종", "업종"], ["주소", "주소"], ["인쇄물받을주소", "배송받을곳 주소"],
-    ["받는분이름", "인쇄물 수령인"], ["수령연락처", "수령 연락처"], ["우편번호", "우편번호"], ["대표번호", "대표번호"],
-    ["이메일", "이메일"], ["로고선호스타일", "로고 선호 스타일"], ["로고선호색상", "로고 선호 색상"], ["로고선호폰트", "로고 선호 폰트"],
-    ["명함색상", "로고/명함 색상"], ["명함시안", "명함 스타일"], ["계약서시안", "계약서 스타일"], ["GmailID", "Gmail ID"],
-    ["GmailPW", "Gmail 비밀번호"], ["네이버검색광고ID", "네이버 검색광고 ID"], ["네이버검색광고PW", "네이버 검색광고 비밀번호"],
-    ["네이버클라우드ID", "네이버 클라우드 ID"], ["네이버클라우드PW", "네이버 클라우드 비밀번호"], ["InstagramID", "Instagram ID"], ["InstagramPW", "Instagram 비밀번호"],
-    ["홈페이지스타일", "홈페이지 스타일"], ["홈페이지컬러컨셉", "홈페이지 컬러"], ["은행명", "은행명"], ["계좌번호", "계좌번호"], ["계좌명의자명", "계좌명의자"],
-  ] as const;
-  const changed = fields.filter(([key]) => touched(key) && submission[key] && submission[key] !== previous[key]);
+  // 바뀐 값을 그대로 보낸다 ("업데이트됨"만 보내면 처음 제작 정보 뒤에 입력한 값은 슬랙에 영영 남지 않는다)
+  const changed = SUBMISSION_SLACK_FIELDS.filter(([key]) => touched(key) && submission[key] && submission[key] !== previous[key]);
   if (changed.length) {
-    await slack.postMessage({ channelId, text: "📝 제출 정보 업데이트", blocks: [{ type: "section", fields: changed.map(([key, label]) => ({ type: "mrkdwn", text: `*${label}:* ${key.endsWith("PW") ? "등록/변경됨" : "업데이트됨"}` })) }] }).catch(() => undefined);
+    await slack.postMessage({ channelId, text: "📝 제출 정보 업데이트", blocks: toFieldSections(changed.map(([key, label]) => ({ type: "mrkdwn" as const, text: submissionFieldText(key, label, submission[key]) }))) }).catch(() => undefined);
+  }
+  if (touched("로고제작요청사항") && submission.로고제작요청사항 && submission.로고제작요청사항 !== previous.로고제작요청사항) {
+    await slack.postMessage({ channelId, text: `🎨 로고 설명 업데이트\n${String(submission.로고제작요청사항).slice(0, 2900)}` }).catch(() => undefined);
   }
   if (touched("GmailID") && submission.GmailID && !changed.some(([key]) => key === "GmailID")) {
     await slack.postMessage({ channelId, text: "✅ Gmail 계정 정보 등록" }).catch(() => undefined);
