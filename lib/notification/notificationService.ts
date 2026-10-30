@@ -81,6 +81,8 @@ export async function handleSubmissionComplete(params: {
   userEmail: string;
   userPhone: string;
   submissionData: Record<string, any>;
+  /** 이미 연결된 슬랙 채널. 있으면 새로 만들지 않는다 */
+  slackChannelId?: string | null;
 }): Promise<void> {
   try {
     const {
@@ -92,12 +94,13 @@ export async function handleSubmissionComplete(params: {
       userPhone,
       submissionData,
     } = params;
+    const existingChannelId = params.slackChannelId || null;
 
     console.log(`📋 자료 제출 완료 처리 시작: ${cohortName}_${userName}_${brandName}`);
 
-    // 1. 슬랙 채널 생성
+    // 1. 슬랙 채널 생성 (이미 있으면 그 채널을 쓴다. 이름으로 다시 찾으면 Meta 설정요청이 먼저 만든 채널과 이름이 달라 채널이 하나 더 생긴다)
     console.log(`🔄 슬랙 채널 생성 시도 중...`);
-    const slackChannelId = await slack.createSlackChannel({
+    const slackChannelId = existingChannelId || await slack.createSlackChannel({
       cohortName,
       userName,
       brandName,
@@ -119,8 +122,10 @@ export async function handleSubmissionComplete(params: {
       console.log(`✅ 제작 정보 푸시 완료`);
 
       // DB에 슬랙 채널 ID 저장
-      console.log(`🔄 DB에 슬랙 채널 ID 저장 중...`);
-      await updateSlackChannel(userId, slackChannelId);
+      if (!existingChannelId) {
+        console.log(`🔄 DB에 슬랙 채널 ID 저장 중...`);
+        await updateSlackChannel(userId, slackChannelId);
+      }
 
       console.log(`✅ 슬랙 채널 생성 및 정보 푸시 완료: ${slackChannelId}`);
     } else {

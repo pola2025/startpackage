@@ -43,4 +43,21 @@ describe("submission notification parity", () => {
     expect(uploadFileToSlack).not.toHaveBeenCalled();
     expect(sendTelegramMessage).toHaveBeenCalledTimes(1);
   });
+
+  it("posts the full registration info once when Meta setup created the channel before basic info", async () => {
+    vi.clearAllMocks();
+    const { notifySubmissionChanges } = await import("./submissionNotifications");
+    await notifySubmissionChanges("u1", { 브랜드명: "Brand", 업종: "서비스", 주소: "서울" }, { 브랜드명: "Brand", 업종: "서비스" }, { slackChannelId: "C_META", 이름: "사용자" }, async () => undefined, ["주소"]);
+    expect(createSlackChannel).not.toHaveBeenCalled();
+    expect(pushSubmissionData).toHaveBeenCalledTimes(1);
+    expect(pushSubmissionData).toHaveBeenCalledWith(expect.objectContaining({ channelId: "C_META", userId: "u1" }));
+  });
+
+  it("does not repost the registration info once basic info was already complete", async () => {
+    vi.clearAllMocks();
+    const { notifySubmissionChanges } = await import("./submissionNotifications");
+    await notifySubmissionChanges("u1", { 브랜드명: "Brand", 업종: "서비스", 주소: "부산" }, { 브랜드명: "Brand", 업종: "서비스", 주소: "서울" }, { slackChannelId: "C_META" }, async () => undefined, ["주소"]);
+    expect(pushSubmissionData).not.toHaveBeenCalled();
+    expect(postMessage).toHaveBeenCalledTimes(1);
+  });
 });

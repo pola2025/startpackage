@@ -337,8 +337,8 @@ export async function postMessage(params: {
 
     console.log(`✅ 슬랙 메시지 전송 성공: ${params.channelId}`);
     return true;
-  } catch (error) {
-    console.error("슬랙 메시지 전송 실패");
+  } catch (error: any) {
+    console.error("슬랙 메시지 전송 실패:", error?.data?.error || error?.message || error);
     return false;
   }
 }
@@ -738,11 +738,15 @@ export async function pushSubmissionData(params: {
         text: "📋 제작 정보",
       },
     },
-    {
-      type: "section",
-      fields,
-    },
   ];
+
+  // 슬랙 section 한 개에는 fields 를 10개까지만 넣을 수 있다. 넘기면 메시지 전체가 invalid_blocks 로 거절된다.
+  for (let i = 0; i < fields.length; i += 10) {
+    blocks.push({
+      type: "section",
+      fields: fields.slice(i, i + 10),
+    });
+  }
 
   // 로고 제작 요청사항은 긴 텍스트일 수 있으므로 별도 섹션으로 추가
   if (submissionData["로고제작요청사항"]) {
@@ -754,7 +758,8 @@ export async function pushSubmissionData(params: {
         type: "section",
         text: {
           type: "mrkdwn",
-          text: `*🎨 로고 제작 요청사항:*\n${submissionData["로고제작요청사항"]}`,
+          // section text 는 3000자까지만 받는다
+          text: `*🎨 로고 제작 요청사항:*\n${String(submissionData["로고제작요청사항"]).slice(0, 2900)}`,
         },
       },
     );

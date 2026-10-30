@@ -18,12 +18,16 @@ export async function notifySubmissionChanges(
   const userName = person.englishName || person.이름 || "unknown";
   const brandName = String(submission.brandNameEnglish || submission.브랜드명 || "unknown");
   const slack = await import("@/lib/notification/slackClient");
-  if (!channelId && submission.브랜드명 && submission.업종 && submission.주소) {
+  const hasBasicInfo = (value?: Record<string, unknown>) => Boolean(value?.브랜드명 && value?.업종 && value?.주소);
+  if (!channelId && hasBasicInfo(submission)) {
     channelId = await slack.createSlackChannel({ cohortName, userName, brandName, userEmail: person.email || "", userPhone: person.연락처 || "" }) || undefined;
     if (channelId) {
       await persistChannel(channelId);
       await slack.pushSubmissionData({ channelId, submissionData: submission, userId });
     }
+  } else if (channelId && hasBasicInfo(submission) && !hasBasicInfo(previous)) {
+    // Meta 설정요청·홈페이지 요청이 기본 정보보다 먼저 채널을 만든 경우: 기본 정보가 처음 다 모인 순간 제작 정보를 한 번 올린다
+    await slack.pushSubmissionData({ channelId, submissionData: submission, userId }).catch(() => false);
   }
   // 로고 정보가 처음으로 다 모인 순간 한 번: 디자이너 작업 시작 신호 (채널이 없어도 텔레그램은 보냄)
   if (!isLogoInfoComplete(previous) && isLogoInfoComplete(submission)) {

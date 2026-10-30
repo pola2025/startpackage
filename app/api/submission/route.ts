@@ -138,7 +138,8 @@ export async function POST(request: Request) {
         const result = decryptSubmissionSecrets(storedResult, userId);
         if (meta?.previous) meta.previous = decryptSubmissionSecrets(meta.previous, userId);
         if (meta?.user) {
-          await notifySubmissionChanges(userId, result, meta.previous, meta.user, (channelId: string) => callCore("user-slack-channel-update", userId, { userId, slackChannelId: channelId }), Object.keys(validatedData)).catch((error: unknown) => console.error("제출 변경 알림 실패:", error));
+          const person = meta.user;
+          await notifySubmissionChanges(userId, result, meta.previous, person, async (channelId: string) => { await callCore("user-slack-channel-update", userId, { userId, slackChannelId: channelId }); person.slackChannelId = channelId; }, Object.keys(validatedData)).catch((error: unknown) => console.error("제출 변경 알림 실패:", error));
         }
         if (validatedData.isComplete === true && meta?.printRequested && meta.user) {
           await handleSubmissionComplete({
@@ -149,6 +150,7 @@ export async function POST(request: Request) {
             userEmail: meta.user.email || "",
             userPhone: meta.user.연락처 || "",
             submissionData: result,
+            slackChannelId: meta.user.slackChannelId,
           }).catch((error) => console.error("알림 발송 실패:", error));
         }
         return NextResponse.json(maskSubmissionSecretsDeep(result));

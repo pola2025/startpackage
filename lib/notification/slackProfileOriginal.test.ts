@@ -123,4 +123,21 @@ describe("profile photo originals in Slack", () => {
     expect(mocks.fetch).not.toHaveBeenCalled();
     expect(mocks.uploadV2).not.toHaveBeenCalled();
   });
+
+  it("splits the registration info into sections of at most 10 fields so Slack accepts it", async () => {
+    mocks.loadPendingProfileOriginal.mockResolvedValue(null);
+    const submissionData = {
+      브랜드명: "브랜드", 업종: "서비스", 주소: "서울", 인쇄물받을주소: "서울 배송지",
+      받는분이름: "홍길동", 수령연락처: "010-6624-6615", 우편번호: "06000", 대표번호: "0212345678",
+      이메일: "a@example.com", 홈페이지컬러컨셉: "블루", 로고선호스타일: "심플", 로고선호색상: "남색",
+      로고선호폰트: "고딕", 명함색상: "흰색", 명함시안: "style3",
+    };
+
+    await pushSubmissionData({ channelId: "C1", userId: "user-1", submissionData });
+
+    const message = mocks.postMessage.mock.calls.find(([args]) => args.text === "📋 제작 정보")?.[0];
+    const sections = message.blocks.filter((block: any) => block.type === "section" && block.fields);
+    expect(sections.every((block: any) => block.fields.length <= 10)).toBe(true);
+    expect(sections.flatMap((block: any) => block.fields)).toHaveLength(15);
+  });
 });
