@@ -76,15 +76,13 @@ export default function UserLayout({
 
   // 로그인 직후 1회만 부르고, 요청 화면이 보내는 이벤트 때만 다시 부른다 (폴링 없음)
   const userRole = (session?.user as any)?.role;
-  const userGraduated = (session?.user as any)?.isGraduated === true;
   useEffect(() => {
-    if (status !== "authenticated" || userRole === "admin" || userGraduated)
-      return;
+    if (status !== "authenticated" || userRole === "admin") return;
     fetchMetaSetupStage();
     const onUpdated = () => fetchMetaSetupStage();
     window.addEventListener("meta-setup-updated", onUpdated);
     return () => window.removeEventListener("meta-setup-updated", onUpdated);
-  }, [status, userRole, userGraduated]);
+  }, [status, userRole]);
 
   useEffect(() => {
     if (status === "authenticated") wasAuthenticated.current = true;
@@ -154,12 +152,6 @@ export default function UserLayout({
     return null;
   }
 
-  // 수료생이면 리다이렉트 중이므로 로딩 화면 표시
-  const cohortName = (session?.user as any)?.cohortName;
-
-  // 수료생 여부 확인
-  const isGraduated = (session?.user as any)?.isGraduated === true;
-
   // 일반 사용자 레이아웃
   return (
     <div className="relative min-h-screen bg-gray-50">
@@ -172,8 +164,8 @@ export default function UserLayout({
       {/* 시스템 알림 모달 - 모든 사용자 */}
       <SystemAlertModal />
 
-      {/* 시안 확인 자동 모달 - 수료생 제외 */}
-      {!isGraduated && <DesignConfirmationModal />}
+      {/* 시안 확인 자동 모달 */}
+      <DesignConfirmationModal />
 
       {/* 메시지 알림 모달 - SSE로 제어 */}
       {showNotificationModal && (
@@ -192,7 +184,6 @@ export default function UserLayout({
       {/* Sidebar */}
       <Sidebar
         userName={session?.user?.name || "사용자"}
-        isGraduated={isGraduated}
         unreadCount={unreadCount}
         pendingDesignCount={pendingDesignCount}
         metaSetupStage={metaSetupStage}
@@ -200,9 +191,9 @@ export default function UserLayout({
 
       {/* Main Content */}
       <main className="relative lg:ml-64 pt-16 lg:pt-0 min-h-screen pb-bottom-bar">
-        {/* Meta 설정요청 · 인쇄물 발주 안내 띠 - 수료생 제외 */}
-        {!isGraduated && <MetaSetupStrip stage={metaSetupStage} />}
-        {!isGraduated && <PrintOrderGuideStrip />}
+        {/* Meta 설정요청 · 인쇄물 발주 안내 띠 */}
+        <MetaSetupStrip stage={metaSetupStage} />
+        <PrintOrderGuideStrip />
 
         <div className="mx-auto p-3 sm:p-4 md:p-6 lg:max-w-[1200px]">
           {children}
@@ -216,20 +207,17 @@ export default function UserLayout({
         </footer>
       </main>
 
-      {/* 모바일 하단 탭 바 - 수료생 제외 */}
-      {!isGraduated && (
-        <BottomTabBar
-          pendingDesignCount={pendingDesignCount}
-          onMoreClick={() => setShowMoreMenu(true)}
-        />
-      )}
+      {/* 모바일 하단 탭 바 */}
+      <BottomTabBar
+        pendingDesignCount={pendingDesignCount}
+        onMoreClick={() => setShowMoreMenu(true)}
+      />
 
       {/* 모바일 더보기 메뉴 */}
       <MobileMoreMenu
         open={showMoreMenu}
         onOpenChange={setShowMoreMenu}
         userName={session?.user?.name || "사용자"}
-        isGraduated={isGraduated}
         unreadCount={unreadCount}
         metaSetupStage={metaSetupStage}
       />

@@ -35,7 +35,6 @@ import type { MetaSetupStage } from "@/lib/submission/parts";
 
 interface SidebarProps {
   userName: string;
-  isGraduated: boolean;
   unreadCount: number;
   pendingDesignCount: number;
   metaSetupStage?: MetaSetupStage | null;
@@ -57,7 +56,6 @@ interface MenuGroup {
 
 export function Sidebar({
   userName,
-  isGraduated,
   unreadCount,
   pendingDesignCount,
   metaSetupStage = null,
@@ -251,41 +249,38 @@ export function Sidebar({
         </Link>
 
         {/* Meta 설정요청 - 마케팅 교육 전에 요청해야 하므로 대시보드 바로 아래 */}
-        {!isGraduated && (
-          <Link href="/dashboard/meta-setup" onClick={closeMobile}>
-            <Button
-              variant="ghost"
-              className={cn(
-                "w-full justify-start h-9",
-                pathname.startsWith("/dashboard/meta-setup")
-                  ? "bg-gold-50 text-gold-600 font-semibold hover:bg-gold-100"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100",
-              )}
-            >
-              <Smartphone className="w-5 h-5 mr-3" />
-              Meta 설정요청
-              {metaSetupStage === "none" && (
-                <span className="ml-auto bg-red-500 text-white text-[11px] font-bold rounded px-1.5 py-0.5">
-                  필수
-                </span>
-              )}
-              {metaSetupStage === "requested" && (
-                <span className="ml-auto bg-gray-100 text-gray-500 text-[11px] font-semibold rounded px-1.5 py-0.5">
-                  요청 완료
-                </span>
-              )}
-            </Button>
-          </Link>
-        )}
+        <Link href="/dashboard/meta-setup" onClick={closeMobile}>
+          <Button
+            variant="ghost"
+            className={cn(
+              "w-full justify-start h-9",
+              pathname.startsWith("/dashboard/meta-setup")
+                ? "bg-gold-50 text-gold-600 font-semibold hover:bg-gold-100"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100",
+            )}
+          >
+            <Smartphone className="w-5 h-5 mr-3" />
+            Meta 설정요청
+            {metaSetupStage === "none" && (
+              <span className="ml-auto bg-red-500 text-white text-[11px] font-bold rounded px-1.5 py-0.5">
+                필수
+              </span>
+            )}
+            {metaSetupStage === "requested" && (
+              <span className="ml-auto bg-gray-100 text-gray-500 text-[11px] font-semibold rounded px-1.5 py-0.5">
+                요청 완료
+              </span>
+            )}
+          </Button>
+        </Link>
 
-        {/* 제작진행 그룹 - 일반 사용자만 */}
-        {!isGraduated &&
-          renderGroup(
-            productionGroup,
-            productionOpen || isInProductionGroup,
-            setProductionOpen,
-            closeMobile,
-          )}
+        {/* 제작진행 그룹 */}
+        {renderGroup(
+          productionGroup,
+          productionOpen || isInProductionGroup,
+          setProductionOpen,
+          closeMobile,
+        )}
 
         {/* 문의하기 - 독립 항목 */}
         <Link href="/dashboard/communication" onClick={closeMobile}>
@@ -309,20 +304,17 @@ export function Sidebar({
         </Link>
 
         {/* 가이드 그룹 */}
-        {!isGraduated &&
-          renderGroup(
-            guideGroup,
-            guideOpen || isInGuideGroup,
-            setGuideOpen,
-            closeMobile,
-          )}
+        {renderGroup(
+          guideGroup,
+          guideOpen || isInGuideGroup,
+          setGuideOpen,
+          closeMobile,
+        )}
       </nav>
 
       {/* Meta 설정요청 · 인쇄물 발주 안내 - 문의처 위에 고정 */}
-      {!isGraduated && (
-        <MetaSetupBanner stage={metaSetupStage} onClick={closeMobile} />
-      )}
-      {!isGraduated && <PrintOrderGuideBanner onClick={closeMobile} />}
+      <MetaSetupBanner stage={metaSetupStage} onClick={closeMobile} />
+      <PrintOrderGuideBanner onClick={closeMobile} />
 
       {/* PC 고정 문의처 */}
       <div className="hidden lg:block">
@@ -335,11 +327,6 @@ export function Sidebar({
           <p className="text-sm font-semibold text-gray-900 truncate flex-1">
             {userName}
           </p>
-          {isGraduated && (
-            <span className="px-1.5 py-0.5 bg-green-100 text-green-700 text-[10px] font-semibold rounded flex-shrink-0">
-              수료생
-            </span>
-          )}
         </div>
         <Button
           onClick={handleLogout}

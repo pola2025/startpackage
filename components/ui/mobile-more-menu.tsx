@@ -38,7 +38,6 @@ interface MobileMoreMenuProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   userName: string;
-  isGraduated: boolean;
   unreadCount: number;
   metaSetupStage?: MetaSetupStage | null;
 }
@@ -47,7 +46,6 @@ export function MobileMoreMenu({
   open,
   onOpenChange,
   userName,
-  isGraduated,
   unreadCount,
   metaSetupStage = null,
 }: MobileMoreMenuProps) {
@@ -63,52 +61,48 @@ export function MobileMoreMenu({
   const close = () => onOpenChange(false);
 
   // 제작진행 중 하단탭에 없는 항목
-  const productionItems = !isGraduated
-    ? [
-        {
-          href: "/dashboard/homepage",
-          icon: Globe,
-          label: "홈페이지 제작요청",
-          badge: null,
-        },
-      ]
-    : [];
+  const productionItems = [
+    {
+      href: "/dashboard/homepage",
+      icon: Globe,
+      label: "홈페이지 제작요청",
+      badge: null,
+    },
+  ];
 
   // 가이드 그룹
-  const guideItems = !isGraduated
-    ? [
-        {
-          href: "/dashboard/guides",
-          icon: BookOpen,
-          label: "참고가이드",
-          badge: null,
-        },
-        {
-          href: "/dashboard/announcements",
-          icon: Megaphone,
-          label: "마케팅 소식",
-          badge: null,
-        },
-        {
-          href: "/dashboard/content-tips",
-          icon: Lightbulb,
-          label: "콘텐츠 제작 Tip",
-          badge: null,
-        },
-        {
-          href: "/dashboard/content-samples",
-          icon: Images,
-          label: "콘텐츠 제작사례",
-          badge: null,
-        },
-        {
-          href: "/dashboard/logo-samples",
-          icon: PenTool,
-          label: "로고 제작사례",
-          badge: null,
-        },
-      ]
-    : [];
+  const guideItems = [
+    {
+      href: "/dashboard/guides",
+      icon: BookOpen,
+      label: "참고가이드",
+      badge: null,
+    },
+    {
+      href: "/dashboard/announcements",
+      icon: Megaphone,
+      label: "마케팅 소식",
+      badge: null,
+    },
+    {
+      href: "/dashboard/content-tips",
+      icon: Lightbulb,
+      label: "콘텐츠 제작 Tip",
+      badge: null,
+    },
+    {
+      href: "/dashboard/content-samples",
+      icon: Images,
+      label: "콘텐츠 제작사례",
+      badge: null,
+    },
+    {
+      href: "/dashboard/logo-samples",
+      icon: PenTool,
+      label: "로고 제작사례",
+      badge: null,
+    },
+  ];
 
   const metaSetupTag =
     metaSetupStage === "none" ? (
@@ -178,11 +172,6 @@ export function MobileMoreMenu({
             </div>
             <div>
               <p className="font-semibold text-gray-900">{userName}</p>
-              {isGraduated && (
-                <span className="inline-block px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded">
-                  수료생
-                </span>
-              )}
             </div>
           </div>
         </div>
@@ -190,14 +179,13 @@ export function MobileMoreMenu({
         {/* 메뉴 목록 */}
         <nav className="space-y-1 overflow-y-auto max-h-[40vh]">
           {/* Meta 설정요청 - 마케팅 교육 전에 요청해야 하므로 맨 위 */}
-          {!isGraduated &&
-            renderLink({
-              href: "/dashboard/meta-setup",
-              icon: Smartphone,
-              label: "Meta 설정요청",
-              badge: null,
-              tag: metaSetupTag,
-            })}
+          {renderLink({
+            href: "/dashboard/meta-setup",
+            icon: Smartphone,
+            label: "Meta 설정요청",
+            badge: null,
+            tag: metaSetupTag,
+          })}
 
           {/* 제작진행 - 하단탭에 없는 항목 */}
           {productionItems.length > 0 && (
@@ -210,13 +198,12 @@ export function MobileMoreMenu({
             </div>
           )}
 
-          {!isGraduated &&
-            renderLink({
-              href: PRINT_ORDER_GUIDE_HREF,
-              icon: FileText,
-              label: "인쇄물 발주 안내",
-              badge: null,
-            })}
+          {renderLink({
+            href: PRINT_ORDER_GUIDE_HREF,
+            icon: FileText,
+            label: "인쇄물 발주 안내",
+            badge: null,
+          })}
 
           {/* 문의하기 */}
           {renderLink({
