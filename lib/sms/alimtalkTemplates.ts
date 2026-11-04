@@ -71,7 +71,7 @@ export function marketingExtensionApprovedTemplate(input: {
  * 알림톡이 실패하면 같은 문구가 문자로 나간다.
  */
 export const SIGNUP_REMIND_TEXT =
-  "비즈액터스쿨 스타트패키지 운영주관사\n폴라애드에서 안내드립니다.\n\n스타트패키지 가입 및 자료제출 바랍니다.\n인쇄물 제작 및 홈페이지 제작은 가입 후\n자료제출이 되어야만 진행이 가능합니다.";
+  "비즈액터스쿨 스타트패키지 제작을 신청하신 분께\n운영주관사 폴라애드에서 안내드립니다.\n\n스타트패키지 가입 및 자료제출 바랍니다.\n인쇄물 제작 및 홈페이지 제작은 가입 후\n자료제출이 되어야만 진행이 가능합니다.";
 
 export function signupRemindTemplate(): AlimtalkMessage {
   return {
